@@ -28,12 +28,8 @@
 
 #include <memory>
 #include <boost/cast.hpp>
+#include <memory>
 #include <cmath> //std::pow for random.hpp
-//XXX #include <boost/random.hpp>
-
-//#include "IPv6Datagram.h"
-//#include "IPv6InterfaceData.h"
-#include "Messages.h"
 
 #include "EtherModule.h"
 
@@ -106,7 +102,7 @@ void EtherModule::handleMessage(cMessage* msg)
   if ( !msg->isSelfMessage())
   {
     ++cntReceivedPackets;
-    _currentState->processSignal(this, auto_ptr<cMessage>(msg));
+    _currentState->processSignal(this, std::auto_ptr<cMessage>(msg));
   }
   else
   {

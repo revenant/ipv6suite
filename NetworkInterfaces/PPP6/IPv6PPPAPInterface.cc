@@ -35,7 +35,6 @@
 
 #include "IPv6PPPAPInterface.h"
 
-#include "Messages.h"
 #include "MACAddress6.h"
 #include "PPP6Frame.h"
 

@@ -51,7 +51,6 @@
 #include "IPv6Multicast.h"
 #include "IPv6Datagram.h"
 #include "RoutingTable6.h"
-#include "cTypedMessage.h"
 #include "AddrResInfo_m.h"
 #include "IPv6Forward.h"
 #include "opp_utils.h"

@@ -50,7 +50,7 @@
 #include "ICMPv6Message.h"
 #include "opp_utils.h"
 #include "NDEntry.h"
-#include "Messages.h"
+#include "AddrResInfo_m.h"
 #include "HdrExtRteProc.h"
 #include "Interface6Entry.h"
 #include "IPv6CDS.h"
@@ -302,17 +302,12 @@ void IPv6Forward::endService(cMessage* theMsg)
   }
 #endif //USE_MOBILITY
 
-
-
-  AddrResInfo info = { datagram.get(), {0,0,0,0}, 0, ""};
-
   Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()
        <<" sending/forwarding dgram="<<*datagram);
 
-  int status = conceptualSending(info);
-
-  AddrResMsg*  addrResMsg = new AddrResMsg(info);
-  addrResMsg->setName(info.dgram->name());
+  AddrResInfo *info = new AddrResInfo;
+  int status = conceptualSending(datagram.get(), info); // fills in control info
+  datagram->setControlInfo(info);
 
   // destination address does not exist in routing table:
   // Can this ever happen unless there is no default router?
@@ -324,9 +319,9 @@ void IPv6Forward::endService(cMessage* theMsg)
   // packet awaits addr res so put into queue
   if (status == -1 || status == -2)
   {
-    Dout(dc::forwarding|flush_cf," "<<rt->nodeName()<<":"<<info.ifIndex<<
+    Dout(dc::forwarding|flush_cf," "<<rt->nodeName()<<":"<<info->ifIndex()<<
          simTime()<<" "<<className()<<": addrRes pending packet dest="
-         <<datagram->destAddress()<<" nexthop="<<info.nextHop<<" status"<<status);
+         <<datagram->destAddress()<<" nexthop="<<info->nextHop()<<" status"<<status);
 
     if (rt->odad())
     {
@@ -347,15 +342,14 @@ void IPv6Forward::endService(cMessage* theMsg)
           //forward via router
           Dout (dc::custom|dc::forwarding|flush_cf, rt->nodeName()<<":"<<simTime()
                 <<" ODAD would forward to router for unknown neighbour LL addr. (once I get more time)");
-          delete addrResMsg;
+          delete info;
           foundTentative = true;
           return;
         }
       }
     }
 
-    send(addrResMsg, "pendingQueueOut");
-    datagram.release();
+    send(datagram.release(), "pendingQueueOut");
     return;
   }
 
@@ -365,9 +359,9 @@ void IPv6Forward::endService(cMessage* theMsg)
   {
     Dout(dc::encapsulation|dc::forwarding|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()
          <<" vIfindex="<<hex<<status<<dec<<" dgram="<<*datagram);
-    datagram->setOutputPort(info.ifIndex);
+    datagram->setOutputPort(info->ifIndex());
+    delete datagram->removeControlInfo();
     send(datagram.release(), "tunnelEntry");
-    delete addrResMsg;
     return;
   }
 
@@ -377,7 +371,7 @@ void IPv6Forward::endService(cMessage* theMsg)
   if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
   {
     datagram->setSrcAddress(determineSrcAddress(
-                              datagram->destAddress(), info.ifIndex));
+                              datagram->destAddress(), info->ifIndex()));
   }
 
 
@@ -403,13 +397,13 @@ void IPv6Forward::endService(cMessage* theMsg)
 
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
-        rt->getInterfaceByIndex(info.ifIndex).addrAssigned(
+        rt->getInterfaceByIndex(info->ifIndex()).addrAssigned(
           mipv6cdsMN->careOfAddr(pcoa))
         ||
         (rt->odad() &&
          //for tentative true is a misnomer because the newcoa should have been
          //assigned to tentative addr anyway
-         rt->getInterfaceByIndex(info.ifIndex).tentativeAddrAssigned(
+         rt->getInterfaceByIndex(info->ifIndex()).tentativeAddrAssigned(
            mipv6cdsMN->careOfAddr(pcoa))
          )
         )
@@ -482,7 +476,7 @@ void IPv6Forward::endService(cMessage* theMsg)
           {
             Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
                  <<" from new MAP not ready yet(awaiting BA from MAP), dropping packet");
-            delete addrResMsg;
+            delete info;
             return;
           }
 
@@ -504,7 +498,7 @@ void IPv6Forward::endService(cMessage* theMsg)
               IPv6Datagram* copy = datagram->dup();
               copy->setOutputPort(vIfIndex);
               send(copy, "tunnelEntry");
-              delete addrResMsg;
+              delete info;
               return;
             }
           }
@@ -518,7 +512,7 @@ void IPv6Forward::endService(cMessage* theMsg)
               Dout(dc::eh, rt->nodeName()<<" "<<simTime()<<" dgram dropped as src="
                    <<datagram->srcAddress()<<" is no longer onlink (BU to HA not sent "
                    <<"yet so coa is not current rcoa)");
-              delete addrResMsg;
+              delete info;
               return;
             }
           }
@@ -532,12 +526,12 @@ void IPv6Forward::endService(cMessage* theMsg)
       {
         Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
              <<" checking coa "<<datagram->srcAddress()
-             <<" is onlink at correct ifIndex "<<info.ifIndex);
+             <<" is onlink at correct ifIndex "<<info->ifIndex());
         unsigned int ifIndexTest;
         //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
         //link prefix
         assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
-        assert(ifIndexTest == info.ifIndex);
+        assert(ifIndexTest == info->ifIndex());
       }
 
     }
@@ -554,7 +548,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
              <<" is the old one and we have handed to new MAP, awaiting BA "
              <<"from HA to use rcoa, dropping packet");
-        delete addrResMsg;
+        delete info;
         return;
       }
 #endif //USE_HMIP
@@ -565,7 +559,7 @@ void IPv6Forward::endService(cMessage* theMsg)
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
-      delete addrResMsg;
+      delete info;
       return;
     }
     else
@@ -598,7 +592,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     ctrIP6OutNoRoutes++;
     //TODO probably send error message about -EADDRNOTAVAIL
 
-    delete addrResMsg;
+    delete info;
     return;
   }
 
@@ -608,29 +602,28 @@ void IPv6Forward::endService(cMessage* theMsg)
          !datagram->srcAddress().isMulticast());
 
   // default: send datagram to fragmentation
-  datagram->setOutputPort(info.ifIndex);
+  datagram->setOutputPort(info->ifIndex());
 
   if (rt->odad())
   {
     ///Check for forwarding to on link neighbour and send back a redirect to host
-    if (datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET && info.ifIndex == (unsigned int)datagram->inputPort() &&
-        datagram->destAddress() == info.nextHop)
+    if (datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET && info->ifIndex() == (unsigned int)datagram->inputPort() &&
+        datagram->destAddress() == info->nextHop())
     {
       bool redirected = false;
       //Enter_Method does not work here :(
-      nd->sendRedirect(datagram.release(), info.nextHop, redirected);
+      nd->sendRedirect(datagram.release(), info->nextHop(), redirected);
       Dout(dc::custom|dc::forwarding|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()
            <<" "<<simTime()<<" sent redirect to ODAD node "<<datagram->srcAddress());
       if (redirected)
       {
-        delete addrResMsg;
+        delete info;
         return;
       }
     }
   }
 
-  send(addrResMsg, "fragmentationOut");
-  datagram.release();
+  send(datagram.release(), "fragmentationOut");
 }
 
 void IPv6Forward::finish()
@@ -677,41 +670,44 @@ struct addAddress : public unary_function<ipv6_addr, void>
    which link this address could be on
 */
 
-int IPv6Forward::conceptualSending(AddrResInfo& info)
+int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
 {
   // Conceptual Sending Algorithm
 
   weak_ptr<NeighbourEntry> ne;
 
   if (rt->isRouter())
-    ne = rt->cds->lookupDestination(info.dgram->destAddress());
+    ne = rt->cds->lookupDestination(dgram->destAddress());
   else
-    ne = rt->cds->neighbour(info.dgram->destAddress());
+    ne = rt->cds->neighbour(dgram->destAddress());
 
   if (ne.lock().get() == 0)
   {
     // Next Hop determination
-    if (rt->cds->lookupAddress(info.dgram->destAddress(),info.ifIndex))
+    unsigned int tmpIfIndex = info->ifIndex();
+    if (rt->cds->lookupAddress(dgram->destAddress(),tmpIfIndex))
     {
+      info->setIfIndex(tmpIfIndex);
       // destination address of the packet is onlink
 
-      //Do Address Resolution from this interface (info.ifIndex)
-      info.nextHop = info.dgram->destAddress();
+      //Do Address Resolution from this interface (info->ifIndex())
+      info->setNextHop(dgram->destAddress());
       return -2;
     }
     // destination address of the packet is offlink
     else
     {
+      info->setIfIndex(tmpIfIndex);
       ne = rt->cds->defaultRouter();
 
       // check to see if the router entry exists
       if(ne.lock().get() != 0)
       {
         //Save this route to dest in DC
-        (*rt->cds)[info.dgram->destAddress()].neighbour = ne;
+        (*rt->cds)[dgram->destAddress()].neighbour = ne;
         Dout(dc::forwarding, " Using default router addr="<<ne.lock()->addr()<<" for dest="
-             <<info.dgram->destAddress());
-        if (ne.lock()->addr() == info.dgram->srcAddress())
+             <<dgram->destAddress());
+        if (ne.lock()->addr() == dgram->srcAddress())
         {
           cout<< rt->nodeName()<<" default router of destination points back to source! "
               <<*(static_cast<IRouterList*>(rt->cds))<<endl;
@@ -724,31 +720,31 @@ int IPv6Forward::conceptualSending(AddrResInfo& info)
 
         if (rt->interfaceCount() > 1)
           //Signify to addr res to occur on all interfaces
-          info.ifIndex = UINT_MAX;
+          info->setIfIndex(UINT_MAX);
         else
-          info.ifIndex = 0;
+          info->setIfIndex(0);
 
-        info.nextHop = info.dgram->destAddress();
+        info->setNextHop(dgram->destAddress());
 
-        Dout(dc::forwarding, "No default router assuming dest="<<info.dgram->destAddress()
+        Dout(dc::forwarding, "No default router assuming dest="<<dgram->destAddress()
              <<" is on link."<<"Performing "
-             <<(info.ifIndex != 0?
+             <<(info->ifIndex() != 0?
                 "promiscuous addr res":
-                "plain addr res on single iface=")<<info.ifIndex);
+                "plain addr res on single iface=")<<info->ifIndex());
 
         // no route to dest -1 (promiscuous addr res) or do plain addr res -2
-        return info.ifIndex != 0?-1:-2;
+        return info->ifIndex() != 0?-1:-2;
       }
 
     }
   }
   else if (!rt->isRouter())
-    Dout(dc::forwarding, " Found dest "<<info.dgram->destAddress()<<" in Dest Cache next hop="
+    Dout(dc::forwarding, " Found dest "<<dgram->destAddress()<<" in Dest Cache next hop="
          <<ne.lock()->addr());
 
   //Assume neighbour is reachable and use precached info
-  info.nextHop = ne.lock().get()->addr();
-  info.ifIndex = ne.lock().get()->ifIndex();
+  info->setNextHop(ne.lock().get()->addr());
+  info->setIfIndex(ne.lock().get()->ifIndex());
 
   //Neighbour exists check state that neighbour is in
   if (ne.lock().get()->state() == NeighbourEntry::INCOMPLETE)
@@ -764,13 +760,13 @@ int IPv6Forward::conceptualSending(AddrResInfo& info)
     //Probably best to return an indication of this so RoutingCore starts the
     //timer or send a message to ND to initiate NUD
 
-    Dout(dc::debug, rt->nodeName()<<":"<<info.ifIndex<<" -- Reachability to "
-         << info.nextHop <<" STALE");
+    Dout(dc::debug, rt->nodeName()<<":"<<info->ifIndex()<<" -- Reachability to "
+         << info->nextHop() <<" STALE");
   }
 
-  info.linkLayerAddr = ne.lock().get()->linkLayerAddr();
+  info->setLinkLayerAddr(ne.lock().get()->linkLayerAddr().c_str());
 
-  return info.ifIndex;
+  return info->ifIndex();
 } //end conceptualSending
 
 /**

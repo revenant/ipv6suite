@@ -36,16 +36,10 @@
 #include "PPP6Frame.h"
 #include "opp_utils.h"
 #include "IPv6InterfaceData.h"
-//#include "Messages.h"
-//#include "IPDatagram.h"
-//#ifdef CWDEBUG
-//#include "IPv6Datagram.h"
-//#endif //CWDEBUG
 
 #ifdef TESTIPv6
 #undef NDEBUG
 #include <cassert>
-//#include "IPv6Datagram.h"
 #endif
 
 #include "LL6ControlInfo_m.h"

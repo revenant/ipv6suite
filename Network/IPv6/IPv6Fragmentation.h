@@ -38,10 +38,10 @@
 #include "RoutingTable6Access.h"
 #endif //ROUTINGTABLE6ACCESS_H
 
+#include "QueueBase.h"
+
 class ICMPv6Message;
-struct AddrResInfo;
-template <typename T> class cTypedMessage;
-typedef cTypedMessage<AddrResInfo> AddrResMsg;
+class IPv6Datagram;
 
 /**
  * @class IPv6Fragmentation
@@ -51,37 +51,29 @@ typedef cTypedMessage<AddrResInfo> AddrResMsg;
  * sent problems are likely to occur.
  */
 
-class IPv6Fragmentation : public cSimpleModule
+class IPv6Fragmentation : public QueueBase
 {
 public:
-  Module_Class_Members(IPv6Fragmentation, cSimpleModule, 0);
+  Module_Class_Members(IPv6Fragmentation, QueueBase, 0);
 
   virtual void initialize();
-  virtual void handleMessage(cMessage*);
+  virtual void endService(cMessage*);
   virtual void finish();
 
 private:
 
   void sendErrorMessage(ICMPv6Message* err);
-  void sendOutput(AddrResMsg* msg );
+  void sendOutput(IPv6Datagram* msg );
 
   RoutingTable6 *rt;
 
   int numOfPorts;
-  simtime_t delay;
-  cMessage* waitTmr;
-  AddrResMsg*  curPacket;
-  ///Arriving packets are placed in queue first if another packet is awaiting
-  ///processing
-  cQueue waitQueue;
   unsigned int mtu;
 
   unsigned int ctrIP6InTooBig;
   unsigned int ctrIP6FragCreates;
   unsigned int ctrIP6FragFails;
   unsigned int ctrIP6FragOKs;
-
-
 };
 
 #endif

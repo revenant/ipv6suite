@@ -37,7 +37,7 @@
 #include "RoutingTable6.h"
 #include "IPv6Forward.h"
 #include "cTimerMessage.h"
-#include "Messages.h"
+#include "AddrResInfo_m.h"
 #include "NDTimers.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
@@ -145,37 +145,34 @@ void AddressResolution::handleMessage(cMessage* msg)
 
   if (pendingQueueIn == msg->arrivalGate()->name())
   {
-    std::auto_ptr<AddrResMsg> addrResMsg(static_cast<AddrResMsg*> (msg));
-    IPv6Datagram* dgram = addrResMsg->data().dgram;
-
-    //dgram->owner()->drop(dgram);
-    take(dgram);
+    IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(msg);
+    AddrResInfo *addrResInfo = check_and_cast<AddrResInfo*>(dgram->removeControlInfo());
 
     assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED &&
-           addrResMsg->data().nextHop != IPv6_ADDR_UNSPECIFIED);
+           addrResInfo->nextHop() != IPv6_ADDR_UNSPECIFIED);
 
     Dout(dc::addr_resln|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
          <<": packet queued dest="<<dgram->destAddress()<<" nexthop="
-         <<addrResMsg->data().nextHop);
+         <<addrResInfo->nextHop());
 
     //Already done at conceptual sending, necessary only for for promiscous
     //addr res when src addr unknown (handled by processNgbrAdv)
     //dgram->setSrcAddress(
-    //  rt->determineSrcAddress(addrResMsg->data().nextHop,
-    //                          addrResMsg->data().ifIndex));
+    //  rt->determineSrcAddress(addrResInfo->nextHop(),
+    //                          addrResInfo->ifIndex));
 
     //Store dgram into buffer
     //TODO Implement a limited queue later on that overflows
-    ppq.insert(make_pair(addrResMsg->data().nextHop, dgram));
+    ppq.insert(make_pair(addrResInfo->nextHop(), dgram));
 
     //Check if other dgrams are pending on this addr
-    if (ppq.count(addrResMsg->data().nextHop) > 1)
+    if (ppq.count(addrResInfo->nextHop()) > 1)
       return;
 
     NDARTimer* tmr = new NDARTimer();
-    tmr->targetAddr = addrResMsg->data().nextHop;
+    tmr->targetAddr = addrResInfo->nextHop();
 
-    tmr->ifIndex = addrResMsg->data().ifIndex;
+    tmr->ifIndex = addrResInfo->ifIndex();
 
     boost::weak_ptr<NeighbourEntry> ngbr =
       rt->cds->neighbour(tmr->targetAddr);
@@ -618,21 +615,14 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
             }
           }
 
-          AddrResInfo info =
-            {
-              p->second, src, ifIndex, destLLAddr
-            };
+          IPv6Datagram *dgram = p->second;
+          AddrResInfo *info = new AddrResInfo;
+          info->setNextHop(src);
+          info->setIfIndex(ifIndex);
+          info->setLinkLayerAddr(destLLAddr.c_str());
+          dgram->setControlInfo(info);
 
-          AddrResMsg* addrResMsg = new AddrResMsg(info);
-
-          // XXX This needs to be done in llpkt itself as take is a protected function,
-          //except that's a template class.  We do not know the type of the template
-          //parameter can contain members that are cobjects. Guess cTypedMessage needs
-          //refactoring too
-
-          //addrResMsg->take(info.dgram);
-
-          send(addrResMsg, "fragmentationOut");
+          send(dgram, "fragmentationOut");
         }
 
         ppq.erase(src);

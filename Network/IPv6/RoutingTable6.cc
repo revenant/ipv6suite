@@ -40,8 +40,6 @@
 #include <sstream> //stringstream
 
 #include "opp_utils.h"
-#include "cTypedMessage.h"
-#include "Messages.h"
 #include "cTimerMessage.h"
 #include "NDTimers.h"
 #include "NDEntry.h"

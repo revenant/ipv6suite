@@ -48,6 +48,7 @@
 #include "IPv6Datagram.h"
 #include "QueueBase.h"
 
+
 //The last route is always the dest
 typedef vector<ipv6_addr> _SrcRoute;
 typedef boost::shared_ptr<_SrcRoute> SrcRoute;
@@ -99,7 +100,7 @@ public:
      -2 if packets are pending addr res
   */
   //migrate to Routing
-  int conceptualSending(AddrResInfo& info);
+  int conceptualSending(IPv6Datagram *dgram, AddrResInfo *info);
 
   ///Return the src address for a packet going out on ifIndex to dest
   //migrate to Routing?

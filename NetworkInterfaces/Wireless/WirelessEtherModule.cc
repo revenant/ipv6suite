@@ -49,7 +49,6 @@
 #include "IPv6Datagram.h"
 #endif
 #include "IPv6InterfaceData.h"
-#include "Messages.h"
 
 #include "opp_utils.h"
 //#include "opp_akaroa.h"  //XXX --Andras

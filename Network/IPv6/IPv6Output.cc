@@ -46,7 +46,6 @@
 
 #include "IPv6Output.h"
 #include "IPv6Datagram.h"
-#include "Messages.h"
 #include "IPv6Multicast.h" //multicastAddr()
 #include "RoutingTable6.h"
 #include "IPv6Forward.h"

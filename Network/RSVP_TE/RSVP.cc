@@ -914,21 +914,19 @@ void RSVP::processResvMsg(RSVPResvMsg * rmsg)
                         {
 
                             int outInf = rmsg->getLIH();
-                            int outInfIndex = rt->interfaceByAddress(IPAddress(outInf))->outputPort; // FIXME ->outputPort: is this OK? --AV
+                            int outInfIndex = rt->interfaceByAddress(IPAddress(outInf))->outputPort(); // FIXME ->outputPort(): is this OK? --AV
                             int inInf = 0;
                             getIncInet(Refresh_PHOP_list[i], &inInf);
 
-                            int inInfIndex = rt->interfaceByAddress(IPAddress(inInf))->outputPort; // FIXME ->outputPort: is this OK? --AV
+                            int inInfIndex = rt->interfaceByAddress(IPAddress(inInf))->outputPort(); // FIXME ->outputPort(): is this OK? --AV
                             int label = (*fdlist).label;
 
                             if (label != -1)
                             {
                                 int lsp_id = (*fdlist).Filter_Spec_Object.Lsp_Id;
 
-                                const char *outInfName =
-                                    (rt->interfaceByPortNo(outInfIndex))->name.c_str();
-                                const char *inInfName =
-                                    (rt->interfaceByPortNo(inInfIndex))->name.c_str();
+                                const char *outInfName = rt->interfaceByPortNo(outInfIndex)->name();
+                                const char *inInfName = rt->interfaceByPortNo(inInfIndex)->name();
 
                                 int inLabel = -2;
 
@@ -2118,7 +2116,7 @@ void RSVP::Mcast_Route_Query(IPADDR srcAddr, int iad, IPADDR destAddr, int *outl
     // int j=0;
 
     foundIndex = rt->outputPortNo(IPAddress(destAddr));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddr.getInt();   // FIXME why not return???
+    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return???
 
     return;
 }

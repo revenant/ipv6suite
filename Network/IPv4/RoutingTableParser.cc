@@ -158,6 +158,7 @@ char *RoutingTableParser::createFilteredFile (char *file,
 
 void RoutingTableParser::parseInterfaces(char *ifconfigFile)
 {
+    char buf[MAX_ENTRY_STRING_SIZE];
     int charpointer = 0;
     IPv4InterfaceEntry *e;
 
@@ -167,82 +168,68 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // name entry
         if (streq(ifconfigFile + charpointer, "name:")) {
             // find existing interface with this name
-            char *name = parseIPv4InterfaceEntry(ifconfigFile, "name:", charpointer,
-                                             new char[MAX_ENTRY_STRING_SIZE]);
+            char *name = parseIPv4InterfaceEntry(ifconfigFile, "name:", charpointer,buf);
             e = rt->interfaceByName(name);
             if (!e)
                 opp_error("Error in routing file: interface name `%s' not registered by any L2 module", name);
-            delete [] name;
             continue;
         }
 
         // encap entry
         if (streq(ifconfigFile + charpointer, "encap:")) {
             // ignore encap
-            parseIPv4InterfaceEntry(ifconfigFile, "encap:", charpointer,
-                                new char[MAX_ENTRY_STRING_SIZE]);
+            parseIPv4InterfaceEntry(ifconfigFile, "encap:", charpointer, buf);
             continue;
         }
 
         // HWaddr entry
         if (streq(ifconfigFile + charpointer, "HWaddr:")) {
             // ignore hwAddr
-            parseIPv4InterfaceEntry(ifconfigFile, "HWaddr:", charpointer,
-                                new char[MAX_ENTRY_STRING_SIZE]);
+            parseIPv4InterfaceEntry(ifconfigFile, "HWaddr:", charpointer, buf);
             continue;
         }
 
         // inet_addr entry
         if (streq(ifconfigFile + charpointer, "inet_addr:")) {
-            e->inetAddr = IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "inet_addr:", charpointer,
-                                    new char[MAX_ENTRY_STRING_SIZE]));  // FIXME mem leak
+            e->setInetAddress(IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "inet_addr:", charpointer,buf)));
             continue;
         }
 
         // Broadcast address entry
         if (streq(ifconfigFile + charpointer, "Bcast:")) {
             // ignore Bcast
-            parseIPv4InterfaceEntry(ifconfigFile, "Bcast:", charpointer,
-                                new char[MAX_ENTRY_STRING_SIZE]);  // FIXME mem leak
+            parseIPv4InterfaceEntry(ifconfigFile, "Bcast:", charpointer, buf);
             continue;
         }
 
         // Mask entry
         if (streq(ifconfigFile + charpointer, "Mask:")) {
-            e->mask = IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "Mask:", charpointer,
-                                new char[MAX_ENTRY_STRING_SIZE]));  // FIXME mem leak
+            e->setNetmask(IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "Mask:", charpointer,buf)));
             continue;
         }
 
         // Multicast groups entry
         if (streq(ifconfigFile + charpointer, "Groups:")) {
-            char *grStr = parseIPv4InterfaceEntry(ifconfigFile, "Groups:",
-                                              charpointer,
-                                              new char[MAX_GROUP_STRING_SIZE]);
-            //PRINTF("\nMulticast gr str: %s\n", grStr);
+            char *grStr = parseIPv4InterfaceEntry(ifconfigFile, "Groups:", charpointer, buf);
             parseMulticastGroups(grStr, e);
             continue;
         }
 
         // MTU entry
         if (streq(ifconfigFile + charpointer, "MTU:")) {
-            e->mtu = atoi(
-                parseIPv4InterfaceEntry(ifconfigFile, "MTU:", charpointer,
-                                    new char[MAX_ENTRY_STRING_SIZE])); // FIXME mem leak
+            e->setMtu(atoi(parseIPv4InterfaceEntry(ifconfigFile, "MTU:", charpointer,buf)));
             continue;
         }
 
         // Metric entry
         if (streq(ifconfigFile + charpointer, "Metric:")) {
-            e->metric = atoi(
-                parseIPv4InterfaceEntry(ifconfigFile, "Metric:", charpointer,
-                                    new char[MAX_ENTRY_STRING_SIZE]));
+            e->setMetric(atoi(parseIPv4InterfaceEntry(ifconfigFile, "Metric:", charpointer,buf)));
             continue;
         }
 
         // BROADCAST Flag
         if (streq(ifconfigFile + charpointer, "BROADCAST")) {
-            e->broadcast = true;
+            e->setBroadcast(true);
             charpointer += strlen("BROADCAST");
             skipBlanks(ifconfigFile, charpointer);
             continue;
@@ -250,7 +237,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
 
         // MULTICAST Flag
         if (streq(ifconfigFile + charpointer, "MULTICAST")) {
-            e->multicast = true;
+            e->setMulticast(true);
             charpointer += strlen("MULTICAST");
             skipBlanks(ifconfigFile, charpointer);
             continue;
@@ -258,7 +245,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
 
         // POINTTOPOINT Flag
         if (streq(ifconfigFile + charpointer, "POINTTOPOINT")) {
-            e->pointToPoint= true;
+            e->setPointToPoint(true);
             charpointer += strlen("POINTTOPOINT");
             skipBlanks(ifconfigFile, charpointer);
             continue;

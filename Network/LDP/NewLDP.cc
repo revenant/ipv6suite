@@ -146,7 +146,7 @@ void NewLDP::processLDPHello(LDPHello *msg)
     // not in table, add it
     peer_info info;
     info.peerIP = peerAddr;
-    info.linkInterface = rt->interfaceByPortNo(inputPort)->name;
+    info.linkInterface = rt->interfaceByPortNo(inputPort)->name();
     info.activeRole = peerAddr.getInt() > rt->getRouterId().getInt();
     info.socket = NULL;
     myPeers.push_back(info);
@@ -265,7 +265,7 @@ void NewLDP::processRequestFromMPLSSwitch(cMessage *msg)
     delete msg;
 
     IPv4InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
-    string fromInterface = ientry->name;
+    string fromInterface = ientry->name();
 
     ev << "Request from MPLS for FEC=" << fecId << "  dest=" << fecInt <<
           "  inInterface=" << fromInterface << "\n";
@@ -393,7 +393,7 @@ IPAddress NewLDP::locateNextHop(IPAddress dest)
     if (portNo==-1)
         return IPAddress();  // no route
 
-    string iName = rt->interfaceByPortNo(portNo)->name;
+    string iName = rt->interfaceByPortNo(portNo)->name();
     return findPeerAddrFromInterface(iName);
 }
 
@@ -454,7 +454,7 @@ string NewLDP::findInterfaceFromPeerAddr(IPAddress peerIP)
 */
 //    Rely on port index to find the interface name
     int portNo = rt->outputPortNo(peerIP);
-    return rt->interfaceByPortNo(portNo)->name;
+    return rt->interfaceByPortNo(portNo)->name();
 
 }
 
@@ -523,7 +523,7 @@ void NewLDP::processLABEL_REQUEST(LDPLabelRequest *packet)
         int portNo = rt->outputPortNo(fec);
         if (portNo==-1)
             error("FEC %s is unroutable", fec.str().c_str());
-        string outInterface = string(rt->interfaceByPortNo(portNo)->name);
+        string outInterface = rt->interfaceByPortNo(portNo)->name();
 
         int inLabel = lt->installNewLabel(-1, inInterface, outInterface, fecId, POP_OPER);
 

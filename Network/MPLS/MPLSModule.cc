@@ -169,7 +169,7 @@ void MPLSModule::trySendBufferedPackets(int returnedFecId)
         // Incoming interface
         int gateIndex = datagram->par("gateIndex");
         IPv4InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
-        string senderInterface = ientry->name;
+        string senderInterface = ientry->name();
 
         // Construct a new MPLS packet
         MPLSPacket *newPacket = new MPLSPacket(datagram->name());
@@ -187,7 +187,7 @@ void MPLSModule::trySendBufferedPackets(int returnedFecId)
         ev << "Encapsulating buffered packet " << datagram << " into MPLS with label=" <<
               label << ", sending to " << outgoingInterface << "\n";
 
-        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort;
+        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort();
         send(newPacket, "toL2", outgoingPort);
     }
 }
@@ -241,7 +241,7 @@ void MPLSModule::processMPLSPacketFromL2(MPLSPacket *mplsPacket)
 
     // Here we process MPLS packets
     IPv4InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
-    string senderInterface = ientry->name;
+    string senderInterface = ientry->name();
     int oldLabel = mplsPacket->topLabel();
 
     ev << "Received " << mplsPacket << " from L2, label=" << oldLabel << " inIntf=" << senderInterface;
@@ -289,14 +289,14 @@ void MPLSModule::processMPLSPacketFromL2(MPLSPacket *mplsPacket)
         }
         ev << ", outgoing interface: " << outgoingInterface << "\n";
 
-        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort;
+        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort();
         send(mplsPacket, "toL2", outgoingPort);
 
     }
     // FIXME (!found) case not handled...
     else if (newLabel==-1 && isER)  // ER router and the new label must be native IP
     {
-        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort;
+        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort();
 
         mplsPacket->popLabel();
 
@@ -334,7 +334,7 @@ void MPLSModule::processIPDatagramFromL2(IPDatagram *ipdatagram)
 
     // Incoming interface
     IPv4InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
-    string senderInterface = ientry->name;
+    string senderInterface = ientry->name();
     ev << "Message from outside to Ingress node\n";
 
     bool makeRequest = false;
@@ -369,7 +369,7 @@ void MPLSModule::processIPDatagramFromL2(IPDatagram *ipdatagram)
 
         newPacket->pushLabel(label);
 
-        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort;
+        int outgoingPort = rt->interfaceByName(outgoingInterface.c_str())->outputPort();
         send(newPacket, "toL2", outgoingPort);
     }
     else  // Need to make ldp query

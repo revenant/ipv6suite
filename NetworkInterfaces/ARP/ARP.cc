@@ -60,8 +60,11 @@ void ARP::initialize(int stage)
     pendingQueue.setName("pendingQueue");
 
     // fill in myIPAddress and myMACAddress
-    myIPAddress = interfaceEntry->inetAddr;
+//XXX !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/* add back!
+    myIPAddress = interfaceEntry->inetAddress();
     myMACAddress = ((EtherMAC *)parentModule()->submodule("mac"))->getMACAddress();
+*/
 
     // init statistics
     numRequestsSent = numRepliesSent = 0;
@@ -314,7 +317,7 @@ bool ARP::addressRecognized(IPAddress destAddr)
         return false;
     RoutingTable *rt = routingTableAccess.get();
     int outputPort = rt->outputPortNo(destAddr);
-    return outputPort!=-1 && outputPort!=interfaceEntry->outputPort;
+    return outputPort!=-1 && outputPort!=interfaceEntry->outputPort();
 }
 
 void ARP::dumpARPPacket(ARPPacket *arp)
@@ -465,9 +468,9 @@ void ARP::updateARPCache(ARPCacheEntry *entry, const MACAddress& macAddress)
     }
 }
 
-IPv4InterfaceEntry *ARP::registerInterface(double datarate)
+InterfaceEntry *ARP::registerInterface(double datarate)
 {
-    IPv4InterfaceEntry *e = new IPv4InterfaceEntry();
+    InterfaceEntry *e = new InterfaceEntry();
 
     // interface name: NetworkInterface module's name without special characters ([])
     // --> Emin : Parent module name is used since EtherMAC belongs to EthernetInterface.
@@ -478,31 +481,28 @@ IPv4InterfaceEntry *ARP::registerInterface(double datarate)
             *d++ = *s;
     *d = '\0';
 
-    e->name = interfaceName;
+    e->setName(interfaceName);
     delete [] interfaceName;
 
     // port: index of gate where parent module's "netwIn" is connected (in IP)
     int outputPort = parentModule()->gate("netwIn")->sourceGate()->index();
-    e->outputPort = outputPort;
+    e->setOutputPort(outputPort);
 
     // we don't know IP address and netmask, it'll probably come from routing table file
 
     // MTU is 1500 on Ethernet
-    e->mtu = 1500;
-
-    // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    e->metric = (int)ceil(2e9/datarate); // use OSPF cost as default
+    e->setMtu(1500);
 
     // capabilities
-    e->multicast = true;
-    e->pointToPoint = false;
+    e->setMulticast(true);
+    e->setPointToPoint(false);
 
     // multicast groups
     // TBD
 
     // add
-    RoutingTableAccess routingTableAccess;
-    routingTableAccess.get()->addInterface(e);
+    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
+    interfaceTable->addInterface(e);
 
     return e;
 }

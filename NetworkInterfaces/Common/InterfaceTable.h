@@ -30,15 +30,15 @@
  */
 class InterfaceEntry : public cPolymorphic
 {
-  public:
-    std::string name;   //< interface name (must be unique)
-    int outputPort;     //< output gate index (-1 if unused, e.g. loopback interface)
-    int mtu;            //< Maximum Transmission Unit (e.g. 1500 on Ethernet)
-    bool isDown;        //< current state (up or down)
-    bool broadcast;     //< interface supports broadcast
-    bool multicast;     //< interface supports multicast
-    bool pointToPoint;  //< interface is point-to-point link
-    bool loopback;      //< interface is loopback interface
+  private:
+    std::string _name;   //< interface name (must be unique)
+    int _outputPort;     //< output gate index (-1 if unused, e.g. loopback interface)
+    int _mtu;            //< Maximum Transmission Unit (e.g. 1500 on Ethernet)
+    bool _down;          //< current state (up or down)
+    bool _broadcast;     //< interface supports broadcast
+    bool _multicast;     //< interface supports multicast
+    bool _pointToPoint;  //< interface is point-to-point link
+    bool _loopback;      //< interface is loopback interface
 
   private:
     // copying not supported: following are private and also left undefined
@@ -50,6 +50,24 @@ class InterfaceEntry : public cPolymorphic
     virtual ~InterfaceEntry() {}
     virtual std::string info() const;
     virtual std::string detailedInfo() const;
+
+    const char *name() const       {return _name.c_str();}
+    int outputPort() const         {return _outputPort;}
+    int mtu() const                {return _mtu;}
+    bool isDown() const            {return _down;}
+    bool isBroadcast() const       {return _broadcast;}
+    bool isMulticast() const       {return _multicast;}
+    bool isPointToPoint() const    {return _pointToPoint;}
+    bool isLoopback() const        {return _loopback;}
+
+    void setName(const char *s)  {_name = s;}
+    void setOutputPort(int i)    {_outputPort = i;}
+    void setMtu(int m)           {_mtu = m;}
+    void setDown(bool b)         {_down = b;}
+    void setBroadcast(bool b)    {_broadcast = b;}
+    void setMulticast(bool b)    {_multicast = b;}
+    void setPointToPoint(bool b) {_pointToPoint = b;}
+    void setLoopback(bool b)     {_loopback = b;}
 };
 
 
@@ -84,7 +102,8 @@ class InterfaceTable: public cSimpleModule
   public:
     Module_Class_Members(InterfaceTable, cSimpleModule, 0);
 
-    void initialize();
+    int numInitStages() const {return 2;}
+    void initialize(int stage);
 
     /**
      * Raises an error.

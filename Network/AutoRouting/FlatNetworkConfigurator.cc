@@ -72,11 +72,11 @@ void FlatNetworkConfigurator::initialize(int stage)
 
         for (int k=0; k<rt->numInterfaces(); k++)
         {
-            IPv4InterfaceEntry *e = rt->interfaceById(k);
-            if (!e->loopback)
+            IPv4InterfaceEntry *e = rt->interfaceAt(k);
+            if (!e->isLoopback())
             {
-                e->inetAddr = IPAddress(addr);
-                e->mask = IPAddress("255.255.255.255"); // full address must match for local delivery
+                e->setInetAddress(IPAddress(addr));
+                e->setNetmask(IPAddress("255.255.255.255")); // full address must match for local delivery
             }
         }
     }
@@ -98,8 +98,8 @@ void FlatNetworkConfigurator::initialize(int stage)
         int numIntf = 0;
         IPv4InterfaceEntry *interf = NULL;
         for (int k=0; k<rt->numInterfaces(); k++)
-            if (!rt->interfaceById(k)->loopback)
-                {interf = rt->interfaceById(k); numIntf++;}
+            if (!rt->interfaceAt(k)->isLoopback())
+                {interf = rt->interfaceAt(k); numIntf++;}
 
         usesDefaultRoute[i] = (numIntf==1);
         if (numIntf!=1)
@@ -112,11 +112,11 @@ void FlatNetworkConfigurator::initialize(int stage)
         RoutingEntry *e = new RoutingEntry();
         e->host = IPAddress();
         e->netmask = IPAddress();
-        e->interfaceName = interf->name.c_str();
+        e->interfaceName = interf->name();
         e->interfacePtr = interf;
         e->type = RoutingEntry::REMOTE;
         e->source = RoutingEntry::MANUAL;
-        //e->metric = 1;
+        //e->metric() = 1;
         rt->addRoutingEntry(e);
     }
 
@@ -162,11 +162,11 @@ void FlatNetworkConfigurator::initialize(int stage)
             RoutingEntry *e = new RoutingEntry();
             e->host = IPAddress(destAddr);
             e->netmask = IPAddress(255,255,255,255); // full match needed
-            e->interfaceName = interf->name.c_str();
+            e->interfaceName = interf->name();
             e->interfacePtr = interf;
             e->type = RoutingEntry::DIRECT;
             e->source = RoutingEntry::MANUAL;
-            //e->metric = 1;
+            //e->metric() = 1;
             rt->addRoutingEntry(e);
         }
     }

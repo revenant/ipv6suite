@@ -88,7 +88,7 @@ void IPMulticast::handleMessage(cMessage *msg)
         // copy original datagram for multiple destinations
         for (unsigned int i=0; i < routes.size(); i++)
         {
-            int outputPort = routes[i].interf->outputPort;
+            int outputPort = routes[i].interf->outputPort();
 
             // don't forward to input port
             if (outputPort>=0 && outputPort!=inputPort)
@@ -103,7 +103,7 @@ void IPMulticast::handleMessage(cMessage *msg)
 
                 // set datagram source address if not yet set
                 if (datagramCopy->srcAddress().isNull())
-                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddr);
+                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
 
                 send(datagramCopy, "fragmentationOut");
             }

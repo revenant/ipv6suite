@@ -52,14 +52,14 @@ IPAddress IPAddressResolver::getAddressFrom(RoutingTable *rt)
 
     for (int i=0; i<rt->numInterfaces(); i++)
     {
-        IPv4InterfaceEntry *e = rt->interfaceById(i);
-        if (!e->inetAddr.isNull() && !e->loopback)
+        IPv4InterfaceEntry *e = rt->interfaceAt(i);
+        if (!e->inetAddress().isNull() && !e->isLoopback())
         {
-            if (!addr.isNull() && e->inetAddr!=addr)
+            if (!addr.isNull() && e->inetAddress()!=addr)
                 opp_error("IPAddressResolver: IP address is ambiguous: different "
                           "interfaces in `%s' have different IP addresses",
                           rt->fullPath().c_str());
-            addr = e->inetAddr;
+            addr = e->inetAddress();
         }
     }
 

@@ -134,8 +134,8 @@ void RSVPAppl::processRSVP_PATH(RSVPPathMsg *pMessage)
     if (!outInfP) error("no interface with outInf address %s",IPAddress(outInf).str().c_str());
     if (!inInfP) error("no interface with inInf address %s",IPAddress(inInf).str().c_str());
 
-    const char *outInfName = outInfP->name.c_str();
-    const char *inInfName = inInfP->name.c_str();
+    const char *outInfName = outInfP->name();
+    const char *inInfName = inInfP->name();
 
     if (isER)
     {
@@ -241,9 +241,9 @@ void RSVPAppl::processRSVP_RESV(RSVPResvMsg *rMessage)
                     // signalMPLS->addPar("dest") = aTunnel.Session.DestAddress;
                     // Install new label
                     int outInf = rMessage->getLIH();
-                    int outInfIndex = rt->interfaceByAddress(IPAddress(outInf))->outputPort; // FIXME ->outputPort: is this OK? --AV
-                    const char *outInfName = (rt->interfaceByPortNo(outInfIndex))->name.c_str();
-                    const char *inInfName = (rt->interfaceByPortNo(aTunnel.inInfIndex))->name.c_str();
+                    int outInfIndex = rt->interfaceByAddress(IPAddress(outInf))->outputPort(); // FIXME ->outputPort(): is this OK? --AV
+                    const char *outInfName = (rt->interfaceByPortNo(outInfIndex))->name();
+                    const char *inInfName = (rt->interfaceByPortNo(aTunnel.inInfIndex))->name();
 
                     ev << "INSTALL new label \n";
                     ev << "src=" << IPAddress(aTunnel.Sender_Template.
@@ -800,7 +800,7 @@ void RSVPAppl::Unicast_Route_Query(IPADDR da, int *outl)
     int foundIndex;
     // int j=0;
     foundIndex = rt->outputPortNo(IPAddress(da));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddr.getInt();   // FIXME why not return outl???
+    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return outl???
 
     return;
 
@@ -813,7 +813,7 @@ void RSVPAppl::Mcast_Route_Query(IPADDR sa, int iad, IPADDR da, int *outl)
     int foundIndex;
     // int j=0;
     foundIndex = rt->outputPortNo(IPAddress(da));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddr.getInt();   // FIXME why not return outl???
+    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return outl???
 
     return;
 }

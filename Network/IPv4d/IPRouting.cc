@@ -96,7 +96,7 @@ void IPRouting::endService(cMessage *msg)
 
     // set datagram source address if not yet set
     if (datagram->srcAddress().isNull())
-        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddr);
+        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
 
     // default: send datagram to fragmentation
     routingDecision->setOutputPort(outputPort);

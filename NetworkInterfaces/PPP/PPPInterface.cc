@@ -102,20 +102,20 @@ InterfaceEntry *PPPInterface::registerInterface(double datarate)
             *d++ = *s;
     *d = '\0';
 
-    e->name = interfaceName;
+    e->setName(interfaceName);
     delete [] interfaceName;
 
     // port: index of gate where our "netwIn" is connected (in IP)
     int outputPort = gate("netwIn")->sourceGate()->index();
-    e->outputPort = outputPort;
+    e->setOutputPort(outputPort);
 
     // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
     // 4000 (on some point-to-point links), 4470 (Cisco routers default, FDDI compatible)
-    e->mtu = 4470;
+    e->setMtu(4470);
 
     // capabilities
-    e->multicast = true;
-    e->pointToPoint = true;
+    e->setMulticast(true);
+    e->setPointToPoint(true);
 
     // add
     InterfaceTable *interfaceTable = InterfaceTableAccess().get();
@@ -236,7 +236,7 @@ void PPPInterface::updateDisplayString()
         else sprintf(drate,"%gbps", datarate);
 
 /* TBD FIXME find solution for displaying IP address without dependence on IPv6 or IPv6
-        IPAddress addr = interfaceEntry->inetAddr;
+        IPAddress addr = interfaceEntry->inetAddress();
         sprintf(buf, "%s / %s\nrcv:%ld snt:%ld", addr.isNull()?"-":addr.str().c_str(), drate, numRcvdOK, numSent);
 */
         sprintf(buf, "%s\nrcv:%ld snt:%ld", drate, numRcvdOK, numSent);

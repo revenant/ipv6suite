@@ -34,6 +34,8 @@
 #include "EtherCtrl_m.h"
 #include "IPControlInfo_m.h"
 #include "IPDatagram.h"
+#include "InterfaceTable.h"
+#include "InterfaceTableAccess.h"
 #include "RoutingTable.h"
 #include "RoutingTableAccess.h"
 #include "EtherMAC.h"
@@ -83,7 +85,7 @@ class ARP : public cSimpleModule
 
     RoutingTableAccess routingTableAccess; // for Proxy ARP
 
-    IPv4InterfaceEntry *interfaceEntry;
+    InterfaceEntry *interfaceEntry;
 
   public:
     Module_Class_Members(ARP,cSimpleModule,0);
@@ -94,7 +96,7 @@ class ARP : public cSimpleModule
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
-    IPv4InterfaceEntry *registerInterface(double datarate);
+    InterfaceEntry *registerInterface(double datarate);
 
     void processInboundPacket(cMessage *msg);
     void processOutboundPacket(cMessage *msg);

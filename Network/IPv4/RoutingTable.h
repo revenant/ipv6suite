@@ -33,6 +33,7 @@
 #include <omnetpp.h>
 #include "INETDefs.h"
 #include "IPAddress.h"
+#include "InterfaceTable.h"
 
 class RoutingTableParser;
 
@@ -49,34 +50,58 @@ const int MAX_GROUP_STRING_SIZE = 160;
  *
  * @see RoutingTable
  */
-class InterfaceEntry : public cPolymorphic
+class IPv4InterfaceEntry : public cPolymorphic
 {
-  public:
-    int id;             //< identifies the interface (not the same as outputPort!)
-    std::string name;   //< interface name (must be unique)
-    IPAddress inetAddr; //< IP address of interface
-    IPAddress mask;     //< netmask
-    int outputPort;     //< output gate index (-1 if unused, e.g. loopback interface)
-    int mtu;            //< Maximum Transmission Unit (e.g. 1500 on Ethernet)
-    int metric;         //< link "cost"; see e.g. MS KB article Q299540
-    bool broadcast;     //< interface supports broadcast
-    bool multicast;     //< interface supports multicast
-    bool pointToPoint;  //< interface is point-to-point link
-    bool loopback;      //< interface is loopback interface
+  private:
+    InterfaceEntry *ifBase; //< pointer into InterfaceTable
+    IPAddress _inetAddr;    //< IP address of interface
+    IPAddress _netmask;     //< netmask
+    int _metric;            //< link "cost"; see e.g. MS KB article Q299540
 
+  public: //XXX FIXME TBD just for now
     int multicastGroupCtr; //< table size
     IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
 
   private:
     // copying not supported: following are private and also left undefined
-    InterfaceEntry(const InterfaceEntry& obj);
-    InterfaceEntry& operator=(const InterfaceEntry& obj);
+    IPv4InterfaceEntry(const IPv4InterfaceEntry& obj);
+    IPv4InterfaceEntry& operator=(const IPv4InterfaceEntry& obj);
 
   public:
-    InterfaceEntry();
-    virtual ~InterfaceEntry() {}
+    IPv4InterfaceEntry(InterfaceEntry *e);
+    virtual ~IPv4InterfaceEntry() {}
     virtual std::string info() const;
     virtual std::string detailedInfo() const;
+
+    IPAddress inetAddress() const  {return _inetAddr;}
+    IPAddress netmask() const      {return _netmask;}
+    int metric() const             {return _metric;}
+
+    const char *name() const       {return ifBase->name();}
+    int outputPort() const         {return ifBase->outputPort();}
+    int mtu() const                {return ifBase->mtu();}
+    bool isDown() const            {return ifBase->isDown();}
+    bool isBroadcast() const       {return ifBase->isBroadcast();}
+    bool isMulticast() const       {return ifBase->isMulticast();}
+    bool isPointToPoint() const    {return ifBase->isPointToPoint();}
+    bool isLoopback() const        {return ifBase->isLoopback();}
+    //XXX int multicastGroupCtr; //< table size
+    //XXX IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
+
+    void setInetAddress(IPAddress a) {_inetAddr = a;}
+    void setNetmask(IPAddress m)     {_netmask = m;}
+    void setMetric(int m)            {_metric = m;}
+    //XXX int multicastGroupCtr; //< table size
+    //XXX IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
+
+    void setName(const char *s)  {ifBase->setName(s);}
+    void setOutputPort(int i)    {ifBase->setOutputPort(i);}
+    void setMtu(int m)           {ifBase->setMtu(m);}
+    void setDown(bool b)         {ifBase->setDown(b);}
+    void setBroadcast(bool b)    {ifBase->setBroadcast(b);}
+    void setMulticast(bool b)    {ifBase->setMulticast(b);}
+    void setPointToPoint(bool b) {ifBase->setPointToPoint(b);}
+    void setLoopback(bool b)     {ifBase->setLoopback(b);}
 };
 
 
@@ -119,7 +144,7 @@ class RoutingEntry : public cPolymorphic
 
     /// Interface name and pointer
     opp_string interfaceName;
-    InterfaceEntry *interfacePtr;
+    IPv4InterfaceEntry *interfacePtr;
 
     /// Route type: Direct or Remote
     RouteType type;
@@ -151,7 +176,7 @@ class RoutingEntry : public cPolymorphic
 /** Returned as the result of multicast routing */
 struct MulticastRoute
 {
-    InterfaceEntry *interf;
+    IPv4InterfaceEntry *interf;
     IPAddress gateway;
 };
 typedef std::vector<MulticastRoute> MulticastRoutes;
@@ -177,16 +202,16 @@ typedef std::vector<MulticastRoute> MulticastRoutes;
  * be read and modified during simulation, typically by routing protocol
  * implementations (e.g. OSPF).
  *
- * Interfaces are represented by InterfaceEntry objects, and entries in the
+ * Interfaces are represented by IPv4InterfaceEntry objects, and entries in the
  * route table by RoutingEntry objects. Both can be polymorphic: if an
  * interface or a routing protocol needs to store additional data, it can
- * simply subclass from InterfaceEntry or RoutingEntry, and add the derived
+ * simply subclass from IPv4InterfaceEntry or RoutingEntry, and add the derived
  * object to the table.
  *
  * Uses RoutingTableParser to read routing files (.irt, .mrt).
  *
  *
- * @see InterfaceEntry, RoutingEntry
+ * @see IPv4InterfaceEntry, RoutingEntry
  */
 class RoutingTable: public cSimpleModule
 {
@@ -195,7 +220,7 @@ class RoutingTable: public cSimpleModule
     //
     // Interfaces:
     //
-    typedef std::vector<InterfaceEntry *> InterfaceVector;
+    typedef std::vector<IPv4InterfaceEntry *> InterfaceVector;
     InterfaceVector interfaces;
 
     IPAddress routerId;
@@ -210,7 +235,7 @@ class RoutingTable: public cSimpleModule
 
   protected:
     // Add the entry of the local loopback interface
-    InterfaceEntry *addLocalLoopback();
+    IPv4InterfaceEntry *addLocalLoopback();
 
     // check if a route table entry corresponds to the following parameters
     bool routingEntryMatches(RoutingEntry *entry,
@@ -245,6 +270,8 @@ class RoutingTable: public cSimpleModule
 
     /** @name Interfaces */
     //@{
+    void addPv4InterfaceEntryFor(InterfaceEntry *e);
+
     /**
      * Returns the number of interfaces. Interface ids are in range
      * 0..numInterfaces()-1.
@@ -252,37 +279,26 @@ class RoutingTable: public cSimpleModule
     int numInterfaces()  {return interfaces.size();}
 
     /**
-     * Returns the InterfaceEntry specified by its id (0..numInterfaces-1).
+     * Returns the IPv4InterfaceEntry specified by its index 0..numInterfaces-1.
      */
-    InterfaceEntry *interfaceById(int id);
-
-    /**
-     * Add an interface.
-     */
-    void addInterface(InterfaceEntry *entry);
-
-    /**
-     * Delete an interface. Throws an error if the interface is not in the
-     * interface table. Indices of interfaces above this one will change!
-     */
-    void deleteInterface(InterfaceEntry *entry);
+    IPv4InterfaceEntry *interfaceAt(int id);
 
     /**
      * Returns an interface given by its port number (gate index).
      * Returns NULL if not found (e.g. the loopback interface has no
      * port number).
      */
-    InterfaceEntry *interfaceByPortNo(int portNo);
+    IPv4InterfaceEntry *interfaceByPortNo(int portNo);
 
     /**
      * Returns an interface given by its name. Returns NULL if not found.
      */
-    InterfaceEntry *interfaceByName(const char *name);
+    IPv4InterfaceEntry *interfaceByName(const char *name);
 
     /**
      * Returns an interface given by its address. Returns NULL if not found.
      */
-    InterfaceEntry *interfaceByAddress(const IPAddress& address);
+    IPv4InterfaceEntry *interfaceByAddress(const IPAddress& address);
     //@}
 
     /**

@@ -163,7 +163,7 @@ void IP::routePacket(IPDatagram *datagram)
 
     // set datagram source address if not yet set
     if (datagram->srcAddress().isNull())
-        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddr);
+        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
 
     // default: send datagram to fragmentation
     ev << "output port is " << outputPort << "\n";
@@ -180,8 +180,8 @@ void IP::handleMulticastPacket(IPDatagram *datagram)
     // FIXME multicast-->tunneling link (present in original IPSuite) missing from here
     RoutingTable *rt = routingTableAccess.get();
 
-    // DVMRP: process datagram only if sent locally or arrived on the shortest 
-    // route (provided routing table already contains srcAddr); otherwise 
+    // DVMRP: process datagram only if sent locally or arrived on the shortest
+    // route (provided routing table already contains srcAddr); otherwise
     // discard and continue.
     int inputPort = datagram->arrivalGate() ? datagram->arrivalGate()->index() : -1;
     int shortestPathInputPort = rt->outputPortNo(datagram->srcAddress());
@@ -223,7 +223,7 @@ void IP::handleMulticastPacket(IPDatagram *datagram)
         // copy original datagram for multiple destinations
         for (unsigned int i=0; i<routes.size(); i++)
         {
-            int outputPort = routes[i].interf->outputPort;
+            int outputPort = routes[i].interf->outputPort();
 
             // don't forward to input port
             if (outputPort>=0 && outputPort!=inputPort)
@@ -232,7 +232,7 @@ void IP::handleMulticastPacket(IPDatagram *datagram)
 
                 // set datagram source address if not yet set
                 if (datagramCopy->srcAddress().isNull())
-                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddr);
+                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
 
                 // send
                 fragmentAndSend(datagramCopy, outputPort);
@@ -298,7 +298,7 @@ cMessage *IP::decapsulateIP(IPDatagram *datagram)
 void IP::fragmentAndSend(IPDatagram *datagram, int outputPort)
 {
     RoutingTable *rt = routingTableAccess.get();
-    int mtu = rt->interfaceByPortNo(outputPort)->mtu;
+    int mtu = rt->interfaceByPortNo(outputPort)->mtu();
 
     // check if datagram does not require fragmentation
     if (datagram->length()/8 <= mtu)

@@ -31,38 +31,38 @@
 
 InterfaceEntry::InterfaceEntry()
 {
-    outputPort = -1;
+    _outputPort = -1;
 
-    mtu = 0;
+    _mtu = 0;
 
-    isDown = false;
-    broadcast = false;
-    multicast = false;
-    pointToPoint= false;
-    loopback = false;
+    _down = false;
+    _broadcast = false;
+    _multicast = false;
+    _pointToPoint= false;
+    _loopback = false;
 }
 
 std::string InterfaceEntry::info() const
 {
     std::stringstream out;
-    out << (!name.empty() ? name.c_str() : "*");
-    out << "  outputPort:" << outputPort;
-    out << "  MTU:" << mtu;
-    if (isDown) out << "DOWN ";
+    out << (!_name.empty() ? name() : "*");
+    out << "  outputPort:" << outputPort();
+    out << "  MTU:" << mtu();
+    if (isDown()) out << "DOWN ";
     return out.str();
 }
 
 std::string InterfaceEntry::detailedInfo() const
 {
     std::stringstream out;
-    out << "name:" << (!name.empty() ? name.c_str() : "*");
-    out << "\toutputPort:" << outputPort << "\n";
-    out << "MTU: " << mtu << " \t";
-    if (isDown) out << "DOWN ";
-    if (broadcast) out << "BROADCAST ";
-    if (multicast) out << "MULTICAST ";
-    if (pointToPoint) out << "POINTTOPOINT ";
-    if (loopback) out << "LOOPBACK ";
+    out << "name:" << (!_name.empty() ? name() : "*");
+    out << "\toutputPort:" << outputPort() << "\n";
+    out << "MTU: " << mtu() << " \t";
+    if (isDown()) out << "DOWN ";
+    if (isBroadcast()) out << "BROADCAST ";
+    if (isMulticast()) out << "MULTICAST ";
+    if (isPointToPoint()) out << "POINTTOPOINT ";
+    if (isLoopback()) out << "LOOPBACK ";
     out << "\n";
 
     return out.str();
@@ -80,10 +80,13 @@ std::ostream& operator<<(std::ostream& os, const InterfaceEntry& e)
     return os;
 };
 
-void InterfaceTable::initialize()
+void InterfaceTable::initialize(int stage)
 {
-    WATCH_PTRVECTOR(interfaces);
-    updateDisplayString();
+    if (stage==1)
+    {
+        WATCH_PTRVECTOR(interfaces);
+        updateDisplayString();
+    }
 }
 
 void InterfaceTable::updateDisplayString()
@@ -113,10 +116,10 @@ InterfaceEntry *InterfaceTable::interfaceAt(int pos)
 void InterfaceTable::addInterface(InterfaceEntry *entry)
 {
     // check name and outputPort are unique
-    if (interfaceByName(entry->name.c_str())!=NULL)
-        opp_error("addInterface(): interface '%s' already registered", entry->name.c_str());
-    if (entry->outputPort!=-1 && interfaceByPortNo(entry->outputPort)!=NULL)
-        opp_error("addInterface(): interface with outputPort=%d already registered", entry->outputPort);
+    if (interfaceByName(entry->name())!=NULL)
+        opp_error("addInterface(): interface '%s' already registered", entry->name());
+    if (entry->outputPort()!=-1 && interfaceByPortNo(entry->outputPort())!=NULL)
+        opp_error("addInterface(): interface with outputPort=%d already registered", entry->outputPort());
 
     // insert
     interfaces.push_back(entry);
@@ -140,7 +143,7 @@ InterfaceEntry *InterfaceTable::interfaceByPortNo(int portNo)
 {
     // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if ((*i)->outputPort==portNo)
+        if ((*i)->outputPort()==portNo)
             return *i;
     return NULL;
 }
@@ -151,7 +154,7 @@ InterfaceEntry *InterfaceTable::interfaceByName(const char *name)
     if (!name)
         return NULL;
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if (!strcmp(name, (*i)->name.c_str()))
+        if (!strcmp(name, (*i)->name()))
             return *i;
     return NULL;
 }

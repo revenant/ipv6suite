@@ -22,7 +22,7 @@
     @date 10/4/2002
 */
 
-#include "LocalDeliver6Core.h"
+#include "IPv6LocalDeliver.h"
 #include "MIPv6DestOptMessages.h"
 
 namespace MobileIPv6

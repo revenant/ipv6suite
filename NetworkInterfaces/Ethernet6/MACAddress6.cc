@@ -118,7 +118,7 @@ void MACAddress6::set(const MAC_address& addr)
 const char* MACAddress6::stringValue(void) const
 {
   // address format ABCD:ABCD
-  static char output_str[9];
+  static char output_str[32];
 
   if(mac_addr.high == 0 && mac_addr.low == 0)
     return "";

@@ -64,6 +64,8 @@ Base/Sink.ned
 
 Mobility/MobilityManager.ned
 Network/AutoRouting/FlatNetworkConfigurator.ned
+Network/ICMPv6/AddressResolution.ned
+Network/ICMPv6/ICMPv6.ned
 Network/IPv4/ICMP.ned
 Network/IPv4/IGMP.ned
 Network/IPv4/IP.ned
@@ -79,9 +81,7 @@ Network/IPv4d/IPProcessing.ned
 Network/IPv4d/IPRouting.ned
 Network/IPv4d/IPSend.ned
 Network/IPv4d/IPTunneling.ned
-Network/IPv6/AddressResolution.ned
 Network/IPv6/ErrorHandling6.ned
-Network/IPv6/ICMPv6.ned
 Network/IPv6/IPv6Encapsulation.ned
 Network/IPv6/IPv6Forward.ned
 Network/IPv6/IPv6Fragmentation.ned

@@ -5556,6 +5556,8 @@ IPv6PreRouting.obj: IPv6PreRouting.cc \
   IPv6Forward.h \
   ../../Util/opp_utils.h \
   IPv6Utils.h \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \

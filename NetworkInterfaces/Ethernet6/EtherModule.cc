@@ -166,7 +166,7 @@ void EtherModule::idleNetworkInterface(void)
 */
 }
 
-bool EtherModule::sendData(EtherFrame6* frame)
+bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passing up packets
 {
   MACAddress6 frameDestAddr = frame->destAddress();
   std::string strFrameDestAddr = (const char*)frameDestAddr;
@@ -191,7 +191,7 @@ bool EtherModule::sendData(EtherFrame6* frame)
   return true;
 }
 
-bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
+bool EtherModule::receiveData(std::auto_ptr<cMessage> msg) //XXX this is actually for queueing up outgoing packets
 {
   // Something to send onto network
 /* XXX code below changed to use control info --AV

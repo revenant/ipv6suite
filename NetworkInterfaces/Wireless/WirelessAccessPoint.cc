@@ -51,7 +51,7 @@
 
 #include "ExpiryEntryList.h"
 
-Define_Module_Like( WirelessAccessPoint, NetworkInterface6);
+Define_Module(WirelessAccessPoint);
 
 const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE =
 {

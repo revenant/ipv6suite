@@ -18,11 +18,11 @@
 
 
 //
-// IEEE 802.11 implementation.
+// IEEE 802.11 implementation, to be used in wireless Access Points.
 //
 // NED interface conforms to NetworkInterface6.
 //
-simple WirelessEtherModule
+simple WirelessAccessPoint
     parameters:
         procdelay : numeric const,
         ssid: string,

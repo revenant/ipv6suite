@@ -330,7 +330,7 @@ void WirelessEtherModule::readConfiguration()
   pLStdDev = par("pathLossStdDev");
   txpower = par("txPower");
   threshpower = par("thresholdPower");
-  hothreshpower = par("hOThresholdPower");
+  hothreshpower = par("hoThresholdPower");
   probeEnergyTimeout = par("probeEnergyTimeout");
   probeResponseTimeout = par("probeResponseTimeout");
   authenticationTimeout = par("authenticationTimeout");
@@ -345,9 +345,9 @@ void WirelessEtherModule::readConfiguration()
 
   std::string addr = par("address");
 
-  if(!apMode)
+  if (!apMode)
   {
-    if(addr != "0")
+    if (!addr.empty())
       address.set(addr.c_str());
     //Only want to initialise the MN mac address once otherwise routing tables
     //are wrong if we generate another random number from the stream

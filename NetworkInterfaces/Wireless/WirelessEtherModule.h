@@ -162,7 +162,7 @@ public:
   const unsigned int* macAddress(void);
   std::string macAddressString(void);
 
-    std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
+  std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
   std::list<WESignalData*> outputBuffer;
   WESignalData* inputFrame;
 

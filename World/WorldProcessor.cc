@@ -215,15 +215,9 @@ Entity* WorldProcessor::registerEntity(string name,
                                              MobileEntityType type,
                                              cSimpleModule* mod)
 {
-  // XXX for loop is obsolete, this gets called only once per mobile host
+  // XXX for loop removed, it's obsolete --AV
 /*XXX
-  for ( size_t i = 0; i < modList.size(); i++)
-  {
-    if ( modList[i]->entityName == name && modList[i]->entityType() == type)
-    {
-      return modList[i];
-    }
-  }
+  for ( size_t i = 0; i < modList.size(); i++) ...
 */
   Entity* entity;
 

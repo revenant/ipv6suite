@@ -23,6 +23,8 @@
     @author Eric Wu
 */
 
+// XXX what's this, and why is it called like this? --AV
+
 #ifndef __ETHERMODULE_AP__
 #define __ETHERMODULE_AP__
 

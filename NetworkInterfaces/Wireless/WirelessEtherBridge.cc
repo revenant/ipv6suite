@@ -30,7 +30,7 @@
 #include "debug.h"
 
 #include <cmath>
-#include <boost/random.hpp>
+//#include <boost/random.hpp>
 
 #include <string>
 
@@ -39,14 +39,14 @@
 #include "WirelessEtherBridge.h"
 #include "opp_utils.h"
 
-#include "EtherFrame.h"
+#include "EtherFrame.h"           // XXX ??? --AV
 #include "WirelessEtherFrame_m.h"
 #include "LinkLayerModule.h"
 #include "EtherModuleAP.h"
 #include "WirelessAccessPoint.h"
 #include "WirelessEtherSignal.h"
-#include "IPv6PPPAPInterface.h"
-#include "PPPFrame.h"
+#include "IPv6PPPAPInterface.h"   // XXX ??? --AV
+#include "PPP6Frame.h"             // XXX ??? --AV
 
 Define_Module(WirelessEtherBridge);
 
@@ -147,7 +147,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
         IPv6PPPAPInterface* macMod = polymorphic_downcast<IPv6PPPAPInterface*>(llmod);
         assert(macMod);
 
-        PPPFrame* frame = polymorphic_downcast<PPPFrame*>(msg);
+        PPP6Frame* frame = polymorphic_downcast<PPP6Frame*>(msg);
         LinkLayerModule* destMod = findMacByAddress(frame->destAddr);
 
         if (destMod || frame->destAddr == ETH_BROADCAST_ADDRESS)
@@ -267,12 +267,16 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
         break;
         case PR_PPP:
         {
-          signal = new PPPFrame;
+          signal = new PPP6Frame;
           cMessage* data = srcFrame->decapsulate();
+/* XXX why delete if we copy if before?? --AV
           cPacket* dupData = static_cast<cPacket*>(data->dup());
+          delete data;
+*/
+          cMessage* dupData = data;  // XXX 2 lines above replaced with this --AV
+
           signal->encapsulate(dupData);
           signal->setName(dupData->name());
-          delete data;
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << fullPath() << " \n"
                << " Packet forward from WirelessEthernet to PPP: \n");
@@ -342,7 +346,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
 
     case PR_PPP:
     {
-      PPPFrame* srcFrame = static_cast<PPPFrame*>(frame);
+      PPP6Frame* srcFrame = static_cast<PPP6Frame*>(frame);
 
       switch(destProtocol)
       {

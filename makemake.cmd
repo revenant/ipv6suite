@@ -48,7 +48,9 @@ cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
 cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I..\..\PHY\Wireless -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
 :FIXME remove -IEthernet6 from PPP6!!!!! (dep on MACAddress) --AV
 cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I..\Ethernet6 -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
-cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I.. -I..\.. -I..\..\Util -I..\Ethernet6 -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
+:FIXME sure we need -IMobility here? --AV
+:FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface ???!!!!
+cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I../PPP6 -I.. -I..\.. -I..\..\Util -I..\Ethernet6 -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY\Mobility -I..\..\PHY\Wireless
 
 cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r

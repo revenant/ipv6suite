@@ -11,18 +11,18 @@ ALL_MODEL_OPTS="$OPTS -n"
 
 : #--------------------------------------
 
-$MAKEMAKE $OPTS -n -r
+$MAKEMAKE $OPTS -n -r -X Documentation -X Etc -X Unsupported
 
 (cd Applications && $MAKEMAKE $OPTS -n -r)
-(cd Examples && $MAKEMAKE $OPTS -n -r)
-(cd Tests && $MAKEMAKE $OPTS -n -r)
+(cd Examples && $MAKEMAKE $OPTS -n -r -X RTP)
+(cd Tests && $MAKEMAKE $OPTS -n -r -X IPv4 -X MPLS)
 (cd Network && $MAKEMAKE $OPTS -n -r)
 (cd NetworkInterfaces && $MAKEMAKE $OPTS -n -r)
 (cd Nodes && $MAKEMAKE $OPTS -n -r)
 (cd PHY && $MAKEMAKE $OPTS -n -r)
-(cd Transport && $MAKEMAKE $OPTS -n -r)
+(cd Transport && $MAKEMAKE $OPTS -n -r -X RTP)
 (cd Base && $MAKEMAKE $OPTS -n -r)
-(cd Util && $MAKEMAKE $OPTS -n -r)
+(cd Util && $MAKEMAKE $OPTS -n -r -X boost -X Topology)
 
 (cd Applications/Generic && $MAKEMAKE $OPTS -n -r -I../../Network/IPv4 -I../../Base -I../../Util)
 (cd Applications/Ethernet && $MAKEMAKE $OPTS -n -r -I../../NetworkInterfaces/Ethernet -I../../NetworkInterfaces/_802 -I../../Base -I../../Util)

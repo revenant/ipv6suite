@@ -556,7 +556,6 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../../Base/ModuleAccess.h \
   ../../Network/IPv6/IPv6Datagram.h \
   ../../Base/QueueBase.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
   ../../Base/AbstractQueue.h \
   ../../Network/ICMPv6/IRouterList.h \
   ../../Network/ICMPv6/IPrefixList.h \

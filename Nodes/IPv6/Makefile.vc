@@ -291,5 +291,4 @@ EtherHub.obj: EtherHub.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Network/IPv6/IPv6Headers.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Network/IPv6/IPv6Headers.h

@@ -18,11 +18,11 @@ set ALL_MODEL_OPTS=%OPTS% -n
 
 echo on
 echo @%root%@
-%MAKEMAKE% %OPTS% -n -r
+%MAKEMAKE% %OPTS% -n -r -X Documentation -X Etc -X Unsupported
 
 cd %root%\Applications && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Examples && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Tests && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples && %MAKEMAKE% %OPTS% -n -r -X RTP
+cd %root%\Tests && %MAKEMAKE% %OPTS% -n -r -X IPv4 -X MPLS
 cd %root%\Network && %MAKEMAKE% %OPTS% -n -r
 cd %root%\NetworkInterfaces && %MAKEMAKE% %OPTS% -n -r -I..\Util
 cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
@@ -32,10 +32,10 @@ cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r -I.. -I..\Util -I..\NetworkInterfaces\W
 cd %root%\Mobility && %MAKEMAKE% %OPTS% -n -r -I.. -I..\Util -I..\World -I..\NetworkInterfaces -I..\NetworkInterfaces\Wireless  -I..\NetworkInterfaces\Ethernet6 -IadHocSim
 cd %root%\Mobility\adHocSim && %MAKEMAKE% %OPTS% -n -r
 
-cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r -X RTP
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
 :#FIXME Util should not depend on Mobility!
-cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Mobility -I..\World -I..\Base
+cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -X boost -X Topology -I. -I..\Mobility -I..\World -I..\Base
 
 :#---------------
 :#FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!

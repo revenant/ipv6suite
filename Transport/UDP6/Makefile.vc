@@ -164,7 +164,6 @@ UDPProcessing6.obj: UDPProcessing6.cc \
   ../../Util/boost/config/suffix.hpp \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
-  ../../Network/IPv4/IPProtocolId_m.h \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/ipv6_addr.h \
   ../../Network/IPv6/IPInterfacePacket.h \

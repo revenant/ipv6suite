@@ -189,63 +189,50 @@ TCPConnectionBase.obj: TCPConnectionBase.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPConnectionEventProc.obj: TCPConnectionEventProc.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPConnectionRcvSegment.obj: TCPConnectionRcvSegment.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPConnectionUtil.obj: TCPConnectionUtil.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPDump.obj: TCPDump.cc \
   TCPDump.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Network/IPv4/IPDatagram_m.h \
   TCPSegment.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPMain.obj: TCPMain.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
   ../../Util/stlwatch.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h
+  ../../Base/INETDefs.h
 TCPMsgBasedRcvQueue.obj: TCPMsgBasedRcvQueue.cc \
   TCPMsgBasedRcvQueue.h \
   TCPSegment.h \

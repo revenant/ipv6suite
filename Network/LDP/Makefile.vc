@@ -149,6 +149,4 @@ NewLDP.obj: NewLDP.cc \
   ../../Base/INETDefs.h \
   ../MPLS/MPLSPacket.h \
   ../IPv4/IPDatagram.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../NetworkInterfaces/Common/InterfaceTable.h

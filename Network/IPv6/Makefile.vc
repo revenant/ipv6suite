@@ -222,7 +222,6 @@ ErrorHandling6.obj: ErrorHandling6.cc \
   ../ICMPv6/ICMPv6Message.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -546,8 +545,7 @@ HdrExtDestProc.obj: HdrExtDestProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../IPv4/IPProtocolId_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtFragProc.obj: HdrExtFragProc.cc \
   HdrExtFragProc.h \
   IPv6Datagram.h \
@@ -714,8 +712,7 @@ HdrExtFragProc.obj: HdrExtFragProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../IPv4/IPProtocolId_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtProc.obj: HdrExtProc.cc \
   ../../Util/boost/cast.hpp \
   IPv6Headers.h \
@@ -882,8 +879,7 @@ HdrExtProc.obj: HdrExtProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../IPv4/IPProtocolId_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtRteProc.obj: HdrExtRteProc.cc \
   HdrExtRteProc.h \
   ../../Util/boost/cast.hpp \
@@ -892,7 +888,6 @@ HdrExtRteProc.obj: HdrExtRteProc.cc \
   ../ICMPv6/ICMPv6Message.h \
   IPv6Headers.h \
   HdrExtProc.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -1755,7 +1750,6 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../MIPv6/MIPv6DestOptMessages.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -2147,7 +2141,6 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ./IPv6Address.h \
   ./ipv6_addr.h \
@@ -2172,7 +2165,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../ICMPv6/ICMPv6Message.h \
   ../../Util/opp_utils.h \
   ../ICMPv6/NDEntry.h \
-  ../ICMPv6/AddrResInfo_m.h \
   HdrExtRteProc.h \
   Interface6Entry.h \
   IPv6CDS.h \
@@ -2382,7 +2374,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ./IPv6Address.h \
   ./ipv6_addr.h \
@@ -2424,7 +2415,6 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   IPv6Datagram.h \
   ../ICMPv6/ICMPv6Message.h \
   IPv6InterfaceData.h \
-  ../ICMPv6/AddrResInfo_m.h \
   RoutingTable6Access.h \
   ../../Base/QueueBase.h \
   ../../Base/ModuleAccess.h \
@@ -2627,7 +2617,6 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   HdrExtProc.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
-  ../IPv4/IPProtocolId_m.h \
   IPv6InterfacePacket.h \
   IPv6InterfaceData.cc \
   IPInterfacePacket.h
@@ -2810,7 +2799,6 @@ IPv6InputQueue.obj: IPv6InputQueue.cc \
   ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3469,7 +3457,6 @@ IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../IPv4/IPProtocolId_m.h \
   IPInterfacePacket.h
 IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/boost/cast.hpp \
@@ -3505,7 +3492,6 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3705,7 +3691,6 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   IPv6Multicast.h \
   IPv6Datagram.h \
   RoutingTable6.h \
-  ../ICMPv6/AddrResInfo_m.h \
   IPv6Forward.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
@@ -3724,7 +3709,6 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3928,7 +3912,6 @@ IPv6Output.obj: IPv6Output.cc \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -4151,7 +4134,6 @@ IPv6PreRouting.obj: IPv6PreRouting.cc \
   ../../Util/boost/non_type.hpp \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -4364,7 +4346,6 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -4557,7 +4538,6 @@ IPv6Utils.obj: IPv6Utils.cc \
   IPv6Datagram.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -4931,7 +4911,6 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../Util/boost/utility_fwd.hpp \
   ./ipv6_addr.h \
   ./IPv6Address.h \
-  ../IPv4/IPProtocolId_m.h \
   RoutingTable6Access.h \
   IPv6Address.h \
   ../../Base/ModuleAccess.h \

@@ -137,12 +137,10 @@ NewBWRequestTester.obj: NewBWRequestTester.cc \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
   ../MPLS/ConstType.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
+  ../../Base/INETDefs.h \
+  ../IPv4/IPAddress.h \
   ../../NetworkInterfaces/Common/InterfaceTable.h
 NewRouteTester.obj: NewRouteTester.cc \
   ../MPLS/MPLSModule.h \
@@ -154,10 +152,8 @@ NewRouteTester.obj: NewRouteTester.cc \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
   ../MPLS/ConstType.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
+  ../../Base/INETDefs.h \
+  ../IPv4/IPAddress.h \
   ../../NetworkInterfaces/Common/InterfaceTable.h

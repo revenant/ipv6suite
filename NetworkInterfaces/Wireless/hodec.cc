@@ -33,23 +33,23 @@ double MF_hodec_xfl_triangle::param(int _i) {
 }
 
 double MF_hodec_xfl_triangle::compute_eq(double x) {
-  return (a<x && x<=b? (x-a)/(b-a) : (b<x && x<c? (c-x)/(c-b) : 0)); 
+  return (a<x && x<=b? (x-a)/(b-a) : (b<x && x<c? (c-x)/(c-b) : 0));
 }
 
 double MF_hodec_xfl_triangle::compute_greq(double x) {
-  return (x<a? 0 : (x>b? 1 : (x-a)/(b-a) )); 
+  return (x<a? 0 : (x>b? 1 : (x-a)/(b-a) ));
 }
 
 double MF_hodec_xfl_triangle::compute_smeq(double x) {
-  return (x<b? 1 : (x>c? 0 : (c-x)/(c-b) )); 
+  return (x<b? 1 : (x>c? 0 : (c-x)/(c-b) ));
 }
 
 double MF_hodec_xfl_triangle::center() {
-  return b; 
+  return b;
 }
 
 double MF_hodec_xfl_triangle::basis() {
-  return (c-a); 
+  return (c-a);
 }
 
 //+++++++++++++++++++++++++++++++++++++//
@@ -57,33 +57,33 @@ double MF_hodec_xfl_triangle::basis() {
 //+++++++++++++++++++++++++++++++++++++//
 
 double OP_hodec__default_::and2(double a, double b) {
-  return (a<b? a : b); 
+  return (a<b? a : b);
 }
 double OP_hodec__default_::or2(double a, double b) {
-  return (a>b? a : b); 
+  return (a>b? a : b);
 }
 double OP_hodec__default_::also(double a, double b) {
-  return (a>b? a : b); 
+  return (a>b? a : b);
 }
 double OP_hodec__default_::imp(double a, double b) {
-  return (a<b? a : b); 
+  return (a<b? a : b);
 }
 double OP_hodec__default_::not2(double a) {
-  return 1-a; 
+  return 1-a;
 }
 
 double OP_hodec__default_::very(double a) {
  double w = 2.0;
-  return pow(a,w); 
+  return pow(a,w);
 }
 
 double OP_hodec__default_::moreorless(double a) {
  double w = 0.5;
-  return pow(a,w); 
+  return pow(a,w);
 }
 
 double OP_hodec__default_::slightly(double a) {
-  return 4*a*(1-a); 
+  return 4*a*(1-a);
 }
 
 double OP_hodec__default_::defuz(OutputMembershipFunction &mf) {
@@ -282,3 +282,4 @@ void hodec::inference( double _i_ms_bw_req, double _i_ap_ss, double _i_ap_avail_
 }
 
 #endif /* _hodec_INFERENCE_ENGINE_ */
+

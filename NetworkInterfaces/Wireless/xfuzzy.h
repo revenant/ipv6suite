@@ -1,3 +1,4 @@
+
 #ifndef _XFUZZY_HPP
 #define _XFUZZY_HPP
 
@@ -34,8 +35,7 @@ public:
 //      Abstract class of a fuzzy inference engine      //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-class FuzzyInferenceEngine {
-public:
+class FuzzyInferenceEngine {public:
  virtual double* crispInference(double* input) = 0;
  virtual double* crispInference(MembershipFunction* &input) = 0;
  virtual MembershipFunction** fuzzyInference(double* input) = 0;

@@ -1,5 +1,4 @@
-#include <string.h>
-#include "xfuzzy.h"
+#include <string.h>#include "xfuzzy.h"
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //       Membership function of an input variable       //
@@ -293,4 +292,5 @@ int OutputMembershipFunction::isDiscrete() {
  for(int i=0; i<length; i++) if(!conc[i]->isDiscrete()) return 0;
  return 1;
 }
+
 

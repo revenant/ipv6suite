@@ -126,3 +126,4 @@ private:
 };
 
 #endif /* _hodec_INFERENCE_ENGINE_HPP */
+

@@ -64,8 +64,8 @@ OBJS=
 GENERATEDHEADERS= 
 
 # subdirectories to recurse into
-SUBDIRS= EthNetwork HMIPv6Network LargeTestNetwork MIPv6Network PingNetwork TestNetwork TunnelNet WirelessEtherNetwork WirelessEtherNetwork2 WirelessEtherNetworkDual WirelessTest
-SUBDIR_TARGETS=  EthNetwork_dir HMIPv6Network_dir LargeTestNetwork_dir MIPv6Network_dir PingNetwork_dir TestNetwork_dir TunnelNet_dir WirelessEtherNetwork_dir WirelessEtherNetwork2_dir WirelessEtherNetworkDual_dir WirelessTest_dir
+SUBDIRS= EthNetwork HMIPv6Network MIPv6Network PingNetwork TestNetwork TunnelNet WirelessEtherNetwork WirelessEtherNetwork2 WirelessEtherNetworkDual WirelessTest
+SUBDIR_TARGETS=  EthNetwork_dir HMIPv6Network_dir MIPv6Network_dir PingNetwork_dir TestNetwork_dir TunnelNet_dir WirelessEtherNetwork_dir WirelessEtherNetwork2_dir WirelessEtherNetworkDual_dir WirelessTest_dir
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -82,9 +82,6 @@ EthNetwork_dir:
 
 HMIPv6Network_dir:
 	cd HMIPv6Network && cd && nmake /nologo /f Makefile.vc
-
-LargeTestNetwork_dir:
-	cd LargeTestNetwork && cd && nmake /nologo /f Makefile.vc
 
 MIPv6Network_dir:
 	cd MIPv6Network && cd && nmake /nologo /f Makefile.vc

@@ -9,8 +9,9 @@ subdirs $(OBJS) : generateheaders
 # add dependencies across directories
 Network Transport NetworkInterfaces PHY Applications : Base Util
 Transport NetworkInterfaces Applications : Network
-Nodes : Network Transport NetworkInterfaces PHY Applications
+Nodes : Network Transport NetworkInterfaces PHY Mobility Applications World
 Examples Tests : Nodes
+Examples : Tests  # this is just for convenience, can be removed
 
 # documentation targets
 DOC_DIR=Documentation

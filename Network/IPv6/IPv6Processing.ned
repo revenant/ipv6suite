@@ -72,7 +72,7 @@ module IPv6Processing
         preRouting: IPv6PreRouting;
             parameters:
                 procDelay = prerouting_delay;
-            display: "p=59,125;i=prot3";
+            display: "p=59,125;i=prot3;q=queue";
         forwarding: IPv6Forward;
             parameters:
                 procdelay = routing_delay;

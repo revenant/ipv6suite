@@ -734,7 +734,7 @@ IPv6Datagram* NDStateRouter
   dgram->setHopLimit(NDHOPLIMIT);
 
   dgram->encapsulate(rtrAd);
-  //XXX TBD dgram->setTransportProtocol(???);
+  dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
   dgram->setName(rtrAd->name());
 
 #ifdef USE_HMIP

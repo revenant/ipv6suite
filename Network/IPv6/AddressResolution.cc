@@ -289,7 +289,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
     NS* ns = new NS(tmr->targetAddr, ie.LLAddr());
 
     tmr->dgram->encapsulate(ns);
-    //XXX TBD: tmr->dgram->setTransportProtocol(???);
+    tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
     tmr->dgram->setName(ns->name());
 
     tmr->msg = new ARTmrMsg(Tmr_AddrReslnTimeout, this,

@@ -164,6 +164,7 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   ../../Util/opp_utils.h \
   ../../Network/IPv6/IPv6InterfacePacketWithData.h \
   ../../Network/Generic/InterfaceTableAccess.h \
+  ../LL6ControlInfo_m.h \
   ../LinkLayerModule.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/cast.hpp \
@@ -339,6 +340,7 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
+  ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Base/ModuleAccess.h \
   ../../Network/Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \

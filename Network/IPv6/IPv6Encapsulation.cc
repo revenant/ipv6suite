@@ -86,10 +86,6 @@ void IPv6Encapsulation::initialize(int stageNo)
     encapLimit = 4;
     vIfIndexTop = UINT_MAX - ift->numInterfaces() - 1;
   }
-  else if (stageNo == 1)
-  {
-
-  }
 }
 
 /**

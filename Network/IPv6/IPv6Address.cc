@@ -124,9 +124,11 @@ IPv6Address::IPv6Address(const ipv6_prefix& pref)
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, "ctor(ipv6_prefix) "<<(void*)this);
 #endif  //__INTEL_COMPILER
+*/
   setAddress(pref.prefix);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
     m_prefix_length = IPv6_ADDR_LENGTH;
@@ -137,9 +139,11 @@ IPv6Address::IPv6Address(const char* t)
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, " ctor(char*, char*) "<<(void*)this);
 #endif  //__INTEL_COMPILER
+*/
   setAddress(t);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
     m_prefix_length = IPv6_ADDR_LENGTH;
@@ -150,10 +154,11 @@ IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, "ctor(ipv6_addr&, size_t, char*) "<<(void*)this);
 #endif //!defined __INTEL_COMPILER
-
+*/
   setAddress(addr);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
     m_prefix_length = IPv6_ADDR_LENGTH;
@@ -161,10 +166,11 @@ IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
 
 IPv6Address::IPv6Address(const IPv6Address& obj)
 {
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, "copy ctor "<<(void*)this);
 #endif //!defined __INTEL_COMPILER
-
+*/
   IPv6Address::operator=(obj);
 }
 

@@ -172,6 +172,7 @@ void IPv6Forward::endService(cMessage* theMsg)
   //still display 0 source address when they shouldn't. Recording at prerouting
   //and output
   //printRoutingInfo(routingInfoDisplay, datagram.get(), rt->nodeName());
+
   if (rt->localDeliver(datagram->destAddress()))
   {
     Dout(dc::forwarding|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()<<" "

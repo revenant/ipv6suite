@@ -258,6 +258,9 @@ MIPv6CDS.obj: MIPv6CDS.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -447,6 +450,9 @@ MIPv6CDSHomeAgent.obj: MIPv6CDSHomeAgent.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -640,6 +646,9 @@ MIPv6CDSMobileNode.obj: MIPv6CDSMobileNode.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -777,6 +786,8 @@ MIPv6DestOptMessages.obj: MIPv6DestOptMessages.cc \
   ../IPv6/IPv6Headers.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Datagram.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -959,6 +970,8 @@ MIPv6ICMPv6NDMessage.obj: MIPv6ICMPv6NDMessage.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -1122,6 +1135,8 @@ MIPv6MessageBase.obj: MIPv6MessageBase.cc \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
   ../IPv6/ipv6_addr.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -1278,7 +1293,8 @@ MIPv6MessageBase.obj: MIPv6MessageBase.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp
+  ../../Util/boost/mpl/aux_/ice_cast.hpp \
+  ../IPv6/IPInterfacePacket_m.h
 MIPv6MHParameters.obj: MIPv6MHParameters.cc \
   MIPv6MHParameters.h \
   MIPv6MessageBase.h \
@@ -1287,6 +1303,9 @@ MIPv6MHParameters.obj: MIPv6MHParameters.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -1623,6 +1642,9 @@ MIPv6MNEntry.obj: MIPv6MNEntry.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -1657,6 +1679,9 @@ MIPv6MobilityHeaders.obj: MIPv6MobilityHeaders.cc \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -2008,7 +2033,10 @@ MIPv6MobilityState.obj: MIPv6MobilityState.cc \
   ../../config.h \
   ../../Util/opp_utils.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
   ../ICMPv6/NDEntry.h \
@@ -2230,10 +2258,13 @@ MIPv6MStateCorrespondentNode.obj: MIPv6MStateCorrespondentNode.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   MIPv6MessageBase.h \
   MIPv6MHParameters.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../ICMPv6/NDEntry.h \
   ../IPv6/IPv6Address.h \
   ../IPv6/HdrExtDestProc.h \
@@ -2438,10 +2469,13 @@ MIPv6MStateHomeAgent.obj: MIPv6MStateHomeAgent.cc \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   MIPv6MessageBase.h \
   MIPv6MHParameters.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/shared_ptr.hpp \
   ../ICMPv6/NDEntry.h \
   ../../Util/boost/assert.hpp \
@@ -2693,10 +2727,13 @@ MIPv6MStateMobileNode.obj: MIPv6MStateMobileNode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   MIPv6MessageBase.h \
   MIPv6MHParameters.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   MIPv6CDS.h \
   ../IPv6/IPv6Address.h \
   ../../Util/boost/weak_ptr.hpp \
@@ -2793,6 +2830,8 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -2973,6 +3012,7 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   MIPv6MHParameters.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/Loki/Typelist.h \
@@ -2992,8 +3032,12 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   ../../NetworkInterfaces/LinkLayerModule.h \
   ../../NetworkInterfaces/Wireless/wirelessethernet.h \
   ../../NetworkInterfaces/Ethernet6/MACAddress6.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
+  ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ./MIPv6CDSMobileNode.h \
   ../HMIPv6/HMIPv6Entry.h \
   ./MIPv6CDS.h \
@@ -3121,6 +3165,8 @@ MIPv6NDStateRouter.obj: MIPv6NDStateRouter.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \

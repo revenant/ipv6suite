@@ -74,11 +74,8 @@ IPv6Datagram::IPv6Datagram(const ipv6_addr& src, const ipv6_addr& dest,
 {
   setLength(IPv6_HEADER_LENGTH);
   //This signifies a packet that has not arrived at a host
-  setInputPort(-1);
-  if (src != IPv6_ADDR_UNSPECIFIED)
-    setSrcAddress(src);
-  if (dest != IPv6_ADDR_UNSPECIFIED)
-    setDestAddress(dest);
+  setSrcAddress(src);
+  setDestAddress(dest);
 
   if (pdu != 0)
   {

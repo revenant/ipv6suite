@@ -118,6 +118,7 @@ void RoutingTable6::initialize(int stage)
     interfaces[0] = loopback_iface;
 */
 
+/*XXX code moved to stage 1, because we have to wait until interfaces get registered
     WorldProcessor *wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     // XXX try
@@ -129,7 +130,7 @@ void RoutingTable6::initialize(int stage)
     // XXX {
     // XXX   Dout(dc::warning|error_cf, nodeName()<<" "<<e.what());
     // XXX }
-
+*/
     cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP"); // XXX try to get rid of pointers to other modules --AV
     assert(ICMP);
 /*XXX looks like it's not needed here
@@ -160,6 +161,9 @@ void RoutingTable6::initialize(int stage)
 
     WorldProcessor *wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
+
+    // try/catch was deleted from here
+    wp->xmlConfig()->parseNetworkEntity(ift, this);
 
     //Added static routes, source routing and tunneling, This can only be done
     //after interface names have been assigned i.e. couldn't get

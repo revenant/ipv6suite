@@ -18,42 +18,42 @@
 
 
 //
-// Manages terrain positions of all entities, and handles mobility in the 
-// simulation. There has to be <b>exactly one</b> WorldProcessor in every 
+// Manages terrain positions of all entities, and handles mobility in the
+// simulation. There has to be <b>exactly one</b> WorldProcessor in every
 // network model, and it has to be the <b>first</b> submodule in the top-level
 // module.
 //
 // WorldProcessor acts as a database during simulation. At initialization,
-// it parses the XML configuration file (see <a href="config.html">Configuring 
-// IPv6 models</a>) into a data structure which will be accessed by modules 
+// it parses the XML configuration file (see <a href="config.html">Configuring
+// IPv6 models</a>) into a data structure which will be accessed by modules
 // in the simulated network nodes.
-// 
+//
 // This information includes:
 // - routing tables
 // - node configurations, protocol parameters
 // - movement information (path, etc.) for mobile nodes
-// 
+//
 // Other nodes read this information by directly calling methods of
 // the class implementing WorldProcessor.
-// 
+//
 // The single WorldProcessor instance in the network model must be
 // named <tt>worldProcessor</tt> and it must be on network level
 // (submodule of the toplevel module) for the other modules to find it.
-// 
+//
 // Routing tables are read by RoutingTable simple modules.
 //
 // <b>Wireless nodes</b>
-// 
+//
 // The WorldProcessor also plays a part in the communication of wireless nodes.
 // Wireless nodes maintain their own positions and manage mobility (perform
 // movements by periodically updating their positions) themselves, but
 // they register themselves with the WorldProcessor. The WorldProcessor thus
 // has a list of all wireless entities in the network, and this information
-// is used to determine recipients of a wireless frame when it is sent. 
-// 
-// Registration of wireless/mobile entities is done by directly calling methods 
-// of the WorldProcessor. Wireless nodes represent themselves in the 
-// WorldProcessor as instances of the <tt>Entity</tt> C++ class. 
+// is used to determine recipients of a wireless frame when it is sent.
+//
+// Registration of wireless/mobile entities is done by directly calling methods
+// of the WorldProcessor. Wireless nodes represent themselves in the
+// WorldProcessor as instances of the <tt>Entity</tt> C++ class.
 // The <tt>Entity</tt> objects themselves are kept by the wireless nodes
 // (currently in the module representing the wireless physical layer),
 // WorldProcessor only contains pointers to them. FIXME or not????
@@ -65,6 +65,4 @@ simple WorldProcessor
         max_longitude : numeric const, // only used to define the size of the network
                                        // module graphics in Tkenv (pixels)
         max_latitude : numeric const,  // see max_longitude
-	wlan_speed : numeric const;    // Rate of 802.11b WLAN can be 1/2/5/11 (Mbps)
-				       //although any other integer is fine too
 endsimple

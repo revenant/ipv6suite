@@ -16,17 +16,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/**
-   @file WorldProcessor.h
 
-   @brief Definition of WorldProcessor
-
-   A module that handles the terrain positions of all the entities
-
-   @author Eric Wu
- */
-
-#ifndef MOBILEWORLDPROCESSOR_H
+#ifndef WORLDPROCESSOR_H
 #define WORLDPROCESSOR_H
 
 #include <omnetpp.h>
@@ -68,13 +59,11 @@ extern const int TMR_WPSTATS;
 
 
 /**
- * @class WorldProcessor
- * @brief Handles management of mobility in simulation
-
+ * Handles management of mobility in simulation.
+ *
  * Also its initialize member is used for one off initialisation at start of
  * simulation because this is always the first module to be constructed
  */
-
 class WorldProcessor : public cSimpleModule
 {
   static const int RoutingTable6StageCount = 3;
@@ -90,54 +79,10 @@ class WorldProcessor : public cSimpleModule
   virtual int  numInitStages() const  {return  RoutingTable6StageCount;}
   virtual void finish();
 
-
-  /**
-   * Fills in the given RoutingTable6 data structure with the routing table
-   * of the host whose hostname is passed in the RoutingTable6 data structure.
-   */
-  void parseNetworkEntity(RoutingTable6* rt );
-
-  /**
-   * Fills in the given RoutingTable6 data structure with the static routing table
-   * of the host given by the nodeName parameter.
-   */
-  void staticRoutingTable(RoutingTable6* rt);
-
-#ifdef USE_HMIP
-  /**
-   * Fills in the MAP info part of the given RoutingTable6 data structure
-   * for the host whose hostname is passed in the RoutingTable6 data structure.
-   */
-  void parseMAPInfo(RoutingTable6* rt);
-#endif // USE_HMIP
-
-  XMLConfiguration::XMLOmnetParser* xmlManager() const { return parser; }
-private:
-  mutable XMLConfiguration::XMLOmnetParser* parser;
+  XMLConfiguration::XMLOmnetParser* xmlConfig() const { return parser; }
 
 #ifdef USE_MOBILITY
 public:
-
-  /**
-   * Fills in parameters inside the given WirelessEtherModule.
-   */
-  void parseWirelessEtherInfo(WirelessEtherModule* mod);
-
-  /**
-   * Fills in parameters inside the given MobilityStatic.
-   */
-  void parseMovementInfo(MobilityStatic* mod);
-
-  /**
-   * Fills in parameters inside the given MobilityRandomWP and
-   * MobilityRandomWalk.
-   */
-  void parseRandomWPInfo(MobilityRandomWP* mod);
-
-  /**
-   * Fills in parameters inside the given MobilityRandomPattern.
-   */
-  void parseRandomPatternInfo(MobilityRandomPattern* mod);
 
   /**
    * Register a wireless entity in the world processor.
@@ -162,19 +107,26 @@ public:
   ModuleList findWirelessEtherModulesByChannelRange(const int minChan, const int maxChan);
 
   /**
+   * Returns the list of all registered entities
+   */
+  const ModuleList& entities()  {return modList;}
+
+  /**
    * Find entity by its module.
    */
   Entity* findEntityByModule(cModule* module);
+#endif // USE_MOBILITY
 
- private:
+private:
+  mutable XMLConfiguration::XMLOmnetParser* parser;
+
+#ifdef USE_MOBILITY
   ModuleList modList;
   int _maxLongitude;
   int _maxLatitude;
-
-  void updateStats(void);
-  Loki::cTimerMessageCB<void>* updateStatsNotifier;
-  cOutVector balanceIndexVec;
 #endif // USE_MOBILITY
+
+  //XXX void updateStats() stuff factored out to separate WirelessStats module --AV
 };
 
 #endif // WORLDPROCESSOR_H

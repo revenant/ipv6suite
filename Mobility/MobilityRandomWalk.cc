@@ -34,6 +34,7 @@
 
 #include "MobilityRandomWalk.h"
 #include "WorldProcessor.h"
+#include "XML/XMLOmnetParser.h"
 #include "MobileEntity.h"
 #include "randomWalk.h"
 
@@ -47,7 +48,7 @@ void MobilityRandomWalk::initialize(int stage)
 
   if ( stage == 1 )
   {
-    wproc->parseRandomWPInfo(this);
+    wproc->xmlConfig()->parseRandomWPInfo(this);
     moveKind = true; // only allow rebounding movement for random walk
 
     randomWalk = new RandomWalk;

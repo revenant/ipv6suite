@@ -22,13 +22,10 @@
    @author Johnny Lai
  */
 
-#if !defined IPV6GLOBAL_H
-#define IPV6GLOBAL_H
+#ifndef OPP_UTILS_H
+#define OPP_UTILS_H
 
-#ifndef MEMORY
-#define MEMORY
 #include <memory> //std::auto_ptr
-#endif //MEMORY
 
 /* XXX --AV
 #ifndef BOOST_WEAK_PTR_HPP_INCLUDED
@@ -166,10 +163,8 @@ namespace OPP_Global
   void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
 */
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
   ///Returns the omnet++ parser for use by other classes to parse their own attributes
- XMLConfiguration::XMLOmnetParser* getParser();
-#endif
+  XMLConfiguration::XMLOmnetParser* getParser();
 }
 
 /**
@@ -191,4 +186,5 @@ namespace OPP_Global
     return p;                                                           \
   }
 
-#endif //IPV6GLOBAL_H
+#endif
+

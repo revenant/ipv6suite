@@ -34,6 +34,7 @@
 
 #include "MobilityStatic.h"
 #include "WorldProcessor.h"
+#include "XML/XMLOmnetParser.h"
 #include "MobileEntity.h"
 
 Define_Module_Like( MobilityStatic, MobilityHandler );
@@ -44,7 +45,7 @@ void MobilityStatic::initialize(int stage)
 
   if ( stage == 2 )
   {
-    wproc->parseMovementInfo(this);
+    wproc->xmlConfig()->parseMovementInfo(this);
     if (mobileEntity->speed() && !selfMovingNotifier)
     {
       elapsedTime = (double)1 / mobileEntity->speed();

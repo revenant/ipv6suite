@@ -66,7 +66,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= WorldProcessor.obj
+OBJS= WirelessStats.obj WorldProcessor.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -93,6 +93,9 @@ $(EXT_DIR_TSTAMPS):
 	@exit /b 1
 
 subdirs: $(SUBDIR_TARGETS)
+
+WirelessStats.obj: WirelessStats.cc
+	$(CXX) -c $(COPTS) /Tp WirelessStats.cc
 
 WorldProcessor.obj: WorldProcessor.cc
 	$(CXX) -c $(COPTS) /Tp WorldProcessor.cc

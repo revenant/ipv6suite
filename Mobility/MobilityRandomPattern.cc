@@ -34,6 +34,7 @@
 
 #include "MobilityRandomPattern.h"
 #include "WorldProcessor.h"
+#include "XML/XMLOmnetParser.h"
 #include "MobileEntity.h"
 #include "SingletonRandomPattern.h"
 
@@ -67,7 +68,7 @@ void MobilityRandomPattern::initialize(int stage)
 
     // If the RandomPattern has already been created, we don't need to
     // parse the info to it anymore.
-    wproc->parseRandomPatternInfo(this);
+    wproc->xmlConfig()->parseRandomPatternInfo(this);
 
     if (rp->refCount == 1)
     {

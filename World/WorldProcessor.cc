@@ -75,11 +75,7 @@ WorldProcessor::WorldProcessor(const char *name, cModule *parent, unsigned stack
 
 void WorldProcessor::handleMessage(cMessage* msg)
 {
-  assert(msg);
-  if ( !msg->isSelfMessage())
-    assert(false);
-  else
-    static_cast<cTimerMessage*>(msg)->callFunc();
+  error("WorldProcessor doesn't process messages");
 }
 
 void WorldProcessor::initialize(int stage)
@@ -104,19 +100,6 @@ void WorldProcessor::initialize(int stage)
     cDisplayString& disp = parentModule()->displayString();
     disp.setTagArg("b", 0, OPP_Global::ltostr(_maxLongitude).c_str());
     disp.setTagArg("b", 1, OPP_Global::ltostr(_maxLatitude).c_str());
-
-    // XXX A bit of a hack
-    //BASE_SPEED is in wirelessEthernet.h/cc unit
-    BASE_SPEED = par("wlan_speed").doubleValue() * 1024 * 1024;
-    Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
-
-    balanceIndexVec.setName("balanceIndex");
-
-    // Timer to update statistics
-    updateStatsNotifier  = new Loki::cTimerMessageCB<void>(TMR_WPSTATS,
-                   this, this, &WorldProcessor::updateStats, "updateStats");
-    scheduleAt(simTime()+1, updateStatsNotifier);
-
 #endif //USE_MOBILITY
   }
 #ifdef USE_CPPUNIT
@@ -137,23 +120,8 @@ void WorldProcessor::finish()
   recordScalar("totalMessageCount", cMessage::totalMessageCount());
 }
 
-void WorldProcessor::parseNetworkEntity(RoutingTable6* rt)
-{
-  parser->parseNetworkEntity(rt);
-}
-
-
-#ifdef USE_HMIP
-void WorldProcessor::parseMAPInfo(RoutingTable6* rt)
-{
-  parser->parseMAPInfo(rt);
-}
-#endif //USE_HMIP
-
-void WorldProcessor::staticRoutingTable(RoutingTable6* rt)
-{
-  parser->staticRoutingTable(rt);
-}
+/* XXX parseXXX() functions removed -- they only delegated the work
+   to xmlConfig() --AV */
 
 #if defined USE_CPPUNIT
 #include <cppunit/extensions/TestFactoryRegistry.h>
@@ -176,29 +144,7 @@ bool runUnitTests()
 }// anonymous namespace
 #endif //defined USE_CPPUNIT
 
-
 #ifdef USE_MOBILITY
-
-void WorldProcessor::parseWirelessEtherInfo(WirelessEtherModule* mod)
-{
-  parser->parseWirelessEtherInfo(mod);
-}
-
-void WorldProcessor::parseMovementInfo(MobilityStatic* mod)
-{
-  parser->parseMovementInfo(mod);
-}
-
-void WorldProcessor::parseRandomWPInfo(MobilityRandomWP* mod)
-{
-  parser->parseRandomWPInfo(mod);
-}
-
-void WorldProcessor::parseRandomPatternInfo(MobilityRandomPattern* mod)
-{
-  parser->parseRandomPatternInfo(mod);
-}
-
 Entity* WorldProcessor::findEntityByName(string entityName)
 {
   for ( size_t i = 0; i < modList.size(); i++)
@@ -321,40 +267,6 @@ Entity* WorldProcessor::findEntityByModule(cModule* module)
   return 0;
 }
 
-void WorldProcessor::updateStats(void)
-{
-/* XXX put this back sometime! --AV
-double balanceIndex =0, loadSum=0, loadSquaredSum=0, n=0, usedBW;
-
-  for (size_t i = 0; i < modList.size(); i++)
-  {
-    //Get the interface's link layer
-    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule(); // XXX Ugh!! hardcoded model structure! --AV
-    cModule* phylayer = interface->gate("wlin")->toGate()->ownerModule(); // XXX if not connected ==> crash! --AV
-    cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule(); // XXX if not connected ==> crash! --AV
-
-    if(linkLayer != NULL)
-    {
-      if (std::string(linkLayer->par("NWIName")) == "WirelessAccessPoint")
-      {
-        WirelessAccessPoint* a = static_cast<WirelessAccessPoint*>(linkLayer->submodule("networkInterface"));
-        usedBW = (BASE_SPEED/(1024*1024))-a->getEstAvailBW();
-        loadSum += usedBW;
-        loadSquaredSum += usedBW*usedBW;
-        n++;
-      }
-    }
-  }
-  balanceIndex = (n*loadSquaredSum > 0) ? (loadSum*loadSum)/(n*loadSquaredSum):0;
-  balanceIndexVec.record(balanceIndex);
-
-  //Allow sim to quit if nothing of interest is happening.
-  if (!simulation.msgQueue.empty())
-    scheduleAt(simTime()+1, updateStatsNotifier);
-*/
-}
-
 #endif //USE_MOBILITY
-/**
-   Private Functions
-**/
+
+

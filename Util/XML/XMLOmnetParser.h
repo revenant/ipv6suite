@@ -52,7 +52,7 @@ namespace XMLConfiguration
  *
  * @brief OMNet++ XML Parser
  *
- * Use omnetpp's inbuilt XML parser 
+ * Use omnetpp's inbuilt XML parser
  *
  * @note preferred and supported method (the others are deprecated)
  */
@@ -87,31 +87,52 @@ class XMLOmnetParser
   cXMLElement* getNetNode(const char* name) const;
 
   cXMLElement* doc() const
-    {
-      return root;
-    }
+  {
+    return root;
+  }
 
   ///Actual parsing functions
   //@{
 #ifdef USE_MOBILITY
+  /**
+   * Fills in parameters inside the given WirelessEtherModule.
+   */
   void parseWirelessEtherInfo(WirelessEtherModule* mod);
+
+  /**
+   * Fills in parameters inside the given WirelessEtherModule.
+   */
   void parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* weInfo);
 
-  // parse movement information
+  /**
+   * Fills in parameters inside the given MobilityStatic.
+   */
   void parseMovementInfo(MobilityStatic* mod);
 
-  // parse radom walk information
+  /**
+   * Fills in parameters inside the given MobilityRandomWP and
+   * MobilityRandomWalk.
+   */
   void parseRandomWPInfo(MobilityRandomWP* mod);
 
-  // parse radom pattern information
+  /**
+   * Fills in parameters inside the given MobilityRandomPattern.
+   */
   void parseRandomPatternInfo(MobilityRandomPattern* mod);
-#endif //USE_MOBILITY  
+#endif //USE_MOBILITY
 
 #ifdef USE_HMIP
-  // parse MAP information
+  /**
+   * Fills in the MAP info part of the given RoutingTable6 data structure
+   * for the host whose hostname is passed in the RoutingTable6 data structure.
+   */
   void parseMAPInfo(RoutingTable6* rt);
 #endif // USE_HMIP
-  
+
+  /**
+   * Fills in the given RoutingTable6 data structure with the static routing table
+   * of the host given by the nodeName parameter.
+   */
   void staticRoutingTable(RoutingTable6* rt);
 
   ///Returns a string for further tokenising into logfile & debug channel names
@@ -119,6 +140,10 @@ class XMLOmnetParser
 
   unsigned int version() const;
 
+  /**
+   * Fills in the given RoutingTable6 data structure with the routing table
+   * of the host whose hostname is passed in the RoutingTable6 data structure.
+   */
   void parseNetworkEntity(RoutingTable6* rt);
 
  protected:
@@ -133,8 +158,8 @@ class XMLOmnetParser
   /// parse the attributes of interface nif at index iface_index
   void parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index);
   //@}
-  
- 
+
+
   //@{ disable generation
   XMLOmnetParser(const XMLOmnetParser& src);
 

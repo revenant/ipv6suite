@@ -259,13 +259,9 @@ namespace OPP_Global
   }
 */
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
   XMLConfiguration::XMLOmnetParser* getParser()
   {
-    return (check_and_cast<WorldProcessor*>(
-              simulation.moduleByPath("worldProcessor")))->xmlManager();
-
+    cModule *wp = simulation.moduleByPath("worldProcessor");
+    return check_and_cast<WorldProcessor*>(wp)->xmlConfig();
   }
-#endif
-
 }

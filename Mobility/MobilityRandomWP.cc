@@ -34,6 +34,7 @@
 
 #include "MobilityRandomWP.h"
 #include "WorldProcessor.h"
+#include "XML/XMLOmnetParser.h"
 #include "MobileEntity.h"
 #include "randomWP.h"
 
@@ -47,7 +48,7 @@ void MobilityRandomWP::initialize(int stage)
 
   if ( stage == 1 )
   {
-    wproc->parseRandomWPInfo(this);
+    wproc->xmlConfig()->parseRandomWPInfo(this);
 
     randomWP = new RandomWP;
     randomWP->moveInterval = moveInterval;

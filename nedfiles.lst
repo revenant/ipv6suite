@@ -162,4 +162,5 @@ Transport/UDP6/UDPProcessing6.ned
 Util/Topology/ClosedQueueingNetwork.ned
 Util/Topology/DynamicTopology.ned
 Util/Topology/DynamicTopologyBuilder.ned
+World/WirelessStats.ned
 World/WorldProcessor.ned

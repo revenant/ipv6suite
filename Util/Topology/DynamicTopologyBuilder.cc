@@ -556,7 +556,7 @@ void DynamicTopologyBuilder::initialize()
   assert(wp != 0 );
 
   typedef boost::scoped_array<char> MyString;
-  topoFilename = MyString(wp->xmlManager()->doc()->doc().getDocumentElement().getAttribute(DOMString("topologyFile")).transcode()).get();
+  topoFilename = MyString(wp->xmlConfig()->doc()->doc().getDocumentElement().getAttribute(DOMString("topologyFile")).transcode()).get();
 #else
   topoFilename = static_cast<const char*> (par("topoFilename"));
 #endif //WORLDPROCESSOR_H
@@ -596,7 +596,7 @@ void DynamicTopologyBuilder::initialize()
 
   Nodes nodes(num_vertices(g));
 
-  std::for_each(vertices(g).first, vertices(g).second, createModules<GraphType>(g, this, nodes/*,wp->xmlManager()->doc()*/, par("routerRegExp"), par("nodeRegExp")));
+  std::for_each(vertices(g).first, vertices(g).second, createModules<GraphType>(g, this, nodes/*,wp->xmlConfig()->doc()*/, par("routerRegExp"), par("nodeRegExp")));
 
   setupLinks(g, nodes, this);
 

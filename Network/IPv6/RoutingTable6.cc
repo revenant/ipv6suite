@@ -55,6 +55,7 @@
 #include "WirelessEtherModule.h"
 #endif //USE_MOBILITY
 #include "WorldProcessor.h"
+#include "XML/XMLOmnetParser.h"
 
 // XXX TBD try to eliminate these dependencies
 #include "LinkLayerModule.h"
@@ -123,7 +124,7 @@ void RoutingTable6::initialize(int stage)
     // XXX try
     // XXX {
       //parse this network node's parameters and load them into this.
-      wp->parseNetworkEntity(this);
+      wp->xmlConfig()->parseNetworkEntity(this);
     // XXX }
     // XXX catch(boost::bad_lexical_cast& e)
     // XXX {
@@ -233,7 +234,7 @@ void RoutingTable6::initialize(int stage)
     //Added static routes, source routing and tunneling, This can only be done
     //after interface names have been assigned i.e. couldn't get
     //parseNetworkEntity completed here at same time.
-    wp->staticRoutingTable(this);
+    wp->xmlConfig()->staticRoutingTable(this);
     // test function
     if (displayIfconfig)
       print();
@@ -242,7 +243,7 @@ void RoutingTable6::initialize(int stage)
   {
 #ifdef USE_HMIP
     if (hmipSupport())
-      wp->parseMAPInfo(this);
+      wp->xmlConfig()->parseMAPInfo(this);
 #endif //USE_HMIP
   }
 }

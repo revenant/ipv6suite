@@ -145,7 +145,7 @@ void WirelessEtherModule::baseInit(int stage)
         Dout(dc::xml_addresses, " no global WEInfo for node "<<OPP_Global::nodeName(this));
     }
 
-    wproc->parseWirelessEtherInfo(this);
+    wproc->xmlConfig()->parseWirelessEtherInfo(this);
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
   }
@@ -454,9 +454,8 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
   int minChan = (channel-4 < 1) ? 1 : channel-4;
 
   //Find modules which can receive the frame
-  // XXX this doesn't compile if USE_MOBILITY is undefined! --AV
   ModuleList mods = wproc->
-  findWirelessEtherModulesByChannelRange(minChan, maxChan);
+                findWirelessEtherModulesByChannelRange(minChan, maxChan);
 
   // Four random values which will be used to determine whether
   // data will cross over to adjacent channels

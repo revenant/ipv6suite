@@ -36,8 +36,8 @@ cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6 -I..\Network\IPv
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r
 :# eliminate dep on IPv4 stuff!!!!
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
-cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
+cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\RIP && %MAKEMAKE% %OPTS% -n -r
 
 cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r

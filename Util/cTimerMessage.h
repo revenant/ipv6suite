@@ -25,19 +25,10 @@
 
 */
 
-#ifndef __CMESSAGE_H
-#include <cmessage.h>
-#endif
+#if !defined CTIMERMESSAGE_H
+#define CTIMERMESSAGE_H
 
-#if !defined OPP_VERSION || OPP_VERSION < 3
-#ifndef __CMODULE_H
-#include <cmodule.h>
-#endif
-#else
-#ifndef __CSIMPLEMODULE_H
-#include <csimplemodule.h>
-#endif
-#endif
+#include <omnetpp.h>
 
 #ifndef CASSERT
 #define CASSERT
@@ -60,9 +51,6 @@
 #if !defined BOOST_NONCOPYABLE_HPP_INCLUDED
 #include <boost/noncopyable.hpp>
 #endif
-
-#if !defined CTIMERMESSAGE_H
-#define CTIMERMESSAGE_H
 
 using boost::polymorphic_downcast;
 

@@ -254,12 +254,11 @@ IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
 ///When a container of this element is told to writeContents this function is
 ///invoked to fill the buf with info.  Its a static so be sure that buf is never
 ///reused like os <<buf<<*this
-void IPv6Address::info(char* buf)
+std::string IPv6Address::info()
 {
   ostringstream os;
   os << *this ;
-  os << '\0';
-  os.str().copy(buf, string::npos);
+  return os.str();
 }
 
 

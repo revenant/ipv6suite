@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.cc,v 1.3 2005/02/10 06:33:33 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -320,8 +320,9 @@ bool ICMPv6Message::operator==(const ICMPv6Message& rhs) const
 
 }
 
-void ICMPv6Message::info(char* buf)
+std::string ICMPv6Message::info()
 {
+  return std::string();
 }
 
 void ICMPv6Message::encapsulate(IPv6Datagram* errorPdu)
@@ -378,8 +379,10 @@ ICMPv6Echo& ICMPv6Echo::operator=(const ICMPv6Echo& rhs )
   return* this;
 }
 
-void ICMPv6Echo::info(char* buf)
-{}
+std::string ICMPv6Echo::info()
+{
+  return std::string();
+}
 
 
 #if defined USE_CPPUNIT

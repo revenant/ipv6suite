@@ -38,7 +38,7 @@ IPv6InterfaceData<DataType>& IPv6InterfaceData<DataType>::operator=(const IPv6In
 template<class DataType>
 std::string IPv6InterfaceData<DataType>::info()
 {
-  return std::string;
+  return std::string();
 }
 
 template<class DataType>

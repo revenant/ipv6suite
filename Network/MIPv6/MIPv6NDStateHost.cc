@@ -120,7 +120,7 @@ public:
   {
     delete cb;
   }
-  
+
   /**
    * callback function exercised when interval seconds have passed without
    * receiving a rtrAdv from the currentRtr
@@ -208,7 +208,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
       (Sched_SendRtrSol, nd, makeCallback((NDStateHost*) this, &NDStateHost::sendRtrSol),
        0, false, "schedSendRtrSol", true)), schedSendUnsolNgbrAd(0)
     ,potentialNewInterval(0), ignoreInitiall2trigger(true)
-  
+
 {
 #ifdef USE_MOBILITY
   //Yes very kludgy but we'll just stick with this for now
@@ -258,15 +258,15 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
                                  "Tmr_L2Trigger"));
 
       L2DelayTmr* l2DelayTmr;
-      l2DelayTmr = new L2DelayTmr(Tmr_L2DelayRecorder, mod, this, 
-                                  &MIPv6NDStateHost::recordL2LinkUpTime, 
+      l2DelayTmr = new L2DelayTmr(Tmr_L2DelayRecorder, mod, this,
+                                  &MIPv6NDStateHost::recordL2LinkUpTime,
                                   "recordL2Delay");
 
       wlanMod->setLayer2DelayRecorder(l2DelayTmr);
 
       L2DelayTmr* l2LinkDownTmr;
-      l2LinkDownTmr = new L2DelayTmr(Tmr_L2LinkDownRecorder, mod, this, 
-                                     &MIPv6NDStateHost::recordL2LinkDownTime, 
+      l2LinkDownTmr = new L2DelayTmr(Tmr_L2LinkDownRecorder, mod, this,
+                                     &MIPv6NDStateHost::recordL2LinkDownTime,
                                      "recordLinkDown");
 
       wlanMod->setLayer2LinkDownRecorder(l2LinkDownTmr);
@@ -408,7 +408,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   if (rtrAdv.get() == 0)
     return rtrAdv;
 
-  IPv6Datagram* dgram = rtrAdv->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
 
   size_t ifIndex = dgram->inputPort();
 
@@ -616,7 +616,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       if (rt->hmipSupport() && rtrAdv->hasMapOptions())
         Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost6::processRtrAdv deferring handover");
       else
-#endif //USE_HMIP     
+#endif //USE_HMIP
       handover(bha);
     }
   }
@@ -831,8 +831,8 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   }
   else if (tmr->kind() == Tmr_RtrAdvMissed)
   {
-    nd->missedRtrAdvLatency->record(nd->missedRtrDuration - 
-                                    ( nd->l2LinkupTime - 
+    nd->missedRtrAdvLatency->record(nd->missedRtrDuration -
+                                    ( nd->l2LinkupTime -
                                       mipv6cdsMN->currentRouter()->re.lock()->lastRAReceived ));
 
     mipv6cdsMN->setMovementDetected(true);
@@ -852,7 +852,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   else if (tmr->kind() == Tmr_L2Trigger)
   {
     nd->missedRtrAdvLatency->record(nd->simTime() - nd->l2LinkupTime);
-    
+
     if (ignoreInitiall2trigger)
       ignoreInitiall2trigger = false;
     else
@@ -934,7 +934,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
       mipv6cdsMN->setMovementDetected(false);
     }
     //This case occurs only when we detect movement before a new rtradv received
-    else 
+    else
     {
       ///Because of the staged manner in which macro to local handover occurs
       ///through 2 stages i.e. macro depends on L2/missed tmr to elapse and uses
@@ -1102,8 +1102,8 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       }
       else
       {
-        //Not assigned at all yet unless DAD has finished (it would be in 
-        //tentativeAddr in this case)     
+        //Not assigned at all yet unless DAD has finished (it would be in
+        //tentativeAddr in this case)
         Dout(dc::mipv6|dc::neighbour_disc|flush_cf, rt->nodeName()<<" "<<nd->simTime()
              <<ifIndex<<" waiting for dad completion before sending BU for coa "
              <<coa);
@@ -1245,7 +1245,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
  *
  * @param dgram is the outer tunnel packet including the inner dgram that has
  * not been modified
- * 
+ *
  */
 
 void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
@@ -1369,12 +1369,12 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   }
 #endif //USE_HMIP
 
-  
+
   // the mobile node only initiates the route optimization process
   // when the received packet is a data packet. The mobile node may
   // receive a mobility message in tunnel when the other communicating
   // mobile node also moves to a foreign network
- 
+
   IPv6Datagram* tunPacket =
     boost::polymorphic_downcast<IPv6Datagram*>(dgram->encapsulatedMsg());
 
@@ -1387,7 +1387,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     {
       mipv6cdsMN->removeBU(tunPacket->srcAddress());
       break;
-      
+
     }
   }
 
@@ -1409,7 +1409,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
         return;
     }
   }
-  
+
   MIPv6MobilityHeaderBase* ms = 0;
   if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = boost::polymorphic_downcast<MIPv6MobilityHeaderBase*>(
@@ -1440,13 +1440,13 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     // specification.
 
 /*
-    HdrExtProc* proc = polymorphic_downcast<IPv6Datagram* >(dgram->encapsulatedMsg())->findHeader(EXTHDR_DEST); 
+    HdrExtProc* proc = polymorphic_downcast<IPv6Datagram* >(dgram->encapsulatedMsg())->findHeader(EXTHDR_DEST);
     if (proc)
     {
-      IPv6TLVOptionBase* opt = 
+      IPv6TLVOptionBase* opt =
         boost::polymorphic_downcast<HdrExtDestProc*>(proc)->
-        getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);    
-    
+        getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
+
       if (opt)
       {
         MIPv6TLVOptHomeAddress* haOpt = boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(opt);
@@ -1459,7 +1459,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
         boost::weak_ptr<bc_entry> bce = it->second.bce;
         if (bce.lock().get() != 0 && !mob->directSignaling())
             const_cast<ipv6_addr&>(cna) = bce.lock().get()->home_addr;
-      }    
+      }
     }
 */
     // OR
@@ -1511,7 +1511,7 @@ void MIPv6NDStateHost::returnHome()
   //it says not to do NS to find HA link layer addr but read earlier from RtrAdv
   //LL option which means that HA is the advertising router anyway so why not
   //just check global address of HA? (this is what we do)
-  
+
   //Binding not expired yet (probably couldn't handle it if it were)
   if (!mipv6cdsMN->bulEmpty())
   {
@@ -1557,12 +1557,12 @@ void MIPv6NDStateHost::returnHome()
 void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 {
   assert(ncoa != IPv6_ADDR_UNSPECIFIED);
-  
+
   bool pcoa = false;
   //this returns the coa from setFutureCoa
   if (mipv6cdsMN->careOfAddr(pcoa) != ncoa || ncoa == IPv6_ADDR_UNSPECIFIED)
     return;
-  
+
   ipv6_addr ocoa = mipv6cdsMN->careOfAddr();
 
 #ifdef USE_HMIP
@@ -1593,23 +1593,23 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
 #ifdef USE_HMIP
   if (handoverDone)
-    return;  
+    return;
 #endif //USE_HMIP
 
-  //Cannot put this after sendBUToAll as careOfAddr asserts 
+  //Cannot put this after sendBUToAll as careOfAddr asserts
   //Set up reverse tunnelled link from MN to HA here and tear down old tunnel
   IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   assert(tunMod != 0);
   if (ocoa != IPv6_ADDR_UNSPECIFIED && ocoa != ncoa)
     tunMod->destroyTunnel(ocoa, mipv6cdsMN->primaryHA()->prefix().prefix);
-  
+
   size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
                                      mipv6cdsMN->primaryHA()->prefix().prefix);
   assert(!vIfIndex);
   //assuming single mobile interface at 0
   vIfIndex = tunMod->createTunnel(ncoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
-  
+
   Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, " reverse tunnel created entry="
        <<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<vIfIndex);
 }

@@ -6,6 +6,8 @@ OMNETPP_ROOT=d:\home\omnetpp
 
 !include $(OMNETPP_ROOT)\configuser.vc
 
+CFLAGS=$(CFLAGS) /DUSE_MOBILITY /DUSE_HMIP /DEDGEHANDOVER=1
+
 #INCLUDE_PATH=$(INCLUDE_PATH) ...additional include directories...
 #LIBS=$(LIBS) ...additional libs and lib directories...
 

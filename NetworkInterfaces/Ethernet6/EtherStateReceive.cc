@@ -114,12 +114,11 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceive::processIdle(EtherModule* mod, 
   }
 
   EtherFrame6* recFrame = check_and_cast<EtherFrame6*>(mod->inputFrame->decapsulate());
+  delete mod->inputFrame;
+  mod->inputFrame = 0;
 
   // send to upper layer
   mod->sendData(recFrame);
-
-  delete mod->inputFrame;
-  mod->inputFrame = 0;
 
   mod->changeState(EtherStateIdle::instance());
   static_cast<EtherStateIdle*>(mod->currentState())->chkOutputBuffer(mod);

@@ -182,8 +182,14 @@ bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passin
       strFrameDestAddr == ETH_BROADCAST_ADDRESS)
   {
     cMessage* packet = frame->decapsulate();
+    ev << "Passing up packet " << packet << "\n";
     send(packet, inputQueueOutGate());
   }
+  else
+  {
+    ev << "Frame " << frame << ": dest address doesn't match, discarding\n";
+  }
+  delete frame;
 
   Dout(dc::debug|flush_cf, OPP_Global::nodeName(this) << "Ethernet HostMacAddr= "
        << macAddressString() << "  FrameDestAddr= " << strFrameDestAddr);
@@ -194,23 +200,9 @@ bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passin
 bool EtherModule::receiveData(std::auto_ptr<cMessage> msg) //XXX this is actually for queueing up outgoing packets
 {
   // Something to send onto network
-/* XXX code below changed to use control info --AV
-  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg.get());
-  assert(recPkt != 0);
+  ev << "Received " << msg.get() << " from upper layers for transmission\n";
 
-  EtherFrame6* frame = new EtherFrame6;
-  frame->setSrcAddress(MACAddress6(macAddressString().c_str()));
-
-  MACAddress6 destAddress;
-  destAddress.set(recPkt->data().destLLAddr.c_str());
-  frame->setDestAddress(destAddress);
-
-  cMessage* dupMsg = recPkt->data().dgram->dup();
-
-  //when recPkt is deleted data is deleted but LLInterfaceInfo is a struct so dgram is not
-  delete recPkt->data().dgram;
-  cMessage* dupMsg = recPkt->data().dgram;
-  recPkt->data().dgram = NULL;
+/* XXX original code was changed to use control info --AV
 */
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   EtherFrame6* frame = new EtherFrame6(msg->name());

@@ -92,7 +92,7 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule* mod, WESi
                   MACAddress6(mod->macAddressString().c_str()),
                   associationResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -160,7 +160,7 @@ void WEDataReceiveMode::handleReAssociationResponse(WirelessEtherModule* mod, WE
                   MACAddress6(mod->macAddressString().c_str()),
                   reAssociationResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -203,7 +203,7 @@ void WEDataReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, WESigna
                   MACAddress6(mod->macAddressString().c_str()),
                   deAuthentication->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -240,7 +240,7 @@ void WEDataReceiveMode::handleDisAssociation(WirelessEtherModule* mod, WESignalD
                   MACAddress6(mod->macAddressString().c_str()),
                   disAssociation->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -303,7 +303,7 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
                     MACAddress6(mod->macAddressString().c_str()),
                       data->getAddress2());
       WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-      sendAck(mod, ackSignal);
+      scheduleAck(mod, ackSignal);
       //delete ack;
       changeState = false;
     }
@@ -370,5 +370,39 @@ void WEDataReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* sig
         mod->l2LinkDownRecorder->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
       }
     }
+  } // endif
+}
+
+void WEDataReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
+{
+  WirelessEtherManagementFrame* probeResponse =
+  	static_cast<WirelessEtherManagementFrame*>(signal->data());
+	
+  if (probeResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  {
+  	ProbeResponseFrameBody* probeResponseBody =
+      static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
+	
+    assert(probeResponseBody);
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+         << mod->fullPath() << "\n"
+         << " ----------------------------------------------- \n"
+         << " Probe Response received by: " << mod->macAddressString() << "\n"
+         << " from " << probeResponse->getAddress2() << " \n"
+         << " SSID: " << probeResponseBody->getSSID() << "\n"
+         << " channel: " << probeResponseBody->getDSChannel() << "\n"
+         << " rxpower: " << signal->power() << "\n"
+         << " ----------------------------------------------- \n");
+
+    // send ACK
+    WirelessEtherBasicFrame* ack = mod->
+      createFrame(FT_CONTROL, ST_ACK, MACAddress(mod->macAddressString().c_str()),
+                  probeResponse->getAddress2());
+    WESignalData* ackSignal = new WESignalData(ack);
+    scheduleAck(mod, ackSignal);
+    delete ack;
+    changeState = false;
+
+    delete probeResponseBody;
   } // endif
 }

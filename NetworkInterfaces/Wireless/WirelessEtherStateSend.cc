@@ -118,8 +118,8 @@ void WirelessEtherStateSend::endSendingData(WirelessEtherModule* mod)
 
   // TODO: maybe the bandwidth for ACK transmission is different
   double ackTxTime = ACKLENGTH / BASE_SPEED;
-  //tmrMessage->reschedule(mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/);
-  tmrMessage->reschedule(mod->simTime() +  SIFS + ackTxTime /*+ SAP_DELAY*/);
+  tmrMessage->reschedule(mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/);
+  //tmrMessage->reschedule(mod->simTime() +  SIFS + ackTxTime /*+ SAP_DELAY*/);
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
        << mod->fullPath() << ": " << "ends await ack at "

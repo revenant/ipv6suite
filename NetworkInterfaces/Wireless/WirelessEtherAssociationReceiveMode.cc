@@ -23,7 +23,7 @@
           Eric Wu
 */
 
-#include <sys.h> // Dout
+#include "sys.h" // Dout
 #include "debug.h" // Dout
 
 #include "WirelessEtherAssociationReceiveMode.h"
@@ -46,6 +46,8 @@
 #include "WirelessEtherPScanReceiveMode.h"
 
 #include "cTTimerMessageCB.h"
+#include "opp_utils.h"
+#include <iostream>
 
 WEAssociationReceiveMode* WEAssociationReceiveMode::_instance = 0;
 
@@ -93,7 +95,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
                     MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-      sendAck(mod, ackSignal);
+      scheduleAck(mod, ackSignal);
       //delete ack;
       changeState = false;
 
@@ -156,7 +158,7 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, 
                   MACAddress6(mod->macAddressString().c_str()),
                   deAuthentication->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     // delete ack;
     changeState = false;
 
@@ -208,13 +210,16 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
                   MACAddress6(mod->macAddressString().c_str()),
                   associationResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
     if(mod->associateAP.address == associationResponse->getAddress2())
     {
       std::cout<<mod->simTime()<<" "<<mod->fullPath()<<" associated to: "<<associationResponse->getAddress2()<<" on chan: "<<signal->channel()<<" sig strength: "<< signal->power()<<std::endl;
+      Dout(dc::mobile_move, mod->simTime()<<" "<<OPP_Global::nodeName(mod)<<" associated to: "
+           <<associationResponse->getAddress2()<<" on chan: "<<signal->channel()
+           <<" sig strength: "<< signal->power());
       mod->associateAP.address = associationResponse->getAddress2();
       mod->associateAP.channel = signal->channel();
       mod->associateAP.rxpower = signal->power();
@@ -236,6 +241,8 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
 
       if (mod->linkdownTime != 0)
       {
+        mod->totalDisconnectedTime += mod->simTime()-mod->linkdownTime;
+
         mod->l2HODelay->record(mod->simTime() - mod->linkdownTime);
         mod->linkdownTime = 0;
 
@@ -295,7 +302,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
                   MACAddress6(mod->macAddressString().c_str()),
                   reAssociationResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -319,6 +326,40 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
     // TODO: need to check supported rates and status code
     delete rARFrameBody;
   }
+}
+
+void WEAssociationReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
+{
+  WirelessEtherManagementFrame* probeResponse =
+  	static_cast<WirelessEtherManagementFrame*>(signal->data());
+	
+  if (probeResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  {
+  	ProbeResponseFrameBody* probeResponseBody =
+      static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
+	
+    assert(probeResponseBody);
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+         << mod->fullPath() << "\n"
+         << " ----------------------------------------------- \n"
+         << " Probe Response received by: " << mod->macAddressString() << "\n"
+         << " from " << probeResponse->getAddress2() << " \n"
+         << " SSID: " << probeResponseBody->getSSID() << "\n"
+         << " channel: " << probeResponseBody->getDSChannel() << "\n"
+         << " rxpower: " << signal->power() << "\n"
+         << " ----------------------------------------------- \n");
+
+    // send ACK
+    WirelessEtherBasicFrame* ack = mod->
+      createFrame(FT_CONTROL, ST_ACK, MACAddress(mod->macAddressString().c_str()),
+                  probeResponse->getAddress2());
+    WESignalData* ackSignal = new WESignalData(ack);
+    scheduleAck(mod, ackSignal);
+    delete ack;
+    changeState = false;
+
+    delete probeResponseBody;
+  } // endif
 }
 
 void WEAssociationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)

@@ -64,7 +64,7 @@ protected:
   static WEReceiveMode* _instance;
   WEReceiveMode(void) {}
 
-  void sendAck(WirelessEtherModule* mod, WESignalData* ack);
+  void scheduleAck(WirelessEtherModule* mod, WESignalData* ack);
 };
 
 

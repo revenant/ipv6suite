@@ -112,6 +112,8 @@ void WirelessAccessPoint::initialize(int stage)
     estAvailBW = BASE_SPEED/(1024*1024);
     estAvailBWVec = new cOutVector("estAvailBW");
 
+    usedBWStat = new cStdDev("usedBWStat");
+
     _currentReceiveMode = WEAPReceiveMode::instance();
   }
   else if (stage == 1 )
@@ -172,6 +174,12 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 
 void WirelessAccessPoint::finish(void)
 {
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " usedBWStat = " << usedBWStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
   if(ifaces != NULL)
   {
     delete ifaces;
@@ -543,6 +551,7 @@ void WirelessAccessPoint::updateConsecutiveFailedCount()
 void WirelessAccessPoint::updateStats(void)
 {
   // Get the available bandwidth
+  usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
   estAvailBW = (BASE_SPEED - usedBW.average*8)/(1024*1024);
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
@@ -551,8 +560,12 @@ void WirelessAccessPoint::updateStats(void)
 
   if(statsVec)
     estAvailBWVec->record(estAvailBW);
-  usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
-  usedBW.sampleTotal = 0;
 
   WirelessEtherModule::updateStats();
+
+  usedBWStat->collect((usedBW.average*8)/(1024*1024));
+  
+  usedBW.sampleTotal = 0;
+
+  
 }

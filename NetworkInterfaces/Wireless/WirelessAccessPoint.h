@@ -125,6 +125,7 @@ private:
 
   cOutVector *estAvailBWVec;
 
+  cStdDev* usedBWStat;
 };
 
 #endif // __WIRELESSACCESSPOINT__

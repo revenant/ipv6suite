@@ -105,23 +105,16 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     (signal->encapsulatedMsg());
   assert(frame);
 
-  // Statistic collection
-  if (frame->getFrameControl().subtype == ST_DATA)
-  {
-    mod->noOfFailedTx++;
-  }
-
   // If maximum retry has been reached, dont attempt to retrasmit again, go on to next frame
   if ( mod->getRetry() > mod->getMaxRetry() )
   {
-    /*  if (frame->getFrameControl().subtype == ST_DATA)
+    if (frame->getFrameControl().subtype == ST_DATA)
     {
       mod->noOfFailedTx++;
-      }*/
+    }
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame");
 
-        mod->resetRetry();
-
+    mod->resetRetry();
     assert(mod->outputBuffer.size());
 
         //Update the consecutive failed transmission count if its an AP
@@ -148,6 +141,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
 
   mod->incContentionWindowPower();
   mod->incrementRetry();
+  mod->noOfRetries++;
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "next retry: " << mod->getRetry());
 

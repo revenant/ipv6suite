@@ -111,6 +111,7 @@ void WEReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
       handleDeAuthentication(mod, signal);
       break;
   }
+  //Frames which do not need to be ACK can change states immediately
   if(changeState == true)
   {
     static_cast<WirelessEtherStateReceive*>(mod->currentState())->
@@ -144,38 +145,31 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
   mod->ackReceived = true;
 }
 
-void WEReceiveMode::sendAck(WirelessEtherModule* mod,
-                            WESignalData* ack)
+void WEReceiveMode::scheduleAck(WirelessEtherModule* mod, WESignalData* ack)
 {
-  //mod->changeState(WirelessEtherStateReceive::instance());
-  mod->sendFrame(ack);
-
-  // Schedule an event to indicate end of Ack transmission
-  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_ENDSENDACK);
+  // Schedule to send an ACK
+  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_SCHEDULEACK);
+  
+  Loki::cTimerMessageCB<void, 
+    TYPELIST_2(WirelessEtherModule*,WESignalData*)>* tmr;
+  
   if (!a)
   {
-    Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
-
-    tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-      (WIRELESS_SELF_ENDSENDACK, mod,
-       static_cast<WirelessEtherStateReceive*>(mod->currentState()),
-       &WirelessEtherStateReceive::endSendingAck, "endSendingAck");
-
+    tmr = new Loki::cTimerMessageCB<void, 
+      TYPELIST_2(WirelessEtherModule*,WESignalData*)>
+      (WIRELESS_SELF_SCHEDULEACK, mod, 
+       static_cast<WirelessEtherStateReceive*>(mod->currentState()), 
+       &WirelessEtherStateReceive::sendAck, "sendAck");
+      
     Loki::Field<0> (tmr->args) = mod;
     mod->addTmrMessage(tmr);
     a = tmr;
   }
+  else
+    tmr = static_cast<Loki::cTimerMessageCB<void, TYPELIST_2(WirelessEtherModule*,WESignalData*)>*>(a);
 
-  double d = (double)ack->encapsulatedMsg()->length()*8;
-  simtime_t transmTime = d / BASE_SPEED;
-
-  delete ack;
+  Loki::Field<1> (tmr->args) = ack;
 
   assert(!a->isScheduled());
-  a->reschedule(mod->simTime() + transmTime);
-
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime()
-       << " sec, " << mod->fullPath() << ": "
-       << "schedule to finish sending ack at "
-       << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() +  transmTime << " sec");
+  a->reschedule(mod->simTime() + SIFS);
 }

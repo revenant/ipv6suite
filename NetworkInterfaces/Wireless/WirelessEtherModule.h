@@ -372,8 +372,10 @@ public:
   virtual void updateStats(void);
 protected:
   TimeAverageReading throughput; // average stored in bytes/sec
-  double noOfFailedTx;
-  double noOfSuccessfulTx;
+  double noOfFailedTx; //no. of frames failed to be transmitted (ie max retries have been exceeded)
+  double noOfSuccessfulTx; //no. of frames successfully transmitted (not counting retries)
+  double noOfRetries; //no. of retries attempted
+  double noOfAttemptedTx; //no. of attempted transmission including retries
   double errorPercentage; // 0-1
   TimeAverageReading totalWaitTime;
   TimeAverageReading totalBackoffTime;
@@ -384,6 +386,12 @@ protected:
   cOutVector* noOfFailedTxVec;
   cOutVector* totalBackoffTimeVec;
   cOutVector* totalWaitTimeVec;
+
+  cStdDev* errorPercentageStat;
+  cStdDev* backoffTimeStat;
+  cStdDev* waitTimeStat;
+
+  double totalDisconnectedTime;
 
   unsigned int noOfDiscardedFrames;
   //double totalBackoffTime;

@@ -124,6 +124,16 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   WESignalData* data = *(mod->outputBuffer.begin());
   mod->sendFrame(data);
 
+  // Keeping track of number of attempted tx
+  WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
+    (data->data());
+  assert(frame);
+  
+  if (frame->getFrameControl().subtype == ST_DATA)
+  {
+    mod->noOfAttemptedTx++;
+  }
+
   mod->changeState(WirelessEtherStateSend::instance());
 
   // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth

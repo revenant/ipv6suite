@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// Copyright (C) 2001, 2005 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 
     @author Greg Daley
             Eric Wu
+            Steve Woon
 */
 
 #include "sys.h" // Dout
@@ -30,12 +31,14 @@
 
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 #include "WirelessEtherStateReceive.h"
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"
 #include "WirelessEtherStateIdle.h"
+
 
 WirelessEtherStateReceive* WirelessEtherStateReceive::_instance = 0;
 
@@ -63,8 +66,9 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEther
   if (mod->inputFrame == 0)
   {
       cTimerMessage* tmrMessage = mod->getTmrMessage(WIRELESS_SELF_ENDSENDACK);
-      // Check that all frames are fully received or ACK is fully sent before changing states
-      if((mod->getNoOfRxFrames() == 0) && !(tmrMessage && tmrMessage->isScheduled()))
+      cTimerMessage* schedAck = mod->getTmrMessage(WIRELESS_SELF_SCHEDULEACK);
+      // Check that all frames are fully received or ACK is fully sent before changing state
+      if((mod->getNoOfRxFrames() == 0) && !(tmrMessage && tmrMessage->isScheduled()) && !(schedAck && schedAck->isScheduled()))
       {
         mod->totalWaitTime.sampleTotal += mod->simTime()-mod->waitStartTime;
         static_cast<WirelessEtherStateReceive*>(mod->currentState())->
@@ -111,12 +115,48 @@ void WirelessEtherStateReceive::changeNextState(WirelessEtherModule* mod)
     static_cast<WirelessEtherStateIdle*>(mod->currentState())->chkOutputBuffer(mod);
 }
 
+void WirelessEtherStateReceive::sendAck(WirelessEtherModule* mod, 
+                                        WESignalData* ack)
+{
+  mod->sendFrame(ack);
+   
+  // Schedule an event to indicate end of Ack transmission
+  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_ENDSENDACK);
+  if (!a)
+  {
+    Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
+      
+    tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
+      (WIRELESS_SELF_ENDSENDACK, mod, 
+       static_cast<WirelessEtherStateReceive*>(mod->currentState()), 
+       &WirelessEtherStateReceive::endSendingAck, "endSendingAck");
+      
+    Loki::Field<0> (tmr->args) = mod;
+    mod->addTmrMessage(tmr);
+    a = tmr;
+  }
+
+  double d = (double)ack->data()->length()*8;
+  simtime_t transmTime = d / BASE_SPEED;
+
+  delete ack;
+
+  assert(!a->isScheduled());
+  a->reschedule(mod->simTime() + transmTime);
+
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime() 
+       << " sec, " << mod->fullPath() << ": Start Sending ACK");
+}
+
 void WirelessEtherStateReceive::endSendingAck(WirelessEtherModule* mod)
 {
   mod->sendEndOfFrame();
 
   mod->idleNetworkInterface();
 
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime() 
+       << " sec, " << mod->fullPath() << ": End Sending ACK");
+  
   // Check that all frames are fully received before changing states
   if(mod->getNoOfRxFrames() == 0)
   {

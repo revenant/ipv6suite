@@ -53,6 +53,8 @@ public:
 
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
+  void sendAck(WirelessEtherModule* mod, WESignalData* ack);
+
   void endSendingAck(WirelessEtherModule* mod);
 
   virtual void changeNextState(WirelessEtherModule* mod);

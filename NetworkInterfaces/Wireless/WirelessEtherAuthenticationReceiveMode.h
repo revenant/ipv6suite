@@ -37,6 +37,8 @@ class WEAuthenticationReceiveMode : public WEReceiveMode
 public:
   virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
   virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
+  virtual void handleProbeResponse(WirelessEtherModule* mod, WESignalData* signal);
+
 
   static WEAuthenticationReceiveMode* instance();
 

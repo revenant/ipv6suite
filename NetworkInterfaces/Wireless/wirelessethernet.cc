@@ -39,7 +39,7 @@ const double ACKLENGTH = 112;
 
 const double TU = 0.001024;
 
-int BASE_SPEED =  11*1048576; // 11 * 1024 * 1024 bps
+int BASE_SPEED =  11*1000000; // 11 * 1000 * 1000 bps
 
 const int MAX_CHANNELS = 16;
 
@@ -48,6 +48,7 @@ const int WIRELESS_SELF_AWAITMAC = 3002;
 const int WIRELESS_SELF_BACKOFF = 3003;
 const int WIRELESS_SELF_AWAITACK = 3004;
 const int WIRELESS_SELF_ENDSENDACK = 3005;
+const int WIRELESS_SELF_SCHEDULEACK = 3018;
 const int TMR_BEACON = 3006;
 const int TMR_REMOVEENTRY = 3007;
 const int TMR_AUTHTIMEOUT = 3008;

@@ -58,6 +58,7 @@ extern const int WIRELESS_SELF_AWAITMAC;
 extern const int WIRELESS_SELF_BACKOFF;
 extern const int WIRELESS_SELF_AWAITACK;
 extern const int WIRELESS_SELF_ENDSENDACK;
+extern const int WIRELESS_SELF_SCHEDULEACK;
 extern const int TMR_BEACON;
 extern const int TMR_REMOVEENTRY;
 extern const int TMR_AUTHTIMEOUT;

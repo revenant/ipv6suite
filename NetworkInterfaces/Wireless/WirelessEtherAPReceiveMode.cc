@@ -85,7 +85,7 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
                     MACAddress6(apMod->macAddressString().c_str()),
                     authentication->getAddress2());
       WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-      sendAck(apMod, ackSignal);
+      scheduleAck(apMod, ackSignal);
       //delete ack;
       changeState = false;
 
@@ -147,7 +147,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
                   MACAddress6(mod->macAddressString().c_str()),
                   associationRequest->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -245,7 +245,7 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
                   MACAddress6(mod->macAddressString().c_str()),
                   reAssociationRequest->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     changeState = false;
 
@@ -451,7 +451,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
                   MACAddress6(apMod->macAddressString().c_str()),
                   data->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(apMod, ackSignal);
+    scheduleAck(apMod, ackSignal);
     changeState = false;
     //delete ack;
 

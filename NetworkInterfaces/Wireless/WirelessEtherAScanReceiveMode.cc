@@ -120,7 +120,7 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
       createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
                   probeResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    sendAck(mod, ackSignal);
+    scheduleAck(mod, ackSignal);
     //delete ack;
     //GD:   Can we do early return here??
     //Enough APs?? Signal Strength, SSID

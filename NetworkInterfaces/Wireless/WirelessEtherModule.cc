@@ -119,6 +119,8 @@ void WirelessEtherModule::baseInit(int stage)
     throughput.average = 0;
     noOfFailedTx = 0;
     noOfSuccessfulTx = 0;
+    noOfRetries = 0;
+    noOfAttemptedTx = 0;
     errorPercentage = 0;
     totalWaitTime.sampleTotal = 0;
     totalWaitTime.sampleTime = 1;
@@ -148,10 +150,14 @@ void WirelessEtherModule::baseInit(int stage)
     wproc->xmlConfig()->parseWirelessEtherInfo(this);
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
+  
+    errorPercentageStat = new cStdDev("errorPercentageStat");
+    backoffTimeStat = new cStdDev("backoffTimeStat");
+    waitTimeStat = new cStdDev("waitTimeStat");
   }
   else if(stage == 1)
   {
-    std::cout<<"statsVec: "<<statsVec<<endl;
+    //std::cout<<"statsVec: "<<statsVec<<endl;
 
     cModule* mobMan = OPP_Global::findModuleByName(this, "mobilityHandler");
     assert(mobMan);
@@ -175,6 +181,7 @@ void WirelessEtherModule::initialize(int stage)
     l2DelayRecorder = 0;
     l2HODelay = new cOutVector("IEEE 802.11 HO Latency");
     linkdownTime = 0;
+    totalDisconnectedTime = 0;
 
     LinkLayerModule::initialize();
     cModule* mod = OPP_Global::findModuleByName(this, "worldProcessor");
@@ -287,7 +294,19 @@ void WirelessEtherModule::initialize(int stage)
 
 void WirelessEtherModule::finish()
 {
-  // XXX cleanup stuff must be moved to dtor!
+   cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
+  //if not dual layer node then print the handover time
+  if(!linkLayer->gate("extSignalOut")->isConnected())
+  {
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " totalDisconnectedTime = " << totalDisconnectedTime);
+  }
+  
+ // XXX cleanup stuff must be moved to dtor!
   // finish() is NOT for cleanup -- that must be done in destructor, and
   // additionally, ptrs must be NULL'ed in constructor so that it won't crash
   // if initialize() hasn't run because of an error during startup! --AV
@@ -1261,6 +1280,8 @@ void WirelessEtherModule::printSelfMsg(const cMessage* msg)
     message = "WIRELESS_SELF_AWAITACK ( " + string(msg->name()) + string(" )");
   else if(messageID == WIRELESS_SELF_ENDSENDACK)
     message = "WIRELESS_SELF_ENDSENDACK ( " + string(msg->name()) + string(" )");
+  else if(messageID == WIRELESS_SELF_SCHEDULEACK)
+    message = "WIRELESS_SELF_SCHEDULEACK ( " + string(msg->name()) + string(" )");
   else
     assert(false); // notify any new message added
 
@@ -1682,8 +1703,12 @@ void WirelessEtherModule::updateStats(void)
   //Calculate throughput average and error percentage after interval time
   throughput.average = throughput.sampleTotal/throughput.sampleTime;
   errorPercentage = (noOfFailedTx+noOfSuccessfulTx)>0 ? noOfFailedTx/(noOfFailedTx+noOfSuccessfulTx):0;
-  totalWaitTime.average = totalWaitTime.sampleTotal/totalWaitTime.sampleTime;
-  totalBackoffTime.average = (noOfSuccessfulTx > 0) ? totalBackoffTime.sampleTotal/noOfSuccessfulTx : totalBackoffTime.sampleTotal;
+  totalWaitTime.average = (noOfSuccessfulTx+noOfSuccessfulTx)>0 ? totalWaitTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalWaitTime.sampleTotal;
+  totalBackoffTime.average = (noOfSuccessfulTx+noOfSuccessfulTx) > 0 ? totalBackoffTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalBackoffTime.sampleTotal;
+
+  errorPercentageStat->collect(errorPercentage);
+  backoffTimeStat->collect(totalBackoffTime.average);
+  waitTimeStat->collect(totalWaitTime.average);
 
   if(statsVec)
   {
@@ -1694,11 +1719,14 @@ void WirelessEtherModule::updateStats(void)
     totalWaitTimeVec->record(totalWaitTime.average);
   }
 
-  noOfFailedTx = 0;
-  noOfSuccessfulTx = 0;
+  if((noOfFailedTx+noOfSuccessfulTx) != 0)
+  {
+    totalWaitTime.sampleTotal = 0;
+    totalBackoffTime.sampleTotal = 0;
+  }
   throughput.sampleTotal = 0;
-  totalWaitTime.sampleTotal = 0;
-  totalBackoffTime.sampleTotal = 0;
+  noOfSuccessfulTx = 0;
+  noOfFailedTx = 0;
 
   scheduleAt(simTime()+throughput.sampleTime, updateStatsNotifier);
 }

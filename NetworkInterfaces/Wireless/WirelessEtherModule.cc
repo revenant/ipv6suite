@@ -41,7 +41,7 @@
 #include <sstream>
 #include <string>
 
-#include "hook_types.h" //NWI_IDLE
+
 #include "cTTimerMessageCB.h"
 
 #include "IPv6Datagram.h"
@@ -83,9 +83,9 @@
 
 #include "MLDv2Message.h"
 
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover) 
+#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
 #include"hodec.h"
-#endif // L2FUZZYHO 
+#endif // L2FUZZYHO
 
 #include "XMLOmnetParser.h"
 
@@ -96,7 +96,7 @@ void WirelessEtherModule::baseInit(int stage)
   if(stage == 0)
   {
     changeState(WirelessEtherStateIdle::instance());
-    
+
     sequenceNumber = 0;
     inputFrame = 0;
     retry = 0;
@@ -107,7 +107,7 @@ void WirelessEtherModule::baseInit(int stage)
     noOfRxFrames = 0;
     frameSource = "";
     backoffTime = 0;
-    
+
 //initialise variables for statistics
     throughput.sampleTotal = 0;
     throughput.sampleTime = 1;
@@ -121,17 +121,17 @@ void WirelessEtherModule::baseInit(int stage)
     totalBackoffTime.sampleTotal = 0;
     totalBackoffTime.sampleTime = 1;
     totalBackoffTime.average = 0;
-    
+
     throughputVec = new cOutVector("throughput");
     errorPercentageVec = new cOutVector("errorPerc");
-    noOfFailedTxVec = new cOutVector("noOfFailedTx"); 
+    noOfFailedTxVec = new cOutVector("noOfFailedTx");
     totalBackoffTimeVec = new cOutVector("avgBackoffTime");
     totalWaitTimeVec = new cOutVector("avgWaitTime");
     totalBytesTransmitted = 0;
 
     cXMLElement* weinfo = par("nwiXmlConfig");
     if (weinfo)
-    {    
+    {
       XMLConfiguration::XMLOmnetParser p;
       //default.ini loads empty.xml at element netconf
       if (p.getNodeProperties(weinfo, "debugChannel", false) == "")
@@ -139,7 +139,7 @@ void WirelessEtherModule::baseInit(int stage)
       else
         Dout(dc::xml_addresses, " no global WEInfo for node "<<OPP_Global::nodeName(this));
     }
-      
+
     wproc->parseWirelessEtherInfo(this);
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
@@ -147,30 +147,30 @@ void WirelessEtherModule::baseInit(int stage)
   else if(stage == 1)
   {
     std::cout<<"statsVec: "<<statsVec<<endl;
-    
+
     cModule* mobMan = OPP_Global::findModuleByName(this, "mobilityHandler");
     assert(mobMan);
     _mobCore = static_cast<MobilityHandler*>(mobMan);
-   
+
 // Timer to update statistics
     updateStatsNotifier  =
       new Loki::cTimerMessageCB<void>
       (TMR_STATS, this, this, &WirelessEtherModule::updateStats, "updateStats");
-    
+
     scheduleAt(simTime()+1, updateStatsNotifier);
   }
-  
+
 }
 
 void WirelessEtherModule::initialize(int stage)
-{ 
+{
   if (stage == 0)
   {
     l2LinkDownRecorder = 0;
     l2DelayRecorder = 0;
     l2HODelay = new cOutVector("IEEE 802.11 HO Latency");
     linkdownTime = 0;
-    
+
     LinkLayerModule::initialize();
     cModule* mod = OPP_Global::findModuleByName(this, "worldProcessor");
     assert(mod);
@@ -190,9 +190,9 @@ void WirelessEtherModule::initialize(int stage)
     associateAP.errorPercentage = 0;
     associateAP.avgBackoffTime = 0;
     associateAP.avgWaitTime = 0;
-    
+
     handoverTarget.valid = false;
-        
+
     for(int i = 0; i < NumTrigVals ; i++)
     {
       l2Trigger[i] = 0;
@@ -212,7 +212,7 @@ void WirelessEtherModule::initialize(int stage)
       _currentReceiveMode = WEAScanReceiveMode::instance();
 
       cTTimerMessageCBA<void, void>* prbEnergyScanNotifier;
-      
+
       prbEnergyScanNotifier  =
         new cTTimerMessageCBA<void, void>
         (TMR_PRBENERGYSCAN, this, makeCallback(this, &WirelessEtherModule::probeChannel), "probeChannel");
@@ -221,7 +221,7 @@ void WirelessEtherModule::initialize(int stage)
 
       //Timer for probe response wait
       cTTimerMessageCBA<void, void>* prbRespScanNotifier;
-      
+
       prbRespScanNotifier  =
         new cTTimerMessageCBA<void, void>
         (TMR_PRBRESPSCAN, this, makeCallback(this, &WirelessEtherModule::probeChannel), "probeChannel");
@@ -232,15 +232,15 @@ void WirelessEtherModule::initialize(int stage)
       _currentReceiveMode = WEPScanReceiveMode::instance();
 
       cTTimerMessageCBA<void, void>* channelScanNotifier;
-      
+
       channelScanNotifier  =
         new cTTimerMessageCBA<void, void>
         (TMR_CHANNELSCAN, this, makeCallback(this, &WirelessEtherModule::passiveChannelScan), "passiveChannelScan");
       addTmrMessage(channelScanNotifier);
       scheduleAt(simTime() + SELF_SCHEDULE_DELAY, channelScanNotifier);
     }
-    
-    //Timer to give authentication procedure a timelimit 
+
+    //Timer to give authentication procedure a timelimit
     cTTimerMessageCBA<void, void>* authTimeoutNotifier;
 
     authTimeoutNotifier  =
@@ -248,7 +248,7 @@ void WirelessEtherModule::initialize(int stage)
       (TMR_AUTHTIMEOUT, this, makeCallback(this, &WirelessEtherModule::authTimeoutHandler), "authTimeoutHandler");
     addTmrMessage(authTimeoutNotifier);
 
-    //Timer to give association procedure a timelimit 
+    //Timer to give association procedure a timelimit
     cTTimerMessageCBA<void, void>* assTimeoutNotifier;
 
     assTimeoutNotifier  =
@@ -256,7 +256,7 @@ void WirelessEtherModule::initialize(int stage)
       (TMR_ASSTIMEOUT, this, makeCallback(this, &WirelessEtherModule::assTimeoutHandler), "assTimeoutHandler");
     addTmrMessage(assTimeoutNotifier);
 
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
          << fullPath() << "\n"
          << " ====================== \n"
          << " MAC ADDR: " << address.stringValue() << "\n"
@@ -301,7 +301,7 @@ void WirelessEtherModule::receiveSignal(std::auto_ptr<cMessage> msg)
   {
     WirelessExternalSignalChannel* sigChan = static_cast<WirelessExternalSignalChannel*>(msg.get());
     channel = sigChan->getChan();
-    
+
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Switching to channel: " << channel);
     startMonitorMode();
   }
@@ -320,7 +320,7 @@ void WirelessEtherModule::receiveSignal(std::auto_ptr<cMessage> msg)
 
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << fullPath()<< " " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Handover to target: " << handoverTarget.target.address);
     // Start active scan for handover
-    restartScanning();    
+    restartScanning();
   }
   else
     assert(false);
@@ -332,11 +332,11 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
 {
   //if (_currentReceiveMode != WEDataReceiveMode::instance())
   //  return;
-    
+
   LLInterfacePkt* recPkt = boost::polymorphic_downcast<LLInterfacePkt*>
     (msg.get());
   assert(recPkt != 0);
-  
+
   WirelessEtherBasicFrame* frame = createFrame
     (FT_DATA, ST_DATA, address, MACAddress(recPkt->data().destLLAddr.c_str()));
 
@@ -345,8 +345,8 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   frame->setProtocol(PR_WETHERNET);
   frame->encapsulate(dupMsg);
   frame->setName(dupMsg->name());
- 
- 	// relying on internal buffer, therefore need to get data from external 
+
+ 	// relying on internal buffer, therefore need to get data from external
 	// outputQueue into it quickly.
 	idleNetworkInterface();
 
@@ -393,10 +393,10 @@ void WirelessEtherModule::setLayer2Trigger( cTimerMessage* trig, enum TrigVals v
 {
   if (l2Trigger[v])
     delete l2Trigger[v];
-  
+
   l2Trigger[v] = trig;
 
-  //dc::wireless_ethernet.precision(6); 
+  //dc::wireless_ethernet.precision(6);
   Dout(dc::wireless_ethernet|flush_cf, "Set Layer 2 Trigger: (WIRELESS) "
          << fullPath() << " #: "<< v << "\n");
 
@@ -436,19 +436,19 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
   //Find the max and min channel which crosstalk can occur
   int maxChan = (channel+4 > MAX_CHANNEL) ? MAX_CHANNEL : channel+4;
   int minChan = (channel-4 < 1) ? 1 : channel-4;
-  
+
   //Find modules which can receive the frame
   ModuleList mods = wproc->
   findWirelessEtherModulesByChannelRange(minChan, maxChan);
 
-  // Four random values which will be used to determine whether 
+  // Four random values which will be used to determine whether
   // data will cross over to adjacent channels
 
   r1 = OPP_UNIFORM(0,100);
   r2 = OPP_UNIFORM(0,100);
   r3 = OPP_UNIFORM(0,100);
   r4 = OPP_UNIFORM(0,100);
-  
+
   // Go through each module and determine whether to transmit to them
   for ( MLIT it = mods.begin(); it != mods.end(); it++)
   {
@@ -462,12 +462,12 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
       cModule* phylayer = interface->gate("wlin",i)->toGate()->ownerModule();
       cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule();
       assert(linkLayer);
- 
+
       WirelessEtherModule* a = static_cast<WirelessEtherModule*>(linkLayer->submodule("networkInterface"));
       // Dont send to ourselves
       if ( a == this)
         continue;
-    
+
       assert(a->_mobCore);
       int distance = _mobCore->getEntity()->
         distance(a->_mobCore->getEntity());
@@ -485,15 +485,15 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
         // 27% for  2   "
         // 4% for   3   "
         // 0.5% for 4   "
-        // These figures were obtained from the White Paper 
+        // These figures were obtained from the White Paper
         // "Channel Overlap Calculations for 802.11b Networks" by Mitchell Burton
         // of Cirond Technologies
         if(    (chanSep == 0)
-            || (crossTalk 
+            || (crossTalk
             &&(((chanSep == 1)&&(r1<73))
             || ((chanSep == 2)&&(r2<27))
             || ((chanSep == 3)&&(r3<4))
-            || ((chanSep == 4)&&(r4<.5)))) 
+            || ((chanSep == 4)&&(r4<.5))))
           )
         {
           msg->setPower(rxPower);
@@ -508,7 +508,7 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
           dInfo->rxPower = rxPower;
           dInfo->channel = a->channel;
           idleDest.push_back(dInfo);
-       
+
           // Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Sending SOF to: " << interface->fullPath() << " on index: "<< i);
           sendDirect(msg->dup(), propDelay, interface, "wlin", i);
         }
@@ -525,12 +525,12 @@ void WirelessEtherModule::sendEndOfFrame()
   // Go up two levels to obtain just the unique module name
   std::string modName = parentModule()->parentModule()->fullPath();
   idle->setSourceName(modName);
-  
+
   //Check if modules need the end of the frame
   if(!idleDest.empty())
   {
     assert(_mobCore);
-  
+
     for ( IDIT it = idleDest.begin(); it != idleDest.end(); it++)
     {
       // Check if the station is still in the same channel to receive the end of the frame
@@ -538,32 +538,32 @@ void WirelessEtherModule::sendEndOfFrame()
       {
         int distance = _mobCore->getEntity()->
                         distance((*it)->mod->_mobCore->getEntity());
-                      
+
         // use the same calculated rxPower as for start of frame
         double rxPower = (*it)->rxPower;
-  
+
         // if the end of frame is suddenly under the receiving stations threshold,
         // there must be something wrong (Entity shouldnt be moving that quick!)
         assert(rxPower >= (*it)->mod->getThreshPower());
-     
+
         // set end of frame properties
         idle->setPower(rxPower);
         idle->setChannel((*it)->mod->channel);
 
         // propagation delay
         double propDelay = distance / (3 * pow((double)10, (double)8));
-      
+
         cModule* interface =  static_cast<cModule*>((*it)->mod->parentModule()->parentModule());
 
         //Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Sending EOF to: " << interface->fullPath() << " on index: "<< (*it)->index);
 
-        sendDirect(idle->dup(), propDelay, interface, "wlin", (*it)->index); 
+        sendDirect(idle->dup(), propDelay, interface, "wlin", (*it)->index);
       }
     }
     idleDest.clear();
   }
 
-  delete idle;  
+  delete idle;
 }
 
 void WirelessEtherModule::idleNetworkInterface(void)
@@ -588,7 +588,7 @@ double WirelessEtherModule::getRxPower(int distance)
   double rxpwr = 10*log10((double)txpower) - 40 - 10*pLExp*log10((double)distance);
   if(shadowing)
     rxpwr += normal(0, pLStdDev);
-  
+
   return rxpwr;
 }
 
@@ -615,11 +615,11 @@ bool WirelessEtherModule::handleSendingBcastFrame(void)
       cTimerMessage* tmr = getTmrMessage(TMR_PRBENERGYSCAN);
       assert(tmr && !tmr->isScheduled());
 
-      tmr->reschedule(nextSchedTime);      
+      tmr->reschedule(nextSchedTime);
   }
 
     assert(!getRetry());
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< simTime() 
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< simTime()
        << " sec, " << fullPath() << " outputBuff count: " << outputBuffer.size());
     assert(!outputBuffer.empty());
     delete signal;
@@ -677,7 +677,7 @@ void WirelessEtherModule::sendStatsSignal(void)
   {
     WirelessExternalSignalStats* extSig = new WirelessExternalSignalStats;
     extSig->setType(ST_STATS);
-    // Need to assign power. Keep track by monitoring received frames from associated AP. 
+    // Need to assign power. Keep track by monitoring received frames from associated AP.
     // If not associated, then put power as invalid or low.
     extSig->setSignalStrength(associateAP.rxpower);
     extSig->setErrorPercentage(errorPercentage);
@@ -711,7 +711,7 @@ void WirelessEtherModule::startMonitorMode(void)
   outputBuffer.clear();
 
   double nextSchedTime = simTime();
-  
+
   // cancel all timer message except for sending the end of frames
   for (TIT it = tmrs.begin(); it != tmrs.end(); it++)
   {
@@ -731,7 +731,7 @@ void WirelessEtherModule::restartScanning(void)
   if(associateAP.associated)
   {
     cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
-    
+
     // Check if linklayer external signalling channel is connected
     if(linkLayer->gate("extSignalOut")->isConnected())
     {
@@ -747,9 +747,9 @@ void WirelessEtherModule::restartScanning(void)
   associateAP.rxpower = INVALID_POWER;
   associateAP.associated = false;
   channel = 0;
-  
+
   // flush input and output buffer
-  
+
   if (inputFrame)
   {
     delete inputFrame;
@@ -764,7 +764,7 @@ void WirelessEtherModule::restartScanning(void)
   outputBuffer.clear();
 
   double nextSchedTime = simTime();
-  
+
   // cancel all timer message except for sending the end of frames
   for (TIT it = tmrs.begin(); it != tmrs.end(); it++)
   {
@@ -795,7 +795,7 @@ void WirelessEtherModule::restartScanning(void)
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " " << fullPath() << " Scheduled time for passive scan is: " << nextSchedTime);
     scheduleAt(nextSchedTime, tmr);
   }
-  
+
 }
 
 void WirelessEtherModule::reset(void)
@@ -827,7 +827,7 @@ bool WirelessEtherModule::highestPowerAPEntry(APInfo &highest)
   {
     double highestPower = (tempAPList.begin())->rxpower;
     highest = *(tempAPList.begin());
-      
+
     for ( AIT it = tempAPList.begin(); it != tempAPList.end(); it++ )
     {
       if ((*it).rxpower > highestPower )
@@ -848,7 +848,7 @@ bool WirelessEtherModule::highestHOValueAPEntry(APInfo &highest)
   {
     double highestHOValue = (tempAPList.begin())->hOValue;
     highest = *(tempAPList.begin());
-      
+
     for ( AIT it = tempAPList.begin(); it != tempAPList.end(); it++ )
     {
       if ((*it).hOValue > highestHOValue )
@@ -896,7 +896,7 @@ void WirelessEtherModule::probeChannel(void)
   // find the next channel to scan
   int channelCopy = channel;
   channel = MAX_CHANNEL+1;
-  
+
   for(int i=channelCopy; i<MAX_CHANNEL; i++)
   {
     channelCopy++;
@@ -910,14 +910,14 @@ void WirelessEtherModule::probeChannel(void)
   // Once new channel to scan has been decided, dont care about packets still received,
   // so count can be resetted. Could cause miss count otherwise.
   resetNoOfRxFrames();
-  
+
   // all frequency bands have been scanned and now select the best AP
   //if ( channel == (MAX_CHANNEL + 1) )
   if (( channel == (MAX_CHANNEL + 1) )  || (scanShortCircuit() &&  tempAPList.size() ))  // GD Hack
    // Hack Assumes that Any access point with sufficient power will be
    // Acceptable.  If not, need to jump back into scanning (if channels left)...
    // Steve: With hack, scanning will stop as long as one probe is received. It may
-   //        not have sufficient power. 
+   //        not have sufficient power.
   {
     bool found = false;
     // reset the channel
@@ -935,12 +935,12 @@ void WirelessEtherModule::probeChannel(void)
       found = highestHOValueAPEntry(handoverTarget.target);
 #else
       found = highestPowerAPEntry(handoverTarget.target);
-#endif // L2FUZZYHO 
+#endif // L2FUZZYHO
     }
     // only attempt to connect if a suitable AP is found
     if ( found )
     {
-      
+
       // Only attempt to connect if the signal strength is above handover threshold
       if(handoverTarget.target.rxpower > hothreshpower)
       {
@@ -948,13 +948,13 @@ void WirelessEtherModule::probeChannel(void)
 #if MLDV2
         cout << "handoverTarget.target.rxpower > hothreshpower, at " << simTime() << endl;
         cout << "MAC:" << associateAP.address.stringValue() << endl;
-        
+
         sendGQtoUpperLayer();
 #endif //MLDV2
         assert(((MAC_address)associateAP.address !=  MAC_ADDRESS_UNSPECIFIED_STRUCT) ||
                (associateAP.channel != INVALID_CHANNEL) ||
                (associateAP.rxpower != INVALID_POWER));
-  
+
         //clear tempAPList
         tempAPList.clear();
         Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
@@ -990,9 +990,9 @@ void WirelessEtherModule::probeChannel(void)
           tmr->cancel();
         }
         tmr->reschedule(simTime() + (authenticationTimeout * TU));
-      
+
         assert( _currentState == WirelessEtherStateIdle::instance() );
-      
+
         static_cast<WirelessEtherStateIdle*>
           (_currentState)->chkOutputBuffer(this);
 
@@ -1017,7 +1017,7 @@ void WirelessEtherModule::probeChannel(void)
     tmr->reschedule(nextSchedTime);
 
     static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
-    
+
     return;
   }
 
@@ -1025,7 +1025,7 @@ void WirelessEtherModule::probeChannel(void)
 
   WESignalData* probeSignal = generateProbeReq();
   outputBuffer.push_back(probeSignal);
-  
+
   static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
 }
 
@@ -1046,7 +1046,7 @@ void WirelessEtherModule::passiveChannelScan(void)
   // find the next channel to scan
   int channelCopy = channel;
   channel = MAX_CHANNEL+1;
-  
+
   for(int i=channelCopy; i<MAX_CHANNEL; i++)
   {
     channelCopy++;
@@ -1060,14 +1060,14 @@ void WirelessEtherModule::passiveChannelScan(void)
   // Once new channel to scan has been decided, dont care about packets still received,
   // so count can be resetted. Could cause miss count otherwise.
   resetNoOfRxFrames();
-  
+
   // all frequency bands have been scanned and now select the best AP
   //if ( channel == (MAX_CHANNEL + 1) )
   if (( channel == (MAX_CHANNEL + 1) )  || (scanShortCircuit() &&  tempAPList.size() ))  // GD Hack
    // Hack Assumes that Any access point with sufficient power will be
    // Acceptable.  If not, need to jump back into scanning (if channels left)...
    // Steve: With hack, scanning will stop as long as one probe is received. It may
-   //        not have sufficient power. 
+   //        not have sufficient power.
   {
     bool found = false;
     // reset the channel
@@ -1085,21 +1085,21 @@ void WirelessEtherModule::passiveChannelScan(void)
       found = highestHOValueAPEntry(handoverTarget.target);
 #else
       found = highestPowerAPEntry(handoverTarget.target);
-#endif // L2FUZZYHO 
+#endif // L2FUZZYHO
     }
     // only attempt to connect if a suitable AP is found
     if ( found )
     {
-      
+
       // Only attempt to connect if the signal strength is above handover threshold
       if(handoverTarget.target.rxpower > hothreshpower)
       {
         associateAP = handoverTarget.target;
-        
+
         assert(((MAC_address)associateAP.address !=  MAC_ADDRESS_UNSPECIFIED_STRUCT) ||
                (associateAP.channel != INVALID_CHANNEL) ||
                (associateAP.rxpower != INVALID_POWER));
-  
+
         //clear tempAPList
         tempAPList.clear();
 
@@ -1136,9 +1136,9 @@ void WirelessEtherModule::passiveChannelScan(void)
           tmr->cancel();
         }
         tmr->reschedule(simTime() + (authenticationTimeout * TU));
-      
+
         assert( _currentState == WirelessEtherStateIdle::instance() );
-      
+
         static_cast<WirelessEtherStateIdle*>
           (_currentState)->chkOutputBuffer(this);
 
@@ -1162,17 +1162,17 @@ void WirelessEtherModule::passiveChannelScan(void)
     tmr->reschedule(nextSchedTime);
 
     static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
-    
+
     return;
   }
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " " << fullPath() << " passive scanning channel: " << channel);
 
   double nextSchedTime = simTime() + channelScanTime;
-  
+
   cTimerMessage* tmr = getTmrMessage(TMR_CHANNELSCAN);
   assert(tmr && !tmr->isScheduled());
-  
+
   tmr->reschedule(nextSchedTime);
 
   static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
@@ -1259,7 +1259,7 @@ void WirelessEtherModule::sendToUpperLayer(WirelessEtherBasicFrame* frame)
 void WirelessEtherModule::sendMonitorFrameToUpperLayer(WESignalData* sig)
 {
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " " << fullPath() << "Sending monitor frame to upper layer.");
-  
+
   send(sig->dup(), inputQueueOutGate());
 }
 
@@ -1552,13 +1552,13 @@ FrameBody* WirelessEtherModule::createFrameBody(WirelessEtherBasicFrame* f)
 
     case ST_AUTHENTICATION:
       frameBody = new AuthenticationFrameBody;
-			
+
       //Only supports "open mode", therefore only two sequence number
       if(apMode == true)
         static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(2);
       else
         static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(1);
-				
+
       // TODO: successful for now, but how are we going to represent
       // in module?
       static_cast<AuthenticationFrameBody*>(frameBody)->setStatusCode(0);
@@ -1591,7 +1591,7 @@ bool WirelessEtherModule::isProbeReq(WESignalData* signal)
 void WirelessEtherModule::initialiseChannelToScan(void)
 {
   // Initialise all channels for scanning except channel 0
-  channelToScan = new bool[MAX_CHANNEL+1];  
+  channelToScan = new bool[MAX_CHANNEL+1];
   channelToScan[0]=false;
   for(int i=1; i <= MAX_CHANNEL; i++)
   {
@@ -1611,7 +1611,7 @@ void WirelessEtherModule::initialiseChannelToScan(void)
 
 void WirelessEtherModule::insertToAPList(APInfo newEntry)
 {
-  // If short circuit hack is turned on, ensure tempAPList only contains entries 
+  // If short circuit hack is turned on, ensure tempAPList only contains entries
   // which are "good enough"(i.e. above handover threshold power)
   if(!scanShortCircuit() || (scanShortCircuit() && (newEntry.rxpower > hothreshpower)))
   {
@@ -1634,16 +1634,16 @@ void WirelessEtherModule::insertToAPList(APInfo newEntry)
 void WirelessEtherModule::makeOfflineBufferAvailable(void)
 {
   WirelessEtherBasicFrame* frame;
-  
+
   while(!offlineOutputBuffer.empty())
   {
     frame = offlineOutputBuffer.front();
     // The offline output buffer only gets filled with frames encapsulating
-    // data from upper layers.  It is safe to assume that they all have 
+    // data from upper layers.  It is safe to assume that they all have
     // FT_DATA type. Therefore, we can assume address1 is used for the AP
     // address.
     frame->setAddress1(associateAP.address);
-  
+
     WESignalData* a = new WESignalData(frame);
     outputBuffer.push_back(a);
     offlineOutputBuffer.pop_front();
@@ -1666,7 +1666,7 @@ void WirelessEtherModule::updateStats(void)
     totalBackoffTimeVec->record(totalBackoffTime.average);
     totalWaitTimeVec->record(totalWaitTime.average);
   }
-  
+
   noOfFailedTx = 0;
   noOfSuccessfulTx = 0;
   throughput.sampleTotal = 0;
@@ -1676,7 +1676,7 @@ void WirelessEtherModule::updateStats(void)
   scheduleAt(simTime()+throughput.sampleTime, updateStatsNotifier);
 }
 
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover) 
+#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
 double WirelessEtherModule::calculateHOValue(double rxpower, double ap_avail_bw, double bw_req)
 {
 	double n_rxpower, n_ap_avail_bw, n_bw_req;
@@ -1693,5 +1693,5 @@ double WirelessEtherModule::calculateHOValue(double rxpower, double ap_avail_bw,
 
 	return value;
 }
-#endif // L2FUZZYHO 
+#endif // L2FUZZYHO
 

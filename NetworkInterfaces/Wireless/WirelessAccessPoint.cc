@@ -36,7 +36,7 @@
 #include "WirelessEtherBridge.h"
 
 #include "cTTimerMessageCB.h"
-#include "hook_types.h" //NWI_IDLE
+
 
 #include "wirelessethernet.h"
 #include "WorldProcessor.h"
@@ -100,10 +100,10 @@ void WirelessAccessPoint::initialize(int stage)
     authEntryTimeout = OPP_Global::findNetNodeModule(this)->par("authEntryTimeout").doubleValue();
     assEntryTimeout = OPP_Global::findNetNodeModule(this)->par("assEntryTimeout").doubleValue();
     consecFailedTransLimit = OPP_Global::findNetNodeModule(this)->par("consecFailedTransLimit").longValue();
-    
-    apMode = true;    
+
+    apMode = true;
     address.set(MAC_ADDRESS_UNSPECIFIED_STRUCT);
-     
+
     ifaces = new ExpiryEntryList<WirelessEtherInterface>(this, TMR_REMOVEENTRY);
 
     usedBW.sampleTotal = 0;
@@ -120,14 +120,14 @@ void WirelessAccessPoint::initialize(int stage)
     cMessage* protocolNotifier = new cMessage("PROTOCOL_NOTIFIER");
     protocolNotifier->setKind(MK_PACKET);
     send(protocolNotifier, inputQueueOutGate());
-    
+
     // On power up, access point will start sending beacons.
     cTTimerMessageCBA<void, void>* powerUpBeaconNotifier;
-    
+
     powerUpBeaconNotifier  =
       new cTTimerMessageCBA<void, void>
       (TMR_BEACON, this, makeCallback(this, &WirelessAccessPoint::sendBeacon), "sendBeacon");
-    
+
     addTmrMessage(powerUpBeaconNotifier);
     scheduleAt(simTime()+beaconPeriod, powerUpBeaconNotifier);
   }
@@ -159,7 +159,7 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 					 << " ASS ENTRY TIMEOUT: " << assEntryTimeout << "\n"
            << " FAST ACTIVE SCAN: " << fastActScan << "\n"
            << " CROSSTALK: " << crossTalk << "\n");
-           
+
 
       idleNetworkInterface();
     }
@@ -201,7 +201,7 @@ void WirelessAccessPoint::sendBeacon(void)
   beaconSignal->setChannel(channel);
   outputBuffer.push_back(beaconSignal);
   delete beacon;
-      
+
   // schedule the next beacon message
   double nextSchedTime = simTime() + beaconPeriod;
 
@@ -222,7 +222,7 @@ void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
 
   outputBuffer.push_back(frame);
 
-	// relying on internal outputBuffer, therefore need to get data from external 
+	// relying on internal outputBuffer, therefore need to get data from external
 	// outputQueue into it quickly.
 	idleNetworkInterface();
 
@@ -286,16 +286,16 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
                              rates.size() + FL_DSCHANNEL);
       }
       break;
-			
+
 			case ST_AUTHENTICATION:
 				frameBody = new AuthenticationFrameBody;
-			
+
 				// Only supports "open mode", therefore only two sequence number
 				if(apMode == true)
 					static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(2);
 				else
 					static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(1);
-				
+
       	// TODO: successful for now, but how are we going to represent
       	// in module?
       	static_cast<AuthenticationFrameBody*>(frameBody)->setStatusCode(0);
@@ -368,7 +368,7 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
       case ST_DISASSOCIATION:
       {
         frameBody = new DisAssociationFrameBody;
-        
+
         WirelessEtherInterface wie = findIfaceByMAC(f->getAddress1());
         assert(wie != UNSPECIFIED_WIRELESS_ETH_IFACE);
 
@@ -436,7 +436,7 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
         // Removed since deauthentication is sent when MS is not an entry
         // in the table. In which case will cause an assertion. So for now
         // the reason code is RC_DEAUTH_MS_LEAVING
-        // 
+        //
         //WirelessEtherInterface wie = findIfaceByMAC(f->getAddress1());
         //assert(wie != UNSPECIFIED_WIRELESS_ETH_IFACE);
 
@@ -463,7 +463,7 @@ void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
   iface.receiveMode = receiveMode;
   iface.expire = simTime();
 	iface.consecFailedTrans = 0;
-	
+
   // Choosing entry's expiry time depending on
   // its type
 	if(receiveMode == RM_AUTHRSP_ACKWAIT)
@@ -475,10 +475,10 @@ void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
     //iface.expire += iface.expire - elapsed;
 	else if(receiveMode == RM_DATA)
 		iface.expire += assEntryTimeout;
-  
+
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << fullPath() << " " << simTime()
-           << " ADDR: " << iface.address.stringValue() 
+           << " ADDR: " << iface.address.stringValue()
            << " RM: " << iface.receiveMode
            << " EXP: " <<  iface.expire);
 
@@ -497,16 +497,16 @@ WirelessEtherInterface WirelessAccessPoint::findIfaceByMAC(MACAddress mac)
   target.address = mac;
   if(!ifaces->findEntry(target))
    target = UNSPECIFIED_WIRELESS_ETH_IFACE;
-  
+
   return target;
 }
 
-// For the frame destination at the front of the buffer, update 
+// For the frame destination at the front of the buffer, update
 // the number of consecutive failed data frame tranmissions.
 void WirelessAccessPoint::updateConsecutiveFailedCount()
 {
 	assert(outputBuffer.size());
-	
+
 	// Access frame in the front of buffer
 	WESignalData* a = *(outputBuffer.begin());
 	WirelessEtherBasicFrame* outputFrame =
@@ -547,7 +547,7 @@ void WirelessAccessPoint::updateStats(void)
 {
   // Get the available bandwidth
   estAvailBW = (BASE_SPEED - usedBW.average*8)/(1024*1024);
-  
+
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << fullPath() << " " << simTime()
        << " Estimated available Bandwidth (over "<< usedBW.sampleTime <<" sec interval): " << estAvailBW << "Mb/s");
@@ -556,6 +556,6 @@ void WirelessAccessPoint::updateStats(void)
     estAvailBWVec->record(estAvailBW);
   usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
   usedBW.sampleTotal = 0;
- 
+
   WirelessEtherModule::updateStats();
 }

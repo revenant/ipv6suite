@@ -19,9 +19,9 @@
   @file EtherModule.cc
   @brief Implementation of EtherModule based on "Efficient and
   Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
-  
+
   @author Eric Wu
-	
+
   @note  simple implementation of Ethernet
 */
 
@@ -52,7 +52,7 @@
 #include "cTTimerMessageCB.h"
 #include "EtherFrame.h"
 
-#include "hook_types.h" //NWI_IDLE
+
 
 #include "opp_utils.h"
 #include <string>
@@ -72,7 +72,7 @@ void EtherModule::initialize(int stage)
     iface_type = PR_ETHERNET;
 
     changeState(EtherStateIdle::instance());
-  
+
     procdelay = par("procdelay").longValue();
 
     MAC_address addr;
@@ -86,7 +86,7 @@ void EtherModule::initialize(int stage)
     interframeGap = 0;
 
     inGate = findGate("physicalIn");
-    outGate = findGate("physicalOut");    
+    outGate = findGate("physicalOut");
   }
   else if (stage == 1)
   {
@@ -180,14 +180,14 @@ bool EtherModule::sendData(EtherFrame* frame)
   // addresses ranged from 33:00:00:00:00:00 to 33:FF:FF:FF:FF:FF
   // specifically for IPv6 Neighbour Dicovery, we may have to
   // investigate on that...
-  if (strFrameDestAddr == macAddressString() || 
+  if (strFrameDestAddr == macAddressString() ||
       strFrameDestAddr == ETH_BROADCAST_ADDRESS)
   {
     cMessage* packet = frame->decapsulate();
     send(packet, inputQueueOutGate());
   }
 
-  Dout(dc::debug|flush_cf, OPP_Global::nodeName(this) << "Ethernet HostMacAddr= " 
+  Dout(dc::debug|flush_cf, OPP_Global::nodeName(this) << "Ethernet HostMacAddr= "
        << macAddressString() << "  FrameDestAddr= " << strFrameDestAddr);
 
   return true;
@@ -256,8 +256,8 @@ void EtherModule::incNumOfRxIdle(std::string srcModPathName)
   idles.push_back(srcModPathName);
 }
 
-void EtherModule::decNumOfRxIdle(std::string srcModPathName) 
-{ 
+void EtherModule::decNumOfRxIdle(std::string srcModPathName)
+{
   for (SIT it = idles.begin(); it != idles.end(); it++)
     if ( (*it) == srcModPathName)
     {
@@ -266,21 +266,21 @@ void EtherModule::decNumOfRxIdle(std::string srcModPathName)
     }
 }
 
-void EtherModule::decNumOfRxJam(std::string srcModPathName) 
-{ 
+void EtherModule::decNumOfRxJam(std::string srcModPathName)
+{
   for (SIT it = jams.begin(); it != jams.end(); it++)
     if ( (*it) == srcModPathName)
     {
       it = jams.erase(it);
       it--;
     }
-} 
+}
 
-bool EtherModule::isMediumBusy(void) 
-{ 
+bool EtherModule::isMediumBusy(void)
+{
   if (!jams.size() && !idles.size())
     return false;
-  return true; 
+  return true;
 }
 
 cTimerMessage* EtherModule::getTmrMessage(const int& messageID)

@@ -33,7 +33,7 @@
 #include <boost/cast.hpp> //polymorphic_downcast
 #include <string>
 
-#include "hook_types.h"
+
 #include "PPPFrame.h"
 #include "opp_utils.h"
 #include "IPv6InterfaceData.h"
@@ -134,7 +134,7 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
     send(nwiIdleMsg, "ipOutputQueueOut");
     return;
   }
-    
+
   ++cntReceivedPackets;
   //from Network peer
   std::auto_ptr<PPPFrame> recFrame(polymorphic_downcast<PPPFrame*>(msg));
@@ -192,7 +192,7 @@ void IPv6PPPInterface::sendToUpperLayer(PPPFrame* recFrame)
     polymorphic_downcast<IPDatagram*> (recFrame->decapsulate());
   ipdatagram->setLength(ipdatagram->length() / 8); // convert from bits back to bytes
   assert(ipdatagram);
-  //wait(delay);        
+  //wait(delay);
   send(ipdatagram, "ipInputQueueOut");
 }
 

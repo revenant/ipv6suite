@@ -1,4 +1,4 @@
-//$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+//$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.cc,v 1.2 2005/02/10 05:43:47 andras Exp $
 //
 // Uml Switch Client for Omnet++ IPv6
 // * Copyright (C) 2002 Greg Daley Monash University, Melbourne, Australia
@@ -38,7 +38,7 @@
 #include "UmlSwitch.h"
 #include "boost/random.hpp"
 
-#include "hook_types.h"
+
 extern "C" {
 #include <sys/errno.h>
 #include <sys/types.h>

@@ -44,7 +44,7 @@
 #include <iomanip>
 #include <string>
 
-#include "hook_types.h"
+
 #include "IPv6OutputCore.h"
 #include "IPv6Datagram.h"
 #include "cTypedMessage.h"

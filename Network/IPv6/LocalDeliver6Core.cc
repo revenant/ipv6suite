@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.2 2005/02/10 05:43:47 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -21,19 +21,19 @@
    @file LocalDeliver6Core.cc
    @brief Implementation for Simple Module LocalDeliverCore
 
-   Responsibilities: 
+   Responsibilities:
 		strip off IP header
         Process Destination Options
         Forward to IPv6Encapsulation module if decapsulated payload is another datagram.
 		buffer fragments for ip_fragmenttime
 		wait until all fragments of one fragment number are received
-		discard without notification if not all fragments arrive in 
+		discard without notification if not all fragments arrive in
 		ip_fragmenttime
 		Defragment once all fragments have arrived
 		send Transport packet up to the transport layer
 		send ICMP packet to ICMP module
 		send IGMP group management packet to Multicast module
-   Notation: 
+   Notation:
 		TCP-Packets --> transportOut[0]
 		UDP-Packets --> transportOut[1]
    Based on LocalDeliverCore by Jochen Reber
@@ -53,7 +53,7 @@
 #include <cassert>
 #include <boost/cast.hpp>
 
-#include "hook_types.h"
+
 #include "LocalDeliver6Core.h"
 #include "HdrExtFragProc.h"
 #include "HdrExtRteProc.h"
@@ -74,13 +74,13 @@ Define_Module( LocalDeliver6Core );
 // tbd: include fragmentTimeout in .ned files
 void LocalDeliver6Core::initialize()
 {
-  
+
   fragmentTimeoutTime = strToSimtime(par("fragmentTimeout"));
   delay = par("procdelay");
   hasHook = (findGate("netfilterOut") != -1);
   ctrIP6InUnknownProtos = 0;
   ctrIP6InDeliver = 0;
-  
+
   int i;
   for (i=0; i < FRAGMENT_BUFFER_MAXIMUM; i++)
   {
@@ -101,7 +101,7 @@ void LocalDeliver6Core::initialize()
   parentModule()->setDisplayString(display.c_str());
 
   //so display at self
-  display = static_cast<const char*>(displayString()); 
+  display = static_cast<const char*>(displayString());
   display += ";q=";
   display += waitQueue.name();
   setDisplayString(display.c_str());
@@ -109,12 +109,12 @@ void LocalDeliver6Core::initialize()
 
 void LocalDeliver6Core::handleMessage(cMessage* theMsg)
 {
-  // erase timed out fragments in fragmentation buffer	
+  // erase timed out fragments in fragmentation buffer
   // check every 1 second max
   if (simTime() >= lastCheckTime + 1)
   {
     lastCheckTime = simTime();
-    eraseTimeoutFragmentsFromBuf();	
+    eraseTimeoutFragmentsFromBuf();
   }
 
 
@@ -145,28 +145,28 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
       if (dfmsg->kind() == DISCARD_PACKET)
       {
         delete dfmsg;
-        
+
         continue;
       }
 
       datagram = polymorphic_downcast<IPv6Datagram*>(dfmsg);
     }
-*/    
+*/
 
     // Defragmentation
     // skip Degragmentation if single Fragment Datagram
 //     if (datagram->findNextHdr(NEXTHDR_FRAGMENT) > 0)
 //     {
 //       HdrExtFragProc* proc = datagram->acquireFragInterface();
-//       assert(proc);          
-            
+//       assert(proc);
+
 //       insertInFragmentBuf( datagram );
 //       if (!datagramComplete(proc->fragmentId()))
 //       {
 //         delete(datagram);
 //         continue;
 //       }
-//       //datagram->setLength( datagram->headerLength()*8 + 
+//       //datagram->setLength( datagram->headerLength()*8 +
 //       //  datagram->encapsulatedMsg()->length() );
 
 //       //Looks like this function is deprecated perhaps?
@@ -176,7 +176,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
 //         ev << "\ndefragment\n";
 //         ev << "\nheader length: " << datagram->headerLength()*8
 //         << "  encap length: " << datagram->encapsulatedMsg()->length()
-//         << "  new length: " << datagram->length() << "\n"; 
+//         << "  new length: " << datagram->length() << "\n";
 //       */
 
 //       removeFragmentFromBuf(proc->fragmentId());
@@ -203,7 +203,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
 
   if (dgram != 0)
   {
-    
+
     if (processDatagram(dgram))
     {
       scheduleAt(delay + simTime(), waitTmr);
@@ -221,7 +221,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
     case IP_PROT_IGMP:
       send(interfacePacket, "multicastOut");
       break;
-          
+
     case IP_PROT_IP: //IPv4 packets
       //send(interfacePacket, "preRoutingOut");
       cerr<<"IPv4 in IPv6 tunnels not implemented "<<endl;
@@ -229,12 +229,12 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
       break;
     case IP_PROT_TCP:
       send(interfacePacket, "transportOut",0);
-        
+
       ctrIP6InDeliver++;
       break;
-    case IP_PROT_UDP: 	
+    case IP_PROT_UDP:
       send(interfacePacket, "transportOut",1);
-        
+
       ctrIP6InDeliver++;
       break;
     default:
@@ -264,7 +264,7 @@ void LocalDeliver6Core::finish()
 {
   recordScalar("IP6InUnknownProtos", ctrIP6InUnknownProtos);
   recordScalar("IP6InDeliver", ctrIP6InDeliver);
-  
+
 }
 
 bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
@@ -272,7 +272,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
 
     //Process Destination options
     HdrExtProc* proc = 0;
-    
+
     bool success = true;
     bool localdeliver = true;
     bool processFurther = false;
@@ -289,10 +289,10 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
         case NEXTHDR_DEST:
           success = proc->processHeader(this, datagram);
           break;
-          
+
         case NEXTHDR_ROUTING:
           localdeliver = false;
-          if (proc->type() == EXTHDR_ROUTING && 
+          if (proc->type() == EXTHDR_ROUTING &&
               ((rtProc = polymorphic_downcast<HdrExtRteProc*>(proc)) != 0) &&
               !rtProc->isSegmentsLeft())
             localdeliver = true;
@@ -304,27 +304,27 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
 
         case NEXTHDR_FRAGMENT:
           break;
-          
+
         case NEXTHDR_HOP:
           proc = datagram->getNextHeader(proc);
           break;
-          
+
         default:
           cerr<<className()<<" Unknown type "<<dec<<proc->type()<<" processed"<<endl;
           //send ICMP parameter problem with code 2 unrecognised option?
           break;
       }
-    }    
+    }
 
     //ProcessHeader should take care of pdu lifetime if failed
     if (!success || !localdeliver)
       return processFurther;
 
 //end processHeader
-    
+
 	//Give ICMP the direct packet as it will need all the gory details
     if (datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
-    {      
+    {
       send(datagram, "ICMPOut");
       return processFurther;
     }
@@ -339,7 +339,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
     if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     {
       send(datagram, "mobilityOut");
-      
+
       return processFurther;
     }
 #endif // USE_MOBILITY
@@ -389,7 +389,7 @@ void LocalDeliver6Core::eraseTimeoutFragmentsFromBuf()
       << fragmentBuf[i].fragmentId << " / "
       << fragmentBuf[i].fragmentOffset << " : "
       << fragmentBuf[i].timeout << "\n";
-			
+
       fragmentBuf[i].isFree = true;
       } // end if
       } // end for
@@ -407,7 +407,7 @@ void LocalDeliver6Core::insertInFragmentBuf(IPv6Datagram *d)
   if (fragmentBuf[i].isFree == true)
   {
   break;
-  } 
+  }
   } // end for
 
 	// if no free place found, increase Buffersize to append entry
@@ -441,7 +441,7 @@ bool LocalDeliver6Core::datagramComplete(int fragmentId)
   fragmentId == fragmentBuf[i].fragmentId &&
   nextFragmentOffset == fragmentBuf[i].fragmentOffset)
   {
-  newFragmentFound = true;	
+  newFragmentFound = true;
   nextFragmentOffset += fragmentBuf[i].length;
       // Datagram complete if last Fragment found
       if (!fragmentBuf[i].moreFragments)
@@ -475,7 +475,7 @@ int LocalDeliver6Core::getPayloadSizeFromBuf(int fragmentId)
 
   return payload;
 */
-  return 0;  
+  return 0;
 }
 
 void LocalDeliver6Core::removeFragmentFromBuf(int fragmentId)

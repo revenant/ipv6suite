@@ -37,6 +37,9 @@
 #endif //STRING
 
 
+// XXX TBD eliminate this constant from everywhere!
+#define NWI_IDLE    13
+
 class LinkLayerModule : public RoutingTableAccess
 {
  public:

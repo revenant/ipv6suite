@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.3 2005/02/10 03:54:16 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.4 2005/02/10 05:43:47 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -46,7 +46,7 @@
 #include <memory> //auto_ptr
 #include <boost/cast.hpp>
 
-#include "hook_types.h"
+
 #include "IPv6SendCore.h"
 #include "IPv6Datagram.h"
 #include "IPv6InterfacePacket.h"

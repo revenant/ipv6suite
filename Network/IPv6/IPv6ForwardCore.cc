@@ -42,9 +42,9 @@
 #include <iterator> //ostream_iterator
 #include <omnetpp.h>
 #include <boost/cast.hpp>
-#include <boost/functional.hpp>
+//#include <boost/functional.hpp>
 
-#include "hook_types.h"
+
 #include "IPv6ForwardCore.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
@@ -122,7 +122,7 @@ void IPv6ForwardCore::initialize(int stage)
       (OPP_Global::findModuleByName(this, "tunneling"));
     assert(tunMod != 0);
 #endif //USE_MOBILITY
-  } 
+  }
   //numInitStages needs to be after creation of ND state in NeighbourDiscovery
   //which happens at 3rd stage
   else if (stage == numInitStages() - 1 && rt->isRouter())
@@ -196,12 +196,12 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
       if (dfmsg->kind() == DISCARD_PACKET)
       {
         delete dfmsg;
-	  
+
         continue;
       }
       datagram = polymorphic_downcast<IPv6Datagram*>(dfmsg);
     }
-*/    
+*/
     if (!waitTmr->isScheduled() && 0 == curPacket)
     {
       curPacket = recDatagram.release();
@@ -230,7 +230,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     curPacket = boost::polymorphic_downcast<IPv6Datagram*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
-  
+
   //Disabled for now. Don't know why some packets when they leave this function
   //still display 0 source address when they shouldn't. Recording at prerouting
   //and output
@@ -256,7 +256,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     if (!datagram->destAddress().isMulticast())
       return;
   }
-    
+
 #if !defined NOINGRESSFILTERING
   //Cannot use the result of conceptual sending i.e. ifIndex because at that
   //stage dgrams with link local addresses are dropped.  Thus this disables
@@ -323,7 +323,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 
   weak_ptr<bc_entry> bce;
 
-  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());  
+  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
 
   if (rt->mobilitySupport() && datagram->inputPort() == -1)
   {
@@ -338,7 +338,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 
     if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
         ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(
-          tunPacket->encapsulatedMsg());    
+          tunPacket->encapsulatedMsg());
     else if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
       ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
 
@@ -465,9 +465,9 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
       polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->homeAddr())
   {
-    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = 
+    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN =
       polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds);
-    
+
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
         rt->getInterfaceByIndex(info.ifIndex).addrAssigned(
@@ -506,7 +506,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
     if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
       ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
-    if (ms == 0 && bule && !bule->isPerformingRR && 
+    if (ms == 0 && bule && !bule->isPerformingRR &&
         bule->homeAddr() == datagram->srcAddress() &&
         coaAssigned && mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
         //state 0 means ba received or assumed to be received > 0 means
@@ -535,19 +535,19 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
       if (rt->mobilitySupport() && rt->hmipSupport())
       {
         docheck = true;
-        HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = 
+        HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN =
           boost::polymorphic_downcast<HierarchicalMIPv6::HMIPv6CDSMobileNode*>(rt->mipv6cds);
-        
+
         Interface6Entry& ie = rt->getInterfaceByIndex(0);
-        
-        if (hmipv6cdsMN->isMAPValid()) 
+
+        if (hmipv6cdsMN->isMAPValid())
         {
             //This is too restrictive especially when EdgeHandover is on no
             //packets go out until we update HA
             //mipv6cdsMN->careOfAddr(pcoa) != hmipv6cdsMN->remoteCareOfAddr())
           if (!ie.addrAssigned(hmipv6cdsMN->remoteCareOfAddr()))
           {
-            Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr() 
+            Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
                  <<" from new MAP not ready yet(awaiting BA from MAP), dropping packet");
             delete addrResMsg;
             return;
@@ -559,7 +559,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 
             //Reverse tunnel to map always in latest hmip draft. reverse tunnels
             //when not doing RO because we set a dest trigger on HA so that it
-            //tunnels automatically from MN->MAP.  
+            //tunnels automatically from MN->MAP.
             if (hmipv6cdsMN->currentMap().v())
             {
               size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(), hmipv6cdsMN->currentMap().addr());
@@ -574,10 +574,10 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
               delete addrResMsg;
               return;
             }
-          } 
-          else 
+          }
+          else
           {
-            unsigned int ifIndexTest; 
+            unsigned int ifIndexTest;
             //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
             //link prefix
             if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
@@ -600,10 +600,10 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
         Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
              <<" checking coa "<<datagram->srcAddress()
              <<" is onlink at correct ifIndex "<<info.ifIndex);
-        unsigned int ifIndexTest; 
+        unsigned int ifIndexTest;
         //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
         //link prefix
-        assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest)); 
+        assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
         assert(ifIndexTest == info.ifIndex);
       }
 
@@ -641,11 +641,11 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
           ->currentRouter().get() == 0)
         //FMIP just set to PCoA here and hope for the best right.
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-             <<" No suitable src address available on foreign network as no " 
+             <<" No suitable src address available on foreign network as no "
              <<"routers recorded so far to form coa");
       else
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-             <<" No suitable src address available on foreign network as " 
+             <<" No suitable src address available on foreign network as "
              <<"ncoa in dad "<<
              polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
              ->careOfAddr(false)
@@ -664,7 +664,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 #endif //USE_MOBILITY
     ctrIP6OutNoRoutes++;
     //TODO probably send error message about -EADDRNOTAVAIL
-          
+
     delete addrResMsg;
     return;
   }
@@ -809,7 +809,7 @@ int IPv6ForwardCore::conceptualSending(AddrResInfo& info)
 
     }
   }
-  else if (!rt->isRouter()) 
+  else if (!rt->isRouter())
     Dout(dc::forwarding, " Found dest "<<info.dgram->destAddress()<<" in Dest Cache next hop="
          <<ne.lock()->addr());
 
@@ -980,9 +980,9 @@ bool IPv6ForwardCore::processReceived(IPv6Datagram& datagram)
         ipv6_addr_scope(datagram.srcAddress())  == ipv6_addr::Scope_Site)))
   {
     ctrIP6InAddrErrors++;
-    Debug( 
+    Debug(
 
-      if (!rt->isRouter()) 
+      if (!rt->isRouter())
       Dout(dc::debug, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as this is a host");
 
       else if (datagram.hopLimit() >= 255)

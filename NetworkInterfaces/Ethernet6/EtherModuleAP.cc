@@ -30,7 +30,7 @@
 
 #include <string>
 
-#include "hook_types.h" //NWI_IDLE
+
 
 #include "opp_utils.h"
 #include "ethernet.h"
@@ -67,7 +67,7 @@ void EtherModuleAP::initialize(int stage)
     inputFrame = 0;
     retry = 0;
     interframeGap = 0;
-    
+
     inGate = findGate("physicalIn");
     outGate = findGate("physicalOut");
   }
@@ -141,7 +141,7 @@ void EtherModuleAP::addMacEntry(std::string addr)
     if ( (*it) == addr )
       break;
   }
-  
+
   if ( it == ngbrMacList.end() )
     ngbrMacList.push_back(addr);
 }

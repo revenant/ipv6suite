@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,23 +18,23 @@
 
 /**
 	@file PreRouting6Core.cc
-	@brief Implementation of PreRouting 
-	-Responsibilities: 
+	@brief Implementation of PreRouting
+	-Responsibilities:
 		receive IP datagram
 		send correct datagram to Forwarding Module
-	@author Johnny Lai	
-	@date 27/08/01	
+	@author Johnny Lai
+	@date 27/08/01
 	Based on PreRoutingCore module by Jochen Reber
 */
 
 #include "sys.h"
 #include "debug.h"
 
-#include "PreRouting6Core.h"	
+#include "PreRouting6Core.h"
 
 #include <boost/cast.hpp>
 
-#include "hook_types.h"
+
 
 #include "IPv6Datagram.h"
 #include "IPv6ForwardCore.h" //routingInfoDisplay
@@ -48,7 +48,7 @@ Define_Module( PreRouting6Core );
 
 void PreRouting6Core::initialize()
 {
-    delay = par("procdelay"); 
+    delay = par("procdelay");
     hasHook = (findGate("netfilterOut") != -1);
     ctrIP6InReceive = 0;
     waitTmr = new cMessage("PreRouting6CoreWait");
@@ -62,8 +62,8 @@ void PreRouting6Core::initialize()
 }
 
 /**
-   Can make it check for Hop-By-Hop/Destination options at this point and 
-   see if we recognise them.  If we don't generate some error depending on 
+   Can make it check for Hop-By-Hop/Destination options at this point and
+   see if we recognise them.  If we don't generate some error depending on
    first 2 bits of Option Type (IPv6 Spec RFC)
 
    Destination options are handled by LocalDeliver6Core
@@ -76,9 +76,9 @@ void PreRouting6Core::handleMessage(cMessage* msg)
   {
     IPv6Datagram *datagram = boost::polymorphic_downcast<IPv6Datagram *>(msg);
     assert(datagram != 0);
-    
+
     ctrIP6InReceive++;
-    
+
     bool directionOut = false;
     OPP_Global::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
 
@@ -105,8 +105,8 @@ void PreRouting6Core::handleMessage(cMessage* msg)
 	//		if (datagram->hasBitError())
 	//		{
     // 	probability of bit error in header =
-    //	size of header / size of total message 
-    relativeHeaderLength = 
+    //	size of header / size of total message
+    relativeHeaderLength =
       datagram->headerLength() / datagram->totalLength();
     if (dblrand() <= relativeHeaderLength)
     {

@@ -20,7 +20,7 @@
 
 	simple implementation of Wireless bridge module
 
-	Bridges data frames from Wired ethernet to Wireless ethernet, and vice 
+	Bridges data frames from Wired ethernet to Wireless ethernet, and vice
   versa.
 
 	@author Eric Wu
@@ -34,7 +34,7 @@
 
 #include <string>
 
-#include "hook_types.h" //NWI_IDLE
+
 
 #include "WirelessEtherBridge.h"
 #include "opp_utils.h"
@@ -69,11 +69,11 @@ void WirelessEtherBridge::initialize(int stage)
     mac->setStringValue(address.stringValue());
     macNotifier->addPar(mac);
     send(static_cast<cMessage*>(macNotifier->dup()), "apOut");
-    
+
     //int numOfDSs = OPP_Global::findNetNodeModule(this)->gateSize("in");
     // gateSize() is an omnetpp version 3.0 function
     int numOfDSs = parentModule()->gate("in")->size();
-    
+
     for ( int i = 0; i < numOfDSs; i++)
       send(static_cast<cMessage*>(macNotifier->dup()), "dsOut", i);
 
@@ -96,7 +96,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
     {
       case PR_WETHERNET:
       {
-        // only one WirelessAccessPoint module is allowed in the bridge; DS module 
+        // only one WirelessAccessPoint module is allowed in the bridge; DS module
         // cannot be hooked with another wireless Ethernet module
         assert(std::string(msg->arrivalGate()->name()) == "apIn");
 
@@ -105,7 +105,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
 
         WirelessEtherBasicFrame* frame = dynamic_cast<WirelessEtherBasicFrame*>(msg);
         assert(frame);
-        
+
         MACPortMap::iterator it;
         for ( it = macPortMap.begin(); it != macPortMap.end(); it++ )
         {
@@ -118,7 +118,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
         }
       }
       break;
-      
+
       case PR_ETHERNET:
       {
         EtherModuleAP* macMod = polymorphic_downcast<EtherModuleAP*>(llmod);
@@ -126,7 +126,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
 
         EtherFrame* frame = polymorphic_downcast<EtherFrame*>(msg);
         assert(frame);
-        
+
         LinkLayerModule* destMod = findMacByAddress(frame->destAddrString());
 
         if (destMod || std::string(frame->destAddrString()) == ETH_BROADCAST_ADDRESS)
@@ -135,19 +135,19 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
           cMessage* destMessage = translateFrame(frame, PR_WETHERNET);
           send(destMessage, "apOut");
 
-          if ( destMod && std::string(frame->destAddrString()) != ETH_BROADCAST_ADDRESS )        
+          if ( destMod && std::string(frame->destAddrString()) != ETH_BROADCAST_ADDRESS )
             macMod->addMacEntry(std::string(frame->srcAddrString()));
-        } 
+        }
       }
       break;
 
       case PR_PPP:
       {
-	
+
         IPv6PPPAPInterface* macMod = polymorphic_downcast<IPv6PPPAPInterface*>(llmod);
         assert(macMod);
 
-        PPPFrame* frame = polymorphic_downcast<PPPFrame*>(msg);	
+        PPPFrame* frame = polymorphic_downcast<PPPFrame*>(msg);
         LinkLayerModule* destMod = findMacByAddress(frame->destAddr);
 
         if (destMod || frame->destAddr == ETH_BROADCAST_ADDRESS)
@@ -158,8 +158,8 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
 
 //          if ( destMod && frame->destAddr != ETH_BROADCAST_ADDRESS )
 //            macMod->addMacEntry(frame->srcAddr);
-        } 
-	
+        }
+
 
       }
       break;
@@ -175,7 +175,7 @@ void WirelessEtherBridge::finish(void)
 LinkLayerModule* WirelessEtherBridge::findMacByAddress(std::string addr)
 {
   MACPortMap::iterator it;
-  
+
   for ( it = macPortMap.begin(); it != macPortMap.end(); it++ )
   {
     switch(it->first->getInterfaceType())
@@ -189,14 +189,14 @@ LinkLayerModule* WirelessEtherBridge::findMacByAddress(std::string addr)
           return macMod;
       }
       break;
-      
+
 /*      case PR_ETHERNET:
       {
         EtherModuleAP* macMod = dynamic_cast<EtherModuleAP*>(it->first);
         assert(macMod);
 
         EtherModuleAP::NeighbourMacList::iterator nit;
-        
+
         for ( nit = macMod->ngbrMacList.begin(); nit != macMod->ngbrMacList.end(); nit++)
         {
           if ( *nit == addr )
@@ -212,11 +212,11 @@ LinkLayerModule* WirelessEtherBridge::findMacByAddress(std::string addr)
 int WirelessEtherBridge::getOutputPort(LinkLayerModule* llmod)
 {
   MACPortMap::iterator it = macPortMap.find(llmod);
-  
+
   if ( it == macPortMap.end() )
     return -1;
-  
-  // There is often a pair of gates between the modules (input/output). 
+
+  // There is often a pair of gates between the modules (input/output).
   // The output gate id is 1+ of the input gate id.
   return it->second + 1;
 }
@@ -232,7 +232,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
       WirelessEtherDataFrame* srcFrame = static_cast<WirelessEtherDataFrame*>(frame);
       std::string srcAddr(srcFrame->getAddress3());
       std::string destAddr(srcFrame->getAddress1());
-      
+
       switch(destProtocol)
       {
         case PR_ETHERNET:
@@ -284,7 +284,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
       }
     }
     break;
-      
+
     case PR_ETHERNET:
     {
       EtherFrame* srcFrame = static_cast<EtherFrame*>(frame);
@@ -305,8 +305,8 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
           destFrame->getFrameControl().toDS = false;
           destFrame->getFrameControl().fromDS = true;
           destFrame->getFrameControl().retry = false;
-          destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 + 
-                               FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL + 
+          destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 +
+                               FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL +
                                FL_FCS);
           destFrame->setProtocol(PR_WETHERNET);
 
@@ -316,7 +316,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
           destFrame->setName(dupData->name());
 
           delete data;
-          
+
           signal = new WESignalData(destFrame);
           signal->setName(destFrame->name());
 
@@ -339,7 +339,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
       }
     }
     break;
-    
+
     case PR_PPP:
     {
       PPPFrame* srcFrame = static_cast<PPPFrame*>(frame);
@@ -357,15 +357,15 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
           destFrame->getFrameControl().toDS = false;
           destFrame->getFrameControl().fromDS = true;
           destFrame->getFrameControl().retry = false;
-          destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 + 
-                               FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL + 
+          destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 +
+                               FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL +
                                FL_FCS);
           destFrame->setProtocol(PR_WETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
           destFrame->encapsulate(static_cast<cPacket*>(data->dup()));
           delete data;
-          
+
           signal = new WESignalData(destFrame);
           signal->setName(destFrame->name());
 
@@ -377,7 +377,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
                << " Address2 (AP): " <<destFrame->getAddress2() <<"\n"
                << " No Address3 (SRC) as PPP : "
                << " ---------------------------------------------------- \n");
-	  
+
           delete destFrame;
         }
         break;

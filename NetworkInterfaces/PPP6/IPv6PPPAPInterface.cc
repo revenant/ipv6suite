@@ -95,7 +95,7 @@ void IPv6PPPAPInterface::handleMessage(cMessage* msg)
 
 int IPv6PPPAPInterface::inputQueueOutGate() const
 {
-  return findGate("ipInputQueueOut");
+  return findGate("netwOut");
 }
 
   // frames from bridge module

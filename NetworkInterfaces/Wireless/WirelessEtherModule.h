@@ -170,10 +170,10 @@ public:
   AveragingList *signalStrength;
 
   // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
-  virtual int outputQueueInGate() { return findGate("ipOutputQueueIn"); }
+  virtual int outputQueueInGate() { return findGate("netwIn"); }
 
   // output gate of the Input Queue to other layer or peer L2 modules
-  virtual int inputQueueOutGate() { return findGate("ipInputQueueOut"); }
+  virtual int inputQueueOutGate() { return findGate("netwOut"); }
 
   // CSMA-CA
 

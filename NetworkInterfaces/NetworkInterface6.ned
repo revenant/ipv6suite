@@ -37,6 +37,6 @@ module NetworkInterface6
         procdelay : numeric const,
         nwiXmlConfig: xml;
     gates:
-        in: physicalIn, ipOutputQueueIn, extSignalIn[];
-        out: physicalOut, ipInputQueueOut, extSignalOut[];
+        in: physIn, netwIn, extSignalIn[];
+        out: physOut, netwOut, extSignalOut[];
 endmodule

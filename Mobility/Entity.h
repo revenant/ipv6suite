@@ -61,7 +61,7 @@ class Entity
       _pos.x = x;
       _pos.y = y;
     }
-  
+
   // return the type of entity
   MobileEntityType entityType(void) { return _type; }
 
@@ -75,14 +75,14 @@ class Entity
 
   ///Draw wireless range of interface
   ///@note assuming receive threshold on all nodes are the same
-  virtual void drawWirelessRange(std::string& dispStr);
+  virtual void drawWirelessRange();
 
   // obtain position info from display string of the netnode module
   void getDispPosition(int& x, int& y);
 
   // update the position info to display string of the netnode module
   void setDispPosition(int x, int y);
-  
+
  protected:
   cSimpleModule* _mod;
   Position _pos;

@@ -79,8 +79,8 @@ module Router6
 
         // Link Layer <-> Network Layer
         for i=0..sizeof(in)-1 do
-            networkLayer.physOut[i] --> linkLayers[i].outputQueueIn;
-            linkLayers[i].inputQueueOut --> networkLayer.physIn[i];
+            networkLayer.physOut[i] --> linkLayers[i].netwIn;
+            linkLayers[i].netwOut --> networkLayer.physIn[i];
         endfor;
 
         // connections to network outside

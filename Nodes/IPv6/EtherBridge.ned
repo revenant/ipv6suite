@@ -52,8 +52,8 @@ module EtherBridge
 
         // ds <--> relayUnit
         for i=0..sizeof(in)-1 do
-            relayUnit.ethOut[i] --> ethernet[i].outputQueueIn;
-            ethernet[i].inputQueueOut --> relayUnit.ethIn[i];
+            relayUnit.ethOut[i] --> ethernet[i].netwIn;
+            ethernet[i].netwOut --> relayUnit.ethIn[i];
         endfor;
     display: "p=10,10;b=320,298";
 endmodule

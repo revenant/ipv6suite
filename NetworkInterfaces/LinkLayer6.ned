@@ -44,8 +44,8 @@ module LinkLayer6
     gates:
         in: physIn; // from physical layer
         out: physOut; // to physical layer
-        in: outputQueueIn; // from upper layer (L3)
-        out: inputQueueOut; // to upper layer (L3)
+        in: netwIn; // from upper layer (L3)
+        out: netwOut; // to upper layer (L3)
         in: extSignalIn[];
         out: extSignalOut[];
 
@@ -60,12 +60,12 @@ module LinkLayer6
     connections:
 
         // IP layer to Network interface
-        outputQueueIn --> networkInterface.ipOutputQueueIn;
-        inputQueueOut <-- networkInterface.ipInputQueueOut;
+        netwIn --> networkInterface.netwIn;
+        netwOut <-- networkInterface.netwOut;
 
         // physical connection
-        networkInterface.physicalOut --> physOut;
-        networkInterface.physicalIn <-- physIn;
+        networkInterface.physOut --> physOut;
+        networkInterface.physIn <-- physIn;
 
         for i=0..sizeof(extSignalIn)-1 do
           networkInterface.extSignalIn[i] <-- extSignalIn[i];

@@ -50,7 +50,7 @@ module EthernetInterface
         arp.hwIn <-- encap.upperLayerOut;
         encap.lowerLayerOut --> mac.upperLayerIn;
         encap.lowerLayerIn <-- mac.upperLayerOut;
-        mac.physicalIn <-- physIn;
-        mac.physicalOut --> physOut;
+        mac.physIn <-- physIn;
+        mac.physOut --> physOut;
 endmodule
 

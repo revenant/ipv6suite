@@ -53,8 +53,8 @@ module EtherSwitch
         for i=0..sizeof(in)-1 do
             mac[i].upperLayerIn <-- relayUnit.lowerLayerOut[i];
             mac[i].upperLayerOut --> relayUnit.lowerLayerIn[i];
-            mac[i].physicalIn <-- in[i];
-            mac[i].physicalOut --> out[i];
+            mac[i].physIn <-- in[i];
+            mac[i].physOut --> out[i];
         endfor;
 endmodule
 

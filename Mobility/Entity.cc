@@ -74,8 +74,10 @@ int Entity::distance(Entity* entity)
 }
 
 // XXX FIXME wrong: should be changed to displayString().setTagArg()!!!!!!!!!!!!!!!!!!!!!!!!!!! --AV
-void Entity::drawWirelessRange(std::string& dispStr)
+void Entity::drawWirelessRange()
 {
+  cModule *nodemod = findNetNodeModule(_mod);
+  std::string dispStr = nodemod->displayString().getString();
   if (dispStr.find("r=") == std::string::npos)
   {
       cModule* mod = OPP_Global::findModuleByName(_mod, "wirelessAccessPoint");
@@ -93,71 +95,22 @@ void Entity::drawWirelessRange(std::string& dispStr)
         dispStr += ",,red";
       }
   }
+  nodemod->displayString().parse(dispStr.c_str());
 }
 
 void Entity::getDispPosition(int& x, int& y)
 {
-  std::string dispStr = static_cast<const char*> (findNetNodeModule(_mod)->displayString());
-  drawWirelessRange(dispStr);
-  findNetNodeModule(_mod)->setDisplayString(dispStr.c_str());
-
-  cDisplayStringParser disParser(dispStr.c_str());
-
-  // Tcl/Tk environment, simply use Tcl/Tk object co-ordinates for
-  // entity terrain position
-  if(disParser.existsTag("p"))
-  {
-    const char* xStr = disParser.getTagArg("p", 0);
-    const char* yStr = disParser.getTagArg("p", 1);
-
-    x = atoi(xStr);
-    y = atoi(yStr);
-  }
-  // command line environment, TODO: may use psuedo random number
-  // generator to generate terrain position
-  else
-  {
-  }
+  cModule *nodemod = findNetNodeModule(_mod);
+  x = atoi(nodemod->displayString().getTagArg("p",0));
+  y = atoi(nodemod->displayString().getTagArg("p",1));
 }
 
 void Entity::setDispPosition(int x, int y)
 {
-  cDisplayStringParser disParser(findNetNodeModule(_mod)->displayString());
+  cModule *nodemod = findNetNodeModule(_mod);
+  char buf[32];
+  nodemod->displayString().setTagArg("p", 0, itoa(x,buf,10));
+  nodemod->displayString().setTagArg("p", 1, itoa(y,buf,10));
 
-  // update Tk/Tcl environment
-  if(disParser.existsTag("p"))
-  {
-    std::stringstream ss_x;
-    std::stringstream ss_y;
-
-    ss_x << x;
-    ss_y << y;
-
-    // TODO: some problem with the DisplayStringParser.. so mannually
-    // remove the unwanted characters just for now
-
-    std::string tempDispStr(findNetNodeModule(_mod)->displayString());
-    std::string oldX(disParser.getTagArg("p", 0));
-    std::string oldY(disParser.getTagArg("p", 1));
-
-    int oldXStrPos = tempDispStr.find(oldX);
-
-    if (oldX != ss_x.str())
-    {
-      tempDispStr.erase(oldXStrPos, oldX.length());
-      tempDispStr.insert(oldXStrPos, ss_x.str());
-    }
-    if ( oldY != ss_y.str())
-    {
-      int oldYStrPos = tempDispStr.find(oldY, oldXStrPos + oldX.length());
-      int newYStrPos = oldYStrPos + (ss_x.str().length() - oldX.length());
-
-      tempDispStr.erase(newYStrPos, oldY.length());
-      tempDispStr.insert(newYStrPos, ss_y.str());
-    }
-
-    drawWirelessRange(tempDispStr);
-
-    findNetNodeModule(_mod)->setDisplayString(tempDispStr.c_str());
-  }
+  drawWirelessRange(); // XXX FIXME move it out of here
 }

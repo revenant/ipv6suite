@@ -41,6 +41,7 @@
 
 using namespace std;
 
+/* XXX apparently not used
 extern const char* ME_OUT;
 extern const char* ME_IN;
 
@@ -55,6 +56,7 @@ struct MEConnInfo
   int outputGate; // outgoing gate to other entity
   int inputGate; // incoming gate from other entity
 };
+*/
 
 // record of destionation and the speed per move
 struct MoveInfo
@@ -63,8 +65,9 @@ struct MoveInfo
   float speed;
 };
 
+/* XXX
 bool operator==(MEConnInfo& lhs, MEConnInfo& rhs);
-
+*/
 
 class MobileEntity : public Entity
 {
@@ -74,6 +77,7 @@ class MobileEntity : public Entity
   // OMNeT++ functions
   MobileEntity(cSimpleModule* mod);
 
+/* XXX apparently obsolete -- removed  --AV
   // return index of the gate that is belonged to the
   // Entity::containerModule() if gate connection is successful
   // otherwise return -1
@@ -82,13 +86,14 @@ class MobileEntity : public Entity
   // delete all gates that are associated with gates at the other
   // module, return true if gate disconnection is successful
   bool disconnect(Entity* otherEntity);
+*/
 
   // return true if the mobile entity moves
   bool moving(void);
 
   ///Draw wireless range of interface
   ///@note assuming receive threshold on all nodes are the same
-  virtual void drawWirelessRange(std::string& dispStr);
+  virtual void drawWirelessRange();
 
   // return the moving speed of the mobile entity
   float speed(void)

@@ -171,7 +171,7 @@ void RoutingTable6::initialize(int stage)
           cerr<< endl <<nodeName()<<":"<<i+1
               <<" Check the network interface names in XML file: "
               <<interfaces[i+1].iface_name<<endl
-              <<" wi  th corresponding OMNeT++ MAC iface: "
+              <<" with corresponding OMNeT++ MAC iface: "
               <<llmodule->getInterfaceName()<<endl;
           exit(1);
         }

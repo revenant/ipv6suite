@@ -77,7 +77,7 @@ void EtherMAC::initialize()
     maxQueueSize = par("maxQueueSize");
 
     // check: datarate is forbidden with EtherMAC -- module's txrate must be used
-    cGate *g = gate("physicalOut");
+    cGate *g = gate("physOut");
     while (g)
     {
         cSimpleChannel *chan = dynamic_cast<cSimpleChannel*>(g->channel());
@@ -89,7 +89,7 @@ void EtherMAC::initialize()
     }
 
     // check if connected
-    disabled = !gate("physicalOut")->destinationGate()->isConnected();
+    disabled = !gate("physOut")->destinationGate()->isConnected();
     if (disabled)
         EV << "MAC not connected to a network, disabling.\n";
     // Note: it is currently not supported to enable a disabled MAC at runtime.
@@ -231,7 +231,7 @@ void EtherMAC::startAutoconfig()
             autoconf->setHalfDuplex(true);
         if (initialTxrate>0)
             autoconf->setTxrate(initialTxrate);
-        send(autoconf, "physicalOut");
+        send(autoconf, "physOut");
     }
     scheduleAt(simTime()+AUTOCONFIG_PERIOD, new cMessage("EndAutoconfig",ENDAUTOCONFIG));
 }
@@ -603,7 +603,7 @@ void EtherMAC::startFrameTransmission()
     // add preamble and SFD (Starting Frame Delimiter), then send out
     frame->setLength(frame->length()+8*PREAMBLE_BYTES+8*SFD_BYTES);
     if (ev.isGUI())  updateConnectionColor(TRANSMITTING_STATE);
-    send(frame, "physicalOut");
+    send(frame, "physOut");
 
     // update burst variables
     if (frameBursting)
@@ -780,7 +780,7 @@ void EtherMAC::sendJamSignal()
     cMessage *jam = new cMessage("JAM_SIGNAL", JAM_SIGNAL);
     jam->setLength(8*JAM_SIGNAL_BYTES);
     if (ev.isGUI())  updateConnectionColor(JAMMING_STATE);
-    send(jam, "physicalOut");
+    send(jam, "physOut");
 
     scheduleAt(simTime()+jamDuration, endJammingMsg);
     transmitState = JAMMING_STATE;
@@ -1008,7 +1008,7 @@ void EtherMAC::updateConnectionColor(int txState)
     else
         color = "";
 
-    cGate *g = gate("physicalOut");
+    cGate *g = gate("physOut");
     while (g && g->type()=='O')
     {
         g->displayString().setTagArg("o",0,color);

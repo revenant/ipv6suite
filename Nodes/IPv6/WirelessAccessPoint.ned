@@ -26,7 +26,6 @@
 
 import
     "WirelessEtherBridge",
-
     "PhysicalLayer",
     "MobilityManager",
     "LinkLayer6";
@@ -45,7 +44,7 @@ module AccessPoint
         authWaitEntryTimeout : numeric,
         authEntryTimeout : numeric,
         assEntryTimeout : numeric,
-                consecFailedTransLimit : numeric,
+        consecFailedTransLimit : numeric,
         beginCollectionTime : numeric,
         endCollectionTime : numeric;
     gates:
@@ -98,13 +97,13 @@ module AccessPoint
 
         // ds <--> bridge
         for i=0..sizeof(in)-1 do
-            bridge.dsOut[i] --> ds[i].outputQueueIn;
-            ds[i].inputQueueOut --> bridge.dsIn[i];
+            bridge.dsOut[i] --> ds[i].netwIn;
+            ds[i].netwOut --> bridge.dsIn[i];
         endfor;
 
         // bridge <--> ap
-        bridge.apOut --> wirelessAccessPoint.outputQueueIn;
-        bridge.apIn <-- wirelessAccessPoint.inputQueueOut;
+        bridge.apOut --> wirelessAccessPoint.netwIn;
+        bridge.apIn <-- wirelessAccessPoint.netwOut;
 
         wirelessAccessPoint.physIn <-- phyLayerAP.linkOut[0];
         wlin --> phyLayerAP.in[0];

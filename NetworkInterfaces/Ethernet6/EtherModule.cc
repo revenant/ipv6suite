@@ -80,8 +80,8 @@ void EtherModule::initialize(int stage)
     retry = 0;
     interframeGap = 0;
 
-    inGate = findGate("physicalIn");
-    outGate = findGate("physicalOut");
+    inGate = findGate("physIn");
+    outGate = findGate("physOut");
   }
   else if (stage == 1)
   {

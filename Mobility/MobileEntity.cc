@@ -39,6 +39,7 @@
 #include "LinkLayerModule.h"
 #include "WirelessEtherModule.h"
 
+/* XXX apparently not used
 const int CONNECT = 1111;
 const int DISCONNECT = 1112;
 const char* CONNECT_MSG = "CONNECT";
@@ -52,6 +53,7 @@ bool operator==(MEConnInfo& lhs, MEConnInfo& rhs)
           lhs.outputGate == rhs.outputGate &&
           lhs.inputGate == rhs.inputGate);
 }
+*/
 
 using namespace::OPP_Global;
 using std::string;
@@ -75,291 +77,24 @@ MobileEntity::MobileEntity(cSimpleModule* mod)
     _mwp = static_cast<WorldProcessor*>(m);
 }
 
+/* XXX apparently obsolete -- removed  --AV
 bool MobileEntity::disconnect(Entity* otherEntity)
 {
-  bool isGateDisconnected = false;
-
-  MEConnInfo meInfo;
-  meInfo.en = otherEntity;
-
-  cModule* selfNode = findNetNodeModule(_mod);
-  cModule* otherNode = findNetNodeModule(otherEntity->containerModule());
-
-  cGate* childModGt = 0;
-
-  cModule* currentMod = 0;
-  cGate* currentModGt = 0;
-
-  cGate* otherNodeGt = 0;
-
-  for (int i = 0; i < selfNode->gates(); i++)
-  {
-    cGate* gt = selfNode->gate(i);
-
-    if (gt !=0 && gt->type() == 'O')
-    {
-      otherNodeGt = gt->toGate();
-
-      if (otherNodeGt != 0 && otherNodeGt->ownerModule() == otherNode)
-      {
-        // delete self gates from top to down hierarchically
-
-        currentModGt = gt;
-        currentMod = currentModGt->ownerModule();
-        childModGt = gt->fromGate();
-
-        while (currentMod != _mod)
-        {
-          currentMod->gatev.remove(currentModGt);
-          delete currentModGt;
-
-          currentModGt = childModGt;
-          currentMod = currentModGt->ownerModule();
-          childModGt = currentModGt->fromGate();
-        }
-
-        meInfo.outputGate = currentModGt->id();
-        currentMod = currentModGt->ownerModule();
-        currentMod->gatev.remove(currentModGt);
-        delete childModGt;
-
-        // delete other gates from top to down hierachically
-
-        currentModGt = otherNodeGt;
-        childModGt = otherNodeGt->toGate();
-        currentMod = currentModGt->ownerModule();
-
-        while (currentMod != otherEntity->containerModule())
-        {
-          currentMod->gatev.remove(currentModGt);
-          delete currentModGt;
-
-          currentModGt = childModGt;
-          currentMod = currentModGt->ownerModule();
-          childModGt = currentModGt->toGate();
-        }
-
-        currentMod = currentModGt->ownerModule();
-        currentMod->gatev.remove(currentModGt);
-        delete childModGt;
-
-        isGateDisconnected = true;
-      }
-    }
-    else if (gt != 0 && gt->type() == 'I')
-    {
-      otherNodeGt = gt->fromGate();
-
-      if (otherNodeGt != 0 && otherNodeGt->ownerModule() == otherNode)
-      {
-        // delete self gates from top to down hierarchically
-
-        currentModGt = gt;
-        currentMod = gt->ownerModule();
-        childModGt = gt->toGate();
-
-        while (currentMod != _mod)
-        {
-          currentMod->gatev.remove(currentModGt);
-          delete currentModGt;
-
-          currentModGt = childModGt;
-          currentMod = currentModGt->ownerModule();
-          childModGt = currentModGt->toGate();
-        }
-
-
-        meInfo.inputGate = currentModGt->id();
-        currentMod = currentModGt->ownerModule();
-        currentMod->gatev.remove(currentModGt);
-        delete currentModGt;
-
-        // delete other gates from top to down hierachically
-
-        currentModGt = otherNodeGt;
-        currentMod = currentModGt->ownerModule();
-        childModGt = otherNodeGt->fromGate();
-
-        while (currentMod != otherEntity->containerModule())
-        {
-          currentMod->gatev.remove(currentModGt);
-          delete currentModGt;
-
-          currentModGt = childModGt;
-          currentMod = currentModGt->ownerModule();
-          childModGt = currentModGt->fromGate();
-        }
-
-        currentMod = currentModGt->ownerModule();
-        currentMod->gatev.remove(currentModGt);
-        delete childModGt;
-
-        isGateDisconnected = true;
-      }
-    }
-  }
-
-  if (isGateDisconnected)
-  {
-    if (otherEntity->entityType() == MobileBS)
-      ((BaseStation*)(otherEntity))->dettachBS(this);
-  }
-
-  return isGateDisconnected;
+   ...
 }
+*/
 
+/* XXX apparently obsolete -- removed
 int MobileEntity::connectWith(Entity* otherEntity, bool isOutgoing)
 {
-  int gateid = -1;
-
-  if (!otherEntity)
-    return gateid;
-
-  // network node level modules that contain the simple module of
-  // entity
-  cModule* selfNode = findNetNodeModule(_mod);
-  cModule* otherNode = findNetNodeModule(otherEntity->containerModule());
-
-  char selfDirection; // direction of the gate of this entity
-  char otherDirection; // direction of the gate of the connecting entity
-
-  cGate* selfGt = 0; // a pointer to the current gate of this entity
-  cGate* otherGt = 0; // a pointer to the current gate of the connecting entity
-
-  // labels that are assigned to all of the gates recursively up to the
-  // network node level module
-  string selfGtName;
-  string otherGtName;
-
-  // initialise all necessary variables
-
-  if (isOutgoing)
-  {
-    selfDirection = 'O';
-    selfGtName = ME_OUT;
-
-    otherDirection = 'I';
-    otherGtName = ME_IN;
-  }
-  else
-  {
-    selfDirection = 'I';
-    selfGtName = ME_IN;
-
-    otherDirection = 'O';
-    otherGtName = ME_OUT;
-  }
-
-  // assign gate names recursively from simple module to the network
-  // node module levels between "this" entity and the connecting
-  // entity
-
-  string selfNodeGtName = string(selfNode->name()) +
-    selfGtName +
-    string(otherNode->name());
-
-  string otherNodeGtName = string(otherNode->name()) +
-    otherGtName +
-    string(selfNode->name());
-
-  cModule* childMod = _mod;
-  cModule* parentMod = childMod->parentModule();
-
-  // connect the self gates recursively to the network node level
-
-  while (childMod != selfNode)
-  {
-    selfGt = 0;
-
-    if (childMod->findGate(selfNodeGtName.c_str()) == -1)
-    {
-      selfGt = new cGate(selfNodeGtName.c_str(), selfDirection);
-      selfGt->setOwnerModule(childMod, childMod->gates());
-      int tempgateid = childMod->gatev.add(selfGt);
-
-      if (gateid == -1)
-        gateid = tempgateid;
-    }
-    else
-      selfGt = childMod->gate(selfNodeGtName.c_str());
-
-    cGate* selfParentGt = new cGate(selfNodeGtName.c_str(), selfDirection);
-    selfParentGt->setOwnerModule(parentMod, parentMod->gates());
-    parentMod->gatev.add(selfParentGt);
-
-    if(isOutgoing)
-    {
-      selfGt->setTo(selfParentGt);
-      selfParentGt->setFrom(selfGt);
-    }
-    else
-    {
-      selfGt->setFrom(selfParentGt);
-      selfParentGt->setTo(selfGt);
-    }
-
-    childMod = parentMod;
-    parentMod = parentMod->parentModule();
-  }
-
-  // connect the other gates recursively to the network node level
-
-  childMod = otherEntity->containerModule();
-  parentMod = childMod->parentModule();
-
-  while(childMod != otherNode)
-  {
-    otherGt = 0;
-
-    if (childMod->findGate(otherNodeGtName.c_str()) == -1)
-    {
-      otherGt = new cGate(otherNodeGtName.c_str(), otherDirection);
-      otherGt->setOwnerModule(childMod, childMod->gates());
-      childMod->gatev.add(otherGt);
-    }
-    else
-      otherGt = childMod->gate(otherNodeGtName.c_str());
-
-    cGate* otherParentGt = new cGate(otherNodeGtName.c_str(), otherDirection);
-    otherParentGt->setOwnerModule(parentMod, parentMod->gates());
-    parentMod->gatev.add(otherParentGt);
-
-    if(isOutgoing)
-    {
-      otherGt->setFrom(otherParentGt);
-      otherParentGt->setTo(otherGt);
-    }
-    else
-    {
-      otherGt->setTo(otherParentGt);
-      otherParentGt->setFrom(otherGt);
-    }
-
-    childMod = parentMod;
-    parentMod = parentMod->parentModule();
-  }
-
-  // connect gates between node level modules
-
-  cGate* selfNodeGt = selfNode->gate(selfNodeGtName.c_str());
-  cGate * otherNodeGt = otherNode->gate(otherNodeGtName.c_str());
-
-  if(isOutgoing)
-  {
-    selfNodeGt->setTo(otherNodeGt);
-    otherNodeGt->setFrom(selfNodeGt);
-  }
-
-  else
-  {
-    selfNodeGt->setFrom(otherNodeGt);
-    otherNodeGt->setTo(selfNodeGt);
-  }
-  return gateid;
+   ...
 }
+*/
 
-void MobileEntity::drawWirelessRange(std::string& dispStr)
+void MobileEntity::drawWirelessRange()
 {
+  cModule *nodemod = findNetNodeModule(_mod);
+  std::string dispStr = nodemod->displayString().getString();
   if (dispStr.find("r=") == std::string::npos)
   {
     //Does not work for all modules either as some do not even have layer 3
@@ -401,6 +136,7 @@ void MobileEntity::drawWirelessRange(std::string& dispStr)
       }
     }
   }
+  nodemod->displayString().parse(dispStr.c_str());
 }
 
 bool MobileEntity::moving(void)

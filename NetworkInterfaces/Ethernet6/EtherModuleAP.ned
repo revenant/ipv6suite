@@ -24,7 +24,7 @@ simple EtherModuleAP
     parameters:
         procdelay : numeric const;
     gates:
-        in: physicalIn, ipOutputQueueIn;
-        out: physicalOut, ipInputQueueOut;
+        in: physIn, netwIn;
+        out: physOut, netwOut;
 endsimple
 

@@ -30,7 +30,7 @@ import
 // Model of an Ethernet LAN, with several hosts (UDPNode) connected
 // via a hub, and an additional host connected through a router.
 //
-module Ethernetwork //
+module Ethernetwork
     parameters:
         numOfClients : numeric;
     submodules:

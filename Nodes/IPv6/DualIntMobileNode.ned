@@ -41,14 +41,9 @@ import
 // @warning if ever we add wired ports "in[]" then numOfPorts needs to be
 // added as top level parameter and assigned value of sizeof(in) + sizeof(wlin) in
 // omnetpp.ini otherwise the network layer will not be aware of some ports.
-
-
-
-
+//
 module DualIntMobileNode
     parameters:
-                // Network information
-
         beginCollectionTime : numeric,
         endCollectionTime : numeric,
         IPv6routingFile : string,
@@ -134,8 +129,8 @@ module DualIntMobileNode
 // Link Layer <-> Dual Interface Layer
 
         for i=0..sizeof(wlin)-1 do
-            dualInterfaceLayer.toLL[i] --> linkLayers[i].outputQueueIn;
-            dualInterfaceLayer.fromLL[i] <-- linkLayers[i].inputQueueOut;
+            dualInterfaceLayer.toLL[i] --> linkLayers[i].netwIn;
+            dualInterfaceLayer.fromLL[i] <-- linkLayers[i].netwOut;
             dualInterfaceLayer.extSignalOut[i] --> linkLayers[i].extSignalIn[0];
             dualInterfaceLayer.extSignalIn[i] <-- linkLayers[i].extSignalOut[0];
         endfor;

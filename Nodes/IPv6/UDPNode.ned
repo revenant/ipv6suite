@@ -81,8 +81,8 @@ module UDPNode
             display: "p=168,292;i=prot3";
         udpLayer: UDPProcessing6;
             gatesizes:
-        from_app[numOfUDPApps],
-        to_app[numOfUDPApps];
+                from_app[numOfUDPApps],
+                to_app[numOfUDPApps];
             display: "i=fork;p=160,152";
     udpApps: UDPAppLayer[numOfUDPApps];
             display: "p=296,44;i=cogwheel";
@@ -100,8 +100,8 @@ module UDPNode
 
         // Link Layer <-> Network Layer
         for i=0..sizeof(in)-1 do
-            networkLayer.physOut[i] --> linkLayers[i].outputQueueIn;
-            linkLayers[i].inputQueueOut --> networkLayer.physIn[i];
+            networkLayer.physOut[i] --> linkLayers[i].netwIn;
+            linkLayers[i].netwOut --> networkLayer.physIn[i];
         endfor;
 
         // connections to network outside

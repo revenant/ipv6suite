@@ -119,10 +119,10 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
   cMessage* msg = curMessage;
   curMessage = 0;
 
-  if (!strcmp(msg->arrivalGate()->name(), "ipOutputQueueIn"))
+  if (!strcmp(msg->arrivalGate()->name(), "netwIn"))
   {
     PPP6Frame* outFrame = receiveFromUpperLayer(msg);
-    send(outFrame, "physicalOut");
+    send(outFrame, "physOut");
     //XXX cMessage *nwiIdleMsg = new cMessage();
     //XXX nwiIdleMsg->setKind(NWI_IDLE);
     //XXX send(nwiIdleMsg, "ipOutputQueueOut");
@@ -202,11 +202,11 @@ void IPv6PPPInterface::sendToUpperLayer(PPP6Frame* recFrame)
   ipdatagram->setLength(ipdatagram->length() / 8); // convert from bits back to bytes
   assert(ipdatagram);
   //wait(delay);
-  send(ipdatagram, "ipInputQueueOut");
+  send(ipdatagram, "netwOut");
 */
   cMessage *packet = recFrame->decapsulate();
   packet->setLength(packet->length() / 8); // convert from bits back to bytes  XXX why???? --AV
-  send(packet, "ipInputQueueOut");
+  send(packet, "netwOut");
 }
 
 /* XXX activity() code below was apparently not used at all, removed --AV

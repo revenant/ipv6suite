@@ -119,13 +119,13 @@ void IPv6Mobility::initialize(int stage)
     if (rt->mobilitySupport())
     {
       if (isHomeAgent())
-        mipv6cds = new MIPv6CDSHomeAgent(rt->interfaceCount());
+        mipv6cds = new MIPv6CDSHomeAgent(ift->numInterfaceGates());
       else if (isMobileNode())
       {
 #ifdef USE_HMIP
         if (!rt->hmipSupport())
 #endif //USE_HMIP
-          mipv6cds = new MIPv6CDSMobileNode(rt->interfaceCount());
+          mipv6cds = new MIPv6CDSMobileNode(ift->numInterfaceGates());
 #ifdef USE_HMIP
         else
         {
@@ -133,11 +133,11 @@ void IPv6Mobility::initialize(int stage)
           if (edgeHandover())
             {
               Dout(dc::eh, nodeName()<<" Edgehandover instance created");
-              mipv6cds = new EdgeHandover::EHCDSMobileNode(rt->interfaceCount());
+              mipv6cds = new EdgeHandover::EHCDSMobileNode(ift->numInterfaceGates());
             }
           else
 #endif //EDGEHANDOVER
-          mipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(rt->interfaceCount());
+          mipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(ift->numInterfaceGates());
         }
 #endif //USE_HMIP
       }

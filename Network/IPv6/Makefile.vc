@@ -84,6 +84,8 @@ SUBDIR_TARGETS=
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
+IPInterfacePacket_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj Interface6Entry.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj : RoutingTable6.obj
+
 .tstamp: $(OBJS)
 	@echo.>.tstamp
 

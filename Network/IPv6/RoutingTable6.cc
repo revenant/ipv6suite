@@ -39,6 +39,7 @@
 #include "opp_utils.h"  // for int/double <==> string conversions
 #include <sstream> //stringstream
 
+#include "InterfaceTableAccess.h"
 #include "opp_utils.h"
 #include "cTimerMessage.h"
 #include "NDTimers.h"
@@ -87,6 +88,8 @@ void RoutingTable6::initialize(int stage)
 {
   if(stage == 0)
   {
+    ift = InterfaceTableAccess().get();
+
     addrExpiryTmr = 0;
     IPForward = false;
     forwardSitePacket = true;
@@ -107,8 +110,10 @@ void RoutingTable6::initialize(int stage)
     numOfIfaces = par("numOfPorts").longValue();
     displayIfconfig = par("displayIfconfig").boolValue();
 
+/*XXX
     interfaces.resize(numOfIfaces + 1);
-
+*/
+/*XXX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! configure loopback!! + add ipv6data for every if!
     // add in loopback InterfaceEntry
     InterfaceEntry *loopback_iface = new InterfaceEntry();
     //loopback_iface.loopback = true;
@@ -118,16 +123,14 @@ void RoutingTable6::initialize(int stage)
 
     loopback_iface->inetAddrs.push_back(loopback_adr);
     interfaces[0] = loopback_iface;
+*/
 
-    for(size_t i = 0; i < numOfIfaces; i++)
-        interfaces[i+1] = new InterfaceEntry();
-
-    wp = check_and_cast<WorldProcessor*>
+    WorldProcessor *wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     // XXX try
     // XXX {
       //parse this network node's parameters and load them into this.
-      wp->xmlConfig()->parseNetworkEntity(this);
+      wp->xmlConfig()->parseNetworkEntity(ift, this);
     // XXX }
     // XXX catch(boost::bad_lexical_cast& e)
     // XXX {
@@ -136,9 +139,10 @@ void RoutingTable6::initialize(int stage)
 
     cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP"); // XXX try to get rid of pointers to other modules --AV
     assert(ICMP);
+/*XXX looks like it's not needed here
     mld = static_cast<MLD*>(OPP_Global::findModuleByTypeDepthFirst(ICMP,"MLD")); // XXX try to get rid of pointers to other modules --AV
     assert(mld);
-
+*/
     //Create here for now
     cds = new IPv6NeighbourDiscovery::IPv6CDS();
 
@@ -169,12 +173,12 @@ void RoutingTable6::initialize(int stage)
         llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
 
         // TODO: PLEASE DO A GRACEFUL SHUTDOWN
-        if(!interfaces[i+1]->iface_name.empty() &&
-           strcasecmp(interfaces[i+1]->iface_name.c_str(), llmodule->getInterfaceName()))
+        if(ift->interfaceByPortNo(i)->name()[0] &&
+           strcasecmp(ift->interfaceByPortNo(i)->name(), llmodule->getInterfaceName()))
         {
           cerr<< endl <<nodeName()<<":"<<i+1
               <<" Check the network interface names in XML file: "
-              <<interfaces[i+1]->iface_name<<endl
+              <<ift->interfaceByPortNo(i)->name()<<endl
               <<" with corresponding OMNeT++ MAC iface: "
               <<llmodule->getInterfaceName()<<endl;
           exit(1);
@@ -182,8 +186,8 @@ void RoutingTable6::initialize(int stage)
 
         // We already know that the loopback interface name and we just
         // need to find out the network interface name in the link layer
-        interfaces[i+1]->iface_name = llmodule->getInterfaceName();
-        interfaces[i+1]->linkMod = llmodule;
+        ift->interfaceByPortNo(i)->setName(llmodule->getInterfaceName());//XXX check this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ift->interfaceByPortNo(i)->ipv6()->linkMod = llmodule;
 
         // Assign interfaceID
         switch(llmodule->getInterfaceType())
@@ -194,10 +198,10 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
               iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              interfaces[i+1]->setInterfaceID(iid);
+              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
               //       std::stringstream ss;
               //ss << std::hex << iid[0] << iid[1];
-              interfaces[i+1]->setLLAddr(eth_iface->macAddressString());
+              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(eth_iface->macAddressString());
             }
             break;
 
@@ -208,10 +212,10 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
               iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              interfaces[i+1]->setInterfaceID(iid);
+              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
               //       std::stringstream ss;
               //ss << std::hex << iid[0] << iid[1];
-              interfaces[i+1]->setLLAddr(eth_iface->macAddressString());
+              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(eth_iface->macAddressString());
             }
             break;
 #endif // USE_MOBILITY
@@ -222,22 +226,25 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ppp_iface->highInterfaceId();
               iid[1] = ppp_iface->lowInterfaceId();
-              interfaces[i+1]->setInterfaceID(iid);
+              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
               std::stringstream ss1, ss2;
               ss1 << std::hex << iid[0];
               ss2 << std::hex << iid[1];
               string lladdr = ss1.str() + string(":") + ss2.str();
-              interfaces[i+1]->setLLAddr(lladdr);
+              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(lladdr);
             }
             break;
         }
       }
     }
 
+    WorldProcessor *wp = check_and_cast<WorldProcessor*>
+      (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
+
     //Added static routes, source routing and tunneling, This can only be done
     //after interface names have been assigned i.e. couldn't get
     //parseNetworkEntity completed here at same time.
-    wp->xmlConfig()->staticRoutingTable(this);
+    wp->xmlConfig()->staticRoutingTable(ift, this);
     // test function
     if (displayIfconfig)
       print();
@@ -245,8 +252,10 @@ void RoutingTable6::initialize(int stage)
   else if( stage == 2 )
   {
 #ifdef USE_HMIP
+    WorldProcessor *wp = check_and_cast<WorldProcessor*>
+      (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     if (hmipSupport())
-      wp->xmlConfig()->parseMAPInfo(this);
+      wp->xmlConfig()->parseMAPInfo(ift, this);
 #endif //USE_HMIP
   }
 }
@@ -503,13 +512,13 @@ void RoutingTable6::print()
   PRINTF("IPv6 ifconfig for NODE %s id:%d\n", node_name, nodeId());
   PRINTF("============================================================================ \n");
 
-  for (size_t i =0; i < interfaces.size(); i++)
+  for (size_t i =0; i < ift->numInterfaceGates(); i++)
   {
-    if(interfaces[i]->iface_name != "lo")
+    if (!ift->interfaceByPortNo(i)->isLoopback())
     {
-      interfaces[i]->print(IPForward);
+      Dout(dc::xml_addresses, ift->interfaceByPortNo(i)); //XXX print(IPForward);
       Dout(dc::xml_addresses, "HWAddr "<<nodeName()<<":"<<i-1<<" "
-           <<interfaces[i]->LLAddr());
+           <<ift->interfaceByPortNo(i)->LLAddr());
     }
   }
   PRINTF("==============  Node Level Configuration Variables  ======================== \n");
@@ -573,9 +582,9 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
 
   if (!dest.isMulticast())
   {
-    for(size_t i=0; i<interfaces.size(); i++)
+    for(size_t i=0; i<ift->numInterfaceGates(); i++)
     {
-      if (interfaces[i]->addrAssigned(dest))
+      if (ift->interfaceByPortNo(i)->ipv6()->addrAssigned(dest))
         return true;
 
       if (odad()
@@ -585,7 +594,7 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
          )
       {
         //Tentative addresses considered assigned while DAD is carried out
-        if (interfaces[i]->tentativeAddrAssigned(dest))
+        if (ift->interfaceByPortNo(i)->ipv6()->tentativeAddrAssigned(dest))
           return true;
       }
     }
@@ -640,14 +649,14 @@ const char* RoutingTable6::nodeName() const
 bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 {
   Dout(dc::debug|flush_cf, nodeName()<<" assigning address "<<addr);
-  assert(if_idx < interfaces.size());
-  if (if_idx >= interfaces.size())
+  assert(if_idx < ift->numInterfaceGates());
+  if (if_idx >= ift->numInterfaceGates())
     return false;
 
-  InterfaceEntry *ie = getInterfaceByIndex(if_idx);
+  InterfaceEntry *ie = ift->interfaceByPortNo(if_idx);
   assert(!ie->ipv6()->addrAssigned(addr));
   if (ie->ipv6()->tentativeAddrAssigned(addr))
-    ie->removeTentativeAddress(addr);
+    ie->ipv6()->removeTentativeAddress(addr);
   ie->ipv6()->inetAddrs.push_back(addr);
 
 
@@ -669,8 +678,8 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 void RoutingTable6::removeAddress(const IPv6Address& addr, unsigned int ifIndex)
 {
   Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "<<addr<<" removed");
-  InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
-  ie->removeAddress(addr);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+  ie->ipv6()->removeAddress(addr);
 }
 
 /**
@@ -695,7 +704,7 @@ void RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
  */
 bool RoutingTable6::addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) const
 {
-  const InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
   return ie->ipv6()->addrAssigned(addr);
 }
 
@@ -703,9 +712,9 @@ bool RoutingTable6::addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) co
 ///ifaces.
 void RoutingTable6::elapseLifetimes(unsigned int seconds)
 {
-  for (size_t i = 0; i < interfaceCount(); i++)
+  for (size_t i = 0; i < ift->numInterfaceGates(); i++)
   {
-    getInterfaceByIndex(i)->elapseLifetimes(seconds);
+    ift->interfaceByPortNo(i)->ipv6()->elapseLifetimes(seconds);
   }
   //InterfaceEntries6::iterator start = interfaces.begin();
   //start++;
@@ -716,9 +725,9 @@ void RoutingTable6::elapseLifetimes(unsigned int seconds)
 void RoutingTable6::invalidateAddresses()
 {
   bool addrRemovedFromIface = false;
-  for (size_t ifIndex = 0; ifIndex < interfaceCount(); ifIndex++)
+  for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
-    InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
+    InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
     for (size_t addrIndex = 1; addrIndex < ie->ipv6()->inetAddrs.size(); addrIndex++)
     {
       if (ie->ipv6()->inetAddrs[addrIndex].storedLifetime() == 0)
@@ -741,9 +750,9 @@ unsigned int RoutingTable6::minValidLifetime()
 {
   unsigned int minLifetime = VALID_LIFETIME_INFINITY, lifetime = 0;
 
-  for (size_t i = 0; i < interfaceCount(); i++)
+  for (size_t i = 0; i < ift->numInterfaceGates(); i++)
   {
-    lifetime = getInterfaceByIndex(i)->minValidLifetime();
+    lifetime = ift->interfaceByPortNo(i)->ipv6()->minValidLifetime();
 
     assert(lifetime != 0);
 
@@ -878,7 +887,6 @@ void RoutingTable6::leaveMulticastGroup(const ipv6_addr& addr)
          c_ipv6_addr(ALL_ROUTERS_SITE_ADDRESS) != addr))
     {
       //cout <<nodeName()<< " leave MUlticastgroup"<<endl;
-      //assert(mld);
       //IPv6Address addrObj(addr);
       //mld->removeRtEntry(addr);
       //mld->sendDone(addr);

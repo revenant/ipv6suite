@@ -46,10 +46,7 @@ using IPv6NeighbourDiscovery::RouterEntry;
 using IPv6NeighbourDiscovery::PrefixEntry;
 using IPv6NeighbourDiscovery::NeighbourEntry;
 
-
-class Routing6Core;
-class WorldProcessor;
-class MLD;
+class InterfaceTable;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -281,8 +278,6 @@ private:
   ///IfConfig formatted output
   void print();
 
-  WorldProcessor* wp;
-
   ///Set of mulicast groups to which this node belongs to
   typedef std::vector<ipv6_addr> MulticastAddresses;
   MulticastAddresses multicastGroup;
@@ -292,8 +287,6 @@ private:
   size_t numOfIfaces;
 
   bool forwardSitePacket;
-
-  MLD* mld;
 
 private:
 
@@ -309,6 +302,8 @@ private:
   ROLE role;
 
   bool mapSupport;
+
+  InterfaceTable *ift;
 
 #endif //USE_MOBILITY
 

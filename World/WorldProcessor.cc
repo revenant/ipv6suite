@@ -68,6 +68,12 @@ namespace
 
 Define_Module( WorldProcessor );
 
+WorldProcessor::WorldProcessor(const char *name, cModule *parent, unsigned stacksize) :
+  cSimpleModule(name, parent, stacksize)
+{
+  parser = NULL;
+}
+
 void WorldProcessor::handleMessage(cMessage* msg)
 {
   assert(msg);
@@ -86,29 +92,13 @@ void WorldProcessor::initialize(int stage)
     // Read routing table file once only
     if (filename[0] != '\0')
     {
-#ifndef USE_XMLWRAPP
-#ifndef USE_XERCES
-#if defined OPP_VERSION && OPP_VERSION >= 3
       parser = new XMLConfiguration::XMLOmnetParser();
       parser->parseFile(filename);
-#endif
-#endif //ifndef USE_XERCES
-#else
-      parser = new XMLConfiguration::IPv6XMLWrapManager(filename);
-#if defined OPP_VERSION && OPP_VERSION >= 3
-      oparser = new XMLConfiguration::XMLOmnetParser();
-      oparser->parseFile(filename);
-#endif
-#endif //USE_XMLWRAPP
-
-#ifdef USE_XERCES
-      parser = new XMLConfiguration::IPv6XMLManager(filename);
-#endif //USE_XERCES
       Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
-
     }
 
 #if USE_AKAROA
+    // XXX needed? --AV
     AkObservationType(AkIndependent);
     AkDeclareParameters(::OPP_AK_OBSERVE_PARAMETERS);
 //  AkParameterType(1, AkProportion/AkMean);
@@ -116,39 +106,26 @@ void WorldProcessor::initialize(int stage)
 #endif //USE_AKAROA
 
 #ifdef USE_MOBILITY
-
     _maxLongitude = par("max_longitude").longValue();
-    _maxAltitude = par("max_latitude").longValue();
+    _maxLatitude = par("max_latitude").longValue();
 
     // set up terrain size in Tk/Tcl environment
-
-    cDisplayStringParser disParser(displayString());
-
-    // update Tk/Tcl environment
-    if(disParser.existsTag("b"))
+    cDisplayString& disp = parentModule()->displayString();
+    if (disp.existsTag("b"))
     {
-      stringstream ss_x;
-      stringstream ss_y;
-
-      ss_x << _maxLongitude;
-      disParser.setTagArg("b", 0 , ss_x.str().c_str());
-
-      ss_y << _maxAltitude;
-      disParser.setTagArg("b", 1, ss_y.str().c_str());
-
-      setDisplayString(disParser.getString());
+        disp.setTagArg("b",0,OPP_Global::ltostr(_maxLongitude).c_str());
+        disp.setTagArg("b",1,OPP_Global::ltostr(_maxLatitude).c_str());
     }
 
-    //A bit of a hack
+    // XXX A bit of a hack
     //BASE_SPEED is in wirelessEthernet.h/cc unit
     BASE_SPEED = par("wlan_speed").doubleValue() * 1024 * 1024;
     Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
 
     balanceIndexVec = new cOutVector("balanceIndex");
     // Timer to update statistics
-    updateStatsNotifier  =
-      new Loki::cTimerMessageCB<void>
-      (TMR_WPSTATS, this, this, &WorldProcessor::updateStats, "updateStats");
+    updateStatsNotifier  = new Loki::cTimerMessageCB<void>(TMR_WPSTATS,
+                   this, this, &WorldProcessor::updateStats, "updateStats");
 
     scheduleAt(simTime()+1, updateStatsNotifier);
 #endif //USE_MOBILITY

@@ -156,7 +156,7 @@ namespace OPP_Global
     }
   }
 
-  std::string itostr(int i)
+  std::string ltostr(long i)
   {
     std::ostringstream os;
     os << i;

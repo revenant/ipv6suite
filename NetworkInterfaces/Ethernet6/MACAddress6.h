@@ -52,7 +52,7 @@ extern const MAC_address MAC_ADDRESS_UNSPECIFIED_STRUCT;
  * @sa MAC_address
  */
 
-class MACAddress6 : public cObject, boost::equality_comparable<MACAddress6>
+class MACAddress6 : public /*XXX cObject,*/ boost::equality_comparable<MACAddress6>
 {
  public:
   // Constructor
@@ -64,7 +64,7 @@ class MACAddress6 : public cObject, boost::equality_comparable<MACAddress6>
   ///@name cObject functions redefined
   //@{
   virtual const char* className() const { return "MACAdress"; }
-  virtual cObject *dup() const { return new MACAddress6(*this); }
+  virtual MACAddress6 *dup() const { return new MACAddress6(*this); }
   virtual std::string info();
   virtual void writeContents(std::ostream& os);
   //@}

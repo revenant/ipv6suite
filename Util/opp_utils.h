@@ -118,7 +118,7 @@ namespace OPP_Global
   /**
      Converts an integer to string.
    */
-  std::string itostr(int i);
+  std::string ltostr(long i);          //XXX make an ultostr as well, to be consistent with atoul
 
   /**
      Converts a double to string

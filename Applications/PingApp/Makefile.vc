@@ -121,4 +121,9 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+PingApp.obj: PingApp.cc \
+  PingApp.h \
+  ../../Network/IPv4/IPControlInfo_m.h \
+  ../../Network/IPv4/IPAddress.h \
+  ../../Network/IPv4/IPProtocolId_m.h \
+  ../../Base/INETDefs.h

@@ -75,7 +75,7 @@ namespace EdgeHandover
   ///Create timer message with our callback (timer used if we want timed
   ///notification otherwise used as a callback pointer)
   mob->setEdgeHandoverCallback(tmr);
- 
+
     ///Bloody ridiculous spent over 2 hours doing diff things to figure out why
     ///this did not work. Turned out NeighbourDiscovery was not an implicit
     ///cSimpleModule when it should be(so much for type safety and this happened
@@ -85,7 +85,7 @@ namespace EdgeHandover
 //                  &EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
 //                  "EHInvokeMapAlgorithmCallback"));
 
-  ehcds->bcoaChangedNotifier = 
+  ehcds->bcoaChangedNotifier =
     new BoundMapChangedCB(Tmr_EHBMapChangedCB, (cSimpleModule*)nd, this,
                           &EdgeHandover::EHNDStateHost::invokeBoundMapChangedCallback,
                           "EHInvokedBoundMapChangedCallback");

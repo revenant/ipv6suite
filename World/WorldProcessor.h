@@ -81,7 +81,7 @@ class WorldProcessor : public cSimpleModule
 
  public:
   // OMNeT++ functions
-  Module_Class_Members(WorldProcessor,cSimpleModule, 0);
+  WorldProcessor(const char *name, cModule *parent, unsigned stacksize=0);
 
   ///Place code here that to be done once only before all other initialize
   ///functions
@@ -169,7 +169,7 @@ public:
  private:
   ModuleList modList;
   int _maxLongitude;
-  int _maxAltitude;
+  int _maxLatitude;
 
   void updateStats(void);
   Loki::cTimerMessageCB<void>* updateStatsNotifier;

@@ -24,7 +24,7 @@ cplusplus
 {{
     #include "MACAddress6.h"
 }};
-class MACAddress6;
+class noncobject MACAddress6;
 
 //
 // Capability Information field format

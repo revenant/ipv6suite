@@ -98,18 +98,6 @@ void Ping6App::initialize()
   schSend = new cMessage;
   schSend->setKind(TRANSMIT_PING);
   schSend->setName("PING_REQUEST_SCHEDULER");
-
-#if !defined OPP_VERSION || OPP_VERSION < 3
-//Really bad warnings from valgrind about invalid mem access to 0xc addr
-//Is it because cObject* now has operator<< overload
-
-  cout << "vector " << this << " " << fullPath() << " "
-       << pingDelay->name() << " 1" << endl;
-  cout << "vector " << this+1 << " " << fullPath() << " "
-       << pingDrop->name() << " 1" << endl;
-//  cout << "vector "<< this+2 << " " << fullPath() << " "
-//       << handoverLatency->name() << " 1" << endl;
-#endif //!defined OPP_VERSION || OPP_VERSION < 3
 }
 
 void Ping6App::finish()

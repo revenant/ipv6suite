@@ -140,4 +140,27 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+LinkLayerModule.obj: LinkLayerModule.cc \
+  LinkLayerModule.h \
+  ../Util/opp_utils.h \
+  ../Util/boost/weak_ptr.hpp \
+  ../Util/boost/cast.hpp \
+  ../Util/boost/shared_ptr.hpp \
+  ../Util/boost/config.hpp \
+  ../Util/boost/assert.hpp \
+  ../Util/boost/checked_delete.hpp \
+  ../Util/boost/throw_exception.hpp \
+  ../Util/boost/detail/shared_count.hpp \
+  ../Util/boost/detail/workaround.hpp \
+  ../Util/boost/config/select_compiler_config.hpp \
+  ../Util/boost/config/select_stdlib_config.hpp \
+  ../Util/boost/config/select_platform_config.hpp \
+  ../Util/boost/config/suffix.hpp \
+  ../Util/boost/config/posix_features.hpp \
+  ../Util/boost/type.hpp \
+  ../Util/boost/non_type.hpp \
+  ../Util/boost/detail/lightweight_mutex.hpp \
+  ../Util/boost/detail/lwm_win32_nt.hpp \
+  ../Util/boost/detail/lwm_nop.hpp \
+  ../Util/boost/limits.hpp \
+  ../Util/boost/detail/select_type.hpp

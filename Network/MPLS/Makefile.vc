@@ -128,4 +128,30 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+LIBtable.obj: LIBtable.cc \
+  LIBtable.h \
+  ../../Util/StringTokenizer.h \
+  ../../Util/stlwatch.h \
+  ../IPv4/RoutingTableAccess.h \
+  ConstType.h \
+  ../../Base/ModuleAccess.h \
+  ../IPv4/RoutingTable.h \
+  ../../Base/INETDefs.h \
+  ../IPv4/IPAddress.h
+MPLSModule.obj: MPLSModule.cc \
+  MPLSModule.h \
+  ../../Util/stlwatch.h \
+  MPLSPacket.h \
+  ../IPv4/IPDatagram.h \
+  LIBTableAccess.h \
+  ../IPv4/RoutingTableAccess.h \
+  ../IPv4/RoutingTable.h \
+  ConstType.h \
+  ../IPv4/IPDatagram_m.h \
+  ../IPv4/IPAddress.h \
+  ../IPv4/IPProtocolId_m.h \
+  ../../Base/INETDefs.h \
+  ../../Base/ModuleAccess.h \
+  LIBtable.h
+MPLSPacket.obj: MPLSPacket.cc \
+  MPLSPacket.h

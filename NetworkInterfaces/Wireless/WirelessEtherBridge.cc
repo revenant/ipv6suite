@@ -39,7 +39,7 @@
 #include "WirelessEtherBridge.h"
 #include "opp_utils.h"
 
-#include "EtherFrame.h"           // XXX ??? --AV
+#include "EtherFrame6.h"           // XXX ??? --AV
 #include "WirelessEtherFrame_m.h"
 #include "LinkLayerModule.h"
 #include "EtherModuleAP.h"
@@ -124,7 +124,7 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
         EtherModuleAP* macMod = polymorphic_downcast<EtherModuleAP*>(llmod);
         assert(macMod);
 
-        EtherFrame* frame = polymorphic_downcast<EtherFrame*>(msg);
+        EtherFrame6* frame = polymorphic_downcast<EtherFrame6*>(msg);
         assert(frame);
 
         LinkLayerModule* destMod = findMacByAddress(frame->destAddrString());
@@ -228,7 +228,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
   int frameProtocol;
   if (dynamic_cast<PPP6Frame*>(frame))
     frameProtocol = PR_PPP;
-  else if (dynamic_cast<EtherFrame*>(frame))
+  else if (dynamic_cast<EtherFrame6*>(frame))
     frameProtocol = PR_ETHERNET;
   else if (dynamic_cast<WirelessEtherDataFrame*>(frame))
     frameProtocol = PR_WETHERNET;
@@ -247,7 +247,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
       {
         case PR_ETHERNET:
         {
-          EtherFrame* destFrame = new EtherFrame;
+          EtherFrame6* destFrame = new EtherFrame6;
           destFrame->setSrcAddress(MACAddress6(srcAddr.c_str()));
           destFrame->setDestAddress(MACAddress6(destAddr.c_str()));
           destFrame->setProtocol(PR_ETHERNET);
@@ -301,7 +301,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
 
     case PR_ETHERNET:
     {
-      EtherFrame* srcFrame = static_cast<EtherFrame*>(frame);
+      EtherFrame6* srcFrame = static_cast<EtherFrame6*>(frame);
       std::string srcAddr(srcFrame->srcAddrString());
       std::string destAddr(srcFrame->destAddrString());
 

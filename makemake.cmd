@@ -2,7 +2,7 @@
 call ..\omnetpp\setenv-vc71.bat
 set MAKEMAKE=cmd /c d:\home\omnetpp\bin\opp_nmakemake
 
-: #--------------------------------------
+:#--------------------------------------
 
 set root=%~dp0
 set OPTS=-f -N -b %root% -c %root%\inetconfig.vc
@@ -14,7 +14,7 @@ set ALL_IPv6_INCLUDES=%ALL_INET_INCLUDES% -I%root%/Network/IPv6
 :set ALL_MODEL_OPTS=%OPTS% -w %ALL_MPLS_INET_INCLUDES%
 set ALL_MODEL_OPTS=%OPTS% -n
 
-: #--------------------------------------
+:#--------------------------------------
 
 echo on
 echo @%root%@
@@ -29,13 +29,13 @@ cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
-:FIXME Util should not depend on IPv6 stuff and on PHY\Mobility!
+:#FIXME Util should not depend on IPv6 stuff and on PHY\Mobility!
 cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\Network\IPv6 -I..\Network\IPv4 -I..\World -I..\Base
 
-:---------------
-:FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!
+:#---------------
+:#FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\PPP6 -I..\..\NetworkInterfaces\Ethernet6 -I..\..\NetworkInterfaces\Wireless  -I..\HMIPv6  -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY\Mobility -I. -I..\.. -I..\IPv4 -I..\..\Base
-:FIXME try to eliminate MIP dependency on HMIP and on Wireless!
+:#FIXME try to eliminate MIP dependency on HMIP and on Wireless!
 cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\HMIPv6 -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Ethernet6 -I..\..\NetworkInterfaces\Wireless -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\RIP && %MAKEMAKE% %OPTS% -n -r
@@ -45,12 +45,12 @@ cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
 
-:FIXME remove -IWireless from Eth!!!!! --AV
-cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I..\..\PHY\Wireless -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
-:FIXME remove -IEthernet6 from PPP6!!!!! (dep on MACAddress) --AV
+:#FIXME remove -IWireless from Eth!!!!! --AV
+cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I..\Wireless -I..\..\PHY\Wireless -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World
+:#FIXME remove -IEthernet6 from PPP6!!!!! (dep on MACAddress) --AV
 cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I..\Ethernet6 -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
-:FIXME sure we need -IMobility here? --AV
-:FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface ???!!!!
+:#FIXME sure we need -IMobility here? --AV
+:#FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface ???!!!!
 cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I../PPP6 -I.. -I..\.. -I..\..\Util -I..\Ethernet6 -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY\Mobility -I..\..\PHY\Wireless
 
 cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
@@ -60,12 +60,10 @@ cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Ut
 cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util
 cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util
 
-cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv6
+cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv4  -I..\..\Network\IPv6
 cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I..\PHY\Mobility
 cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r
 ----
-
-
 
 
 cd %root%\Applications\Generic && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
@@ -119,7 +117,7 @@ cd %root%\Examples\MPLS\TestTE5 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
 cd %root%\Examples\MPLS\TestTE6 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
 
 
-:-----------------
+:#-----------------
 cd %root%\Examples\IPv6 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\EthNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\HMIPv6Network && %MAKEMAKE% %OPTS% -n -r
@@ -134,13 +132,13 @@ cd %root%\Examples\IPv6\WirelessEtherNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessEtherNetwork2 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessEtherNetworkDual && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessTest && %MAKEMAKE% %OPTS% -n -r
-:-----------------
+:#-----------------
 
 cd %root%\Tests\MPLS && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Tests\MPLS\LDP1 && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INET_INCLUDES%
 cd %root%\Tests\NewTCP && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INET_INCLUDES%
 
-: #--------------------------------------
+:#--------------------------------------
 
 cd %root%
 dir /s/b *.ned > nedfiles.lst
@@ -148,3 +146,5 @@ perl -i.bak -pe "s/.*[^d]\n$//;s|\\|/|g;s|.*?INET.*?/||" nedfiles.lst
 perl -i.bak -pe "s|^Examples/.*||" nedfiles.lst
 perl -i.bak -pe "s|^Unsupported/.*||" nedfiles.lst
 perl -i.bak -pe "s|^Tests/.*||" nedfiles.lst
+
+

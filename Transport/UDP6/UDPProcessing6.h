@@ -40,6 +40,8 @@
 #endif //MAP
 
 
+#include "IPProtocolId_m.h"
+
 class UDPAppInterfacePacket;
 class IPv6InterfacePacket;
 

@@ -33,6 +33,11 @@
    @arg name name of network node
    @arg directionOut Hint on whether the dgram is egressing the node
 */
-void printIPv6RoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
+namespace IPv6Utils
+{
+  void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
+};
 
 #endif //__IPV6UTILS_H__
+
+

@@ -81,7 +81,7 @@ void PreRouting6Core::handleMessage(cMessage* msg)
     ctrIP6InReceive++;
 
     bool directionOut = false;
-    printIPv6RoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
+    IPv6Utils::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
 
     if (!waitTmr->isScheduled() && curPacket == 0 )
     {

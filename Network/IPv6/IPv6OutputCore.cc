@@ -243,7 +243,7 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     ctrIP6OutMcastPkts++;
 
   bool directionOut = true;
-  printIPv6RoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
+  IPv6Utils::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
 
   return llpkt;
 }

@@ -51,6 +51,8 @@ module MobileNode
         in: wlin[];
         out: wlout[];
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;

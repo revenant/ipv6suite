@@ -31,12 +31,6 @@ import
     "LinkLayer6";
 
 
-
-
-
-
-
-
 module AccessPoint
     parameters:
         chann : numeric, // channel
@@ -51,6 +45,8 @@ module AccessPoint
         out: out[], wlout;
         in: in[], wlin;
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         ds: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;

@@ -35,26 +35,27 @@ module TCPNode
         // TCP information
         local_addr : numeric,
         server_addr : numeric,
-        // Network information
+                               // Network information
 
-        //        routingFile : string,
+        // routingFile : string,
         IPv6routingFile : string,
         IPForward : bool; //Added at higher level so can specify in Network Hierarchy ned file
                           //whether this node acts as a router.  Only if it is a router do we read routingFile
                           //Each router has its own routing file.  The normal hosts will get config from Router
                           //Ads.
-
     gates:
         in: in[];
         out: out[];
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         // transport and application layers
         tcpApp: TCPUpperLayers;
             parameters:
                 tcpApplType = "TCPClient",
                 local_addr = local_addr,
                 server_addr = server_addr;
-            display: "p=84,69;b=40,24,rect";
+            display: "p=119,54;b=40,24,rect";
         errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;

@@ -31,6 +31,8 @@ module EtherBridge
         out: out[];
         in: in[];
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         ethernet: LinkLayer6[sizeof(in)];
             parameters:
                 NWIName = "EtherModuleBridge",

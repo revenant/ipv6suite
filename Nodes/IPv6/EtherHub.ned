@@ -48,8 +48,9 @@ module Hub
     gates:
         in: in[];
         out: out[];
-
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         repeater: Repeater;
             gatesizes:
                 from_net[sizeof(in)],

@@ -37,6 +37,8 @@ module Router6
         out: out[];
 
     submodules:
+        blackboard: Blackboard;
+            display: "p=62,60;i=block/blackboard";
         errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;

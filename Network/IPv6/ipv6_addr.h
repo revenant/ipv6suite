@@ -1,5 +1,5 @@
 //  -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/ipv6_addr.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/ipv6_addr.h,v 1.2 2005/02/09 08:04:27 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
@@ -89,7 +89,7 @@ extern const unsigned int VALID_LIFETIME_INFINITY ;
  */
 struct ipv6_addr
 {
-  
+
   /**
    * @enum SCOPE
    * Only the 'well
@@ -115,20 +115,20 @@ struct ipv6_addr
   bool isMulticast() const
     {
       return (extreme & IPv6_ADDR_MULTICAST_PREFIX.extreme) ==
-        IPv6_ADDR_MULTICAST_PREFIX.extreme?true:false;      
-    }  
+        IPv6_ADDR_MULTICAST_PREFIX.extreme?true:false;
+    }
 
 #if defined __CN_PAYLOAD_H
   struct in6_addr *in6_nwaddr(struct in6_addr *sixaddress) const
   {
-     if(!sixaddress){ 
-        return NULL; 
+     if(!sixaddress){
+        return NULL;
      }
      sixaddress->s6_addr32[0]= htonl( extreme);
      sixaddress->s6_addr32[1]= htonl( high);
      sixaddress->s6_addr32[2]= htonl( normal);
      sixaddress->s6_addr32[3]= htonl( low);
-     return sixaddress; 
+     return sixaddress;
   }
 #endif //__CN_PAYLOAD_H
 
@@ -137,7 +137,7 @@ struct ipv6_addr
   ipv6_addr& operator>>=(unsigned int shift);
   ipv6_addr& operator<<=(unsigned int shift);
   ipv6_addr& operator|=( const ipv6_addr& rhs);
-  ipv6_addr& operator&=( const ipv6_addr& rhs);  
+  ipv6_addr& operator&=( const ipv6_addr& rhs);
 
 };
 
@@ -165,11 +165,11 @@ ostream& operator<<( ostream& os, const ipv6_addr& src_addr);
 size_t calcBitsMatch(const unsigned int* addr1, const unsigned int* addr2);
 size_t calcBitsMatch(const ipv6_addr_array& addr1, const ipv6_addr_array& addr2);
 
-/** 
+/**
  * Determine the topological hierarchy that the address belongs to.
- * 
+ *
  * @param m_addr address to determine the scope for
- * 
+ *
  * @return SCOPE for m_addr
  *
  * @warning Does not test conformity to the non multicast site local format
@@ -183,10 +183,10 @@ inline ipv6_addr::SCOPE ipv6_addr_scope(const  ipv6_addr& m_addr)
         IPv6_ADDR_SITE_LOCAL_PREFIX)
       return ipv6_addr::Scope_Site;
 
-    if ((m_addr & IPv6_ADDR_LINK_LOCAL_PREFIX) == 
+    if ((m_addr & IPv6_ADDR_LINK_LOCAL_PREFIX) ==
         IPv6_ADDR_LINK_LOCAL_PREFIX)
       return ipv6_addr::Scope_Link;
-        
+
     if ((m_addr & IPv6_ADDR_GLOBAL_PREFIX) ==
         IPv6_ADDR_GLOBAL_PREFIX)
       return ipv6_addr::Scope_Global;
@@ -199,18 +199,18 @@ inline ipv6_addr::SCOPE ipv6_addr_scope(const  ipv6_addr& m_addr)
     if ((m_addr.extreme & IPv6_ADDR_MULT_LINK_PREFIX.extreme) ==
         IPv6_ADDR_MULT_LINK_PREFIX.extreme)
       return ipv6_addr::Scope_Link;
-          
+
     if ((m_addr.extreme & IPv6_ADDR_MULT_SITE_PREFIX.extreme) ==
         IPv6_ADDR_MULT_SITE_PREFIX.extreme)
       return ipv6_addr::Scope_Site;
-         
-    if ((m_addr.extreme & IPv6_ADDR_MULT_NODE_PREFIX.extreme) == 
+
+    if ((m_addr.extreme & IPv6_ADDR_MULT_NODE_PREFIX.extreme) ==
         IPv6_ADDR_MULT_NODE_PREFIX.extreme)
       return ipv6_addr::Scope_Node;
 
     if ((m_addr.extreme & IPv6_ADDR_MULT_ORGN_PREFIX.extreme) ==
         IPv6_ADDR_MULT_ORGN_PREFIX.extreme)
-      return ipv6_addr::Scope_Organization; 
+      return ipv6_addr::Scope_Organization;
 
     if ((m_addr.extreme & IPv6_ADDR_MULT_GLOB_PREFIX.extreme) ==
         IPv6_ADDR_MULT_GLOB_PREFIX.extreme)
@@ -226,26 +226,26 @@ inline ipv6_addr::SCOPE ipv6_addr_scope(const  ipv6_addr& m_addr)
 /**
  * @class ipv6_prefix
  *
- * @brief Replacement for most of IPv6Address functionality.  
+ * @brief Replacement for most of IPv6Address functionality.
 
  * This should be used internally for efficiency reasons and also to clarify
  * intent i.e. whether an address itself is needed or prefix length too.
- * 
+ *
  */
 class ipv6_prefix: boost::equality_comparable<ipv6_prefix>
 {
 public:
-  
-  ///construct a prefix from addr with prefixLen.  No attempt is made to 
+
+  ///construct a prefix from addr with prefixLen.  No attempt is made to
   ///truncate addr to the specified prefixLen
   ipv6_prefix(const ipv6_addr& addr, unsigned int prefixLen)
     :prefix(addr), length(prefixLen)
     {}
-  
+
   ipv6_prefix()
     :prefix(IPv6_ADDR_UNSPECIFIED), length(IPv6_ADDR_LENGTH)
     {}
-  
+
   ///Returns true when length bits in this prefix matches addr
   bool matchPrefix(const ipv6_addr& addr) const;
 
@@ -253,15 +253,15 @@ public:
   {
     return length == rhs.length && prefix == rhs.prefix;
   }
-  
+
   //ipv6_addr prefix;
   union
   {
     struct ipv6_addr prefix;
-    unsigned int m_full_addr[4];	  
+    unsigned int m_full_addr[4];
   };
 
-  unsigned int length;  
+  unsigned int length;
 };
 
 ostream& operator<<( ostream& os, const ipv6_prefix& src_addr);

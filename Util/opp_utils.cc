@@ -28,7 +28,7 @@
 
 #include <cstring>
 #include <cmath> //std::pow
-#include <boost/random.hpp>
+//#include <boost/random.hpp>
 
 #include <omnetpp.h>
 
@@ -200,7 +200,7 @@ namespace OPP_Global
   const char* nodeName(const cModule* callingMod)
   {
     static char unknown[] = "UNKNOWN!";
-  
+
     cModule* network = simulation.systemModule();
     for (cSubModIterator submod(*network); !submod.end(); submod++)
     {

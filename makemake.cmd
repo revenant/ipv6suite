@@ -29,7 +29,8 @@ cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util && %MAKEMAKE% %OPTS% -n -r
+:FIXME Util should not depend on IPv6 stuff!
+cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6\Generic -I..\World
 
 :---------------
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r

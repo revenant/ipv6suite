@@ -30,13 +30,17 @@
 #include <memory> //std::auto_ptr
 #endif //MEMORY
 
+/* XXX --AV
 #ifndef BOOST_WEAK_PTR_HPP_INCLUDED
 #include <boost/weak_ptr.hpp>
 #endif  //BOOST_WEAK_PTR_HPP_INCLUDED
+*/
 
+/* XXX --AV
 #ifndef BOOST_CAST_HPP
 #include <boost/cast.hpp>
 #endif //BOOST_CAST_HPP
+*/
 
 class cModule;
 class IPv6Datagram;
@@ -50,7 +54,7 @@ namespace OPP_Global
 
   /**
      @class ContextSwitcher
-     @brief Switch running module context	
+     @brief Switch running module context
   */
 
   class ContextSwitcher
@@ -109,25 +113,27 @@ namespace OPP_Global
    */
   const char* nodeName(const cModule* callingMod);
 
+/* XXX
   ///downcast (convert down the class hierarchy) for weak_ptrs
-  template<class Target, class  Source> boost::weak_ptr<Target> 
+  template<class Target, class  Source> boost::weak_ptr<Target>
   weak_ptr_downcast(boost::weak_ptr<Source> const& r)
   {
     assert( boost::shared_dynamic_cast<Target>(r).get() == r.get());
     return boost::shared_static_cast<Target>(r);
   }
+*/
 
   ///downcast (convert down the class hierarchy) for auto_ptrs the source relinquishes
   ///ownership to the returned auto_ptr
-  template<class Target, class  Source> std::auto_ptr<Target> 
+  template<class Target, class  Source> std::auto_ptr<Target>
   auto_downcast(std::auto_ptr<Source> & r)
   {
-    boost::polymorphic_downcast<Target*> (r.get());    
+    boost::polymorphic_downcast<Target*> (r.get());
     return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
   }
 
 /**
-   @brief print packet header contents on stdout 
+   @brief print packet header contents on stdout
    @arg routingInfoDisplay Display dgram's headers when true. Should pass
    routingInfoDisplay parameter from IPv6ForwardCore module.
    @arg dgram datagram to retrieve information from
@@ -161,6 +167,6 @@ namespace OPP_Global
     if (!p)                                                             \
       opp_error("Expression %s returned NULL at %s:%d",expr,file,line); \
     return p;                                                           \
-  } 
+  }
 
 #endif //IPV6GLOBAL_H

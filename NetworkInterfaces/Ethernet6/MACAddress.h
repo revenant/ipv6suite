@@ -1,5 +1,5 @@
 //  -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.h,v 1.2 2005/02/09 08:04:27 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
@@ -27,7 +27,7 @@
 /**
  * @struct MAC_address
  * @brief 48 bit MAC address
- * 
+ *
  * raw data type used bye MACAddress
 
  * @warning encoding of the 48 bits is as follows the first 24 bits in high and
@@ -37,7 +37,7 @@
 struct MAC_address
 {
   unsigned int high;
-  unsigned int low;  
+  unsigned int low;
 };
 
 std::ostream& operator<<( std::ostream& os, const MAC_address& src_addr);
@@ -56,7 +56,7 @@ class MACAddress : public cObject, boost::equality_comparable<MACAddress>
 {
  public:
   // Constructor
-  MACAddress(void):mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT){}  
+  MACAddress(void):mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT){}
   MACAddress(const char* addr);
   MACAddress(const MAC_address& addr);
   MACAddress(const MACAddress& obj);
@@ -80,14 +80,14 @@ class MACAddress : public cObject, boost::equality_comparable<MACAddress>
     {
       return mac_addr == rhs.mac_addr;
     }
-  
-  
+
+
   std::istream& operator>>(std::istream& is);
-  
+
 
   // set Value
   void set(const char* addr);
-  void set(const MAC_address& addr);  
+  void set(const MAC_address& addr);
 
   // get Value
   const char* stringValue(void) const;
@@ -95,14 +95,14 @@ class MACAddress : public cObject, boost::equality_comparable<MACAddress>
   {
     m_int_addr[0] = mac_addr.high;
     m_int_addr[1] = mac_addr.low;
-    return m_int_addr;    
+    return m_int_addr;
   }
 
 private:
   union
-  {      
+  {
     MAC_address mac_addr;
-    unsigned int m_int_addr[2];      
+    unsigned int m_int_addr[2];
   };
 };
 

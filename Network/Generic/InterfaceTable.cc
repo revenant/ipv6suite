@@ -40,16 +40,28 @@ InterfaceEntry::InterfaceEntry()
     _multicast = false;
     _pointToPoint= false;
     _loopback = false;
+
+    _ipv4data = NULL;
+    _ipv6data = NULL;
+    _protocol3data = NULL;
+    _protocol4data = NULL;
 }
 
 std::string InterfaceEntry::info() const
 {
     std::stringstream out;
     out << (!_name.empty() ? name() : "*");
-    out << "  outputPort:" << outputPort();
+    out << "  gateIndex:" << outputPort();
     out << "  MTU:" << mtu();
     if (isDown()) out << " DOWN";
-    out << "  (IP/IPv6 info in RoutingTables)";
+    if (_ipv4data)
+        out << " " << ((cPolymorphic*)_ipv4data)->info(); // Khmm...
+    if (_ipv6data)
+        out << " " << ((cPolymorphic*)_ipv6data)->info(); // Khmm...
+    if (_protocol3data)
+        out << " " << _protocol3data->info();
+    if (_protocol4data)
+        out << " " << _protocol4data->info();
     return out.str();
 }
 

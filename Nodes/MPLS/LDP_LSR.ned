@@ -13,6 +13,8 @@
 
 import
     "Blackboard",
+    "RoutingTable",
+    "InterfaceTable",
     "NetworkLayer",
     "NewLDP",
     "TCPMain",
@@ -46,12 +48,14 @@ module LDP_LSR
     submodules:
         blackboard: Blackboard;
             display: "p=70,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=70,150;i=block/table";
         routingTable: RoutingTable;
             parameters:
                 IPForward = true,
                 routerId = routerId,
                 routingFile = routingFile;
-            display: "p=70,142;i=block/table";
+            display: "p=70,240;i=block/table";
         signal_module: NewLDP;
             parameters:
                 routerId = routerId,
@@ -84,7 +88,7 @@ module LDP_LSR
             parameters:
                 LibTableFileName = LibTableFileName,
                 PrtTableFileName = PrtTableFileName;
-            display: "p=70,224;i=block/table2";
+            display: "p=340,281;i=block/table2";
     connections nocheck:
         signal_module.from_tcp_interface <-- tcp.to_appl++;
         signal_module.to_tcp_interface --> tcp.from_appl++;

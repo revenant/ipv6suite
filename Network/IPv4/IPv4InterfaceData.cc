@@ -44,15 +44,15 @@ IPv4InterfaceData::IPv4InterfaceData()
 std::string IPv4InterfaceData::info() const
 {
     std::stringstream out;
-    out << "addr:" << inetAddress() << "  mask:" << netmask();
-    out << "  Metric:" << metric();
-    out << "  Groups:";
+    out << "IP:{inet_addr:" << inetAddress() << "/" << netmask().netmaskLength();
     if (!multicastGroups().empty())
     {
+        out << " mcastgrps:";
         for (int j=0; j<multicastGroups().size(); j++)
             if (!multicastGroups()[j].isNull())
-                out << ":" << multicastGroups()[j];
+                out << (j>0?",":"") << multicastGroups()[j];
     }
+    out << "}";
     return out.str();
 }
 

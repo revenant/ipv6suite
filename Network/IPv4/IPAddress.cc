@@ -267,6 +267,16 @@ int IPAddress::numMatchingPrefixBits(const IPAddress& to_cmp) const
     return 32;
 }
 
+int IPAddress::netmaskLength() const
+{
+    uint32 addr = getInt();
+    int i;
+    for (i=0; i<31; i++)
+        if (addr & (1 << i))
+            return 32-i;
+    return 0;
+}
+
 void IPAddress::keepFirstBits (unsigned int n)
 {
     if (n > 31) return;

@@ -19,7 +19,8 @@
 
 #include "ARP.h"
 #include "stlwatch.h"
-#include "RoutingTable.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
 #include "RoutingTableAccess.h"
 
 
@@ -45,6 +46,9 @@ void ARP::initialize(int stage)
 {
     if (stage==0)
     {
+        InterfaceTable *ift = InterfaceTableAccess().get();
+        RoutingTable *rt = RoutingTableAccess().get();
+
         // register interface in 1st stage
         interfaceEntry = registerInterface(100000); // FIXME hardcoded 100 Mbps
         return;
@@ -62,9 +66,8 @@ void ARP::initialize(int stage)
     pendingQueue.setName("pendingQueue");
 
     // fill in myIPAddress and myMACAddress
-    RoutingTable *rt = RoutingTableAccess().get();
-    InterfaceEntry *e4 = ift->interfaceByName(interfaceEntry->name());
-    myIPAddress = e4->ipv4()->inetAddress();
+    InterfaceEntry *ie = ift->interfaceByName(interfaceEntry->name());
+    myIPAddress = ie->ipv4()->inetAddress();
     myMACAddress = ((EtherMAC *)parentModule()->submodule("mac"))->getMACAddress();
 
     // init statistics
@@ -316,7 +319,6 @@ bool ARP::addressRecognized(IPAddress destAddr)
     // output port is different from this one), say yes
     if (!doProxyARP)
         return false;
-    RoutingTable *rt = routingTableAccess.get();
     int outputPort = rt->outputPortNo(destAddr);
     return outputPort!=-1 && outputPort!=interfaceEntry->outputPort();
 }

@@ -207,6 +207,11 @@ class IPAddress
     int numMatchingPrefixBits(const IPAddress& to_cmp) const;
 
     /**
+     * Counts 1 bits in a netmask. E.g. for 255.255.254.0, it will return 23.
+     */
+    int netmaskLength() const;
+
+    /**
      * Test if the masked addresses (ie the mask is applied to addr1 and
      * addr2) are equal.
      */

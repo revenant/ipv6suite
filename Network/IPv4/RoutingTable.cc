@@ -76,12 +76,6 @@ std::ostream& operator<<(std::ostream& os, const RoutingEntry& e)
     return os;
 };
 
-std::ostream& operator<<(std::ostream& os, const InterfaceEntry& e)
-{
-    os << e.info();
-    return os;
-};
-
 void RoutingTable::initialize(int stage)
 {
     // L2 modules register themselves in stage 0, so we can only configure
@@ -175,59 +169,51 @@ void RoutingTable::printRoutingTable()
 
 //---
 
-void RoutingTable::addPv4InterfaceEntryFor(InterfaceEntry *e)
+void RoutingTable::addPv4InterfaceEntryFor(InterfaceEntry *ie)
 {
     IPv4InterfaceData *d = new IPv4InterfaceData();
-    e->setIPv4Data(d);
+    ie->setIPv4Data(d);
 
     // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    d->setMetric((int)ceil(2e9/e->datarate())); // use OSPF cost as default
+    d->setMetric((int)ceil(2e9/ie->datarate())); // use OSPF cost as default
 }
 
-/*
 InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
 {
-    // This used to check the network part of the interface IP address.
-    // No clue what it was good for, but screwed up routing for me. --Andras
     Enter_Method("interfaceByAddress(%s)=?", addr.str().c_str());
     if (addr.isNull())
         return NULL;
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if ((*i)->ipv4()->inetAddress()==addr)
-            return *i;
+    for (int i=0; i<ift->numInterfaces(); ++i)
+    {
+        InterfaceEntry *ie = ift->interfaceAt(i);
+        if (ie->ipv4()->inetAddress()==addr)
+            return ie;
+    }
     return NULL;
 }
-*/
 
 
 InterfaceEntry *RoutingTable::addLocalLoopback()
 {
-/*XXX!!!!! FIXME !!!!
-    // add base info
-    InterfaceEntry *loopbackIfBase = new InterfaceEntry();
+    // TBD only add if not yet exists
+    InterfaceEntry *ie = new InterfaceEntry();
 
-    loopbackIfBase->setName("lo0");
-    loopbackIfBase->setOutputPort(-1);
-    loopbackIfBase->setMtu(3924);
-    loopbackIfBase->setLoopback(true);
+    ie->setName("lo0");
+    ie->setOutputPort(-1);
+    ie->setMtu(3924);
+    ie->setLoopback(true);
 
-    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
-    interfaceTable->addInterface(loopbackIfBase);
-
-    // add IPv4 info
-    InterfaceEntry *loopbackInterface = new InterfaceEntry(loopbackIfBase);
-
-    // 127.0.0.1/8 by default -- we may reconfigure later it to be the routerId
-    loopbackInterface->setInetAddress(IPAddress("127.0.0.1"));
-    loopbackInterface->setNetmask(IPAddress("255.0.0.0"));
-    loopbackInterface->setMetric(1);
+    // add IPv4 info. Set 127.0.0.1/8 as address by default --
+    // we may reconfigure later it to be the routerId
+    IPv4InterfaceData *d = new IPv4InterfaceData();
+    d->setInetAddress(IPAddress("127.0.0.1"));
+    d->setNetmask(IPAddress("255.0.0.0"));
+    d->setMetric(1);
+    ie->setIPv4Data(d);
 
     // add interface to table
-    interfaces.push_back(loopbackInterface);
-
-    return loopbackInterface;
-*/
-return NULL;
+    ift->addInterface(ie);
+    return ie;
 }
 
 //---

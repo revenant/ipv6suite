@@ -79,13 +79,14 @@ class ARP : public cSimpleModule
     long numRequestsSent;
     long numRepliesSent;
 
+    InterfaceEntry *interfaceEntry;
+
     ARPCache arpCache;
 
     cQueue pendingQueue; // outbound packets waiting for ARP resolution
 
-    RoutingTableAccess routingTableAccess; // for Proxy ARP
-
-    InterfaceEntry *interfaceEntry;
+    InterfaceTable *ift;
+    RoutingTable *rt;  // for Proxy ARP
 
   public:
     Module_Class_Members(ARP,cSimpleModule,0);

@@ -82,8 +82,6 @@ Interface6Entry::Interface6Entry(const char* int_name)
    linkMod(0),
    _prevBaseReachableTime(0)
 {
-  inetAddrs.setName("inetAddrs");
-
   // set rechableTime
   reachableTime();
 
@@ -91,26 +89,29 @@ Interface6Entry::Interface6Entry(const char* int_name)
   _interfaceID[1] = 0;
 }
 
+void Interface6Entry::removeAddrFromArray(IPv6Addresses& addrs, const IPv6Address& addr)
+{
+  //Weak test to see if addr indeed belongs in this interface.  Should compare
+  //the actual pointers
+  IPv6Addresses::iterator it = std::find(addrs.begin(),addrs.end(),addr);
+  assert (it!=addrs.end());
+  *it = addrs.back();
+  addrs.pop_back();
+}
+
 bool Interface6Entry::addrAssigned(const ipv6_addr& addr) const
 {
   for (size_t i = 0; i < inetAddrs.size(); i++)
-  {
-    //Holes will exist when we call this from removeAddress so ignore
-    //assert(inetAddrs.exist(i));
-    if (inetAddrs.exist(i) && inetAddrs[i] == addr)
+    if (inetAddrs[i] == addr)
       return true;
-  }
   return false;
 }
 
 bool Interface6Entry::tentativeAddrAssigned(const ipv6_addr& addr) const
 {
   for (size_t i = 0; i < tentativeAddrs.size(); i++)
-  {
-    assert(tentativeAddrs.exist(i));
-    if (tentativeAddrs.exist(i) && tentativeAddrs[i] == addr)
+    if (tentativeAddrs[i] == addr)
       return true;
-  }
   return false;
 }
 
@@ -218,22 +219,19 @@ unsigned int Interface6Entry::minValidLifetime()
  *
  */
 
-IPv6Address* Interface6Entry::matchPrefix(const ipv6_addr& prefix,
-                                          unsigned int prefixLength, bool tentative)
+IPv6Address Interface6Entry::matchPrefix(const ipv6_addr& prefix,
+                                         unsigned int prefixLength, bool tentative)
 {
   for (size_t i = 0; i < inetAddrs.size(); i++)
-  {
-    assert(inetAddrs.exist(i));
-    if (inetAddrs.exist(i) && inetAddrs[i].isNetwork(IPv6Address(prefix, prefixLength)))
-      return &(inetAddrs[i]);
-  }
+    if (inetAddrs[i].isNetwork(IPv6Address(prefix, prefixLength)))
+      return inetAddrs[i];
   if (tentative)
     for (unsigned int i = 0; i < tentativeAddrs.size(); i++)
     {
       if (tentativeAddrs[i].isNetwork(IPv6Address(prefix,prefixLength)))
-        return &(tentativeAddrs[i]);
+        return tentativeAddrs[i];
     }
-  return 0;
+  return IPv6Address(IPv6_ADDR_UNSPECIFIED);
 }
 
 void Interface6Entry::print(bool IPForward)
@@ -253,7 +251,7 @@ void Interface6Entry::print(bool IPForward)
          llAddr.c_str());
 
   // print out each IPv6 address attached to the interace
-  for(int i=0; i<inetAddrs.items(); i++)
+  for(int i=0; i<inetAddrs.size(); i++)
   {
     PRINTF("\t inet6 addr: %s Scope:%s \n",
            inetAddrs[i].address().c_str(),

@@ -97,25 +97,14 @@ void WorldProcessor::initialize(int stage)
       Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
     }
 
-#if USE_AKAROA
-    // XXX needed? --AV
-    AkObservationType(AkIndependent);
-    AkDeclareParameters(::OPP_AK_OBSERVE_PARAMETERS);
-//  AkParameterType(1, AkProportion/AkMean);
-//  if (::OPP_AK_OBSERVE_PARAMETERS > 1)
-#endif //USE_AKAROA
-
 #ifdef USE_MOBILITY
     _maxLongitude = par("max_longitude").longValue();
     _maxLatitude = par("max_latitude").longValue();
 
     // set up terrain size in Tk/Tcl environment
     cDisplayString& disp = parentModule()->displayString();
-    if (disp.existsTag("b"))
-    {
-        disp.setTagArg("b",0,OPP_Global::ltostr(_maxLongitude).c_str());
-        disp.setTagArg("b",1,OPP_Global::ltostr(_maxLatitude).c_str());
-    }
+    disp.setTagArg("b", 0, OPP_Global::ltostr(_maxLongitude).c_str());
+    disp.setTagArg("b", 1, OPP_Global::ltostr(_maxLatitude).c_str());
 
     // XXX A bit of a hack
     //BASE_SPEED is in wirelessEthernet.h/cc unit

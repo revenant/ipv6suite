@@ -199,7 +199,7 @@ public:
 
   ///@name Routing functions
   //@{
-  
+
   void addRoute(unsigned int ifIndex, IPv6Address& nextHop,
                 const IPv6Address& dest, bool destIsHost=true);
   ///Return the src address for a packet going out on ifIndex to dest
@@ -244,12 +244,12 @@ public:
   //@{
 
   /// Assigns a tentative Address to interface at if_idx
-  bool assignAddress(IPv6Address* addr, unsigned int if_idx);
+  bool assignAddress(const IPv6Address& addr, unsigned int if_idx);
   /// Removes an assigned addr when lifetime has expired
-  bool removeAddress(IPv6Address* addr, unsigned int ifIndex);
+  void removeAddress(const IPv6Address& addr, unsigned int ifIndex);
   /// Remove an assigned address
-  bool removeAddress(const ipv6_addr& addr, unsigned int ifIndex);
-  /// Convenience function for checking if addr assigned 
+  void removeAddress(const ipv6_addr& addr, unsigned int ifIndex);
+  /// Convenience function for checking if addr assigned
   bool addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) const;
 
   /// Return the InterfaceEntry specified by its index.

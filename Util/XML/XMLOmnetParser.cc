@@ -627,7 +627,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
       if (startAd == addrList.end())
         assert(false);
       cXMLElement* nad = *startAd;
-      ie.tentativeAddrs.add(new IPv6Address(stripWhitespace(nad->getNodeValue())));
+      ie.tentativeAddrs.push_back(IPv6Address(stripWhitespace(nad->getNodeValue())));
       Dout(dc::continued, "address "<< k << " is "<<stripWhitespace(nad->getNodeValue())<<" ");
     }
     Dout( dc::finish, "-|" );

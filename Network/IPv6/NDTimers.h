@@ -39,11 +39,11 @@
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
 
+#include "IPv6Address.h"
 
 class cTimerMessage;
 class IPv6Datagram;
 class RoutingTable6;
-class IPv6Address;
 
 
 namespace IPv6NeighbourDiscovery
@@ -75,7 +75,7 @@ namespace IPv6NeighbourDiscovery
     int max_sends;
     double timeout;
     size_t ifIndex;
-    IPv6Address* tentativeAddr;
+    IPv6Address tentativeAddr;
     ~NDTimer();
   };
 

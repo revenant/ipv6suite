@@ -119,10 +119,10 @@ void RoutingTable6::initialize(int stage)
     //loopback_iface.loopback = true;
     loopback_iface.iface_name = "lo";
 
-    IPv6Address* loopback_adr = new IPv6Address(LOOPBACK_ADDRESS);
+    IPv6Address loopback_adr(LOOPBACK_ADDRESS);
     AllocTag(loopback_adr, "Allocated from "<< __FILE__ << ":" << __LINE__ );
 
-    loopback_iface.inetAddrs.add(loopback_adr);
+    loopback_iface.inetAddrs.push_back(loopback_adr);
     interfaces.push_back(loopback_iface);
 
     interfaces.resize(numOfIfaces + 1);
@@ -697,20 +697,17 @@ const char* RoutingTable6::nodeName() const
    @brief assign a tentative addr
    Params: addr must be the same addr pointer retrieved from tentativeAddrs
 */
-bool RoutingTable6::assignAddress(IPv6Address* addr, unsigned int if_idx)
+bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 {
-  Dout(dc::debug|flush_cf, nodeName()<<" assigning address "<<*addr);
+  Dout(dc::debug|flush_cf, nodeName()<<" assigning address "<<addr);
   assert(if_idx < interfaces.size());
   if (if_idx >= interfaces.size())
     return false;
 
   Interface6Entry& ie = getInterfaceByIndex(if_idx);
-  assert(!ie.addrAssigned(*addr));
-  if (ie.tentativeAddrs.remove(addr))
-  {
-    ie.tentativeAddrs.removeHoles(removeHolesArr);
-  }
-  ie.inetAddrs.add(addr);
+  assert(!ie.addrAssigned(addr));
+  ie.removeTentativeAddress(addr);
+  ie.inetAddrs.push_back(addr);
 
 
   //Don't know why it asserts when default ctor of IPv6Address puts lifetime of
@@ -731,25 +728,11 @@ bool RoutingTable6::assignAddress(IPv6Address* addr, unsigned int if_idx)
    be done in here however as more than 1 address may be removed at the same
    time it may be better to collect them all and do it once.
 */
-bool RoutingTable6::removeAddress(IPv6Address* addr, unsigned int ifIndex)
+void RoutingTable6::removeAddress(const IPv6Address& addr, unsigned int ifIndex)
 {
+  Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "<<addr<<" removed");
   Interface6Entry& ie = getInterfaceByIndex(ifIndex);
-
-  Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "
-       <<*addr<<" removed");
-
-  //Weak test to see if addr indeed belongs in this interface.  Should compare
-  //the actual pointers
-  assert(ie.addrAssigned(*addr));
-
-  if (!ie.addrAssigned(*addr))
-    return false;
-
-  addr = ie.inetAddrs.remove(addr);
-
-  delete addr;
-
-  return true;
+  ie.removeAddress(addr);
 }
 
 /**
@@ -759,22 +742,9 @@ bool RoutingTable6::removeAddress(IPv6Address* addr, unsigned int ifIndex)
 
    Uses the other version of removeAddress to do its dirty work
  */
-bool RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
+void RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
 {
-  Interface6Entry& ie = getInterfaceByIndex(ifIndex);
-  for (size_t addrIndex = 1; addrIndex < ie.inetAddrs.size(); addrIndex++)
-  {
-    assert(ie.inetAddrs.exist(addrIndex));
-    if (ie.inetAddrs[addrIndex] == addr)
-    {
-      Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "
-           <<addr<<" removing");
-
-      removeAddress(ie.inetAddrs.get(addrIndex), ifIndex);
-      return true;
-    }
-  }
-  return false;
+  removeAddress(IPv6Address(addr), ifIndex);
 }
 
 /**
@@ -818,13 +788,12 @@ void RoutingTable6::invalidateAddresses()
         Dout(dc::address_timer|flush_cf|dc::ipv6, nodeName()<<":"<<ifIndex<<" "
              <<*(ie.inetAddrs.get(addrIndex))<<" removed");
 
-        removeAddress(ie.inetAddrs.get(addrIndex), ifIndex);
+        removeAddress(ie.inetAddrs[addrIndex], ifIndex);
         addrRemovedFromIface = true;
       }
     }
     if (addrRemovedFromIface)
     {
-      ie.inetAddrs.removeHoles(removeHolesArr);
       addrRemovedFromIface = false;
     }
   }

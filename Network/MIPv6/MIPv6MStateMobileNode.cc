@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,7 +64,7 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 
 
 namespace MobileIPv6
-{  
+{
 
 class BURetranTmr;
 
@@ -76,7 +76,7 @@ class BURetranTmr;
 class BURetranTmr: public cTTimerMessageCBA<void, void>
 {
   friend class MIPv6MStateMobileNode;
-  
+
 public:
 
   // Constructor/destructor.
@@ -90,13 +90,13 @@ public:
     {
       delete dgram;
     };
-  
+
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT
   void retransmitBU()
     {
       timeout *=2;
 
-      string nodeName = 
+      string nodeName =
         //boost::polymorphic_downcast<IPv6Mobility*>(module())->nodeName();
         static_cast<IPv6Mobility*>(module())->nodeName();
 
@@ -127,7 +127,7 @@ public:
         return;
       }
       assert(bule != 0);
-      
+
       bule->state++;
       bule->setSequence(bule->sequence()+1);
       bule->last_time_sent = module()->simTime();
@@ -151,7 +151,7 @@ public:
   IPv6Datagram* dgram;
   MIPv6MStateMobileNode* stateMN;
   MIPv6CDSMobileNode* mipv6cdsMN;
-  
+
 };
 
 
@@ -159,7 +159,7 @@ public:
  * @class sendBUs
  *
  * @brief functor to update every CN/HA in BUL whenever we do a handoever
- * 
+ *
  * @todo lifetime of bindings currently is fixed to the minimum current lifetime
  * of all prefixes rather than just min(home prefix, foreign prefix)
  */
@@ -172,11 +172,11 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
      mob(mob), mstateMN(boost::polymorphic_downcast<MIPv6MStateMobileNode*>
                         (MIPv6MStateMobileNode::instance()))
     {
-      //Retain copy of previous coa otherwise will be overwritten by the new updates        
+      //Retain copy of previous coa otherwise will be overwritten by the new updates
 //      assert(oldcoa != IPv6_ADDR_UNSPECIFIED && oldcoa != mipv6cdsMN->homeAddr());
       assert(mstateMN != 0);
     }
-  
+
   ///Will not update MAPs or entries with different hoa
   void operator()(boost::shared_ptr<bu_entry>& bule)
     {
@@ -187,7 +187,7 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
              bule->addr()<<" for coa="<<coa);
         return;
       }
-      
+
 #ifdef USE_HMIP
       if (bule->isMobilityAnchorPoint())
       {
@@ -195,7 +195,7 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
              <<" in sendBUs");
         return;
       }
-      
+
       if (bule->homeAddr() != hoa)
       {
          Dout(dc::hmip, mob->nodeName()<<" skipping binding "<<bule->addr()
@@ -204,12 +204,12 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
 #endif //USE_HMIP
 
       bool homeReg = bule->homeReg();
-  
+
       if (mob->returnRoutability() && !homeReg)
         mstateMN->sendInits(bule->addr(), coa, mob);
       else
       {
-        mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(), 
+        mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(),
                          //we should really be using this instead but as timers
                          //on binding updates not implemented yet we will use
                          //the min lifetime of all addr
@@ -219,7 +219,7 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
                          homeReg,
                          //don't care about ifIndex as dad only done on
                          //primaryHA and only the very first BU to it
-                         mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mob);   
+                         mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mob);
       }
 /*
 
@@ -231,14 +231,14 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
       //after max_fast updates) just requires an additional consecutive counter
       //increment on an additional variable to bule.  and resending of BU until
       //the other node gets it (only applicable if Ack was set)
-      
+
       simtime_t updateInterval = mob->simTime() - bule->last_time_sent;
 
       if ((bule->state < MAX_FAST_UPDATES && updateInterval >= (double)MAX_UPDATE_RATE) ||
           (bule->state >= MAX_FAST_UPDATES && updateInterval >= (double)SLOW_UPDATE_RATE))
       {
-        
-        mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(), 
+
+        mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(),
                          //we should really be using this instead but as timers
                          //on binding updates not implemented yet we will use
                          //the min lifetime of all addr
@@ -259,7 +259,7 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
              <<" seconds have passed");
         //reschedule a once off timer to sendBU after enough time has elapsed
         //and send again.  If that fails then continue trying according to 10.14
-        
+
       }
 */
     }
@@ -269,7 +269,7 @@ private:
   const ipv6_addr& coa;
   const ipv6_addr& oldcoa;
   const ipv6_addr& hoa;
-  
+
   unsigned int lifetime;
   IPv6Mobility* mob;
   MIPv6MStateMobileNode* mstateMN;
@@ -296,12 +296,12 @@ MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
   schedSendBU = 0;
 }
 
-void MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram, 
-                                               MIPv6MobilityHeaderBase*& mhb, 
+void MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram,
+                                               MIPv6MobilityHeaderBase*& mhb,
                                                IPv6Mobility* mob)
 {
   MIPv6MobilityState::processMobilityMsg(dgram, mhb, mob);
-  
+
   if (!mhb)
     return;
 
@@ -354,7 +354,7 @@ void MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram,
 
 /**
  * 10.14
- * 
+ *
  * ignoring authentication req. from 4.5 well there doesn't appear to be any
  * besides 4.5.5 point 6
  *
@@ -376,7 +376,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 // #endif //defined TESTMIPv6 || defined BA_DEBUG
 //     return;
 //   }
-  
+
   // check if the sequence number field matches the sequence number
   // sent by the mobile node to this destination address in an
   // outstanding binding update
@@ -395,7 +395,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   if (ba->sequence() != bue->sequence())
   {
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
-         <<dgram->srcAddress()<<" with sequence "<< ba->sequence() 
+         <<dgram->srcAddress()<<" with sequence "<< ba->sequence()
          <<" instead of "<< bue->sequence());
     //11.6.1 p113 r18
     bue->setSequence(ba->sequence()+1);
@@ -418,7 +418,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
         Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" "<<mob->simTime()
              <<" returning home completed setting awayFromHome to false");
         mipv6cdsMN->setAwayFromHome(false);
-        
+
       }
       Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
            <<" deleting BURetranTmr as we received Back from "<<dgram->srcAddress());
@@ -427,7 +427,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
       break;
     }
   }
-  
+
   if (!found)
     Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
          <<" unable to find BURetranTmr for deletion as received Back from "
@@ -436,18 +436,18 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   {
     Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BA received from "
          <<dgram->srcAddress()<<" seq="<<ba->sequence());
-    
+
     bue->state = 0;
     if (ba->lifetime() < bue->lifetime())
     {
-      bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));   
+      bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
     }
 
 #ifdef USE_HMIP
     //mob->sendDirect(new ICMPv6Message(0,0, dgram->dup()), 0, nd, NDiscOut);
     if (mob->rt->hmipSupport())
     {
-      
+
       HMIPv6CDSMobileNode* hmipv6cds =
         boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mob->mipv6cds);
       assert(hmipv6cds);
@@ -462,10 +462,10 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
         assert(dgram->inputPort() == 0);
         if (!mob->rt->addrAssigned(hmipv6cds->remoteCareOfAddr(), dgram->inputPort()))
         {
-          IPv6Address* addrObj = new IPv6Address(hmipv6cds->remoteCareOfAddr());
-          addrObj->setPrefixLength(EUI64_LENGTH);
-          addrObj->setStoredLifetimeAndUpdate(ba->lifetime());
-          addrObj->setPreferredLifetime(ba->lifetime());
+          IPv6Address addrObj(hmipv6cds->remoteCareOfAddr());
+          addrObj.setPrefixLength(EUI64_LENGTH);
+          addrObj.setStoredLifetimeAndUpdate(ba->lifetime());
+          addrObj.setPreferredLifetime(ba->lifetime());
           mob->rt->assignAddress(addrObj, dgram->inputPort());
         }
 
@@ -500,7 +500,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
               mob->edgeHandoverCallback()->callFunc();
 
               //Not something we should do as routerstate is for routers only
-//               EdgeHandover::EHNDStateHost* ehstate = 
+//               EdgeHandover::EHNDStateHost* ehstate =
 //                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
 //                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
 //                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
@@ -539,7 +539,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 #endif //EDGEHANDOVER
     }
 #endif //USE_HMIP
-    
+
   }
   else
   {
@@ -565,7 +565,7 @@ void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr 
 
   bu_entry* bue = mipv6cdsMN->findBU(addr);
   assert(bue);
-  
+
   if(bue->correspndRegInitTime && bue->correspndRegDelay)
   {
     bue->correspndRegDelay->record(buRecvTime - bue->correspndRegInitTime);
@@ -584,19 +584,19 @@ void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr 
    HMIPv6 previous MAP forwarding is done in HMIPv6NDState::processRtrAd -
    mapHandover.  pcoa forwarding for ars is done in HMIPv6NDState::arHandover.
  */
-void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr hoa, 
+void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr hoa,
                                         size_t lifetime, IPv6Mobility* mob)
 {
-  
+
   //for every bu_entry send it the new details of the new BU and update the
   //binding entry in the process
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
-  
+
   Dout(dc::mipv6|dc::debug|flush_cf, " in send bu to all hoa "<<hoa<<" coa "
        <<coa<<" and bul is "<<(mipv6cdsMN->bulEmpty()?"empty":" not empty")
        <<" ");
-  
+
 #ifdef USE_HMIP
   HMIPv6CDSMobileNode* hmipv6cdsMN = 0;
   if (mob->rt->hmipSupport())
@@ -604,7 +604,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
     hmipv6cdsMN = boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mipv6cdsMN);
     assert(hmipv6cdsMN);
   }
-#endif //USE_HMIP  
+#endif //USE_HMIP
 
 
   if (
@@ -616,17 +616,17 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
     || (mob->rt->hmipSupport() &&
         !mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr()) &&
         hmipv6cdsMN->isMAPValid())
-#endif //USE_HMIP   
+#endif //USE_HMIP
     )
   {
     assert(mipv6cdsMN->homeAddr() != IPv6_ADDR_UNSPECIFIED);
-    
+
     //Send BU to pHA
     //Create pHA bul entry and update it
-    sendBU(mipv6cdsMN->primaryHA()->addr(), coa, hoa, 
+    sendBU(mipv6cdsMN->primaryHA()->addr(), coa, hoa,
            lifetime, true,
            mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mob);
-        
+
   }
   else
   {
@@ -646,26 +646,26 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
          <<coa<<" oldcoa "<<oldcoa);
     if (oldcoa != coa)
     {
-          
+
       //Iterate through every BU_entry and send updates to nodes with same hoa
       //(currently it just skips map indiscriminately)
       for_each(mipv6cdsMN->bul.begin(), mipv6cdsMN->bul.end(),
                sendBUs(coa, oldcoa, hoa, lifetime, mob, mipv6cdsMN));
-      
-#ifdef USE_HMIP   
+
+#ifdef USE_HMIP
       //Forwarding from previous MAP to new MAP is already done in HMIP
       if (!mob->rt->hmipSupport() ||
           (mob->rt->hmipSupport() && !hmipv6cdsMN->isMAPValid()) )
       {
-#endif //USE_HMIP 
+#endif //USE_HMIP
         previousCoaForward(coa, oldcoa, mob);
-#ifdef USE_HMIP   
+#ifdef USE_HMIP
       }
 #endif //USE_HMIP
       //Don't need forwarding from previous MAP as that's done in
       //HMIPNDStateHost::processRtrAd
     }
-        
+
   }
 }
 
@@ -690,7 +690,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   // which the MN has a BUL entry.
   if ((bule = mipv6cdsMN->findBU(srcAddr)) == 0)
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " 
+    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: "
          << mob->nodeName()<<" src="<<srcAddr
          <<" in "<< testMsg->className() << " does not appear in the binding update list");
     return;
@@ -698,20 +698,20 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   if ( testMsg->header_type() == MIPv6MHT_CoT && mipv6cdsMN->careOfAddr() != dgram->destAddress())
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " 
+    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: "
          << mob->nodeName()<<" dest="<<dgram->destAddress()
          <<"in "<< testMsg->className() << " does not match coa ="
          <<mipv6cdsMN->careOfAddr());
-    return;    
+    return;
   }
 
   if ( testMsg->header_type() == MIPv6MHT_HoT && mipv6cdsMN->homeAddr() != dgram->destAddress())
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " 
+    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: "
          << mob->nodeName()<<" dest="<<dgram->destAddress()
          <<"in "<< testMsg->className() << " does not match home address ="
          <<mipv6cdsMN->homeAddr());
-    return;    
+    return;
   }
 
   // check if the core-of init cookie filed in the message matches the
@@ -719,14 +719,14 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   if ( bule->cookie(testMsg->header_type()) != testMsg->cookie)
   {
     Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()<<" the init cookie filed in the " << testMsg->className() << " does not match the value stored in the BUL");
-    return;    
+    return;
   }
 
   // check if the bule indicates that no keygen token has been
   // received yet
   if ( bule->token(testMsg->header_type()) == testMsg->token)
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()<<" the BUL indicates that the token " << testMsg->className() << " has been received");    
+    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()<<" the BUL indicates that the token " << testMsg->className() << " has been received");
     return;
   }
 
@@ -747,7 +747,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
     {
       bule->hotiRetransTmr->reschedule(mob->simTime() + MAX_NONCE_LIFETIME);
 
-      Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " next home test will be at " << mob->simTime() + MAX_NONCE_LIFETIME<<" sec");       
+      Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " next home test will be at " << mob->simTime() + MAX_NONCE_LIFETIME<<" sec");
     }
   }
   else if ( testMsg->header_type() == MIPv6MHT_CoT )
@@ -776,7 +776,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   }
 }
 
-void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest, 
+void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa,
                                       IPv6Mobility* mob)
 {
@@ -803,7 +803,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     mipv6cdsMN->addBU(bule);
 
     TIRetransTmr* hotiTmr;
-    hotiTmr = new TIRetransTmr(Sched_SendHoTI, mob, this, 
+    hotiTmr = new TIRetransTmr(Sched_SendHoTI, mob, this,
                                  &MobileIPv6::MIPv6MStateMobileNode::sendHoTI, "Sched_SendHoTI");
     Loki::Field<1> (hotiTmr->args) = mob;
     bule->hotiRetransTmr = hotiTmr;
@@ -819,7 +819,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     if (bule->isPerformingRR || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) /*MAX_UPDATE_RATE*/  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
-  
+
   bule->isPerformingRR = true;
   bule->correspndRegInitTime = mob->simTime();
 
@@ -848,7 +848,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
-  
+
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " is about to send a HoTI, dest= " << IPv6Address(dest));
 
   MIPv6CDSMobileNode* mipv6cdsMN =
@@ -894,7 +894,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
     dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
     mob->sendDirect(dgram_hoti, 0, tunMod, "mobilityIn");
   }
-  else 
+  else
   {
     dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
     mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
@@ -934,7 +934,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
   cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
   assert(outputMod);
-  
+
   TIMsg* coti = new TIMsg(MIPv6MHT_CoTI, bule->cookie(MIPv6MHT_CoTI));
 
   // Once the tunnel is established, the packet destinated for the
@@ -967,7 +967,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
 /**
  * @todo Implement
- * 
+ *
  */
 
 void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram, IPv6Mobility* mob)
@@ -990,7 +990,7 @@ void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram, IPv6Mobility*
 
 /**
  * @brief Respond to known CN i.e. a node in BUL
- * 
+ *
  */
 
 void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility* mob)
@@ -1001,21 +1001,21 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility
   //IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*> (br->encapsulatedMsg());
   size_t ifIndex = dgram->inputPort();
   bu_entry* bule = 0;
-  
+
   //Check that CN is in BUL then send BU and upddate BUL details
   if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
   {
-    
+
     //if unique identified exists in br then send it back in the BU too
 
-    //Latest lifetime 
+    //Latest lifetime
     unsigned int lifetime = 0;
-    
+
     //Home Agents would never send BR to us as the onus is on the MN to update
     //its own home address lifetime.
     bool homeReg = false;
     assert(!mipv6cdsMN->findHomeAgent(dgram->srcAddress()));
-    
+
     size_t ifIndex = dgram->inputPort();
     sendBU(dgram->srcAddress(), mipv6cdsMN->primaryHA()->prefix().prefix,
            dgram->destAddress(), lifetime, homeReg, ifIndex, mob);
@@ -1024,10 +1024,10 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility
   {
     cerr<<mob->nodeName()<<":"<<ifIndex<<" Possible DOS attack from "
         <<dgram->srcAddress()<<" directed at home address "<<dgram->destAddress()
-        <<"\n";  
+        <<"\n";
   }
-  
-  
+
+
   delete br;
 }
 
@@ -1038,8 +1038,8 @@ void MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr)
 }
 
 #ifdef USE_HMIP
-bool MIPv6MStateMobileNode::sendMapBU(const ipv6_addr& dest, const ipv6_addr& coa, 
-                                      const ipv6_addr& hoa, size_t lifetime, 
+bool MIPv6MStateMobileNode::sendMapBU(const ipv6_addr& dest, const ipv6_addr& coa,
+                                      const ipv6_addr& hoa, size_t lifetime,
                                       size_t ifIndex, IPv6Mobility* mob)
 {
   return sendBU(dest, coa, hoa, lifetime, false, ifIndex, mob, true);
@@ -1048,7 +1048,7 @@ bool MIPv6MStateMobileNode::sendMapBU(const ipv6_addr& dest, const ipv6_addr& co
 
 /*
   @brief Forward from PAR to current AR (when previous AR is an HA)
-  
+
   @param coa is the new care of address
   @param hoa is the previous care of address
 
@@ -1063,7 +1063,7 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
   boost::shared_ptr<MIPv6RouterEntry> oldRtr = mipv6cdsMN->currentRouter()?
-    mipv6cdsMN->currentRouter():mipv6cdsMN->previousDefaultRouter();  
+    mipv6cdsMN->currentRouter():mipv6cdsMN->previousDefaultRouter();
   if (oldRtr && oldRtr->isHomeAgent())
   {
     Dout(dc::mipv6, mob->nodeName()<<" pcoaf forwarding from PAR="
@@ -1081,9 +1081,9 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
 
 
 /**
- * @brief send a binding update and update the bul entry in the process 
+ * @brief send a binding update and update the bul entry in the process
  *
- * Sec 10.7 Only homeReg have binding acks turned on.  For CN it's always off.  
+ * Sec 10.7 Only homeReg have binding acks turned on.  For CN it's always off.
  * @param dest address of destination to send BU
  * @param coa care of address in BU
  * @param hoa home address in BU
@@ -1106,7 +1106,7 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
  * @param mapReg sets the corresponding MAP registration flag
  */
 
-bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa, 
+bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                                    const ipv6_addr& hoa, size_t lifetime,
                                    bool homeReg, size_t ifIndex, IPv6Mobility* mob
 #ifdef USE_HMIP
@@ -1121,15 +1121,15 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   // TODO: parse these two info through XML
   bool dad = false;
   bool ack = homeReg;
-  
+
   ///Won't worry about multiple global on-link prefixes on home subnet.  We will only respond to one of them for now.
   const bool saonly = false;
 
   /////////////////
-  
+
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
-  
+
   if (homeReg)
   {
     dad = mipv6cdsMN->bulEmpty();
@@ -1152,10 +1152,10 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     assert(bule);
 
 #ifdef USE_HMIP
-  
+
   if (mapReg)
     ack = mapReg;
-  
+
   //In case we do forwarding from previous MAP we don't need to redo DAD on MAP
   //that has already been registered with old RCOA.
   if (mapReg && bule == 0)
@@ -1167,7 +1167,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   unsigned int seq = 0;
 
   if (bule)
-  {    
+  {
     seq = bule->sequence();
     seq++;
 
@@ -1180,7 +1180,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
     if ( bule->careOfAddr() == coa )
     {
-      simtime_t updateInterval = mob->simTime() - bule->last_time_sent;  
+      simtime_t updateInterval = mob->simTime() - bule->last_time_sent;
       //Not 100% correct because we should allow 3 very fast and consecutive BU
       //in a second instead of average separation of 1/3 seconds (see Sec. 11.8)
       if (updateInterval < MAX_UPDATE_RATE)
@@ -1191,7 +1191,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
         return false;
       }
     }
-    
+
   }
 
   BU* bu = new BU(ack, homeReg, saonly, dad, seq, lifetime, hoa
@@ -1210,14 +1210,14 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   //assert((dad && ack && homeReq) || !dad)
 
   scheduleSendBU(dgram, mob);
-  
+
   ///Create timer only when ack is set i.e for homeReg in this impln
   if (homeReg
 #ifdef USE_HMIP
       || mapReg
 #endif //USE_HMIP
       )
-  { 
+  {
     double timeout = INITIAL_BINDACK_TIMEOUT_FIRSTREG + SELF_SCHEDULE_DELAY;
 
     if (bule != 0)
@@ -1228,7 +1228,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     {
       assert(timeout > 0);
       assert(static_cast<int> (timeout) > 0);
-      //Should we preserve the value instead of truncating timeout? 
+      //Should we preserve the value instead of truncating timeout?
       buTmr = new BURetranTmr(static_cast<int>(timeout), dgram->dup(), this, mipv6cdsMN, mob);
       buRetranTmrs.push_back(buTmr);
     }
@@ -1259,7 +1259,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       Dout(dc::mipv6, mob->nodeName()<<" bule "<<dgram->destAddress()<<" has problem flag set");
       assert(false);
     }
-    
+
 
     mob->scheduleAt(mob->simTime()+timeout, buTmr);
     Dout(dc::mipv6, mob->nodeName()<<" Waiting for BU ack timeout="
@@ -1311,7 +1311,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
 /**
  * Sec. 10.9
- * 
+ *
  */
 
 bool MIPv6MStateMobileNode::updateBU(const BU* bu, IPv6Mobility* mob)
@@ -1351,11 +1351,11 @@ void MIPv6MStateMobileNode::scheduleSendBU(IPv6Datagram* dgram, IPv6Mobility* mo
 
     //typedef required to disambiguate overloaded send func
 //     typedef int (IPv6Mobility::*sendPtr)(cMessage*, const char*, int);
-//     schedSendBU = 
+//     schedSendBU =
 //       new Loki::cTimerMessageCB< int, TYPELIST_2(cMessage*, const char*)>
 //       (Sched_SendBU, mob, mob, static_cast<sendPtr>(&IPv6Mobility::send), "Sched_SendBU");
 
-    schedSendBU = 
+    schedSendBU =
       new Loki::cTimerMessageCB
       <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>
       (Sched_SendBU, mob, &dupSend, "Sched_SendBU");

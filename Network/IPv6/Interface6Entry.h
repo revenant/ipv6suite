@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -54,11 +54,12 @@
 using std::string;
 
 ///incomplete type in gdb due to definition in class scope (gdb bug)
-typedef cTypedVector<IPv6Address> IPv6Addresses;
+// XXX typedef cTypedVector<IPv6Address> IPv6Addresses;
+typedef std::vector<IPv6Address> IPv6Addresses;
 
 /**
  * @defgroup NDConstants Neighbour Discovery Protocol constants
- * 
+ *
  */
 //@{
 extern const double DEFAULT_MAX_RTR_ADV_INT;
@@ -101,8 +102,17 @@ public:
 
   void print(bool);
 
-public:
+private:
+  static void removeAddrFromArray(IPv6Addresses& addrs, const IPv6Address& addr);
 
+public:
+  void removeAddress(const IPv6Address& addr) {
+    assert(addrAssigned(addr));
+    removeAddrFromArray(inetAddrs,addr);
+  }
+  void removeTentativeAddress(const IPv6Address& addr) {
+    removeAddrFromArray(tentativeAddrs,addr);
+  }
 
   bool addrAssigned(const ipv6_addr& addr) const;
   bool tentativeAddrAssigned(const ipv6_addr& addr) const;
@@ -121,29 +131,29 @@ public:
   ///Used by Neighbour Discovery
   size_t interfaceIDLength() const
     {
-      return 64;      
+      return 64;
     }
-  
+
   void setInterfaceID(unsigned int* iface_id)
     {
       _interfaceID[0] = iface_id[0];
-      _interfaceID[1] = iface_id[1];      
+      _interfaceID[1] = iface_id[1];
     }
 
   ///Elapse all valid/preferredLifetimes of assigned addresses
   void elapseLifetimes(unsigned int seconds);
-  
+
   ///Return the shortest validLifetime assigned to an address on this iface
   unsigned int minValidLifetime();
-  
+
   ///Return an assigned or tentative address that matches the specified prefix
-  IPv6Address* matchPrefix(const ipv6_addr& prefix, unsigned int prefixLength,
-                           bool tentative = false);
+  IPv6Address matchPrefix(const ipv6_addr& prefix, unsigned int prefixLength,
+                          bool tentative = false);
 
   // Interface name
   string iface_name;
   // Type of network interface (Ethernet, Point to Point)
-  const char* encap(void);  
+  const char* encap(void);
 
   /**
    * @todo Change to use shared_ptrs of ipv6_prefix (once that has an interface
@@ -152,11 +162,11 @@ public:
    * valid by maintaining a weak_ptr to it.  For now when an addr lifetime
    * expires we will have to set all other pointers to null manually which is
    * tedioius and error prone.
-   * 
+   *
    */
 
   IPv6Addresses inetAddrs;
-  
+
   /// tentative address for duplicate address detection
   /// This data structure serves 4 purposes 1. Store manually configured address
   /// parsed from XML network configuration. 2. ND uses it to determine which
@@ -166,7 +176,7 @@ public:
   /// from router prefixes are stored here but DAD is initiated for them from
   /// elsewhere.  (This is to prevent DAD from recurring on addresses that are
   /// currently undergoing DAD).
-  IPv6Addresses tentativeAddrs;  
+  IPv6Addresses tentativeAddrs;
 
   ///@name Node Configuration Variables
   //@{
@@ -177,11 +187,11 @@ public:
 #if FASTRS
   double maxRtrSolDelay;
 #endif // FASTRS
-  
-  double reachableTime();  
+
+  double reachableTime();
 
   // number of consecutive NS messages to be sent
-  int dupAddrDetectTrans;  
+  int dupAddrDetectTrans;
 
   ///Convenience handle to the link layer module
   LinkLayerModule* linkMod;
@@ -194,7 +204,7 @@ public:
       {}
     ///in seconds
     int minRtrSolInterval;
-    /// in seconds 
+    /// in seconds
     int maxInterval;
     ///Trigger RS when this condition met (max means disabled)
     unsigned int maxConsecutiveMissedRtrAdv;
@@ -208,13 +218,13 @@ public:
   //IPv6 router constants
   struct RouterVariables
     {
-      RouterVariables():advSendAds(false), 
+      RouterVariables():advSendAds(false),
                         maxRtrAdvInt(DEFAULT_MAX_RTR_ADV_INT),
                         minRtrAdvInt(0.33*maxRtrAdvInt),
                         advManaged(false), advOther(false),
-                        advLinkMTU(IPv6_MIN_MTU), advReachableTime(0), 
+                        advLinkMTU(IPv6_MIN_MTU), advReachableTime(0),
                         advRetransTmr(0),
-                        advCurHopLimit(DEFAULT_ADVCURHOPLIMIT), 
+                        advCurHopLimit(DEFAULT_ADVCURHOPLIMIT),
                         advDefaultLifetime(3*maxRtrAdvInt
 #if USE_MOBILITY
                                        <1?1:3*maxRtrAdvInt
@@ -239,7 +249,7 @@ public:
       bool advSendAds;
       simtime_t maxRtrAdvInt; //seconds
       simtime_t minRtrAdvInt;  //seconds
-      bool advManaged; //False as we are not doing stateful autoconfiguration 
+      bool advManaged; //False as we are not doing stateful autoconfiguration
       bool advOther; //Also false as not diseminating other config info from routers
       int advLinkMTU; //Host LinkMTU
       int advReachableTime; //Host BaseReachableTime?
@@ -247,7 +257,7 @@ public:
       int advCurHopLimit; //Host CurHopLimit
       ///Integer seconds in ND rfc but for MIPv6 really need better granularity
       simtime_t advDefaultLifetime;
-      
+
       ///These are either learned from routers or configured manually(router)
       AdvPrefixList advPrefixList;
 

@@ -144,7 +144,7 @@ namespace IPv6NeighbourDiscovery
 
     ///Prepare for DAD of tentative addr created from Router Advertisement
     ///prefixes
-    void detectDupAddress(size_t ifIndex, IPv6Address* tentativeAddr);
+    void detectDupAddress(size_t ifIndex, const IPv6Address& tentativeAddr);
 
     ///Perform dupAddrDet on manually assigned addresses of interface
     void dupAddrDetOtherAddr(size_t ifIndex);
@@ -163,7 +163,7 @@ namespace IPv6NeighbourDiscovery
     //@}
 
     //Returns the linkLocalAddr of the corresponding ifIndex
-    IPv6Address* linkLocalAddr(size_t ifIndex);
+    IPv6Address linkLocalAddr(size_t ifIndex);
 
     ///please icc as it does not like pointers to non public functions used by
     ///other classes even if those classes inherit from this one.

@@ -77,10 +77,6 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
   IPv6Address mr_link_addr(ALL_ROUTERS_LINK_ADDRESS);
   IPv6Address mr_site_addr(ALL_ROUTERS_SITE_ADDRESS);
 
-  mr_node_addr.setName("allroutesNode");
-  mr_link_addr.setName("allRoutesLinkAddr");
-  mr_site_addr.setName("allRoutessite");
-
   mr_node_addr.scope();
   Dout(dc::debug,  rt->nodeName()<<" IPv6Address obj to be added to multicast group for all nodes,"
        <<" all links and all sites"<<mr_node_addr <<" "<<mr_link_addr <<" "

@@ -67,7 +67,7 @@
 #endif //IPV6HEADERS_H
 #ifndef IPV6ADDRESS_H
 #include "IPv6Address.h"
-#endif //IPV6ADDRESS_H 
+#endif //IPV6ADDRESS_H
 
 
 /**
@@ -89,7 +89,7 @@ template <class Arg> class TFunctorBaseA;
 class IPv6Encapsulation: public RoutingTable6Access
 {
   struct Tunnel;
-  
+
 /**
    @struct Tunnel
    @brief Definition of a tunnel used as a virtual interface
@@ -105,9 +105,9 @@ class IPv6Encapsulation: public RoutingTable6Access
     Tunnel(const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
            const ipv6_addr& dest = IPv6_ADDR_UNSPECIFIED,
            size_t oifIndex = UINT_MAX, bool forOnePkt = false);
-    
+
     ~Tunnel();
-    
+
     ///entry point of tunnel
     ipv6_addr entry;
     ///exit point of tunnel
@@ -137,9 +137,9 @@ class IPv6Encapsulation: public RoutingTable6Access
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const pair<const size_t, Tunnel> & p);
-  friend std::ostream& operator<<(std::ostream & os, 
+  friend std::ostream& operator<<(std::ostream & os,
                                   const IPv6Encapsulation& tunMod);
-  
+
 public:
   Module_Class_Members(IPv6Encapsulation, RoutingTable6Access, 0);
 
@@ -152,36 +152,36 @@ public:
   bool destroyTunnel(const ipv6_addr& src, const ipv6_addr& dest);
   ///Remove tunnel and the associated entries in Dest Cache
   bool destroyTunnel(size_t vIfIndex);
-  
+
   ///Returns the vIfIndex of tunnel if found, 0 otherwise
   size_t findTunnel(const ipv6_addr& src, const ipv6_addr& dest);
   ///Forwards all datagrams destined for dest to virtual tunnel
   bool tunnelDestination(const ipv6_addr& dest, size_t vIfIndex);
   /// called from modified XML parser, trying to support prefixes
   bool tunnelDestination(const IPv6Address& dest, size_t vIfIndex);
-  
+
   /**
    * @brief Register a callback required by MIPv6 to test if packets are been
    * encapsulated from HA or CN.
    *
    * Required so MIPv6 can take corresponding action (usually sending a BU to
    * that node)
-   * 
+   *
    * @param cb a callback func that accepts IPv6Datagram as argument. This
    * object can be modified but not deleted. Ownership of cb is taken by this
    * class.
    */
 
   void registerMIPv6TunnelCallback(TFunctorBaseA<IPv6Datagram>* cb);
-  
+
   ///@name Overidden cSimpleModule functions
   //@{
   int numInitStages() const;
-  
+
   virtual void initialize(int stageNo);
 
   virtual void handleMessage(cMessage* msg);
-  
+
   virtual void finish();
   //@}
 
@@ -193,18 +193,18 @@ private:
   size_t tunHopLimit;
   ///not implemented 6.6
   int encapLimit;
-  typedef 
+  typedef
 #if defined __GNUC__
-#if __GNUC_PREREQ(3,1) 
+#if __GNUC_PREREQ(3,1)
   __gnu_cxx::hash_map<size_t, struct Tunnel, __gnu_cxx::hash<size_t> >
 #else
   std::hash_map<size_t, struct Tunnel, std::hash<size_t> >
 #endif //__GNUC_PREREQ(3,1)
 #else
-#if defined CXX || __INTEL_COMPILER >= 810
+#if defined CXX || __INTEL_COMPILER >= 810 || defined _MSC_VER
   //must be bug in icc 8.1 that prevents compilation of hash_map when it used to work
-  std::map<std::size_t, struct Tunnel> 
-#else 
+  std::map<std::size_t, struct Tunnel>
+#else
   //Intel icc < 8.1 and anything besides gcc/Compaq cxx
   std::hash_map<std::size_t, struct Tunnel>
 #endif //CXX || __INTEL_COMPILER > 810

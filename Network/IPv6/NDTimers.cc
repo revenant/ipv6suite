@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@
 #include "IPv6Datagram.h"
 #include "cTimerMessage.h"
 #include "NeighbourDiscovery.h"
-#include "RoutingTable6.h"  
+#include "RoutingTable6.h"
 
 using namespace IPv6NeighbourDiscovery;
 
@@ -43,18 +43,17 @@ NDTimerBase::NDTimerBase(cTimerMessage* omsg)
 {}
 
 NDTimerBase::~NDTimerBase()
-{}  
-  
+{}
+
 NDTimer::NDTimer()
-  :dgram(0), counter(0), max_sends(0), timeout(0), ifIndex(UINT_MAX),
-   tentativeAddr(0)
+  :dgram(0), counter(0), max_sends(0), timeout(0), ifIndex(UINT_MAX)
 {}
 
 NDTimer::~NDTimer()
 {
   //This is necessary when a timer message is cancelled and deleted as a
   //response arrived on time
-  delete dgram;        
+  delete dgram;
 }
 
 RtrTimer::~RtrTimer()
@@ -79,7 +78,7 @@ NDARTimer::~NDARTimer()
   msg = 0;
 }
 
-///Create a duplicate timer with duplicated data members 
+///Create a duplicate timer with duplicated data members
 NDARTimer* NDARTimer::dup(size_t ifIndex) const
 {
   NDARTimer* tmrCopy = new NDARTimer;
@@ -94,7 +93,7 @@ AddrExpiryTmr::AddrExpiryTmr(RoutingTable6* const rt)
   :cTTimerMessage<void, RoutingTable6>(
     IPv6NeighbourDiscovery::Tmr_AddrConfLifetime, rt,
     &RoutingTable6::lifetimeExpired, "AddrExpiryTmr")
-  
+
 {
   //setOwner(rt);
 }
@@ -111,10 +110,10 @@ PrefixExpiryTmr::PrefixExpiryTmr(RoutingTable6* rt, PrefixEntry* pe,
 }
 
 ///lifetime is the absolute time in future when this timer will expire
-RouterExpiryTmr::RouterExpiryTmr(RoutingTable6* rt, RouterEntry* re, 
+RouterExpiryTmr::RouterExpiryTmr(RoutingTable6* rt, RouterEntry* re,
                                  simtime_t lifetime)
   :cTTimerMessageAS<RoutingTable6, void, RouterEntry, RouterExpiryTmr>(
-    IPv6NeighbourDiscovery::Tmr_RouterLifetime, rt, re, 
+    IPv6NeighbourDiscovery::Tmr_RouterLifetime, rt, re,
     &RouterEntry::routerExpired, false, lifetime, "RouterExpiryTmr")
 {
   if (lifetime - rt->simTime() >= VALID_LIFETIME_INFINITY)

@@ -890,7 +890,6 @@ ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifI
       {
         if (rt->getInterfaceByIndex(0).tentativeAddrs.size())
         {
-          assert(rt->getInterfaceByIndex(0).tentativeAddrs.exist(0));
           Dout(dc::custom, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
                <<" determineSrcAddress no default rtr case ODAD is on using tentative addr="
                << rt->getInterfaceByIndex(0).tentativeAddrs[0]);
@@ -913,7 +912,7 @@ ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifI
   if (rt->odad())
   {
     for (size_t i = 0; i < ie.tentativeAddrs.size(); i++)
-      if (ie.tentativeAddrs.exist(i) && ie.tentativeAddrs[i].scope() == destScope)
+      if (ie.tentativeAddrs[i].scope() == destScope)
       {
         Dout(dc::custom, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
              <<" determineSrcAddress using ODAD addr="

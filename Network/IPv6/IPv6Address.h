@@ -66,7 +66,7 @@ extern "C"{
 /**
  * @class IPv6Address
 
- * @brief cObject derived class used for storing the IPv6 address including the
+ * @brief class used for storing the IPv6 address including the
  * prefix length.
  *
  * Used where ever an IPv6 address is required in packets and also internally in
@@ -74,24 +74,17 @@ extern "C"{
  * tasks or ipv6_prefix.
  */
 
-class IPv6Address : public cObject, boost::equality_comparable<IPv6Address>
+class IPv6Address : public boost::equality_comparable<IPv6Address>
 {
 public:
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
-//Unnecessary as cEnvir is a std::ostream now
-#else
-  friend cEnvir& operator<<(cEnvir& ev, const IPv6Address& obj);
-#endif
-
   ///@name Constructors, Destructors and operators
   //@{
-  IPv6Address(unsigned int* addr = 0, int prefix_len = 0, const char *n = NULL);
-  IPv6Address(const char* t, const char *n = NULL);
+  IPv6Address(unsigned int* addr = 0, int prefix_len = 0);
+  IPv6Address(const char* t);
   IPv6Address(const IPv6Address& obj);
   explicit IPv6Address(const ipv6_addr& addr,
-                       size_t prefix_len = IPv6_ADDR_LENGTH,
-                       const char* obj_name = NULL);
+                       size_t prefix_len = IPv6_ADDR_LENGTH);
   explicit IPv6Address(const ipv6_prefix& pref);
 
   virtual ~IPv6Address()
@@ -129,14 +122,6 @@ public:
     }
 
 
-  //@}
-
-  ///@name cObject functions redefined
-  //@{
-  virtual const char* className() const { return "IPv6Address"; }
-  virtual IPv6Address* dup() const { return new IPv6Address(*this); }
-  virtual std::string info();
-  virtual void writeContents(std::ostream& os);
   //@}
 
   ///@name Attribute set functions

@@ -99,10 +99,8 @@ IPv6Address operator+(const IPv6Address& lhs, const IPv6Address& rhs)
   return combine;
 }
 
-Register_Class( IPv6Address );
-
-IPv6Address::IPv6Address(unsigned int* addr_seg, int prefix_len, const char *n)
-  :cObject(n), m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(prefix_len),
+IPv6Address::IPv6Address(unsigned int* addr_seg, int prefix_len)
+  :m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(prefix_len),
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 
@@ -118,7 +116,7 @@ IPv6Address::IPv6Address(unsigned int* addr_seg, int prefix_len, const char *n)
 }
 
 IPv6Address::IPv6Address(const ipv6_prefix& pref)
-  :cObject("ipv6_prefix"), m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(pref.length),
+  :m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(pref.length),
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
@@ -130,8 +128,8 @@ IPv6Address::IPv6Address(const ipv6_prefix& pref)
     m_prefix_length = IPv6_ADDR_LENGTH;
 }
 
-IPv6Address::IPv6Address(const char* t, const char *name)
-  :cObject(name), m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(0),
+IPv6Address::IPv6Address(const char* t)
+  :m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(0),
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
@@ -143,8 +141,8 @@ IPv6Address::IPv6Address(const char* t, const char *name)
     m_prefix_length = IPv6_ADDR_LENGTH;
 }
 
-IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len, const char* obj_name)
-  :cObject(obj_name), m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(prefix_len),
+IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
+  :m_addr(IPv6ADDRESS_UNSPECIFIED_STRUCT), m_prefix_length(prefix_len),
    m_scope(ipv6_addr::Scope_None), m_storedLifetime(VALID_LIFETIME_INFINITY),
    m_preferredLifetime(VALID_LIFETIME_INFINITY), _updated(false)
 {
@@ -157,13 +155,12 @@ IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len, const char* o
     m_prefix_length = IPv6_ADDR_LENGTH;
 }
 
-IPv6Address::IPv6Address(const IPv6Address& obj):cObject()
+IPv6Address::IPv6Address(const IPv6Address& obj)
 {
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, "copy ctor "<<(void*)this);
 #endif //!defined __INTEL_COMPILER
 
-  setName(obj.name());
   IPv6Address::operator=(obj);
 }
 
@@ -228,39 +225,18 @@ std::ostream& IPv6Address::operator<<(std::ostream& os) const
 
 std::ostream& operator<<(std::ostream& os, const IPv6Address& obj)
 {
-  (const_cast<IPv6Address&> (obj)).writeContents(os);
+  os << obj.address() << "Scope: " << obj.scope_str();
   return os;
 }
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
-#else
-cEnvir& operator<<(cEnvir& ev, const IPv6Address& obj)
-{
-  ev.printf("%s/%d \n", obj.addressSansPrefix().c_str(), obj.m_prefix_length);
-  return ev;
-}
-#endif
-
 IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
 {
-  cObject::operator=(obj);
   m_prefix_length = obj.m_prefix_length;
 /*  m_prefix = obj.m_prefix;*/
   m_addr = obj.m_addr;
   m_scope = obj.m_scope;
   return *this;
 };
-
-///When a container of this element is told to writeContents this function is
-///invoked to fill the buf with info.  Its a static so be sure that buf is never
-///reused like os <<buf<<*this
-std::string IPv6Address::info()
-{
-  ostringstream os;
-  os << *this ;
-  return os.str();
-}
-
 
 ///Can set only IPv6 address
 IPv6Address& IPv6Address::operator=(const ipv6_addr& addr)
@@ -305,11 +281,6 @@ std::istream& IPv6Address::operator>>(std::istream& is)
 
   return is;
 
-}
-
-void IPv6Address::writeContents(std::ostream& os)
-{
-  os << address() << "Scope: " << scope_str();
 }
 
 std::string IPv6Address::address(void) const

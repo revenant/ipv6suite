@@ -1191,11 +1191,11 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
     //site local except for the autoconfigured address at position 0
     if (!home_addr_scope_check((*it).prefix))
     {
-      IPv6Address* addr = oie.matchPrefix((*it).prefix, (*it).length);
-      if (addr != 0)
+      IPv6Address addr = oie.matchPrefix((*it).prefix, (*it).length);
+      if (addr != IPv6_ADDR_UNSPECIFIED)
       {
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
-             <<":  onlink local addresss "<<*addr<<" removed");
+             <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
       }
       else if (oie.matchPrefix((*it).prefix, (*it).length), true)

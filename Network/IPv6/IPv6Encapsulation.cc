@@ -40,7 +40,8 @@
 
 #include "IPv6Encapsulation.h"
 #include "IPv6InterfacePacket.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 #include "Constants.h"
 #include "IPv6Datagram.h"
 #include "NDEntry.h"

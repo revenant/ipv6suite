@@ -34,12 +34,13 @@
 #include <cassert>
 
 #include "IPv6Fragmentation.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 #include "Constants.h"
 #include "HdrExtFragProc.h"
 #include "IPv6Datagram.h"
 #include "ICMPv6Message.h"
-#include "IPv6InterfaceData.h"
+#include "IPv6InterfacePacketWithData.h"
 #include "AddrResInfo_m.h"
 #include "LL6ControlInfo_m.h"
 #include "AddrResInfo_m.h"

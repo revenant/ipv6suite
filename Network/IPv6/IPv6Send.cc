@@ -49,7 +49,8 @@
 #include "IPv6Datagram.h"
 #include "IPv6InterfacePacket.h"
 #include "HdrExtRteProc.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 
 Define_Module( IPv6Send );
 

@@ -45,7 +45,8 @@
 #include <boost/functional.hpp>
 
 #include "IPv6Forward.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 #include "IPv6Datagram.h"
 #include "ICMPv6Message.h"
 #include "opp_utils.h"

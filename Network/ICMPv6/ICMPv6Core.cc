@@ -33,10 +33,11 @@
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
 
-#include "IPv6InterfaceData.h"
+#include "IPv6InterfacePacketWithData.h"
 #include "Ping6Iface.h"
 #include "opp_utils.h"
-#include "RoutingTable6.h" //required for counters only
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h" //required for counters only
 #include "IPv6Forward.h"
 
 #ifdef TESTIPv6
@@ -348,7 +349,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   ICMPv6Echo* req = check_and_cast<ICMPv6Echo*> (request->encapsulatedMsg());
   assert(req);
   echo_int_info echo_req = check_and_cast<
-    IPv6InterfaceData<echo_int_info>* > (req->encapsulatedMsg())->data();
+    IPv6InterfacePacketWithData<echo_int_info>* > (req->encapsulatedMsg())->data();
 
   if (icmpRecordStats)
   {
@@ -423,12 +424,12 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 {
 
   ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
-  IPv6InterfaceData<echo_int_info>* app_req =
-    static_cast<IPv6InterfaceData<echo_int_info>*> (echo_reply->decapsulate());
+  IPv6InterfacePacketWithData<echo_int_info>* app_req =
+    static_cast<IPv6InterfacePacketWithData<echo_int_info>*> (echo_reply->decapsulate());
 
 
   //As the whole ping request info was sent there is no need to reconstruct
-  //another IPv6InterfaceData and filling it up with values just add the source
+  //another IPv6InterfacePacketWithData and filling it up with values just add the source
   //address of where the reply came from
   app_req->setSrcAddr(ipv6_addr_toString(reply->srcAddress()).c_str());
   app_req->data().hopLimit = reply->hopLimit();
@@ -450,8 +451,8 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 
 void ICMPv6Core::sendEchoRequest(cMessage *msg)
 {
-  IPv6InterfaceData<echo_int_info>*  app_req =
-    static_cast< IPv6InterfaceData<echo_int_info>* > (msg);
+  IPv6InterfacePacketWithData<echo_int_info>*  app_req =
+    static_cast< IPv6InterfacePacketWithData<echo_int_info>* > (msg);
   echo_int_info echo_req = app_req->data();
 
   ICMPv6Message *request = new ICMPv6Echo(echo_req.id, echo_req.seqNo, true);

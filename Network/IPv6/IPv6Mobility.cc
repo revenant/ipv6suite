@@ -33,7 +33,8 @@
 #include "IPv6Mobility.h"
 #include "IPv6Datagram.h"
 #include "HdrExtDestProc.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 
 #ifdef USE_MOBILITY
 #include "MIPv6MobilityState.h"

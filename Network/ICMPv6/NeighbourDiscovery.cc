@@ -10,7 +10,8 @@
 #include "ICMPv6NDMessage.h"
 #include "opp_utils.h"
 #include "NDStates.h"
-#include "RoutingTable6.h"
+#include "InterfaceTableAccess.h"
+#include "RoutingTable6Access.h"
 #include "RoutingTable6Access.h"
 #include "cTimerMessage.h"
 

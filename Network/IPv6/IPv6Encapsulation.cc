@@ -286,9 +286,10 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
       origDgram->setHopLimit(origDgram->hopLimit() - 1);
     }
 
-    auto_ptr<IPv6InterfacePacket> tunDgram(
-      new IPv6InterfacePacket(tun.entry, tun.exit, origDgram.release()));
-
+    auto_ptr<IPv6InterfacePacket> tunDgram(new IPv6InterfacePacket("tunnelledDram"));
+    tunDgram->setSrcAddr(tun.entry);
+    tunDgram->setDestAddr(tun.exit);
+    tunDgram->encapsulate(origDgram.release());
     tunDgram->setProtocol(IP_PROT_IPv6);
 
     //Set tunnel packet properties (no support for tunnel encapsulation

@@ -99,7 +99,7 @@ void UDPVideoStream::requestStream()
   udpPkt->setDestPort(svrPort);
   UDPAppInterfacePacket* pkt = new UDPAppInterfacePacket;
   pkt->setKind(KIND_DATA);
-  pkt->setDestIPAddr(address.c_str());
+  pkt->setDestIPAddr(c_ipv6_addr(address.c_str()));
   pkt->setName("reqVidStm");
   pkt->encapsulate(udpPkt);
   send(pkt, gateId);

@@ -183,7 +183,6 @@ EtherBridge.obj: EtherBridge.cc \
   ../../Util/boost/cast.hpp \
   EtherBridge.h \
   ethernet.h \
-  EtherSignal_m.h \
   EtherFrame6.h \
   MACAddress6.h \
   ../../Util/boost/config.hpp \
@@ -228,11 +227,9 @@ EtherModule.obj: EtherModule.cc \
   EtherStateWaitBackoffJam.h \
   EtherStateWaitJam.h \
   EtherStateReceiveWaitBackoff.h \
-  EtherSignal_m.h \
   ethernet.h \
   ../../Util/cTTimerMessageCB.h \
   EtherFrame6.h \
-  ../LL6ControlInfo_m.h \
   ../../Network/Generic/InterfaceTableAccess.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
@@ -322,7 +319,6 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/opp_utils.h \
   ethernet.h \
   ../../PHY/PHYSimple.h \
-  EtherSignal_m.h \
   EtherFrame6.h \
   EtherStateIdle.h \
   MACAddress6.h \
@@ -407,9 +403,6 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../config.h \
   ../../Util/cTimerMessageCB.h \
   ../Wireless/wirelessethernet.h \
-  ../Wireless/WirelessEtherFrame_m.h \
-  ../Wireless/WirelessEtherFrameBody_m.h \
-  ../Wireless/WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -421,8 +414,7 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Wireless/WEthernet.h \
-  ../Wireless/WirelessEtherSignal_m.h
+  ../Wireless/WEthernet.h
 EtherModuleBridge.obj: EtherModuleBridge.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -499,15 +491,12 @@ EtherModuleBridge.obj: EtherModuleBridge.cc \
   ../../Util/boost/utility_fwd.hpp
 ethernet.obj: ethernet.cc \
   ethernet.h
-EtherSignal_m.obj: EtherSignal_m.cc \
-  EtherSignal_m.h
 EtherState.obj: EtherState.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherState.h \
   ../../Util/cTTimerMessageCB.h \
   EtherModule.h \
-  EtherSignal_m.h \
   EtherFrame6.h \
   EtherStateIdle.h \
   EtherStateSend.h \
@@ -594,7 +583,6 @@ EtherStateIdle.obj: EtherStateIdle.cc \
   EtherFrame6.h \
   ethernet.h \
   EtherModule.h \
-  EtherSignal_m.h \
   EtherStateSend.h \
   EtherStateReceive.h \
   EtherStateWaitJam.h \
@@ -683,7 +671,6 @@ EtherStateReceive.obj: EtherStateReceive.cc \
   EtherStateReceive.h \
   ethernet.h \
   EtherModule.h \
-  EtherSignal_m.h \
   EtherStateSend.h \
   EtherStateIdle.h \
   EtherFrame6.h \
@@ -764,7 +751,6 @@ EtherStateReceiveWaitBackoff.obj: EtherStateReceiveWaitBackoff.cc \
   ../../Util/debug.h \
   ethernet.h \
   EtherStateReceiveWaitBackoff.h \
-  EtherSignal_m.h \
   ../../Util/cTimerMessageCB.h \
   EtherModule.h \
   EtherStateSend.h \
@@ -855,7 +841,6 @@ EtherStateSend.obj: EtherStateSend.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateSend.h \
-  EtherSignal_m.h \
   EtherModule.h \
   EtherStateIdle.h \
   ../../Util/cTimerMessageCB.h \
@@ -948,7 +933,6 @@ EtherStateWait.obj: EtherStateWait.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWait.h \
-  EtherSignal_m.h \
   EtherStateWaitBackoffJam.h \
   EtherStateReceiveWaitBackoff.h \
   EtherStateWaitBackoff.h \
@@ -1026,7 +1010,6 @@ EtherStateWaitBackoff.obj: EtherStateWaitBackoff.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWaitBackoff.h \
-  EtherSignal_m.h \
   EtherModule.h \
   EtherStateIdle.h \
   EtherStateReceiveWaitBackoff.h \
@@ -1116,7 +1099,6 @@ EtherStateWaitBackoffJam.obj: EtherStateWaitBackoffJam.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWaitBackoffJam.h \
-  EtherSignal_m.h \
   EtherStateWaitBackoff.h \
   EtherStateSend.h \
   EtherModule.h \
@@ -1198,7 +1180,6 @@ EtherStateWaitJam.obj: EtherStateWaitJam.cc \
   ../../Util/debug.h \
   EtherModule.h \
   EtherStateWaitJam.h \
-  EtherSignal_m.h \
   EtherStateIdle.h \
   ../../Util/boost/cast.hpp \
   ../LinkLayerModule.h \

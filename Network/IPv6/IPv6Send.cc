@@ -94,11 +94,11 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
   datagram->setTransportProtocol((IPProtocolId)interfaceMsg->protocol());  // XXX khmm..
 
   // set source and destination address
-  assert(interfaceMsg->destAddress() != IPv6_ADDR_UNSPECIFIED);
-  datagram->setDestAddress(interfaceMsg->destAddress());
+  assert(interfaceMsg->destAddr() != IPv6_ADDR_UNSPECIFIED);
+  datagram->setDestAddress(interfaceMsg->destAddr());
 
   // when source address given in Interface Message, use it
-  if (interfaceMsg->srcAddress() != IPv6_ADDR_UNSPECIFIED)
+  if (interfaceMsg->srcAddr() != IPv6_ADDR_UNSPECIFIED)
   {
 Debug(
     //Test if source address actually exists
@@ -106,7 +106,7 @@ Debug(
     for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
     {
       InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-      if (ie->ipv6()->addrAssigned(c_ipv6_addr(interfaceMsg->srcAddr())))
+      if (ie->ipv6()->addrAssigned(interfaceMsg->srcAddr()))
       {
         found = true;
         break;
@@ -114,10 +114,10 @@ Debug(
     }
 
     if (!found)
-      Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddress());
+      Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddr());
 ); // end Debug
 
-    datagram->setSrcAddress(interfaceMsg->srcAddress());
+    datagram->setSrcAddress(interfaceMsg->srcAddr());
   }
   else
   {

@@ -432,7 +432,7 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
   //As the whole ping request info was sent there is no need to reconstruct
   //another IPv6InterfacePacketWithData and filling it up with values just add the source
   //address of where the reply came from
-  app_req->setSrcAddr(ipv6_addr_toString(reply->srcAddress()).c_str());
+  app_req->setSrcAddr(reply->srcAddress());
   app_req->data().hopLimit = reply->hopLimit();
   app_req->data().seqNo = echo_reply->seqNo();
   app_req->data().id = echo_reply->identifier();
@@ -461,7 +461,7 @@ void ICMPv6Core::sendEchoRequest(cMessage *msg)
   //Send the upper layer req across as test
   request->encapsulate(app_req);
 
-  sendInterfacePacket(request, app_req->destAddress(), app_req->srcAddress(),
+  sendInterfacePacket(request, app_req->destAddr(), app_req->srcAddr(),
                       app_req->data().hopLimit);
 }
 

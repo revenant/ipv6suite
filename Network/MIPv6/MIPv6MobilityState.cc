@@ -36,7 +36,7 @@
 #include "IPv6Datagram.h"
 #include "HdrExtDestProc.h"
 #include "HdrExtRteProc.h"
-#include "IPInterfacePacket.h" // for enum type value IP_PROT_IPv6_MOBILITY
+#include "IPProtocolId_m.h"
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6.h"

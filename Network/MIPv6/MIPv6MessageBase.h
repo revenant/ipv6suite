@@ -30,7 +30,6 @@
 #include <omnetpp.h>
 
 #include "IPv6Datagram.h"
-#include "IPInterfacePacket.h"
 #include "HdrExtProc.h"
 
 using namespace std;

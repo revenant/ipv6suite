@@ -131,7 +131,6 @@ UDPVideoStream.obj: UDPVideoStream.cc \
   ../../Util/debug.h \
   ../../Util/boost/cast.hpp \
   UDPVideoStream.h \
-  ../../Transport/UDP6/UDPMessages_m.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -148,7 +147,6 @@ UDPVideoStreamSvr.obj: UDPVideoStreamSvr.cc \
   ../../Util/debug.h \
   ../../Util/boost/cast.hpp \
   UDPVideoStreamSvr.h \
-  ../../Transport/UDP6/UDPMessages_m.h \
   ../../Util/opp_akaroa.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \

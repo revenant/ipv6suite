@@ -33,7 +33,7 @@
 #include "IPv6Datagram.h"
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
-#include "IPInterfacePacket.h" //For ProtocolID values
+#include "IPProtocolId_m.h"  //For ProtocolID values
 #include "HdrExtProc.h"
 #include "HdrExtFragProc.h"
 #include "HdrExtRteProc.h"

@@ -103,10 +103,10 @@ void UDPVideoStreamSvr::handleMessage(cMessage* theMsg)
 
   ///processRequest
 
-  std::auto_ptr<UDPAppInterfacePacket> pkt =
+   std::auto_ptr<UDPAppInterfacePacket> pkt =
     OPP_Global::auto_downcast<UDPAppInterfacePacket>(msg);
 
-  std::string src = std::string(pkt->getSrcIPAddr());
+   std::string src = ipv6_addr_toString(pkt->getSrcIPAddr()); // FIXME why convert to string... Andras
    UDPPacketBase* udpPkt =
      check_and_cast<UDPPacketBase*>(pkt->encapsulatedMsg());
    double pause = OPP_UNIFORM(minWaitInt*RNGFactor, maxWaitInt*RNGFactor)/RNGFactor;
@@ -143,7 +143,7 @@ void UDPVideoStreamSvr::transmitClientStream(ClientStreamData& c)
   rudpPkt->setLength(pkt_size);
   UDPAppInterfacePacket* rpkt = new UDPAppInterfacePacket;
   rpkt->setKind(KIND_DATA);
-  rpkt->setDestIPAddr(c.host.c_str());
+  rpkt->setDestIPAddr(c_ipv6_addr(c.host.c_str())); // FIXME yet another $#%# conversion....
   rpkt->encapsulate(rudpPkt);
   rudpPkt->setTimestamp(simTime());
 

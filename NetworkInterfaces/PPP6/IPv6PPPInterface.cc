@@ -28,6 +28,8 @@
 
 #include <omnetpp.h>
 #include <memory> //auto_ptr
+#include <iostream>
+#include <assert.h>
 
 #include "IPv6PPPInterface.h"
 #include <string>
@@ -154,7 +156,7 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
     }
     else if (waitTmr->isScheduled())
     {
-      cerr<<fullPath()<<" "<<simTime()<<" received new mesage "
+      std::cerr<<fullPath()<<" "<<simTime()<<" received new mesage "
           <<" when message was scheduled at waitTmr="<<waitTmr->arrivalTime()
           <<endl;
       Dout(dc::custom, fullPath()<<" "<<simTime()<<" received new mesage "

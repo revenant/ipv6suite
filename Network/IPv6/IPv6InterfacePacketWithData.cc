@@ -14,8 +14,10 @@ IPv6InterfacePacketWithData<DataType>::IPv6InterfacePacketWithData(const DataTyp
 IPv6InterfacePacketWithData<DataType>::IPv6InterfacePacketWithData(const  DataType& data,
                                                const ipv6_addr& src,
                                                const ipv6_addr& dest)
-  :IPv6InterfacePacket(src, dest), _data(data)
+  :IPv6InterfacePacket(), _data(data)
 {
+  setSrcAddr(src);
+  setDestAddr(dest);
   addLength(data.length());
 }
 

@@ -59,7 +59,7 @@ cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I../Ethernet6 -I.. 
 cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I../PPP6 -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Mobility -I../../PHY -I../../Base
 
 cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6
+cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic
 cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Transport/UDP6
 
 cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv4 -I../../Network/Generic -I../../Network/IPv6 -I../../Network/ICMPv6

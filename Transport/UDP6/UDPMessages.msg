@@ -18,14 +18,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //Include any c++ code in these sections
-cplusplus 
-{{ 
+cplusplus
+{{
+#include "ipv6_addr.h"
 
-  const unsigned int MAX_PORT = (1<<16)-1;
-  const unsigned int MIN_RANDOM_PORT = 1025;
+const unsigned int MAX_PORT = (1<<16)-1;
+const unsigned int MIN_RANDOM_PORT = 1025;
 }};
 
-
+class noncobject ipv6_addr;
 
 //
 // Enumerations of different UDP types stored into kind
@@ -52,6 +53,6 @@ message UDPPacketBase
 message UDPAppInterfacePacket
 {
  fields:
-  string destIPAddr;
-  string srcIPAddr;
+  ipv6_addr destIPAddr;
+  ipv6_addr srcIPAddr;
 };

@@ -72,10 +72,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPInterfacePacket_m.obj IPv6Datagram_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
+OBJS= IPv6Datagram_m.obj IPv6InterfacePacket_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= IPInterfacePacket_m.h IPv6Datagram_m.h
+GENERATEDHEADERS= IPv6Datagram_m.h IPv6InterfacePacket_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -100,17 +100,17 @@ $(EXT_DIR_TSTAMPS):
 
 subdirs: $(SUBDIR_TARGETS)
 
-IPInterfacePacket_m.obj: IPInterfacePacket_m.cc
-	$(CXX) -c $(NEDCOPTS) /Tp IPInterfacePacket_m.cc
-
-IPInterfacePacket_m.cc IPInterfacePacket_m.h: IPInterfacePacket.msg
-	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPInterfacePacket.msg
-
 IPv6Datagram_m.obj: IPv6Datagram_m.cc
 	$(CXX) -c $(NEDCOPTS) /Tp IPv6Datagram_m.cc
 
 IPv6Datagram_m.cc IPv6Datagram_m.h: IPv6Datagram.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPv6Datagram.msg
+
+IPv6InterfacePacket_m.obj: IPv6InterfacePacket_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp IPv6InterfacePacket_m.cc
+
+IPv6InterfacePacket_m.cc IPv6InterfacePacket_m.h: IPv6InterfacePacket.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPv6InterfacePacket.msg
 
 Constants.obj: Constants.cc
 	$(CXX) -c $(COPTS) /Tp Constants.cc
@@ -159,9 +159,6 @@ IPv6InputQueue.obj: IPv6InputQueue.cc
 
 IPv6InterfaceData.obj: IPv6InterfaceData.cc
 	$(CXX) -c $(COPTS) /Tp IPv6InterfaceData.cc
-
-IPv6InterfacePacket.obj: IPv6InterfacePacket.cc
-	$(CXX) -c $(COPTS) /Tp IPv6InterfacePacket.cc
 
 IPv6InterfacePacketWithData.obj: IPv6InterfacePacketWithData.cc
 	$(CXX) -c $(COPTS) /Tp IPv6InterfacePacketWithData.cc
@@ -228,8 +225,6 @@ ErrorHandling6.obj: ErrorHandling6.cc \
   ../ICMPv6/ICMPv6Message.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -553,9 +548,7 @@ HdrExtDestProc.obj: HdrExtDestProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtFragProc.obj: HdrExtFragProc.cc \
   HdrExtFragProc.h \
   IPv6Datagram.h \
@@ -722,9 +715,7 @@ HdrExtFragProc.obj: HdrExtFragProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtProc.obj: HdrExtProc.cc \
   ../../Util/boost/cast.hpp \
   IPv6Headers.h \
@@ -891,9 +882,7 @@ HdrExtProc.obj: HdrExtProc.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 HdrExtRteProc.obj: HdrExtRteProc.cc \
   HdrExtRteProc.h \
   ../../Util/boost/cast.hpp \
@@ -902,7 +891,6 @@ HdrExtRteProc.obj: HdrExtRteProc.cc \
   ../ICMPv6/ICMPv6Message.h \
   IPv6Headers.h \
   HdrExtProc.h \
-  ../Generic/IPProtocolId_m.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -914,7 +902,6 @@ HdrExtRteProc.obj: HdrExtRteProc.cc \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
   ipv6_addr.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -1064,8 +1051,6 @@ HdrExtRteProc.obj: HdrExtRteProc.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp
-IPInterfacePacket_m.obj: IPInterfacePacket_m.cc \
-  IPInterfacePacket_m.h
 ipv6_addr.obj: ipv6_addr.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -1583,7 +1568,6 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   IPv6Datagram.h \
   IPv6Headers.h \
   ../ICMPv6/ICMPv6Message.h \
-  IPInterfacePacket.h \
   HdrExtProc.h \
   HdrExtFragProc.h \
   HdrExtRteProc.h \
@@ -1593,8 +1577,6 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../MIPv6/MIPv6DestOptMessages.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -1752,7 +1734,6 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  IPInterfacePacket_m.h \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
@@ -1766,7 +1747,6 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   ./Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ./IPv6Headers.h \
-  ./IPv6Datagram_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ./IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -1779,175 +1759,12 @@ IPv6Datagram.obj: IPv6Datagram.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../MIPv6/MIPv6MessageBase.h \
   ../MIPv6/MIPv6MHParameters.h \
-  ./IPInterfacePacket.h \
   ./HdrExtProc.h \
-  ./IPInterfacePacket_m.h \
   ./HdrExtDestProc.h
-IPv6Datagram_m.obj: IPv6Datagram_m.cc \
-  IPv6Datagram_m.h \
-  ipv6_addr.h \
-  ../../Util/boost/operators.hpp \
-  ../../Util/boost/array.hpp \
-  ../../Util/boost/config.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../../Util/boost/detail/workaround.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/non_type.hpp \
-  ../../Util/boost/detail/iterator.hpp \
-  ../../Util/boost/type_traits/remove_const.hpp \
-  ../../Util/boost/type_traits/detail/yes_no_type.hpp \
-  ../../Util/boost/type_traits/is_pointer.hpp \
-  ../../Util/boost/type_traits/is_same.hpp \
-  ../../Util/boost/type_traits/remove_pointer.hpp \
-  ../../Util/boost/type_traits/is_base_and_derived.hpp \
-  ../../Util/boost/mpl/if.hpp \
-  ../../Util/boost/mpl/aux_/has_xxx.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_def.hpp \
-  ../../Util/boost/type_traits/is_volatile.hpp \
-  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
-  ../../Util/boost/type_traits/detail/cv_traits_impl.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
-  ../../Util/boost/type_traits/is_reference.hpp \
-  ../../Util/boost/type_traits/is_array.hpp \
-  ../../Util/boost/type_traits/detail/false_result.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_undef.hpp \
-  ../../Util/boost/type_traits/config.hpp \
-  ../../Util/boost/type_traits/detail/wrap.hpp \
-  ../../Util/boost/type_traits/detail/is_function_type_tester.hpp \
-  ../../Util/boost/preprocessor/iterate.hpp \
-  ../../Util/boost/preprocessor/enum_params.hpp \
-  ../../Util/boost/preprocessor/comma_if.hpp \
-  ../../Util/boost/preprocessor/iteration/iterate.hpp \
-  ../../Util/boost/preprocessor/arithmetic/dec.hpp \
-  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
-  ../../Util/boost/preprocessor/array/elem.hpp \
-  ../../Util/boost/preprocessor/array/size.hpp \
-  ../../Util/boost/preprocessor/cat.hpp \
-  ../../Util/boost/preprocessor/slot/slot.hpp \
-  ../../Util/boost/preprocessor/tuple/elem.hpp \
-  ../../Util/boost/preprocessor/config/config.hpp \
-  ../../Util/boost/preprocessor/array/data.hpp \
-  ../../Util/boost/preprocessor/slot/detail/def.hpp \
-  ../../Util/boost/preprocessor/repetition/enum_params.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
-  ../../Util/boost/preprocessor/repetition/repeat.hpp \
-  ../../Util/boost/preprocessor/control/if.hpp \
-  ../../Util/boost/preprocessor/facilities/empty.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma.hpp \
-  ../../Util/boost/preprocessor/control/iif.hpp \
-  ../../Util/boost/preprocessor/logical/bool.hpp \
-  ../../Util/boost/preprocessor/debug/error.hpp \
-  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
-  ../../Util/boost/preprocessor/tuple/eat.hpp \
-  ../../Util/boost/mpl/aux_/lambda_support.hpp \
-  ../../Util/boost/mpl/aux_/config/lambda.hpp \
-  ../../Util/boost/mpl/aux_/config/workaround.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
-  ../../Util/boost/preprocessor/tuple/to_list.hpp \
-  ../../Util/boost/preprocessor/list/for_each_i.hpp \
-  ../../Util/boost/preprocessor/inc.hpp \
-  ../../Util/boost/mpl/aux_/config/ttp.hpp \
-  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
-  ../../Util/boost/preprocessor/repeat.hpp \
-  ../../Util/boost/preprocessor/list/adt.hpp \
-  ../../Util/boost/preprocessor/repetition/for.hpp \
-  ../../Util/boost/preprocessor/tuple/rem.hpp \
-  ../../Util/boost/preprocessor/detail/is_binary.hpp \
-  ../../Util/boost/preprocessor/logical/compl.hpp \
-  ../../Util/boost/preprocessor/detail/check.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
-  ../../Util/boost/preprocessor/control/expr_iif.hpp \
-  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
-  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
-  ../../Util/boost/type_traits/is_member_pointer.hpp \
-  ../../Util/boost/type_traits/detail/ice_and.hpp \
-  ../../Util/boost/type_traits/detail/ice_not.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_tester.hpp \
-  ../../Util/boost/type_traits/detail/ice_or.hpp \
-  ../../Util/boost/type_traits/is_member_function_pointer.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp \
-  ../../Util/boost/type_traits/is_class.hpp \
-  ../../Util/boost/type_traits/is_convertible.hpp \
-  ../../Util/boost/type_traits/remove_cv.hpp \
-  ../../Util/boost/type_traits/is_union.hpp \
-  ../../Util/boost/type_traits/is_scalar.hpp \
-  ../../Util/boost/type_traits/is_void.hpp \
-  ../../Util/boost/type_traits/is_function.hpp \
-  ../../Util/boost/type_traits/intrinsics.hpp \
-  ../../Util/boost/type_traits/is_arithmetic.hpp \
-  ../../Util/boost/type_traits/is_enum.hpp \
-  ../../Util/boost/type_traits/is_integral.hpp \
-  ../../Util/boost/type_traits/is_float.hpp \
-  ../../Util/boost/type_traits/add_reference.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_helper.hpp \
-  ../../Util/boost/type_traits/ice.hpp \
-  ../../Util/boost/type_traits/detail/ice_eq.hpp \
-  ../../Util/boost/mpl/void.hpp \
-  ../../Util/boost/mpl/aux_/value_wknd.hpp \
-  ../../Util/boost/mpl/aux_/static_cast.hpp \
-  ../../Util/boost/mpl/aux_/void_spec.hpp \
-  ../../Util/boost/mpl/arg_fwd.hpp \
-  ../../Util/boost/mpl/void_fwd.hpp \
-  ../../Util/boost/mpl/bool.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc.hpp \
-  ../../Util/boost/mpl/bool_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/static_constant.hpp \
-  ../../Util/boost/mpl/aux_/config/eti.hpp \
-  ../../Util/boost/mpl/int.hpp \
-  ../../Util/boost/mpl/int_fwd.hpp \
-  ../../Util/boost/mpl/aux_/integral_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/config/nttp.hpp \
-  ../../Util/boost/mpl/lambda_fwd.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/enum.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/def_params_tail.hpp \
-  ../../Util/boost/mpl/aux_/arity.hpp \
-  ../../Util/boost/mpl/aux_/lambda_arity_param.hpp \
-  ../../Util/boost/mpl/aux_/algorithm_namespace.hpp \
-  ../../Util/boost/mpl/aux_/config/dtp.hpp \
-  ../../Util/boost/mpl/limits/arity.hpp \
-  ../../Util/boost/preprocessor/logical/and.hpp \
-  ../../Util/boost/preprocessor/identity.hpp \
-  ../../Util/boost/preprocessor/empty.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/filter_params.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/sub.hpp \
-  ../../Util/boost/preprocessor/arithmetic/add.hpp \
-  ../../Util/boost/preprocessor/arithmetic/sub.hpp \
-  ../../Util/boost/preprocessor/logical/bitand.hpp \
-  ../../Util/boost/preprocessor/facilities/identity.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/tuple.hpp \
-  ../../Util/boost/preprocessor/control/while.hpp \
-  ../../Util/boost/preprocessor/list/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/fold_right.hpp \
-  ../../Util/boost/preprocessor/control/detail/edg/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/msvc/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/while.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/reverse.hpp \
-  ../../Util/boost/mpl/aux_/type_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/yes_no.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc_typename.hpp \
-  ../../Util/boost/mpl/aux_/config/ctps.hpp \
-  ../../Util/boost/mpl/integral_c.hpp \
-  ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp
 IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   IPv6Encapsulation.h \
-  IPv6InterfacePacket.h \
   ../Generic/InterfaceTableAccess.h \
   RoutingTable6Access.h \
   Constants.h \
@@ -2124,8 +1941,6 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  IPInterfacePacket.h \
-  IPInterfacePacket_m.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
@@ -2154,8 +1969,6 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ./IPv6Address.h \
   ./ipv6_addr.h \
@@ -2182,7 +1995,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../ICMPv6/ICMPv6Message.h \
   ../../Util/opp_utils.h \
   ../ICMPv6/NDEntry.h \
-  ../ICMPv6/AddrResInfo_m.h \
   HdrExtRteProc.h \
   IPv6CDS.h \
   ../MIPv6/MIPv6CDSMobileNode.h \
@@ -2394,8 +2206,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ./IPv6Address.h \
   ./ipv6_addr.h \
@@ -2411,11 +2221,8 @@ IPv6Forward.obj: IPv6Forward.cc \
   ./IPv6Headers.h \
   ./HdrExtProc.h \
   ./IPv6Datagram.h \
-  ./IPv6Datagram_m.h \
   ./IPv6Mobility.h \
   IPv6Address.h \
-  ./IPInterfacePacket.h \
-  ./IPInterfacePacket_m.h \
   ../HMIPv6/HMIPv6Entry.h \
   ../ICMPv6/NDStateHost.h \
   ./IPv6InterfaceData.h \
@@ -2438,9 +2245,6 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   HdrExtFragProc.h \
   IPv6Datagram.h \
   ../ICMPv6/ICMPv6Message.h \
-  IPv6InterfacePacketWithData.h \
-  ../ICMPv6/AddrResInfo_m.h \
-  ../../NetworkInterfaces/LL6ControlInfo_m.h \
   ../../Base/QueueBase.h \
   ../../Base/AbstractQueue.h \
   ../../Base/ModuleAccess.h \
@@ -2644,13 +2448,7 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   ../../Util/boost/cast.hpp \
   HdrExtProc.h \
   ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
-  IPv6InterfacePacket.h \
-  IPv6InterfacePacketWithData.cc \
-  IPInterfacePacket.h \
-  IPInterfacePacket_m.h
+  ../../Util/boost/detail/select_type.hpp
 IPv6Headers.obj: IPv6Headers.cc \
   IPv6Headers.h \
   ipv6_addr.h \
@@ -2830,8 +2628,6 @@ IPv6InputQueue.obj: IPv6InputQueue.cc \
   ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3167,337 +2963,9 @@ IPv6InterfaceData.obj: IPv6InterfaceData.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ./ipv6_addr.h
-IPv6InterfacePacket.obj: IPv6InterfacePacket.cc \
-  IPv6InterfacePacket.h \
-  ../../Util/boost/cast.hpp \
-  IPv6Headers.h \
-  ipv6_addr.h \
-  IPInterfacePacket.h \
-  ../../Util/boost/operators.hpp \
-  ../../Util/boost/array.hpp \
-  ../../Util/boost/config.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../../Util/boost/detail/workaround.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/non_type.hpp \
-  ../../Util/boost/detail/iterator.hpp \
-  ../../Util/boost/type_traits/remove_const.hpp \
-  ../../Util/boost/type_traits/detail/yes_no_type.hpp \
-  ../../Util/boost/type_traits/is_pointer.hpp \
-  ../../Util/boost/type_traits/is_same.hpp \
-  ../../Util/boost/type_traits/remove_pointer.hpp \
-  ../../Util/boost/type_traits/is_base_and_derived.hpp \
-  ../../Util/boost/mpl/if.hpp \
-  ../../Util/boost/mpl/aux_/has_xxx.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_def.hpp \
-  ../../Util/boost/type_traits/is_volatile.hpp \
-  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
-  ../../Util/boost/type_traits/detail/cv_traits_impl.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
-  ../../Util/boost/type_traits/is_reference.hpp \
-  ../../Util/boost/type_traits/is_array.hpp \
-  ../../Util/boost/type_traits/detail/false_result.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_undef.hpp \
-  ../../Util/boost/type_traits/config.hpp \
-  ../../Util/boost/type_traits/detail/wrap.hpp \
-  ../../Util/boost/type_traits/detail/is_function_type_tester.hpp \
-  ../../Util/boost/preprocessor/iterate.hpp \
-  ../../Util/boost/preprocessor/enum_params.hpp \
-  ../../Util/boost/preprocessor/comma_if.hpp \
-  ../../Util/boost/preprocessor/iteration/iterate.hpp \
-  ../../Util/boost/preprocessor/arithmetic/dec.hpp \
-  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
-  ../../Util/boost/preprocessor/array/elem.hpp \
-  ../../Util/boost/preprocessor/array/size.hpp \
-  ../../Util/boost/preprocessor/cat.hpp \
-  ../../Util/boost/preprocessor/slot/slot.hpp \
-  ../../Util/boost/preprocessor/tuple/elem.hpp \
-  ../../Util/boost/preprocessor/config/config.hpp \
-  ../../Util/boost/preprocessor/array/data.hpp \
-  ../../Util/boost/preprocessor/slot/detail/def.hpp \
-  ../../Util/boost/preprocessor/repetition/enum_params.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
-  ../../Util/boost/preprocessor/repetition/repeat.hpp \
-  ../../Util/boost/preprocessor/control/if.hpp \
-  ../../Util/boost/preprocessor/facilities/empty.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma.hpp \
-  ../../Util/boost/preprocessor/control/iif.hpp \
-  ../../Util/boost/preprocessor/logical/bool.hpp \
-  ../../Util/boost/preprocessor/debug/error.hpp \
-  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
-  ../../Util/boost/preprocessor/tuple/eat.hpp \
-  ../../Util/boost/mpl/aux_/lambda_support.hpp \
-  ../../Util/boost/mpl/aux_/config/lambda.hpp \
-  ../../Util/boost/mpl/aux_/config/workaround.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
-  ../../Util/boost/preprocessor/tuple/to_list.hpp \
-  ../../Util/boost/preprocessor/list/for_each_i.hpp \
-  ../../Util/boost/preprocessor/inc.hpp \
-  ../../Util/boost/mpl/aux_/config/ttp.hpp \
-  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
-  ../../Util/boost/preprocessor/repeat.hpp \
-  ../../Util/boost/preprocessor/list/adt.hpp \
-  ../../Util/boost/preprocessor/repetition/for.hpp \
-  ../../Util/boost/preprocessor/tuple/rem.hpp \
-  ../../Util/boost/preprocessor/detail/is_binary.hpp \
-  ../../Util/boost/preprocessor/logical/compl.hpp \
-  ../../Util/boost/preprocessor/detail/check.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
-  ../../Util/boost/preprocessor/control/expr_iif.hpp \
-  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
-  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
-  ../../Util/boost/type_traits/is_member_pointer.hpp \
-  ../../Util/boost/type_traits/detail/ice_and.hpp \
-  ../../Util/boost/type_traits/detail/ice_not.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_tester.hpp \
-  ../../Util/boost/type_traits/detail/ice_or.hpp \
-  ../../Util/boost/type_traits/is_member_function_pointer.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp \
-  ../../Util/boost/type_traits/is_class.hpp \
-  ../../Util/boost/type_traits/is_convertible.hpp \
-  ../../Util/boost/type_traits/remove_cv.hpp \
-  ../../Util/boost/type_traits/is_union.hpp \
-  ../../Util/boost/type_traits/is_scalar.hpp \
-  ../../Util/boost/type_traits/is_void.hpp \
-  ../../Util/boost/type_traits/is_function.hpp \
-  ../../Util/boost/type_traits/intrinsics.hpp \
-  ../../Util/boost/type_traits/is_arithmetic.hpp \
-  ../../Util/boost/type_traits/is_enum.hpp \
-  ../../Util/boost/type_traits/is_integral.hpp \
-  ../../Util/boost/type_traits/is_float.hpp \
-  ../../Util/boost/type_traits/add_reference.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_helper.hpp \
-  ../../Util/boost/type_traits/ice.hpp \
-  ../../Util/boost/type_traits/detail/ice_eq.hpp \
-  ../../Util/boost/mpl/void.hpp \
-  ../../Util/boost/mpl/aux_/value_wknd.hpp \
-  ../../Util/boost/mpl/aux_/static_cast.hpp \
-  ../../Util/boost/mpl/aux_/void_spec.hpp \
-  ../../Util/boost/mpl/arg_fwd.hpp \
-  ../../Util/boost/mpl/void_fwd.hpp \
-  ../../Util/boost/mpl/bool.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc.hpp \
-  ../../Util/boost/mpl/bool_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/static_constant.hpp \
-  ../../Util/boost/mpl/aux_/config/eti.hpp \
-  ../../Util/boost/mpl/int.hpp \
-  ../../Util/boost/mpl/int_fwd.hpp \
-  ../../Util/boost/mpl/aux_/integral_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/config/nttp.hpp \
-  ../../Util/boost/mpl/lambda_fwd.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/enum.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/def_params_tail.hpp \
-  ../../Util/boost/mpl/aux_/arity.hpp \
-  ../../Util/boost/mpl/aux_/lambda_arity_param.hpp \
-  ../../Util/boost/mpl/aux_/algorithm_namespace.hpp \
-  ../../Util/boost/mpl/aux_/config/dtp.hpp \
-  ../../Util/boost/mpl/limits/arity.hpp \
-  ../../Util/boost/preprocessor/logical/and.hpp \
-  ../../Util/boost/preprocessor/identity.hpp \
-  ../../Util/boost/preprocessor/empty.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/filter_params.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/sub.hpp \
-  ../../Util/boost/preprocessor/arithmetic/add.hpp \
-  ../../Util/boost/preprocessor/arithmetic/sub.hpp \
-  ../../Util/boost/preprocessor/logical/bitand.hpp \
-  ../../Util/boost/preprocessor/facilities/identity.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/tuple.hpp \
-  ../../Util/boost/preprocessor/control/while.hpp \
-  ../../Util/boost/preprocessor/list/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/fold_right.hpp \
-  ../../Util/boost/preprocessor/control/detail/edg/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/msvc/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/while.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/reverse.hpp \
-  ../../Util/boost/mpl/aux_/type_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/yes_no.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc_typename.hpp \
-  ../../Util/boost/mpl/aux_/config/ctps.hpp \
-  ../../Util/boost/mpl/integral_c.hpp \
-  ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  IPInterfacePacket_m.h \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp
 IPv6InterfacePacketWithData.obj: IPv6InterfacePacketWithData.cc \
   IPv6InterfacePacketWithData.h \
-  IPv6InterfacePacket.h \
-  IPv6InterfacePacketWithData.cc \
-  IPv6Headers.h \
-  ipv6_addr.h \
-  IPInterfacePacket.h \
-  ../../Util/boost/operators.hpp \
-  ../../Util/boost/array.hpp \
-  ../../Util/boost/config.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../../Util/boost/detail/workaround.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/non_type.hpp \
-  ../../Util/boost/detail/iterator.hpp \
-  ../../Util/boost/type_traits/remove_const.hpp \
-  ../../Util/boost/type_traits/detail/yes_no_type.hpp \
-  ../../Util/boost/type_traits/is_pointer.hpp \
-  ../../Util/boost/type_traits/is_same.hpp \
-  ../../Util/boost/type_traits/remove_pointer.hpp \
-  ../../Util/boost/type_traits/is_base_and_derived.hpp \
-  ../../Util/boost/mpl/if.hpp \
-  ../../Util/boost/mpl/aux_/has_xxx.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_def.hpp \
-  ../../Util/boost/type_traits/is_volatile.hpp \
-  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
-  ../../Util/boost/type_traits/detail/cv_traits_impl.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
-  ../../Util/boost/type_traits/is_reference.hpp \
-  ../../Util/boost/type_traits/is_array.hpp \
-  ../../Util/boost/type_traits/detail/false_result.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_undef.hpp \
-  ../../Util/boost/type_traits/config.hpp \
-  ../../Util/boost/type_traits/detail/wrap.hpp \
-  ../../Util/boost/type_traits/detail/is_function_type_tester.hpp \
-  ../../Util/boost/preprocessor/iterate.hpp \
-  ../../Util/boost/preprocessor/enum_params.hpp \
-  ../../Util/boost/preprocessor/comma_if.hpp \
-  ../../Util/boost/preprocessor/iteration/iterate.hpp \
-  ../../Util/boost/preprocessor/arithmetic/dec.hpp \
-  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
-  ../../Util/boost/preprocessor/array/elem.hpp \
-  ../../Util/boost/preprocessor/array/size.hpp \
-  ../../Util/boost/preprocessor/cat.hpp \
-  ../../Util/boost/preprocessor/slot/slot.hpp \
-  ../../Util/boost/preprocessor/tuple/elem.hpp \
-  ../../Util/boost/preprocessor/config/config.hpp \
-  ../../Util/boost/preprocessor/array/data.hpp \
-  ../../Util/boost/preprocessor/slot/detail/def.hpp \
-  ../../Util/boost/preprocessor/repetition/enum_params.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
-  ../../Util/boost/preprocessor/repetition/repeat.hpp \
-  ../../Util/boost/preprocessor/control/if.hpp \
-  ../../Util/boost/preprocessor/facilities/empty.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma.hpp \
-  ../../Util/boost/preprocessor/control/iif.hpp \
-  ../../Util/boost/preprocessor/logical/bool.hpp \
-  ../../Util/boost/preprocessor/debug/error.hpp \
-  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
-  ../../Util/boost/preprocessor/tuple/eat.hpp \
-  ../../Util/boost/mpl/aux_/lambda_support.hpp \
-  ../../Util/boost/mpl/aux_/config/lambda.hpp \
-  ../../Util/boost/mpl/aux_/config/workaround.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
-  ../../Util/boost/preprocessor/tuple/to_list.hpp \
-  ../../Util/boost/preprocessor/list/for_each_i.hpp \
-  ../../Util/boost/preprocessor/inc.hpp \
-  ../../Util/boost/mpl/aux_/config/ttp.hpp \
-  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
-  ../../Util/boost/preprocessor/repeat.hpp \
-  ../../Util/boost/preprocessor/list/adt.hpp \
-  ../../Util/boost/preprocessor/repetition/for.hpp \
-  ../../Util/boost/preprocessor/tuple/rem.hpp \
-  ../../Util/boost/preprocessor/detail/is_binary.hpp \
-  ../../Util/boost/preprocessor/logical/compl.hpp \
-  ../../Util/boost/preprocessor/detail/check.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
-  ../../Util/boost/preprocessor/control/expr_iif.hpp \
-  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
-  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
-  ../../Util/boost/type_traits/is_member_pointer.hpp \
-  ../../Util/boost/type_traits/detail/ice_and.hpp \
-  ../../Util/boost/type_traits/detail/ice_not.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_tester.hpp \
-  ../../Util/boost/type_traits/detail/ice_or.hpp \
-  ../../Util/boost/type_traits/is_member_function_pointer.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp \
-  ../../Util/boost/type_traits/is_class.hpp \
-  ../../Util/boost/type_traits/is_convertible.hpp \
-  ../../Util/boost/type_traits/remove_cv.hpp \
-  ../../Util/boost/type_traits/is_union.hpp \
-  ../../Util/boost/type_traits/is_scalar.hpp \
-  ../../Util/boost/type_traits/is_void.hpp \
-  ../../Util/boost/type_traits/is_function.hpp \
-  ../../Util/boost/type_traits/intrinsics.hpp \
-  ../../Util/boost/type_traits/is_arithmetic.hpp \
-  ../../Util/boost/type_traits/is_enum.hpp \
-  ../../Util/boost/type_traits/is_integral.hpp \
-  ../../Util/boost/type_traits/is_float.hpp \
-  ../../Util/boost/type_traits/add_reference.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_helper.hpp \
-  ../../Util/boost/type_traits/ice.hpp \
-  ../../Util/boost/type_traits/detail/ice_eq.hpp \
-  ../../Util/boost/mpl/void.hpp \
-  ../../Util/boost/mpl/aux_/value_wknd.hpp \
-  ../../Util/boost/mpl/aux_/static_cast.hpp \
-  ../../Util/boost/mpl/aux_/void_spec.hpp \
-  ../../Util/boost/mpl/arg_fwd.hpp \
-  ../../Util/boost/mpl/void_fwd.hpp \
-  ../../Util/boost/mpl/bool.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc.hpp \
-  ../../Util/boost/mpl/bool_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/static_constant.hpp \
-  ../../Util/boost/mpl/aux_/config/eti.hpp \
-  ../../Util/boost/mpl/int.hpp \
-  ../../Util/boost/mpl/int_fwd.hpp \
-  ../../Util/boost/mpl/aux_/integral_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/config/nttp.hpp \
-  ../../Util/boost/mpl/lambda_fwd.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/enum.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/def_params_tail.hpp \
-  ../../Util/boost/mpl/aux_/arity.hpp \
-  ../../Util/boost/mpl/aux_/lambda_arity_param.hpp \
-  ../../Util/boost/mpl/aux_/algorithm_namespace.hpp \
-  ../../Util/boost/mpl/aux_/config/dtp.hpp \
-  ../../Util/boost/mpl/limits/arity.hpp \
-  ../../Util/boost/preprocessor/logical/and.hpp \
-  ../../Util/boost/preprocessor/identity.hpp \
-  ../../Util/boost/preprocessor/empty.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/filter_params.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/sub.hpp \
-  ../../Util/boost/preprocessor/arithmetic/add.hpp \
-  ../../Util/boost/preprocessor/arithmetic/sub.hpp \
-  ../../Util/boost/preprocessor/logical/bitand.hpp \
-  ../../Util/boost/preprocessor/facilities/identity.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/tuple.hpp \
-  ../../Util/boost/preprocessor/control/while.hpp \
-  ../../Util/boost/preprocessor/list/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/fold_right.hpp \
-  ../../Util/boost/preprocessor/control/detail/edg/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/msvc/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/while.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/reverse.hpp \
-  ../../Util/boost/mpl/aux_/type_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/yes_no.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc_typename.hpp \
-  ../../Util/boost/mpl/aux_/config/ctps.hpp \
-  ../../Util/boost/mpl/integral_c.hpp \
-  ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  IPInterfacePacket_m.h
+  IPv6InterfacePacketWithData.cc
 IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -3505,7 +2973,6 @@ IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   IPv6LocalDeliver.h \
   HdrExtFragProc.h \
   HdrExtRteProc.h \
-  IPv6InterfacePacket.h \
   IPv6Datagram.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -3668,11 +3135,7 @@ IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   ../../Util/boost/mpl/aux_/config/ctps.hpp \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../Generic/IPProtocolId_m.h \
-  IPInterfacePacket.h \
-  IPInterfacePacket_m.h \
-  IPv6Datagram_m.h
+  ../../Util/boost/mpl/aux_/ice_cast.hpp
 IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/sys.h \
@@ -3706,8 +3169,6 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../config.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3898,11 +3359,8 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ./IPv6Datagram.h \
-  ./IPInterfacePacket.h \
   ./HdrExtProc.h \
   ./IPv6Headers.h \
-  ./IPv6Datagram_m.h \
-  ./IPInterfacePacket_m.h \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../MIPv6/MIPv6MHParameters.h \
   ../../Util/cTTimerMessageCB.h \
@@ -3916,7 +3374,6 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../Generic/InterfaceTableAccess.h \
   IPv6InterfaceData.h \
   RoutingTable6Access.h \
-  ../ICMPv6/AddrResInfo_m.h \
   IPv6Forward.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
@@ -3933,8 +3390,6 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -4136,14 +3591,11 @@ IPv6Output.obj: IPv6Output.cc \
   ../../Util/opp_utils.h \
   IPv6CDS.h \
   ../ICMPv6/NDEntry.h \
-  ../../NetworkInterfaces/LL6ControlInfo_m.h \
   IPv6Utils.h \
   ../../Base/QueueBase.h \
   ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -4371,8 +3823,6 @@ IPv6PreRouting.obj: IPv6PreRouting.cc \
   ../../Util/boost/non_type.hpp \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -4537,7 +3987,6 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Util/boost/cast.hpp \
   IPv6Send.h \
   IPv6Datagram.h \
-  IPv6InterfacePacket.h \
   HdrExtRteProc.h \
   ../Generic/InterfaceTableAccess.h \
   IPv6InterfaceData.h \
@@ -4556,8 +4005,6 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -4707,8 +4154,6 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  IPInterfacePacket.h \
-  IPInterfacePacket_m.h \
   HdrExtProc.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
@@ -4755,8 +4200,6 @@ IPv6Utils.obj: IPv6Utils.cc \
   IPv6Datagram.h \
   IPv6Headers.h \
   ipv6_addr.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -5131,8 +4574,6 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../Util/boost/utility_fwd.hpp \
   ./ipv6_addr.h \
   ./IPv6Address.h \
-  ../Generic/IPProtocolId_m.h \
-  IPv6Datagram_m.h \
   IPv6Address.h \
   ../../Base/QueueBase.h \
   ../../Base/AbstractQueue.h \
@@ -5147,9 +4588,6 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../MIPv6/MIPv6MessageBase.h \
   ../MIPv6/MIPv6MHParameters.h \
   ./IPv6Datagram.h \
-  ./IPInterfacePacket.h \
   ./HdrExtProc.h \
   ./IPv6Headers.h \
-  ./IPv6Datagram_m.h \
-  ./IPInterfacePacket_m.h \
   ../../Mobility/Entity.h

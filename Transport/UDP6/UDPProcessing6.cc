@@ -136,7 +136,7 @@ void UDPProcessing6::processNetworkMsg(IPv6InterfacePacket* pkt)
   Dout(dc::finish," to " << pkt->destAddr() << ", port "
        << dec <<  udpPkt->getDestPort()  );
 
-  if(appIntPkt->getSrcIPAddr() == "")
+  if(appIntPkt->getSrcIPAddr() == IPv6_ADDR_UNSPECIFIED)
     appIntPkt->setSrcIPAddr(pkt->srcAddr());
 
   UDPApplicationPorts::iterator it;

@@ -43,7 +43,7 @@ extern "C" {
 
 #include "ICMPv6Message.h"
 #include "IPv6Datagram.h"
-#include "IPInterfacePacket.h" //For Protocol IP_PROT_IPv6_ICMP
+#include "IPProtocolId_m.h" //For Protocol IP_PROT_IPv6_ICMP
 
 ///Number of octets excluding the error datagram that is usually appended
 ///i.e. the Type|CODE|CHECKSUM|UNUSED/POINTER/MTU/OTHER as defined in RFC2463

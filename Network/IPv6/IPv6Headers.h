@@ -145,20 +145,21 @@ enum IPv6ExtHeader
 };
 //@}
 
-/**
+/*XXX gone -- put into IPv6Datagram.msg --AV
+/ **
     IPv6 header format:
     Version 4 Traffic Class 8 Flow Label 20
     Payload Length 16 Next header 8 Hop Limit 8
     Source Address 128
     Destination Address 128
-*/
+* /
 struct ipv6_hdr
 {
-  /**
+  / **
      version is 6 for IPv6
      traffic class is 0 by default, upper layers can modify it.
      flow label is 0 as not supported and ignored
-  */
+  * /
   unsigned int ver_traffic_flow;
   unsigned short payload_length;
   unsigned char next_header;
@@ -168,6 +169,7 @@ struct ipv6_hdr
 };
 
 bool operator== (const ipv6_hdr& lhs, const ipv6_hdr& rhs);
+*/
 
 /**
    Extension headers are unlimited in number i.e. 0 -> 00.

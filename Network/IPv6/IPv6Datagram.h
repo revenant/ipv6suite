@@ -141,7 +141,11 @@ public:
   IPv6Datagram(const IPv6Datagram& srcObj);
   virtual ~IPv6Datagram();
   const IPv6Datagram& operator=(const IPv6Datagram& d);
+
+private:
+  //XXX made temporarily unavailable
   bool operator==(const IPv6Datagram& rhs) const;
+public:
 ///@}
 
 ///@name Overridden cObject functions
@@ -169,6 +173,9 @@ public:
   */
   //@{
 
+  short version() const {return 6;}
+
+/* XXX out -- went to msg class
   short version() const
     {
       //Top 4 bits of ver_traffic_flow
@@ -203,14 +210,15 @@ public:
       header.ver_traffic_flow &= 0xFFF00000;
       header.ver_traffic_flow |= label;
     }
+*/
 
   /// Payload length excludes the fixed IPv6 header length
   /// i.e. sizeof(ipv6_hdr) refer to RFC2460 Section 3.0
-  int payloadLength() const { return header.payload_length;}
+  int payloadLength() const { return payload_length;}
   void setPayloadLength(int length)
     {
       assert(length >= 0);
-      header.payload_length = length;
+      payload_length = length;
     }
 
   /// length of IPv6 extension headers (Not part of IPv6 spec)
@@ -220,8 +228,8 @@ public:
   size_t totalLength() const
     {
       //Doesn't exceed 2^16-1 as that's jumbogram size
-      assert(IPv6_HEADER_LENGTH + header.payload_length <= 1<<16 - 1  );
-      return IPv6_HEADER_LENGTH + header.payload_length;
+      assert(IPv6_HEADER_LENGTH + payload_length <= 1<<16 - 1  );
+      return IPv6_HEADER_LENGTH + payload_length;
     }
 
   void setTotalLength(unsigned int len)
@@ -231,9 +239,10 @@ public:
       assert(len >= IPv6_HEADER_LENGTH);
       assert(len <= 1<<16 - 1  );
 #endif
-      header.payload_length = len - IPv6_HEADER_LENGTH;
+      payload_length = len - IPv6_HEADER_LENGTH;
     }
 
+/* XXX out -- went to msg class
   short hopLimit() const { return header.hop_limit; }
   void setHopLimit(short ttl)
     {
@@ -263,10 +272,20 @@ public:
     }
 
   void setDestAddress(const ipv6_addr& dest){ header.dest_addr = dest; }
+*/
   //@}
 
+  // FIXME temporary functions:
+  virtual const ipv6_addr& srcAddress() const {return ((IPv6Datagram_Base *)const_cast<IPv6Datagram*>(this))->srcAddress();}
+  virtual const ipv6_addr& destAddress() const {return ((IPv6Datagram_Base *)const_cast<IPv6Datagram*>(this))->destAddress();}
+
 private:
+/* XXX ipv6_header: went to msg class
   ipv6_hdr header;
+*/
+  unsigned short payload_length;
+  unsigned char next_header;
+
   typedef std::list<HdrExtProc*> ExtHdrs;
   typedef ExtHdrs::iterator EHI;
   mutable ExtHdrs ext_hdrs;

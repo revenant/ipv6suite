@@ -36,13 +36,13 @@ message IPv6Datagram
         omitGetVerb = true;
 
     fields:
-        int inputPort;
-        int outputPort;
-        //short hopLimit;
-        //int transportProtocol enum (IPProtocolId);
-        //ipv6_addr srcAddress;
-        //ipv6_addr destAddress;
-        //unsigned int flowLabel;
-        //unsigned int trafficClass;
+        int inputPort = -1;
+        int outputPort = -1;
+        short hopLimit = 0;
+        int transportProtocol enum (IPProtocolId);
+        ipv6_addr srcAddress;
+        ipv6_addr destAddress;
+        unsigned int flowLabel;
+        unsigned int trafficClass;
 };
 

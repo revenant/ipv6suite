@@ -42,6 +42,7 @@ ipv6_ext_hdr::~ipv6_ext_hdr(){}
 
 ipv6_option::~ipv6_option(){}
 
+/* XXX not needed
 bool operator== (const ipv6_hdr& lhs, const ipv6_hdr& rhs)
 {
   return lhs.ver_traffic_flow == rhs.ver_traffic_flow &&
@@ -50,6 +51,7 @@ bool operator== (const ipv6_hdr& lhs, const ipv6_hdr& rhs)
     lhs.dest_addr == rhs.dest_addr;
 
 }
+*/
 
 bool operator==(const ipv6_ext_hdr& lhs, const ipv6_ext_hdr& rhs)
 {

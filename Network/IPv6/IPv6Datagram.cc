@@ -50,6 +50,7 @@ extern "C"
 
 Register_Class(IPv6Datagram);
 
+/*
 static const ipv6_hdr IPV6_INITIAL_HDR =
 {
     0x60000000,    //version 6, traffic class of 0, flow label of 0
@@ -59,6 +60,7 @@ static const ipv6_hdr IPV6_INITIAL_HDR =
     IPv6_ADDR_UNSPECIFIED,
     IPv6_ADDR_UNSPECIFIED
 };
+*/
 
 /**
    Protocol is set to PR_IPV6 to mean IPv6 packet (used to discriminate
@@ -66,16 +68,17 @@ static const ipv6_hdr IPV6_INITIAL_HDR =
 */
 IPv6Datagram::IPv6Datagram(const ipv6_addr& src, const ipv6_addr& dest,
                            cMessage *pdu, const char* name)
-  :/*cPacket(NULL, PR_IPV6, 0),*/ header(IPV6_INITIAL_HDR), route_hdr(0),
+  :/*cPacket(NULL, PR_IPV6, 0),*/ /*header(IPV6_INITIAL_HDR),*/
+    payload_length(0), next_header(59), route_hdr(0),
                                   frag_hdr(0), dest_hdr(0)
 {
   setLength(IPv6_HEADER_LENGTH);
   //This signifies a packet that has not arrived at a host
   setInputPort(-1);
   if (src != IPv6_ADDR_UNSPECIFIED)
-    header.src_addr = src;
+    setSrcAddress(src);
   if (dest != IPv6_ADDR_UNSPECIFIED)
-    header.dest_addr = dest;
+    setDestAddress(dest);
 
   if (pdu != 0)
   {
@@ -127,9 +130,10 @@ IPv6Datagram::~IPv6Datagram()
 
 }
 
+/* XXX do we need compare-by-value?
 bool IPv6Datagram::operator==(const IPv6Datagram& rhs) const
 {
-  if (header == rhs.header)
+  if (*(const IPv6Datagram_Base*)this == (const IPv6Datagram_Base&)rhs)
   {
     if (ext_hdrs.size() == rhs.ext_hdrs.size())
     {
@@ -142,6 +146,8 @@ bool IPv6Datagram::operator==(const IPv6Datagram& rhs) const
   }
   return false;
 }
+*/
+
 
 
 const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
@@ -152,7 +158,7 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
 
   IPv6Datagram_Base::operator=(rhs);
 
-  header = rhs.header;
+  // XXX done by IPv6Datagram_Base: header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;
   ext_hdrs.clear();
@@ -197,8 +203,8 @@ HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
 std::string IPv6Datagram::info()
 {
   ostringstream os;
-  os << "Source=" << header.src_addr
-     << " Dest=" << header.dest_addr;
+  os << "Source=" << srcAddress()
+     << " Dest=" << srcAddress();
 
   //For some reason the buf is filled with escape characters after this point
   //However the stdoutput from os is fine.
@@ -273,10 +279,11 @@ HdrExtDestProc* IPv6Datagram::acquireDestInterface()
   return dest_hdr = static_cast<HdrExtDestProc*>(addExtHdr(EXTHDR_DEST));
 }
 
+/*
 IPProtocolId IPv6Datagram::transportProtocol() const
 {
   if (ext_hdrs.empty())
-    return (IPProtocolId) header.next_header;
+    return (IPProtocolId) next_header;
   else
     return (IPProtocolId) (*(ext_hdrs.rbegin()))->nextHeader();
 }
@@ -285,11 +292,11 @@ void IPv6Datagram::setTransportProtocol(const IPProtocolId& prot)
 {
   //        ISVALID_IPV6_PROTOCOLFIELDID(prot);
   if (ext_hdrs.empty())
-    header.next_header = prot;
+    next_header = prot;
   else
     (*(ext_hdrs.rbegin()))->setNextHeader(prot);
 }
-
+*/
 
 
 /**
@@ -504,10 +511,10 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
 
   if (proc != 0)
   {
-    IPProtocolId prot = transportProtocol();
+    int prot = transportProtocol();
 
     if (ext_hdrs.empty())
-      header.next_header = hdr_type;
+      next_header = hdr_type;
     else
       (*(ext_hdrs.rbegin()))->setNextHeader(hdr_type);
 
@@ -526,7 +533,7 @@ HdrExtProc* IPv6Datagram::findHeader(const IPv6ExtHeader& next_hdr) const
 {
   EHI it;
 
-  if (header.next_header == next_hdr && !ext_hdrs.empty())
+  if (next_header == next_hdr && !ext_hdrs.empty())
     return *ext_hdrs.begin();
 
 
@@ -574,8 +581,8 @@ HdrExtProc* IPv6Datagram::findHeader(const IPv6ExtHeader& next_hdr) const
 
 std::ostream& operator<<(std::ostream& os, const IPv6Datagram& pdu)
 {
-  os << "Source="<<pdu.header.src_addr
-     <<" Dest=" << pdu.header.dest_addr;
+  os << "Source="<< pdu.srcAddress()
+     <<" Dest=" << pdu.destAddress();
   os <<" len="<<pdu.length()<<" HL=" <<dec<<pdu.hopLimit()
      <<" prot="<<dec<<pdu.transportProtocol();
 

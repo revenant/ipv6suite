@@ -413,8 +413,9 @@ public:
 
   ICMPv6NDMRedirect(const ICMPv6NDMRedirect& src);
   const ICMPv6NDMRedirect& operator=(const ICMPv6NDMRedirect& src);
+private:
   bool operator==(const ICMPv6NDMRedirect& rhs) const;
-
+public:
   virtual ICMPv6NDMRedirect* dup() const { return new ICMPv6NDMRedirect(*this); }
 
   ///@name ICMP fields

@@ -139,7 +139,17 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
 
   //Create a new pdu (the first one which will be duplicated)
   IPv6Datagram* first_frag = new IPv6Datagram();
+/*XXX the following  n lines replace this:
   first_frag->header = pdu->header;
+*/
+  first_frag->setHopLimit(pdu->hopLimit());
+  first_frag->setTransportProtocol(pdu->transportProtocol());
+  first_frag->setSrcAddress(pdu->srcAddress());
+  first_frag->setDestAddress(pdu->destAddress());
+  first_frag->setFlowLabel(pdu->flowLabel());
+  first_frag->setTrafficClass(pdu->trafficClass());
+  first_frag->payload_length = pdu->payload_length;
+  first_frag->next_header = pdu->next_header;
 
   //Iterate through all wrappers upto pos and get them to dup the raw
   //ext_hdr struct and add these to first_frag's ext_hdrs.
@@ -155,7 +165,7 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
     }
   else
     {
-      pdu->header.next_header = NEXTHDR_FRAGMENT;
+      pdu->next_header = NEXTHDR_FRAGMENT;
       pos = 0;
 
     }

@@ -483,7 +483,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
     response->setHopLimit(NDHOPLIMIT);
 
     if (dupDetectSource)
-      response->setDestAddress(ALL_NODES_LINK_ADDRESS);
+      response->setDestAddress(IPv6Address(ALL_NODES_LINK_ADDRESS));
 
     bool override = true;
 

@@ -171,6 +171,7 @@ const ICMPv6NDMRedirect& ICMPv6NDMRedirect::operator=(const ICMPv6NDMRedirect& s
   return *this;
 }
 
+/* XXX looks like not needed
 bool ICMPv6NDMRedirect::operator==(const ICMPv6NDMRedirect& rhs) const
 {
   if (this == &rhs)
@@ -190,7 +191,7 @@ bool ICMPv6NDMRedirect::operator==(const ICMPv6NDMRedirect& rhs) const
 
   return true;
 }
-
+*/
 
 void ICMPv6NDMRedirect::attachHeader(IPv6Datagram* dgram)
 {

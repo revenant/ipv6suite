@@ -95,12 +95,12 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
 
   // set source and destination address
   assert(interfaceMsg->destAddress() != IPv6_ADDR_UNSPECIFIED);
-  datagram->setDestAddress(interfaceMsg->destAddr());
+  datagram->setDestAddress(interfaceMsg->destAddress());
 
   // when source address given in Interface Message, use it
   if (interfaceMsg->srcAddress() != IPv6_ADDR_UNSPECIFIED)
   {
-//XXX Debug(
+Debug(
     //Test if source address actually exists
     bool found = false;
     for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
@@ -115,9 +115,9 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
 
     if (!found)
       Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddress());
-//XXX); // end Debug
+); // end Debug
 
-    datagram->setSrcAddress(interfaceMsg->srcAddr());
+    datagram->setSrcAddress(interfaceMsg->srcAddress());
   }
   else
   {

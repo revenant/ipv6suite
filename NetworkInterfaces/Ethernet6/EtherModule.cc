@@ -144,7 +144,7 @@ EtherModule::~EtherModule()
   outputBuffer.clear();
 
   for(TIT it = tmrs.begin(); it != tmrs.end(); it++)
-    if (!it->isScheduled())
+    if (!(*it)->isScheduled())
       delete (*it);
   tmrs.clear();
 

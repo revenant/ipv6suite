@@ -3,8 +3,9 @@
 
 <netconf debugChannel="debug.log:notice:xmlAddresses:UDPVidStrmSvr:WirelessEthernet">
   <global gHostDupAddrDetectTransmits="2"/>
+<!-- XXX config moved to ini file -AV
   <local node="ms1">
-    <interface name="wlan0">    
+    <interface name="wlan0">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
@@ -39,40 +40,41 @@
     </interface>
   </local>
   <local node="ap2">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap3">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap4">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap5">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap6">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
+-->
   <misc>
    <ObjectMovement>
       <MovingNode NodeName="ms1" startTime="0">

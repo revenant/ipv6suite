@@ -154,7 +154,6 @@ void WEAuthenticationReceiveMode::handleProbeResponse(WirelessEtherModule* mod, 
                   probeResponse->getAddress2());
     WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     scheduleAck(mod, ackSignal);
-    delete ack;
     changeState = false;
 
     delete probeResponseBody;

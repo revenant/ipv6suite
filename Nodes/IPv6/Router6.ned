@@ -17,9 +17,9 @@
 // Definition of an IPNode with transport layers
 
 import
+    "Blackboard",
     "NetworkLayer6",
     "LinkLayer6",
-
     "PhysicalLayer",
     "ControlApp";
 

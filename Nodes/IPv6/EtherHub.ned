@@ -16,7 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-
+import
+    "Blackboard",
+    "Repeater";
+    
 //
 // Wire with 1us delay, which corresponds to 0.2 meters (at 200,000 m/s)
 //

@@ -20,6 +20,7 @@
 //   author: Eric Wu
 
 import
+    "Blackboard",
     "EtherRelayUnit",
     "LinkLayer6";
 

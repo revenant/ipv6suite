@@ -18,6 +18,7 @@
 
 
 import
+    "Blackboard",
     "MobilityManager",
     "NetworkLayer6",
     "PhysicalLayer",

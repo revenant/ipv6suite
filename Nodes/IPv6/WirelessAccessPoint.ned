@@ -25,6 +25,7 @@
 //  multiple wireless interfaces.
 
 import
+    "Blackboard",
     "WirelessEtherBridge",
     "PhysicalLayer",
     "MobilityManager",

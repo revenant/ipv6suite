@@ -30,6 +30,7 @@
 
 
 import
+    "Blackboard",
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",

@@ -18,6 +18,7 @@
 
 
 import
+    "Blackboard",
     "MobilityManager",
     "NetworkLayer6",
     "PhysicalLayer",
@@ -28,10 +29,6 @@ import
     "Ping6App";
 
 
-
-
-
-
 //
 // Definition of an IPNode with transport layers. Contains IPv6 Ping application.
 // Current code in WirelessEtherModule assumes that there is only one wlin port
@@ -39,7 +36,7 @@ import
 // @warning if ever we add wired ports "in[]" then numOfPorts needs to be
 // added as top level parameter and assigned value of sizeof(in) + sizeof(wlin) in
 // omnetpp.ini otherwise the network layer will not be aware of some ports.
-
+//
 module MobileNode
     parameters:
         beginCollectionTime : numeric,

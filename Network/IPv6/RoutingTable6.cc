@@ -107,7 +107,7 @@ void RoutingTable6::initialize(int stage)
                        MAX_IPv6INTERFACE_NO:
                        interfaces.max_size());
 */
-    numOfIfaces = par("numOfPorts").longValue();
+//XXX out:    numOfIfaces = par("numOfPorts").longValue();
     displayIfconfig = par("displayIfconfig").boolValue();
 
 /*XXX
@@ -161,7 +161,7 @@ void RoutingTable6::initialize(int stage)
   }
   else if(stage == 1)
   {
-    for(size_t i = 0; i < numOfIfaces; i ++)
+    for (size_t i = 0; i < ift->numInterfaceGates(); i++)
     {
        addIPv6InterfaceDataFor(ift->interfaceByPortNo(i));
     }
@@ -921,8 +921,6 @@ void RoutingTableTest::setUp()
   PrefixEntry p4;
   p4.setPrefix("3271:1111:3312:4444:6433:3343:0:0/96");
   rt->cds->insertPrefixEntry(p4, rt->interfaceNameToNo(ie4.iface_name.c_str()));
-
-  rt->numOfIfaces += 4;
 
 }
 

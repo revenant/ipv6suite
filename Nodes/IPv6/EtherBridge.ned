@@ -14,17 +14,19 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-//
-//   file: EtherSwitch
-//   Purpose: implementation of Ethernet bridge
-//   author: Eric Wu
 
 import
     "Blackboard",
+    "InterfaceTable",
     "EtherRelayUnit",
     "LinkLayer6";
 
 
+//
+// Implementation of Ethernet bridge
+//
+// @author Eric Wu
+//
 module EtherBridge
     parameters:
         entryTimeout : numeric;
@@ -34,6 +36,8 @@ module EtherBridge
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         ethernet: LinkLayer6[sizeof(in)];
             parameters:
                 NWIName = "EtherModuleBridge",

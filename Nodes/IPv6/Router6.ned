@@ -18,6 +18,7 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
     "NetworkLayer6",
     "LinkLayer6",
     "PhysicalLayer",
@@ -27,11 +28,7 @@ import
 //
 // IPv6 router with the number of ports as parameter.
 //
-// Also takes routing table as input.
-//
 module Router6
-    parameters:
-        IPv6routingFile : string;
     gates:
         in: in[];
         out: out[];
@@ -39,6 +36,8 @@ module Router6
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;

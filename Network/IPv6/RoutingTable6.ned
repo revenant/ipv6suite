@@ -31,8 +31,6 @@
 
 simple RoutingTable6
     parameters:
-	//Turn on ifconfig like output at initialise for this node?
-	displayIfconfig : bool,
-        IPv6routingFile : string,
-    numOfPorts : numeric;
+    //Turn on ifconfig like output at initialise for this node?
+    displayIfconfig : bool;
 endsimple

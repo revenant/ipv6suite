@@ -117,9 +117,6 @@ module IPv6Processing
                 procDelay = ipoutput_delay;
             display: "p=302,282,r;i=prot2;q=queue";
         routingTable6: RoutingTable6;
-            parameters:
-                IPv6routingFile = ancestor IPv6routingFile,
-                numOfPorts = ancestor numOfPorts;
             display: "p=490,120;i=box3";
         addrResln: AddressResolution;
             parameters:

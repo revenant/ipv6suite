@@ -26,6 +26,7 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
     "WirelessEtherBridge",
     "PhysicalLayer",
     "MobilityManager",
@@ -48,6 +49,8 @@ module AccessPoint
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         ds: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;

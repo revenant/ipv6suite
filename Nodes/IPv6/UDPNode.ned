@@ -19,18 +19,9 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-//
-// @file   UDPNode.ned
-// @author Johnny Lai
-// @date   06 Aug 2003
-//
-// @brief  Abstract UDP node that can contain many different UDP services
-//
-// Replaced file and module of the same name
-
-
 import
     "Blackboard",
+    "InterfaceTable",
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",
@@ -39,10 +30,13 @@ import
     "UDPApplication",
     "Ping6App";
 
-///Replaces the old UDPNode (this file and module previously called AbstractUDPNode)
+//
+// UDP node that can contain many different UDP services
+//
+// @author Johnny Lai
+//
 module UDPNode
     parameters:
-        IPv6routingFile : string, //Only if it is a router do we read routingFile
         IPForward : bool, //Added at higher level so can specify in Network Hierarchy ned file
                           //whether this node acts as a router.
         numOfUDPApps: numeric;
@@ -52,6 +46,8 @@ module UDPNode
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;

@@ -288,8 +288,6 @@ private:
 
   bool IPForward;
 
-  size_t numOfIfaces;
-
   bool forwardSitePacket;
 
 private:

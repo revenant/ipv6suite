@@ -19,6 +19,7 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
     "MobilityManager",
     "NetworkLayer6",
     "PhysicalLayer",
@@ -41,7 +42,6 @@ module MobileNode
     parameters:
         beginCollectionTime : numeric,
         endCollectionTime : numeric,
-        IPv6routingFile : string,
         IPForward : bool,
         numOfUDPApps: numeric;
     gates:
@@ -50,6 +50,8 @@ module MobileNode
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;

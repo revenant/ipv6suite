@@ -97,6 +97,16 @@ void InterfaceTable::deleteInterface(InterfaceEntry *entry)
 }
 */
 
+int InterfaceTable::numInterfaceGates()
+{
+    // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
+    int max = -1;
+    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
+        if ((*i)->outputPort()>max)
+            max = (*i)->outputPort();
+    return max+1;
+}
+
 InterfaceEntry *InterfaceTable::interfaceByPortNo(int portNo)
 {
     // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)

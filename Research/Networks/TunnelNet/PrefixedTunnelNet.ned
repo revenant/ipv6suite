@@ -14,25 +14,16 @@ module PrefixedTunnelNet
             parameters:
             display: "p=72,258;i=bwgen";
         router1: Router6;
-            parameters:
-
-                IPv6routingFile = "network.xml"; // TBD
             gatesizes:
                 in[2], // TBD
                 out[2]; // TBD
             display: "p=103,199;i=router";
         router2: Router6;
-            parameters:
-
-                IPv6routingFile = "network.xml"; // TBD
             gatesizes:
                 in[2], // TBD
                 out[2]; // TBD
             display: "p=195,148;i=router";
         router3: Router6;
-            parameters:
-
-                IPv6routingFile = "network.xml"; // TBD
             gatesizes:
                 in[2], // TBD
                 out[2]; // TBD
@@ -49,8 +40,6 @@ module PrefixedTunnelNet
             display: "p=322,182;i=cogwheel2_s";
         client1: UDPNode; //
             parameters:
-                IPv6routingFile = "network.xml",
-
                 IPForward = false;
             gatesizes:
                 in[1],
@@ -58,8 +47,6 @@ module PrefixedTunnelNet
             display: "p=40,72;i=comp2_s";
         client2: UDPNode; //
             parameters:
-                IPv6routingFile = "network.xml",
-
                 IPForward = false;
             gatesizes:
                 in[1],
@@ -67,8 +54,6 @@ module PrefixedTunnelNet
             display: "p=111,52;i=comp2";
         server1: UDPNode; //
             parameters:
-                IPv6routingFile = "network.xml",
-
                 IPForward = false;
             gatesizes:
                 in[1],
@@ -76,8 +61,6 @@ module PrefixedTunnelNet
             display: "p=260,248;i=server1";
         server2: UDPNode; //
             parameters:
-                IPv6routingFile = "network.xml",
-
                 IPForward = false;
             gatesizes:
                 in[1],

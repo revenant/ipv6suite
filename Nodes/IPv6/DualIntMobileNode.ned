@@ -19,12 +19,12 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
     "MobilityManager",
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",
     "DualInterfaceLayer",
-    //    "tcp4ip",
     "ControlApp",
     "UDPProcessing6",
     "UDPApplication",
@@ -47,7 +47,6 @@ module DualIntMobileNode
     parameters:
         beginCollectionTime : numeric,
         endCollectionTime : numeric,
-        IPv6routingFile : string,
         IPForward : bool, //Added at higher level so can specify in Network Hierarchy ned file
                           //whether this node acts as a router.
         numOfUDPApps: numeric;
@@ -56,6 +55,8 @@ module DualIntMobileNode
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;

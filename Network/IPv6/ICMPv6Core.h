@@ -22,18 +22,16 @@
    @author Johnny Lai
 */
 
-#if !defined ICMPv6CORE_H
+#ifndef ICMPv6CORE_H
 #define ICMPv6CORE_H
 
-#ifndef __CPACKET_H
-#include "cpacket.h"
-#endif //__CPACKET_H
-
-
-
-#ifndef IPv6_ADDR_H
+#include <omnetpp.h>
 #include "ipv6_addr.h"
-#endif //IPv6_ADDR_H
+
+class ICMPv6Message;
+class IPv6Datagram;
+class RoutingTable6;
+class IPv6Forward;
 
 
 /**
@@ -41,51 +39,43 @@
    @brief Module for Processing of ICMPv6 messages
    Processing of received ICMP messages from network nodes and local modules
 */
-
-class ICMPv6Message;
-class IPv6Datagram;
-class RoutingTable6;
-class IPv6Forward;
-
-class ICMPv6Core : public cSimpleModule
+class ICMPv6Core : public QueueBase
 {
 public:
-  Module_Class_Members(ICMPv6Core, cSimpleModule, 0);//ACTIVITY_STACK_SIZE);
+  Module_Class_Members(ICMPv6Core, QueueBase, 0);
 
   virtual void initialize();
-  virtual void activity();
-  void handleMessage(cMessage* theMsg);
+  virtual void endService(cMessage* msg);
   virtual void finish();
 
 private:
-      ///Process local errors and send ICMP messages back to
-      //originator of errored PDU
+  ///Process local errors and send ICMP messages back to
+  //originator of errored PDU
   void processError (cMessage *);
 
-      /// process received ICMP messages
+  /// process received ICMP messages
   void processICMPv6Message(IPv6Datagram *);
 
   /// Notify upper layer of ICMP error messages received
   void errorOut(ICMPv6Message *);
 
-      ///@name Echo messages
-      //@{
-      ///received echo requests are processed
+  ///@name Echo messages
+  //@{
+  ///received echo requests are processed
   void recEchoRequest (IPv6Datagram *);
-      ///received echo replies are processed
+  ///received echo replies are processed
   void recEchoReply (IPv6Datagram* reply);
-      ///Initiating an echo dialogue
+  ///Initiating an echo dialogue
   void sendEchoRequest(cMessage *);
-      //@}
+  //@}
 
-      ///Send ICMP message to dest
+  ///Send ICMP message to dest
   void sendInterfacePacket(ICMPv6Message *, const ipv6_addr& dest,
                            const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                            size_t hopLimit = 0);
 
   ///@name Ned Parameters
   //@{
-  simtime_t delay;
   bool icmpRecordStats;
   bool replyToICMPRequests;
   simtime_t icmpRecordStart;
@@ -101,11 +91,6 @@ private:
 
   RoutingTable6* rt;
   IPv6Forward* fc;
-  cMessage* curMessage;
-  cMessage* waitTmr;
-  ///Arriving packets are placed in queue first if another packet is awaiting
-  ///processing
-  cQueue waitQueue;
 
   unsigned int ctrIcmp6OutEchoReplies;
   unsigned int ctrIcmp6InMsgs;

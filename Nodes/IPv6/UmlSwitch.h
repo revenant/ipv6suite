@@ -1,17 +1,17 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.h,v 1.2 2005/02/10 04:00:43 andras Exp $
 //
 // Uml Switch Client interface for Omnet++ IPv6.
 // * Copyright (C) 2002 Greg Daley Monash University, Melbourne, Australia
 //
 // This work is  Adapted from code provided by the following Authors:
 // * Copyright (C) 2001 Johnny Lai Monash University, Melbourne, Australia
-// * Copyright (C) 2001 Eric Wu    Monash University, Melbourne, Australia    
+// * Copyright (C) 2001 Eric Wu    Monash University, Melbourne, Australia
 // * Copyright (C) 2001 Lennert Buytenhek (buytenh@gnu.org) and
 // * James Leu (jleu@mindspring.net).
 // * Copyright (C) 2001 by various other people who didn't put their name here.
 // * Licensed under the GPL.
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -42,7 +42,7 @@
 #endif
 #include <cassert>
 
-#include "basic_consts.h"
+
 #include "LinkLayerModule.h"
 #include "MACAddress.h"
 #if defined __CN_PAYLOAD_H
@@ -53,24 +53,24 @@ extern "C" {
 
 /**
    @class UmlSwitchInterface
-   comment: trying to create an interface to send/receive data from UML 
+   comment: trying to create an interface to send/receive data from UML
  */
 class UmlSwitchInterface: public LinkLayerModule
 {
 public:
-  Module_Class_Members(UmlSwitchInterface,LinkLayerModule,ACTIVITY_STACK_SIZE);
-  
+  Module_Class_Members(UmlSwitchInterface,LinkLayerModule,16384);
+
   virtual void initialize();
-  virtual void activity();  
-  
+  virtual void activity();
+
   int  set_new_data_path(const char *newval, char * dest);
   int  set_new_control_path(const char *newval, char * dest);
-  
+
 private:
-  
+
   void initfds(int fds[]);
   void sw_init_args(char *control_path, char *data_path);
-    /* return the fd tuple (control, send, receive) or NULL */   
+    /* return the fd tuple (control, send, receive) or NULL */
   int *init_swdriver(char *control_path, char *data_path,
 		unsigned char *macaddr, int fds[]);
 
@@ -87,12 +87,12 @@ private:
 
   int pack_mac_addr(const char * straddr, unsigned char *pack);
 
-  char control_path[ UNIX_MAX_PATH ]; 
-  char data_path[  UNIX_MAX_PATH ]; 
-  int ctlfd; 
-  int readfd; 
+  char control_path[ UNIX_MAX_PATH ];
+  char data_path[  UNIX_MAX_PATH ];
+  int ctlfd;
+  int readfd;
   int writefd;
-  MACAddress my_addr; 
+  MACAddress my_addr;
 };
 #endif //__CN_PAYLOAD_H
 #endif /* __UMLSWITCHINTERFACE_H__  */

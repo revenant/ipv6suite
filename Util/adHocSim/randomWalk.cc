@@ -3,7 +3,7 @@
 //All rights reserved.
 
 #include "h/randomWalk.h"
-#include "omnetpp.h"
+#include <omnetpp.h>
 
 //Define_Module_Like(RandomWalk,Mobility);
 
@@ -17,7 +17,7 @@ bool RandomWalk::rebound(int& x, int &y)
 		dX *= (-1); // change the sign
 		x = minX;
 
-		alfa = 3.14 - alfa;   
+		alfa = 3.14 - alfa;
 		update=true;
 	}
 	if( x > maxX)
@@ -32,7 +32,7 @@ bool RandomWalk::rebound(int& x, int &y)
 		dY *= -1;
 		y = minY;
 
-		alfa = 6.28 - alfa ; 
+		alfa = 6.28 - alfa ;
 
 
 		update=true;
@@ -84,7 +84,7 @@ double RandomWalk::randomWalk(int& x, int& y)
 	{
 		//choose the direction angle; 6.27 is because alfa is in [0,2PI[
 		alfa =  uniform(0,6.27);
-		
+
 		//choose a random speed
 //		speed = uniform(1,minSpeed->doubleValue(),maxSpeed->doubleValue());
 		speed = uniform(minSpeed,maxSpeed);
@@ -147,7 +147,7 @@ RandomWalk::RandomWalk()
 //	minY = 0;
 //	maxY = (int)par("YRange") - 5;
 	steps = 0;
-	
+
 
 //	moveInterval = &par("moveInterval");
 //	moveKind = &par("movKind");
@@ -159,7 +159,7 @@ RandomWalk::RandomWalk()
 
 	//start miving
 //	scheduleAt(simTime()+0.01, moveMsg);
-	
+
 	//statistical variables
 	stepsNum =0;
 	partial = 0;
@@ -172,7 +172,7 @@ RandomWalk::RandomWalk()
 void RandomWalk::handleMessage(cMessage *msg)
 {
 	int x,y;
-	
+
 	d("random Walk");
 	//get the current position from the physic module
 //	physic->getPos(x, y);
@@ -201,7 +201,7 @@ void RandomWalk::finish()
 	d("Walk random says bye");
 
 	FILE* fout = fopen("collcectedData.dat","a");
-	fprintf(fout,"\nSpeed avatage............... %.2f\n",partial/stepsNum); 
+	fprintf(fout,"\nSpeed avatage............... %.2f\n",partial/stepsNum);
 	fclose(fout);
 }
 */

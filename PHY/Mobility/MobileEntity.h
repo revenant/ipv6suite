@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.h,v 1.2 2005/02/10 04:00:43 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
@@ -21,11 +21,11 @@
    @file MobileEntity.h
 
    @brief Definition of MobileEntity
-   
+
    Handles attachment and dettachment of links with neighbouring network
    elements. NOTE: When access points are nearby, the mobile entity will
    automatically maintain link with those particular BSs.
-   
+
    @author Eric Wu
  */
 
@@ -37,7 +37,7 @@
 #include <list>
 #include <vector>
 
-#include "basic_consts.h"
+
 #include "Entity.h"
 
 using namespace std;
@@ -96,7 +96,7 @@ class MobileEntity : public Entity
     {
       if ( moves.size() == 0)
         return 0;
-      
+
       return moves[_currentMoveIdx].speed;
     }
 
@@ -111,15 +111,15 @@ class MobileEntity : public Entity
     {
       _startMovingTime = t;
     }
-  
+
   void addMove(int x, int y, float speed)
     {
       MoveInfo info = { { x,y }, speed };
-      moves.push_back(info);          
+      moves.push_back(info);
     }
 
  private:
-  
+
   int _startMovingTime;
   size_t _currentMoveIdx;
 
@@ -127,7 +127,7 @@ class MobileEntity : public Entity
   // initial value of this parameter is set to 1
   size_t _numOfAllowedBS;
 
-  Moves moves;  
+  Moves moves;
 };
 
 #endif // __MOBILEENTITY__

@@ -3,7 +3,7 @@
 #ifndef RES_RANDOM_WALK_H
 #define RES_RANDOM_WALK_H
 
-#include "omnetpp.h"
+#include <omnetpp.h>
 #include "costants.h"
 
 #include "physic.h"
@@ -24,7 +24,7 @@ class RestrictedRandWalk : public cSimpleModule
 	virtual void handleMessage(cMessage* );
 	virtual void finish();
 	//
-	
+
    private:
 	//implement the mvement that sims a torus
 	bool torus(int&, int&);
@@ -70,5 +70,5 @@ class RestrictedRandWalk : public cSimpleModule
 	int stepsNum;
 	double partial;
 };
-	
-#endif	
+
+#endif

@@ -5,7 +5,7 @@
 #ifndef MOBILITY_H
 #define MOBILITY_H
 
-// #include "omnetpp.h"
+// #include <omnetpp.h>
 #include "costants.h"
 
 //#include "physic.h"
@@ -14,7 +14,7 @@ class RandomWP // : public cSimpleModule
 {
   friend class MobilityRandomWP;
   friend class MobilityRandomPattern;
-  
+
   //Macro that contains the costructor,destructor
   //and other Omnett++ stuff
   //Module_Class_Members(RandomWP,cSimpleModule,0)
@@ -23,7 +23,7 @@ class RandomWP // : public cSimpleModule
 //	virtual void handleMessage(cMessage* );
 //	virtual void finish();
 	//
-	
+
  protected:
     RandomWP(void);
     ~RandomWP(void){}
@@ -31,17 +31,17 @@ class RandomWP // : public cSimpleModule
 	//returns the time intervall
 	//to the next move
 	double randomWaypoint(int&, int&);
-    
+
 	double moveInterval;
     double minSpeed;
 	double maxSpeed;
     int distance;
     double pauseTime;
-    
+
 //	cPar* moveInterval;
 //	cPar* pauseTime;
 //	cPar* moveKind;
-	
+
 //	cPar* maxSpeed;
 //	cPar* minSpeed;
 
@@ -62,5 +62,5 @@ class RandomWP // : public cSimpleModule
 	int stepsNum;
 	double partial;
 };
-	
-#endif	
+
+#endif

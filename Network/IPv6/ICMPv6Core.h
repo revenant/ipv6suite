@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,14 +29,14 @@
 #include "cpacket.h"
 #endif //__CPACKET_H
 
-#include "basic_consts.h"
+
 
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
 
 
-/** 
+/**
    @class ICMPv6Core
    @brief Module for Processing of ICMPv6 messages
    Processing of received ICMP messages from network nodes and local modules
@@ -56,7 +56,7 @@ public:
   virtual void activity();
   void handleMessage(cMessage* theMsg);
   virtual void finish();
-  
+
 private:
       ///Process local errors and send ICMP messages back to
       //originator of errored PDU
@@ -67,7 +67,7 @@ private:
 
   /// Notify upper layer of ICMP error messages received
   void errorOut(ICMPv6Message *);
-  
+
       ///@name Echo messages
       //@{
       ///received echo requests are processed
@@ -77,13 +77,13 @@ private:
       ///Initiating an echo dialogue
   void sendEchoRequest(cMessage *);
       //@}
-  
-      ///Send ICMP message to dest 
+
+      ///Send ICMP message to dest
   void sendInterfacePacket(ICMPv6Message *, const ipv6_addr& dest,
-                           const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED, 
+                           const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                            size_t hopLimit = 0);
 
-  ///@name Ned Parameters  
+  ///@name Ned Parameters
   //@{
   simtime_t delay;
   bool icmpRecordStats;
@@ -114,7 +114,7 @@ private:
   unsigned int ctrIcmp6OutTimeExceeded, ctrIcmp6OutParamProblem;
   unsigned int ctrIcmp6InDestUnreachable, ctrIcmp6InPacketTooBig;
   unsigned int ctrIcmp6InTimeExceeded, ctrIcmp6InParamProblem;
-  
+
 };
 
 #endif

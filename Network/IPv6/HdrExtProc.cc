@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.cc,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.cc,v 1.2 2005/02/10 04:00:43 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-   @file HdrExtProc.cc 
+   @file HdrExtProc.cc
    @brief Implementation of base class for IPv6 extension headers
 
    Have a general ExtHdr class with virtual length functions that deal with
@@ -30,7 +30,7 @@
 #include <boost/cast.hpp>
 
 
-#include "omnetpp.h"
+#include <omnetpp.h>
 #include "IPv6Headers.h"
 #include "IPv6Datagram.h"
 #include "HdrExtProc.h"
@@ -48,29 +48,29 @@ HdrExtProc::~HdrExtProc()
 
 int HdrExtProc::cumul_len(const IPv6Datagram& pdu) const
 {
-  int len = 0;  
+  int len = 0;
   HdrExtProc* proc = pdu.getNextHeader(0); //Get the first header
-  
+
   //There has to be an extension header after all we are an extension header
-  assert(proc != 0);   
+  assert(proc != 0);
 
   for(;;)
-  {      
+  {
     if (proc == 0)
 	{
-	  
+
 	  cerr << "Error in calculating cumulative length. Wrapper not found"<<endl;
 	  return len;
 	}
 
     len += proc->length();
     //Find cumulative length until it reaches us.
-    if (proc == this) 
-	  return len + length();      
+    if (proc == this)
+	  return len + length();
     proc = pdu.getNextHeader(proc);
   }
 
-  
+
 }
 
 
@@ -78,7 +78,7 @@ int HdrExtProc::cumul_len(const IPv6Datagram& pdu) const
 size_t HdrExtProc::length() const
 {
   size_t len = 0;
-    
+
   switch (_type)
   {
 	//Detect Pad1/PadN and figure out length
@@ -90,10 +90,10 @@ size_t HdrExtProc::length() const
       break;
     case EXTHDR_FRAGMENT:
       len = IPv6_FRAG_HDR_LEN;
-      break;	
+      break;
       //Not supported i.e. is ignored completely. (log warning msg)
     case EXTHDR_ESP: case EXTHDR_AUTH:
-      cerr << "Don't know length for EXTHDR_ESP/EXTHDR_AUTH"<<endl;	
+      cerr << "Don't know length for EXTHDR_ESP/EXTHDR_AUTH"<<endl;
       break;
     case NEXTHDR_DEST:
       //Currently only home addr option so this should be fine.
@@ -102,17 +102,17 @@ size_t HdrExtProc::length() const
     default:
       assert(false);
       cerr << "Unrecoverable error: Unknown ext hdr type: "<<_type<<endl;
-	
-      break;	
+
+      break;
   }
-  return len;    
+  return len;
 }
 
-ipv6_ext_hdr* HdrExtProc::construct(const IPv6ExtHeader& hdr_type, 
+ipv6_ext_hdr* HdrExtProc::construct(const IPv6ExtHeader& hdr_type,
                                     int opt_type) const
 {
   ipv6_ext_hdr* ret = 0;
-  
+
   switch (hdr_type)
   {
     case EXTHDR_DEST:
@@ -124,7 +124,7 @@ ipv6_ext_hdr* HdrExtProc::construct(const IPv6ExtHeader& hdr_type,
     case EXTHDR_FRAGMENT:
       ret = new ipv6_ext_frag_hdr;
       break;
-      
+
     case EXTHDR_ESP: case EXTHDR_AUTH:
       cerr << "Don't know about authentication header types "<<_type<<endl;
       break;

@@ -2,7 +2,7 @@
 #ifndef MOBILITY_H
 #define MOBILITY_H
 
-#include "omnetpp.h"
+#include <omnetpp.h>
 #include "costants.h"
 
 #include "physic.h"
@@ -18,7 +18,7 @@ class RandomDirection : public cSimpleModule
 	virtual void handleMessage(cMessage* );
 	virtual void finish();
 	//
-	
+
    private:
 
 	//check if a bound has benn reached
@@ -49,5 +49,5 @@ class RandomDirection : public cSimpleModule
 	int stepsNum;
 	double partial;
 };
-	
-#endif	
+
+#endif

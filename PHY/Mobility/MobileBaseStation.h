@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileBaseStation.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileBaseStation.h,v 1.2 2005/02/10 04:00:43 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -22,7 +22,7 @@
 
    A class that handles BS operations such as assigning channels for
    mobile entities
-   
+
    Author Eric Wu
  */
 
@@ -31,7 +31,7 @@
 
 #include <list>
 
-#include "omnetpp.h"
+#include <omnetpp.h>
 #include "Entity.h"
 
 using namespace std;
@@ -42,7 +42,7 @@ class BaseStation : public Entity
 {
  public:
   BaseStation(cSimpleModule* mod);
-  
+
   // return the broadcast range
   int bcastRange(void) { return _bcastRange; }
 

@@ -1,6 +1,6 @@
 
 #include "h/randomWP.h"
-#include "omnetpp.h"
+#include <omnetpp.h>
 
 //Define_Module_Like(RandomWP,Mobility);
 
@@ -13,7 +13,7 @@ double RandomWP::randomWaypoint(int& x, int& y)
 
 	a = x;
 	b = y;
-    
+
 	//if the node has reached its destination,define anotherone
 	//and rest for pauseTime
 	if(steps == 0)
@@ -26,7 +26,7 @@ double RandomWP::randomWaypoint(int& x, int& y)
 		d = (int) intuniform(minY,maxY);
 
 		distance = sqrt(((c-a)*(c-a))+((d-b)*(d-b))) ;
-		
+
 //		d("DISTANCE = "<<distance);
 		if ( speed !=0)
 		{
@@ -42,7 +42,7 @@ double RandomWP::randomWaypoint(int& x, int& y)
 			dX = 0;
 			dY = 0;
 		}
-		
+
 		stepsNum += steps;
 		partial += steps * speed;
 
@@ -52,7 +52,7 @@ double RandomWP::randomWaypoint(int& x, int& y)
 	x = (x + dX) ;
 	x = x > maxX ? maxX : x;
 	x = x < minX ? minX : x;
-	
+
 	y = (y + dY);
 	y = y > maxY ? maxY : y;
 	y = y < minY ? minY : y;
@@ -86,20 +86,20 @@ RandomWP::RandomWP()
 	maxX = (int)parentModule()->par("Xbound") -5;
 	minY = 5;
 	maxY = (int)parentModule()->par("Ybound") -5;
-	
+
 
 	moveInterval = &par("moveInterval");
 	pauseTime = &par("pauseTime");
 	moveKind = &par("movKind");
 	maxSpeed = &par("maxSpeed");
 	minSpeed = &par("minSpeed");
-	
+
 	cMessage *moveMsg = new cMessage("Move");
 
 	//start miving
 	scheduleAt(simTime()+0.01, moveMsg);*/
 
-	steps = 0;	
+	steps = 0;
 
 	//statistical variables
 	stepsNum =0;
@@ -113,7 +113,7 @@ RandomWP::RandomWP()
 void RandomWP::handleMessage(cMessage *msg)
 {
 	int x,y;
-	
+
 	d(" random WP");
 	//get the current position from the physic module
 	physic->getPos(x, y);
@@ -139,10 +139,10 @@ void RandomWP::handleMessage(cMessage *msg)
 void RandomWP::finish()
 {
 	 FILE* fout = fopen("collcectedData.dat","a");
-	
+
 	d("Speed avarage..........:"<<partial/stepsNum);
 	fprintf(fout,"\nSpeed avatage............... %.2f\n",partial/stepsNum);
-	
+
  	fclose(fout);
 }
 

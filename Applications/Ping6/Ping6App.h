@@ -25,9 +25,9 @@
    @date 02.02.02
 */
 
-#include "basic_consts.h"
+
 #include "ipv6_addr.h"
-#include "omnetpp.h"
+#include <omnetpp.h>
 
 extern const int TRANSMIT_PING;
 
@@ -43,14 +43,14 @@ class Ping6App: public cSimpleModule
  private:
 
   RoutingTable6* rt;
-  
+
   ///@name Ned Parameters
   //@{
   ipv6_addr dest;
   ///Choose outgoing source ip address, default is to determine based on
   ///destination address. All '0's will set src to default
   ipv6_addr src;
-  ///Wait for x seconds before sending next ping request default is 1 second  
+  ///Wait for x seconds before sending next ping request default is 1 second
   double interval;
   ///Default is 56 bytes of payload
   size_t packetSize;
@@ -87,7 +87,7 @@ private:
 
   //roundtrip
   double min;
-  double max; 
+  double max;
   double avg;
 
   cMessage* schSend;

@@ -135,12 +135,14 @@ NewBWRequestTester.obj: NewBWRequestTester.cc \
   ../IPv4/IPDatagram.h \
   ../MPLS/LIBTableAccess.h \
   ../MPLS/ConstType.h \
+  ../IPv4/IPDatagram_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
+  ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
-  ../../Base/INETDefs.h \
-  ../Generic/IPAddress.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h
 NewRouteTester.obj: NewRouteTester.cc \
@@ -151,11 +153,14 @@ NewRouteTester.obj: NewRouteTester.cc \
   ../IPv4/IPDatagram.h \
   ../MPLS/LIBTableAccess.h \
   ../MPLS/ConstType.h \
+  ../IPv4/IPDatagram_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
+  ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
-  ../../Base/INETDefs.h \
-  ../Generic/IPAddress.h \
   ../Generic/InterfaceTable.h \
-  ../Generic/InterfaceEntry.h
+  ../Generic/InterfaceEntry.h \
+  ../RSVP_TE/IntServ_m.h

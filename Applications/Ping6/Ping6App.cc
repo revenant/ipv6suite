@@ -36,8 +36,7 @@
 #include <iostream>
 
 #include "Ping6App.h"
-#include "Ping6Iface.h"
-#include "IPv6InterfacePacketWithData.h"
+#include "Ping6InterfacePacket_m.h"
 #include "IPv6Headers.h"
 #include "opp_utils.h"
 #include "RoutingTable6.h"
@@ -154,16 +153,19 @@ void Ping6App::sendPing(void)
   //Should be one per host. Leave it at this for now
   //int identifier
   echo_req.id = hostid;
-  echo_req.custom_data = "My ping data";
-  echo_req.setLength(packetSize);
+  //echo_req.custom_data = "My ping data";
+  //echo_req.setLength(packetSize);
   echo_req.hopLimit = static_cast<unsigned char> (hopLimit);
   echo_req.seqNo = seqNo;
   echo_req.sendingTime = simTime();
 
   //Source Address should be filled in by Routing rules or by omnet.ini
   //paramter.  Dest has to be filled in.
-  IPv6InterfacePacketWithData<echo_int_info>*
-    app_req = new IPv6InterfacePacketWithData<echo_int_info> (echo_req, src, dest);
+  Ping6InterfacePacket *app_req = new Ping6InterfacePacket();
+  app_req->setData(echo_req);
+  app_req->setSrcAddr(src);
+  app_req->setDestAddr(dest);
+  app_req->setLength(packetSize);
   app_req->setName("PING6_REQ");
   app_req->addPar("ipv6");
   send(app_req, "pingOut");
@@ -188,15 +190,14 @@ void Ping6App::receivePing(cMessage* msg)
   {
     Dout(dc::notice, rt->nodeName()<<" "<<simTime()
          <<" ping packets arrived after deadline seq="
-         <<(check_and_cast<IPv6InterfacePacketWithData<echo_int_info>* >(msg))->data().seqNo);
+         <<(check_and_cast<Ping6InterfacePacket* >(msg))->data().seqNo);
     return;
   }
 
-  IPv6InterfacePacketWithData<echo_int_info> *app_reply = 0;
+  Ping6InterfacePacket *app_reply = 0;
   echo_int_info echo_resp;
 
-  app_reply = check_and_cast<IPv6InterfacePacketWithData<echo_int_info>* >
-    (msg);
+  app_reply = check_and_cast<Ping6InterfacePacket*>(msg);
   app_reply->setName("PING6_REPLY");
 
   echo_resp = app_reply->data();
@@ -289,7 +290,7 @@ void Ping6App::receivePing(cMessage* msg)
   lastReceiveTime = simTime();
 
   if (printPing)
-    cout<<echo_resp.length() + 8<<dec<<" bytes from " <<app_reply->srcAddr()
+    cout<<app_reply->length()+8<<dec<<" bytes from " <<app_reply->srcAddr()
         <<" icmp_seq="<<echo_resp.seqNo<<" ttl="<<(size_t)echo_resp.hopLimit
         <<" time="<< (simTime() - echo_resp.sendingTime ) * 1000 << " msec"
         <<" ( ping request by "<< fullPath() << ")"<<endl;

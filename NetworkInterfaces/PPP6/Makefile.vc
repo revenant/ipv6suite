@@ -163,6 +163,7 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   PPP6Frame.h \
   ../../Util/opp_utils.h \
   ../../Network/Generic/InterfaceTableAccess.h \
+  ../LL6ControlInfo_m.h \
   ../LinkLayerModule.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/cast.hpp \

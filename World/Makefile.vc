@@ -225,11 +225,15 @@ WirelessStats.obj: WirelessStats.cc \
   ../config.h \
   ../NetworkInterfaces/LinkLayerModule.h \
   ../NetworkInterfaces/Ethernet6/MACAddress6.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
+  ../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../Util/AveragingList.h \
   ../Util/boost/operators.hpp \
   ../Util/boost/iterator.hpp \
   ../Util/ExpiryEntryList.h \
-  ../NetworkInterfaces/Wireless/WEthernet.h
+  ../NetworkInterfaces/Wireless/WEthernet.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h
 WorldProcessor.obj: WorldProcessor.cc \
   ../Util/sys.h \
   ../Util/debug.h \
@@ -447,5 +451,9 @@ WorldProcessor.obj: WorldProcessor.cc \
   ../Mobility/MobilityHandler.h \
   ../NetworkInterfaces/LinkLayerModule.h \
   ../NetworkInterfaces/Ethernet6/MACAddress6.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
+  ../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../Util/AveragingList.h \
-  ../NetworkInterfaces/Wireless/WEthernet.h
+  ../NetworkInterfaces/Wireless/WEthernet.h \
+  ../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h

@@ -153,10 +153,13 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
+GenericAppMsg_m.obj: GenericAppMsg_m.cc \
+  GenericAppMsg_m.h
 TCPBasicClientApp.obj: TCPBasicClientApp.cc \
   TCPBasicClientApp.h \
   TCPGenericCliAppBase.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -164,6 +167,7 @@ TCPBasicClientApp.obj: TCPBasicClientApp.cc \
 TCPEchoApp.obj: TCPEchoApp.cc \
   TCPEchoApp.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -171,7 +175,9 @@ TCPEchoApp.obj: TCPEchoApp.cc \
 TCPGenericCliAppBase.obj: TCPGenericCliAppBase.cc \
   TCPGenericCliAppBase.h \
   ../../Network/Generic/IPAddressResolver.h \
+  GenericAppMsg_m.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -179,15 +185,19 @@ TCPGenericCliAppBase.obj: TCPGenericCliAppBase.cc \
 TCPGenericSrvApp.obj: TCPGenericSrvApp.cc \
   TCPGenericSrvApp.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
+  GenericAppMsg_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h
 TCPGenericSrvThread.obj: TCPGenericSrvThread.cc \
   TCPGenericSrvThread.h \
+  GenericAppMsg_m.h \
   TCPSrvHostApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPSocketMap.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -196,6 +206,7 @@ TCPSessionApp.obj: TCPSessionApp.cc \
   TCPSessionApp.h \
   ../../Network/Generic/IPAddressResolver.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -203,6 +214,7 @@ TCPSessionApp.obj: TCPSessionApp.cc \
 TCPSinkApp.obj: TCPSinkApp.cc \
   TCPSinkApp.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -211,6 +223,7 @@ TCPSrvHostApp.obj: TCPSrvHostApp.cc \
   TCPSrvHostApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPSocketMap.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
@@ -219,6 +232,7 @@ TelnetApp.obj: TelnetApp.cc \
   TelnetApp.h \
   TCPGenericCliAppBase.h \
   ../../Transport/TCP/TCPSocket.h \
+  ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \

@@ -1,8 +1,6 @@
-#if 0
-// -*- C++ -*-
 //
-// Copyright Copyright (C) 2001 Johnny Lai
-// Monash University, Melbourne, Australia
+// Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,40 +15,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
-/**
-   @file Ping6Iface.h
 
-   @brief Store all Application layer to Transport/Network layer interface
-   message types.
-*/
+cplusplus {{
+#include "IPv6InterfacePacket_m.h"
+}}
 
-/**
-   @class echo_int_info
-   Structure for upper layers to send ping information to IP layer.
-   Define another structure if custom data is to be sent across.
-*/
+class noncobject ipv6_addr;
+class IPv6InterfacePacket;
+
 struct echo_int_info
 {
-  echo_int_info()
-    :custom_data("PING6_REQ"), _length(sizeof(custom_data)){};
-
-    unsigned int length() const
-    {
-      return _length;
-    }
-
-  void setLength(unsigned int len)
-    {
-      _length = len;
-    }
-
-  short id;
-  unsigned long seqNo;
-  char* custom_data;
-  int _length;
-  unsigned char hopLimit;
-  double sendingTime;
+    fields:
+        short id;
+        unsigned long seqNo;
+        unsigned char hopLimit;
+        double sendingTime;
 };
 
-#endif
+//
+// FIXME comment
+//
+message Ping6InterfacePacket extends IPv6InterfacePacket
+{
+    properties:
+        omitGetVerb = true;
+    fields:
+        echo_int_info data;  // ping data
+};
+
+

@@ -238,6 +238,8 @@ EHCDSMobileNode.obj: EHCDSMobileNode.cc \
   ../IPv6/IPv6Datagram.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -464,6 +466,8 @@ EHNDStateHost.obj: EHNDStateHost.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -653,6 +657,8 @@ EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -933,6 +939,8 @@ HMIPv6CDSMobileNode.obj: HMIPv6CDSMobileNode.cc \
   ../IPv6/IPv6Datagram.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -1610,6 +1618,8 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -1848,6 +1858,8 @@ HMIPv6NDStateRouter.obj: HMIPv6NDStateRouter.cc \
   ../IPv6/Constants.h \
   ../ICMPv6/ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
+  ../Generic/IPProtocolId_m.h \
+  ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \

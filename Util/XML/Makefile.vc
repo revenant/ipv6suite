@@ -563,6 +563,8 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../Loki/Singleton.h \
   ../../Network/IPv6/IPv6Datagram.h \
   ../../Base/QueueBase.h \
+  ../../Network/Generic/IPProtocolId_m.h \
+  ../../Network/IPv6/IPv6Datagram_m.h \
   ../../Base/AbstractQueue.h \
   ../../Network/ICMPv6/IRouterList.h \
   ../../Network/ICMPv6/IPrefixList.h \
@@ -571,8 +573,12 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../../Network/MIPv6/MIPv6Entry.h \
   ../../NetworkInterfaces/LinkLayerModule.h \
   ../../NetworkInterfaces/Wireless/wirelessethernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
+  ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../AveragingList.h \
   ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ../../Mobility/MobilityHandler.h \
   ../../Mobility/Entity.h \
   ../../Network/ICMPv6/ICMPv6NDOptionBase.h \

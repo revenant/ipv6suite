@@ -125,6 +125,7 @@ re-makemake: makefiles
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 UDPApp.obj: UDPApp.cc \
   UDPApp.h \
+  ../../Transport/UDP/UDPControlInfo_m.h \
   ../../Util/StringTokenizer.h \
   ../../Network/Generic/IPAddressResolver.h \
   ../../Network/Generic/IPvXAddress.h \

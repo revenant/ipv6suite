@@ -33,8 +33,7 @@
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
 
-#include "IPv6InterfacePacketWithData.h"
-#include "Ping6Iface.h"
+#include "Ping6InterfacePacket_m.h"
 #include "opp_utils.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h" //required for counters only
@@ -282,7 +281,7 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
         break;
 
       case ICMPv6_ECHO_REQUEST:
-        dgram->encapsulate(icmpmsg);
+        dgram->encapsulate(icmpmsg); // FIXME what the hell is this? it's just been decapsulated!!! --Andras
         dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
         dgram->setName(icmpmsg->name());
         recEchoRequest(dgram);
@@ -349,8 +348,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   assert(request->encapsulatedMsg() != 0);
   ICMPv6Echo* req = check_and_cast<ICMPv6Echo*> (request->encapsulatedMsg());
   assert(req);
-  echo_int_info echo_req = check_and_cast<
-    IPv6InterfacePacketWithData<echo_int_info>* > (req->encapsulatedMsg())->data();
+  echo_int_info echo_req = check_and_cast<Ping6InterfacePacket*> (req->encapsulatedMsg())->data();
 
   if (icmpRecordStats)
   {
@@ -425,8 +423,8 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 {
 
   ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
-  IPv6InterfacePacketWithData<echo_int_info>* app_req =
-    static_cast<IPv6InterfacePacketWithData<echo_int_info>*> (echo_reply->decapsulate());
+  Ping6InterfacePacket* app_req =
+    static_cast<Ping6InterfacePacket*> (echo_reply->decapsulate());
 
 
   //As the whole ping request info was sent there is no need to reconstruct
@@ -444,16 +442,15 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
   send(app_req, "pingOut");
 #else
   echo_int_info echo_req = app_req->data();
-  cout<<dec<<echo_req.id<<" "<<echo_req.seqNo<<" from "<<app_req->srcAddress()
-      <<" "<<echo_req.custom_data<<endl;
+  cout<<dec<<echo_req.id<<" "<<echo_req.seqNo<<" from "<<app_req->srcAddress()<<endl;
   delete app_req;
 #endif //TESTIPv6PING
 }
 
 void ICMPv6Core::sendEchoRequest(cMessage *msg)
 {
-  IPv6InterfacePacketWithData<echo_int_info>*  app_req =
-    static_cast< IPv6InterfacePacketWithData<echo_int_info>* > (msg);
+  Ping6InterfacePacket*  app_req =
+    static_cast< Ping6InterfacePacket* > (msg);
   echo_int_info echo_req = app_req->data();
 
   ICMPv6Message *request = new ICMPv6Echo(echo_req.id, echo_req.seqNo, true);

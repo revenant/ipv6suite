@@ -640,6 +640,7 @@ void XMLOmnetParser::parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6
 
 #ifdef USE_MOBILITY
 
+/*XXX these params went to NED parameters
 void XMLOmnetParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
 {
   assert(wlanMod);
@@ -721,6 +722,7 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
  // TODO: parse supported rate
 
 }
+*/
 
 void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
 {

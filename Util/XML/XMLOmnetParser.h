@@ -97,13 +97,15 @@ class XMLOmnetParser
   /**
    * Fills in parameters inside the given WirelessEtherModule.
    */
+/*XXX these params went to NED parameters
   void parseWirelessEtherInfo(WirelessEtherModule* mod);
-
+*/
   /**
    * Fills in parameters inside the given WirelessEtherModule.
    */
+/*XXX these params went to NED parameters
   void parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* weInfo);
-
+*/
   /**
    * Fills in parameters inside the given MobilityStatic.
    */

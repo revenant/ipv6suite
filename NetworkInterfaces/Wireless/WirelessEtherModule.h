@@ -119,6 +119,8 @@ public:
   virtual void finish();
   virtual int numInitStages(void) const { return 2; }
 
+  void readConfiguration();
+
   // adds interface entry into InterfaceTable
   InterfaceEntry *registerInterface();
 
@@ -286,31 +288,37 @@ protected:
   // general attributes
   // ----------
 
+  //
+  // configuration
+  //
   MACAddress6 address;
   bool apMode;
-  bool adhocMode; // parsed from XML
-  std::string ssid; // parsed from XML
-  SupportedRates rates; // Mbps; parsed from XML (NOT IMPLEMENTED YET!)
+  bool adhocMode;
+  std::string ssid;
+  SupportedRates rates; // Mbps (NOT IMPLEMENTED YET!)
   double pLExp; // path loss exponent
   double pLStdDev; // dB; standard deviation of Gauss. dist. for path loss model
-  double txpower; // mW; parsed from XML
-  double threshpower; // dBm; threshold power; parsed from XML
-  double hothreshpower; // dBm; handover threshold power; parsed from XML
-  double probeEnergyTimeout; // parsed from XML
-  double probeResponseTimeout; // parsed from XML
-  double authenticationTimeout; // parsed from XML
-  double associationTimeout; // parsed from XML
-  unsigned int maxRetry; // parsed from XML
-  bool fastActScan; // parsed from XML
-  bool scanShortCirc; // parsed from XML
-  bool crossTalk;  // parsed from XML
-  bool shadowing; // parsed from XML
-  std::string chanNotToScan; // parsed from XML
-  double bWRequirements; // parsed from XML : rating from 0-1
-  bool statsVec; // parsed from XML
-  bool activeScan; // parsed from XML
-  double channelScanTime; //parsed from XML
+  double txpower; // mW
+  double threshpower; // dBm; threshold power
+  double hothreshpower; // dBm; handover threshold power
+  double probeEnergyTimeout;
+  double probeResponseTimeout;
+  double authenticationTimeout;
+  double associationTimeout;
+  unsigned int maxRetry;
+  bool fastActScan;
+  bool scanShortCirc;
+  bool crossTalk;
+  bool shadowing;
+  std::string chanNotToScan;
+  double bWRequirements;  // rating from 0-1
+  bool statsVec;
+  bool activeScan;
+  double channelScanTime;
 
+  //
+  // state information and statistics
+  //
   bool ackReceived;
   int channel;
   unsigned int retry;

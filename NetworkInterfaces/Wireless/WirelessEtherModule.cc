@@ -96,7 +96,7 @@
 #include "InterfaceTableAccess.h"
 
 
-Define_Module_Like( WirelessEtherModule, NetworkInterface6);
+Define_Module(WirelessEtherModule);
 
 void WirelessEtherModule::baseInit(int stage)
 {
@@ -138,6 +138,7 @@ void WirelessEtherModule::baseInit(int stage)
     totalWaitTimeVec = new cOutVector("avgWaitTime");
     totalBytesTransmitted = 0;
 
+/* XXX XML config replaced by NED parameters
     cXMLElement* weinfo = par("nwiXmlConfig");
     if (weinfo)
     {
@@ -150,6 +151,9 @@ void WirelessEtherModule::baseInit(int stage)
     }
 
     wproc->xmlConfig()->parseWirelessEtherInfo(this);
+*/
+    readConfiguration();
+
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
 
@@ -194,7 +198,7 @@ void WirelessEtherModule::initialize(int stage)
     setIface_name(PR_WETHERNET);
     iface_type = PR_WETHERNET;
 
-    procdelay = par("procdelay").longValue();
+    procdelay = par("procdelay");
     apMode = false;
 
     channel = 0;
@@ -316,6 +320,51 @@ void WirelessEtherModule::finish()
   // if initialize() hasn't run because of an error during startup! --AV
   delete [] channelToScan;
   delete signalStrength;
+}
+
+void WirelessEtherModule::readConfiguration()
+{
+  //XXX this code was created from  XMLOmnetParser::parseWEInfo() --AV
+  ssid = par("ssid").stringValue();
+  pLExp = par("pathLossExponent");
+  pLStdDev = par("pathLossStdDev");
+  txpower = par("txPower");
+  threshpower = par("thresholdPower");
+  hothreshpower = par("hOThresholdPower");
+  probeEnergyTimeout = par("probeEnergyTimeout");
+  probeResponseTimeout = par("probeResponseTimeout");
+  authenticationTimeout = par("authenticationTimeout");
+  associationTimeout = par("associationTimeout");
+  maxRetry = par("retry");
+  fastActScan = par("fastActiveScan");
+  scanShortCirc = par("scanShortCircuit");
+  crossTalk = par("crossTalk");
+  shadowing = par("shadowing");
+  chanNotToScan = par("channelsNotToScan").stringValue();
+  sSMaxSample = par("signalStrengthMaxSample");
+
+  std::string addr = par("address");
+
+  if(!apMode)
+  {
+    if(addr != "0")
+      address.set(addr.c_str());
+    //Only want to initialise the MN mac address once otherwise routing tables
+    //are wrong if we generate another random number from the stream
+    else if (address == MACAddress6())
+    {
+      MAC_address macAddr;
+      macAddr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+      macAddr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+      address.set(macAddr);
+    }
+  }
+
+  bWRequirements = par("bandwidthRequirements");
+  statsVec = par("recordStatisticVector");
+  activeScan = par("activeScan");
+  channelScanTime = par("channelScanTime");
+  // TODO: parse supported rates
 }
 
 InterfaceEntry *WirelessEtherModule::registerInterface()

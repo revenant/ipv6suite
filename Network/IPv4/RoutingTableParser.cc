@@ -26,7 +26,13 @@
 #include <ctype.h>
 
 #include "RoutingTableParser.h"
+#include "StringTokenizer.h"
 
+//
+// Constants
+//
+const int MAX_FILESIZE = 10000; // TBD lift hardcoded limit
+const int MAX_ENTRY_STRING_SIZE = 500;
 
 //
 // Tokens that mark the route file.
@@ -278,51 +284,18 @@ char *RoutingTableParser::parseIPv4InterfaceEntry (char *ifconfigFile,
 void RoutingTableParser::parseMulticastGroups (char *groupStr,
                                               IPv4InterfaceEntry *itf)
 {
-    int i, j, groupNo;
-
-    itf->multicastGroupCtr = 1;
-
-    // add "224.0.0.1" automatically,
-    // use ":"-separator only if string not empty
-    if (!strcmp(groupStr, "")) {
-        strcat(groupStr, "224.0.0.1");
-    } else { // string not empty, use seperator
-        strcat(groupStr, ":224.0.0.1");
-    }
+    // add "224.0.0.1" automatically
+    itf->multicastGroups().push_back(IPAddress("224.0.0.1"));
 
     // add 224.0.0.2" only if Router (IP forwarding enabled)
-    if (rt->ipForward()) {
-        strcat(groupStr, ":224.0.0.2");
-    }
+    if (rt->ipForward())
+        itf->multicastGroups().push_back(IPAddress("224.0.0.2"));
 
-    // count number of group entries
-    for (i = 0; groupStr[i] != '\0'; i++) {
-        if (groupStr[i] == ':')
-            itf->multicastGroupCtr++;
-    }
-
-    char *str = new char[ADDRESS_STRING_SIZE];
-    itf->multicastGroup = new IPAddress[itf->multicastGroupCtr];
-
-    // Create the different IPAddress
-    for (i = 0, j = 0, groupNo = 0; groupStr[i] != '\0'; i++, j++) {
-        // Skip to next multicast group, if separator found
-        // it's a bit a ugly...
-        if (groupStr[i] == ':') {
-            str[j] = '\0';
-            itf->multicastGroup[groupNo] = IPAddress(str);
-            j = -1;
-            groupNo++;
-            continue;
-        }
-        if (groupStr[i + 1] == '\0') {
-            str[j] = groupStr[i];
-            str[j + 1] = '\0';
-            itf->multicastGroup[groupNo] = IPAddress(str);
-            break;
-        }
-        str[j] = groupStr[i];
-    }
+    // Parse string (IP addresses separated by colons)
+    StringTokenizer tokenizer(groupStr,":");
+    const char *token;
+    while ((token = tokenizer.nextToken())!=NULL)
+        itf->multicastGroups().push_back(IPAddress(token));
 }
 
 void RoutingTableParser::parseRouting(char *routeFile)

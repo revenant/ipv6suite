@@ -46,8 +46,6 @@ IPv4InterfaceEntry::IPv4InterfaceEntry(InterfaceEntry *e)
     _metric = 0;
 
     // TBD add default multicast groups!
-    multicastGroupCtr = 0;
-    multicastGroup = NULL;
 }
 
 std::string IPv4InterfaceEntry::info() const
@@ -57,6 +55,14 @@ std::string IPv4InterfaceEntry::info() const
     out << "  outputPort:" << outputPort();
     out << "  addr:" << inetAddress() << "  mask:" << netmask();
     out << "  MTU:" << mtu() << "  Metric:" << metric();
+    if (isDown()) out << "DOWN";
+    out << " Groups:";
+    if (!multicastGroups().empty())
+    {
+        for (int j=0; j<multicastGroups().size(); j++)
+            if (!multicastGroups()[j].isNull())
+                out << ":" << multicastGroups()[j];
+    }
     return out.str();
 }
 
@@ -70,9 +76,9 @@ std::string IPv4InterfaceEntry::detailedInfo() const
     out << "MTU: " << mtu() << " \tMetric: " << metric() << "\n";
 
     out << "Groups:";
-    for (int j=0; j<multicastGroupCtr; j++)
-        if (!multicastGroup[j].isNull())
-            out << "  " << multicastGroup[j];
+    for (int j=0; j<multicastGroups().size(); j++)
+        if (!multicastGroups()[j].isNull())
+            out << "  " << multicastGroups()[j];
     out << "\n";
 
     if (isDown()) out << "DOWN ";
@@ -232,11 +238,11 @@ void RoutingTable::printRoutingTable()
 
 void RoutingTable::addPv4InterfaceEntryFor(InterfaceEntry *e)
 {
-    IPv4InterfaceEntry *ipv4Interface = new IPv4InterfaceEntry(e);
-    interfaces.push_back(ipv4Interface);
+    IPv4InterfaceEntry *e4 = new IPv4InterfaceEntry(e);
+    interfaces.push_back(e4);
 
     // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    //XXX !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ipv4Interface->setMetric((int)ceil(2e9/datarate)); // use OSPF cost as default
+    e4->setMetric((int)ceil(2e9/e->datarate())); // use OSPF cost as default
 }
 
 IPv4InterfaceEntry *RoutingTable::interfaceAt(int id)
@@ -281,28 +287,29 @@ IPv4InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
 
 IPv4InterfaceEntry *RoutingTable::addLocalLoopback()
 {
-/* FIXME TBD XXXXXXXXX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    IPv4InterfaceEntry *loopbackInterface = new IPv4InterfaceEntry();
+    // add base info
+    InterfaceEntry *loopbackIfBase = new InterfaceEntry();
 
-    loopbackInterface->setName = "lo0";
+    loopbackIfBase->setName("lo0");
+    loopbackIfBase->setOutputPort(-1);
+    loopbackIfBase->setMtu(3924);
+    loopbackIfBase->setLoopback(true);
+
+    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
+    interfaceTable->addInterface(loopbackIfBase);
+
+    // add IPv4 info
+    IPv4InterfaceEntry *loopbackInterface = new IPv4InterfaceEntry(loopbackIfBase);
 
     // 127.0.0.1/8 by default -- we may reconfigure later it to be the routerId
-    loopbackInterface->inetAddr = IPAddress("127.0.0.1");
-    loopbackInterface->mask = IPAddress("255.0.0.0");
-
-    loopbackInterface->mtu = 3924;
-    loopbackInterface->metric = 1;
-    loopbackInterface->loopback = true;
-
-    loopbackInterface->multicastGroupCtr = 0;
-    loopbackInterface->multicastGroup = NULL;
+    loopbackInterface->setInetAddress(IPAddress("127.0.0.1"));
+    loopbackInterface->setNetmask(IPAddress("255.0.0.0"));
+    loopbackInterface->setMetric(1);
 
     // add interface to table
-    addInterface(loopbackInterface);
+    interfaces.push_back(loopbackInterface);
 
     return loopbackInterface;
-*/
-return NULL; //XXXXXXXXXXXXXXXXXXXXXXXXXX!!!!!!!!!!!!!!!!!!!
 }
 
 //---
@@ -323,8 +330,8 @@ bool RoutingTable::multicastLocalDeliver(const IPAddress& dest)
     Enter_Method("multicastLocalDeliver(%s) y/n", dest.str().c_str());
 
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        for (int j=0; j < (*i)->multicastGroupCtr; j++)
-            if (dest.equals((*i)->multicastGroup[j]))
+        for (int j=0; j < (*i)->multicastGroups().size(); j++)
+            if (dest.equals((*i)->multicastGroups()[j]))
                 return true;
     return false;
 }

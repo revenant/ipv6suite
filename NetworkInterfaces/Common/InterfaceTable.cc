@@ -48,7 +48,8 @@ std::string InterfaceEntry::info() const
     out << (!_name.empty() ? name() : "*");
     out << "  outputPort:" << outputPort();
     out << "  MTU:" << mtu();
-    if (isDown()) out << "DOWN ";
+    if (isDown()) out << " DOWN";
+    out << "  (IP/IPv6 info in RoutingTables)";
     return out.str();
 }
 
@@ -64,6 +65,7 @@ std::string InterfaceEntry::detailedInfo() const
     if (isPointToPoint()) out << "POINTTOPOINT ";
     if (isLoopback()) out << "LOOPBACK ";
     out << "\n";
+    out << "(IP/IPv6 info in RoutingTables)\n";
 
     return out.str();
 }

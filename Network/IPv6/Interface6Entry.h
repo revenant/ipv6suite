@@ -103,6 +103,10 @@ private:
   static void removeAddrFromArray(IPv6Addresses& addrs, const IPv6Address& addr);
 
 public:
+
+  int outputPort()   {return _outputPort;}
+  void setOutputPort(int p)  {_outputPort = p;}
+
   void removeAddress(const IPv6Address& addr) {
     assert(addrAssigned(addr));
     removeAddrFromArray(inetAddrs,addr);
@@ -269,6 +273,7 @@ public:
     } rtrVar;
   //@}
 private:
+  int _outputPort;  // interface index (output gate index)
   double _reachableTime;
   // the previous base reachable time; Comparing this
   // prevBaseReachableTime to the current one to determine the

@@ -38,12 +38,6 @@
 class RoutingTableParser;
 
 
-/*
- * Constants
- */
-const int MAX_FILESIZE = 5000;
-const int MAX_ENTRY_STRING_SIZE = 20;
-const int MAX_GROUP_STRING_SIZE = 160;
 
 /**
  * Interface entry for the interface table in RoutingTable.
@@ -52,15 +46,15 @@ const int MAX_GROUP_STRING_SIZE = 160;
  */
 class IPv4InterfaceEntry : public cPolymorphic
 {
+  public:
+    typedef std::vector<IPAddress> IPAddressVector;
+
   private:
     InterfaceEntry *ifBase; //< pointer into InterfaceTable
     IPAddress _inetAddr;    //< IP address of interface
     IPAddress _netmask;     //< netmask
     int _metric;            //< link "cost"; see e.g. MS KB article Q299540
-
-  public: //XXX FIXME TBD just for now
-    int multicastGroupCtr; //< table size
-    IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
+    IPAddressVector _multicastGroups; //< multicast groups
 
   private:
     // copying not supported: following are private and also left undefined
@@ -76,6 +70,7 @@ class IPv4InterfaceEntry : public cPolymorphic
     IPAddress inetAddress() const  {return _inetAddr;}
     IPAddress netmask() const      {return _netmask;}
     int metric() const             {return _metric;}
+    const IPAddressVector& multicastGroups() const {return _multicastGroups;}
 
     const char *name() const       {return ifBase->name();}
     int outputPort() const         {return ifBase->outputPort();}
@@ -85,23 +80,22 @@ class IPv4InterfaceEntry : public cPolymorphic
     bool isMulticast() const       {return ifBase->isMulticast();}
     bool isPointToPoint() const    {return ifBase->isPointToPoint();}
     bool isLoopback() const        {return ifBase->isLoopback();}
-    //XXX int multicastGroupCtr; //< table size
-    //XXX IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
+    double datarate() const        {return ifBase->datarate();}
 
     void setInetAddress(IPAddress a) {_inetAddr = a;}
     void setNetmask(IPAddress m)     {_netmask = m;}
     void setMetric(int m)            {_metric = m;}
-    //XXX int multicastGroupCtr; //< table size
-    //XXX IPAddress *multicastGroup;  //< dynamically allocated IPAddress table
+    IPAddressVector& multicastGroups() {return _multicastGroups;}
 
-    void setName(const char *s)  {ifBase->setName(s);}
-    void setOutputPort(int i)    {ifBase->setOutputPort(i);}
-    void setMtu(int m)           {ifBase->setMtu(m);}
-    void setDown(bool b)         {ifBase->setDown(b);}
-    void setBroadcast(bool b)    {ifBase->setBroadcast(b);}
-    void setMulticast(bool b)    {ifBase->setMulticast(b);}
-    void setPointToPoint(bool b) {ifBase->setPointToPoint(b);}
-    void setLoopback(bool b)     {ifBase->setLoopback(b);}
+    void setName(const char *s)    {ifBase->setName(s);}
+    void setOutputPort(int i)      {ifBase->setOutputPort(i);}
+    void setMtu(int m)             {ifBase->setMtu(m);}
+    void setDown(bool b)           {ifBase->setDown(b);}
+    void setBroadcast(bool b)      {ifBase->setBroadcast(b);}
+    void setMulticast(bool b)      {ifBase->setMulticast(b);}
+    void setPointToPoint(bool b)   {ifBase->setPointToPoint(b);}
+    void setLoopback(bool b)       {ifBase->setLoopback(b);}
+    void setDatarate(double d)     {ifBase->setDatarate(d);}
 };
 
 

@@ -39,6 +39,7 @@ class InterfaceEntry : public cPolymorphic
     bool _multicast;     //< interface supports multicast
     bool _pointToPoint;  //< interface is point-to-point link
     bool _loopback;      //< interface is loopback interface
+    double _datarate;    //< data rate in bit/s
 
   private:
     // copying not supported: following are private and also left undefined
@@ -59,6 +60,7 @@ class InterfaceEntry : public cPolymorphic
     bool isMulticast() const       {return _multicast;}
     bool isPointToPoint() const    {return _pointToPoint;}
     bool isLoopback() const        {return _loopback;}
+    double datarate() const        {return _datarate;}
 
     void setName(const char *s)  {_name = s;}
     void setOutputPort(int i)    {_outputPort = i;}
@@ -68,6 +70,7 @@ class InterfaceEntry : public cPolymorphic
     void setMulticast(bool b)    {_multicast = b;}
     void setPointToPoint(bool b) {_pointToPoint = b;}
     void setLoopback(bool b)     {_loopback = b;}
+    void setDatarate(double d)   {_datarate = d;}
 };
 
 

@@ -19,6 +19,8 @@
 
 #include "ARP.h"
 #include "stlwatch.h"
+#include "RoutingTable.h"
+#include "RoutingTableAccess.h"
 
 
 static std::ostream& operator<< (std::ostream& ev, cMessage *msg)
@@ -60,11 +62,10 @@ void ARP::initialize(int stage)
     pendingQueue.setName("pendingQueue");
 
     // fill in myIPAddress and myMACAddress
-//XXX !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-/* add back!
-    myIPAddress = interfaceEntry->inetAddress();
+    RoutingTable *rt = RoutingTableAccess().get();
+    IPv4InterfaceEntry *e4 = rt->interfaceByName(interfaceEntry->name());
+    myIPAddress = e4->inetAddress();
     myMACAddress = ((EtherMAC *)parentModule()->submodule("mac"))->getMACAddress();
-*/
 
     // init statistics
     numRequestsSent = numRepliesSent = 0;

@@ -38,7 +38,7 @@ class IPvXAddress
 {
   protected:
     uint32 d[4];
-    bool is6;
+    bool isv6;
 
   public:
     /** name Constructors, destructor */
@@ -46,7 +46,7 @@ class IPvXAddress
     /**
      * Constructor for IPv4 addresses.
      */
-    IPvXAddress() {is6 = false; d[0] = 0;}
+    IPvXAddress() {isv6 = false; d[0] = 0;}
 
     /**
      * Constructor for IPv4 addresses.
@@ -74,13 +74,13 @@ class IPvXAddress
     /**
      * Is this an IPv6 address?
      */
-    bool isIPv6() const {return is6;}
+    bool isIPv6() const {return isv6;}
 
     /**
      * Get IPv4 address. Throws exception if this is an IPv6 address.
      */
     IPAddress get4() const {
-        if (is6)
+        if (isv6)
             throw new cException("IPvXAddress: cannot return IPv6 address %s as IPv4", str().c_str());
         return IPAddress(d[0]);
     }
@@ -89,7 +89,7 @@ class IPvXAddress
      * Get IPv6 address. Throws exception if this is an IPv4 address.
      */
     IPv6Address_ get6() const {
-        if (!is6)
+        if (!isv6)
             throw new cException("IPvXAddress: cannot return IPv4 address %s as IPv6", str().c_str());
         IPv6Address_ ret;
         ret.d[0] = d[0]; ret.d[1] = d[1]; ret.d[2] = d[2]; ret.d[3] = d[3];
@@ -100,7 +100,7 @@ class IPvXAddress
      * Set to an IPv4 address.
      */
     void set(const IPAddress& addr)  {
-        is6 = false;
+        isv6 = false;
         d[0] = addr.getInt();
     }
 
@@ -108,7 +108,12 @@ class IPvXAddress
      * Set to an IPv6 address.
      */
     void set(const IPv6Address_& addr)  {
-        is6 = true;
+        if ((addr.d[0]|addr.d[1]|addr.d[2]|addr.d[3])==0) {
+            // we always represent nulls as IPv4 null
+            isv6 = false; d[0] = 0;
+            return;
+        }
+        isv6 = true;
         d[0] = addr.d[0]; d[1] = addr.d[1]; d[2] = addr.d[2]; d[3] = addr.d[3];
     }
 
@@ -116,9 +121,9 @@ class IPvXAddress
      * Assignment
      */
     void set(const IPvXAddress& addr) {
-        is6 = addr.is6;
+        isv6 = addr.isv6;
         d[0] = addr.d[0];
-        if (is6) {
+        if (isv6) {
             d[1] = addr.d[1]; d[2] = addr.d[2]; d[3] = addr.d[3];
          }
     }
@@ -141,7 +146,7 @@ class IPvXAddress
     /**
      * Returns the string representation of the address (e.g. "152.66.86.92")
      */
-    std::string str() const {return is6 ? get6().str() : get4().str();}
+    std::string str() const {return isv6 ? get6().str() : get4().str();}
     //@}
 
     /** name Comparison */
@@ -150,30 +155,28 @@ class IPvXAddress
      * True if the structure has not been assigned any address yet.
      */
     bool isNull() const {
-        return d[0]==0 && (!is6 || (d[1]==0 && d[2]==0 && d[3]==0));
+        return !isv6 && d[0]==0;
     }
-
-//FIXME TBD: NULL ADDRESSES MUST COMPARE EQUAL!!!!!!!!!!!!!!!!!!!!
 
     /**
      * Returns true if the two addresses are equal
      */
     bool equals(const IPAddress& addr) const {
-        return !is6 && d[0]==addr.getInt();
+        return !isv6 && d[0]==addr.getInt();
     }
 
     /**
      * Returns true if the two addresses are equal
      */
     bool equals(const IPv6Address_& addr) const {
-        return is6 && d[0]==addr.d[0] && d[1]==addr.d[1] && d[2]==addr.d[2] && d[3]==addr.d[3];
+        return isv6 && d[0]==addr.d[0] && d[1]==addr.d[1] && d[2]==addr.d[2] && d[3]==addr.d[3];
     }
 
     /**
      * Returns true if the two addresses are equal
      */
     bool equals(const IPvXAddress& addr) const {
-        return d[0]==addr.d[0] && (!is6 || (d[1]==addr.d[1] && d[2]==addr.d[2] && d[3]==addr.d[3]));
+        return d[0]==addr.d[0] && (!isv6 || (d[1]==addr.d[1] && d[2]==addr.d[2] && d[3]==addr.d[3]));
     }
 
     /**
@@ -210,9 +213,9 @@ class IPvXAddress
      * Compares two addresses.
      */
     bool operator<(const IPvXAddress& addr) const {
-        if (is6!=addr.is6)
-            return !is6;
-        else if (!is6)
+        if (isv6!=addr.isv6)
+            return !isv6;
+        else if (!isv6)
             return d[0]<addr.d[0];
         else
             return memcmp(&d, &addr.d, 16) < 0;  // this provides an ordering, though not surely the one one would expect

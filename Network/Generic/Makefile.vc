@@ -60,10 +60,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPControlInfo_m.obj IPProtocolId_m.obj InterfaceEntry.obj InterfaceTable.obj IPAddress.obj IPAddressResolver.obj IPvXAddress.obj
+OBJS= IPControlInfo_m.obj IPProtocolId_m.obj IPv6ControlInfo_m.obj InterfaceEntry.obj InterfaceTable.obj IPAddress.obj IPAddressResolver.obj IPvXAddress.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= IPControlInfo_m.h IPProtocolId_m.h
+GENERATEDHEADERS= IPControlInfo_m.h IPProtocolId_m.h IPv6ControlInfo_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -99,6 +99,12 @@ IPProtocolId_m.obj: IPProtocolId_m.cc
 
 IPProtocolId_m.cc IPProtocolId_m.h: IPProtocolId.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPProtocolId.msg
+
+IPv6ControlInfo_m.obj: IPv6ControlInfo_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp IPv6ControlInfo_m.cc
+
+IPv6ControlInfo_m.cc IPv6ControlInfo_m.h: IPv6ControlInfo.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPv6ControlInfo.msg
 
 InterfaceEntry.obj: InterfaceEntry.cc
 	$(CXX) -c $(COPTS) /Tp InterfaceEntry.cc

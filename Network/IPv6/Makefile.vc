@@ -72,7 +72,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPInterfacePacket_m.obj IPv6Datagram_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj Interface6Entry.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
+OBJS= IPInterfacePacket_m.obj IPv6Datagram_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= IPInterfacePacket_m.h IPv6Datagram_m.h
@@ -129,9 +129,6 @@ HdrExtProc.obj: HdrExtProc.cc
 
 HdrExtRteProc.obj: HdrExtRteProc.cc
 	$(CXX) -c $(COPTS) /Tp HdrExtRteProc.cc
-
-Interface6Entry.obj: Interface6Entry.cc
-	$(CXX) -c $(COPTS) /Tp Interface6Entry.cc
 
 ipv6_addr.obj: ipv6_addr.cc
 	$(CXX) -c $(COPTS) /Tp ipv6_addr.cc
@@ -1067,7 +1064,6 @@ HdrExtRteProc.obj: HdrExtRteProc.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp
-Interface6Entry.obj: Interface6Entry.cc
 IPInterfacePacket_m.obj: IPInterfacePacket_m.cc \
   IPInterfacePacket_m.h
 ipv6_addr.obj: ipv6_addr.cc \

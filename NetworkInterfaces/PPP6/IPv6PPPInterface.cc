@@ -33,7 +33,6 @@
 #include <string>
 #include "PPP6Frame.h"
 #include "opp_utils.h"
-#include "IPv6InterfacePacketWithData.h"
 #include "InterfaceTableAccess.h"
 
 #ifdef TESTIPv6

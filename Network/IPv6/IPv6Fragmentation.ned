@@ -29,7 +29,7 @@
 //
 simple IPv6Fragmentation
     parameters:
-        procdelay,
+        procDelay,
         numOfPorts: const;
     gates:
         in: routingIn, multicastIn, addrReslnIn;

@@ -24,7 +24,7 @@
 //
 simple IPv6Encapsulation
     parameters:
-        procdelay: numeric const;
+        procDelay: numeric const;
     gates:
         //in: multicastIn; //unconnected
         in: encapsulateRoutingIn;

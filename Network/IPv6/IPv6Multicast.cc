@@ -65,7 +65,7 @@ Define_Module( IPv6Multicast );
 void IPv6Multicast::initialize()
 {
     rt = RoutingTable6Access().get();
-    delay = par("procdelay");
+    delay = par("procDelay");
     fc = check_and_cast<IPv6Forward*> (
       OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
     assert(fc != 0);

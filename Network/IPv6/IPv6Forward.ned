@@ -36,7 +36,7 @@
 //
 simple IPv6Forward
     parameters:
-        procdelay : numeric const,
+        procDelay : numeric const,
         routingInfoDisplay: bool;
     gates:
         in: mobilityIn;

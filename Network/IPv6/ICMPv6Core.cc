@@ -60,7 +60,7 @@ Define_Module( ICMPv6Core );
 void ICMPv6Core::initialize()
 {
 
-  delay = par("procdelay");
+  delay = par("procDelay");
   icmpRecordStats = par("icmpRecordRequests");
   replyToICMPRequests = par("replyToICMPRequests");
   icmpRecordStart = par("icmpRecordStart");

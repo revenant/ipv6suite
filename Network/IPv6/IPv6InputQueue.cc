@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.cc,v 1.2 2005/02/22 23:21:01 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.cc,v 1.3 2005/02/23 00:14:18 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -40,7 +40,7 @@ Define_Module( IPv6InputQueue );
 
 void IPv6InputQueue::endService(cMessage* msg)
 {
-  datagram = check_and_cast<IPv6Datagram*>(msg);
+  IPv6Datagram *datagram = check_and_cast<IPv6Datagram*>(msg);
   datagram->setInputPort(datagram->arrivalGate()->index());
   send(datagram, "toIP");
 }

@@ -46,6 +46,7 @@
 #include "RoutingTable6Access.h"
 #include "ipv6_addr.h"
 #include "IPv6Datagram.h"
+#include "QueueBase.h"
 
 //The last route is always the dest
 typedef vector<ipv6_addr> _SrcRoute;
@@ -76,15 +77,15 @@ namespace IPv6NeighbourDiscovery
   class NDStateRouter; //for sending redirect
 };
 
-class IPv6Forward : public cSimpleModule
+class IPv6Forward : public QueueBase
 {
   friend std::ostream& operator<<(std::ostream & os,
                                   IPv6Forward& routeMod);
 public:
-  Module_Class_Members(IPv6Forward, cSimpleModule, 0);
+  Module_Class_Members(IPv6Forward, QueueBase, 0);
 
   virtual void initialize(int stage);
-  virtual void handleMessage(cMessage* theMsg);
+  virtual void endService(cMessage* theMsg);
   virtual int  numInitStages() const  {return 4;}
   virtual void finish();
 
@@ -117,8 +118,6 @@ public:
 private:
   RoutingTable6 *rt;
 
-  simtime_t delay;
-  bool hasHook;
   unsigned int ctrIP6InAddrErrors;
 
   bool processReceived(IPv6Datagram& datagram);
@@ -133,14 +132,6 @@ private:
   ///destination. New ones to same destination will replace existing ones
   ///without warning.
   SrcRoutes routes; // XXX move to RoutingTable! --AV
-
-  ///Wait call is emulated with this timer
-  cMessage* waitTmr;
-  ///Current packet awaiting processing after wait delay
-  IPv6Datagram* curPacket;
-  ///Arriving packets are placed in queue first if another packet is awaiting
-  ///processing
-  cQueue waitQueue;
 
   ///Used for sending redirects on our behalf
   IPv6NeighbourDiscovery::NDStateRouter* nd;

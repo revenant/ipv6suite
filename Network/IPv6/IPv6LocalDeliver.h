@@ -88,33 +88,12 @@ public:
   virtual void finish();
 
 private:
-  // functions to handle Fragmentation Buffer
-
-  void eraseTimeoutFragmentsFromBuf();
-  void insertInFragmentBuf(IPv6Datagram *d);
-  int getPayloadSizeFromBuf(int fragmentId);
-  bool datagramComplete(int fragmentId);
-  void removeFragmentFromBuf(int fragmentId);
-
   ///Returns true if packet needs further processing as InterfacePacket
   bool processDatagram(IPv6Datagram* datagram);
+  IPv6InterfacePacket *decapsulateDatagram(IPv6Datagram *datagram);
 
-  IPv6InterfacePacket *setInterfacePacket(IPv6Datagram *);
-
-  simtime_t fragmentTimeoutTime;
-  simtime_t delay;
-  bool hasHook;
   unsigned int ctrIP6InUnknownProtos;
   unsigned int ctrIP6InDeliver;
-
-  int fragmentBufSize;
-  FragmentationBufferEntry fragmentBuf [FRAGMENT_BUFFER_MAXIMUM];
-  cMessage* waitTmr;
-  IPv6InterfacePacket *interfacePacket;
-  IPv6Datagram* dgram;
-  simtime_t lastCheckTime;
-  cQueue waitQueue;
-
 };
 
 #endif

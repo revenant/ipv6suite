@@ -40,7 +40,7 @@
 //
 simple IPv6Send
     parameters:
-        procdelay,
+        procDelay,
         multicastTimeToLive,
         numOfTransportProt : numeric const;
     gates:

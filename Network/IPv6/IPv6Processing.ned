@@ -75,11 +75,11 @@ module IPv6Processing
             display: "p=59,125;i=prot3;q=queue";
         forwarding: IPv6Forward;
             parameters:
-                procdelay = routing_delay;
+                procDelay = routing_delay;
             display: "p=146,217;i=bwgen";
         localDeliver: IPv6LocalDeliver;
             parameters:
-                procdelay = localdeliver_delay,
+                procDelay = localdeliver_delay,
                 numOfTransportProt = numOfTransportProt,
                 fragmentTimeout = fragmentTimeout;
             gatesizes:
@@ -87,19 +87,19 @@ module IPv6Processing
             display: "p=130,51;i=fork";
         multicast: IPv6Multicast;
             parameters:
-                procdelay = multicast_delay;
+                procDelay = multicast_delay;
             display: "p=226,106;i=bwgen_s";
         ICMP: ICMPv6;
             parameters:
                 numOfPorts = numOfPorts,
-                procdelay = icmp_delay;
+                procDelay = icmp_delay;
             gatesizes:
                 ipOutputIn[numOfPorts],
                 outputOut[numOfPorts];
             display: "p=293,69;i=cogwheel";
         send: IPv6Send;
             parameters:
-                procdelay = ipsend_delay,
+                procDelay = ipsend_delay,
                 multicastTimeToLive = multicastTimeToLive,
                 numOfTransportProt = numOfTransportProt;
             gatesizes:
@@ -107,7 +107,7 @@ module IPv6Processing
             display: "p=439,59;i=prot1";
         fragmentation: IPv6Fragmentation;
             parameters:
-                procdelay = fragmentation_delay,
+                procDelay = fragmentation_delay,
                 numOfPorts = numOfPorts;
             gatesizes:
                 outputOut[numOfPorts];
@@ -129,7 +129,7 @@ module IPv6Processing
             display: "p=193,280;i=queue";
         tunneling: IPv6Encapsulation;
             parameters:
-                procdelay = iptunneling_delay;
+                procDelay = iptunneling_delay;
             display: "p=274,182;i=bwxcon_s";
         mobility: IPv6Mobility;
             display: "p=60,268;i=cogwheel";

@@ -91,24 +91,10 @@ void IPv6Forward::initialize(int stage)
 {
   if (stage == 0)
   {
+    QueueBase::initialize();
     rt = RoutingTable6Access().get();
-    delay = par("procdelay");
-    hasHook = (findGate("netfilterOut") != -1);
     ctrIP6InAddrErrors = 0;
     ctrIP6OutNoRoutes = 0;
-    waitTmr = new cMessage("IPv6ForwardCoreWait");
-    curPacket = 0;
-    waitQueue.setName("forwardWaitQ");
-
-    //Can't really see from proc module
-    std::string display(parentModule()->displayString());
-    display += ";q=forwardWaitQ";
-    parentModule()->setDisplayString(display.c_str());
-
-    //so display at self
-    display = static_cast<const char*>(displayString());
-    display += ";q=forwardWaitQ";
-    setDisplayString(display.c_str());
 
     routingInfoDisplay = par("routingInfoDisplay");
 #ifdef USE_MOBILITY
@@ -172,43 +158,11 @@ struct printRoutingInfo
    @todo Multicast module will have to handle MIPv6 11.3.4 forwarding of multicast packets
 */
 
-void IPv6Forward::handleMessage(cMessage* theMsg)
+void IPv6Forward::endService(cMessage* theMsg)
 {
-  if (!theMsg->isSelfMessage())
-  {
-    std::auto_ptr<IPv6Datagram> recDatagram(check_and_cast<IPv6Datagram*> (theMsg));
+  std::auto_ptr<IPv6Datagram> datagram(check_and_cast<IPv6Datagram*> (theMsg));
 
-    assert(recDatagram.get());
-    Debug( assert(recDatagram->inputPort() < (int)rt->interfaceCount()); );
-
-    if (!waitTmr->isScheduled() && 0 == curPacket)
-    {
-      curPacket = recDatagram.release();
-      scheduleAt(delay + simTime(), waitTmr);
-      return;
-    }
-    else if (waitTmr->isScheduled())
-    {
-      Dout(dc::custom, fullPath()<<" "<<simTime()<<" received new packet "<<*recDatagram
-           <<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime());
-      waitQueue.insert(recDatagram.release());
-      return;
-    }
-    assert(false);
-    return;
-  }
-
-  std::auto_ptr<IPv6Datagram> datagram(curPacket);
-  assert(datagram.get());
-  assert(curPacket);
-
-  if (waitQueue.empty())
-    curPacket = 0;
-  else
-  {
-    curPacket = check_and_cast<IPv6Datagram*>(waitQueue.pop());
-    scheduleAt(delay + simTime(), waitTmr);
-  }
+  assert(datagram->inputPort() < (int)rt->interfaceCount());
 
   //Disabled for now. Don't know why some packets when they leave this function
   //still display 0 source address when they shouldn't. Recording at prerouting

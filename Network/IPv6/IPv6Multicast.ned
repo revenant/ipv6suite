@@ -34,7 +34,7 @@
 //
 simple IPv6Multicast
     parameters:
-        procdelay: numeric const;
+        procDelay: numeric const;
     gates:
         in: localIn, routingIn, ProcessorManagerIn;
         out: localOut, fragmentationOut, tunnelOut;

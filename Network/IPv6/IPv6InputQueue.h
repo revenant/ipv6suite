@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.h,v 1.2 2005/02/22 23:21:01 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.h,v 1.3 2005/02/23 00:14:18 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -46,7 +46,7 @@ class IPv6InputQueue: public QueueBase
 {
 public:
   Module_Class_Members(IPv6InputQueue, QueueBase, 0);
-  virtual void handleMessage(cMessage*);
+  virtual void endService(cMessage*);
 };
 
 #endif

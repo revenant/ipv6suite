@@ -40,7 +40,7 @@ endsimple
 simple ICMPv6Core
     parameters:
         IPForward : bool,
-        procdelay : numeric const,
+        procDelay : numeric const,
         numOfPorts : numeric,
         icmpRecordRequests: bool,
         icmpRecordStart: numeric,
@@ -112,7 +112,7 @@ endsimple
 module ICMPv6
     parameters:
         numOfPorts : numeric,
-        procdelay : numeric const;
+        procDelay : numeric const;
     gates:
         in: preRoutingIn;
         in: routingIn;
@@ -131,7 +131,7 @@ module ICMPv6
     submodules:
         icmpv6Core: ICMPv6Core;
             parameters:
-                procdelay = procdelay,
+                procDelay = procDelay,
                 numOfPorts = numOfPorts,
                 IPForward = ancestor IPForward;
             gatesizes:

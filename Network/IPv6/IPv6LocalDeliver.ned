@@ -33,7 +33,7 @@
 //
 simple IPv6LocalDeliver
     parameters:
-        procdelay,
+        procDelay,
         numOfTransportProt : numeric const,
         fragmentTimeout : string;
     gates:

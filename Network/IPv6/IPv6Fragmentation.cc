@@ -54,7 +54,7 @@ void IPv6Fragmentation::initialize()
 {
   rt = RoutingTable6Access().get();
   numOfPorts = par("numOfPorts");
-  delay = par("procdelay");
+  delay = par("procDelay");
   ctrIP6InTooBig = 0;
   ctrIP6FragCreates = 0;
   ctrIP6FragFails = 0;

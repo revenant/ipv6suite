@@ -97,7 +97,7 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
   // when source address given in Interface Message, use it
   if (interfaceMsg->srcAddress() != IPv6_ADDR_UNSPECIFIED)
   {
-Debug( // What's this? --AV
+Debug(
     //Test if source address actually exists
     bool found = false;
     for (size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)

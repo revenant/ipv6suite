@@ -75,7 +75,7 @@ void IPv6Encapsulation::initialize(int stageNo)
   {
     rt = RoutingTable6Access().get();
     mipv6CheckTunnelCB = 0;
-    delay = par("procdelay");
+    delay = par("procDelay");
 
     trafficClass = 0; //Use the value of 0 which is protocol default
     tunHopLimit = 0; //0 to use defaults again

@@ -234,7 +234,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
   else if (dynamic_cast<WirelessEtherDataFrame*>(frame))
     frameProtocol = PR_WETHERNET;
   else
-    error("unrecognized frame type '%s'", frame->className);
+    error("unrecognized frame type '%s'", frame->className());
 
   switch(frameProtocol)
   {

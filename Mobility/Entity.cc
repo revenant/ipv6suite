@@ -84,7 +84,7 @@ void Entity::drawWirelessRange()
 
     WirelessEtherModule* wem = check_and_cast<WirelessEtherModule*>(llmodule);
 
-    nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
+    nodemod->displayString().setTagArg("r",0,OPP_Global::dtostr(wem->wirelessRange()).c_str());
     nodemod->displayString().setTagArg("r",2,"red");
   }
 }
@@ -99,9 +99,8 @@ void Entity::getDispPosition(int& x, int& y)
 void Entity::setDispPosition(int x, int y)
 {
   cModule *nodemod = findNetNodeModule(_mod);
-  char buf[32];
-  nodemod->displayString().setTagArg("p", 0, itoa(x,buf,10));
-  nodemod->displayString().setTagArg("p", 1, itoa(y,buf,10));
+  nodemod->displayString().setTagArg("p", 0, OPP_Global::ltostr(x).c_str());
+  nodemod->displayString().setTagArg("p", 1, OPP_Global::ltostr(y).c_str());
 
   drawWirelessRange(); // XXX FIXME move it out of here
 }

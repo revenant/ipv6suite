@@ -124,7 +124,7 @@ void MobileEntity::drawWirelessRange()
 
       WirelessEtherModule* wem = check_and_cast<WirelessEtherModule*>(llmodule);
 
-      nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
+      nodemod->displayString().setTagArg("r",0,OPP_Global::dtostr(wem->wirelessRange()).c_str());
       nodemod->displayString().setTagArg("r",2,"blue");
     }
   }

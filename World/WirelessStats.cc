@@ -38,7 +38,7 @@ void WirelessStats::initialize()
 {
     // XXX A bit of a hack
     //BASE_SPEED is in wirelessEthernet.h/cc unit
-    BASE_SPEED = par("wlan_speed").doubleValue() * 1024 * 1024;
+    BASE_SPEED = int(par("wlan_speed").doubleValue() * 1000 * 1000);
     Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
 
     balanceIndexVec.setName("balanceIndex");

@@ -343,7 +343,7 @@ void WirelessEtherModule::readConfiguration()
   chanNotToScan = par("channelsNotToScan").stringValue();
   sSMaxSample = par("signalStrengthMaxSample");
 
-  std::string addr = par("address");
+  std::string addr = par("address").stringValue();
 
   if (!apMode)
   {

@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/TopologyGenerator.cc,v 1.1 2005/02/09 06:15:59 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/TopologyGenerator.cc,v 1.2 2005/02/10 07:06:45 andras Exp $
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,11 +20,11 @@
  * @file   TopologyGenerator.cc
  * @author Johnny Lai
  * @date   09 Nov 2002
- * 
+ *
  * @brief Generates the XML Network configuration file for a very simple
  * synthetic binary tree topology
  *
- * 
+ *
  */
 
 
@@ -56,7 +56,7 @@ using namespace std;
 
 /**
  * @addtogroup Prototype
- * @{    
+ * @{
  */
 
 TopologyGenerator::TopologyGenerator(size_t nodeCount)
@@ -72,7 +72,7 @@ TopologyGenerator::~TopologyGenerator()
  * @class property_label_writer<Graph>
  * @brief Write out the node name as a label in graphviz dot format
  *
- * node name is obtained from "router" + vertex id 
+ * node name is obtained from "router" + vertex id
  */
 
 template < class Graph, class Tag = boost::vertex_index_t>
@@ -111,20 +111,20 @@ template <class Graph> struct generateXML//: public boost::noncopyable
       {
         parent.handler->on_end_document();
       }
-    
+
     generateXML& parent;
   };
- 
+
   typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
   typedef typename graph_traits<Graph>::vertices_size_type Vsize;
-  
+
   generateXML(Graph& g_, XMLWriterHandler* handler, std::vector<Vertex>& p, Vsize* d):
     g(g_), handler(handler), doOnce(new doOnceOnly(*this)), p(p),
     d(d)
     {
       handler->on_start_document();
     }
-  
+
   const Vertex& operator()(const Vertex& v)
   {
     const std::string router("router");
@@ -136,15 +136,15 @@ template <class Graph> struct generateXML//: public boost::noncopyable
     xpm["node"] = new xmlpp::Attribute("node", router + id);
     //determine if it is a router or host (assume all routers for now
     xpm["routePackets"] = new xmlpp::Attribute("routePackets", "on");
-    
+
     handler->on_start_element("local", xpm);
-    
+
     xpm.clear();
     unsigned int outdeg = out_degree(v,g);
     Dout(dc::custom, "generateXML out_deg="<<outdeg);
-    
+
     for (unsigned int i = 0; i < outdeg; i++)
-    {      
+    {
       snprintf(id, sizeof(id), "ppp%d", i);
       xpm["name"] = new xmlpp::Attribute("name", id);
       handler->on_start_element("interface", xpm);
@@ -153,19 +153,19 @@ template <class Graph> struct generateXML//: public boost::noncopyable
       handler->on_start_element("inet_addr", xpm);
       //ipv6 address
       handler->on_characters(ipv6_addr_toString(get(vertex_name, g, p[v])).c_str());
-    
+
       handler->on_end_element("inet_addr");
       handler->on_end_element("interface");
     }
-    
+
     handler->on_start_element("route", xpm);
-    
+
     typedef graph_traits<Graph> GraphTraits;
     typename GraphTraits::out_edge_iterator out_i, out_end;
     typename GraphTraits::edge_descriptor e;
-    
+
     unsigned int ifIndex = 0;
-    for (tie(out_i, out_end) = out_edges(v, g); out_i != out_end; ++out_i, ++ifIndex) 
+    for (tie(out_i, out_end) = out_edges(v, g); out_i != out_end; ++out_i, ++ifIndex)
     {
       e = *out_i;
       Vertex targ = target(e, g);
@@ -173,18 +173,18 @@ template <class Graph> struct generateXML//: public boost::noncopyable
       xpm.clear();
       snprintf(id, sizeof(id), "ppp%d", ifIndex);
       xpm["routeIface"] = new xmlpp::Attribute("routeIface", id);
-      
+
       xpm["routeDestination"] = new xmlpp::Attribute("routeDestination", ipv6_addr_toString(get(vertex_name, g, p[targ])).c_str());
-      
+
       xpm["isRouter"] = new xmlpp::Attribute("isRouter", "on");
-      
+
 
       handler->on_start_element("routeEntry", xpm);
       handler->on_end_element("routeEntry");
     }
-    
+
     handler->on_end_element("route");
-    
+
     handler->on_end_element("local");
 
     return v;
@@ -202,7 +202,7 @@ template <class Graph> struct generateXML//: public boost::noncopyable
 
 /**
  * @struct generateBinaryTopology<GraphX>
- * 
+ *
  * @brief Generates a simple binary tree topology
  *
  * Using BGL to produce topology
@@ -244,18 +244,18 @@ template<class Graph> struct generateBinaryTopology
         vertex_attr["shape"] = "circle";
 
         boost::write_graphviz(parent.os, parent.g, property_label_writer<Graph>(parent.g));
-/*, 
+/*,
                         property_label_writer<Graph>(graph, edge_index),
-                        make_graph_attributes_writer(graph_attr, vertex_attr, 
+                        make_graph_attributes_writer(graph_attr, vertex_attr,
                                                      edge_attr));*/
       }
     generateBinaryTopology<GraphX>& parent;
   };
-  
+
   generateBinaryTopology(Graph& g, std::ostream& os)
     :g(g), rootNode(true), adjacentNodesCount(2), doOnce(new doOnceOnly<Graph>(*this)), os(os)
     {}
- 
+
   void operator()(const Vertex& v)
   {
     traversed_nodes.push_back(v);
@@ -266,7 +266,7 @@ template<class Graph> struct generateBinaryTopology
       //Won't work now because vertex is stored in vector and by default vector
       //has node ids of indexes already (non-lvalue)
       //put(vertex_index, graph, *vit, i);
-    
+
       if (add_edge(*traversed_nodes.begin(), v, g).second)
       {
         if (out_degree(*traversed_nodes.begin(), g) == adjacentNodesCount)
@@ -277,10 +277,10 @@ template<class Graph> struct generateBinaryTopology
             adjacentNodesCount++;
             rootNode = false;
           }
-        
+
           traversed_nodes.pop_front();
         }
-      
+
       }
       else
       {
@@ -289,7 +289,7 @@ template<class Graph> struct generateBinaryTopology
   }
 
   Graph& g;
-  std::list<Vertex> traversed_nodes;  
+  std::list<Vertex> traversed_nodes;
   bool rootNode;
   size_t adjacentNodesCount;
   boost::shared_ptr<doOnceOnly<Graph> > doOnce;
@@ -314,14 +314,14 @@ template<class Graph> struct generateAttributes
 
 /**
  * @param g BGL Graph
- * @param p is the list of parents 
+ * @param p is the list of parents
  * @param d is the list of distances from root node
  */
 
   generateAttributes(Graph& g, std::vector<Vertex>& p, Vsize* d)
     :g(g), p(p), d(d)
     {}
-  
+
   void operator()(const Vertex& v)
     {
       if (v == *vertices(g).first)
@@ -336,7 +336,7 @@ template<class Graph> struct generateAttributes
       {
         cur_vertex = v;
       }
-        
+
       unsigned int intra_rank_distance = v - cur_vertex;
       ipv6_addr paddr = get(vertex_name, g, p[v]);
       ipv6_addr iid = { 0, 0, 0, intra_rank_distance };
@@ -345,24 +345,24 @@ template<class Graph> struct generateAttributes
       if (rank <= 2)
       {
         shift = NLA_BITSHIFT;
-        
-        //Modify NLA 
-        //put(vertex_name, g, v, (paddr & IPv6_ADDR_NLA_MASK)>>TLA_BITSHIFT+intra_rank_distance<<TLA_BITSHIFT);  
+
+        //Modify NLA
+        //put(vertex_name, g, v, (paddr & IPv6_ADDR_NLA_MASK)>>TLA_BITSHIFT+intra_rank_distance<<TLA_BITSHIFT);
       }
       else
       {
         //Modify SLA
         shift = SLA_BITSHIFT;
-        
+
       }
 
       paddr = (((paddr>>shift)<<rank)<<shift);
       paddr += iid;
-        
+
       put(vertex_name, g, v, paddr);
-      
+
     }
-  
+
   Graph& g;
   std::vector<Vertex>& p;
   Vsize* d;
@@ -373,15 +373,15 @@ template<class Graph> struct generateAttributes
 
 };
 
-struct vertex_successors_t 
+struct vertex_successors_t
 {
   typedef boost::vertex_property_tag kind;
 };
 
 // create a typedef for the Graph type
 typedef boost::adjacency_list<
-  boost::listS, boost::vecS, boost::undirectedS, 
-  boost::property<boost::vertex_name_t, ipv6_addr, 
+  boost::listS, boost::vecS, boost::undirectedS,
+  boost::property<boost::vertex_name_t, ipv6_addr,
 //    boost::property<boost::vertex_rank_t, unsigned int,
 //    boost::property<boost::vertex_predecessor_t, ipv6_addr,
   boost::property<vertex_successors_t, std::list<ipv6_addr>   > >,
@@ -398,8 +398,8 @@ typedef boost::adjacency_list<
  * Full topology information is in a separate topology file
  * Multiple runs over the graph object should allow me to add properties like
  * IPaddress and also the route. Topology format is in Graphviz dot format.
- * 
- * 
+ *
+ *
  * @param xmlHandler the SAX Write handler interface to output the XML configuration into
  * @param dotfile the name of the graphviz dot topology file
  */
@@ -414,7 +414,7 @@ void TopologyGenerator::outputXML(Graph& g, XMLWriterHandler* xmlHandler)
 
   // Array to store distances from the source to each vertex .  We use
   // a built-in array here just for variety. This will also be used as
-  // a Decorator.  
+  // a Decorator.
   typename boost::graph_traits<Graph>::vertices_size_type d[boost::num_vertices(g)];
   std::fill_n(d, sizeof(d)/sizeof(typename boost::graph_traits<Graph>::vertices_size_type), 0);
 
@@ -422,32 +422,32 @@ void TopologyGenerator::outputXML(Graph& g, XMLWriterHandler* xmlHandler)
   Vertex s = *(boost::vertices(g).first);
   parents[s] = s;
   boost::breadth_first_search
-    (g, s, 
+    (g, s,
      boost::visitor(
        boost::make_bfs_visitor
        (std::make_pair(
          boost::record_distances(d, boost::on_tree_edge()),
          boost::record_predecessors(&parents[0], boost::on_tree_edge())))));
-  
+
   std::for_each(vertices(g).first, vertices(g).second, generateAttributes<Graph>(g, parents, d));
-  
+
 
   //generateXML<Graph> genXML(g);
   std::for_each(vertices(g).first, vertices(g).second, generateXML<Graph>(g, xmlHandler, parents, d));//genXML);
-//  std::transform(vertices(g).first, vertices(g).second, vertices(g).first, 
+//  std::transform(vertices(g).first, vertices(g).second, vertices(g).first,
 //                 generateXML<Graph>(g));
 }
 
 /**
- * @param g is the graph object to store the generated topology in 
+ * @param g is the graph object to store the generated topology in
  * @param os the stream where the graphviz dot topology description will be written to
- * 
+ *
  */
 template <class Graph>
 void TopologyGenerator::generateGraph(Graph& g,  std::ostream& os)
 {
   //generateBinaryTopology<Graph> genTop(g);
-  std::for_each(vertices(g).first, vertices(g).second, generateBinaryTopology<Graph>(g, os)); //genTop);  
+  std::for_each(vertices(g).first, vertices(g).second, generateBinaryTopology<Graph>(g, os)); //genTop);
 }
 
 /**
@@ -470,7 +470,7 @@ void TopologyGenerator::generateGraphFromGraphviz(Graph& g, const char* dotfileN
   {
     add_vertex(g);
   }
-  
+
   typedef graph_traits<GraphvizType> GraphTraits;
   typename GraphTraits::edge_iterator i, end;
   typename GraphTraits::edge_descriptor e;
@@ -481,29 +481,29 @@ void TopologyGenerator::generateGraphFromGraphviz(Graph& g, const char* dotfileN
     e=*i;
     src = source(e, viz);
     dest = target(e, viz);
-    
+
     if (!add_edge(src, dest, g).second)
       DoutFatal(dc::core|error_cf, "Failed to add edge "<<src<<" --> "<<dest);
   }
-  
-    
+
+
 }
 
 
 #include "sys.h"
 #include "debug.h"
 
-  
+
 
 #include <cstdlib>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 
-#define CQN 1  
-#ifndef CQN                                 
+#define CQN 1
+#ifndef CQN
 #include "XMLWriterHandler.h"
 
 int usage(const char* programName)
-{  
+{
   cout <<" Usage: "<<programName<<" [nodeCount] [XMLOutput] [graphviz.dotfile] [-r]"<<endl;
   cout <<"        -r read topology from [graphviz.dotfile]"<<endl;
   cout <<" dot -Tpng -o graph.png example.dot"<<endl;
@@ -530,16 +530,16 @@ int main(int argc, char *argv[])
 
   size_t nodeCount = 10;
 
-#ifdef CQN                                 
-  if (argc < 2)  
-    return usageCQN(programName);  
+#ifdef CQN
+  if (argc < 2)
+    return usageCQN(programName);
 
   size_t serverTandemCount = 0, switchCount = 0;
-  
+
 
   using boost::lexical_cast;
   using boost::bad_lexical_cast;
-  
+
   if (argc > 2)
     try
     {
@@ -553,9 +553,9 @@ int main(int argc, char *argv[])
     }
 
   nodeCount = serverTandemCount*switchCount + switchCount;
-  
+
   CQNTopology cqn(nodeCount);
-  
+
   string dotfile = "example.dot";
   std::ostream* os;
   if (argc > 3)
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
       cout <<"NodeCount cannot be converted to number: "<<e.what()<<endl;
       return usage(programName);
     }
-  
+
   string filename = "output.xml";
   if (argc >= 3)
     filename = argv[2];
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    gen.generateGraphFromGraphviz<GraphvizGraph>(g, dotfile.c_str());    
+    gen.generateGraphFromGraphviz<GraphvizGraph>(g, dotfile.c_str());
     gen.outputXML(g, &xmlHandler);
   }
 #endif //CQN

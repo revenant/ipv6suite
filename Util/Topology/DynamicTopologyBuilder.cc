@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/DynamicTopologyBuilder.cc,v 1.1 2005/02/09 06:15:59 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/DynamicTopologyBuilder.cc,v 1.2 2005/02/10 07:06:45 andras Exp $
 // Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -65,7 +65,7 @@ typedef std::vector<cModule*> Nodes;
 
 #include <boost/regex.hpp>
 //#include "XMLDocHandle.h"
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 
 
 //Leave here until createModules fixed

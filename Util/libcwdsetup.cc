@@ -41,7 +41,7 @@
 #include <exception> //set_terminate
 #include <boost/tokenizer.hpp>
 #include <string>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <boost/cast.hpp>
 #include <iostream>
 

@@ -36,7 +36,7 @@
 #include <functional>
 #include <algorithm>
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <sstream> //stringstream
 
 #include "nwiface.h"

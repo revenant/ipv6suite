@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.2 2005/02/10 07:06:45 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
@@ -31,7 +31,7 @@
 #include <sstream>
 #include <boost/cast.hpp>
 #include <cmath>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 
 #include "MobileEntity.h"
 #include "WorldProcessor.h"
@@ -365,7 +365,7 @@ void MobileEntity::drawWirelessRange(std::string& dispStr)
   {
     //Does not work for all modules either as some do not even have layer 3
     //unsigned int numOfPorts = OPP_Global::findModuleByType(OPP_Global::findNetNodeModule(_mod), "RoutingTable6")->par("numOfPorts");
-    
+
     //unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("wlin");
     // gateSize() is an omnetpp version 3.0 function
     unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("wlin")->size();

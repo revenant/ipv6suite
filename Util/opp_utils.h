@@ -113,6 +113,16 @@ namespace OPP_Global
    */
   const char* nodeName(const cModule* callingMod);
 
+  /**
+     Converts an integer to string.
+   */
+  std::string itostr(int i);
+
+  /**
+     Converts a double to string
+   */
+  std::string dtostr(double d);
+
 /* XXX
   ///downcast (convert down the class hierarchy) for weak_ptrs
   template<class Target, class  Source> boost::weak_ptr<Target>

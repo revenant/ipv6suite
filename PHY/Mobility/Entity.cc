@@ -27,7 +27,7 @@
 #include "debug.h"
 
 #include <cmath>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <boost/cast.hpp>
 
 #include "Entity.h"
@@ -71,6 +71,7 @@ int Entity::distance(Entity* entity)
   return (int)(hypotenuse);
 }
 
+// XXX FIXME wrong: should be changed to displayString().setTagArg()!!!!!!!!!!!!!!!!!!!!!!!!!!! --AV
 void Entity::drawWirelessRange(std::string& dispStr)
 {
   if (dispStr.find("r=") == std::string::npos)
@@ -86,7 +87,7 @@ void Entity::drawWirelessRange(std::string& dispStr)
         assert(wem);
 
         dispStr += ";r=";
-        dispStr += boost::lexical_cast<std::string>(wem->wirelessRange());
+//XXX see comment above!   dispStr += boost::lexical_cast<std::string>(wem->wirelessRange());
         dispStr += ",,red";
       }
   }

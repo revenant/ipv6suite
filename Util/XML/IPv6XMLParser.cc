@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/XML/Attic/IPv6XMLParser.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/XML/Attic/IPv6XMLParser.cc,v 1.3 2005/02/10 07:06:45 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -42,7 +42,7 @@
 #include <sstream>
 #include <boost/scoped_array.hpp>
 #include <boost/cast.hpp>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 
 #include "IPv6Address.h"
 #include "RoutingTable6.h"

@@ -34,7 +34,7 @@
 
 #include <sstream>
 #include <string>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <xmlwrapp/xmlwrapp.h>
 
 #include "IPv6XMLWrapManager.h"

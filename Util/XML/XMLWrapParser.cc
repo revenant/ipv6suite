@@ -37,7 +37,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <exception>
 
 //#include <xsltwrapp/init.h>
@@ -52,7 +52,7 @@ namespace XMLConfiguration
 ///@name General libxmlwrapp functions
 //@{
 ///Only looks into n's direct descendents
-xml::node::const_iterator 
+xml::node::const_iterator
 find_first_element_by_value(const xml::node& n, const char* elementName,
           const char* attrName, const char* attrValue);
 
@@ -62,7 +62,7 @@ std::string get_attribute_value(const xml::node& n, const char* attrName, bool r
 /**
    @return n.end() if element not found
 */
-xml::node::const_iterator 
+xml::node::const_iterator
 find_first_element_by_value(const xml::node& n, const char* elementName,
           const char* attrName, const char* attrValue)
 {
@@ -80,7 +80,7 @@ find_first_element_by_value(const xml::node& n, const char* elementName,
       continue;
     AttIt ait;
     if ((ait = (*cit).get_attributes().find(attrName)) != (*cit).get_attributes().end() && !strcmp((*ait).get_value(), attrValue))
-      return cit;      
+      return cit;
   }
   return n.end();
 }
@@ -122,7 +122,7 @@ std::string get_attribute_value(const xml::node& n, const char* attrName, bool r
   {
     cerr<<"Unknown exception thrown"<<endl;
   }
- 
+
   if (required)
     DoutFatal(dc::core, "Unable to find attribute with name "<<attrName);
   return "";
@@ -150,8 +150,8 @@ void XMLWrapParser::parseFile(const char* filename)
   if(!filename || '\0' == filename[0])
   {
     cerr << "Empty name for XML input file"<<endl;
-    exit(1);    
-  }     
+    exit(1);
+  }
 
   _filename = filename;
   const bool throw_exceptions = false;
@@ -177,7 +177,7 @@ void XMLWrapParser::parseFile(const char* filename)
     cout<<"Make sure "<<filename<<" is validated externally"<<endl;
     //exit(8);
   }
-  else 
+  else
   {
     if (!doc.validate())
 //      cout<<"doc validation returned="<<boost::lexical_cast<bool>(doc.validate())<<endl;

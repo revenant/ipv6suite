@@ -76,7 +76,7 @@
 #include "NDStateRouter.h"
 #include "NeighbourDiscovery.h"
 
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #ifdef CWDEBUG
 #include <cassert>
 #include <iostream>

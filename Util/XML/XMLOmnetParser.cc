@@ -35,7 +35,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <boost/lexical_cast.hpp>
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include <omnetpp.h>
 
 #include "XMLOmnetParser.h"

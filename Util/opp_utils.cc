@@ -156,6 +156,20 @@ namespace OPP_Global
     }
   }
 
+  std::string itostr(int i)
+  {
+    std::ostringstream os;
+    os << i;
+    return os.str();
+  }
+
+  std::string dtostr(double d)
+  {
+    std::ostringstream os;
+    os << d;
+    return os.str();
+  }
+
   void stackUsage(cModule* self, std::ostream& os)
   {
             //Relative to the actual Network

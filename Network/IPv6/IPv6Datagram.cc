@@ -151,6 +151,9 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
 
   cMessage::operator=(rhs);
 
+  outputPortNo = rhs.outputPortNo;
+  inputPortNo = rhs.inputPortNo;
+
   header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;

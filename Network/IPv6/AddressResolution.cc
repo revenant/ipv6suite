@@ -506,7 +506,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
                     !dupDetectSource, override);
 
     response->encapsulate(na);
-    // XXX TBD response->setTransportProtocol(???);
+    response->setTransportProtocol(IP_PROT_IPv6_ICMP);
     response->setName(na->name());
 
     if (dupDetectSource)

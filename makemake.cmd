@@ -29,12 +29,12 @@ cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
-:FIXME Util should not depend on IPv6 stuff!
-cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6 -I..\Network\IPv4 -I..\World -I..\Base
+:FIXME Util should not depend on IPv6 stuff and on PHY\Mobility!
+cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\Network\IPv6 -I..\Network\IPv4 -I..\World -I..\Base
 
 :---------------
 :FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6
-cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\PPP6 -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
+cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\PPP6 -I..\..\NetworkInterfaces\Ethernet6  -I..\HMIPv6  -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 :FIXME try to eliminate MIP dependency on HMIP and on Wireless!
 cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\HMIPv6 -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Ethernet6 -I..\..\NetworkInterfaces\Wireless -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
@@ -61,7 +61,7 @@ cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r
 
 cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r
-cd %root%\World && %MAKEMAKE% %OPTS% -n -r
+cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I..\PHY\Mobility
 cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r
 ----
 

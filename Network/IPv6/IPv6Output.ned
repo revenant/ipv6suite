@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Output.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Output.ned,v 1.2 2005/02/16 06:23:48 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -24,7 +24,7 @@ import "NF_IP_POST_ROUTING";
 //
 // IPv6Output core module, with its main task being TTL check.
 //
-// Responsibilities: 
+// Responsibilities:
 //  - receive complete datagram from IPFragmentation
 //  - check hop counter (ttl) and throw away packet and notify ICMP if ttl==0
 //  - otherwise  send it on to output queue
@@ -32,59 +32,52 @@ import "NF_IP_POST_ROUTING";
 // @author Johnny Lai
 // based on IPOutputCore by Jochen Reber
 //
-simple IPv6OutputCore 
-    parameters: 
+simple IPv6OutputCore
+    parameters:
         procdelay: numeric const;
-    gates: 
-        in: fragmentationIn; 
-        in: netfilterIn; 
-	in: neighbourDiscoveryIn;
-	in: addrReslnIn;
-	in: mobilityIn;
-	//For unicast packets from ND module
-	in: neighbourDiscoveryDirectIn;
-        out: queueOut; 
-        out: netfilterOut; 
-	out: errorOut;
-endsimple 
+    gates:
+        in: fragmentationIn;
+    in: neighbourDiscoveryIn;
+    in: addrReslnIn;
+    in: mobilityIn;
+    //For unicast packets from ND module
+    in: neighbourDiscoveryDirectIn;
+        out: queueOut;
+    out: errorOut;
+endsimple
 
 //
 // IPv6 output module, with its main task being TTL check.
 //
-// Responsibilities: 
+// Responsibilities:
 //  - receive complete datagram from IPFragmentation
 //  - throw away if ttl==0, otherwise, send to IP OutputQueue
 //
 // author: Jochen Reber
 //
-module IPv6Output 
-    parameters: 
-        hookName : string,
+module IPv6Output
+    parameters:
         procdelay : numeric const;
-    gates: 
-        in: fragmentationIn; 
-	in: neighbourDiscoveryIn;
-	in: addrReslnIn;
-	in: mobilityIn;
-        out: queueOut; 
-	out: errorOut;
-    submodules: 
-        core: IPv6OutputCore; 
-	      parameters:
-			procdelay = procdelay;
+    gates:
+        in: fragmentationIn;
+    in: neighbourDiscoveryIn;
+    in: addrReslnIn;
+    in: mobilityIn;
+        out: queueOut;
+    out: errorOut;
+    submodules:
+        core: IPv6OutputCore;
+          parameters:
+            procdelay = procdelay;
             display: "p=154,169;b=40,24,rect";
-        queueHook: hookName like NF_IP_POST_ROUTING
-            display: "p=152,82;b=40,24,rect";
     connections nocheck:
-	mobilityIn --> core.mobilityIn;
-        fragmentationIn --> core.fragmentationIn; 
-	neighbourDiscoveryIn --> core.neighbourDiscoveryIn;
-	addrReslnIn --> core.addrReslnIn;
-        core.queueOut --> queueOut; 
-	core.errorOut --> errorOut;                                    
-        core.netfilterOut --> queueHook.in; 
-        queueHook.out --> core.netfilterIn; 
+    mobilityIn --> core.mobilityIn;
+        fragmentationIn --> core.fragmentationIn;
+    neighbourDiscoveryIn --> core.neighbourDiscoveryIn;
+    addrReslnIn --> core.addrReslnIn;
+        core.queueOut --> queueOut;
+    core.errorOut --> errorOut;
     display: "p=10,10;b=274,224,rect";
-endmodule 
+endmodule
 
 

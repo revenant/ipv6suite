@@ -40,7 +40,7 @@
 #include "PPP6Frame.h"
 #include "LLInterfacePkt.h"
 
-Define_Module_Like(IPv6PPPAPInterface, NetworkInterface);
+Define_Module_Like(IPv6PPPAPInterface, NetworkInterface6);
 
 int IPv6PPPAPInterface::numInitStages() const
 {

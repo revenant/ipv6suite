@@ -94,7 +94,7 @@
 
 #include "XML/XMLOmnetParser.h"
 
-Define_Module_Like( WirelessEtherModule, NetworkInterface );
+Define_Module_Like( WirelessEtherModule, NetworkInterface6);
 
 void WirelessEtherModule::baseInit(int stage)
 {

@@ -56,7 +56,7 @@
 #include "opp_utils.h"
 #include <string>
 
-Define_Module_Like( EtherModule, NetworkInterface );
+Define_Module_Like( EtherModule, NetworkInterface6 );
 
 void EtherModule::initialize(int stage)
 {

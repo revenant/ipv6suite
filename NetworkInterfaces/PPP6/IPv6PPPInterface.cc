@@ -53,7 +53,7 @@
 
 using boost::polymorphic_downcast;
 
-Define_Module_Like( IPv6PPPInterface, NetworkInterface );
+Define_Module_Like( IPv6PPPInterface, NetworkInterface6);
 
 void IPv6PPPInterface::initialize()
 {

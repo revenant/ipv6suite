@@ -27,7 +27,7 @@
 #include "debug.h"
 #include "EtherModuleBridge.h"
 
-Define_Module_Like( EtherModuleBridge, NetworkInterface );
+Define_Module_Like( EtherModuleBridge, NetworkInterface6 );
 
 void EtherModuleBridge::initialize(int stage)
 {

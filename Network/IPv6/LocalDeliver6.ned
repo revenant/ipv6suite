@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6.ned,v 1.2 2005/02/16 06:23:48 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -20,13 +20,13 @@
 // file: LocalDeliver6.ned
 // Simple Module: LocalDeliver6
 // ------
-// Responsibilities: 
+// Responsibilities:
 // Receive IP datagram for local delivery
 // strip off IP header
 // buffer fragments for ip_fragmenttime
 // wait until all fragments of one fragment number are received
-// discard without notification if not all fragments arrive in 
-//		ip_fragmenttime
+// discard without notification if not all fragments arrive in
+//      ip_fragmenttime
 // Defragment once all fragments have arrived
 // send Transport packet up to the transport layer
 // send ICMP packet to ICMP module
@@ -38,71 +38,63 @@
 
 import "NF_IP_LOCAL_IN";
 
-simple LocalDeliver6Core 
-    parameters: 
-		procdelay,
+simple LocalDeliver6Core
+    parameters:
+        procdelay,
         numOfTransportProt : numeric const,
-		fragmentTimeout : string;
-    gates: 
-		in: routingIn; 
-		in: multicastIn; 
-		in: netfilterIn; 
-		in: processorManagerIn;
-		out: mobilityOut;
-		out: multicastOut; 
-		out: ICMPOut; 
-		out: preRoutingOut; 
-		out: transportOut[]; 
-		out: netfilterOut;
-		out: tunnelOut;
-		out: errorOut;
-		out: routingOut; //For routing header
-endsimple 
+        fragmentTimeout : string;
+    gates:
+        in: routingIn;
+        in: multicastIn;
+        out: mobilityOut;
+        out: multicastOut;
+        out: ICMPOut;
+        out: preRoutingOut;
+        out: transportOut[];
+        out: tunnelOut;
+        out: errorOut;
+        out: routingOut; //For routing header
+endsimple
 
 module LocalDeliver6
-    parameters: 
-		procdelay,
+    parameters:
+        procdelay,
         numOfTransportProt : numeric const,
-		hookName : string,
-		fragmentTimeout : string;
-    gates: 
-        in: routingIn; 
-        in: multicastIn; 
-	out: mobilityOut;
-        out: multicastOut; 
-        out: ICMPOut; 
-        out: preRoutingOut; 
+        fragmentTimeout : string;
+    gates:
+        in: routingIn;
+        in: multicastIn;
+    out: mobilityOut;
+        out: multicastOut;
+        out: ICMPOut;
+        out: preRoutingOut;
         out: tunnelOut;
-	out: errorOut;
-	out: routingOut; //For routing header
+    out: errorOut;
+    out: routingOut; //For routing header
         out: transportOut[];
-    submodules: 
-        core: LocalDeliver6Core; 
-            parameters: 
-				procdelay = procdelay,
+    submodules:
+        core: LocalDeliver6Core;
+            parameters:
+                procdelay = procdelay,
                 numOfTransportProt = numOfTransportProt,
-				fragmentTimeout = fragmentTimeout;
-			gatesizes:
-				transportOut[numOfTransportProt];
+                fragmentTimeout = fragmentTimeout;
+            gatesizes:
+                transportOut[numOfTransportProt];
             display: "p=101,180;b=40,24,rect";
-        queueHook: hookName like NF_IP_LOCAL_IN
-            display: "p=100,110;b=40,24,rect";
-    connections nocheck: 
-        routingIn --> core.routingIn; 
+    connections nocheck:
+        routingIn --> core.routingIn;
         multicastIn --> core.multicastIn;
-        core.multicastOut --> multicastOut; 
-        core.ICMPOut --> ICMPOut; 
+        core.multicastOut --> multicastOut;
+        core.ICMPOut --> ICMPOut;
         core.preRoutingOut --> preRoutingOut;
-	core.tunnelOut --> tunnelOut;
-	core.errorOut --> errorOut;
-	core.routingOut --> routingOut;
-	core.mobilityOut --> mobilityOut;
-        for i=0..numOfTransportProt-1 do 
-            core.transportOut[i] --> transportOut[i]; 
-        endfor; 
+    core.tunnelOut --> tunnelOut;
+    core.errorOut --> errorOut;
+    core.routingOut --> routingOut;
+    core.mobilityOut --> mobilityOut;
+        for i=0..numOfTransportProt-1 do
+            core.transportOut[i] --> transportOut[i];
+        endfor;
 
-        core.netfilterOut --> queueHook.in; 
-        queueHook.out --> core.netfilterIn; 
     display: "p=10,18;b=202,224,rect";
-endmodule 
+endmodule
 

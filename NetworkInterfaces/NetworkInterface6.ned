@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Fragmentation.ned,v 1.2 2005/02/16 06:23:48 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/NetworkInterface6.ned,v 1.1 2005/02/16 06:23:48 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -17,23 +17,27 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
+
 //
-// Performs IPv6 Fragmentation.
+// Prototype module for Link Layer protocols.
+//# FIXME or at least it appears to be... (Andras)
 //
 // Responsibilities:
-//  - receive valid IP datagram from Routing or Multicast
-//  - fragment datagram if size > MTU[output port]
-//  - send fragments to IPOutput[output port]
+// - stub version for test only,
+// - can be replaced later, possibly by compound module
+// - can be used as a "like"-module
 //
-// author: Jochen Reber
-// date: 2.5.00, 9.5.00, 20.5.00, 9.6.00
 //
-simple IPv6Fragmentation
+// Prototype module for Link Layer protocols.
+//
+// Responsibilities:
+// - can be used as a "like"-module
+//
+module NetworkInterface6
     parameters:
-        procdelay,
-        numOfPorts: const;
+        procdelay : numeric const,
+        nwiXmlConfig: xml;
     gates:
-        in: routingIn, multicastIn, addrReslnIn;
-        out: errorOut, outputOut [];
-endsimple
-
+        in: physicalIn, ipOutputQueueIn, extSignalIn[];
+        out: physicalOut, ipOutputQueueOut, ipInputQueueOut, extSignalOut[];
+endmodule

@@ -56,14 +56,7 @@ module LinkLayer6
         out: extSignalOut[];
 
     submodules:
-        outputQueue: OutputQueue;
-            parameters:
-                enqueueHookName = enqueueHookName,
-                dequeueHookName = dequeueHookName,
-                enqueue_delay = enqueue_delay,
-                dequeue_delay = dequeue_delay;
-            display: "b=32,30;p=138,63;i=queue";
-        networkInterface: NWIName like NetworkInterface;
+        networkInterface: NWIName like NetworkInterface6;
             parameters:
                 procdelay = nwi_delay;
             gatesizes:
@@ -72,18 +65,14 @@ module LinkLayer6
             display: "b=32,30;p=87,125;i=bwxconn";
     connections nocheck:
 
-        // IP layer to L2 Output Queue
-        outputQueueIn --> outputQueue.fromIP;
-
-        // L2 Output Queue to Network interface
-        networkInterface.ipOutputQueueIn <-- outputQueue.toNW;
-        networkInterface.ipOutputQueueOut --> outputQueue.fromNW;
+        // IP layer to Network interface
+        outputQueueIn --> networkInterface.ipOutputQueueIn;
+        inputQueueOut <-- networkInterface.ipInputQueueOut;
+        // XXX networkInterface.ipOutputQueueOut left unconnected --AV
 
         // physical connection
         networkInterface.physicalOut --> physOut;
         networkInterface.physicalIn <-- physIn;
-
-        networkInterface.ipInputQueueOut --> inputQueueOut;
 
         for i=0..sizeof(extSignalIn)-1 do
           networkInterface.extSignalIn[i] <-- extSignalIn[i];

@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6.ned,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6.ned,v 1.2 2005/02/16 06:23:48 andras Exp $
 //
 // Copyright (C) 2001 Monash University, Australia
 //
@@ -22,16 +22,16 @@
 //
 // Multicast Listener Discovery (TBD)
 //
-simple MLD    
+simple MLD
 //   parameters:
 //        Group,
 //        Source;
    gates:
         in: MLDIn;
-	in: ReportMessage;
-	in: DoneMessage;
-        out:MLDOut;        
-endsimple 
+    in: ReportMessage;
+    in: DoneMessage;
+        out:MLDOut;
+endsimple
 
 
 //
@@ -46,9 +46,9 @@ simple ICMPv6Core
         IPForward : bool,
         procdelay : numeric const,
         numOfPorts : numeric,
-	icmpRecordRequests: bool,
-	icmpRecordStart: numeric,
-	replyToICMPRequests: bool;
+    icmpRecordRequests: bool,
+    icmpRecordStart: numeric,
+    replyToICMPRequests: bool;
     gates:
         in: preRoutingIn;
         in: routingIn;
@@ -57,17 +57,16 @@ simple ICMPv6Core
         in: fragmentationIn;
         in: ipOutputIn[];
         in: addrReslnIn;
-        in: processorManagerIn;
         in: localErrorIn;
         out: pingOut;
         out: sendOut;
         out: errorOut;
         out: NDiscOut;
-	out: MLDOut;
+    out: MLDOut;
 endsimple
 
 
-// 
+//
 // Module housing the Neighbour Discovery state machine.
 //
 // Provide a client interface to Neighbour Discovery state machine for
@@ -93,9 +92,9 @@ endsimple
 
 
 //
-// Combine ICMPv6Core and NeighbourDiscovery 
+// Combine ICMPv6Core and NeighbourDiscovery
 //
-// - ICMP output messages into one gate   
+// - ICMP output messages into one gate
 // - errors and notifications into one gate
 //
 //#FIXME gate descriptions needed...
@@ -150,7 +149,7 @@ module ICMPv6
             display: "p=64,49;b=40,24";
         combine: ICMPv6Combine;
             display: "p=149,247;b=40,24";
-	mld: MLD;
+    mld: MLD;
     connections nocheck:
         preRoutingIn --> icmpv6Core.preRoutingIn;
         routingIn --> icmpv6Core.routingIn;
@@ -170,8 +169,8 @@ module ICMPv6
         errorOut <-- combine.errorOut;
         sendOut <-- combine.sendOut;
 
-	mld.MLDIn<-- icmpv6Core.MLDOut;
-	mld.MLDOut-->mldOut;
+    mld.MLDIn<-- icmpv6Core.MLDOut;
+    mld.MLDOut-->mldOut;
 
         for i=0..numOfPorts-1 do
            nd.outputOut[i] --> outputOut[i];

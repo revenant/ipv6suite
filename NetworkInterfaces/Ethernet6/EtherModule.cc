@@ -140,7 +140,10 @@ InterfaceEntry *EtherModule::registerInterface()
 printf("DBG: %s as '%s' on %d\n", fullPath().c_str(), e->name(), outputPort);
 
   // generate a link-layer address to be used as interface token for IPv6
-  InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
+  unsigned int iid[2];
+  iid[0] = ( _myAddr.intValue()[0] << 8 ) | 0xFF;
+  iid[1] = _myAddr.intValue()[1] | 0xFE000000;
+  InterfaceToken token(iid[1], iid[0], 64);
   e->setInterfaceToken(token);
 
   // MAC address as string

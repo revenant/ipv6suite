@@ -94,7 +94,7 @@ std::string IPv6InterfaceData::info() const
   else
   {
     os << "addrs:";
-    for(unsigned int i=0; i<inetAddrs.size(); i++)
+    for (unsigned int i=0; i<inetAddrs.size(); i++)
       os << (i?",":"") << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str();
   }
   if (tentativeAddrs.size() == 0)
@@ -104,8 +104,8 @@ std::string IPv6InterfaceData::info() const
   else
   {
     os << " tentativeaddrs:";
-    for(unsigned int i=0; i<inetAddrs.size(); i++)
-      os << (i?",":"") << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str();
+    for (unsigned int i=0; i<tentativeAddrs.size(); i++)
+      os << (i?",":"") << tentativeAddrs[i].address().c_str() << tentativeAddrs[i].scope_str();
   }
   os << "}";
   return os.str();

@@ -344,7 +344,10 @@ InterfaceEntry *WirelessEtherModule::registerInterface()
   e->setOutputPort(outputPort);
 
   // generate a link-layer address to be used as interface token for IPv6
-  InterfaceToken token(address.intValue()[0], address.intValue()[0], 64);
+  unsigned int iid[2];
+  iid[0] = ( address.intValue()[0] << 8 ) | 0xFF;
+  iid[1] = address.intValue()[1] | 0xFE000000;
+  InterfaceToken token(iid[1], iid[0], 64);
   e->setInterfaceToken(token);
 
   // MAC address as string

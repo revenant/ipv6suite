@@ -60,7 +60,7 @@ void IPv6PPPAPInterface::initialize(int stage)
   }
   else if (stage == 1)
   {
-    // XXX what the heck is this??? --AV
+    // XXX what's this? --AV
     //interfaceID[0] = interfaceID[1] = 0;
 
     //AP bridge apecific setup
@@ -76,7 +76,7 @@ void IPv6PPPAPInterface::finish()
 
 void IPv6PPPAPInterface::handleMessage(cMessage* msg)
 {
-/* XXX FIXME TBD !!!!!!!!!!! what the heck is going on here????? --AV
+/* XXX TBD what's this? AV
 *  if (lowInterfaceId() == 0 && highInterfaceId() == 0)
 *  {
 *    // needed for AP bridge

@@ -29,7 +29,7 @@
 #include "ICMPv6Core.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
 

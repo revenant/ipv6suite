@@ -39,7 +39,7 @@
 #include <iterator> //ostream_iterator
 
 #include "IPv6Encapsulation.h"
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h"
 #include "Constants.h"

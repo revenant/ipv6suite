@@ -31,7 +31,7 @@
 #ifndef __IPv6INTERFACEPACKETWITHDATA_H__
 #define __IPv6INTERFACEPACKETWITHDATA_H__
 
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 
 /**
    @class IPv6InterfacePacketWithData

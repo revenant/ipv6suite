@@ -56,7 +56,7 @@
 #include "IPv6LocalDeliver.h"
 #include "HdrExtFragProc.h"
 #include "HdrExtRteProc.h"
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 #include "IPv6Datagram.h"
 
 

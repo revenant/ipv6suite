@@ -36,7 +36,7 @@
 
 #include "UDPProcessing6.h"
 #include "UDPMessages_m.h"
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 #include "opp_utils.h"
 
 const unsigned int UDP_HEADER_SIZE = 8;

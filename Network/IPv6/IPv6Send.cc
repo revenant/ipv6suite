@@ -47,7 +47,7 @@
 
 #include "IPv6Send.h"
 #include "IPv6Datagram.h"
-#include "IPv6InterfacePacket.h"
+#include "IPv6InterfacePacket_m.h"
 #include "HdrExtRteProc.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6InterfaceData.h"

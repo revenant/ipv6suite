@@ -222,8 +222,9 @@ public:
 
   void sendMonitorFrameToUpperLayer(WESignalData*);
   // related to Mobile MLDv2
+#if MLDV2
   void sendGQtoUpperLayer();
-
+#endif
   // self timer mssages
 
   void addTmrMessage(cTimerMessage* msg) { tmrs.push_back(msg); }

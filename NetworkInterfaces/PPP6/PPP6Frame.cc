@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/PPP6/PPP6Frame.cc,v 1.1 2005/02/12 07:17:55 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/PPP6/PPP6Frame.cc,v 1.2 2005/02/12 07:35:12 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -29,7 +29,7 @@
 #include "PPP6Frame.h"
 
 // constructors
-PPP6Frame::PPP6Frame(): cPacket()
+PPP6Frame::PPP6Frame(): cMessage()
 {
     setLength(8 * PPP_HEADER_LENGTH);
     _protocol = PPP_PROT_UNDEF;
@@ -44,7 +44,7 @@ PPP6Frame::PPP6Frame(const PPP6Frame& p)
 // assignment operator
 PPP6Frame& PPP6Frame::operator=(const PPP6Frame& p)
 {
-    cPacket::operator=(p);
+    cMessage::operator=(p);
     _protocol = p._protocol;
     destAddr = p.destAddr;
     return *this;
@@ -55,11 +55,12 @@ PPP6Frame& PPP6Frame::operator=(const PPP6Frame& p)
     assumes that networkPacket->length() is
     length of transport packet in bits
     adds to it the PPP header length in bits */
+/* XXX removed --AV
 void PPP6Frame::encapsulate(cPacket *networkPacket)
 {
     cPacket::encapsulate(networkPacket);
 
     _protocol = PPP_PROT_IP;
 }
-
+*/
 

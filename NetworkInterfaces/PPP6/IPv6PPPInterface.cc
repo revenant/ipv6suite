@@ -186,6 +186,7 @@ PPP6Frame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
 
   dupMsg->setLength(dupMsg->length() * 8); // convert from bytes to bits   XXX ??? --AV
   outFrame->encapsulate(dupMsg);
+  outFrame->setProtocol(PPP_PROT_IP); //XXX wrong! value from InterfacePkt? --AV
   outFrame->setName(dupMsg->name());
   delete recPkt;
   return outFrame;

@@ -34,9 +34,10 @@
 
 #include <cassert>
 
-#include <boost/tokenizer.hpp>
+//#include <boost/tokenizer.hpp> // pulls in half of boost -- NO WAY!!! --Andras
+#include "StringTokenizer.h"     // lot smaller than boost/tokenizer.hpp
 #include <cmath> //std::pow
-#include <boost/random.hpp>
+//#include <boost/random.hpp> // was not used --Andras
 #include <math.h>
 #include <sstream>
 #include <string>
@@ -44,12 +45,14 @@
 
 #include "cTTimerMessageCB.h"
 
+#if MLDV2
 #include "IPv6Datagram.h"
+#endif
 #include "IPv6InterfaceData.h"
 #include "Messages.h"
 
 #include "opp_utils.h"
-#include "opp_akaroa.h"
+//#include "opp_akaroa.h"  //XXX --Andras
 
 #include "WorldProcessor.h"
 #include "MobileEntity.h"
@@ -81,7 +84,9 @@
 
 #include "AveragingList.h"
 
+#if MLDV2
 #include "MLDv2Message.h"
+#endif
 
 #if L2FUZZYHO // (Layer 2 fuzzy logic handover)
 #include"hodec.h"
@@ -444,10 +449,10 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
   // Four random values which will be used to determine whether
   // data will cross over to adjacent channels
 
-  r1 = OPP_UNIFORM(0,100);
-  r2 = OPP_UNIFORM(0,100);
-  r3 = OPP_UNIFORM(0,100);
-  r4 = OPP_UNIFORM(0,100);
+  r1 = uniform(0,100);
+  r2 = uniform(0,100);
+  r3 = uniform(0,100);
+  r4 = uniform(0,100);
 
   // Go through each module and determine whether to transmit to them
   for ( MLIT it = mods.begin(); it != mods.end(); it++)
@@ -1263,6 +1268,7 @@ void WirelessEtherModule::sendMonitorFrameToUpperLayer(WESignalData* sig)
   send(sig->dup(), inputQueueOutGate());
 }
 
+#if MLDV2
 void WirelessEtherModule::sendGQtoUpperLayer()
 {
   MLDv2Message *GQmsg= new MLDv2Message(ICMPv6_MLD_QUERY,20);
@@ -1289,6 +1295,7 @@ void WirelessEtherModule::sendGQtoUpperLayer()
 
   send(dgram, inputQueueOutGate());
 }
+#endif
 
 WESignalData* WirelessEtherModule::generateProbeReq(void)
 {
@@ -1599,6 +1606,12 @@ void WirelessEtherModule::initialiseChannelToScan(void)
   }
 
   // Mark unwanted channels based on XML input
+  StringTokenizer tokenizer(chanNotToScan,"-");
+  const char *token;
+  while ((token = tokenizer.nextToken())!=NULL)
+     channelToScan[atoi(token)]=false;
+
+/* XXX replaced with the code above --Andras
   boost::tokenizer<boost::char_separator<char> >::iterator tokenIt;
   boost::char_separator<char> sep("-");
   boost::tokenizer<boost::char_separator<char> > tokens(chanNotToScan, sep);
@@ -1607,6 +1620,7 @@ void WirelessEtherModule::initialiseChannelToScan(void)
   {
     channelToScan[atoi(tokenIt->c_str())]=false;
   }
+*/
 }
 
 void WirelessEtherModule::insertToAPList(APInfo newEntry)

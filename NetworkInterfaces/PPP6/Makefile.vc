@@ -64,7 +64,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPv6PPPAPInterface.obj IPv6PPPInterface.obj
+OBJS= IPv6PPPAPInterface.obj IPv6PPPInterface.obj PPP6Frame.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -97,6 +97,9 @@ IPv6PPPAPInterface.obj: IPv6PPPAPInterface.cc
 
 IPv6PPPInterface.obj: IPv6PPPInterface.cc
 	$(CXX) -c $(COPTS) /Tp IPv6PPPInterface.cc
+
+PPP6Frame.obj: PPP6Frame.cc
+	$(CXX) -c $(COPTS) /Tp PPP6Frame.cc
 
 
 #doc: neddoc doxy

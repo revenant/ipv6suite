@@ -316,7 +316,6 @@ XMLCommon.obj: XMLCommon.cc \
   ../Loki/Functor.h \
   ../Loki/HierarchyGenerators.h \
   ../boost/utility.hpp \
-  ../boost/cast.hpp \
   ../boost/noncopyable.hpp \
   ../boost/utility/addressof.hpp \
   ../boost/utility/base_from_member.hpp \
@@ -324,8 +323,6 @@ XMLCommon.obj: XMLCommon.cc \
   ../boost/type_traits/add_pointer.hpp \
   ../boost/type_traits/remove_reference.hpp \
   ../boost/utility_fwd.hpp \
-  ../boost/limits.hpp \
-  ../boost/detail/select_type.hpp \
   ../Loki/Typelist.h \
   ../Loki/EmptyType.h \
   ../Loki/SmallObj.h \
@@ -333,7 +330,10 @@ XMLCommon.obj: XMLCommon.cc \
   ../Loki/NullType.h \
   ../Loki/TypeManip.h \
   ../Loki/Threads.h \
-  ../Loki/Singleton.h
+  ../Loki/Singleton.h \
+  ../boost/cast.hpp \
+  ../boost/limits.hpp \
+  ../boost/detail/select_type.hpp
 XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../sys.h \
   ../debug.h \

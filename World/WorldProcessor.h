@@ -173,7 +173,7 @@ public:
 
   void updateStats(void);
   Loki::cTimerMessageCB<void>* updateStatsNotifier;
-  cOutVector* balanceIndexVec;
+  cOutVector balanceIndexVec;
 #endif // USE_MOBILITY
 };
 

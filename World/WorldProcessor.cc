@@ -110,12 +110,13 @@ void WorldProcessor::initialize(int stage)
     BASE_SPEED = par("wlan_speed").doubleValue() * 1024 * 1024;
     Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
 
-    balanceIndexVec = new cOutVector("balanceIndex");
+    balanceIndexVec.setName("balanceIndex");
+
     // Timer to update statistics
     updateStatsNotifier  = new Loki::cTimerMessageCB<void>(TMR_WPSTATS,
                    this, this, &WorldProcessor::updateStats, "updateStats");
-
     scheduleAt(simTime()+1, updateStatsNotifier);
+
 #endif //USE_MOBILITY
   }
 #ifdef USE_CPPUNIT
@@ -126,7 +127,6 @@ void WorldProcessor::initialize(int stage)
     assert(runUnitTests());
   }
 #endif //USE_CPPUNIT
-
 }
 
 void WorldProcessor::finish()
@@ -351,7 +351,8 @@ void WorldProcessor::updateStats(void)
     }
   }
   balanceIndex = (n*loadSquaredSum > 0) ? (loadSum*loadSum)/(n*loadSquaredSum):0;
-  balanceIndexVec->record(balanceIndex);
+  balanceIndexVec.record(balanceIndex);
+
   //Allow sim to quit if nothing of interest is happening.
   if (!simulation.msgQueue.empty())
     scheduleAt(simTime()+1, updateStatsNotifier);

@@ -63,7 +63,10 @@
 #endif //USE_MOBILITY
 #include "WorldProcessor.h"
 
+// XXX TBD try to eliminate these dependencies
 #include "LinkLayerModule.h"
+#include "EtherModule.h"
+#include "IPv6PPPAPInterface.h"
 
 
 using boost::polymorphic_downcast;
@@ -127,15 +130,15 @@ void RoutingTable6::initialize(int stage)
     wp = boost::polymorphic_downcast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     assert(wp != 0);
-    try
-    {
+    // XXX try
+    // XXX {
       //parse this network node's parameters and load them into this.
       wp->parseNetworkEntity(this);
-    }
-    catch(boost::bad_lexical_cast& e)
-    {
-      Dout(dc::warning|error_cf, nodeName()<<" "<<e.what());
-    }
+    // XXX }
+    // XXX catch(boost::bad_lexical_cast& e)
+    // XXX {
+    // XXX   Dout(dc::warning|error_cf, nodeName()<<" "<<e.what());
+    // XXX }
 
     cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP");
     assert(ICMP);

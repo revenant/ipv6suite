@@ -41,7 +41,7 @@
 /**
  * @class IPv6PPPAPInterface
  *
- * @brief 
+ * @brief
  *
  * detailed description
  */
@@ -50,7 +50,7 @@ class IPv6PPPAPInterface: public IPv6PPPInterface
 {
 public:
   friend class WirelessEtherBridge;
-  
+
   Module_Class_Members(IPv6PPPAPInterface, IPv6PPPInterface, 0);
 
   ///@name Overidden cSimpleModule functions
@@ -66,15 +66,15 @@ public:
   //@}
 
   // frames from bridge module
-  virtual PPPFrame* receiveFromUpperLayer(cMessage* msg);
+  virtual PPP6Frame* receiveFromUpperLayer(cMessage* msg);
 
   // send packet to upper layer
-  virtual void sendToUpperLayar(PPPFrame* frame);
+  virtual void sendToUpperLayar(PPP6Frame* frame);
 
   // output gate of the Input Queue in upper layer
-  int inputQueueOutGate() const; 
+  int inputQueueOutGate() const;
 protected:
-  
+
 
 private:
 };

@@ -22,13 +22,13 @@
  * @file   IPv6PPPAPInterface.cc
  * @author Johnny Lai
  * @date   22 Jul 2004
- * 
+ *
  * @brief  Implementation of IPv6PPPAPInterface
  *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include <boost/cast.hpp>
@@ -37,7 +37,7 @@
 
 #include "Messages.h"
 #include "MACAddress.h"
-#include "PPPFrame.h"
+#include "PPP6Frame.h"
 
 Define_Module_Like(IPv6PPPAPInterface, NetworkInterface);
 
@@ -95,22 +95,22 @@ void IPv6PPPAPInterface::handleMessage(cMessage* msg)
 }
 
 int IPv6PPPAPInterface::inputQueueOutGate() const
-{ 
-  return findGate("ipInputQueueOut"); 
+{
+  return findGate("ipInputQueueOut");
 }
 
   // frames from bridge module
-PPPFrame* IPv6PPPAPInterface::receiveFromUpperLayer(cMessage* msg)
+PPP6Frame* IPv6PPPAPInterface::receiveFromUpperLayer(cMessage* msg)
 {
-  PPPFrame* ret = boost::polymorphic_downcast<PPPFrame*>(msg->decapsulate());
+  PPP6Frame* ret = boost::polymorphic_downcast<PPP6Frame*>(msg->decapsulate());
   assert(ret);
   delete msg;
-  return ret;  
+  return ret;
 }
 
   // send packet to upper layer
-void IPv6PPPAPInterface::sendToUpperLayar(PPPFrame* frame)
+void IPv6PPPAPInterface::sendToUpperLayar(PPP6Frame* frame)
 {
   assert(frame);
-  send(frame->dup(), inputQueueOutGate());  
+  send(frame->dup(), inputQueueOutGate());
 }

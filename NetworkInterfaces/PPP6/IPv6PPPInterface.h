@@ -31,7 +31,7 @@
 
 #include "LinkLayerModule.h"
 
-class PPPFrame;
+class PPP6Frame;
 
 /**
    @class IPv6PPPInterface
@@ -45,15 +45,15 @@ public:
                        //ACTIVITY_STACK_SIZE);
 
   virtual void initialize();
-  virtual void activity();
+  //XXX virtual void activity();  not used, to be removed ? --AV
   virtual void handleMessage(cMessage* theMsg);
 
   unsigned int lowInterfaceId();
   unsigned int highInterfaceId();
 
 protected:
-  virtual PPPFrame* receiveFromUpperLayer(cMessage* msg) const;
-  virtual void sendToUpperLayer(PPPFrame* frame);
+  virtual PPP6Frame* receiveFromUpperLayer(cMessage* msg) const;
+  virtual void sendToUpperLayer(PPP6Frame* frame);
 
 protected:
   unsigned int interfaceID[2];

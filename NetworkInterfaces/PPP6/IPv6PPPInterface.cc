@@ -34,19 +34,19 @@
 #include <string>
 
 
-#include "PPPFrame.h"
+#include "PPP6Frame.h"
 #include "opp_utils.h"
 #include "IPv6InterfaceData.h"
 #include "Messages.h"
-#include "IPDatagram.h"
-#ifdef CWDEBUG
-#include "IPv6Datagram.h"
-#endif //CWDEBUG
+//#include "IPDatagram.h"
+//#ifdef CWDEBUG
+//#include "IPv6Datagram.h"
+//#endif //CWDEBUG
 
 #ifdef TESTIPv6
 #undef NDEBUG
 #include <cassert>
-#include "IPv6Datagram.h"
+//#include "IPv6Datagram.h"
 #endif
 
 using boost::polymorphic_downcast;
@@ -127,7 +127,7 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
 
   if (!strcmp(msg->arrivalGate()->name(), "ipOutputQueueIn"))
   {
-    PPPFrame* outFrame = receiveFromUpperLayer(msg);
+    PPP6Frame* outFrame = receiveFromUpperLayer(msg);
     send(outFrame, "physicalOut");
     cMessage *nwiIdleMsg = new cMessage();
     nwiIdleMsg->setKind(NWI_IDLE);
@@ -137,10 +137,11 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
 
   ++cntReceivedPackets;
   //from Network peer
-  std::auto_ptr<PPPFrame> recFrame(polymorphic_downcast<PPPFrame*>(msg));
+  std::auto_ptr<PPP6Frame> recFrame(polymorphic_downcast<PPP6Frame*>(msg));
   assert(recFrame.get());
 
-  if (!recFrame->protocol() == PPP_PROT_IP)
+/* XXX why's this check? we won't support anything but IP? --AV
+  if (recFrame->protocol() != PPP_PROT_IP)
   {
     ev << "\n+ PPPLink of " << fullPath()
        << " receive error: Not IP protocol.\n";
@@ -148,6 +149,7 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
          <<" PPPLink receive error: unknown protocol received (should be PPP_PROT_IP)");
     return;
   }
+*/
 
   if (recFrame->hasBitError())
   {
@@ -161,12 +163,12 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
   sendToUpperLayer(recFrame.get());
 }
 
-PPPFrame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
+PPP6Frame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
 {
   //from network layer
 
   // encapsulate IP datagram in PPP frame
-  PPPFrame* outFrame = new PPPFrame();
+  PPP6Frame* outFrame = new PPP6Frame();
 
   LLInterfacePkt* recPkt = polymorphic_downcast<LLInterfacePkt*>(msg);
 
@@ -176,26 +178,36 @@ PPPFrame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
   outFrame->destAddr = recPkt->data().destLLAddr;
   Debug( assert(polymorphic_downcast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
 
+/* XXX next two lines replaced with one --AV
   cMessage *dupMsg = recPkt->data().dgram->dup();
-  dupMsg->setLength(dupMsg->length() * 8); // convert from bytes to bits
+  delete recPkt->data().dgram;
+*/
+  cMessage *dupMsg = recPkt->data().dgram;
+
+  dupMsg->setLength(dupMsg->length() * 8); // convert from bytes to bits   XXX ??? --AV
   outFrame->encapsulate(dupMsg);
   outFrame->setName(dupMsg->name());
-  delete recPkt->data().dgram;
   delete recPkt;
   return outFrame;
   //wait(delay);
 }
 
-void IPv6PPPInterface::sendToUpperLayer(PPPFrame* recFrame)
+void IPv6PPPInterface::sendToUpperLayer(PPP6Frame* recFrame)
 {
-  IPDatagram *ipdatagram =
+/* XXX why force IPDatagram? can be anything --AV
+ IPDatagram *ipdatagram =
     polymorphic_downcast<IPDatagram*> (recFrame->decapsulate());
   ipdatagram->setLength(ipdatagram->length() / 8); // convert from bits back to bytes
   assert(ipdatagram);
   //wait(delay);
   send(ipdatagram, "ipInputQueueOut");
+*/
+  cMessage *packet = recFrame->decapsulate();
+  packet->setLength(packet->length() / 8); // convert from bits back to bytes  XXX why???? --AV
+  send(packet, "ipInputQueueOut");
 }
 
+/* XXX code apparently not used at all, should be removed --AV
 void IPv6PPPInterface::activity()
 {
   cMessage *msg;
@@ -211,7 +223,7 @@ void IPv6PPPInterface::activity()
       nwiIdleMsg->setKind(NWI_IDLE);
 
       // encapsulate IP datagram in PPP frame
-      PPPFrame *outFrame = new PPPFrame();
+      PPP6Frame *outFrame = new PPP6Frame();
 
       LLInterfacePkt* recPkt = polymorphic_downcast<LLInterfacePkt*>(msg);
 
@@ -220,10 +232,10 @@ void IPv6PPPInterface::activity()
 #     endif
 
       cMessage* dupMsg = recPkt->data().dgram->dup();
+      delete recPkt->data().dgram;
 
       outFrame->encapsulate(dupMsg);
       outFrame->setName(dupMsg->name());
-      delete recPkt->data().dgram;
       delete recPkt;
       wait(delay);
       send(outFrame, "physicalOut");
@@ -231,7 +243,7 @@ void IPv6PPPInterface::activity()
 
     } else // from Network
     {
-      std::auto_ptr<PPPFrame> recFrame(polymorphic_downcast<PPPFrame*>(msg));
+      std::auto_ptr<PPP6Frame> recFrame(polymorphic_downcast<PPP6Frame*>(msg));
 
       // decapsulate IP datagram
       if (recFrame->protocol() == PPP_PROT_IP)
@@ -257,3 +269,5 @@ void IPv6PPPInterface::activity()
     }
   }
 }
+
+*/

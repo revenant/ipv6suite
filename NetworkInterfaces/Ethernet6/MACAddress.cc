@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.cc,v 1.2 2005/02/12 07:17:55 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
@@ -24,13 +24,13 @@ const MAC_address MAC_ADDRESS_UNSPECIFIED_STRUCT = {0,0};
 
 std::ostream& operator<<( std::ostream& os, const MAC_address& src_addr)
 {
-  os<<hex<< 
+  os<<hex<<
     ((src_addr.high & 0xFF0000) >> 16) << MAC_ADDR_SEP <<
     ((src_addr.high & 0xFF00) >> 8) << MAC_ADDR_SEP <<
     ((src_addr.high & 0xFF)) <<  MAC_ADDR_SEP <<
     ((src_addr.low & 0xFF0000) >> 16) <<  MAC_ADDR_SEP <<
     ((src_addr.low & 0xFF00) >> 8) <<  MAC_ADDR_SEP <<
-    ((src_addr.low & 0xFF));  
+    ((src_addr.low & 0xFF));
 
   return os;
 }
@@ -38,7 +38,7 @@ std::ostream& operator<<( std::ostream& os, const MAC_address& src_addr)
 /**
  * @todo Fix up this weird encoding so the lhs.high==rhs.high &&
  * lhs.low==rhs.low can be used instead
- * 
+ *
  */
 
 bool operator==(const MAC_address& lhs, const MAC_address& rhs)
@@ -54,14 +54,14 @@ bool operator!=(const MAC_address& lhs, const MAC_address& rhs)
 MACAddress::MACAddress(const char* addr) :
   mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT)
 {
-  set(addr);      
+  set(addr);
 }
 
 MACAddress::MACAddress(const MAC_address& addr) :
   mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT)
 {
   mac_addr.high = addr.high;
-  mac_addr.low = addr.low;        
+  mac_addr.low = addr.low;
 }
 
 MACAddress::MACAddress(const MACAddress& obj)
@@ -86,43 +86,43 @@ void MACAddress::writeContents(std::ostream& os)
   os << stringValue();
 }
 
-void MACAddress::info(char* buf)
+std::string MACAddress::info()
 {
   ostringstream os;
   os << *this ;
-  os.str().copy(buf, string::npos);
+  return os.str();
 }
 
 void MACAddress::set(const char* addr)
 {
   stringstream is(addr);
-  this->operator>>(is);  
+  this->operator>>(is);
 }
 
 MACAddress::operator MAC_address() const
 {
-  return mac_addr;      
-}  
+  return mac_addr;
+}
 
 MACAddress::operator const char*()
 {
   return stringValue();
-}  
+}
 
 void MACAddress::set(const MAC_address& addr)
 {
   mac_addr.high = addr.high;
-  mac_addr.low = addr.low;      
+  mac_addr.low = addr.low;
 }
 
 const char* MACAddress::stringValue(void) const
 {
   // address format ABCD:ABCD
   static char output_str[9];
-  
+
   if(mac_addr.high == 0 && mac_addr.low == 0)
     return "";
-  
+
   //return "aa:bb:cc:dd:ee:ff";
   sprintf(output_str, "%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
           (mac_addr.high & 0xFF0000) >> 16,
@@ -132,7 +132,7 @@ const char* MACAddress::stringValue(void) const
           (mac_addr.low & 0xFF00) >> 8,
           (mac_addr.low & 0xFF));
 
-  return output_str;  
+  return output_str;
 }
 
 std::istream& MACAddress::operator>>(std::istream& is)
@@ -144,23 +144,23 @@ std::istream& MACAddress::operator>>(std::istream& is)
   {
     for (int i = 0; i < 6; i ++)
     {
-      
+
       is >> hex >> octals[i];
       if (is.eof() )
-        break;      
+        break;
       is >> sep;
-    }    
+    }
   }
-  catch (...) 
+  catch (...)
   {
     cerr << "exception thrown while parsing MAC Address";
   }
-  
+
   mac_addr.high = (octals[0] << 16) + (octals[1] << 8) + octals[2];
-  mac_addr.low = (octals[3] << 16) + (octals[4] << 8) + octals[5]; 
+  mac_addr.low = (octals[3] << 16) + (octals[4] << 8) + octals[5];
 
   return is;
-  
+
 }
 
 std::ostream& operator<<(std::ostream& os, const MACAddress& obj)

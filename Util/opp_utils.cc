@@ -170,6 +170,16 @@ namespace OPP_Global
     return os.str();
   }
 
+  double atod(const char *s)
+  {
+    //XXX
+  }
+
+  unsigned long atoul(const char *s)
+  {
+    //XXX
+  }
+
   void stackUsage(cModule* self, std::ostream& os)
   {
             //Relative to the actual Network

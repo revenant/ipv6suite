@@ -125,6 +125,16 @@ namespace OPP_Global
    */
   std::string dtostr(double d);
 
+  /**
+     Converts string to double
+   */
+  double atod(const char *s);
+
+  /**
+     Converts string to unsigned long
+   */
+  unsigned long atoul(const char *s);
+
 /* XXX
   ///downcast (convert down the class hierarchy) for weak_ptrs
   template<class Target, class  Source> boost::weak_ptr<Target>

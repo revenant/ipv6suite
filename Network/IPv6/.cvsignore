@@ -1,14 +1,14 @@
-.emacs.desktop
 AddressResolution_n.cc
 DartTestfile.txt
 ICMPv6_n.cc
 IPv6Encapsulation_n.cc
+IPv6Forward_n.cc
 IPv6Fragmentation_n.cc
+IPv6Mobility_n.cc
 IPv6Multicast_n.cc
 IPv6Output_n.cc
 IPv6Processing_n.cc
 IPv6Send_n.cc
-IPv6Tunneling_n.cc
 LocalDeliver6_n.cc
 Makefile
 PreRouting6_n.cc
@@ -16,4 +16,3 @@ Routing6_n.cc
 RoutingTable6_n.cc
 cmake.check_depends
 cmake.depends
-semantic.cache

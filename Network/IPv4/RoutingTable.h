@@ -161,8 +161,8 @@ class RoutingTable: public cSimpleModule
     RouteVector multicastRoutes; // Multicast route array
 
   protected:
-    // Add the entry of the local loopback interface
-    InterfaceEntry *addLocalLoopback();
+    // set IP address etc on local loopback
+    void configureLoopbackForIPv4();
 
     // check if a route table entry corresponds to the following parameters
     bool routingEntryMatches(RoutingEntry *entry,
@@ -197,7 +197,7 @@ class RoutingTable: public cSimpleModule
 
     /** @name Interfaces */
     //@{
-    void addIPv4InterfaceDataFor(InterfaceEntry *ie);
+    void configureInterfaceForIPv4(InterfaceEntry *ie);
 
     /**
      * Returns an interface given by its address. Returns NULL if not found.

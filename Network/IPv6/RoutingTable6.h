@@ -265,7 +265,10 @@ public:
 
 private:
   ///Add IPv6InterfaceData to given InterfaceEntry
-  void addIPv6InterfaceDataFor(InterfaceEntry *ie);
+  void configureInterfaceForIPv6(InterfaceEntry *ie);
+
+  /// configure local loopback for IPv6
+  void configureLoopbackForIPv6();
 
   ///Elapse all valid/preferredLifetimes of assigned addresses
   void elapseLifetimes(unsigned int seconds);

@@ -102,6 +102,14 @@ class InterfaceTable: public cSimpleModule
      * Returns an interface given by its name. Returns NULL if not found.
      */
     InterfaceEntry *interfaceByName(const char *name);
+
+    /**
+     * Returns the first interface with the isLoopback flag set.
+     * (If there's no loopback, it returns NULL -- but this
+     * should never happen because InterfaceTable itself registers a
+     * loopback interface on startup.)
+     */
+    InterfaceEntry *firstLoopbackInterface();
 };
 
 #endif

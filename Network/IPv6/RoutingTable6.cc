@@ -155,9 +155,8 @@ void RoutingTable6::initialize(int stage)
   else if(stage == 1)
   {
     for (size_t i = 0; i < ift->numInterfaceGates(); i++)
-    {
-       addIPv6InterfaceDataFor(ift->interfaceByPortNo(i));
-    }
+       configureInterfaceForIPv6(ift->interfaceByPortNo(i));
+    configureLoopbackForIPv6();
 
     WorldProcessor *wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
@@ -204,27 +203,19 @@ void RoutingTable6::finish()
   cds = 0;
 }
 
-void RoutingTable6::addIPv6InterfaceDataFor(InterfaceEntry *ie)
+void RoutingTable6::configureInterfaceForIPv6(InterfaceEntry *ie)
 {
   IPv6InterfaceData *d = new IPv6InterfaceData();
   ie->setIPv6Data(d);
+}
 
-/* XXX Ethernet, Wireless
-          iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
-          iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-*/
+void RoutingTable6::configureLoopbackForIPv6()
+{
+  InterfaceEntry *ie = ift->firstLoopbackInterface();
 
-/* XXX PPP
-          unsigned int iid[2];
-          iid[0] = ppp_iface->highInterfaceId();
-          iid[1] = ppp_iface->lowInterfaceId();
-          ie->ipv6()->setInterfaceID(iid);
-          std::stringstream ss1, ss2;
-          ss1 << std::hex << iid[0];
-          ss2 << std::hex << iid[1];
-          string lladdr = ss1.str() + string(":") + ss2.str();
-          ie->ipv6()->setLLAddr(lladdr);
-*/
+  IPv6InterfaceData *d = new IPv6InterfaceData();
+  d->inetAddrs.push_back(IPv6Address(LOOPBACK_ADDRESS));
+  ie->setIPv6Data(d);
 }
 
 void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,

@@ -40,7 +40,17 @@ std::ostream& operator<<(std::ostream& os, const InterfaceEntry& e)
 
 void InterfaceTable::initialize(int stage)
 {
-    if (stage==1)
+    if (stage==0)
+    {
+        // register a loopback interface
+        InterfaceEntry *ie = new InterfaceEntry();
+        ie->setName("lo0");
+        ie->setOutputPort(-1);
+        ie->setMtu(3924);
+        ie->setLoopback(true);
+        addInterface(ie);
+    }
+    else if (stage==1)
     {
         WATCH_PTRVECTOR(interfaces);
         updateDisplayString();
@@ -109,6 +119,8 @@ int InterfaceTable::numInterfaceGates()
 
 InterfaceEntry *InterfaceTable::interfaceByPortNo(int portNo)
 {
+    Enter_Method("interfaceByPortNo(%d)=?", portNo);
+
     // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
         if ((*i)->outputPort()==portNo)
@@ -127,4 +139,13 @@ InterfaceEntry *InterfaceTable::interfaceByName(const char *name)
     return NULL;
 }
 
+InterfaceEntry *InterfaceTable::firstLoopbackInterface()
+{
+    Enter_Method("firstLoopbackInterface()=?");
+
+    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
+        if ((*i)->isLoopback())
+            return *i;
+    return NULL;
+}
 

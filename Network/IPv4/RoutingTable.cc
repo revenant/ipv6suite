@@ -93,10 +93,8 @@ void RoutingTable::initialize(int stage)
     // interface entries). Create the per-interface IPv4 data structures.
     InterfaceTable *interfaceTable = InterfaceTableAccess().get();
     for (int i=0; i<interfaceTable->numInterfaces(); ++i)
-        addIPv4InterfaceDataFor(interfaceTable->interfaceAt(i));
-
-    // Add one extra interface, the loopback here.
-    InterfaceEntry *lo0 = addLocalLoopback();
+        configureInterfaceForIPv4(interfaceTable->interfaceAt(i));
+    configureLoopbackForIPv4();
 
     // read routing table file (and interface configuration)
     RoutingTableParser parser(ift, this);
@@ -124,6 +122,7 @@ void RoutingTable::initialize(int stage)
         // use routerId both as routerId and loopback address
         routerId = IPAddress(routerIdStr);
 
+        InterfaceEntry *lo0 = ift->firstLoopbackInterface();
         lo0->ipv4()->setInetAddress(routerId);
         lo0->ipv4()->setNetmask(IPAddress("255.255.255.255"));
     }
@@ -169,7 +168,7 @@ void RoutingTable::printRoutingTable()
 
 //---
 
-void RoutingTable::addIPv4InterfaceDataFor(InterfaceEntry *ie)
+void RoutingTable::configureInterfaceForIPv4(InterfaceEntry *ie)
 {
     IPv4InterfaceData *d = new IPv4InterfaceData();
     ie->setIPv4Data(d);
@@ -193,15 +192,9 @@ InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
 }
 
 
-InterfaceEntry *RoutingTable::addLocalLoopback()
+void RoutingTable::configureLoopbackForIPv4()
 {
-    // TBD only add if not yet exists
-    InterfaceEntry *ie = new InterfaceEntry();
-
-    ie->setName("lo0");
-    ie->setOutputPort(-1);
-    ie->setMtu(3924);
-    ie->setLoopback(true);
+    InterfaceEntry *ie = ift->firstLoopbackInterface();
 
     // add IPv4 info. Set 127.0.0.1/8 as address by default --
     // we may reconfigure later it to be the routerId
@@ -210,10 +203,6 @@ InterfaceEntry *RoutingTable::addLocalLoopback()
     d->setNetmask(IPAddress("255.0.0.0"));
     d->setMetric(1);
     ie->setIPv4Data(d);
-
-    // add interface to table
-    ift->addInterface(ie);
-    return ie;
 }
 
 //---

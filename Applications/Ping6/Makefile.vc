@@ -298,6 +298,7 @@ Ping6App.obj: Ping6App.cc \
   ../../Network/IPv6/IPv6InterfacePacket.h \
   ../../Network/IPv6/IPv6InterfaceData.cc \
   ../../Network/IPv6/IPInterfacePacket.h \
+  ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \

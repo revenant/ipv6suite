@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -48,7 +48,7 @@ class IPv6Mobility;
 
 
 namespace MobileIPv6
-{ 
+{
 
   class MIPv6RouterEntry;
   class bu_entry;
@@ -68,7 +68,7 @@ namespace MobileIPv6
 
     friend class MIPv6NDStateHost;
     friend class MIPv6MStateMobileNode;
-    
+
   public:
 
     //@name constructors, destructors and operators
@@ -104,7 +104,7 @@ namespace MobileIPv6
      * We need a separate defaultRouter variable because defaultRouter will
      * automatically return reachable routers and does not notify us of this
      * change.
-     * 
+     *
      */
     //This could have been implemented as the last entry in the ha/router list
     //but then we'd have to insert new routers into the hal just one before the
@@ -131,8 +131,8 @@ namespace MobileIPv6
        old default router and route optimised CNs will continue sending to our
        prior access network. And end up with many dropped packets.
     */
-    boost::shared_ptr<MIPv6RouterEntry>& previousDefaultRouter() const 
-      { 
+    boost::shared_ptr<MIPv6RouterEntry>& previousDefaultRouter() const
+      {
         return _previousDefaultRtr;
       }
 
@@ -162,28 +162,28 @@ namespace MobileIPv6
 
     ///Return the homeagent with the global address in g_addr
     boost::shared_ptr<MIPv6RouterEntry> findHomeAgent(const ipv6_addr& g_addr);
-    
+
     bool halEmpty() const
       {
         return mrl.empty();
       }
-    
+
     ///Should remove the corresponding BUL entry too
     bool removeHomeAgent(boost::weak_ptr<MIPv6RouterEntry> ha);
     void insertHomeAgent(MIPv6RouterEntry* ha);
-    
+
     /**
      * @param ha is either the Homeagent or the foreign MIPv6 router or HA
      *
      * @param primary is true if inserting the Primary HA otherwise it is false
      * for the current Router.
-     * 
+     *
      * This hack is necessary due to the unknown order of setup i.e. whether the
      * primary home agent is discovered first or an MIPv6 Router or HA on
      * foreign network
      */
     void setHomeAgent(boost::shared_ptr<MIPv6RouterEntry> ha, bool primary);
-    
+
 
     //@}
 
@@ -194,7 +194,7 @@ namespace MobileIPv6
      * Looks to me like you can only have one primary home agent per node
      * instead of per interface just like one default router per node not per
      * interface
-     * 
+     *
      */
 
     const ipv6_prefix& homePrefix() const;
@@ -213,16 +213,16 @@ namespace MobileIPv6
     const ipv6_addr& homeAddr() const { return _homeAddr.prefix; }
 
     /**
-     * @return homeAddr corresponding to ha 
-     * 
+     * @return homeAddr corresponding to ha
+     *
      * Usually the returned home addr is the primary home address.  However when
      * forwarding from previous care of addr the home addr is the previous care
      * of addr (this should have been sent as a BU to ha)
      *
-     * 
+     *
      */
     const ipv6_addr& homeAddr(boost::shared_ptr<MIPv6RouterEntry> ha) const;
-       
+
     /**
      * There is only one current care of addr and that is the one registred with
      * primary HA. Even previous HA in BUL will all be updated with this coa
@@ -230,7 +230,7 @@ namespace MobileIPv6
      * addr.  (This careOfAddr is semantically different from the Using Multiple
      * Care of Address in 10.20 of draft as that refers more to the binding of
      * that addr to this node)
-     * 
+     *
      */
 
     const ipv6_addr& careOfAddr(bool old = true) const;
@@ -250,14 +250,14 @@ namespace MobileIPv6
     void setAwayFromHome(bool notAtHome);
     bool movementDetected() const { return moved; }
     void setMovementDetected(bool move) { moved = move; }
-    
+
     /**
-     * @param re the MIPv6 router to form coa from 
+     * @param re the MIPv6 router to form coa from
      * @param ie the interface to retrieve Interface ID from
      */
 
     ipv6_addr formCareOfAddress(boost::weak_ptr<MIPv6RouterEntry> re,
-                                const Interface6Entry& ie) const;
+                                Interface6Entry* ie) const;
 
     ///Returns the preferred lifetime management function to be called at every
     ///period
@@ -275,7 +275,7 @@ namespace MobileIPv6
     void setFutureCoa(const ipv6_addr& ncoa);
 
   private:
-  
+
     typedef std::list<boost::shared_ptr<bu_entry> > BindingUpdateList;
     typedef BindingUpdateList::iterator BULI;
 
@@ -283,9 +283,9 @@ namespace MobileIPv6
     typedef MIPv6RouterList::iterator MRLI;
 
     bool findRouter(const ipv6_addr& ll_addr, MRLI& it);
-    
+
   private:
-    
+
     /**
      * @brief Mobile Routers List - routers with MIPv6 support i.e. global address in RA.
      *
@@ -297,7 +297,7 @@ namespace MobileIPv6
      * existing on every foreign network only that there be a global prefix
      * available on every foreign network to create a care of addr to register
      * with Home HA.
-     * 
+     *
      * mrl stores only new routers and is not a history list of visited routers
      * @todo implement such a history list as you can not insert the same pointer
      * into mrl it justs removes the original shared_ptr. Need a weak_ptr list
@@ -305,7 +305,7 @@ namespace MobileIPv6
      */
 
     MIPv6RouterList mrl;
-    
+
     /**
      * List of CN and HA to which a binding has been sent to recently. The
      * primaryHA should always be the first one in this list
@@ -313,18 +313,18 @@ namespace MobileIPv6
 
     mutable BindingUpdateList bul;
 
-    ipv6_prefix _homeAddr;  
+    ipv6_prefix _homeAddr;
     ///Needed because the careOfAddr() uses BUL and can contain a pcoa as we may
     ///not have sent a BU yet due to DAD of ncoa.
     ipv6_addr   futureCoa;
-    
+
     ///Maintains running state of whether we are away from home
     bool away;
     ///flag for movementDetected func
     bool moved;
-    
+
     simtime_t _pcoaLifetime;
-    
+
     mutable boost::shared_ptr<MIPv6RouterEntry> _primaryHA;
     mutable boost::shared_ptr<MIPv6RouterEntry> _currentRouter;
     mutable boost::shared_ptr<MIPv6RouterEntry> _previousDefaultRtr;
@@ -332,7 +332,7 @@ namespace MobileIPv6
 
     /**
        @brief when true will handover to new router regardless of movement detection
-       
+
        Read from XML conf. Does not affect HMIP operation since HMIP relies on
        RA from routers to trigger MAP handover anyway.
 

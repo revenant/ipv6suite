@@ -222,7 +222,8 @@ hodec.obj: hodec.cc \
   xfuzzy.h \
   hodec.h
 WEthernet.obj: WEthernet.cc \
-  WEthernet.h
+  WEthernet.h \
+  WirelessEtherSignal_m.h
 WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -234,6 +235,7 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../World/WorldProcessor.h \
   ../../Util/opp_utils.h \
   ../../Mobility/MobilityHandler.h \
+  WirelessEtherSignal_m.h \
   WirelessEtherStateIdle.h \
   ../Ethernet6/MACAddress6.h \
   WirelessEtherAPReceiveMode.h \
@@ -243,6 +245,9 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
   ../LinkLayerModule.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -339,6 +344,9 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   WirelessEtherAPReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -426,6 +434,7 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -442,6 +451,9 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   WirelessEtherAScanReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -466,6 +478,7 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -543,6 +556,9 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   WirelessEtherAssociationReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -572,6 +588,7 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -651,6 +668,9 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   WirelessEtherAuthenticationReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -678,6 +698,7 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -755,9 +776,12 @@ WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   WirelessEtherBridge.h \
   ../../Util/opp_utils.h \
   ../Ethernet6/EtherFrame6.h \
+  ../Ethernet6/EtherSignal_m.h \
+  WirelessEtherFrame_m.h \
   ../LinkLayerModule.h \
   ../Ethernet6/EtherModuleAP.h \
   WirelessAccessPoint.h \
+  WirelessEtherSignal_m.h \
   ../PPP6/IPv6PPPAPInterface.h \
   ../PPP6/PPP6Frame.h \
   WirelessEtherModule.h \
@@ -767,6 +791,8 @@ WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
   wirelessethernet.h \
+  WirelessEtherFrameBody_m.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -861,6 +887,9 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/cTTimerMessageCB.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -941,6 +970,7 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -960,6 +990,34 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp
+WirelessEtherFrame_m.obj: WirelessEtherFrame_m.cc \
+  WirelessEtherFrame_m.h \
+  ../Ethernet6/MACAddress6.h \
+  ../../Util/boost/operators.hpp \
+  ../../Util/boost/config.hpp \
+  ../../Util/boost/iterator.hpp \
+  ../../Util/boost/detail/workaround.hpp \
+  ../../Util/boost/config/select_compiler_config.hpp \
+  ../../Util/boost/config/select_stdlib_config.hpp \
+  ../../Util/boost/config/select_platform_config.hpp \
+  ../../Util/boost/config/suffix.hpp \
+  ../../Util/boost/config/posix_features.hpp \
+  ../../Util/boost/type.hpp \
+  ../../Util/boost/non_type.hpp
+WirelessEtherFrameBody_m.obj: WirelessEtherFrameBody_m.cc \
+  WirelessEtherFrameBody_m.h \
+  ../Ethernet6/MACAddress6.h \
+  ../../Util/boost/operators.hpp \
+  ../../Util/boost/config.hpp \
+  ../../Util/boost/iterator.hpp \
+  ../../Util/boost/detail/workaround.hpp \
+  ../../Util/boost/config/select_compiler_config.hpp \
+  ../../Util/boost/config/select_stdlib_config.hpp \
+  ../../Util/boost/config/select_platform_config.hpp \
+  ../../Util/boost/config/suffix.hpp \
+  ../../Util/boost/config/posix_features.hpp \
+  ../../Util/boost/type.hpp \
+  ../../Util/boost/non_type.hpp
 WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -975,6 +1033,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   wirelessethernet.h \
   WirelessAccessPoint.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -989,6 +1048,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   WirelessEtherAuthenticationReceiveMode.h \
   WirelessEtherAssociationReceiveMode.h \
   WirelessEtherDataReceiveMode.h \
+  ../LL6ControlInfo_m.h \
   ../../Util/AveragingList.h \
   ../../Network/ICMPv6/MLDv2Message.h \
   ../../Util/XML/XMLOmnetParser.h \
@@ -1165,6 +1225,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Network/IPv6/IPv6InterfacePacket.h \
   ../../Network/IPv6/IPv6InterfaceData.cc \
   ../../Network/IPv6/IPInterfacePacket.h \
+  ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/shared_ptr.hpp \
@@ -1192,6 +1253,9 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/ExpiryEntryList.h \
   ../LinkLayerModule.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
+  WirelessExternalSignal_m.h \
   WirelessEtherState.h \
   ../../Network/ICMPv6/ICMPv6Message.h
 WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
@@ -1200,6 +1264,9 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   WirelessEtherMonitorReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -1225,6 +1292,7 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -1298,13 +1366,17 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   ../../Util/boost/iterator.hpp
 wirelessethernet.obj: wirelessethernet.cc \
   wirelessethernet.h \
-  WEthernet.h
+  WEthernet.h \
+  WirelessEtherSignal_m.h
 WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherPScanReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -1330,6 +1402,7 @@ WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -1409,6 +1482,9 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   WirelessAccessPoint.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -1498,6 +1574,7 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -1507,12 +1584,17 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp
+WirelessEtherSignal_m.obj: WirelessEtherSignal_m.cc \
+  WirelessEtherSignal_m.h
 WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   ../../Util/cTTimerMessageCB.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -1591,6 +1673,7 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -1616,6 +1699,9 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   WirelessEtherStateAwaitACK.h \
   WirelessEtherStateAwaitACKReceive.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateIdle.h \
   WirelessAccessPoint.h \
@@ -1639,6 +1725,7 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -1717,6 +1804,9 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   WirelessEtherStateAwaitACKReceive.h \
   WirelessEtherModule.h \
   WirelessEtherStateAwaitACK.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateIdle.h \
   WirelessAccessPoint.h \
@@ -1739,6 +1829,7 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -1817,6 +1908,9 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   WirelessEtherStateBackoff.h \
   ../../Util/cTimerMessageCB.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherStateSend.h \
   ../../Util/opp_utils.h \
@@ -1900,6 +1994,7 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -1916,6 +2011,7 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../../Util/debug.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateIdle.h \
   WirelessEtherAScanReceiveMode.h \
@@ -1939,6 +2035,9 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -2017,6 +2116,9 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   WirelessEtherStateIdle.h \
   WirelessEtherModule.h \
   WirelessAccessPoint.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateReceive.h \
   ../../Util/cTimerMessageCB.h \
@@ -2039,6 +2141,7 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -2117,6 +2220,7 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   WirelessEtherStateReceive.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
   WirelessEtherStateIdle.h \
   ../../Util/boost/cast.hpp \
   WEthernet.h \
@@ -2137,6 +2241,9 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -2213,6 +2320,9 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/debug.h \
   WirelessEtherStateSend.h \
   WirelessEtherModule.h \
+  WirelessEtherSignal_m.h \
+  WirelessEtherFrame_m.h \
+  WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateAwaitACK.h \
   WirelessEtherStateBackoff.h \
@@ -2235,6 +2345,7 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
+  WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -2306,5 +2417,19 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h
+WirelessExternalSignal_m.obj: WirelessExternalSignal_m.cc \
+  WirelessExternalSignal_m.h \
+  ../Ethernet6/MACAddress6.h \
+  ../../Util/boost/operators.hpp \
+  ../../Util/boost/config.hpp \
+  ../../Util/boost/iterator.hpp \
+  ../../Util/boost/detail/workaround.hpp \
+  ../../Util/boost/config/select_compiler_config.hpp \
+  ../../Util/boost/config/select_stdlib_config.hpp \
+  ../../Util/boost/config/select_platform_config.hpp \
+  ../../Util/boost/config/suffix.hpp \
+  ../../Util/boost/config/posix_features.hpp \
+  ../../Util/boost/type.hpp \
+  ../../Util/boost/non_type.hpp
 xfuzzy.obj: xfuzzy.cc \
   xfuzzy.h

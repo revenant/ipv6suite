@@ -76,7 +76,7 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
 {
   // if no interface exists, do not send datagram
   if (rt->interfaceCount() == 0 ||
-      rt->getInterfaceByIndex(0).inetAddrs.size() == 0)
+      rt->getInterfaceByIndex(0)->inetAddrs.size() == 0)
   {
     cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
     Dout(dc::warning, rt->nodeName()<<" 1st Interface is not ready yet");
@@ -102,8 +102,8 @@ Debug(
     bool found = false;
     for (size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)
     {
-      Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
-      if (ie.addrAssigned(c_ipv6_addr(interfaceMsg->srcAddr())))
+      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+      if (ie->addrAssigned(c_ipv6_addr(interfaceMsg->srcAddr())))
       {
         found = true;
         break;

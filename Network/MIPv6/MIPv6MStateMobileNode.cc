@@ -888,12 +888,12 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
       vIfIndex = tunMod->createTunnel(coa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
 
     dgram_hoti->setOutputPort(vIfIndex);
-    dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
+    dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0)->curHopLimit);
     mob->sendDirect(dgram_hoti, 0, tunMod, "mobilityIn");
   }
   else
   {
-    dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
+    dgram_hoti->setHopLimit(mob->rt->getInterfaceByIndex(0)->curHopLimit);
     mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
   }
 
@@ -941,7 +941,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
   IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
 
-  dgram_coti->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
+  dgram_coti->setHopLimit(mob->rt->getInterfaceByIndex(0)->curHopLimit);
   mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_CoTI));
@@ -1198,7 +1198,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                   ,mob);
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
-  dgram->setHopLimit(mob->rt->getInterfaceByIndex(0).curHopLimit);
+  dgram->setHopLimit(mob->rt->getInterfaceByIndex(0)->curHopLimit);
   //Draft 17 6.1.7 BU must have haddr dest opt
   HdrExtDestProc* destProc = dgram->acquireDestInterface();
 

@@ -516,8 +516,8 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 
 void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index)
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(iface_index);
-  Interface6Entry::RouterVariables& rtrVar = ie.rtrVar;
+  Interface6Entry* ie = rt->getInterfaceByIndex(iface_index);
+  Interface6Entry::RouterVariables& rtrVar = ie->rtrVar;
 
   rtrVar.advSendAds = getNodeProperties(nif, "AdvSendAdvertisements") == XML_ON;
   rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MaxRtrAdvInterval").c_str());
@@ -535,7 +535,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
            <<" maxRtrAdv="<<rtrVar.maxRtrAdvInt);
   }
 
-  Interface6Entry::mipv6Variables& mipVar = ie.mipv6Var;
+  Interface6Entry::mipv6Variables& mipVar = ie->mipv6Var;
   mipVar.maxConsecutiveMissedRtrAdv = OPP_Global::atoul(getNodeProperties(nif, "MaxConsecMissRtrAdv").c_str());
 
 #endif // USE_MOBILITY
@@ -568,18 +568,18 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
   //stringstream smarts in conversion so lexical_cast won't work. Converted t
   //o decimal in schema now.
   rtrVar.advDefaultLifetime =  OPP_Global::atoul(getNodeProperties(nif, "AdvDefaultLifetime").c_str());
-  ie.mtu =  OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str());
-  ie.curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
-  ie.baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
-  ie.retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
+  ie->mtu =  OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str());
+  ie->curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
+  ie->baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
+  ie->retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
 #if FASTRS
-  ie.maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());
+  ie->maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());
 #endif // FASTRS
-  ie.dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits").c_str());
+  ie->dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits").c_str());
 
   ///Only some older XML files did not name their interfaces guess it is not
   ///really necessary as we do things in order anyway.
-  ie.iface_name = getNodeProperties(nif, "name", false);
+  ie->iface_name = getNodeProperties(nif, "name", false);
 
   cXMLElement* napl =  nif->getElementByPath("./AdvPrefixList");
   if (napl)
@@ -587,7 +587,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
     //Parse prefixes
     cXMLElementList apl = napl->getChildrenByTagName("AdvPrefix");
     size_t numOfPrefixes = apl.size();
-    ie.rtrVar.advPrefixList.resize(numOfPrefixes);
+    ie->rtrVar.advPrefixList.resize(numOfPrefixes);
     if (numOfPrefixes == 0)
       Dout(dc::xml_addresses|dc::warning, rt->nodeName()
            <<" no prefixes even though advPrefixList exists");
@@ -597,7 +597,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
       if (startPr == apl.end())
         assert(false);
       cXMLElement* npr = *startPr;
-      PrefixEntry& pe = ie.rtrVar.advPrefixList[j];
+      PrefixEntry& pe = ie->rtrVar.advPrefixList[j];
       pe._advValidLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvValidLifetime").c_str());
       pe._advOnLink =  getNodeProperties(npr, "AdvOnLinkFlag") == XML_ON;
       pe._advPrefLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvPreferredLifetime").c_str());
@@ -627,7 +627,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
       if (startAd == addrList.end())
         assert(false);
       cXMLElement* nad = *startAd;
-      ie.tentativeAddrs.push_back(IPv6Address(stripWhitespace(nad->getNodeValue())));
+      ie->tentativeAddrs.push_back(IPv6Address(stripWhitespace(nad->getNodeValue())));
       Dout(dc::continued, "address "<< k << " is "<<stripWhitespace(nad->getNodeValue())<<" ");
     }
     Dout( dc::finish, "-|" );

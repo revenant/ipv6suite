@@ -338,14 +338,14 @@ bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu,  unsigned int ifIndex, IPv6Mobi
 
 ipv6_addr MIPv6MStateHomeAgent::globalAddr(unsigned int ifIndex,  IPv6Mobility* mod) const
 {
-  Interface6Entry& ie = mod->rt->getInterfaceByIndex(ifIndex);
-  for (unsigned int addrIndex = 0;  addrIndex < ie.inetAddrs.size(); addrIndex++)
+  Interface6Entry* ie = mod->rt->getInterfaceByIndex(ifIndex);
+  for (unsigned int addrIndex = 0;  addrIndex < ie->inetAddrs.size(); addrIndex++)
   {
-    if (ie.inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Global ||
-        ie.inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Site
+    if (ie->inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Global ||
+        ie->inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Site
         )
     {
-      return ie.inetAddrs[addrIndex];
+      return ie->inetAddrs[addrIndex];
     }
   }
   return IPv6_ADDR_UNSPECIFIED;

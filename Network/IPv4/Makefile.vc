@@ -167,18 +167,31 @@ re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 ICMP.obj: ICMP.cc \
+  IPControlInfo_m.h \
   ICMP.h \
+  IPAddress.h \
+  IPProtocolId_m.h \
+  ../../Base/INETDefs.h \
   RoutingTableAccess.h \
   ICMPMessage.h \
   IPDatagram.h \
   ../../Base/ModuleAccess.h \
   RoutingTable.h \
-  ../../Base/INETDefs.h \
+  ../../NetworkInterfaces/Common/InterfaceTable.h \
+  ICMPMessage_m.h \
+  IPDatagram_m.h
+ICMPMessage_m.obj: ICMPMessage_m.cc \
+  ICMPMessage_m.h \
+  IPDatagram.h \
+  IPDatagram_m.h \
   IPAddress.h \
-  ../../NetworkInterfaces/Common/InterfaceTable.h
+  IPProtocolId_m.h \
+  ../../Base/INETDefs.h
 IP.obj: IP.cc \
   IP.h \
   IPDatagram.h \
+  IPControlInfo_m.h \
+  ICMPMessage_m.h \
   ../../Base/QueueBase.h \
   RoutingTableAccess.h \
   RoutingTable.h \
@@ -191,7 +204,9 @@ IP.obj: IP.cc \
   IPAddress.h \
   ../../NetworkInterfaces/Common/InterfaceTable.h \
   ICMP.h \
-  ICMPMessage.h
+  ICMPMessage.h \
+  IPDatagram_m.h \
+  IPProtocolId_m.h
 IPAddress.obj: IPAddress.cc \
   IPAddress.h \
   ../../Base/INETDefs.h
@@ -201,17 +216,32 @@ IPAddressResolver.obj: IPAddressResolver.cc \
   IPAddress.h \
   ../../Base/INETDefs.h \
   ../../NetworkInterfaces/Common/InterfaceTable.h
+IPControlInfo_m.obj: IPControlInfo_m.cc \
+  IPControlInfo_m.h \
+  IPAddress.h \
+  IPProtocolId_m.h \
+  ../../Base/INETDefs.h
+IPDatagram_m.obj: IPDatagram_m.cc \
+  IPDatagram_m.h \
+  IPAddress.h \
+  IPProtocolId_m.h \
+  ../../Base/INETDefs.h
 IPFragBuf.obj: IPFragBuf.cc \
   IPFragBuf.h \
   ICMP.h \
   ../../Base/INETDefs.h \
   IPDatagram.h \
+  IPDatagram_m.h \
+  IPAddress.h \
+  IPProtocolId_m.h \
   RoutingTableAccess.h \
   ICMPMessage.h \
   ../../Base/ModuleAccess.h \
   RoutingTable.h \
-  IPAddress.h \
-  ../../NetworkInterfaces/Common/InterfaceTable.h
+  ../../NetworkInterfaces/Common/InterfaceTable.h \
+  ICMPMessage_m.h
+IPProtocolId_m.obj: IPProtocolId_m.cc \
+  IPProtocolId_m.h
 ProtocolMap.obj: ProtocolMap.cc \
   ProtocolMap.h
 RoutingTable.obj: RoutingTable.cc \

@@ -231,7 +231,7 @@ void NDStateRouter::initialiseInterface(size_t ifIndex)
   //and start unsol rtr ad
   NDStateHost::initialiseInterface(ifIndex);
 
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
 /*
     //Assume that XML config will assign address (will go through DAD rules).
@@ -250,14 +250,14 @@ void NDStateRouter::initialiseInterface(size_t ifIndex)
   }
 */
 
-  if (ie.rtrVar.advSendAds)
+  if (ie->rtrVar.advSendAds)
   {
 
     Dout(dc::notice, rt->nodeName()<<":"<<ifIndex<<" is advertising");
 
-    for(size_t i = 0; i < ie.rtrVar.advPrefixList.size(); i++)
-      if (ie.rtrVar.advPrefixList[i].advOnLink())
-        rt->insertPrefixEntry(ie.rtrVar.advPrefixList[i], ifIndex);
+    for(size_t i = 0; i < ie->rtrVar.advPrefixList.size(); i++)
+      if (ie->rtrVar.advPrefixList[i].advOnLink())
+        rt->insertPrefixEntry(ie->rtrVar.advPrefixList[i], ifIndex);
 
     RtrTimer* tmr = new RtrTimer;
     tmr->ifIndex = ifIndex;
@@ -288,8 +288,8 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
 {
   IPv6Datagram* dgram = createDatagram(tmr->ifIndex, IPv6Address(ALL_NODES_LINK_ADDRESS));
 
-  const Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
-  const Interface6Entry::RouterVariables& rtrVar = ie.rtrVar;
+  const Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  const Interface6Entry::RouterVariables& rtrVar = ie->rtrVar;
 
   //Calculate new delay
   double delay = OPP_UNIFORM(rtrVar.minRtrAdvInt, rtrVar.maxRtrAdvInt);
@@ -306,9 +306,9 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
   rt->ctrIcmp6OutMsgs++;
 
 #if FASTRA
-  if (ie.rtrVar.fastRA && ie.rtrVar.fastRACounter)
+  if (ie->rtrVar.fastRA && ie->rtrVar.fastRACounter)
   {
-    ie.rtrVar.fastRACounter = 0;
+    ie->rtrVar.fastRACounter = 0;
     Dout(dc::debug|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
          <<" "<<nd->simTime()<<" fastRACounter reset to 0");
   }
@@ -443,10 +443,10 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
       delay = OPP_UNIFORM(0, MAX_RA_DELAY_TIME);
 
 #if FASTRA
-      Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
-      if (ie.rtrVar.fastRA)
+      Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+      if (ie->rtrVar.fastRA)
       {
-        if (ie.rtrVar.fastRACounter <= ie.rtrVar.maxFastRAS)
+        if (ie->rtrVar.fastRACounter <= ie->rtrVar.maxFastRAS)
         {
           if (dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED)
           {
@@ -472,10 +472,10 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
               advDgram->setControlInfo(ctrlInfo);
               nd->sendDirect(advDgram, 0, outputMod[tmr->ifIndex], outputUnicastGate); // XXX why sendDirect? -AV
 
-              ie.rtrVar.fastRACounter++;
+              ie->rtrVar.fastRACounter++;
               Dout(dc::router_disc|dc::debug, rt->nodeName()<<":"<<tmr->ifIndex
-                   <<" "<<nd->simTime()<<" fast ra sent counter="<<ie.rtrVar.fastRACounter
-                   <<" max="<<ie.rtrVar.maxFastRAS);
+                   <<" "<<nd->simTime()<<" fast ra sent counter="<<ie->rtrVar.fastRACounter
+                   <<" max="<<ie->rtrVar.maxFastRAS);
 
               nd->ctrIcmp6OutRtrAdv++;
               rt->ctrIcmp6OutMsgs++;
@@ -491,7 +491,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
         else
         {
           Dout(dc::router_disc|dc::debug, rt->nodeName()<<":"<<tmr->ifIndex
-               <<" "<<nd->simTime()<<" maxFastRAS="<<ie.rtrVar.maxFastRAS
+               <<" "<<nd->simTime()<<" maxFastRAS="<<ie->rtrVar.maxFastRAS
                <<" exceeded. Waiting for unsolicited RA to be sent before "
                <<" resetting fastRACounter at sendUnsolRtrAd");
         }
@@ -589,8 +589,8 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
 
   if (!found)
   {
-    Interface6Entry& ie = rt->getInterfaceByIndex(dgram->inputPort());
-    if (!ie.inetAddrs.empty() && ie.rtrVar.advSendAds)
+    Interface6Entry* ie = rt->getInterfaceByIndex(dgram->inputPort());
+    if (!ie->inetAddrs.empty() && ie->rtrVar.advSendAds)
     {
       DoutFatal(dc::core, "Shouldn't be here ("<<FILE_LINE<<"), at all");
       ///Not possible to reach here ?
@@ -598,7 +598,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
     else
     {
       Dout(dc::debug, rt->nodeName()<<":"<<dgram->inputPort()<<" "<<setprecision(4)
-           <<nd->simTime()<<(ie.rtrVar.advSendAds?
+           <<nd->simTime()<<(ie->rtrVar.advSendAds?
                              " Not ready for RtrSol yet":
                              " Iface not advertising"));
       //Just ignore sol as we're not ready for it yet or we are not an
@@ -638,7 +638,7 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
 
   NeighbourEntry* ne, *redirNE = 0;
   size_t ifIndex = dgram->inputPort();
-  const Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  const Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
   if ((ne = rt->cds->neighbour(dgram->srcAddress()).lock().get()) != 0 &&
       ne->ifIndex() == ifIndex)
@@ -652,7 +652,7 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
         if (redirNE !=0 && redirNE->linkLayerAddr() == "")
           redirNE = 0;
 
-        IPv6Datagram* redirect = new IPv6Datagram(ie.inetAddrs[0],
+        IPv6Datagram* redirect = new IPv6Datagram(ie->inetAddrs[0],
                                                   dgram->srcAddress());
 
         redirect->setHopLimit(NDHOPLIMIT);
@@ -720,16 +720,16 @@ IPv6Datagram* NDStateRouter
 ::createDatagram(unsigned int ifIndex, const ipv6_addr& destAddr)
 {
 
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
-  const Interface6Entry::RouterVariables& rtrVar = ie.rtrVar;
+  const Interface6Entry::RouterVariables& rtrVar = ie->rtrVar;
 
   ICMPv6NDMRtrAd* rtrAd = createRA(rtrVar, ifIndex);
 
-  rtrAd->setSrcLLAddr(ie.LLAddr());
+  rtrAd->setSrcLLAddr(ie->LLAddr());
 
   //Source is link local addr (It is always the first address to be assigned)
-  IPv6Datagram* dgram = new IPv6Datagram(ie.inetAddrs[0], destAddr);
+  IPv6Datagram* dgram = new IPv6Datagram(ie->inetAddrs[0], destAddr);
 
   dgram->setHopLimit(NDHOPLIMIT);
 

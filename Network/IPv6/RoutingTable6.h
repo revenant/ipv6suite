@@ -119,11 +119,7 @@ class RoutingTable6: public cSimpleModule
   friend class RoutingTableTest;
 #endif
 
-  friend class XMLConfiguration::IPv6XMLParser;
-  friend class XMLConfiguration::IPv6XMLManager;
-  friend class XMLConfiguration::IPv6XMLWrapManager;
   friend class XMLConfiguration::XMLOmnetParser;
-  friend class Routing6Core;
   //@todo friend added to allow access to pel and rel.
   friend class IPv6NeighbourDiscovery::NDStateHost;
 
@@ -252,9 +248,9 @@ public:
   bool addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) const;
 
   /// Return the InterfaceEntry specified by its index.
-  Interface6Entry& getInterfaceByIndex(unsigned int index);
+  Interface6Entry *getInterfaceByIndex(unsigned int index);
   /// Return the InterfaceEntry specified by its index.
-  const Interface6Entry& getInterfaceByIndex(unsigned int index) const;
+  const Interface6Entry *getInterfaceByIndex(unsigned int index) const;
 
   /// Get loopback interface
   Interface6Entry& loopbackInterface() { return *(interfaces[0]); }
@@ -275,14 +271,14 @@ public:
     }
 
   ///ie has to originate from this object originally for this to work
-  bool indexOfInterface(const Interface6Entry& ie, size_t& ifIndex) const
+  bool indexOfInterface(Interface6Entry *ie, size_t& ifIndex) const
     {
       //Do this linear search for now perhaps incorporate ifIndex inside the
       //Interface6Entry itself although that places restrictions and burden on
       //maintenance of this index when interfaces are add/removed
       for (size_t i = 0; i < interfaceCount(); i++)
         {
-          if (&(getInterfaceByIndex(i)) == &ie)
+          if (getInterfaceByIndex(i) == ie)
           {
             ifIndex = i;
             return true;

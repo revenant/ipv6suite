@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
  * @file   MIPv6CDSMobileNode.cc
  * @author Johnny Lai
  * @date   05 May 2002
- * 
+ *
  * @brief  Implementation of MIPv6CDSMobileNode class
- * 
+ *
  */
 
 
@@ -47,7 +47,7 @@ namespace MobileIPv6
      eagerHO(false)
   {
   }
-  
+
   MIPv6CDSMobileNode::~MIPv6CDSMobileNode()
   {}
 
@@ -55,7 +55,7 @@ namespace MobileIPv6
   const ipv6_addr& MIPv6CDSMobileNode::homeAddr(boost::shared_ptr<MIPv6RouterEntry> ha) const
   {
     assert(ha.get()!=0);
-        
+
     //If ha does not exist anymore i.e. lifetime expired then return our
     //real home addr anyway?
     if (ha == primaryHA())
@@ -113,14 +113,14 @@ namespace MobileIPv6
       //home then?)
       return homeAddr();
     }
-    
+
     assert(false);
-    
+
     return IPv6_ADDR_UNSPECIFIED;
   }
 
   ipv6_addr MIPv6CDSMobileNode::formCareOfAddress(
-    boost::weak_ptr<MIPv6RouterEntry> re, const Interface6Entry& ie) const
+    boost::weak_ptr<MIPv6RouterEntry> re, Interface6Entry* ie) const
   {
     assert(re.lock().get() != 0);
     const ipv6_prefix& pref = re.lock().get()->prefix();
@@ -128,16 +128,16 @@ namespace MobileIPv6
     IPv6Address coaObj(pref);
     coaObj.truncate();
     ipv6_addr coa = coaObj;
-    assert(ie.interfaceIDLength() == EUI64_LENGTH);
-    coa.normal = ie.interfaceID()[0];
-    coa.low = ie.interfaceID()[1];
+    assert(ie->interfaceIDLength() == EUI64_LENGTH);
+    coa.normal = ie->interfaceID()[0];
+    coa.low = ie->interfaceID()[1];
     return coa;
   }
-    
+
   /**
    * @warning make sure that this is indeed a new ha before inserting otherwise
    * there will be two HA objects pointing to the one logical HA.
-   * 
+   *
    * @note forget about the name it really means any mip6 router
    */
 
@@ -149,10 +149,10 @@ namespace MobileIPv6
   }
 } //namespace MobileIPv6
 
-namespace 
+namespace
 {
   using MobileIPv6::MIPv6RouterEntry;
-  
+
   struct findAgentByLocalAddr:
     public std::binary_function<ipv6_addr, boost::shared_ptr<MIPv6RouterEntry>, bool >
   {
@@ -167,8 +167,8 @@ namespace
 
 namespace MobileIPv6
 {
-  
-  boost::shared_ptr<MIPv6RouterEntry> 
+
+  boost::shared_ptr<MIPv6RouterEntry>
   MIPv6CDSMobileNode::findRouter(const ipv6_addr& ll_addr)
   {
     MRLI it = find_if(mrl.begin(), mrl.end(),
@@ -184,12 +184,12 @@ namespace MobileIPv6
                       std::bind1st(findAgentByLocalAddr(), ll_addr));
     if (it != mrl.end())
       return true;
-    return false;    
+    return false;
   }
-  
+
   /**
    * @brief predicate using ipv6_prefix.prefix so the prefix length doesn't matter
-   * 
+   *
    * @note forget about the name it really means any mip6 router in mrl
    */
 
@@ -202,7 +202,7 @@ namespace MobileIPv6
         Dout(dc::debug|flush_cf, __FUNCTION__<<" prefix="<<g_addr<<" entry is"
              <<*bre.get());
         return bre->prefix().prefix == g_addr.prefix;
-         
+
          // && bre->isHomeAgent();
       }
   };
@@ -215,7 +215,7 @@ namespace MobileIPv6
     MRLI it = find_if(mrl.begin(), mrl.end(),
                       std::bind1st(findAgentByGlobalAddr(), ha.lock().get()->prefix()));
     if (it != mrl.end())
-    {      
+    {
       mrl.erase(it);
       return true;
     }
@@ -223,9 +223,9 @@ namespace MobileIPv6
   }
 
   /*
-    @note forget about the name it really means any mip6 router in mrl  
+    @note forget about the name it really means any mip6 router in mrl
   */
-  boost::shared_ptr<MIPv6RouterEntry> 
+  boost::shared_ptr<MIPv6RouterEntry>
   MIPv6CDSMobileNode::findHomeAgent(const ipv6_addr& g_addr)
   {
     MRLI it = find_if(mrl.begin(), mrl.end(),
@@ -235,17 +235,17 @@ namespace MobileIPv6
       return *it;
     return boost::shared_ptr<MIPv6RouterEntry>();
   }
-  
+
 
 const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
 {
-  return _homeAddr;  
+  return _homeAddr;
 }
 
   /**
    * Please check if an entry with the same destination does not exist already
    * before inserting a new one.
-   * 
+   *
    */
 
   void MIPv6CDSMobileNode::addBU(bu_entry* bu)
@@ -263,7 +263,7 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
         return bule.lock().get()->addr() == dest;
       }
   };
-  
+
   /**
    * To be really complete we should accept the home addr as well as the
    * destAddr since different homeAddr are treated as different binding updates.
@@ -277,7 +277,7 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
     //to every other function that uses this.  Don't know why STL find_if
     //doesn't accept a const iterators perhaps bind1st can't deduce it and have
     //to declare binder1st with explicit const iterators.
-    const BULI it = 
+    const BULI it =
       find_if(bul.begin(), bul.end(), std::bind1st(findBUByDestAddr(), destAddr));
 
     if (it != bul.end())
@@ -285,20 +285,20 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
 
     return boost::weak_ptr<bu_entry>().lock().get();
   }
-  
+
   bool MIPv6CDSMobileNode::removeBU(const ipv6_addr& addr)
   {
     return false;
   }
 
   void MIPv6CDSMobileNode::setAwayFromHome(bool notAtHome)
-  { away = notAtHome; }  
+  { away = notAtHome; }
 
   TFunctorBaseA<cTimerMessage>* MIPv6CDSMobileNode::setupLifetimeManagement()
   {
     return makeCallback(this, &MIPv6CDSMobileNode::expireLifetimes);
   }
-  
+
   void MIPv6CDSMobileNode::expireLifetimes(cTimerMessage* tmr)
   {
     unsigned int dec = static_cast<MIPv6PeriodicCB*> (tmr)->interval;

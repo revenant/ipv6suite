@@ -103,8 +103,8 @@ void IPv6Multicast::endService(cMessage* msg)
       continue;
     if (ifaceSpecified)
     {
-      Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
-      if (ie.addrAssigned(datagram->srcAddress()))
+      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+      if (ie->addrAssigned(datagram->srcAddress()))
       {
         dupAndSendPacket(datagram, ifIndex);
         break;

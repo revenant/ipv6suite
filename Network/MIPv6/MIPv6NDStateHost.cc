@@ -237,12 +237,12 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
 
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
-    Interface6Entry& ie = rt->getInterfaceByIndex(i);
+    Interface6Entry* ie = rt->getInterfaceByIndex(i);
 
-    if (ie.linkMod->className() == std::string("WirelessEtherModule"))
+    if (ie->linkMod->className() == std::string("WirelessEtherModule"))
     {
       WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie.linkMod);
+        static_cast<WirelessEtherModule*>(ie->linkMod);
 
       assert(wlanMod != 0);
 
@@ -330,10 +330,10 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
   else
   {
     //Use new exponential backoff if not at home
-    Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
+    Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
 
     if (tmr->counter < tmr->max_sends - 1)
-      tmr->timeout = ie.mipv6Var.minRtrSolInterval;
+      tmr->timeout = ie->mipv6Var.minRtrSolInterval;
     else
       tmr->timeout = tmr->timeout*2;
 
@@ -345,17 +345,17 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
     if (tmr->dgram == 0)
     {
       //Don't do initial delay
-      Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
+      Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
       tmr->dgram = new IPv6Datagram(
-        ie.inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie.inetAddrs[0],
+        ie->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->inetAddrs[0],
         IPv6Address(ALL_ROUTERS_LINK_ADDRESS));
 
       tmr->dgram->setHopLimit(NDHOPLIMIT);
 
       RS* rs = new RS;
 
-      if (!ie.inetAddrs.empty())
-        rs->setSrcLLAddr(ie.LLAddr());
+      if (!ie->inetAddrs.empty())
+        rs->setSrcLLAddr(ie->LLAddr());
 
       tmr->dgram->encapsulate(rs);
 
@@ -365,7 +365,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
 
     }
 
-    if (tmr->timeout > ie.mipv6Var.maxInterval)
+    if (tmr->timeout > ie->mipv6Var.maxInterval)
     {
       //Give up sending of Rtr solicitations
       Dout(dc::mipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
@@ -378,7 +378,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
 
     Dout(dc::ipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
          <<" MIPv6 RtrSol "<<" timeout:"<< setprecision(4)
-         << tmr->timeout<<" max:"<<ie.mipv6Var.maxInterval);
+         << tmr->timeout<<" max:"<<ie->mipv6Var.maxInterval);
     nd->send(tmr->dgram->dup(), "outputOut", tmr->ifIndex);
 
     ///Schedule a timeout
@@ -629,9 +629,9 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     double newInterval = interval/1000.0;
     if (missedTmr == 0 && mipv6cdsMN->currentRouter() == bha)
     {
-      Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
       missedTmr =
-        new RtrAdvMissedTmr(newInterval, ie.mipv6Var.maxConsecutiveMissedRtrAdv,
+        new RtrAdvMissedTmr(newInterval, ie->mipv6Var.maxConsecutiveMissedRtrAdv,
                             makeCallback(this,
                                          &MIPv6NDStateHost::movementDetectedCallback),
                             nd, rt->nodeName());
@@ -840,7 +840,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     Dout(dc::mipv6|dc::mip_missed_adv|dc::mobile_move, rt->nodeName()<<" "<<setprecision(6)
          <<nd->simTime()<<" exceeded MaxConsecMissedRtrAdv of "
         <<(mipv6cdsMN->currentRouter()?
-           rt->getInterfaceByIndex(mipv6cdsMN->currentRouter()->re.lock()->ifIndex()).mipv6Var.maxConsecutiveMissedRtrAdv
+           rt->getInterfaceByIndex(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->mipv6Var.maxConsecutiveMissedRtrAdv
            :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
 
     //Can also do NUD to current Rtr to confirm unreachability (once that's
@@ -1076,7 +1076,7 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
     }
     else if (mipv6cdsMN->primaryHA())
     {
-      Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
       ///Form current care of addr regardless of what type of handover
       ipv6_addr coa = mipv6cdsMN->formCareOfAddress(newRtr, ie);
       cout << "At " << nd->simTime() << " sec, "<< rt->nodeName() << endl;
@@ -1087,11 +1087,11 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       bool assigned = false;
       if (rt->odad())
       {
-        assert(ie.addrAssigned(coa)||ie.tentativeAddrAssigned(coa));
-        if (ie.addrAssigned(coa)||ie.tentativeAddrAssigned(coa))
+        assert(ie->addrAssigned(coa)||ie->tentativeAddrAssigned(coa));
+        if (ie->addrAssigned(coa)||ie->tentativeAddrAssigned(coa))
           assigned = true;
       }
-      else if (ie.addrAssigned(coa))
+      else if (ie->addrAssigned(coa))
         assigned = true;
 
       if (assigned)
@@ -1183,7 +1183,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   oldRtr->re.lock()->setState(IPv6NeighbourDiscovery::NeighbourEntry::INCOMPLETE);
 
   unsigned int oldIfIndex = oldRtr->re.lock()->ifIndex();
-  Interface6Entry& oie = rt->getInterfaceByIndex(oldIfIndex);
+  Interface6Entry *oie = rt->getInterfaceByIndex(oldIfIndex);
   //Remove old on link prefixes from On Link prefix list
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {
@@ -1191,14 +1191,14 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
     //site local except for the autoconfigured address at position 0
     if (!home_addr_scope_check((*it).prefix))
     {
-      IPv6Address addr = oie.matchPrefix((*it).prefix, (*it).length);
+      IPv6Address addr = oie->matchPrefix((*it).prefix, (*it).length);
       if (addr != IPv6_ADDR_UNSPECIFIED)
       {
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
       }
-      else if (oie.matchPrefix((*it).prefix, (*it).length), true)
+      else if (oie->matchPrefix((*it).prefix, (*it).length), true)
       {
         //Must be tentative addrs
         DoutFatal(dc::core|error_cf, "Unimplemented func for removing tentative addr when node moves "

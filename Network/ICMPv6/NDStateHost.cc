@@ -131,12 +131,12 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   // Copied from MIPv6 NDStateHost
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
-    Interface6Entry& ie = rt->getInterfaceByIndex(i);
+    Interface6Entry* ie = rt->getInterfaceByIndex(i);
 
-    if (ie.linkMod->className() == std::string("WirelessEtherModule"))
+    if (ie->linkMod->className() == std::string("WirelessEtherModule"))
     {
       WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie.linkMod);
+        static_cast<WirelessEtherModule*>(ie->linkMod);
 
       assert(wlanMod != 0);
 
@@ -274,16 +274,16 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
 {
   IPv6Address linkLocal;
 
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry *ie = rt->getInterfaceByIndex(ifIndex);
 
   // Search for LinkLocal address first as without a unique one can forget about
   // assigning other interfaces
-  for (size_t k = 0; k < ie.tentativeAddrs.size(); k++)
+  for (size_t k = 0; k < ie->tentativeAddrs.size(); k++)
   {
     ///Search for presence of manually assigned link local prefix
-    if (IPv6Address(LINK_LOCAL_PREFIX).isNetwork(ie.tentativeAddrs[k]))
+    if (IPv6Address(LINK_LOCAL_PREFIX).isNetwork(ie->tentativeAddrs[k]))
     {
-      linkLocal = ie.tentativeAddrs[k];
+      linkLocal = ie->tentativeAddrs[k];
       if (rt->indexOfInterface(ie, ifIndex))
         ifStats[ifIndex].manualLinkLocal = true;
       else
@@ -303,17 +303,17 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
 
     unsigned int interfaceID[4] = {0,0,0,0};
 
-    assert(ie.interfaceIDLength() == EUI64_LENGTH);
+    assert(ie->interfaceIDLength() == EUI64_LENGTH);
 
-    interfaceID[2] = ie.interfaceID()[0];
-    interfaceID[3] = ie.interfaceID()[1];
+    interfaceID[2] = ie->interfaceID()[0];
+    interfaceID[3] = ie->interfaceID()[1];
     rhs.setAddress(interfaceID);
 
     linkLocal = IPv6Address(lhs+rhs);
     //Determine scope
     linkLocal.scope();
 
-    ie.tentativeAddrs.push_back(linkLocal);
+    ie->tentativeAddrs.push_back(linkLocal);
     Dout(dc::xml_addresses, "LLAddr "<<rt->nodeName()<<":"<<ifIndex<<" "
          <<linkLocal);
   }
@@ -323,14 +323,14 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
 inline bool NDStateHost::linkLocalAddrAssigned(size_t ifIndex) const
 {
   //The very first addr to be assigned is always the link local one
-  return (rt->getInterfaceByIndex(ifIndex).inetAddrs.size() > 0);
+  return (rt->getInterfaceByIndex(ifIndex)->inetAddrs.size() > 0);
 }
 
 bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
-  for ( int i = 0; i < ie.inetAddrs.size(); i++)
-    if ( ie.inetAddrs[i].scope() == ipv6_addr::Scope_Global )
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  for ( int i = 0; i < ie->inetAddrs.size(); i++)
+    if ( ie->inetAddrs[i].scope() == ipv6_addr::Scope_Global )
       return true;
   return false;
 }
@@ -357,7 +357,7 @@ void NDStateHost::nodeInitialise()
 */
 void NDStateHost::detectDupAddress(size_t ifIndex, const IPv6Address& tentativeAddr)
 {
-  rt->getInterfaceByIndex(ifIndex).tentativeAddrs.push_back(tentativeAddr);
+  rt->getInterfaceByIndex(ifIndex)->tentativeAddrs.push_back(tentativeAddr);
   //Call func to send ns
   NDTimer* tmr = new NDTimer;
   tmr->ifIndex = ifIndex;
@@ -371,14 +371,14 @@ void NDStateHost::dupAddrDetOtherAddr(size_t ifIndex)
 {
   //When this is done then do for every other addr when there's outstanding
   //tentativeAddr
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
   IPv6Address tentativeAddr;
 
   //Dup Addr Det for each addr
-  for (size_t j = 0; j < ie.tentativeAddrs.size(); j++)
+  for (size_t j = 0; j < ie->tentativeAddrs.size(); j++)
   {
-    tentativeAddr = ie.tentativeAddrs[j];
+    tentativeAddr = ie->tentativeAddrs[j];
 
     //Call func to send ns
     NDTimer* tmr = new NDTimer;
@@ -395,7 +395,7 @@ void NDStateHost::dupAddrDetOtherAddr(size_t ifIndex)
  */
 void NDStateHost::dupAddrDetection(NDTimer* tmr)
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
 
   double delay = 0;
 
@@ -408,7 +408,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     IPv6Address solimcast_addr(tmr->tentativeAddr.solNodeAddr());
     rt->joinMulticastGroup(solimcast_addr);
 
-    if (ie.dupAddrDetectTrans < 1)
+    if (ie->dupAddrDetectTrans < 1)
     {
       Dout(dc::ipv6|dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
            <<" skipped DupAddrDet "<<*(tmr->tentativeAddr)<< " assigned on "<<nd->simTime());
@@ -431,8 +431,8 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     if (rt->odad())
     {
-      assert(!ie.tentativeAddrAssigned(tmr->dgram->srcAddress()));
-      if (ie.tentativeAddrAssigned(tmr->dgram->srcAddress()))
+      assert(!ie->tentativeAddrAssigned(tmr->dgram->srcAddress()));
+      if (ie->tentativeAddrAssigned(tmr->dgram->srcAddress()))
       {
         Dout(dc::warning, rt->nodeName()<<":"<<tmr->ifIndex<<" cannot use a tentative address as source of NS (ODAD)");
         return;
@@ -453,8 +453,8 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     tmr->dgram->setOutputPort(tmr->ifIndex);
 
-    tmr->max_sends = ie.dupAddrDetectTrans; //Max Dup addr retries
-    tmr->timeout = ie.retransTimer/1000.0; //Dup addr det timeout
+    tmr->max_sends = ie->dupAddrDetectTrans; //Max Dup addr retries
+    tmr->timeout = ie->retransTimer/1000.0; //Dup addr det timeout
 
     tmr->msg = new HostTmrMsg(Tmr_DupAddrSolTimeout,
                               static_cast<NDStateHost*>(this),
@@ -529,11 +529,11 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
     ifStats[tmr->ifIndex].initStarted = true;
   }
 
-  Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
 
   if (rt->odad())
   {
-    sendUnsolNgbrAd(tmr->ifIndex, ie.inetAddrs[ie.inetAddrs.size()-1]);
+    sendUnsolNgbrAd(tmr->ifIndex, ie->inetAddrs[ie->inetAddrs.size()-1]);
     Dout(dc::addr_resln|dc::neighbour_disc|dc::custom|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
          <<" ODAD sent unsolicated NA with override bit set to all nodes");
     return;
@@ -542,7 +542,7 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
 #if USE_MOBILITY
   if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome())
   {
-    ipv6_addr potentialCoa = ie.inetAddrs[ie.inetAddrs.size()-1];
+    ipv6_addr potentialCoa = ie->inetAddrs[ie->inetAddrs.size()-1];
     MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
       boost::polymorphic_downcast<MobileIPv6::MIPv6NDStateHost*> (this);
     assert(mipv6StateMN);
@@ -557,12 +557,12 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
 ///Send initial & subsequent retries of router solicitations
 void NDStateHost::sendRtrSol(NDTimer* tmr)
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
   double delay = 0;
 
 #if FASTRS
   tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
-    ie.maxRtrSolDelay;
+    ie->maxRtrSolDelay;
 #else
   tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
     MAX_RTR_SOLICITATION_DELAY;
@@ -571,25 +571,25 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
   if (tmr->dgram == 0)
   {
 #if FASTRS
-    if (ie.dupAddrDetectTrans < 1)
-      delay = OPP_UNIFORM(0, ie.maxRtrSolDelay);
+    if (ie->dupAddrDetectTrans < 1)
+      delay = OPP_UNIFORM(0, ie->maxRtrSolDelay);
 #else
     //Don't need initial delay if already did a random delay for dupAddrDet
-    if (ie.dupAddrDetectTrans < 1)
+    if (ie->dupAddrDetectTrans < 1)
       delay = OPP_UNIFORM(0, MAX_RTR_SOLICITATION_DELAY);
 #endif // FASTRS
 
     tmr->dgram = new IPv6Datagram(
-      ie.inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie.inetAddrs[0],
+      ie->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->inetAddrs[0],
       IPv6Address(ALL_ROUTERS_LINK_ADDRESS));
 
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
     RS* rs = new RS;
 
-    if (!ie.inetAddrs.empty()
-        || (rt->odad() && !ie.tentativeAddrAssigned(tmr->dgram->srcAddress())))
-      rs->setSrcLLAddr(ie.LLAddr());
+    if (!ie->inetAddrs.empty()
+        || (rt->odad() && !ie->tentativeAddrAssigned(tmr->dgram->srcAddress())))
+      rs->setSrcLLAddr(ie->LLAddr());
 
     tmr->dgram->encapsulate(rs);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -638,9 +638,9 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
 //Not called from another module yet
 //  OPP_Global::ContextSwitcher switcher(nd);
 
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
-  assert(ie.addrAssigned(target));
+  assert(ie->addrAssigned(target));
   //Send NA that is
   ipv6_addr src = target;
   IPv6Datagram* dgram = new IPv6Datagram(src,
@@ -648,7 +648,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
   dgram->setHopLimit(NDHOPLIMIT);
   bool solicited = false;
   bool override = true;
-  NA* na = new NA(src, ie.LLAddr(), rt->isRouter(), solicited, override);
+  NA* na = new NA(src, ie->LLAddr(), rt->isRouter(), solicited, override);
   dgram->encapsulate(na);
   dgram->setName(na->name());
   dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -792,27 +792,27 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   }
 
   // hop limit, reachabletime, retranstime
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
 
-  if (rtrAdv->curHopLimit() != 0 && rtrAdv->curHopLimit() != ie.curHopLimit)
-    ie.curHopLimit = rtrAdv->curHopLimit();
+  if (rtrAdv->curHopLimit() != 0 && rtrAdv->curHopLimit() != ie->curHopLimit)
+    ie->curHopLimit = rtrAdv->curHopLimit();
 
-  if (rtrAdv->reachableTime() != 0 && rtrAdv->reachableTime() != ie.baseReachableTime)
+  if (rtrAdv->reachableTime() != 0 && rtrAdv->reachableTime() != ie->baseReachableTime)
   {
-    ie.baseReachableTime = rtrAdv->reachableTime();
+    ie->baseReachableTime = rtrAdv->reachableTime();
     //Generate a new reachable time
-    ie.reachableTime();
+    ie->reachableTime();
     //TODO suppose to generate one once every 2 hours even if baseReachable time
     //is the same
   }
 
-  if (rtrAdv->retransTimer() != 0 && rtrAdv->retransTimer() != ie.retransTimer)
-    ie.retransTimer = rtrAdv->retransTimer();
+  if (rtrAdv->retransTimer() != 0 && rtrAdv->retransTimer() != ie->retransTimer)
+    ie->retransTimer = rtrAdv->retransTimer();
 
   if (rtrAdv->MTU() != 0) //MTU exists
   {
     if (rtrAdv->MTU() >= IPv6_MIN_MTU) //&& < default LinkMTU for specific link type defined in IPv6-ether etc.
-      ie.mtu = rtrAdv->MTU();
+      ie->mtu = rtrAdv->MTU();
   }
 
   LinkPrefixes prefixes =  rt->cds->getPrefixesByIndex(ifIndex);
@@ -901,7 +901,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     //minStoredLifetime is used to store the shortest Lifetime update received
     //from this router advertisement.  This is used by RoutingTable to determine
     //if its necessary to reschedule the address expiry timer.
-    if ((addr = ie.matchPrefix(prefOpt.prefix, prefOpt.prefixLen, true)) == IPv6_ADDR_UNSPECIFIED)
+    if ((addr = ie->matchPrefix(prefOpt.prefix, prefOpt.prefixLen, true)) == IPv6_ADDR_UNSPECIFIED)
     {
       //Create a new address and add it to tentative Addr for DAD unless link
       //local address was assigned via address conf from unique Interface ID in
@@ -911,7 +911,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       {
 /*
         Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
-             <<ie.inetAddrs[ie.inetAddrs.size()-1]<<" (maybe tentatively) assigned from prefixOpt="
+             <<ie->inetAddrs[ie->inetAddrs.size()-1]<<" (maybe tentatively) assigned from prefixOpt="
              <<prefOpt.prefix<<"/"<<dec<<(int)prefOpt.prefixLen<<" at "
              <<nd->simTime());
 */
@@ -930,7 +930,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     }
     else //Advertise prefix matches an assigned address
     {
-      if (ie.tentativeAddrAssigned(addr))
+      if (ie->tentativeAddrAssigned(addr))
         continue;
 
       //5.5.3 - 5.5.4
@@ -1016,11 +1016,11 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
                                   size_t prefix_len, unsigned int preferredLifetime,
                                   unsigned int storedLifetime)
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
   assert(storedLifetime != 0);
   //Create a new address and add it to tentative if link local address was
   //an addr conf addr from unique Interface ID
-  if (prefix_len + ie.interfaceIDLength() == IPv6_ADDR_LENGTH )
+  if (prefix_len + ie->interfaceIDLength() == IPv6_ADDR_LENGTH )
   {
     //Can't autoconf other addresses till link local done (implementation
     //requires that link local be first address assigned not part of spec).
@@ -1031,9 +1031,9 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
 
     ipv6_addr newAddr = prefix;
     //Assumption
-    assert(ie.interfaceIDLength() == EUI64_LENGTH);
-    newAddr.normal = ie.interfaceID()[0];
-    newAddr.low = ie.interfaceID()[1];
+    assert(ie->interfaceIDLength() == EUI64_LENGTH);
+    newAddr.normal = ie->interfaceID()[0];
+    newAddr.low = ie->interfaceID()[1];
 
     IPv6Address addrObj(newAddr);
     addrObj.setPrefixLength(prefix_len);
@@ -1066,7 +1066,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
         //Skip DAD if auto conf link local interfaceID passed
         Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
              <<*addrObj
-             //<<ie.inetAddrs[ie.inetAddrs.size()-1]
+             //<<ie->inetAddrs[ie->inetAddrs.size()-1]
              <<" assigned (autoconf) from prefixOpt="
              <<prefix<<"/"<<dec<<(int)prefix_len<<" at "
              <<nd->simTime());
@@ -1094,9 +1094,9 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
  */
 bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram* recDgram)
 {
-  Interface6Entry& ie = rt->getInterfaceByIndex(recDgram->inputPort());
+  Interface6Entry* ie = rt->getInterfaceByIndex(recDgram->inputPort());
 
-  if (ie.tentativeAddrAssigned(targetAddr))
+  if (ie->tentativeAddrAssigned(targetAddr))
   {
     //Check if NgbrSol/NgbrAd signifies a dup address is detected
     //remove addr from tentative addr as detected duplicate
@@ -1104,7 +1104,7 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
     //Remove the scheduled tmr message from list and cancel further sends
 
       //Disable interface if no link local address has been assigned
-      if (ie.inetAddrs.empty())
+      if (ie->inetAddrs.empty())
         disableInterface(recDgram->inputPort());
 
       rt->leaveMulticastGroup(
@@ -1130,7 +1130,7 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
           assert((*it)->isScheduled());
 
           IPv6Address tentativeAddr = check_and_cast<HostTmrMsg*>(*it)->arg()->tentativeAddr;
-          ie.removeTentativeAddress(tentativeAddr);
+          ie->removeTentativeAddress(tentativeAddr);
 
           Dout(dc::warning|flush_cf, rt->nodeName()<<":"<<recDgram->inputPort()
                <<" CANCEL "<<(*it)->name()<<" timer message (duplicate address detected) "
@@ -1167,7 +1167,7 @@ void NDStateHost::processNgbrSol(std::auto_ptr<NS> msg)
 
   if (!rt->odad())
   {
-    Interface6Entry& ie = rt->getInterfaceByIndex(recDgram->inputPort());
+    Interface6Entry* ie = rt->getInterfaceByIndex(recDgram->inputPort());
 
     //check if dupAddrDetection failed (another node is doing dupAddrDetection on
     //a tentative addr)
@@ -1179,9 +1179,9 @@ void NDStateHost::processNgbrSol(std::auto_ptr<NS> msg)
     else  //unicast src address
     {
       //Another node performs addr resln on a tentative addr so we ignore
-      for(size_t j = 0; j < ie.tentativeAddrs.size(); j++)
+      for(size_t j = 0; j < ie->tentativeAddrs.size(); j++)
       {
-        if((ipv6_addr)(ie.tentativeAddrs[j]) == msg->targetAddr())
+        if((ipv6_addr)(ie->tentativeAddrs[j]) == msg->targetAddr())
         {
           Dout(dc::neighbour_disc|dc::notice, rt->nodeName()
                <<"Ignoring Ngbr Sol with target of "<<msg->targetAddr()

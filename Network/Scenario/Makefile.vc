@@ -127,35 +127,4 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-NewBWRequestTester.obj: NewBWRequestTester.cc \
-  ../MPLS/MPLSModule.h \
-  ../RSVP_TE/RSVPTesterCommands.h \
-  ../MPLS/MPLSPacket.h \
-  ../IPv4/IPDatagram.h \
-  ../MPLS/LIBTableAccess.h \
-  ../IPv4/RoutingTableAccess.h \
-  ../IPv4/RoutingTable.h \
-  ../MPLS/ConstType.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
-  ../../Base/ModuleAccess.h \
-  ../MPLS/LIBtable.h
-NewRouteTester.obj: NewRouteTester.cc \
-  ../MPLS/MPLSModule.h \
-  ../RSVP_TE/RSVPTesterCommands.h \
-  ../RSVP_TE/TED.h \
-  ../MPLS/MPLSPacket.h \
-  ../IPv4/IPDatagram.h \
-  ../MPLS/LIBTableAccess.h \
-  ../IPv4/RoutingTableAccess.h \
-  ../IPv4/RoutingTable.h \
-  ../MPLS/ConstType.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
-  ../../Base/ModuleAccess.h \
-  ../MPLS/LIBtable.h \
-  ../RSVP_TE/IntServ_m.h
+

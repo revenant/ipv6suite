@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.4 2005/02/11 10:46:37 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.5 2005/02/12 01:28:02 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -65,7 +65,9 @@ EtherFrame& EtherFrame::operator=(const EtherFrame& p)
 std::string EtherFrame::info()
 {
     std::stringstream out;
-    out << cPacket::info() << out << " prot= " << _protocol;
+    out << "prot= " << _protocol
+        << " src=" << _srcAddr.stringValue()
+        << " dest=" << _destAddr.stringValue();
     return out.str();
 }
 
@@ -241,6 +243,11 @@ cPacket* EtherFrame::decapsulate()
 }
 */
 
+void EtherFrame::setProtocol(int prot)
+{
+  _protocol = prot;
+}
+
 void EtherFrame::setSrcAddress( const  MACAddress& src)
 {
   _srcAddr = src;
@@ -266,6 +273,11 @@ void EtherFrame::setDestAddress( const  MACAddress& dest)
 void EtherFrame::setDataLength(int dataLen)
 {
   setLength(dataLen + headerByteLength());
+}
+
+int EtherFrame::protocol() const
+{
+  return _protocol;
 }
 
 const MACAddress& EtherFrame::srcAddress(void)  const

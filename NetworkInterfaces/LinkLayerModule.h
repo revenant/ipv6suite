@@ -27,23 +27,24 @@
 #ifndef LINKLAYER_MODULE_H
 #define LINKLAYER_MODULE_H
 
-#ifndef ROUTINGTABLEACCESS_H
-#include "RoutingTableAccess.h"
-#endif //ROUTINGTABLEACCESS_H
+//#ifndef ROUTINGTABLEACCESS_H
+//#include "RoutingTableAccess.h"
+//#endif //ROUTINGTABLEACCESS_H
 
 #ifndef STRING
 #define STRING
 #include <string>
 #endif //STRING
 
+#include <omnetpp.h>
 
 // XXX TBD eliminate this constant from everywhere!
 #define NWI_IDLE    13
 
-class LinkLayerModule : public RoutingTableAccess
+class LinkLayerModule : public cSimpleModule
 {
  public:
-  Module_Class_Members(LinkLayerModule, RoutingTableAccess, 0);
+  Module_Class_Members(LinkLayerModule, cSimpleModule, 0);
   virtual ~LinkLayerModule();
   virtual void initialize();
 

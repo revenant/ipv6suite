@@ -21,8 +21,6 @@
   Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
   @author Eric Wu
-
-  @note  simple implementation of Ethernet
 */
 
 #include <sys.h> // Dout
@@ -31,10 +29,10 @@
 #include <memory>
 #include <boost/cast.hpp>
 #include <cmath> //std::pow for random.hpp
-#include <boost/random.hpp>
+//XXX #include <boost/random.hpp>
 
-#include "IPv6Datagram.h"
-#include "IPv6InterfaceData.h"
+//#include "IPv6Datagram.h"
+//#include "IPv6InterfaceData.h"
 #include "Messages.h"
 
 #include "EtherModule.h"
@@ -206,10 +204,14 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
   destAddress.set(recPkt->data().destLLAddr.c_str());
   frame->setDestAddress(destAddress);
 
+/* XXX this code was changed to line below  --AV
   cMessage* dupMsg = recPkt->data().dgram->dup();
 
   //when recPkt is deleted data is deleted but LLInterfaceInfo is a struct so dgram is not
   delete recPkt->data().dgram;
+*/
+  cMessage* dupMsg = recPkt->data().dgram;
+  recPkt->data().dgram = NULL;
 
   frame->setProtocol(PR_ETHERNET);
   frame->encapsulate(dupMsg);

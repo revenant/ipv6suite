@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.4 2005/02/11 10:46:37 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.5 2005/02/12 01:28:02 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -29,7 +29,7 @@
 #define __EHTER_FRAME_H
 
 #include <omnetpp.h>
-#include <MACAddress.h>
+#include "MACAddress.h"
 
 /*  -------------------------------------------------
         Constants
@@ -69,11 +69,13 @@ public:
   const char  *dumpContents(void);
 
   // set functions
+  void setProtocol(int prot);
   void setSrcAddress(const MACAddress& src);
   void setDestAddress( const  MACAddress& dest);
   void setDataLength(int dataLen);
 
   // get functions
+  int protocol() const;
   const MACAddress& srcAddress(void) const;
   const MACAddress& destAddress(void) const;
   const char *destAddrString(void) const;
@@ -95,6 +97,7 @@ public:
   #endif //defined __CN_PAYLOAD_H
 
 private:
+  int _protocol;
   MACAddress _srcAddr;
   MACAddress _destAddr;
   int pack_mac_addr(const char *straddr, unsigned char *pack) const;

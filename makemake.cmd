@@ -24,7 +24,7 @@ cd %root%\Applications && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Tests && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Network && %MAKEMAKE% %OPTS% -n -r
-cd %root%\NetworkInterfaces && %MAKEMAKE% %OPTS% -n -r
+cd %root%\NetworkInterfaces && %MAKEMAKE% %OPTS% -n -r -I..\Util
 cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
@@ -34,7 +34,6 @@ cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6 -I..\Network\IPv
 
 :---------------
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r
-:# eliminate dep on IPv4 stuff!!!!
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
@@ -45,9 +44,10 @@ cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
 
-cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r
-cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r
-cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r
+:FIXME remove -I Wireless from Eth!!!!! --AV
+cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I..\..\PHY\Wireless -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
+cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
+cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I.. -I..\.. -I..\..\Util -I..\Ethernet6 -I..\..\Network\IPv6 -I..\..\World -I..\..\PHY
 
 cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r

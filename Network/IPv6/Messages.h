@@ -25,7 +25,8 @@ struct AddrResInfo
 
 struct LLInterfaceInfo
 {
-  IPv6Datagram* dgram;
+  // XXX was IPv6Datagram* dgram, but Link Layer doesn't need it to be IPv6
+  cMessage *dgram;
   string destLLAddr;
 };
 

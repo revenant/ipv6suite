@@ -82,11 +82,11 @@ all: $(TARGET)
 subdirs $(OBJS) : generateheaders
 
 # XXX this is just temporary:
-#Transport_dir Applications_dir Network_dir : NetworkInterfaces_dir
+Transport_dir Applications_dir Network_dir : NetworkInterfaces_dir
 
 # add dependencies across directories
 Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir : Util_dir Base_dir
-Transport_dir NetworkInterfaces_dir Applications_dir : Network_dir
+#Transport_dir NetworkInterfaces_dir Applications_dir : Network_dir
 Nodes_dir : Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir
 Examples_dir Tests_dir : Nodes_dir
 Examples_dir : Tests_dir  # this is not important, can be removed

@@ -37,12 +37,11 @@
     @author Johnny Lai
 */
 
-#ifndef IPv6SENDCORE_H
-#define IPv6SENDCORE_H
+#ifndef IPv6SEND_H
+#define IPv6SEND_H
 
-#ifndef ROUTINGTABLE6ACCESS_H
+#include "QueueBase.h"
 #include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
 
 class IPv6InterfacePacket;
 class IPv6Datagram;
@@ -54,37 +53,29 @@ class IPv6Datagram;
  * encapsulated by datagrams
  */
 
-class IPv6Send : public cSimpleModule
+class IPv6Send : public QueueBase
 {
 
 public:
-  Module_Class_Members(IPv6Send, cSimpleModule, 0);
+  Module_Class_Members(IPv6Send, QueueBase, 0);
 
   virtual void initialize();
-  virtual void handleMessage(cMessage*);
+  virtual void endService(cMessage *msg);
   virtual void finish();
 
 private:
-  void sendDatagram(IPv6InterfacePacket *);
+  IPv6Datagram *encapsulatePacket(IPv6InterfacePacket *interfaceMsg);
 
   RoutingTable6 *rt;
 
   int defaultTimeToLive;
   int defaultMCTimeToLive;
-  //As we only do fragmentation at source perhaps we can streamline stack by
-  //Moving frag to local IPv6 Out.  However this is not correct because during
-  //Routing the src address can change when routing header is encountered.
-  simtime_t delay;
-  bool hasHook;
-  cMessage* waitTmr;
-  IPv6Datagram* curPacket;
-  ///Arriving packets are placed in queue first if another packet is awaiting
-  ///processing
-  cQueue waitQueue;
+
+  // As we only do fragmentation at source perhaps we can streamline stack by
+  // Moving frag to local IPv6 Out.  However this is not correct because during
+  // Routing the src address can change when routing header is encountered.
+
   unsigned int ctrIP6OutRequests;
-  ///When interface is not ready the returned dgram is empty so we should not
-  ///assert on empty dgram if this condition is true
-  bool ifaceReady;
 };
 
 #endif

@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.2 2005/02/10 01:15:48 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.3 2005/02/10 03:54:16 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -192,7 +192,7 @@ Debug(
       //Let RoutingCore determine src addr
 	}
 
-	datagram->setTransportProtocol ( static_cast<IPProtocolFieldId> (interfaceMsg->protocol()));
+	datagram->setTransportProtocol ( static_cast<IPProtocolId> (interfaceMsg->protocol()));
 	datagram->setInputPort(-1);
 
     if (interfaceMsg->timeToLive() > 0)

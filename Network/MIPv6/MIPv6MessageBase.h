@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,15 +42,15 @@ class MIPv6MobilityHeaderBase;
 class MIPv6MHParameterBase;
 class MIPv6DestOptionBase;
 class MIPv6DestOptSubOptionBase;
- 
+
 typedef vector<MIPv6MHParameterBase*> Parameters;
- 
+
 // enumerated types for mobility header
-  
+
 enum MIPv6MobilityHeaderType
 {
   MIPv6MHT_NONE = 0,
-  
+
   MIPv6MHT_BR = 1, // binding request
   MIPv6MHT_HoTI = 2, // home test init
   MIPv6MHT_CoTI = 3, // care-of test init
@@ -67,7 +67,7 @@ enum MIPv6MobilityHeaderType
 enum MIPv6MHParameterType
 {
   MIPv6MHPT_NONE = 8888,
-  
+
   MIPv6MHPT_Pad1 = 0, // pad1 (NOT IMPLEMENTED YET!)
   MIPv6MHPT_PadN = 1, // padN (NOT IMPLEMENTED YET!)
   MIPv6MHPT_UI = 2, // unique identifier
@@ -111,7 +111,7 @@ class MIPv6MobilityHeaderBase : public cPacket
 {
  public:
   virtual ~MIPv6MobilityHeaderBase(void);
-  
+
   MIPv6MobilityHeaderBase& operator=(const MIPv6MobilityHeaderBase& );
   virtual MIPv6MobilityHeaderBase* dup() const = 0;
   virtual const char* className() const { return "MIPv6MobilityHeaderBase"; }
@@ -119,7 +119,7 @@ class MIPv6MobilityHeaderBase : public cPacket
 
   // add an instance of mobility header parameter into the list
   virtual bool addMPar(MIPv6MHParameterBase*);
-  
+
   void calculateChecksum(void)
     {
       // TODO: leave it for future implementation
@@ -128,17 +128,17 @@ class MIPv6MobilityHeaderBase : public cPacket
 
   // According to sec 5.1.1, the payload protocol MUST be set to
   // NO_NXTHDR (59)
-  IPProtocolFieldId payload_prot(void) const { return _payloadprot; }
+  IPProtocolId payload_prot(void) const { return _payloadprot; }
 
   // NOT ALLOWED to call this function yet
-  void setPayloadProt(IPProtocolFieldId prot)
+  void setPayloadProt(IPProtocolId prot)
     {
       _payloadprot = prot;
     }
-  
+
   MIPv6MobilityHeaderType header_type(void) const { return _headertype; }
 
-  MIPv6MHParameterBase* parameter(MIPv6MHParameterType t) const 
+  MIPv6MHParameterBase* parameter(MIPv6MHParameterType t) const
     {
       for ( size_t i = 0; i < _parameters.size(); i++)
         if ( _parameters[i]->type() == t )
@@ -161,14 +161,14 @@ class MIPv6MobilityHeaderBase : public cPacket
   // return phyical length in unit of 8 octets of packet that is from
   // real data
 //  size_t physicalLenInOctet(void) const { return _physicalLen / 8; }
-  
+
  protected:
   MIPv6MobilityHeaderBase(MIPv6MobilityHeaderType headertype = MIPv6MHT_NONE,
                          int len = 0);
   MIPv6MobilityHeaderBase(const MIPv6MobilityHeaderBase& src);
-  
+
  protected:
-  IPProtocolFieldId _payloadprot;  
+  IPProtocolId _payloadprot;
 
   // mobility header (MH) Type
   MIPv6MobilityHeaderType _headertype;

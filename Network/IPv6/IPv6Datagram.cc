@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.2 2005/02/09 23:46:08 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.3 2005/02/10 03:54:16 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -295,15 +295,15 @@ HdrExtDestProc* IPv6Datagram::acquireDestInterface()
   return dest_hdr = static_cast<HdrExtDestProc*>(addExtHdr(EXTHDR_DEST));
 }
 
-IPProtocolFieldId IPv6Datagram::transportProtocol() const
+IPProtocolId IPv6Datagram::transportProtocol() const
 {
   if (ext_hdrs.empty())
-    return (IPProtocolFieldId) header.next_header;
+    return (IPProtocolId) header.next_header;
   else
-    return (IPProtocolFieldId) (*(ext_hdrs.rbegin()))->nextHeader();
+    return (IPProtocolId) (*(ext_hdrs.rbegin()))->nextHeader();
 }
 
-void IPv6Datagram::setTransportProtocol(const IPProtocolFieldId& prot)
+void IPv6Datagram::setTransportProtocol(const IPProtocolId& prot)
 {
   //		ISVALID_IPV6_PROTOCOLFIELDID(prot);
   if (ext_hdrs.empty())
@@ -325,7 +325,7 @@ void IPv6Datagram::encapsulate(cPacket* transportPacket)
   if (transportPacket->protocol() == PR_IPV6)
     setTransportProtocol(IP_PROT_IPv6);
   else
-    setTransportProtocol((IPProtocolFieldId)transportPacket->protocol());
+    setTransportProtocol((IPProtocolId)transportPacket->protocol());
   setName(transportPacket->name());
 }
 
@@ -523,7 +523,7 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
 
   if (proc != 0)
   {
-    IPProtocolFieldId prot = transportProtocol();
+    IPProtocolId prot = transportProtocol();
 
     if (ext_hdrs.empty())
       header.next_header = hdr_type;

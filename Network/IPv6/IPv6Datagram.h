@@ -44,9 +44,8 @@
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
-#ifndef __IPDATAGRAM_H
-#include "IPDatagram.h"   // XXX for IPProtocolFieldId only! should be separated!!!
-#endif //__IPDATAGRAM_H
+
+#include "IPProtocolId_m.h"
 
 /**
    Forward declarations
@@ -250,8 +249,8 @@ public:
       header.hop_limit= ttl;
     }
 
-  IPProtocolFieldId transportProtocol() const;
-  void setTransportProtocol(const IPProtocolFieldId& prot);
+  IPProtocolId transportProtocol() const;
+  void setTransportProtocol(const IPProtocolId& prot);
 
   // header checksum not required
 

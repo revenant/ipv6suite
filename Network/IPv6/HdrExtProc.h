@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.h,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.h,v 1.2 2005/02/10 03:54:16 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@
 #if !defined(HDREXTPROC_H)
 #define HDREXTPROC_H
 
-#include "IPInterfacePacket.h" // IPProtocolFieldId
+#include "IPProtocolId_m.h"
 
 #ifndef IPV6HEADERS_H
 #include "IPv6Headers.h"
@@ -42,14 +42,14 @@ class IPv6Datagram;
 /**
    @class HdrExtProc
 
-   @brief Abstract base class for IPv6 Extension headers.  
+   @brief Abstract base class for IPv6 Extension headers.
 
    Defines an interface to process extension headers.
  */
 
 class HdrExtProc
 {
-public:  
+public:
   //  friend class IPv6Datagram;
 
   virtual ~HdrExtProc() = 0;
@@ -60,25 +60,25 @@ public:
     {
       return _type == rhs._type;
     }
-  
+
   virtual std::ostream& operator<< (std::ostream& os)
     {
       return os<<"ExtHdr "<<_type<<" nh="<<nextHeader()<<" ";
-    }  
+    }
 
   /**
-   * length of this extension header in octects. 
-   * 
+   * length of this extension header in octects.
+   *
    */
 
   virtual size_t length() const;
-  
+
   /**
    * accumulate length of pdu headers up to and including this header
    * @param pdu has to contain this extension header (loop terminate condition)
    */
   virtual int cumul_len(const IPv6Datagram& pdu) const;
-  
+
   /**
      Process extension header according to IPv6 Spec
      Relative ordering of header processing is determined by app and not by this
@@ -94,18 +94,18 @@ public:
     {
       //Todo macro to test authenticity of next_header
       return static_cast<IPv6NextHeader> ( ext_hdr->next_header);
-    
+
     }
   void setNextHeader(const IPv6NextHeader& hdr_type)
     {
-      ext_hdr->next_header = hdr_type;    
+      ext_hdr->next_header = hdr_type;
     }
-  
-  void setNextHeader(const IPProtocolFieldId& prot_type) 
+
+  void setNextHeader(const IPProtocolId& prot_type)
     {
       ext_hdr->next_header = (int) prot_type;
     }
-  
+
   void setNextHeader(const IPv6ExtHeader& ext_hdr_type)
     {
       ext_hdr->next_header = (int) ext_hdr_type;
@@ -113,7 +113,7 @@ public:
 
   IPv6ExtHeader type() const
     {
-      return _type;    
+      return _type;
     }
 
   ///Length of Extension header in units of 8 octets, excluding the first 8
@@ -122,14 +122,14 @@ public:
     {
       return ext_hdr->hdr_ext_len;
     }
-  
+
   void setHdrExtLen(unsigned char hdr_len) const
     {
       ext_hdr->hdr_ext_len = hdr_len;
     }
-  
+
   //@}
-protected:	
+protected:
 
 
   //@name Constructors, Destructors and operators
@@ -146,14 +146,14 @@ protected:
 //     {
 //       operator=(src);
 //     }
-  
+
   HdrExtProc& operator=(const HdrExtProc& rhs)
     {
       if (this == &rhs)
         return *this;
-      
+
       if (_type != rhs._type)
-      {  
+      {
         delete ext_hdr;
         _type = rhs._type;
         //Get the subclass to allocate the correct ext header

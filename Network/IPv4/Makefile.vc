@@ -59,10 +59,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= ICMPMessage_m.obj IPControlInfo_m.obj IPDatagram_m.obj ICMP.obj IP.obj IPAddress.obj IPAddressResolver.obj IPFragBuf.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
+OBJS= ICMPMessage_m.obj IPControlInfo_m.obj IPDatagram_m.obj IPProtocolId_m.obj ICMP.obj IP.obj IPAddress.obj IPAddressResolver.obj IPFragBuf.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= ICMPMessage_m.h IPControlInfo_m.h IPDatagram_m.h
+GENERATEDHEADERS= ICMPMessage_m.h IPControlInfo_m.h IPDatagram_m.h IPProtocolId_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -104,6 +104,12 @@ IPDatagram_m.obj: IPDatagram_m.cc
 
 IPDatagram_m.cc IPDatagram_m.h: IPDatagram.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPDatagram.msg
+
+IPProtocolId_m.obj: IPProtocolId_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp IPProtocolId_m.cc
+
+IPProtocolId_m.cc IPProtocolId_m.h: IPProtocolId.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPProtocolId.msg
 
 ICMP.obj: ICMP.cc
 	$(CXX) -c $(COPTS) /Tp ICMP.cc

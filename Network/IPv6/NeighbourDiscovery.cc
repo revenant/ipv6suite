@@ -90,7 +90,6 @@ void NeighbourDiscovery::initialize(int stageNo)
 
 void NeighbourDiscovery::handleMessage(cMessage* theMsg)
 {
-
   std::auto_ptr<cMessage> msg(theMsg);
 
   if (msg->isSelfMessage())

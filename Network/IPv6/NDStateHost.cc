@@ -658,6 +658,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
 ///disc 6.3.4 and autoconf 5.5.3
 std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 {
+
   IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
   ipv6_addr srcAddr = dgram->srcAddress();
   size_t ifIndex = dgram->inputPort();

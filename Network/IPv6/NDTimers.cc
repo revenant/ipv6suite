@@ -53,7 +53,7 @@ NDTimer::~NDTimer()
 {
   //This is necessary when a timer message is cancelled and deleted as a
   //response arrived on time
-  delete dgram;
+  //delete dgram; // XXX TBD FIXME FIXME FIXME -- memory leak if we don't delete it, crash on exit if we do!!! -AV
 }
 
 RtrTimer::~RtrTimer()
@@ -89,34 +89,4 @@ NDARTimer* NDARTimer::dup(size_t ifIndex) const
   return tmrCopy;
 }
 
-AddrExpiryTmr::AddrExpiryTmr(RoutingTable6* const rt)
-  :cTTimerMessage<void, RoutingTable6>(
-    IPv6NeighbourDiscovery::Tmr_AddrConfLifetime, rt,
-    &RoutingTable6::lifetimeExpired, "AddrExpiryTmr")
 
-{
-  //setOwner(rt);
-}
-/*
-///   lifetime is the absolute time in future when this timer will expire
-PrefixExpiryTmr::PrefixExpiryTmr(RoutingTable6* rt, PrefixEntry* pe,
-                                 simtime_t lifetime)
-  :cTTimerMessageAS<RoutingTable6, void, PrefixEntry, PrefixExpiryTmr>(
-    IPv6NeighbourDiscovery::Tmr_PrefixLifetime, rt, pe,
-    &PrefixEntry::prefixTimeout, false, lifetime, "PrefixExpiryTmr")
-{
-  if (lifetime - rt->simTime() >= VALID_LIFETIME_INFINITY)
-    cancel(); //don't need to start the timer then
-}
-
-///lifetime is the absolute time in future when this timer will expire
-RouterExpiryTmr::RouterExpiryTmr(RoutingTable6* rt, RouterEntry* re,
-                                 simtime_t lifetime)
-  :cTTimerMessageAS<RoutingTable6, void, RouterEntry, RouterExpiryTmr>(
-    IPv6NeighbourDiscovery::Tmr_RouterLifetime, rt, re,
-    &RouterEntry::routerExpired, false, lifetime, "RouterExpiryTmr")
-{
-  if (lifetime - rt->simTime() >= VALID_LIFETIME_INFINITY)
-    cancel(); //don't need to start the timer then
-}
-*/

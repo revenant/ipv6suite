@@ -97,8 +97,6 @@ void RoutingTable6::initialize(int stage)
 #endif //USE_HMIP
     odadSupport = false;
     ctrIcmp6OutMsgs = 0;
-    //Give it plenty of room so it doesn't have to reallocate too much
-    removeHolesArr.reserve(20);
 
     interfaces.reserve(MAX_IPv6INTERFACE_NO<interfaces.max_size()?
                        MAX_IPv6INTERFACE_NO:
@@ -829,8 +827,6 @@ void RoutingTable6::lifetimeExpired()
 }
 
 
-using IPv6NeighbourDiscovery::AddrExpiryTmr;
-
 void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
 {
   OPP_Global::ContextSwitcher switcher(this);
@@ -841,7 +837,9 @@ void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
     if (minUpdatedLifetime == VALID_LIFETIME_INFINITY)
       return;
 
-    addrExpiryTmr = new AddrExpiryTmr(this);
+    addrExpiryTmr =  new Loki::cTimerMessageCB<void>
+      (IPv6NeighbourDiscovery::Tmr_AddrConfLifetime, (cSimpleModule*) simulation.contextModule(), this,
+       &RoutingTable6::lifetimeExpired, "AddrExpiryTmr");
 
     Dout(dc::address_timer, nodeName()<<" Initial Shortest lifetime is "
          <<minUpdatedLifetime);

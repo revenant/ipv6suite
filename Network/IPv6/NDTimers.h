@@ -121,26 +121,6 @@ namespace IPv6NeighbourDiscovery
 #include "cTimerMessage.h"
 namespace IPv6NeighbourDiscovery
 {
-  /**
-     @class AddrExpiryTmr
-
-     @brief Timer to manage lifetimes of addresses assigned to a network node.
-
-     It is primed for the earliest address to expire i.e. the address with the
-     shortest validLifetime. Once expired will remove the appropriate
-     address/es, elapse all addresses assigned to the node by the elapsedTime,
-     and reprime the timer again according to chronological order.  Time is in
-     seconds.
-  */
-
-  class AddrExpiryTmr:public cTTimerMessage<void, RoutingTable6>
-  {
-  public:
-
-    AddrExpiryTmr(RoutingTable6* const rt);
-
-  };
-
   class PrefixEntry;
 
   /**

@@ -559,7 +559,7 @@ void IPv6Forward::endService(cMessage* theMsg)
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
-      delete info;
+      delete info; // XXX CRASH CRASH CRASH
       return;
     }
     else

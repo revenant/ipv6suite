@@ -75,7 +75,6 @@ class MLD;
 
 namespace IPv6NeighbourDiscovery
 {
-  class AddrExpiryTmr;
   class PrefixExpiryTmr;
   class RouterExpiryTmr;
   class IPv6CDS;
@@ -340,14 +339,10 @@ private:
   ///Remove addresses that have -> 0 lifetime
   void invalidateAddresses();
 
-  friend class IPv6NeighbourDiscovery::AddrExpiryTmr;
   ///callback to remove addresses that have expired
   void lifetimeExpired();
 
-  IPv6NeighbourDiscovery::AddrExpiryTmr* addrExpiryTmr;
-
-  ///Used to hold inetAddrs while the holes are removed
-  vector<IPv6Address*> removeHolesArr;
+  cTimerMessage* addrExpiryTmr;
   //@}
 
   ///IfConfig formatted output

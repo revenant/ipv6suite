@@ -57,6 +57,7 @@
 #include "IPv6CDS.h"
 #include "NDEntry.h"
 #include "LLInterfacePkt.h"
+#include "IPv6Utils.h"
 
 using namespace std;
 using boost::polymorphic_downcast;
@@ -242,7 +243,7 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     ctrIP6OutMcastPkts++;
 
   bool directionOut = true;
-  OPP_Global::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
+  printIPv6RoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
 
   return llpkt;
 }

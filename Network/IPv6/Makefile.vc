@@ -71,7 +71,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingTable6.obj RoutingTable6Access.obj
+OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IPv6Utils.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingTable6.obj RoutingTable6Access.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= IPInterfacePacket_m.h
@@ -192,6 +192,9 @@ IPv6OutputCore.obj: IPv6OutputCore.cc
 IPv6SendCore.obj: IPv6SendCore.cc
 	$(CXX) -c $(COPTS) /Tp IPv6SendCore.cc
 
+IPv6Utils.obj: IPv6Utils.cc
+	$(CXX) -c $(COPTS) /Tp IPv6Utils.cc
+
 IRouterList.obj: IRouterList.cc
 	$(CXX) -c $(COPTS) /Tp IRouterList.cc
 
@@ -247,7 +250,7 @@ RoutingTable6Access.obj: RoutingTable6Access.cc
 #	@doxygen doxy.cfg
 
 generateheaders: $(GENERATEDHEADERS)
-	@if not "$(SUBDIRS)"=="" for %%i in ( $(SUBDIRS) ) do cd %%i && nmake /nologo /f Makefile.vc generateheaders && cd .. || exit /b 1
+	@if not "$(SUBDIRS)"=="" for %%i in ( $(SUBDIRS) ) do @cd %%i && nmake /nologo /f Makefile.vc generateheaders && cd .. || exit /b 1
 
 clean:
 	-del *.obj *.idb *.pdb .tstamp 2>NUL

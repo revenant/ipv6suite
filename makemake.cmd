@@ -124,12 +124,10 @@ cd %root%\Examples\IPv6 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\EthNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\HMIPv6Network && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\LargeTestNetwork && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Examples\IPv6\MelbourneNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\MIPv6Network && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\PingNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\TestNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\TunnelNet && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Examples\IPv6\UMLNet && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessEtherNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessEtherNetwork2 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\WirelessEtherNetworkDual && %MAKEMAKE% %OPTS% -n -r

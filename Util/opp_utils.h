@@ -144,17 +144,17 @@ namespace OPP_Global
     return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
   }
 
-/**
+/** XXX moved to Network/IPv6/IPv6Utils.h, to remove Utils' dependency on IPv6  --AV
    @brief print packet header contents on stdout
    @arg routingInfoDisplay Display dgram's headers when true. Should pass
    routingInfoDisplay parameter from IPv6ForwardCore module.
    @arg dgram datagram to retrieve information from
    @arg name name of network node
    @arg directionOut Hint on whether the dgram is egressing the node
-*/
+*
 
   void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
-
+*/
 
 #if defined OPP_VERSION && OPP_VERSION >= 3
   ///Returns the omnet++ parser for use by other classes to parse their own attributes

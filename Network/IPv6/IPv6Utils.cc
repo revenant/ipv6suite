@@ -229,7 +229,6 @@ namespace OPP_Global
     return unknown;
   }
 
-/* XXX moved to Network/IPv6/IPv6Utils.h, to remove Utils' dependency on IPv6  --AV
   void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* datagram, const char* name, bool directionOut)
   {
     if (routingInfoDisplay)
@@ -239,7 +238,6 @@ namespace OPP_Global
       cout.flush();
     }
   }
-*/
 
 #if defined OPP_VERSION && OPP_VERSION >= 3
   XMLConfiguration::XMLOmnetParser* getParser()

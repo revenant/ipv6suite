@@ -39,6 +39,7 @@
 #include "IPv6Datagram.h"
 #include "IPv6ForwardCore.h" //routingInfoDisplay
 #include "opp_utils.h"
+#include "IPv6Utils.h"
 
 Define_Module( PreRouting6Core );
 
@@ -80,7 +81,7 @@ void PreRouting6Core::handleMessage(cMessage* msg)
     ctrIP6InReceive++;
 
     bool directionOut = false;
-    OPP_Global::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
+    printIPv6RoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
 
     if (!waitTmr->isScheduled() && curPacket == 0 )
     {

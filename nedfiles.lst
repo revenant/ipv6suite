@@ -62,8 +62,6 @@ Base/Sink.ned
 
 
 
-
-
 Network/AutoRouting/FlatNetworkConfigurator.ned
 Network/IPv4/ICMP.ned
 Network/IPv4/IGMP.ned
@@ -134,8 +132,6 @@ Nodes/IPv6/Router6.ned
 Nodes/IPv6/TCPNode.ned
 Nodes/IPv6/TCPSvrNode.ned
 Nodes/IPv6/UDPNode.ned
-Nodes/IPv6/UMLClient.ned
-Nodes/IPv6/UMLSwitch.ned
 Nodes/IPv6/WirelessAccessPoint.ned
 Nodes/IPv6/WirelessMobileNode.ned
 Nodes/MPLS/LDP_LSR.ned

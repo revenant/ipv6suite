@@ -61,7 +61,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= EtherHub.obj UmlSwitch.obj
+OBJS= EtherHub.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -92,9 +92,6 @@ subdirs: $(SUBDIR_TARGETS)
 EtherHub.obj: EtherHub.cc
 	$(CXX) -c $(COPTS) /Tp EtherHub.cc
 
-UmlSwitch.obj: UmlSwitch.cc
-	$(CXX) -c $(COPTS) /Tp UmlSwitch.cc
-
 
 #doc: neddoc doxy
 
@@ -105,7 +102,7 @@ UmlSwitch.obj: UmlSwitch.cc
 #	@doxygen doxy.cfg
 
 generateheaders: $(GENERATEDHEADERS)
-	@if not "$(SUBDIRS)"=="" for %%i in ( $(SUBDIRS) ) do cd %%i && nmake /nologo /f Makefile.vc generateheaders && cd .. || exit /b 1
+	@if not "$(SUBDIRS)"=="" for %%i in ( $(SUBDIRS) ) do @cd %%i && nmake /nologo /f Makefile.vc generateheaders && cd .. || exit /b 1
 
 clean:
 	-del *.obj *.idb *.pdb .tstamp 2>NUL

@@ -27,13 +27,14 @@ import "NF_IP_POST_ROUTING";
 //  - receive complete datagram from IPFragmentation
 //  - check hop counter (ttl) and throw away packet and notify ICMP if ttl==0
 //  - otherwise  send it on to output queue
+// FIXME doc out of date -- none of it is true any more!!! --AV
 //
 // @author Johnny Lai
 // based on IPOutputCore by Jochen Reber
 //
 simple IPv6OutputCore
     parameters:
-        procdelay: numeric const;
+        procDelay: numeric const;
     gates:
         in: fragmentationIn;
     in: neighbourDiscoveryIn;
@@ -56,18 +57,18 @@ endsimple
 //
 module IPv6Output
     parameters:
-        procdelay : numeric const;
+        procDelay : numeric const;
     gates:
         in: fragmentationIn;
-    in: neighbourDiscoveryIn;
-    in: addrReslnIn;
-    in: mobilityIn;
+        in: neighbourDiscoveryIn;
+        in: addrReslnIn;
+        in: mobilityIn;
         out: queueOut;
-    out: errorOut;
+        out: errorOut;
     submodules:
         core: IPv6OutputCore;
           parameters:
-            procdelay = procdelay;
+            procDelay = procDelay;
             display: "p=154,169;b=40,24,rect";
     connections nocheck:
     mobilityIn --> core.mobilityIn;

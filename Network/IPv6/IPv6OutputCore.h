@@ -15,65 +15,38 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/**
 
-    @file IPv6OutputCore.h
-    @brief Header file for IPv6Output core module
-    ------
-    Responsibilities:
-    receive complete datagram from IPFragmentation
-        hop counter check
-            -> throw away and notify ICMP if ttl==0
-        otherwise  send it on to output queue
-    @author Johnny Lai
-
-*/
-
+#include "QueueBase.h"
 #include "RoutingTable6Access.h"
 
 #ifndef IPv6OUTPUTCORE_H
 #define IPv6OUTPUTCORE_H
 
-
 class IPv6Datagram;
-//XXX struct LLInterfaceInfo;
-//XXX template<typename T> class cTypedMessage;
-//XXX typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 class IPv6ForwardCore;
 
 /**
- * @class IPv6OutputCore
- * @brief All datagrams pass through here before going down to layer two
+ * Queues up outgoing IPv6 datagrams, and assigns MAC addresses to them.
+ * TBD refine comment.
+ *
+ * @author Johnny Lai
  */
-
-//XXX FIXME TBD rewrite with QueueBase!!!!! --AV
-class IPv6OutputCore : public cSimpleModule
+class IPv6OutputCore : public QueueBase
 {
 public:
-  Module_Class_Members(IPv6OutputCore, cSimpleModule, 0);
+  Module_Class_Members(IPv6OutputCore, QueueBase, 0);
 
   virtual void initialize();
-  virtual void handleMessage(cMessage* msg);
+  virtual void endService(cMessage* msg);
   virtual void finish();
 
 private:
-  // XXX as far as I could tell, here we expect an IPv6Datagram, and
-  // fill out the link layer address for it. Packets arriving on gate XXX TBD
-  // already have it assigned.
-
-  //XXX LLInterfacePkt* processArrivingMessage(cMessage* msg);
   void processArrivingMessage(IPv6Datagram* msg);
 
   RoutingTable6 *rt;
 
-  simtime_t delay;
-  //bool hasHook;
   unsigned int ctrIP6OutForwDatagrams;
   unsigned int ctrIP6OutMcastPkts;
-  //XXX LLInterfacePkt* curPacket;
-  IPv6Datagram *curPacket;
-  cMessage* waitTmr;
-  cQueue waitQueue;
   ::IPv6ForwardCore* forwardMod; // XXX why's this needed? why not connection? --AV
 };
 

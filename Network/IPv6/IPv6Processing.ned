@@ -115,7 +115,7 @@ module IPv6Processing
             display: "p=428,195;i=bwxconn";
         output: IPv6Output[numOfPorts];
             parameters:
-                procdelay = ipoutput_delay;
+                procDelay = ipoutput_delay;
             display: "p=302,282;i=prot2";
         routingTable6: RoutingTable6;
             parameters:

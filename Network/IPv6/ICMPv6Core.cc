@@ -18,11 +18,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-/**
-   @file ICMPv6Core.cc
-   @brief ICMPv6 Processing in section 2.4 of RFC 2463
-   @date 13.09.01
-*/
 
 #include "sys.h"
 #include "debug.h"
@@ -59,8 +54,9 @@ Define_Module( ICMPv6Core );
 
 void ICMPv6Core::initialize()
 {
+  QueueBase::initialize();
+  rt = RoutingTable6Access().get();
 
-  delay = par("procDelay");
   icmpRecordStats = par("icmpRecordRequests");
   replyToICMPRequests = par("replyToICMPRequests");
   icmpRecordStart = par("icmpRecordStart");
@@ -68,7 +64,6 @@ void ICMPv6Core::initialize()
   if (icmpRecordStats)
     stat = new cStdDev("PingRequestReceived");
 
-  rt = RoutingTable6Access().get();
   fc = check_and_cast<IPv6Forward*> (
     OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
   assert(fc != 0);
@@ -89,89 +84,10 @@ void ICMPv6Core::initialize()
   dropCount = 0;
   nextEstSeqNo = 0;
   lastReceiveTime = 0;
-
-
-  curMessage = 0;
-  waitTmr = new cMessage("ICMPv6CoreWait");
-  waitQueue.setName("ICMPv6WaitQ");
-
-  //Can't really see from proc module
-  std::string display(parentModule()->displayString());
-  display += ";q=ICMPv6WaitQ";
-  parentModule()->setDisplayString(display.c_str());
-
-  //so display at self
-  display = displayString();
-  display += ";q=ICMPv6WaitQ";
-  setDisplayString(display.c_str());
 }
 
-void ICMPv6Core::handleMessage(cMessage* theMsg)
+void ICMPv6Core::endService(cMessage* msg)
 {
-
-#if defined TESTIPv6PING
-///Test ping packets and traversing across network/ decapsulate etc.
-  IPv6InterfaceData<echo_int_info>* app_req = 0;
-  echo_int_info echo_req;
-  int increment = 20;
-  int pingCount = 1;
-
-  if ( strcmp("client1", OPP_Global::findNetNodeModule(this)->name()) == 0)
-  {
-    for (int j = 0; j < pingCount; j++)
-    {
-      echo_req.id = 12345;
-      echo_req.seqNo = 88 + j;
-      //This dest is probably redundent.
-      //echo_req.dest = IPv6Address("fe80:0:0:0:260:97ff:0:4");
-      echo_req.dest = c_ipv6_addr("fec0:0:0:ABCD:260:97ff:0:4");
-      echo_req.custom_data = "My ping data";
-      echo_req.length = (strlen("My ping data"));
-      //Source Address should be filled in by Routing rules or by app.  Dest
-      //has to be filled in.
-      app_req =
-        new IPv6InterfaceData<echo_int_info> (echo_req, 0,
-                                              "fe80:0:0:0:260:97ff:0:4");
-
-      scheduleAt(simTime() + j + increment, app_req);
-      //Simulate real app request
-      //sendDirect(app_req, simTime() + i*increment, this, "pingIn");
-    }
-
-  }
-#endif //TESTIPv6PING
-
-  if (!theMsg->isSelfMessage())
-  {
-    if (!waitTmr->isScheduled() && curMessage == 0 )
-    {
-      scheduleAt(delay + simTime(), waitTmr);
-      curMessage = theMsg;
-      return;
-    }
-    else if (waitTmr->isScheduled())
-    {
-      Dout(dc::custom, fullPath()<<" "<<simTime()<<" received new mesage "
-           <<" when message was scheduled at waitTmr="<<waitTmr->arrivalTime());
-      waitQueue.insert(theMsg);
-      return;
-    }
-    assert(false);
-    delete theMsg;
-    return;
-  }
-
-  assert(curMessage);
-
-  cMessage* msg = curMessage;
-  if (waitQueue.empty())
-    curMessage = 0;
-  else
-  {
-    curMessage = check_and_cast<cMessage*>(waitQueue.pop());
-    scheduleAt(delay + simTime(), waitTmr);
-  }
-
   //checksum testing
   cGate *arrivalGate = msg->arrivalGate();
 
@@ -206,125 +122,6 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
     sendEchoRequest(msg);
     return;
   }
-
-#if !defined TESTIPv6PING
-  assert(false);
-  delete msg;
-#else //!defined TESTIPv6PING
-  //TEST ICMP PING and Addr Res
-
-  cout<<"Sending Echo request at "<<simTime()<<" "<<hex<<app_req<<endl;
-  assert(app_req->destAddress() != IPv6_ADDR_UNSPECIFIED);
-
-
-  // packing informational request from app layer and
-  // tx across the network
-  sendEchoRequest(msg);
-#endif //!defined TESTIPv6PING
-
-}
-
-void ICMPv6Core::activity()
-{
-  cMessage *msg;
-  cGate *arrivalGate;
-
-#if defined TESTIPv6PING
-///Test ping packets and traversing across network/ decapsulate etc.
-  IPv6InterfaceData<echo_int_info>* app_req = 0;
-  echo_int_info echo_req;
-  int increment = 20;
-  int pingCount = 1;
-
-  if ( strcmp("client1", OPP_Global::findNetNodeModule(this)->name()) == 0)
-  {
-    for (int j = 0; j < pingCount; j++)
-    {
-      echo_req.id = 12345;
-      echo_req.seqNo = 88 + j;
-      //This dest is probably redundent.
-      //echo_req.dest = IPv6Address("fe80:0:0:0:260:97ff:0:4");
-      echo_req.dest = c_ipv6_addr("fec0:0:0:ABCD:260:97ff:0:4");
-      echo_req.custom_data = "My ping data";
-      echo_req.length = (strlen("My ping data"));
-      //Source Address should be filled in by Routing rules or by app.  Dest
-      //has to be filled in.
-      app_req =
-        new IPv6InterfaceData<echo_int_info> (echo_req, 0,
-                                              "fe80:0:0:0:260:97ff:0:4");
-
-      scheduleAt(simTime() + j + increment, app_req);
-      //Simulate real app request
-      //sendDirect(app_req, simTime() + i*increment, this, "pingIn");
-    }
-
-  }
-#endif //TESTIPv6PING
-
-
-  while(true)
-  {
-    msg = receive();
-
-    if (!msg->isSelfMessage())
-    {
-      //Self Messages don't come through a gate
-      arrivalGate = msg->arrivalGate();
-
-      wait(delay);
-
-      //checksum testing
-
-      /* error message from Routing, PreRouting, Fragmentation
-           or IPOutput: send ICMPv6 message */
-      if (!strcmp(arrivalGate->name(), "preRoutingIn")
-          || !strcmp(arrivalGate->name(), "routingIn")
-          || !strcmp(arrivalGate->name(), "fragmentationIn")
-          || !strcmp(arrivalGate->name(), "ipOutputIn")
-          || !strcmp(arrivalGate->name(), "addrReslnIn")
-          || !strcmp(arrivalGate->name(), "localErrorIn"))
-      {
-        ctrIcmp6InMsgs++;
-        processError(msg);
-
-        continue;
-      }
-
-      // process arriving ICMPv6 message
-      if (!strcmp(arrivalGate->name(), "localIn"))
-      {
-        ctrIcmp6InMsgs++;
-        processICMPv6Message(check_and_cast<IPv6Datagram*>(msg));
-
-        continue;
-      }
-
-      // request from application
-      if (!strcmp(arrivalGate->name(), "pingIn"))
-      {
-
-        // packing informational request from app layer and
-        // tx across the network
-        sendEchoRequest(msg);
-
-        continue;
-      }
-    }
-#if defined TESTIPv6PING
-    else //TEST ICMP PING and Addr Res
-    {
-      cout<<"Sending Echo request at "<<simTime()<<" "<<hex<<app_req<<endl;
-      assert(app_req->destAddress() != IPv6_ADDR_UNSPECIFIED);
-
-
-      // packing informational request from app layer and
-      // tx across the network
-      sendEchoRequest(msg);
-
-      continue;
-    }
-#endif //TESTIPv6PING
-  } // end while
 }
 
 void ICMPv6Core::finish()
@@ -401,7 +198,7 @@ void ICMPv6Core::processError(cMessage* msg)
 
     if (recICMPv6Msg->isErrorMessage())
     {
-      delete( errorMessage );
+      delete errorMessage;
       return;
     }
 

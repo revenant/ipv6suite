@@ -26,6 +26,7 @@
 #define ICMPv6CORE_H
 
 #include <omnetpp.h>
+#include "QueueBase.h"
 #include "ipv6_addr.h"
 
 class ICMPv6Message;

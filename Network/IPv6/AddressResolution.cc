@@ -28,7 +28,6 @@
 #include <memory>
 #include <climits>
 #include <iomanip> //setprecision
-#include <boost/cast.hpp>
 #include <string>
 #include <iostream>
 
@@ -48,7 +47,6 @@
 using std::string;
 using IPv6NeighbourDiscovery::NDHOPLIMIT;
 using IPv6NeighbourDiscovery::NDARTimer;
-using boost::polymorphic_downcast;
 
 typedef  PendingPacketQ::iterator PPQI;
 
@@ -69,9 +67,9 @@ size_t AddressResolution::outputUnicastGate = UINT_MAX;
 void AddressResolution::initialize()
 {
   RoutingTable6Access::initialize();
-  //Don't know why on OSF1 requires the global scope qualifier.  Is there
+  //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
   //another class with exactly same name?
-  fc = polymorphic_downcast< ::IPv6ForwardCore*> (
+  fc = check_and_cast<::IPv6ForwardCore*> (
     OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
   assert(fc != 0);
 
@@ -83,13 +81,13 @@ void AddressResolution::initialize()
   cModule* procMod = parentModule();
   assert(procMod);
   //ned gen sources don't have header files for incl.
-  //assert(boost::polymorphic_downcast<IPv6Processing*>(procMod));
+  //assert(check_and_cast<IPv6Processing*>(procMod));
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
     outputMod[i] = procMod->submodule("output", i);
     outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
-    assert(boost::polymorphic_downcast<IPv6OutputCore*>(outputMod[i]));
+    assert(check_and_cast<IPv6OutputCore*>(outputMod[i]));
     if (!outputMod[i])
       DoutFatal(dc::core|error_cf, "Cannot find outputCore module");
   }

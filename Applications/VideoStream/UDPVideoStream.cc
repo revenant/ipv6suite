@@ -110,9 +110,9 @@ void UDPVideoStream::requestStream()
 void UDPVideoStream::receiveStream(cMessage* msg)
 {
    UDPAppInterfacePacket* pkt =
-     boost::polymorphic_downcast<UDPAppInterfacePacket*>(msg);
+     check_and_cast<UDPAppInterfacePacket*>(msg);
    UDPPacketBase* udpPkt =
-     boost::polymorphic_downcast<UDPPacketBase*>(pkt->encapsulatedMsg());
+     check_and_cast<UDPPacketBase*>(pkt->encapsulatedMsg());
    assert(port == udpPkt->getDestPort());
    Dout(dc::udp_video_svr|flush_cf, className()<<":"<<port<<" received packet from "
     <<pkt->getSrcIPAddr()<<":"<<udpPkt->getSrcPort()<<" len="<<udpPkt->length());

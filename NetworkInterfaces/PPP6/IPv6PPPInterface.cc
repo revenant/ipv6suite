@@ -30,7 +30,6 @@
 #include <memory> //auto_ptr
 
 #include "IPv6PPPInterface.h"
-#include <boost/cast.hpp> //polymorphic_downcast
 #include <string>
 
 
@@ -51,7 +50,6 @@
 
 #include "LLInterfacePkt.h"
 
-using boost::polymorphic_downcast;
 
 Define_Module_Like( IPv6PPPInterface, NetworkInterface6);
 
@@ -139,7 +137,7 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
 
   ++cntReceivedPackets;
   //from Network peer
-  std::auto_ptr<PPP6Frame> recFrame(polymorphic_downcast<PPP6Frame*>(msg));
+  std::auto_ptr<PPP6Frame> recFrame(check_and_cast<PPP6Frame*>(msg));
   assert(recFrame.get());
 
 /* XXX why's this check? we won't support anything but IP? --AV
@@ -172,13 +170,13 @@ PPP6Frame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
   // encapsulate IP datagram in PPP frame
   PPP6Frame* outFrame = new PPP6Frame();
 
-  LLInterfacePkt* recPkt = polymorphic_downcast<LLInterfacePkt*>(msg);
+  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg);
 
   //Hack dest LL addr required when we use PPP in access point otherwise packets
   //don't know which MN to go to. If we used broadcast then all MN would process
   //packet at upper layers which is not efficient and is not realistic.
   outFrame->destAddr = recPkt->data().destLLAddr;
-  Debug( assert(polymorphic_downcast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
+  Debug( assert(check_and_cast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
 
 /* XXX next two lines replaced with one --AV
   cMessage *dupMsg = recPkt->data().dgram->dup();
@@ -199,7 +197,7 @@ void IPv6PPPInterface::sendToUpperLayer(PPP6Frame* recFrame)
 {
 /* XXX why force IPDatagram? can be anything --AV
  IPDatagram *ipdatagram =
-    polymorphic_downcast<IPDatagram*> (recFrame->decapsulate());
+    check_and_cast<IPDatagram*> (recFrame->decapsulate());
   ipdatagram->setLength(ipdatagram->length() / 8); // convert from bits back to bytes
   assert(ipdatagram);
   //wait(delay);
@@ -228,10 +226,10 @@ void IPv6PPPInterface::activity()
       // encapsulate IP datagram in PPP frame
       PPP6Frame *outFrame = new PPP6Frame();
 
-      LLInterfacePkt* recPkt = polymorphic_downcast<LLInterfacePkt*>(msg);
+      LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg);
 
 #     if defined TESTIPv6
-      assert(polymorphic_downcast<IPv6Datagram*>(recPkt->data().dgram)!=0);
+      assert(check_and_cast<IPv6Datagram*>(recPkt->data().dgram)!=0);
 #     endif
 
       cMessage* dupMsg = recPkt->data().dgram->dup();
@@ -246,7 +244,7 @@ void IPv6PPPInterface::activity()
 
     } else // from Network
     {
-      std::auto_ptr<PPP6Frame> recFrame(polymorphic_downcast<PPP6Frame*>(msg));
+      std::auto_ptr<PPP6Frame> recFrame(check_and_cast<PPP6Frame*>(msg));
 
       // decapsulate IP datagram
       if (recFrame->protocol() == PPP_PROT_IP)
@@ -260,7 +258,7 @@ void IPv6PPPInterface::activity()
         }
 
         IPDatagram *ipdatagram =
-          polymorphic_downcast<IPDatagram*> (recFrame->decapsulate());
+          check_and_cast<IPDatagram*> (recFrame->decapsulate());
 
         wait(delay);
         send(ipdatagram, "ipInputQueueOut");

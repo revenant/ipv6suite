@@ -39,7 +39,6 @@
 #include "ICMPv6Message.h"
 #endif //CWDEBUG
 
-#include <boost/cast.hpp>
 #include <omnetpp.h>
 #include <iomanip>
 #include <string>
@@ -60,7 +59,6 @@
 #include "IPv6Utils.h"
 
 using namespace std;
-using boost::polymorphic_downcast;
 
 
 Define_Module ( IPv6OutputCore );
@@ -95,7 +93,7 @@ void IPv6OutputCore::initialize()
 
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
     assert(forward);
-    forwardMod = polymorphic_downcast<IPv6ForwardCore*>
+    forwardMod = check_and_cast<IPv6ForwardCore*>
       (forward->submodule("core"));
     assert(forwardMod != 0);
 }
@@ -119,7 +117,7 @@ void IPv6OutputCore::handleMessage(cMessage* msg)
 
         continue;
       }
-      datagram = polymorphic_downcast<IPv6Datagram *>(dfmsg);
+      datagram = check_and_cast<IPv6Datagram *>(dfmsg);
     }
 */
 
@@ -163,7 +161,7 @@ void IPv6OutputCore::handleMessage(cMessage* msg)
   else
   {
     curPacket = processArrivingMessage(
-      boost::polymorphic_downcast<cMessage*>(waitQueue.pop()));
+      check_and_cast<cMessage*>(waitQueue.pop()));
     scheduleAt(delay + simTime(), waitTmr);
   }
 }
@@ -178,10 +176,10 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
 
   if ( string(msg->arrivalGate()->name()) == string("mobilityIn"))
   {
-    datagram = polymorphic_downcast<IPv6Datagram*> (msg);
+    datagram = check_and_cast<IPv6Datagram*> (msg);
     assert(datagram != 0);
 
-    RoutingTable6* rt =  polymorphic_downcast<RoutingTable6*>(OPP_Global::findModuleByType(this, "RoutingTable6"));
+    RoutingTable6* rt =  check_and_cast<RoutingTable6*>(OPP_Global::findModuleByType(this, "RoutingTable6"));
     assert(rt);
     boost::weak_ptr<RouterEntry> re = rt->cds->defaultRouter();
     assert(re.lock().get());
@@ -200,12 +198,12 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     //Receive the IPv6Datagram directly as don't know what the target
     //LL addr is and want to specify which iface to send on
 
-    datagram = polymorphic_downcast<IPv6Datagram*> (msg);
+    datagram = check_and_cast<IPv6Datagram*> (msg);
     assert(datagram != 0);
 
 
 #ifdef CWDEBUG
-    ICMPv6Message* icmpMsg = polymorphic_downcast<ICMPv6Message*> (datagram->encapsulatedMsg());
+    ICMPv6Message* icmpMsg = check_and_cast<ICMPv6Message*> (datagram->encapsulatedMsg());
     assert(icmpMsg != 0);
 
     assert(icmpMsg->type() >= 0 && icmpMsg->type() < 138);
@@ -221,9 +219,9 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
   else
   {
 
-    llpkt = polymorphic_downcast<LLInterfacePkt*> (msg);
+    llpkt = check_and_cast<LLInterfacePkt*> (msg);
     assert(llpkt);
-    datagram = polymorphic_downcast<IPv6Datagram*> (llpkt->data().dgram);
+    datagram = check_and_cast<IPv6Datagram*> (llpkt->data().dgram);
 
     //Need to dup datagram as Omnet++ only allows you to send a message
     //twice (from routing to frag to this module).  Got error dialog in TCL
@@ -273,9 +271,9 @@ void IPv6OutputCore::activity()
         //Receive the IPv6Datagram directly as don't know what the target
         //LL addr is and want to specify which iface to send on
 
-        datagram = polymorphic_downcast<IPv6Datagram*> (msg);
+        datagram = check_and_cast<IPv6Datagram*> (msg);
 #ifdef TESTIPv6
-        ICMPv6Message* icmpMsg = polymorphic_downcast<ICMPv6Message*> (datagram->encapsulatedMsg());
+        ICMPv6Message* icmpMsg = check_and_cast<ICMPv6Message*> (datagram->encapsulatedMsg());
         assert(icmpMsg != 0);
 
         assert(icmpMsg->type() >= 0 && icmpMsg->type() < 138);
@@ -291,8 +289,8 @@ void IPv6OutputCore::activity()
       else
       {
 
-        llpkt = polymorphic_downcast<LLInterfacePkt*> (msg);
-        datagram = polymorphic_downcast<IPv6Datagram*> (llpkt->data().dgram);
+        llpkt = check_and_cast<LLInterfacePkt*> (msg);
+        datagram = check_and_cast<IPv6Datagram*> (llpkt->data().dgram);
 
         //Need to dup datagram as Omnet++ only allows you to send a message
         //twice (from routing to frag to this module).  Got error dialog in TCL
@@ -323,7 +321,7 @@ void IPv6OutputCore::activity()
 
           continue;
         }
-        datagram = polymorphic_downcast<IPv6Datagram *>(dfmsg);
+        datagram = check_and_cast<IPv6Datagram *>(dfmsg);
       }
 
       wait(delay);

@@ -121,10 +121,10 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
 
       case PR_ETHERNET:
       {
-        EtherModuleAP* macMod = polymorphic_downcast<EtherModuleAP*>(llmod);
+        EtherModuleAP* macMod = check_and_cast<EtherModuleAP*>(llmod);
         assert(macMod);
 
-        EtherFrame6* frame = polymorphic_downcast<EtherFrame6*>(msg);
+        EtherFrame6* frame = check_and_cast<EtherFrame6*>(msg);
         assert(frame);
 
         LinkLayerModule* destMod = findMacByAddress(frame->destAddrString());
@@ -144,10 +144,10 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
       case PR_PPP:
       {
 
-        IPv6PPPAPInterface* macMod = polymorphic_downcast<IPv6PPPAPInterface*>(llmod);
+        IPv6PPPAPInterface* macMod = check_and_cast<IPv6PPPAPInterface*>(llmod);
         assert(macMod);
 
-        PPP6Frame* frame = polymorphic_downcast<PPP6Frame*>(msg);
+        PPP6Frame* frame = check_and_cast<PPP6Frame*>(msg);
         LinkLayerModule* destMod = findMacByAddress(frame->destAddr);
 
         if (destMod || frame->destAddr == ETH_BROADCAST_ADDRESS)

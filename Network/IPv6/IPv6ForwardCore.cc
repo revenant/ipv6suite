@@ -44,7 +44,6 @@
 #include <boost/cast.hpp>
 #include <boost/functional.hpp>
 
-
 #include "IPv6ForwardCore.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
@@ -84,7 +83,6 @@
 #include <memory>
 #endif //CWDEBUG
 
-using boost::polymorphic_downcast;
 using boost::weak_ptr;
 
 Define_Module( IPv6ForwardCore );
@@ -118,7 +116,7 @@ void IPv6ForwardCore::initialize(int stage)
 
     routingInfoDisplay = par("routingInfoDisplay");
 #ifdef USE_MOBILITY
-    tunMod = polymorphic_downcast<IPv6Encapsulation*>
+    tunMod = check_and_cast<IPv6Encapsulation*>
       (OPP_Global::findModuleByName(this, "tunneling"));
     assert(tunMod != 0);
 #endif //USE_MOBILITY
@@ -133,7 +131,7 @@ void IPv6ForwardCore::initialize(int stage)
     assert(icmp);
     cModule* ndMod = icmp->submodule("nd");
     assert(ndMod);
-    NeighbourDiscovery* ndm = boost::polymorphic_downcast<NeighbourDiscovery*>(ndMod);
+    NeighbourDiscovery* ndm = check_and_cast<NeighbourDiscovery*>(ndMod);
     assert(ndm);
     if (!ndm)
       DoutFatal(dc::core|error_cf, "Cannot find ND module");
@@ -182,7 +180,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 {
   if (!theMsg->isSelfMessage())
   {
-    std::auto_ptr<IPv6Datagram> recDatagram(boost::polymorphic_downcast<IPv6Datagram*> (theMsg));
+    std::auto_ptr<IPv6Datagram> recDatagram(check_and_cast<IPv6Datagram*> (theMsg));
 
     assert(recDatagram.get());
     Debug( assert(recDatagram->inputPort() < (int)rt->interfaceCount()); );
@@ -199,7 +197,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 
         continue;
       }
-      datagram = polymorphic_downcast<IPv6Datagram*>(dfmsg);
+      datagram = check_and_cast<IPv6Datagram*>(dfmsg);
     }
 */
     if (!waitTmr->isScheduled() && 0 == curPacket)
@@ -227,7 +225,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     curPacket = 0;
   else
   {
-    curPacket = boost::polymorphic_downcast<IPv6Datagram*>(waitQueue.pop());
+    curPacket = check_and_cast<IPv6Datagram*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
 
@@ -334,13 +332,13 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
     IPv6Datagram* tunPacket = false;
     if (datagram->transportProtocol() == IP_PROT_IPv6)
-      tunPacket = boost::polymorphic_downcast<IPv6Datagram*>(datagram->encapsulatedMsg());
+      tunPacket = check_and_cast<IPv6Datagram*>(datagram->encapsulatedMsg());
 
     if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-        ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(
+        ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(
           tunPacket->encapsulatedMsg());
     else if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-      ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
+      ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
 
     // no mobility message is allowed to have type 2 rh except BA
     if (ms == 0 || (ms && ms->header_type() ==  MobileIPv6::MIPv6MHT_BA))
@@ -406,7 +404,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 #ifdef USE_MOBILITY
             || (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome() &&
                 ie.tentativeAddrAssigned(
-                  polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>
+                  boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>
                   (rt->mipv6cds)->careOfAddr(true)))
 #endif //USE_MOBILITY
             )
@@ -457,16 +455,16 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
   bool pcoa = false;
   //Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
   if (rt->mobilitySupport() && rt->isMobileNode() &&
-      polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->awayFromHome() &&
-      polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->primaryHA().get() != 0 &&
       datagram->srcAddress() ==
-      polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->homeAddr())
   {
     MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN =
-      polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds);
+      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds);
 
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
@@ -505,7 +503,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
 
     MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
     if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-      ms = boost::polymorphic_downcast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
+      ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
     if (ms == 0 && bule && !bule->isPerformingRR &&
         bule->homeAddr() == datagram->srcAddress() &&
         coaAssigned && mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
@@ -525,9 +523,9 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
       datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
 //#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
       Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-           <<polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+           <<check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
            ->homeAddr()<<" src addr="<<
-           polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+           check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
            ->careOfAddr()<<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
@@ -637,7 +635,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
     }
     else
     {
-      if (polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      if (boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
           ->currentRouter().get() == 0)
         //FMIP just set to PCoA here and hope for the best right.
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
@@ -647,7 +645,7 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
              <<" No suitable src address available on foreign network as "
              <<"ncoa in dad "<<
-             polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+             check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
              ->careOfAddr(false)
              );
       datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
@@ -858,13 +856,13 @@ ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifI
   //default router ifIndex anyway (preferably iface on link with Internet
   //connection after translation to care of addr)
   if (rt->mobilitySupport() && rt->isMobileNode() &&
-      polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->primaryHA().get() != 0 && destScope == ipv6_addr::Scope_Global)
   {
     Dout(dc::mipv6, rt->nodeName()<<" using homeAddress "
-         <<polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+         <<boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
          ->homeAddr()<<" for destination "<<dest);
-    return polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+    return boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
       ->homeAddr();
   }
 

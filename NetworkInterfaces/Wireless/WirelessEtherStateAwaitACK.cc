@@ -127,7 +127,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
         //Update the consecutive failed transmission count if its an AP
         if(mod->isAP())
         {
-            WirelessAccessPoint* ap = boost::polymorphic_downcast<WirelessAccessPoint*>(mod);
+            WirelessAccessPoint* ap = check_and_cast<WirelessAccessPoint*>(mod);
             ap->updateConsecutiveFailedCount();
         }
 

@@ -28,8 +28,6 @@
 
 #include <cassert>
 #include <sstream>
-#include <boost/cast.hpp>
-
 #include <string>
 
 #include "IPv6Datagram.h"
@@ -49,8 +47,6 @@ extern "C"
 };
 #endif //__CN_PAYLOAD_H
 
-
-using boost::polymorphic_downcast;
 
 
 static const ipv6_hdr IPV6_INITIAL_HDR =
@@ -246,7 +242,7 @@ HdrExtRteProc* IPv6Datagram::acquireRoutingInterface()
   {
     HdrExtProc* proc = findHeader(EXTHDR_ROUTING);
     if (proc != 0)
-      return route_hdr = polymorphic_downcast<HdrExtRteProc*> (proc);
+      return route_hdr = boost::polymorphic_downcast<HdrExtRteProc*> (proc);
   }
 
   return route_hdr = static_cast<HdrExtRteProc*> (addExtHdr(EXTHDR_ROUTING));
@@ -258,7 +254,7 @@ HdrExtFragProc* IPv6Datagram::acquireFragInterface()
   {
     HdrExtProc* proc = findHeader(EXTHDR_FRAGMENT);
     if (proc != 0)
-      return frag_hdr = polymorphic_downcast<HdrExtFragProc*> (proc);
+      return frag_hdr = boost::polymorphic_downcast<HdrExtFragProc*> (proc);
   }
 
   return frag_hdr = static_cast<HdrExtFragProc*>(addExtHdr(EXTHDR_FRAGMENT));
@@ -270,7 +266,7 @@ HdrExtDestProc* IPv6Datagram::acquireDestInterface()
   {
     HdrExtProc* proc = findHeader(EXTHDR_DEST);
     if (proc != 0)
-      return dest_hdr = polymorphic_downcast<HdrExtDestProc*> (proc);
+      return dest_hdr = boost::polymorphic_downcast<HdrExtDestProc*> (proc);
   }
 
   return dest_hdr = static_cast<HdrExtDestProc*>(addExtHdr(EXTHDR_DEST));
@@ -824,7 +820,7 @@ void DatagramTest::testBindingUpdateAndHAOption()
 
   IPv6Datagram* dgram = new IPv6Datagram(a2.srcAddress(), a2.destAddress(), bu);
 
-  bu = boost::polymorphic_downcast<MIPv6MHBindingUpdate*>(dgram->encapsulatedMsg());
+  bu = check_and_cast<MIPv6MHBindingUpdate*>(dgram->encapsulatedMsg());
   CPPUNIT_ASSERT(bu != 0);
 
   CPPUNIT_ASSERT(bu->ack() == flags);
@@ -843,7 +839,7 @@ void DatagramTest::testBindingUpdateAndHAOption()
 
   CPPUNIT_ASSERT(destOpt != 0);
 
-  MIPv6TLVOptHomeAddress* haOpt = boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(destOpt);
+  MIPv6TLVOptHomeAddress* haOpt = check_and_cast<MIPv6TLVOptHomeAddress*>(destOpt);
 
   CPPUNIT_ASSERT(haOpt->homeAddr() == addr1);
 
@@ -851,7 +847,7 @@ void DatagramTest::testBindingUpdateAndHAOption()
   delete dgram;
   dgram = 0;
 
-  bu = boost::polymorphic_downcast<MIPv6MHBindingUpdate*>(dgramCopy->encapsulatedMsg());
+  bu = check_and_cast<MIPv6MHBindingUpdate*>(dgramCopy->encapsulatedMsg());
   CPPUNIT_ASSERT(bu != 0);
 
   CPPUNIT_ASSERT(bu->ack() == flags);
@@ -862,13 +858,13 @@ void DatagramTest::testBindingUpdateAndHAOption()
   CPPUNIT_ASSERT(bu->expires() == lifetime);
   CPPUNIT_ASSERT(bu->ha() == addr1);
 
-  destProc = boost::polymorphic_downcast<HdrExtDestProc*> (dgramCopy->findHeader(EXTHDR_DEST));
+  destProc = check_and_cast<HdrExtDestProc*> (dgramCopy->findHeader(EXTHDR_DEST));
   CPPUNIT_ASSERT(destProc != 0);
 
   IPv6TLVOptionBase* tlvOpt = destProc->getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
   CPPUNIT_ASSERT(tlvOpt != 0);
 
-  CPPUNIT_ASSERT(boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(tlvOpt)->homeAddr() == addr1);
+  CPPUNIT_ASSERT(check_and_cast<MIPv6TLVOptHomeAddress*>(tlvOpt)->homeAddr() == addr1);
 
 
 }

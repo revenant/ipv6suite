@@ -44,15 +44,10 @@
 #include <boost/utility.hpp>
 #endif
 
-#ifndef BOOST_CAST_HPP_INCLUDED
-#include <boost/cast.hpp>
-#endif
-
 #if !defined BOOST_NONCOPYABLE_HPP_INCLUDED
 #include <boost/noncopyable.hpp>
 #endif
 
-using boost::polymorphic_downcast;
 
 /**
    @class cTimerMessage
@@ -95,7 +90,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
 
       //Cannot use this as ownerp changes whenever something else is inserted oh
       //well
-      //cSimpleModule* mod = polymorphic_downcast<cSimpleModule*> (ownerp);
+      //cSimpleModule* mod = check_and_cast<cSimpleModule*> (ownerp);
 
       //setOwner(mod);
       //Sometimes it loses plot about who its owner is.
@@ -150,7 +145,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
   cTimerMessage(int message_id, cSimpleModule* module = 0,
                 const char* name = NULL):
     cMessage(name),
-    mod(boost::polymorphic_downcast<cSimpleModule*> (simulation.contextModule()))
+    mod(check_and_cast<cSimpleModule*> (simulation.contextModule()))
     {
 //      if (module != 0)
 //        setOwner(mod);
@@ -349,7 +344,7 @@ public:
 
   Module* msgOwner()
     {
-      //return polymorphic_downcast<Module*>(module());
+      //return check_and_cast<Module*>(module());
       return static_cast<Module*> (module());
     }
 
@@ -357,7 +352,7 @@ private:
 
   Arg* arg()
     {
-      return polymorphic_downcast<Arg*>(this);
+      return check_and_cast<Arg*>(this);
     }
 
 private:

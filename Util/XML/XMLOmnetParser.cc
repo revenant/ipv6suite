@@ -230,7 +230,7 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
   ipv6_addr src, dest;
   size_t vifIndex = 0;
 
-  IPv6Encapsulation* tunMod = polymorphic_downcast<IPv6Encapsulation*>
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (findModuleByType(rt, "IPv6Encapsulation"));
 
   //Even though downcast detects incorrect downcasts it still allows casting 0
@@ -318,7 +318,7 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
 void XMLOmnetParser::sourceRoute(RoutingTable6* rt)
 {
   using namespace OPP_Global;
-  IPv6ForwardCore* forwardMod = polymorphic_downcast<IPv6ForwardCore*>
+  IPv6ForwardCore* forwardMod = check_and_cast<IPv6ForwardCore*>
     (findModuleByTypeDepthFirst(rt, "IPv6ForwardCore"));
   //Even though downcast detects incorrect downcasts it still allows casting 0
   //down to anything
@@ -427,7 +427,7 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   else
     rt->role = RoutingTable6::CORRESPONDENT_NODE;
 
-  IPv6Mobility* mob = boost::polymorphic_downcast<IPv6Mobility*>
+  IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByName(rt, "mobility"));
 
   if (getNodeProperties(ne, "routeOptimisation") == XML_ON)

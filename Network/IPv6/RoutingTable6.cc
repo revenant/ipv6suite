@@ -38,9 +38,9 @@
 #include <climits>
 #include <functional>
 #include <algorithm>
-#include <boost/cast.hpp>
 #include "opp_utils.h"  // for int/double <==> string conversions
 #include <sstream> //stringstream
+#include <boost/cast.hpp>
 
 //#include "nwiface.h"
 #include "opp_utils.h"
@@ -69,7 +69,6 @@
 #include "IPv6PPPAPInterface.h"
 
 
-using boost::polymorphic_downcast;
 
 #ifdef _MSC_VER
 #define strcasecmp  stricmp
@@ -127,7 +126,7 @@ void RoutingTable6::initialize(int stage)
 
     interfaces.resize(numOfIfaces + 1);
 
-    wp = boost::polymorphic_downcast<WorldProcessor*>
+    wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     assert(wp != 0);
     // XXX try
@@ -261,7 +260,7 @@ void RoutingTable6::handleMessage(cMessage* msg)
 {
   if (msg->isSelfMessage())
   {
-    (polymorphic_downcast<cTimerMessage *> (msg) )->callFunc();
+    (check_and_cast<cTimerMessage *> (msg) )->callFunc();
   }
   else
     assert(false);
@@ -543,13 +542,13 @@ void RoutingTable6::print()
 
   PRINTF("============================================================================ \n");
 
-  IPv6Encapsulation* tunMod = polymorphic_downcast<IPv6Encapsulation*>
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByName(this, "tunneling"));
   assert(tunMod != 0);
 
   cout<<(*tunMod);
 
-  IPv6ForwardCore* forwardMod = polymorphic_downcast<IPv6ForwardCore*>
+  IPv6ForwardCore* forwardMod = check_and_cast<IPv6ForwardCore*>
     (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
   cout<<(*forwardMod);
 }
@@ -994,7 +993,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( RoutingTableTest );
 
 void RoutingTableTest::setUp()
 {
-  rt = polymorphic_downcast<RoutingTable6*>(simulation.moduleByPath("routingTableTest.networkLayer.proc.ipv6.routingTable6"));
+  rt = check_and_cast<RoutingTable6*>(simulation.moduleByPath("routingTableTest.networkLayer.proc.ipv6.routingTable6"));
 
   if (!rt)
     return;

@@ -215,7 +215,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   //delete cbRetrySol;
   //cbRetrySol = makeCallback(this, &MIPv6NDStateHost::sendRtrSol);
 
-  IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   //Even though downcast detects incorrect downcasts it still allows casting 0
   //down to anything
@@ -223,7 +223,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
 
   tunMod->registerMIPv6TunnelCallback(makeCallback(this, &MIPv6NDStateHost::checkDecapsulation));
 
-  mob = boost::polymorphic_downcast<IPv6Mobility*>
+  mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
   assert(mob != 0);
 
@@ -443,7 +443,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   MIPv6ICMPv6NDMRtrAd* mipv6rtrAdv = 0;
 
   if (isHA)
-    mipv6rtrAdv = boost::polymorphic_downcast<MIPv6ICMPv6NDMRtrAd*> (rtrAdv.get());
+    mipv6rtrAdv = check_and_cast<MIPv6ICMPv6NDMRtrAd*> (rtrAdv.get());
 
   if (mipv6rtrAdv != 0 && mipv6rtrAdv->hasHomeAgentInfo())
   {
@@ -780,7 +780,7 @@ void MIPv6NDStateHost::initiateSendRtrSol(unsigned int ifIndex)
   //are no outstanding ones.
   for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
     if ((*it)->kind() == Tmr_RtrSolTimeout &&
-        polymorphic_downcast<RtrSolRetryMsg*>(*it)->arg()->ifIndex == ifIndex)
+        check_and_cast<RtrSolRetryMsg*>(*it)->arg()->ifIndex == ifIndex)
     {
       return;
     }
@@ -841,7 +841,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
          <<nd->simTime()<<" exceeded MaxConsecMissedRtrAdv of "
         <<(mipv6cdsMN->currentRouter()?
            rt->getInterfaceByIndex(mipv6cdsMN->currentRouter()->re.lock()->ifIndex()).mipv6Var.maxConsecutiveMissedRtrAdv
-           :boost::polymorphic_downcast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
+           :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
 
     //Can also do NUD to current Rtr to confirm unreachability (once that's
     //implemented (although handover() to a null router will also do that Not
@@ -1289,7 +1289,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   valid = false;
 
   const ipv6_addr& tunDest =
-    polymorphic_downcast<IPv6Datagram* > (dgram->encapsulatedMsg())->destAddress();
+    check_and_cast<IPv6Datagram* > (dgram->encapsulatedMsg())->destAddress();
 
   if (tunDest == mipv6cdsMN->homeAddr())
     valid = true;
@@ -1317,7 +1317,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     return;
   }
 
-  ipv6_addr cna = polymorphic_downcast<IPv6Datagram* >
+  ipv6_addr cna = check_and_cast<IPv6Datagram* >
     (dgram->encapsulatedMsg())->srcAddress();
 
   if (dgram->srcAddress() == cna)
@@ -1376,7 +1376,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   // mobile node also moves to a foreign network
 
   IPv6Datagram* tunPacket =
-    boost::polymorphic_downcast<IPv6Datagram*>(dgram->encapsulatedMsg());
+    check_and_cast<IPv6Datagram*>(dgram->encapsulatedMsg());
 
   // check if the BU has already been created
 
@@ -1412,7 +1412,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 
   MIPv6MobilityHeaderBase* ms = 0;
   if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-    ms = boost::polymorphic_downcast<MIPv6MobilityHeaderBase*>(
+    ms = check_and_cast<MIPv6MobilityHeaderBase*>(
       tunPacket->encapsulatedMsg());
 
   // It could be HoTI that is reverse tunneled by the sender's HA
@@ -1440,16 +1440,16 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     // specification.
 
 /*
-    HdrExtProc* proc = polymorphic_downcast<IPv6Datagram* >(dgram->encapsulatedMsg())->findHeader(EXTHDR_DEST);
+    HdrExtProc* proc = check_and_cast<IPv6Datagram* >(dgram->encapsulatedMsg())->findHeader(EXTHDR_DEST);
     if (proc)
     {
       IPv6TLVOptionBase* opt =
-        boost::polymorphic_downcast<HdrExtDestProc*>(proc)->
+        check_and_cast<HdrExtDestProc*>(proc)->
         getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
 
       if (opt)
       {
-        MIPv6TLVOptHomeAddress* haOpt = boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(opt);
+        MIPv6TLVOptHomeAddress* haOpt = check_and_cast<MIPv6TLVOptHomeAddress*>(opt);
         assert(haOpt);
         ipv6_addr hoa = haOpt->homeAddr();
 
@@ -1598,7 +1598,7 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   //Cannot put this after sendBUToAll as careOfAddr asserts
   //Set up reverse tunnelled link from MN to HA here and tear down old tunnel
-  IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   assert(tunMod != 0);
   if (ocoa != IPv6_ADDR_UNSPECIFIED && ocoa != ncoa)

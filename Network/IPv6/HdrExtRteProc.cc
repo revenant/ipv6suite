@@ -39,8 +39,6 @@
 #include "IPv6Headers.h"
 
 
-using boost::polymorphic_downcast;
-
 
 HdrExtRte::HdrExtRte(unsigned char rt_type)
 {
@@ -147,7 +145,7 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
 
   std::auto_ptr<IPv6Datagram> pdu(thePdu);
 
-  //LocalDeliver6Core* core = polymorphic_downcast<LocalDeliver6Core*>(mod);
+  //LocalDeliver6Core* core = check_and_cast<LocalDeliver6Core*>(mod);
   LocalDeliver6Core* core = static_cast<LocalDeliver6Core*>(mod);
 
   assert(!pdu->destAddress().isMulticast());
@@ -269,13 +267,13 @@ bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
 // class HdrExtRteProc definition
 
 HdrExtRteProc::HdrExtRteProc(void)
-  :HdrExtProc(EXTHDR_ROUTING), rt_hdr(*polymorphic_downcast<ipv6_ext_rt_hdr*>(ext_hdr))
+  :HdrExtProc(EXTHDR_ROUTING), rt_hdr(*boost::polymorphic_downcast<ipv6_ext_rt_hdr*>(ext_hdr))
 {
   ext_hdr = new ipv6_ext_hdr();
 }
 
 HdrExtRteProc::HdrExtRteProc(const HdrExtRteProc& src)
-  :HdrExtProc(EXTHDR_ROUTING), rt_hdr(*polymorphic_downcast<ipv6_ext_rt_hdr*>(ext_hdr))
+  :HdrExtProc(EXTHDR_ROUTING), rt_hdr(*boost::polymorphic_downcast<ipv6_ext_rt_hdr*>(ext_hdr))
 {
   ext_hdr = new ipv6_ext_hdr();
   operator=(src);

@@ -82,7 +82,7 @@ boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> EHCDSMobileNode::boundMap()
     assert(mapEntries().count(map.addr()));
     //invoke callback to notify EHState that boundMap was changed and help us
     //to find the new bcoa
-    BoundMapChangedCB* bmcb = boost::polymorphic_downcast<BoundMapChangedCB*>(bcoaChangedNotifier);
+    BoundMapChangedCB* bmcb = check_and_cast<BoundMapChangedCB*>(bcoaChangedNotifier);
     Loki::Field<0>(bmcb->args) = map;
     Loki::Field<1>(bmcb->args) = ifIndex;
     ipv6_addr test = bmcb->callFuncRet();

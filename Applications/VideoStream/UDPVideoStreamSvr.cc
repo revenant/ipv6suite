@@ -22,14 +22,14 @@
  * @file   UDPVideoStreamSvr.cc
  * @author Johnny Lai
  * @date   01 Jun 2004
- * 
+ *
  * @brief  Implementation of UDPVideoStreamSvr
  *
- * 
+ *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include <boost/cast.hpp>
@@ -67,7 +67,7 @@ void UDPVideoStreamSvr::initialize()
        <<minPacketLen<<" maxPacketLen="<<maxPacketLen<<" videoSize="<<videoSize
        <<" speed="<<speed);
 
-  cs = new ExpiryEntryList<ClientStreamData, 
+  cs = new ExpiryEntryList<ClientStreamData,
                   Loki::cTimerMessageCB<void, TYPELIST_1(ClientStreamData)> >
     (new Loki::cTimerMessageCB<void, TYPELIST_1(ClientStreamData)>
        (6789, this, this, &UDPVideoStreamSvr::transmitClientStream,
@@ -87,15 +87,15 @@ void UDPVideoStreamSvr::handleMessage(cMessage* theMsg)
   std::auto_ptr<cMessage> msg(theMsg);
   if (!isReady())
   {
-    UDPApplication::handleMessage(msg.get());      
+    UDPApplication::handleMessage(msg.get());
     return;
   }
 
   if (msg->isSelfMessage())
   {
     //Timer for a particular client so send packet to them
-    cTimerMessage* noDelete = 
-      boost::polymorphic_downcast<cTimerMessage*>(msg.release());
+    cTimerMessage* noDelete =
+      check_and_cast<cTimerMessage*>(msg.release());
     noDelete->callFunc();
     return;
   }
@@ -103,12 +103,12 @@ void UDPVideoStreamSvr::handleMessage(cMessage* theMsg)
 
   ///processRequest
 
-  std::auto_ptr<UDPAppInterfacePacket> pkt = 
+  std::auto_ptr<UDPAppInterfacePacket> pkt =
     OPP_Global::auto_downcast<UDPAppInterfacePacket>(msg);
 
   std::string src = std::string(pkt->getSrcIPAddr());
-   UDPPacketBase* udpPkt = 
-     boost::polymorphic_downcast<UDPPacketBase*>(pkt->encapsulatedMsg());
+   UDPPacketBase* udpPkt =
+     check_and_cast<UDPPacketBase*>(pkt->encapsulatedMsg());
    double pause = OPP_UNIFORM(minWaitInt*RNGFactor, maxWaitInt*RNGFactor)/RNGFactor;
 
    ClientStreamData d(src, udpPkt->getSrcPort(), videoSize, pause + simTime());
@@ -138,7 +138,7 @@ void UDPVideoStreamSvr::transmitClientStream(ClientStreamData& c)
   rudpPkt->setSrcPort(port);
   rudpPkt->setDestPort(c.port);
   //rudpPkt->setKind()  //Can be used for sequence numbers to detect missing pkts
-  unsigned int pkt_size = (unsigned int) OPP_UNIFORM(minPacketLen, maxPacketLen); 
+  unsigned int pkt_size = (unsigned int) OPP_UNIFORM(minPacketLen, maxPacketLen);
   pkt_size = std::min(pkt_size, c.bytesLeft);
   rudpPkt->setLength(pkt_size);
   UDPAppInterfacePacket* rpkt = new UDPAppInterfacePacket;
@@ -165,7 +165,7 @@ void UDPVideoStreamSvr::transmitClientStream(ClientStreamData& c)
     //end of stream indicator. This means seq no. start from 1.
     rudpPkt->setKind(0);
 
-    cs->removeExpiredEntry(Loki::Int2Type<Loki::TypeTraits<CSEL::ElementType>::isPointer>());    
+    cs->removeExpiredEntry(Loki::Int2Type<Loki::TypeTraits<CSEL::ElementType>::isPointer>());
     Dout(dc::finish, " Stream finished with"<<c.packetCount<<" packets sent");
     std::ostringstream os;
     os<<c.host<<":"<<c.port<<" packet count";

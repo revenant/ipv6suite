@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 
 /**
    @file NDStates.cc
-   
+
    @brief Definition of classes that handle Neigbhour Discovery Mechanism as
    defined in RFC2461
 
@@ -55,7 +55,7 @@ using namespace IPv6NeighbourDiscovery;
 NDState* NDState::startND(NeighbourDiscovery* mod)
 {
   NDState* state = 0;
-  
+
   assert(mod->rt != 0);
   if (mod->rt == 0)
   {
@@ -69,8 +69,8 @@ NDState* NDState::startND(NeighbourDiscovery* mod)
     if (!mod->rt->hmipSupport())
 #endif //USE_HMIP
     {
-      if (mod->rt->isRouter())  
-        state =  new MobileIPv6::MIPv6NDStateRouter(mod);  
+      if (mod->rt->isRouter())
+        state =  new MobileIPv6::MIPv6NDStateRouter(mod);
       else if ( mod->rt->isMobileNode())
         state = new MobileIPv6::MIPv6NDStateHost(mod);
       else //normal CN should return NDStateHost
@@ -83,7 +83,7 @@ NDState* NDState::startND(NeighbourDiscovery* mod)
       if (mod->rt->isMobileNode())
       {
 #if EDGEHANDOVER
-        IPv6Mobility* mob = boost::polymorphic_downcast<IPv6Mobility*>
+        IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
           (OPP_Global::findModuleByType(mod->rt, "IPv6Mobility"));
         assert(mob);
         if (mob->edgeHandover())
@@ -97,31 +97,31 @@ NDState* NDState::startND(NeighbourDiscovery* mod)
       else
         state = new NDStateHost(mod);
       return state;
-    } 
+    }
 #endif //USE_HMIP
 #endif //USE_MOBILITY
 
-  if (mod->rt->isRouter())  
-    state = new NDStateRouter(mod);  
+  if (mod->rt->isRouter())
+    state = new NDStateRouter(mod);
   else
     state = new NDStateHost(mod);
 
-  return state;  
+  return state;
 }
 
 NDState::NDState(NeighbourDiscovery* mod)
   :nd(mod), nextState(0)
 {}
 
-NDState* NDState::changeState() 
+NDState* NDState::changeState()
 {
   if (!nextState)
   {
     //Create the next state
-//      createNextState();        
+//      createNextState();
   }
-      
+
   leaveState();
   nextState->enterState();
-  return nextState;      
+  return nextState;
 }

@@ -33,6 +33,7 @@
 #include <memory>  //auto_ptr
 #include <cassert>
 #include <iostream>
+#include <boost/cast.hpp>
 
 #include "NDStateHost.h"
 #include "NDTimers.h"
@@ -65,7 +66,6 @@
 
 const int Tmr_L2Trigger = 8009;
 
-using boost::polymorphic_downcast;
 
 //Use static qualifier if anonymous namespace doesn't compile
 namespace
@@ -678,7 +678,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     rtrSolicited[ifIndex] = true;
     for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
       if ((*it)->kind() == Tmr_RtrSolTimeout &&
-          polymorphic_downcast<RtrSolRetryMsg*>(*it)->arg()->ifIndex ==
+          check_and_cast<RtrSolRetryMsg*>(*it)->arg()->ifIndex ==
           ifIndex)
       {
         nd->cancelEvent(*it);
@@ -1116,8 +1116,8 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
       {
         //cout << rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<(*it)->name()<<endl;
         if((*it)->kind() == Tmr_DupAddrSolTimeout && recDgram->inputPort() ==
-           static_cast<int> (polymorphic_downcast<HostTmrMsg*>(*it)->arg()->ifIndex) &&
-           polymorphic_downcast<HostTmrMsg*>(*it)->arg()->tentativeAddr == targetAddr)
+           static_cast<int> (check_and_cast<HostTmrMsg*>(*it)->arg()->ifIndex) &&
+           check_and_cast<HostTmrMsg*>(*it)->arg()->tentativeAddr == targetAddr)
         {
           // cancel duplicate detect timer message
 
@@ -1126,7 +1126,7 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
           //timeout msg
           assert((*it)->isScheduled());
 
-          IPv6Address tentativeAddr = polymorphic_downcast<HostTmrMsg*>(*it)->arg()->tentativeAddr;
+          IPv6Address tentativeAddr = check_and_cast<HostTmrMsg*>(*it)->arg()->tentativeAddr;
           ie.removeTentativeAddress(tentativeAddr);
 
           Dout(dc::warning|flush_cf, rt->nodeName()<<":"<<recDgram->inputPort()
@@ -1160,7 +1160,7 @@ void NDStateHost::processNgbrSol(std::auto_ptr<NS> msg)
     return;
   }
 
-  IPv6Datagram* recDgram = polymorphic_downcast<IPv6Datagram*>(msg->encapsulatedMsg());
+  IPv6Datagram* recDgram = check_and_cast<IPv6Datagram*>(msg->encapsulatedMsg());
 
   if (!rt->odad())
   {
@@ -1210,7 +1210,7 @@ void NDStateHost::processNgbrAd(std::auto_ptr<NA> ngbrAdv)
   if (!valNgbrAd(ngbrAdv.get()))
     return;
 
-  IPv6Datagram* recDgram = polymorphic_downcast<IPv6Datagram*>(ngbrAdv->encapsulatedMsg());
+  IPv6Datagram* recDgram = check_and_cast<IPv6Datagram*>(ngbrAdv->encapsulatedMsg());
 
   //Check if NA comes from a node that has assigned our tentative addr
   //Determine if this was a dupAddrDet adv, or one response to an addr res req.

@@ -30,7 +30,6 @@
 
 #include <iomanip> //setprecision
 #include <memory> //auto_ptr
-#include <boost/cast.hpp> //polymorphic_downcast
 #include <sstream>
 #include <iostream>
 
@@ -57,7 +56,6 @@
 #include "IPv6OutputCore.h"
 #include "Messages.h" // LLInterfaceInfo
 
-using boost::polymorphic_downcast;
 
 
 namespace IPv6NeighbourDiscovery
@@ -116,13 +114,13 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
   cModule* procMod = nd->parentModule()->parentModule();
   assert(procMod);
   //ned gen sources don't have header files for incl.
-  //assert(boost::polymorphic_downcast<IPv6Processing*>(procMod));
+  //assert(check_and_cast<IPv6Processing*>(procMod));
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
     outputMod[i] = procMod->submodule("output", i);
     outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
-    assert(boost::polymorphic_downcast<IPv6OutputCore*>(outputMod[i]));
+    assert(check_and_cast<IPv6OutputCore*>(outputMod[i]));
     if (!outputMod[i])
       DoutFatal(dc::core|error_cf, "Cannot find outputCore module");
   }
@@ -347,7 +345,7 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
        <<" nextAdvDelay: "<<setprecision(4)<<delay);
 #ifdef USE_HMIP
 //  Debug(
-//    ICMPv6NDMRtrAd* rtrAd = boost::polymorphic_downcast<ICMPv6NDMRtrAd*> (dgram->encapsulatedMsg());
+//    ICMPv6NDMRtrAd* rtrAd = check_and_cast<ICMPv6NDMRtrAd*> (dgram->encapsulatedMsg());
 //    Dout(dc::debug,  rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
 //         <<" INCLUDE MAP options? "<<(rtrAd->hasMapOptions()? "YES":"NO")
 //         <<" "<<&transitMapOpts);
@@ -376,7 +374,7 @@ void NDStateRouter::processRtrSol(RS* rs)
 bool NDStateRouter::valRtrSol(RS* msg)
 {
 
-  IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*> (msg->encapsulatedMsg());
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*> (msg->encapsulatedMsg());
   if (dgram->hopLimit() == NDHOPLIMIT &&
       msg->calculateChecksum() == msg->checksum() &&
       msg->length() >= 8)

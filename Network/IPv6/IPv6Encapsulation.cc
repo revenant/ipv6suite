@@ -34,7 +34,6 @@
 
 #include <omnetpp.h>
 #include <stdlib.h>
-#include <boost/cast.hpp>
 #include <memory> //auto_ptr
 #include <algorithm>
 #include <iterator> //ostream_iterator
@@ -49,7 +48,6 @@
 #include "IPv6CDS.h"
 #include "cTTimerMessageCB.h"
 
-using boost::polymorphic_downcast;
 using IPv6NeighbourDiscovery::NeighbourEntry;
 using std::auto_ptr;
 
@@ -235,7 +233,7 @@ void IPv6Encapsulation::registerMIPv6TunnelCallback(TFunctorBaseA<IPv6Datagram>*
 
 void IPv6Encapsulation::handleMessage(cMessage* msg)
 {
-  auto_ptr<IPv6Datagram> dgram(polymorphic_downcast<IPv6Datagram*> (msg));
+  auto_ptr<IPv6Datagram> dgram(check_and_cast<IPv6Datagram*> (msg));
 
 
   if (!strcmp(dgram->arrivalGate()->name(), "encapsulateRoutingIn") ||
@@ -329,7 +327,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
 #endif //USE_MOBILITY
 
     auto_ptr<IPv6Datagram> origDgram(
-      polymorphic_downcast<IPv6Datagram*>(tunDgram->decapsulate()));
+      check_and_cast<IPv6Datagram*>(tunDgram->decapsulate()));
 
     ///Preserve the original dgram's input port in decapsulated packets output
     ///port since if decap packet is delivered locally outputPort is unused.

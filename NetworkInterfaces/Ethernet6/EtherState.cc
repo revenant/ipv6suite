@@ -57,7 +57,7 @@ std::auto_ptr<cMessage> EtherState::processSignal(EtherModule* mod, std::auto_pt
     return msg;
   }
 
-  EtherSignal* signal = boost::polymorphic_downcast<EtherSignal*>(msg.get());
+  EtherSignal* signal = check_and_cast<EtherSignal*>(msg.get());
 
   // debug
   printMsg(mod, signal->type());

@@ -262,7 +262,7 @@ namespace OPP_Global
 #if defined OPP_VERSION && OPP_VERSION >= 3
   XMLConfiguration::XMLOmnetParser* getParser()
   {
-    return (boost::polymorphic_downcast<WorldProcessor*>(
+    return (check_and_cast<WorldProcessor*>(
               simulation.moduleByPath("worldProcessor")))->xmlManager();
 
   }

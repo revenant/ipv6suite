@@ -135,7 +135,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
             if(frameControl.subtype == ST_DATA)
             {
                 WirelessAccessPoint* ap =
-                    boost::polymorphic_downcast<WirelessAccessPoint*>(mod);
+                    check_and_cast<WirelessAccessPoint*>(mod);
 
                 WirelessEtherInterface dest = ap->findIfaceByMAC(outputFrame->getAddress1());
 

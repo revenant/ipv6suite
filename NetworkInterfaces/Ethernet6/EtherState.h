@@ -72,7 +72,7 @@ private:
 template<class Target, class  Source> std::auto_ptr<Target>
 auto_downcast(std::auto_ptr<Source> & r)
 {
-  boost::polymorphic_downcast<Target*> (r.get());
+  check_and_cast<Target*> (r.get());
   return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
 }
 

@@ -22,14 +22,14 @@
  * @file   UDPApplication.cc
  * @author Johnny Lai
  * @date   25 May 2004
- * 
+ *
  * @brief  Implementation of UDPApplication
  *
- * 
+ *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include <boost/cast.hpp>
@@ -49,7 +49,7 @@ void UDPApplication::initialize()
   server = par("server");
   if (server)
   {
-    port = par("UDPPort");    
+    port = par("UDPPort");
   }
   address = (const char*) par("UDPServerAddress");
   gateId = findGate("physOut");
@@ -68,10 +68,10 @@ void UDPApplication::handleMessage(cMessage* msg)
   if (!bound && msg->kind() == KIND_BIND)
   {
     if (!server)
-      port = (boost::polymorphic_downcast<UDPPacketBase*>(msg))->getSrcPort();
-    
+      port = (check_and_cast<UDPPacketBase*>(msg))->getSrcPort();
+
     //for ports that fail to bind on specific port UDP will never send back
-    //"ack" so clients should check if isReady() is true before initiating listening/sending mode    
+    //"ack" so clients should check if isReady() is true before initiating listening/sending mode
     bound = true;
     Dout(dc::udp|dc::notice, fullPath()<<" port "<<port
          <<" bound for application "<<className());
@@ -86,6 +86,6 @@ void UDPApplication::bindPort()
   udpPkt->setKind(KIND_BIND);
   if (server)
     udpPkt->setSrcPort(port);
-  
+
   sendDelayed(udpPkt, 0.1, gateId);
 }

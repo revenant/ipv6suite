@@ -78,7 +78,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
     if (waitTmr->isScheduled())
     {
 //      cerr<<fullPath()<<" "<<simTime()<<" sending new packet ";
-//      (boost::polymorphic_downcast<IPv6InterfacePacket*>(msg))->writeContents(cerr);
+//      (check_and_cast<IPv6InterfacePacket*>(msg))->writeContents(cerr);
 //      cerr<<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime();
       Dout(dc::custom, fullPath()<<" "<<simTime()<<" sending new packet "
            <<"when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime());
@@ -86,7 +86,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
       return;
     } else if (!waitTmr->isScheduled() && 0 == curPacket)
     {
-      IPv6InterfacePacket *interfaceMsg = boost::polymorphic_downcast<IPv6InterfacePacket*>(msg);
+      IPv6InterfacePacket *interfaceMsg = check_and_cast<IPv6InterfacePacket*>(msg);
       assert(interfaceMsg != 0);
 
       assert(interfaceMsg->destAddress() != IPv6_ADDR_UNSPECIFIED);
@@ -116,7 +116,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
   else
   {
     IPv6InterfacePacket *interfaceMsg =
-      boost::polymorphic_downcast<IPv6InterfacePacket*>(waitQueue.pop());
+      check_and_cast<IPv6InterfacePacket*>(waitQueue.pop());
     sendDatagram(interfaceMsg);
     scheduleAt(delay + simTime(), waitTmr);
   }

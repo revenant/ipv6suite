@@ -32,6 +32,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include <boost/cast.hpp>
 #include <omnetpp.h>
 #include <cassert>
 

@@ -65,7 +65,7 @@ std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule* m
     return msg;
   }
 
-  WESignal* signal = boost::polymorphic_downcast<WESignal*>(msg.get());
+  WESignal* signal = check_and_cast<WESignal*>(msg.get());
 
   if (signal->channel() != mod->getChannel())
     return msg;

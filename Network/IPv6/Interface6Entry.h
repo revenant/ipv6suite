@@ -37,9 +37,6 @@
 #endif
 
 // required for IPv6Address typdef
-#ifndef CTYPEDARRAY_H
-#include "cTypedArrays.h"
-#endif //CTYPEDARRAY_H
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H

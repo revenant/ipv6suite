@@ -30,20 +30,17 @@
 #include "IPv6Datagram.h"
 #include "HdrExtRteProc.h"
 
-#include <boost/cast.hpp>
-
-using boost::polymorphic_downcast;
 
 unsigned int HdrExtFragProc::frag_counter = 0;
 
 
 HdrExtFragProc::HdrExtFragProc():HdrExtProc(EXTHDR_FRAGMENT),
-                                 frag_hdr(*polymorphic_downcast<ipv6_ext_frag_hdr*>(ext_hdr)),
+                                 frag_hdr(*boost::polymorphic_downcast<ipv6_ext_frag_hdr*>(ext_hdr)),
                                  frag_id(HdrExtFragProc::frag_counter)
 {}
 
 HdrExtFragProc::HdrExtFragProc(const HdrExtFragProc& src)
-  :HdrExtProc(EXTHDR_FRAGMENT), frag_hdr(*polymorphic_downcast<ipv6_ext_frag_hdr*>(ext_hdr)),
+  :HdrExtProc(EXTHDR_FRAGMENT), frag_hdr(*boost::polymorphic_downcast<ipv6_ext_frag_hdr*>(ext_hdr)),
    frag_id(HdrExtFragProc::frag_counter)
 {
   //setName(src.name());

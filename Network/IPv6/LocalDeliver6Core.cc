@@ -43,6 +43,7 @@
 #include "sys.h"
 #include "debug.h"
 
+#include <boost/cast.hpp>
 #include <omnetpp.h>
 
 #ifdef TESTIPv6
@@ -50,7 +51,6 @@
 #endif //TESTIPv6
 
 #include <cassert>
-#include <boost/cast.hpp>
 
 
 #include "LocalDeliver6Core.h"
@@ -60,7 +60,6 @@
 #include "IPv6Datagram.h"
 
 
-using boost::polymorphic_downcast;
 
 
 Define_Module( LocalDeliver6Core );
@@ -119,7 +118,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
 
   if (!theMsg->isSelfMessage())
   {
-    IPv6Datagram* datagram(boost::polymorphic_downcast<IPv6Datagram*> (theMsg));
+    IPv6Datagram* datagram(check_and_cast<IPv6Datagram*> (theMsg));
     assert(datagram);
 
     if (waitTmr->isScheduled())
@@ -148,7 +147,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
         continue;
       }
 
-      datagram = polymorphic_downcast<IPv6Datagram*>(dfmsg);
+      datagram = check_and_cast<IPv6Datagram*>(dfmsg);
     }
 */
 
@@ -249,7 +248,7 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
 
   if (!waitQueue.empty())
   {
-    dgram = polymorphic_downcast<IPv6Datagram*>(waitQueue.pop());
+    dgram = check_and_cast<IPv6Datagram*>(waitQueue.pop());
     assert(dgram != 0);
     scheduleAt(delay + simTime(), waitTmr);
   }
@@ -292,7 +291,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
         case NEXTHDR_ROUTING:
           localdeliver = false;
           if (proc->type() == EXTHDR_ROUTING &&
-              ((rtProc = polymorphic_downcast<HdrExtRteProc*>(proc)) != 0) &&
+              ((rtProc = boost::polymorphic_downcast<HdrExtRteProc*>(proc)) != 0) &&
               !rtProc->isSegmentsLeft())
             localdeliver = true;
           else

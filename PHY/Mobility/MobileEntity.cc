@@ -391,7 +391,7 @@ void MobileEntity::drawWirelessRange(std::string& dispStr)
           continue;
 
         WirelessEtherModule* wem =
-          boost::polymorphic_downcast<WirelessEtherModule*>(llmodule);
+          check_and_cast<WirelessEtherModule*>(llmodule);
 
         assert(wem);
 

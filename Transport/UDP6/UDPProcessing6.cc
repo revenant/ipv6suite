@@ -85,7 +85,7 @@ void UDPProcessing6::handleMessage(cMessage* theMsg)
 bool UDPProcessing6::bind(cMessage* msg)
 {
 
-  UDPPacketBase* pkt = boost::polymorphic_downcast<UDPPacketBase*>(msg);
+  UDPPacketBase* pkt = check_and_cast<UDPPacketBase*>(msg);
   if (pkt->getSrcPort() == 0)
   {
     UDPPort tempPortID;
@@ -119,7 +119,7 @@ void UDPProcessing6::processNetworkMsg(IPv6InterfacePacket* pkt)
   }
 
   UDPPacketBase* udpPkt =
-    boost::polymorphic_downcast<UDPPacketBase*>(pkt->cMessage::decapsulate());
+    check_and_cast<UDPPacketBase*>(pkt->cMessage::decapsulate());
   //Remove UDP packet header length so we are left with app length although the
   //info is still there of course
   udpPkt->setLength(udpPkt->length() - UDP_HEADER_SIZE);
@@ -165,7 +165,7 @@ bool UDPProcessing6::isBound(UDPPort p)
 void UDPProcessing6::processApplicationMsg(UDPAppInterfacePacket* appIntPkt)
 {
   UDPPacketBase* udpPkt =
-    boost::polymorphic_downcast<UDPPacketBase*> (appIntPkt->decapsulate());
+    check_and_cast<UDPPacketBase*> (appIntPkt->decapsulate());
 
   // destination port not assigned
   if(udpPkt->getDestPort() == 0)

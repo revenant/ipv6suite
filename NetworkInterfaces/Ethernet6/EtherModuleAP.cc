@@ -106,7 +106,7 @@ bool EtherModuleAP::receiveData(std::auto_ptr<cMessage> msg)
 {
   // the frame should have already been created in the bridge module
   EtherSignalData* frame =
-    boost::polymorphic_downcast<EtherSignalData *>(msg.get()->decapsulate());
+    check_and_cast<EtherSignalData *>(msg.get()->decapsulate());
   assert(frame);
 
   frame->setSrcModPathName(fullPath());

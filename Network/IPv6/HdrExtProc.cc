@@ -27,17 +27,14 @@
 
 
 #include <boost/cast.hpp>
-
-
 #include <omnetpp.h>
+
 #include "IPv6Headers.h"
 #include "IPv6Datagram.h"
 #include "HdrExtProc.h"
 #include "HdrExtRteProc.h"
 #include "HdrExtFragProc.h"
 
-
-using boost::polymorphic_downcast;
 
 
 HdrExtProc::~HdrExtProc()

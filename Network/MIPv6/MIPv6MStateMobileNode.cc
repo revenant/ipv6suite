@@ -31,10 +31,10 @@
 #include "debug.h"
 #include "config.h"
 
-#include <boost/cast.hpp>
 #include <iomanip> //setprecision
 #include <string>
 #include <iostream>
+#include <boost/cast.hpp>
 
 #include "MIPv6MStateMobileNode.h"
 #include "cTTimerMessageCB.h"
@@ -97,7 +97,7 @@ public:
       timeout *=2;
 
       string nodeName =
-        //boost::polymorphic_downcast<IPv6Mobility*>(module())->nodeName();
+        //check_and_cast<IPv6Mobility*>(module())->nodeName();
         static_cast<IPv6Mobility*>(module())->nodeName();
 
       if (timeout >= MAX_BINDACK_TIMEOUT)
@@ -136,7 +136,7 @@ public:
       rescheduleDelay(timeout);
 
       //Resend copy of dgram containing updated BU
-      BU* bu = polymorphic_downcast<BU*> (dgram->encapsulatedMsg());
+      BU* bu = check_and_cast<BU*> (dgram->encapsulatedMsg());
       bu->setSequence(bule->sequence());
       module()->send(dgram->dup(), "routingOut");
       Dout(dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()
@@ -309,39 +309,39 @@ void MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram,
   {
     case MIPv6MHT_BA:
     {
-      BA* ba = polymorphic_downcast<BA*>(mhb);
+      BA* ba = check_and_cast<BA*>(mhb);
       processBA(ba, dgram, mob);
     }
     break;
 
     case MIPv6MHT_BM:
     {
-      BM* bm = polymorphic_downcast<BM*>(mhb);
+      BM* bm = check_and_cast<BM*>(mhb);
       processBM(bm, dgram, mob);
     }
     break;
 
     case MIPv6MHT_BR:
     {
-      BR* br =  polymorphic_downcast<BR*> (mhb);
+      BR* br =  check_and_cast<BR*> (mhb);
       processBR(br, dgram, mob);
     }
     break;
     case MIPv6MHT_HoTI: case MIPv6MHT_CoTI:
     {
-      TIMsg* ti = boost::polymorphic_downcast<TIMsg*>(mhb);
+      TIMsg* ti = check_and_cast<TIMsg*>(mhb);
       processTI(ti, dgram, mob);
     }
     break;
     case MIPv6MHT_HoT: case MIPv6MHT_CoT:
     {
-      TMsg* t =  polymorphic_downcast<TMsg*> (mhb);
+      TMsg* t =  check_and_cast<TMsg*> (mhb);
       processTestMsg(t, dgram, mob);
     }
     break;
     case MIPv6MHT_BU:
     {
-      BU* bu = polymorphic_downcast<BU*>(mhb);
+      BU* bu = check_and_cast<BU*>(mhb);
       processBU(dgram, bu, mob);
     }
     break;
@@ -882,7 +882,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 
   if (coa != mipv6cdsMN->homeAddr())
   {
-    IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>(OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
+    IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>(OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
     assert(tunMod);
 
     size_t vIfIndex = tunMod->findTunnel(coa,
@@ -998,7 +998,7 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
-  //IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*> (br->encapsulatedMsg());
+  //IPv6Datagram* dgram = check_and_cast<IPv6Datagram*> (br->encapsulatedMsg());
   size_t ifIndex = dgram->inputPort();
   bu_entry* bule = 0;
 

@@ -68,9 +68,9 @@ void ICMPv6Core::initialize()
   if (icmpRecordStats)
     stat = new cStdDev("PingRequestReceived");
 
-  rt = boost::polymorphic_downcast<RoutingTable6*> (OPP_Global::findModuleByName(this, "routingTable6"));
+  rt = check_and_cast<RoutingTable6*> (OPP_Global::findModuleByName(this, "routingTable6"));
   assert(rt != 0);
-  fc = boost::polymorphic_downcast<IPv6ForwardCore*> (
+  fc = check_and_cast<IPv6ForwardCore*> (
     OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
   assert(fc != 0);
   ctrIcmp6OutEchoReplies = 0;
@@ -169,7 +169,7 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
     curMessage = 0;
   else
   {
-    curMessage = boost::polymorphic_downcast<cMessage*>(waitQueue.pop());
+    curMessage = check_and_cast<cMessage*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
 
@@ -194,7 +194,7 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
   if (!strcmp(arrivalGate->name(), "localIn"))
   {
     ctrIcmp6InMsgs++;
-    processICMPv6Message(boost::polymorphic_downcast<IPv6Datagram*>(msg));
+    processICMPv6Message(check_and_cast<IPv6Datagram*>(msg));
     return;
   }
 
@@ -295,7 +295,7 @@ void ICMPv6Core::activity()
       if (!strcmp(arrivalGate->name(), "localIn"))
       {
         ctrIcmp6InMsgs++;
-        processICMPv6Message(boost::polymorphic_downcast<IPv6Datagram*>(msg));
+        processICMPv6Message(check_and_cast<IPv6Datagram*>(msg));
 
         continue;
       }
@@ -397,7 +397,7 @@ void ICMPv6Core::processError(cMessage* msg)
   if (pdu->transportProtocol() == IP_PROT_IPv6_ICMP)
   {
 
-    ICMPv6Message* recICMPv6Msg = boost::polymorphic_downcast<ICMPv6Message*> (pdu->encapsulatedMsg());
+    ICMPv6Message* recICMPv6Msg = check_and_cast<ICMPv6Message*> (pdu->encapsulatedMsg());
 
     if (recICMPv6Msg->isErrorMessage())
     {
@@ -458,7 +458,7 @@ void ICMPv6Core::processError(cMessage* msg)
 void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
 {
 
-  ICMPv6Message* icmpmsg = boost::polymorphic_downcast<ICMPv6Message*>(dgram->decapsulate());
+  ICMPv6Message* icmpmsg = check_and_cast<ICMPv6Message*>(dgram->decapsulate());
 
   switch (icmpmsg->type())
   {
@@ -548,9 +548,9 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   auto_ptr<IPv6Datagram> request(theRequest);
 
   assert(request->encapsulatedMsg() != 0);
-  ICMPv6Echo* req = boost::polymorphic_downcast<ICMPv6Echo*> (request->encapsulatedMsg());
+  ICMPv6Echo* req = check_and_cast<ICMPv6Echo*> (request->encapsulatedMsg());
   assert(req);
-  echo_int_info echo_req = boost::polymorphic_downcast<
+  echo_int_info echo_req = check_and_cast<
     IPv6InterfaceData<echo_int_info>* > (req->encapsulatedMsg())->data();
 
   if (icmpRecordStats)

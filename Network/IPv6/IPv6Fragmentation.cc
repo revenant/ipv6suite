@@ -81,7 +81,7 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
 
   if (!msg->isSelfMessage())
   {
-    AddrResMsg*  newAddrResMsg = boost::polymorphic_downcast<AddrResMsg*> (msg);
+    AddrResMsg*  newAddrResMsg = check_and_cast<AddrResMsg*> (msg);
     assert(newAddrResMsg);
 
     if (waitTmr->isScheduled())
@@ -127,7 +127,7 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
     curPacket = 0;
   else
   {
-    curPacket = boost::polymorphic_downcast<AddrResMsg*>(waitQueue.pop());
+    curPacket = check_and_cast<AddrResMsg*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
 

@@ -13,7 +13,6 @@
 #include "RoutingTable6.h"
 #include "cTimerMessage.h"
 
-using boost::polymorphic_downcast;
 
 Define_Module( NeighbourDiscovery );
 

@@ -85,7 +85,7 @@ void EHTimedAlgorithm::mapAlgorithm()
     //Called when timer expires
 
     MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(
-      Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
+      Loki::Field<0>((check_and_cast<EdgeHandover::EHCallback*>
                       (mob->edgeHandoverCallback()))->args)->srcAddress());
     MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
       hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);

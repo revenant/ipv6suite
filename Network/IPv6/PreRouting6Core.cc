@@ -56,7 +56,7 @@ void PreRouting6Core::initialize()
     curPacket = 0;
 
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
-    forwardMod = boost::polymorphic_downcast<IPv6ForwardCore*>
+    forwardMod = check_and_cast<IPv6ForwardCore*>
       (forward->submodule("core"));
     assert(forwardMod != 0);
 
@@ -75,7 +75,7 @@ void PreRouting6Core::handleMessage(cMessage* msg)
 
   if (!msg->isSelfMessage())
   {
-    IPv6Datagram *datagram = boost::polymorphic_downcast<IPv6Datagram *>(msg);
+    IPv6Datagram *datagram = check_and_cast<IPv6Datagram *>(msg);
     assert(datagram != 0);
 
     ctrIP6InReceive++;
@@ -125,7 +125,7 @@ void PreRouting6Core::handleMessage(cMessage* msg)
     curPacket = 0;
   else
   {
-    curPacket = boost::polymorphic_downcast<cMessage*>(waitQueue.pop());
+    curPacket = check_and_cast<cMessage*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
 

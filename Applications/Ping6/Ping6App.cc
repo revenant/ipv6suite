@@ -188,14 +188,14 @@ void Ping6App::receivePing(cMessage* msg)
   {
     Dout(dc::notice, rt->nodeName()<<" "<<simTime()
          <<" ping packets arrived after deadline seq="
-         <<(boost::polymorphic_downcast<IPv6InterfaceData<echo_int_info>* >(msg))->data().seqNo);
+         <<(check_and_cast<IPv6InterfaceData<echo_int_info>* >(msg))->data().seqNo);
     return;
   }
 
   IPv6InterfaceData<echo_int_info> *app_reply = 0;
   echo_int_info echo_resp;
 
-  app_reply = boost::polymorphic_downcast<IPv6InterfaceData<echo_int_info>* >
+  app_reply = check_and_cast<IPv6InterfaceData<echo_int_info>* >
     (msg);
   app_reply->setName("PING6_REPLY");
 

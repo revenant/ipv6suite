@@ -158,12 +158,12 @@ void MLD::handleMessage(cMessage* msg)
   {
     if(MLD_version==2)
     {
-        IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);
+        IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(msg);
 //        cout << "extension length:" << dgram->extensionLength() << endl;
 //        cout << "srcAddress:" << dgram->srcAddress() << endl;
 //        cout << "destAddress:" << dgram->destAddress() << endl;
 
-        MLDv2Message * mldmsg = boost::polymorphic_downcast<MLDv2Message *>(dgram->decapsulate());
+        MLDv2Message * mldmsg = check_and_cast<MLDv2Message *>(dgram->decapsulate());
 //        cout << "optLength():" << mldmsg->optLength() << endl;
 
 //    dumpMAL();
@@ -454,8 +454,8 @@ void MLD::processRouterMLDMessages(cMessage* msg)
 {
   //this is a router
 
-  IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);
-  MLDMessage* mldmsg = boost::polymorphic_downcast<MLDMessage*>(dgram->encapsulatedMsg());
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(msg);
+  MLDMessage* mldmsg = check_and_cast<MLDMessage*>(dgram->encapsulatedMsg());
 
   switch(mldmsg->type())
   {
@@ -654,12 +654,12 @@ cTimerMessage* MLD::findTmr(int MLDTimerType, const ipv6_addr& multicast_addr)
           return *it;
           break;
         case Tmr_Report:
-          if ((*(boost::polymorphic_downcast<ReportTmr*>(*it))->arg()) == multicast_addr)
+          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
             return *it;
           continue;
           break;
         case Tmr_MulticastListenerInterval:
-          if ((*(boost::polymorphic_downcast<ReportTmr*>(*it))->arg()) == multicast_addr)
+          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
             return *it;
           break;
 
@@ -679,7 +679,7 @@ cTimerMessage* MLD::resetTmr(int MLDTimerType)
 
     if((*it)->kind() == MLDTimerType)
     {
-      if ((*(boost::polymorphic_downcast<ReportTmr*>(*it))->arg()) != IPv6_ADDR_UNSPECIFIED)
+      if ((*(check_and_cast<ReportTmr*>(*it))->arg()) != IPv6_ADDR_UNSPECIFIED)
       {
         return *it;
         break;
@@ -936,7 +936,7 @@ void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_
 /*
 void MLD::MLDv2NodeParsing(cMessage* Qmsg)
 {
-  IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(Qmsg);
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(Qmsg);
     cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
         cout << "[MLDv2]Receive packet at:" << simTime() << endl;
         cout << "payload length:" << dgram->payloadLength() << endl;
@@ -946,7 +946,7 @@ void MLD::MLDv2NodeParsing(cMessage* Qmsg)
         cout << "srcAddress:" << dgram->srcAddress() << endl;
         cout << "destAddress:" << dgram->destAddress() << endl;
 
-  MLDv2Message * mldmsg = boost::polymorphic_downcast<MLDv2Message *>(dgram->decapsulate());
+  MLDv2Message * mldmsg = check_and_cast<MLDv2Message *>(dgram->decapsulate());
   cout << "[MLDv2]NodeParsingMsg() ==>" << endl;
   if(mldmsg->type()!=130)
   {

@@ -85,7 +85,7 @@ void Entity::drawWirelessRange(std::string& dispStr)
         assert(llmodule->getInterfaceType() == PR_WETHERNET);
 
         WirelessEtherModule* wem =
-          boost::polymorphic_downcast<WirelessEtherModule*>(llmodule);
+          check_and_cast<WirelessEtherModule*>(llmodule);
         assert(wem);
 
         dispStr += ";r=";

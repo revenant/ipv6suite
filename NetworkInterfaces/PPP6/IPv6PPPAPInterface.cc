@@ -103,7 +103,7 @@ int IPv6PPPAPInterface::inputQueueOutGate() const
   // frames from bridge module
 PPP6Frame* IPv6PPPAPInterface::receiveFromUpperLayer(cMessage* msg)
 {
-  PPP6Frame* ret = boost::polymorphic_downcast<PPP6Frame*>(msg->decapsulate());
+  PPP6Frame* ret = check_and_cast<PPP6Frame*>(msg->decapsulate());
   assert(ret);
   delete msg;
   return ret;

@@ -161,7 +161,7 @@ namespace libcwdsetup
         std::ostream* oldOStream;
         Debug( oldOStream = libcw_do.get_ostream() );
         Debug( libcw_do.set_ostream(&g_debugFile) );
-        boost::polymorphic_downcast<ofstream*>(oldOStream)->close();
+        check_and_cast<ofstream*>(oldOStream)->close();
 
         if (find(tokens.begin(), tokens.end(), "malloc") == tokens.end())
           Debug( dc::malloc.off());

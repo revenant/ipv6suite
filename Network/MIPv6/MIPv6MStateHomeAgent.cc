@@ -31,7 +31,6 @@
 
 #include <cassert>
 #include <omnetpp.h>
-#include <boost/cast.hpp>
 
 #include "MIPv6MStateHomeAgent.h"
 #include "IPv6Mobility.h"
@@ -46,7 +45,6 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 
-using boost::polymorphic_downcast;
 
 
 namespace MobileIPv6
@@ -82,7 +80,7 @@ processMobilityMsg(IPv6Datagram* dgram,
   {
     case MIPv6MHT_BU:
     {
-      BU* bu = boost::polymorphic_downcast<BU*>(mhb);
+      BU* bu = check_and_cast<BU*>(mhb);
       processBU(dgram, bu, mod);
     }
     break;
@@ -231,7 +229,7 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
   //Create tunnel from HA to MN for this binding (Sec. 9.4) so once packets
   //are intercepted we can send them to MN
   if (!mob->mipv6cds->tunMod)
-     mob->mipv6cds->tunMod = polymorphic_downcast<IPv6Encapsulation*>
+     mob->mipv6cds->tunMod = check_and_cast<IPv6Encapsulation*>
        (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
   IPv6Encapsulation* tunMod = mob->mipv6cds->tunMod;
   assert(tunMod != 0);
@@ -317,7 +315,7 @@ bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu,  unsigned int ifIndex, IPv6Mobi
 
 
   if (!mob->mipv6cds->tunMod)
-    mob->mipv6cds->tunMod = polymorphic_downcast<IPv6Encapsulation*>
+    mob->mipv6cds->tunMod = check_and_cast<IPv6Encapsulation*>
       (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
   IPv6Encapsulation* tunMod = mob->mipv6cds->tunMod;
 

@@ -338,7 +338,7 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   //if (_currentReceiveMode != WEDataReceiveMode::instance())
   //  return;
 
-  LLInterfacePkt* recPkt = boost::polymorphic_downcast<LLInterfacePkt*>
+  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>
     (msg.get());
   assert(recPkt != 0);
 

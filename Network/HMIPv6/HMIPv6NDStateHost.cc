@@ -27,6 +27,7 @@
  */
 
 
+#include <boost/cast.hpp>
 #include "sys.h"
 #include "debug.h"
 #include "config.h"
@@ -407,7 +408,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                       lifetime,
                       ifIndex, mob);
 
-  IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   assert(tunMod != 0);
 
@@ -609,7 +610,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
     if (hmipv6cdsMN.currentMap().v())
     {
       //Set up reverse tunnelled link from LCOA to map here as we update lcoa and remove old one
-      IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
+      IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
         (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
       assert(tunMod != 0);
 

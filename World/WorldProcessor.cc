@@ -27,7 +27,6 @@
 #include "debug.h"
 
 #include <sstream>
-#include <boost/cast.hpp>
 
 #include "Entity.h"
 #include "WorldProcessor.h"
@@ -160,7 +159,6 @@ void WorldProcessor::staticRoutingTable(RoutingTable6* rt)
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include "cTypedArrays.h"
 #include <string>
 CPPUNIT_TEST_SUITE_REGISTRATION( cTypedContainerTest );
 

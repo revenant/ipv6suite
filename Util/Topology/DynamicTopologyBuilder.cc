@@ -551,7 +551,7 @@ void DynamicTopologyBuilder::initialize()
   //Get topo filename from XML
   string topoFilename = "example.dot";
 #ifdef WORLDPROCESSOR_H
-  WorldProcessor* wp = boost::polymorphic_downcast< ::WorldProcessor*> (
+  WorldProcessor* wp = check_and_cast< ::WorldProcessor*> (
     OPP_Global::findModuleByType(this, "WorldProcessor"));
   assert(wp != 0 );
 

@@ -169,7 +169,7 @@ void InterfacePacketTest::testAssignCtorDtor()
   CPPUNIT_ASSERT((int)v6copy.protocol() == (int)PR_IPV6);
 
   //Test assignment
-  v6copy = *(boost::polymorphic_downcast<IPv6InterfacePacket*> (intv6Packet));
+  v6copy = *(check_and_cast<IPv6InterfacePacket*> (intv6Packet));
   CPPUNIT_ASSERT(strcmp(src_addr, v6copy.srcAddr())==0);
   CPPUNIT_ASSERT(strcmp(dest_addr, v6copy.destAddr())==0);
 

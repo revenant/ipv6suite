@@ -27,19 +27,17 @@
 
 
 #include <boost/cast.hpp>
-
 #include "LocalDeliver6Core.h"
 #include "HdrExtDestProc.h"
 
-using boost::polymorphic_downcast;
 
 HdrExtDestProc::HdrExtDestProc()
-  :HdrExtProc(EXTHDR_DEST), opt_hdr(*polymorphic_downcast<ipv6_ext_opts_hdr*>(ext_hdr))
+  :HdrExtProc(EXTHDR_DEST), opt_hdr(*boost::polymorphic_downcast<ipv6_ext_opts_hdr*>(ext_hdr))
 {
 }
 
 HdrExtDestProc::HdrExtDestProc(const HdrExtDestProc& src)
-  :HdrExtProc(EXTHDR_DEST), opt_hdr(*polymorphic_downcast<ipv6_ext_opts_hdr*>(ext_hdr))
+  :HdrExtProc(EXTHDR_DEST), opt_hdr(*boost::polymorphic_downcast<ipv6_ext_opts_hdr*>(ext_hdr))
 {
   operator=(src);
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,16 +20,15 @@
  * @file   IPv6Mobility.cc
  * @author Johnny Lai
  * @date   14 Apr 2002
- * 
+ *
  * @brief Implementation of IPv6Mobility simple module to handle most MIPv6
  * related operations
- * 
+ *
  */
 
+#include <boost/cast.hpp>
 #include "sys.h"
 #include "debug.h"
-
-#include <boost/cast.hpp>
 
 #include "IPv6Mobility.h"
 #include "IPv6Datagram.h"
@@ -49,7 +48,7 @@
 #include "MIPv6Entry.h"
 #endif // __MIPv6ENTRY_H__
 
-#if defined OPP_VERSION && OPP_VERSION >= 3 
+#if defined OPP_VERSION && OPP_VERSION >= 3
 #include "opp_utils.h" //getParser()
 #include "XMLOmnetParser.h"
 #include "XMLCommon.h"
@@ -90,7 +89,7 @@ namespace
 
 /**
  * @todo simulation parameter for periodic interval to clean up expired entries
- * 
+ *
  */
 
 void IPv6Mobility::initialize(int stage)
@@ -106,7 +105,7 @@ void IPv6Mobility::initialize(int stage)
 #if EDGEHANDOVER
     ehCallback = 0;
     //This overwrites the value assigned by XML and I thought this was run before parsing !
-    //ehType = "";    
+    //ehType = "";
 #endif // EDGEHANDOVER
 #endif // USE_MOBILITY
 
@@ -151,7 +150,7 @@ void IPv6Mobility::initialize(int stage)
       parseXMLAttributes();
     }
 #endif // USE_MOBILITY
-  }  
+  }
 
 }
 
@@ -189,21 +188,21 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 
     if (mhb)
     delete mhb;
-    
+
     delete msg;
   }
   else
-  {  
-    (polymorphic_downcast<cTimerMessage *> (msg) )->callFunc();
+  {
+    (check_and_cast<cTimerMessage *> (msg) )->callFunc();
   }
-  
+
 #endif
 
 
 }
 
 #ifdef USE_MOBILITY // calling the MOBILITY define module in RoutingTable6
-  bool IPv6Mobility::isMobileNode() 
+  bool IPv6Mobility::isMobileNode()
     {
       return rt->isMobileNode();
     }
@@ -212,28 +211,28 @@ void IPv6Mobility::handleMessage(cMessage* msg)
     {
       return rt->isHomeAgent();
     }
-  
+
   bool IPv6Mobility::isCorrespondentNode()
     {
       return rt->mobilitySupport();
     }
 
 void IPv6Mobility::recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr)
-{                                                                                  
-  if ( isMobileNode() )                                                          
+{
+  if ( isMobileNode() )
   {
-    polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(_MobilityState)->
+    boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(_MobilityState)->
       recordHODelay(buRecvTime, addr, this);
   }
 }
 
 void IPv6Mobility::parseXMLAttributes()
 {
-#if defined OPP_VERSION && OPP_VERSION >= 3 
+#if defined OPP_VERSION && OPP_VERSION >= 3
   if (isMobileNode())
   {
     XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
-    MIPv6CDSMobileNode* mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mipv6cds);
+    MIPv6CDSMobileNode* mipv6cdsMN = check_and_cast<MIPv6CDSMobileNode*>(mipv6cds);
     mipv6cdsMN->setEagerHandover(p->getNodePropBool(p->getNetNode(nodeName()), "eagerHandover"));
   }
 #endif
@@ -249,9 +248,9 @@ void IPv6Mobility::parseXMLAttributes()
     }
 #endif // USE_HMIP
 
-const char* IPv6Mobility::nodeName() const 
-{ 
-  return rt->nodeName(); 
+const char* IPv6Mobility::nodeName() const
+{
+  return rt->nodeName();
 }
 
 #if EDGEHANDOVER

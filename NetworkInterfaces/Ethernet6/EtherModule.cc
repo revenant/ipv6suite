@@ -195,7 +195,7 @@ bool EtherModule::sendData(EtherFrame6* frame)
 bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
 {
   // Something to send onto network
-  LLInterfacePkt* recPkt = boost::polymorphic_downcast<LLInterfacePkt*>(msg.get());
+  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg.get());
   assert(recPkt != 0);
 
   EtherFrame6* frame = new EtherFrame6;

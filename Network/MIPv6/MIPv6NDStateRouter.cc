@@ -26,7 +26,6 @@
 
 #include <iomanip> //setprecision
 #include <memory> //auto_ptr
-#include <boost/cast.hpp> //polymorphic_downcast
 
 #include "MIPv6NDStateRouter.h"
 #include "NDTimers.h"

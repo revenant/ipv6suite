@@ -35,7 +35,7 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
   }
 
   EtherFrame6* frame =
-    boost::polymorphic_downcast<EtherFrame6*>(msg);
+    check_and_cast<EtherFrame6*>(msg);
   assert(frame);
 
   int chkOutputPort = outputPortByAddress(frame->destAddrString());

@@ -99,7 +99,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
   {
       case MIPv6MHT_BU:
       {
-        BU* bu = boost::polymorphic_downcast<BU*>(mhb);
+        BU* bu = check_and_cast<BU*>(mhb);
         assert(bu != 0);
 
         if (mod->isHomeAgent() &&
@@ -126,7 +126,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
       break;
       case MIPv6MHT_BA:
       {
-        BA* ba = boost::polymorphic_downcast<BA*>(mhb);
+        BA* ba = check_and_cast<BA*>(mhb);
         assert(ba != 0);
 
         mod->changeState(MIPv6MStateMobileNode::instance());
@@ -134,7 +134,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
       break;
       case MIPv6MHT_BM:
       {
-        BM* bm = boost::polymorphic_downcast<BM*>(mhb);
+        BM* bm = check_and_cast<BM*>(mhb);
         assert(bm != 0);
 
         mod->changeState(MIPv6MStateMobileNode::instance());
@@ -144,7 +144,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
     case MIPv6MHT_BR:
     case MIPv6MHT_HoTI: case MIPv6MHT_CoTI:
     {
-      TIMsg* ti = boost::polymorphic_downcast<TIMsg*>(mhb);
+      TIMsg* ti = check_and_cast<TIMsg*>(mhb);
       assert(ti != 0);
       if (mod->isMobileNode())
         mod->changeState(MIPv6MStateMobileNode::instance());
@@ -154,7 +154,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
     break;
     case MIPv6MHT_HoT: case MIPv6MHT_CoT:
     {
-      TMsg* tmsg = boost::polymorphic_downcast<TMsg*>(mhb);
+      TMsg* tmsg = check_and_cast<TMsg*>(mhb);
       assert(tmsg != 0);
 
       mod->changeState(MIPv6MStateMobileNode::instance());
@@ -180,7 +180,7 @@ void MIPv6MobilityState::processMobilityMsg(IPv6Datagram* dgram,
                                             IPv6Mobility* mod)
 {
   cMessage *pkt = dgram->decapsulate();
-  mhb = boost::polymorphic_downcast<MIPv6MobilityHeaderBase*>(pkt);
+  mhb = check_and_cast<MIPv6MobilityHeaderBase*>(pkt);
 
   if (!mhb)
     delete pkt;

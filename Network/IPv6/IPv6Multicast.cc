@@ -66,7 +66,7 @@ void IPv6Multicast::initialize()
 {
     RoutingTable6Access::initialize();
     delay = par("procdelay");
-    fc = boost::polymorphic_downcast<IPv6ForwardCore*> (
+    fc = check_and_cast<IPv6ForwardCore*> (
       OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
     assert(fc != 0);
     ctrIP6InMcastPkts = 0;
@@ -81,7 +81,7 @@ void IPv6Multicast::handleMessage(cMessage* theMsg)
     if (waitTmr->isScheduled())
     {
       cerr<<fullPath()<<" "<<simTime()<<" received new packet "
-          <<(*boost::polymorphic_downcast<IPv6Datagram *>(msg))
+          <<(*check_and_cast<IPv6Datagram *>(msg))
           <<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime();
       delete theMsg;
       return;
@@ -97,7 +97,7 @@ void IPv6Multicast::handleMessage(cMessage* theMsg)
 
   // otherwise deliver/forward datagram with Multicast address
   bool ifaceSpecified = false;
-  IPv6Datagram *datagram = boost::polymorphic_downcast<IPv6Datagram *>(msg);
+  IPv6Datagram *datagram = check_and_cast<IPv6Datagram *>(msg);
   assert(msg);
   assert(datagram);
   IPv6Address destAddress(datagram->destAddress());

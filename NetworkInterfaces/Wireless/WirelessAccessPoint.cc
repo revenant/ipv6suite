@@ -180,9 +180,7 @@ void WirelessAccessPoint::finish(void)
 
 void WirelessAccessPoint::idleNetworkInterface(void)
 {
-    cMessage *nwiIdleMsg = new cMessage();
-  nwiIdleMsg->setKind(NWI_IDLE);
-  send(nwiIdleMsg, outputQueueOutGate());
+  /* XXX notifying the output queue removed from here --AV */
 }
 
 void WirelessAccessPoint::sendBeacon(void)

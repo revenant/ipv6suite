@@ -162,9 +162,8 @@ void EtherModule::idleNetworkInterface(void)
 {
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << fullPath() << " is ready to accept L3 packets");
 
-  cMessage *nwiIdleMsg = new cMessage();
-  nwiIdleMsg->setKind(NWI_IDLE);
-  send(nwiIdleMsg, outputQueueOutGate());
+/*XXX notifying outputQueue removed from here --AV
+*/
 }
 
 bool EtherModule::sendData(EtherFrame6* frame)

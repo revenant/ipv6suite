@@ -63,12 +63,11 @@ module LinkLayer6
                 extSignalIn[sizeof(extSignalIn)],
                 extSignalOut[sizeof(extSignalOut)];
             display: "p=87,125;i=bwxconn";
-    connections nocheck:
+    connections:
 
         // IP layer to Network interface
         outputQueueIn --> networkInterface.ipOutputQueueIn;
         inputQueueOut <-- networkInterface.ipInputQueueOut;
-        // XXX networkInterface.ipOutputQueueOut left unconnected --AV
 
         // physical connection
         networkInterface.physicalOut --> physOut;

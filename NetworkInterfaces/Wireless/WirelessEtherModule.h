@@ -174,9 +174,6 @@ public:
   // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
   virtual int outputQueueInGate() { return findGate("ipOutputQueueIn"); }
 
-  // output gate of the Output Queue to other layer or peer L2 modules
-  virtual int outputQueueOutGate() { return findGate("ipOutputQueueOut"); }
-
   // output gate of the Input Queue to other layer or peer L2 modules
   virtual int inputQueueOutGate() { return findGate("ipInputQueueOut"); }
 

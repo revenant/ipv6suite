@@ -38,5 +38,5 @@ module NetworkInterface6
         nwiXmlConfig: xml;
     gates:
         in: physicalIn, ipOutputQueueIn, extSignalIn[];
-        out: physicalOut, ipOutputQueueOut, ipInputQueueOut, extSignalOut[];
+        out: physicalOut, ipInputQueueOut, extSignalOut[];
 endmodule

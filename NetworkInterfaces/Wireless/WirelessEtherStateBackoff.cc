@@ -79,7 +79,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());
   assert(outData); // check if the frame is ok
-  if( ((FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBEREQUEST)||(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+  if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
   {
     if ( SIFS < a->elapsedTime() )
     {
@@ -139,18 +139,18 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth
   // is 1Mbps
 
-  double d = (double)FIXME_FIXME_FIXME_DATA_DATA->length()*8;
+  double d = (double)WEBASICFRAME_IN(data)->length()*8;
   simtime_t transmTime = d / BASE_SPEED;
 
 
   // GD Hack: assume not (toDS=1, FromDS=1).
 
-  short st = FIXME_FIXME_FIXME_DATA_DATA->getFrameControl().subtype;
+  short st = WEBASICFRAME_IN(data)->getFrameControl().subtype;
   if(!(( st == ST_CTS) || (  st == ST_ACK )))  {
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->encapsulatedMsg()))->getAddress2()
+       << " sending a frame to : " << WEBASICFRAME_IN(data)->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->encapsulatedMsg()))->getAddress2()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }
@@ -158,7 +158,7 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1()
+       << " sending a frame to : " << WEBASICFRAME_IN(data)->getAddress1()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }

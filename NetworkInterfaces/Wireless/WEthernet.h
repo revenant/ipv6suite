@@ -57,7 +57,6 @@ inline WESignalData *encapsulateIntoWESignalData(cMessage *msg) {
     return signal;
 }
 
-#define FIXME_FIXME_FIXME_OUTDATA_DATA  check_and_cast<WirelessEtherBasicFrame*>(outData->encapsulatedMsg())
-#define FIXME_FIXME_FIXME_DATA_DATA     check_and_cast<WirelessEtherBasicFrame*>(data->encapsulatedMsg())
+#define WEBASICFRAME_IN(wesignal)  check_and_cast<WirelessEtherBasicFrame*>((wesignal)->encapsulatedMsg())
 
 #endif //__ETH_MISC_H

@@ -168,14 +168,14 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     mod->backoffTime = (int)intuniform(0, cw) * SLOTTIME + DIFS;
   }
 
-  if(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_DATA)
+  if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
   {
     mod->totalBackoffTime.sampleTotal += mod->backoffTime;
   }
 
   mod->changeState(WirelessEtherStateBackoff::instance());
   // set retry flag of the sending frame to true
-  FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().retry = true;
+  WEBASICFRAME_IN(outData)->getFrameControl().retry = true;
 
   // We go to Backoff state instead of Backoff because we know that
   // there is nothing in the medium as all MS's cease sending the

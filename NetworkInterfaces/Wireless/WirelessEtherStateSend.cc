@@ -66,7 +66,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateSend::processIdle(WirelessEtherMod
 
 std::auto_ptr<WESignalData> WirelessEtherStateSend::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
 {
-  if(FIXME_FIXME_FIXME_DATA_DATA->getFrameControl().subtype == ST_ACK)
+  if(WEBASICFRAME_IN(data)->getFrameControl().subtype == ST_ACK)
   {
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
          << mod->fullPath() << ":" << "while sending, an ACK was received");

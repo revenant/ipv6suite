@@ -181,7 +181,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
     //check if output frame is a probe req/resp and fast active scan is enabled
     WESignalData* outData = *(mod->outputBuffer.begin());
     assert(outData); // check if the frame is ok
-    if( ((FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBEREQUEST)||(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+    if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
     {
       numSlots = intuniform(0,CW_MIN);
       mod->backoffTime = numSlots * SLOTTIME + SIFS;
@@ -193,7 +193,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
       mod->backoffTime = numSlots * SLOTTIME + DIFS;
     }
 
-    if(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_DATA)
+    if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
     {
       mod->totalBackoffTime.sampleTotal += mod->backoffTime;
     }

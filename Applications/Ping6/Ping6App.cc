@@ -85,7 +85,7 @@ void Ping6App::initialize()
   avg = 0;
   nextEstSeqNo = 0;
   lastReceiveTime = 0;
-  hostid = random() % (1<<16);
+  hostid = id(); // get unique number for Id
 
   if ( deadline == 0)
     return;
@@ -362,11 +362,7 @@ void Ping6App::printSummery(void)
   cout <<"--------------------------------------------------------" <<endl;
   cout.precision(orig_prec);
 
-#if !defined OPP_VERSION || OPP_VERSION < 3
-  recordStats("Ping roundtrip delays", stat);
-#else
   stat->recordScalar("Ping roundtrip delays");
-#endif
 
   isFinish = true;
 }

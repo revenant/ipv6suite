@@ -64,8 +64,8 @@ OBJS=
 GENERATEDHEADERS= 
 
 # subdirectories to recurse into
-SUBDIRS= __tmp BulkTransfer FlatNet KIDSNw1 Multicast NClients RouterPerf
-SUBDIR_TARGETS=  __tmp_dir BulkTransfer_dir FlatNet_dir KIDSNw1_dir Multicast_dir NClients_dir RouterPerf_dir
+SUBDIRS= BulkTransfer FlatNet KIDSNw1 Multicast NClients RouterPerf
+SUBDIR_TARGETS=  BulkTransfer_dir FlatNet_dir KIDSNw1_dir Multicast_dir NClients_dir RouterPerf_dir
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -76,9 +76,6 @@ $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 # 	purify $(CXX) $(LDFLAGS) $(OBJS) $(EXTRA_OBJS) $(EXT_DIR_OBJS) $(LIBS) -L$(OMNETPP_LIB_DIR) $(KERNEL_LIBS) $(USERIF_LIBS) $(SYS_LIBS_PURE) -o $(TARGET).pure
 
 subdirs: $(SUBDIR_TARGETS)
-
-__tmp_dir:
-	cd __tmp && cd && nmake /nologo /f Makefile.vc
 
 BulkTransfer_dir:
 	cd BulkTransfer && cd && nmake /nologo /f Makefile.vc

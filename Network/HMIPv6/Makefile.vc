@@ -362,7 +362,11 @@ EHCDSMobileNode.obj: EHCDSMobileNode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../config.h
+  ../../config.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp
 EHNDStateHost.obj: EHNDStateHost.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -827,6 +831,10 @@ EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/boost/type_traits/add_cv.hpp \
   ../../Util/boost/type_traits/is_const.hpp \
   ../../Util/boost/type_traits/remove_volatile.hpp \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -1058,7 +1066,11 @@ HMIPv6CDSMobileNode.obj: HMIPv6CDSMobileNode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../config.h
+  ../../config.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp
 HMIPv6Entry.obj: HMIPv6Entry.cc \
   HMIPv6Entry.h \
   HMIPv6ICMPv6NDMessage.h \

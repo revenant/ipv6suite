@@ -767,6 +767,10 @@ MIPv6CDSMobileNode.obj: MIPv6CDSMobileNode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../config.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
   ../ICMPv6/NDEntry.h \
@@ -1653,6 +1657,10 @@ MIPv6MNEntry.obj: MIPv6MNEntry.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../config.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../IPv6/IPv6Address.h
 MIPv6MobilityHeaders.obj: MIPv6MobilityHeaders.cc \
   MIPv6MobilityHeaders.h \
@@ -2014,6 +2022,7 @@ MIPv6MobilityState.obj: MIPv6MobilityState.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
+  ../../Util/opp_utils.h \
   ../IPv6/IPv6Headers.h \
   ../IPv4/IPProtocolId_m.h \
   ../IPv6/HdrExtProc.h \
@@ -2228,15 +2237,9 @@ MIPv6MStateCorrespondentNode.obj: MIPv6MStateCorrespondentNode.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
-  ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
-  MIPv6MessageBase.h \
-  MIPv6MHParameters.h \
-  ../IPv6/IPInterfacePacket.h \
-  ../IPv6/HdrExtProc.h \
-  ../IPv6/IPInterfacePacket_m.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/shared_ptr.hpp \
-  ../ICMPv6/NDEntry.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -2244,7 +2247,14 @@ MIPv6MStateCorrespondentNode.obj: MIPv6MStateCorrespondentNode.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/boost/weak_ptr.hpp \
+  ../IPv6/IPv6Headers.h \
+  ../IPv4/IPProtocolId_m.h \
+  MIPv6MessageBase.h \
+  MIPv6MHParameters.h \
+  ../IPv6/IPInterfacePacket.h \
+  ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
+  ../ICMPv6/NDEntry.h \
   ../IPv6/IPv6Address.h \
   ../IPv6/HdrExtDestProc.h \
   ../../Util/boost/utility.hpp \
@@ -3317,4 +3327,16 @@ MIPv6Timers.obj: MIPv6Timers.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../config.h
+  ../../config.h \
+  ../../Util/opp_utils.h \
+  ../../Util/boost/weak_ptr.hpp \
+  ../../Util/boost/cast.hpp \
+  ../../Util/boost/shared_ptr.hpp \
+  ../../Util/boost/assert.hpp \
+  ../../Util/boost/throw_exception.hpp \
+  ../../Util/boost/detail/shared_count.hpp \
+  ../../Util/boost/detail/lightweight_mutex.hpp \
+  ../../Util/boost/detail/lwm_win32_nt.hpp \
+  ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp

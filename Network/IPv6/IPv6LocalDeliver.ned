@@ -31,7 +31,7 @@
 // - send IGMP group management packet to Multicast module
 // - send tunneled IP datagram to PreRouting
 //
-simple IPv6LocalDeliver6
+simple IPv6LocalDeliver
     parameters:
         procdelay,
         numOfTransportProt : numeric const,

@@ -113,7 +113,7 @@ void IPv6Forward::initialize(int stage)
     routingInfoDisplay = par("routingInfoDisplay");
 #ifdef USE_MOBILITY
     tunMod = check_and_cast<IPv6Encapsulation*>
-      (OPP_Global::findModuleByName(this, "tunneling"));
+      (OPP_Global::findModuleByName(this, "tunneling")); // XXX why pointers to other modules? why???? --AV
     assert(tunMod != 0);
 #endif //USE_MOBILITY
   }
@@ -122,7 +122,7 @@ void IPv6Forward::initialize(int stage)
   else if (stage == numInitStages() - 1 && rt->isRouter())
   {
     //Get the nd pointer to ndstaterouter/host pointer
-    cModule* procMod = parentModule()->parentModule();
+    cModule* procMod = parentModule();  // XXX why pointers to other modules? why???? --AV
     cModule* icmp = procMod->submodule("ICMP");
     assert(icmp);
     cModule* ndMod = icmp->submodule("nd");
@@ -181,21 +181,6 @@ void IPv6Forward::handleMessage(cMessage* theMsg)
     assert(recDatagram.get());
     Debug( assert(recDatagram->inputPort() < (int)rt->interfaceCount()); );
 
-/*
-    // pass Datagram through netfilter
-    if (hasHook)
-    {
-      send(datagram, "netfilterOut");
-      dfmsg = receiveNewOn("netfilterIn");
-      if (dfmsg->kind() == DISCARD_PACKET)
-      {
-        delete dfmsg;
-
-        continue;
-      }
-      datagram = check_and_cast<IPv6Datagram*>(dfmsg);
-    }
-*/
     if (!waitTmr->isScheduled() && 0 == curPacket)
     {
       curPacket = recDatagram.release();

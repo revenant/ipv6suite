@@ -84,7 +84,7 @@ NDState* NDState::startND(NeighbourDiscovery* mod)
       {
 #if EDGEHANDOVER
         IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
-          (OPP_Global::findModuleByType(mod->rt, "IPv6Mobility"));
+          (OPP_Global::findModuleByType(mod->rt, "IPv6Mobility")); // XXX why pointers to other modules? why???? --AV
         assert(mob);
         if (mob->edgeHandover())
           state = EdgeHandover::EHNDStateHost::create(mod, mob->edgeHandoverType());

@@ -55,11 +55,9 @@ void IPv6PreRouting::initialize()
     waitTmr = new cMessage("PreRouting6CoreWait");
     curPacket = 0;
 
-    cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
-    forwardMod = check_and_cast<IPv6Forward*>
-      (forward->submodule("core"));
+    cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX why pointers to other modules? why???? --AV
+    forwardMod = check_and_cast<IPv6Forward*>(forward);
     assert(forwardMod != 0);
-
 }
 
 /**

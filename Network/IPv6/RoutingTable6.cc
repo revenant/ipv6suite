@@ -134,9 +134,9 @@ void RoutingTable6::initialize(int stage)
     // XXX   Dout(dc::warning|error_cf, nodeName()<<" "<<e.what());
     // XXX }
 
-    cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP");
+    cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP"); // XXX why pointers to other modules? why???? --AV
     assert(ICMP);
-    mld = static_cast<MLD*>(OPP_Global::findModuleByTypeDepthFirst(ICMP,"MLD"));
+    mld = static_cast<MLD*>(OPP_Global::findModuleByTypeDepthFirst(ICMP,"MLD")); // XXX why pointers to other modules? why???? --AV
     assert(mld);
 
     //Create here for now
@@ -539,13 +539,13 @@ void RoutingTable6::print()
   PRINTF("============================================================================ \n");
 
   IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
-    (OPP_Global::findModuleByName(this, "tunneling"));
+    (OPP_Global::findModuleByName(this, "tunneling")); // XXX why pointers to other modules? why???? --AV
   assert(tunMod != 0);
 
   cout<<(*tunMod);
 
   IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
-    (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward"));
+    (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX why pointers to other modules? why???? --AV
   cout<<(*forwardMod);
 }
 

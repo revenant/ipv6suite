@@ -34,7 +34,7 @@
 // @author Johnny Lai
 // @date 28/08/01
 //
-simple IPv6ForwardCore
+simple IPv6Forward
     parameters:
         procdelay : numeric const,
         routingInfoDisplay: bool;

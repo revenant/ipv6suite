@@ -129,9 +129,9 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
   {
     PPP6Frame* outFrame = receiveFromUpperLayer(msg);
     send(outFrame, "physicalOut");
-    cMessage *nwiIdleMsg = new cMessage();
-    nwiIdleMsg->setKind(NWI_IDLE);
-    send(nwiIdleMsg, "ipOutputQueueOut");
+    //XXX cMessage *nwiIdleMsg = new cMessage();
+    //XXX nwiIdleMsg->setKind(NWI_IDLE);
+    //XXX send(nwiIdleMsg, "ipOutputQueueOut");
     return;
   }
 

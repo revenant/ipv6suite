@@ -123,11 +123,10 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
     outputMod[i] = procMod->submodule("output", i);
-    outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
     assert(check_and_cast<IPv6Output*>(outputMod[i]));
     if (!outputMod[i])
-      DoutFatal(dc::core|error_cf, "Cannot find outputCore module");
+      DoutFatal(dc::core|error_cf, "Cannot find IPv6Output module");
   }
 
   // Initialise this magic number once only as its constant during runtime and

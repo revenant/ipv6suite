@@ -11,6 +11,7 @@
 #include "opp_utils.h"
 #include "NDStates.h"
 #include "RoutingTable6.h"
+#include "RoutingTable6Access.h"
 #include "cTimerMessage.h"
 
 

@@ -73,10 +73,8 @@ void IPv6Output::initialize()
     parentModule()->displayString().setTagArg("q",0,"queue");
     displayString().setTagArg("q",0,"queue");
 
-    cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
-    assert(forward);
-    forwardMod = check_and_cast<IPv6Forward*>(forward->submodule("core"));
-    assert(forwardMod != 0);
+    cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX why pointers to other modules? why???? --AV
+    forwardMod = check_and_cast<IPv6Forward*>(forward);
 }
 
 void IPv6Output::endService(cMessage* msg)

@@ -35,38 +35,21 @@
     @date 28/08/01
 */
 
-#ifndef ROUTING6CORE_H
-#define ROUTING6CORE_H
+#ifndef __IPv6FORWARD_H__
+#define __IPv6FORWARD_H__
 
-#ifndef MAP
-#define MAP
 #include <map>
-#endif //MAP
-#ifndef VECTOR
-#define VECTOR
 #include <vector>
-#endif //VECTOR
-
-#ifndef BOOST_SHARED_PTR_HPP
 #include <boost/shared_ptr.hpp>
-#endif //BOOST_SHARED_PTR_HPP
-#ifndef FUNCTIONAL
 #include <functional>
-#endif //FUNCTIONAL
 
-#ifndef ROUTINGTABLE6ACCESS_H
 #include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
-#ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
-#endif //IPv6_ADDR_H
-#ifndef IPV6DATAGRAM_H
 #include "IPv6Datagram.h"
-#endif //IPV6DATAGRAM_H
 
 //The last route is always the dest
 typedef vector<ipv6_addr> _SrcRoute;
-typedef boost::shared_ptr< _SrcRoute > SrcRoute;
+typedef boost::shared_ptr<_SrcRoute> SrcRoute;
 
 class ipv6AddrHash: public unary_function<ipv6_addr, size_t>
 {
@@ -168,3 +151,4 @@ private:
 std::ostream& operator<<(std::ostream & os, IPv6Forward& routeMod);
 
 #endif
+

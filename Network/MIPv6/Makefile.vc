@@ -771,7 +771,6 @@ MIPv6CDSMobileNode.obj: MIPv6CDSMobileNode.cc \
   ../../Util/Loki/Singleton.h \
   ../IPv6/RoutingTable6Access.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   ../IPv6/NDEntry.h \
   ../../Util/TimerConstants.h
 MIPv6DestOptMessages.obj: MIPv6DestOptMessages.cc \
@@ -2026,7 +2025,6 @@ MIPv6MobilityState.obj: MIPv6MobilityState.cc \
   ../IPv6/IPInterfacePacket_m.h \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../IPv6/NDEntry.h \
   ../IPv6/IPv6Address.h \
   ../../Util/cTimerMessageCB.h \
@@ -2262,7 +2260,6 @@ MIPv6MStateCorrespondentNode.obj: MIPv6MStateCorrespondentNode.cc \
   ../../Util/boost/utility_fwd.hpp \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
@@ -2482,7 +2479,6 @@ MIPv6MStateHomeAgent.obj: MIPv6MStateHomeAgent.cc \
   ../../Util/boost/utility_fwd.hpp \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
@@ -2728,7 +2724,6 @@ MIPv6MStateMobileNode.obj: MIPv6MStateMobileNode.cc \
   ../IPv6/HdrExtDestProc.h \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ./MIPv6CDSMobileNode.h \
   ../HMIPv6/HMIPv6Entry.h \
   ./MIPv6CDS.h \
@@ -2985,7 +2980,6 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   ../IPv6/INeighbourCache.h \
   ../IPv6/IDestinationCache.h \
   ./MIPv6Entry.h \
-  ../../Util/cTypedArrays.h \
   MIPv6CDS.h \
   MIPv6MobilityHeaders.h \
   MIPv6MessageBase.h \
@@ -3085,7 +3079,6 @@ MIPv6NDStateRouter.obj: MIPv6NDStateRouter.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedArrays.h \
   ../IPv6/IPv6Headers.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/utility/addressof.hpp \

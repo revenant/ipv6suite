@@ -299,11 +299,10 @@ XMLCommon.obj: XMLCommon.cc \
   ../boost/mpl/integral_c_fwd.hpp \
   ../boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
-  ../cTypedArrays.h \
   ../../Network/IPv6/NDEntry.h \
   ../../Network/IPv6/IPv6Headers.h \
-  ../../Network/IPv6/IPv6Address.h \
   ../boost/weak_ptr.hpp \
+  ../../Network/IPv6/IPv6Address.h \
   ../boost/shared_ptr.hpp \
   ../boost/assert.hpp \
   ../boost/checked_delete.hpp \
@@ -529,7 +528,6 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../boost/mpl/integral_c_fwd.hpp \
   ../boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
-  ../cTypedArrays.h \
   ../../Network/IPv6/NDEntry.h \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/IPv6Address.h \

@@ -613,7 +613,6 @@ EHNDStateHost.obj: EHNDStateHost.cc \
   ../MIPv6/MIPv6CDS.h \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../IPv6/RoutingTable6Access.h
 EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/sys.h \
@@ -1805,7 +1804,6 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../IPv6/IPInterfacePacket_m.h \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
@@ -2020,7 +2018,6 @@ HMIPv6NDStateRouter.obj: HMIPv6NDStateRouter.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedArrays.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \

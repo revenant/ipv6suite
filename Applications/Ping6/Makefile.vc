@@ -309,7 +309,6 @@ Ping6App.obj: Ping6App.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Network/IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   ../../Network/IPv6/NDEntry.h \
   ../../Network/IPv6/IPv6Address.h \
   ../../Util/cTimerMessageCB.h \

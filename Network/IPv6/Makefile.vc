@@ -473,8 +473,6 @@ AddressResolution.obj: AddressResolution.cc \
   ./ipv6_addr.h \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
-  ./IPv6Address.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -500,7 +498,8 @@ AddressResolution.obj: AddressResolution.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
-  ./NDEntry.h
+  ./NDEntry.h \
+  ./IPv6Address.h
 Constants.obj: Constants.cc \
   Constants.h
 HdrExtDestProc.obj: HdrExtDestProc.cc \
@@ -1368,10 +1367,7 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   IPv6Address.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
@@ -2293,12 +2289,10 @@ Interface6Entry.obj: Interface6Entry.cc \
   Interface6Entry.h \
   IPv6Headers.h \
   ../../Util/opp_akaroa.h \
-  ../../Util/cTypedArrays.h \
   ipv6_addr.h \
   NDEntry.h \
-  ./IPv6Address.h \
   ../../Util/boost/operators.hpp \
-  ./ipv6_addr.h \
+  ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
   ../../Util/boost/iterator.hpp \
   ../../Util/boost/detail/workaround.hpp \
@@ -2309,7 +2303,6 @@ Interface6Entry.obj: Interface6Entry.cc \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/non_type.hpp \
-  ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
   ../../Util/boost/type_traits/detail/yes_no_type.hpp \
@@ -3553,9 +3546,6 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
@@ -3583,7 +3573,9 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
+  ./IPv6Address.h \
   ../../Util/TimerConstants.h
 IPv6ForwardCore.obj: IPv6ForwardCore.cc \
   ../../Util/sys.h \
@@ -3809,16 +3801,15 @@ IPv6ForwardCore.obj: IPv6ForwardCore.cc \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   HdrExtProc.h \
-  ../../Util/cTypedArrays.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   IRouterList.h \
   IPrefixList.h \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6CDS.h \
+  ./IPv6Address.h \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../MIPv6/MIPv6MHParameters.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
   ./HdrExtDestProc.h \
   ./IPv6Headers.h \
@@ -4013,11 +4004,8 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -4735,10 +4723,7 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   HdrExtProc.h \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -4769,6 +4754,7 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ./ipv6_addr.h \
   ./IPv6Datagram.h \
   ./IPInterfacePacket.h \
   ./HdrExtProc.h \
@@ -4776,6 +4762,7 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ./IPInterfacePacket_m.h \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../MIPv6/MIPv6MHParameters.h \
+  ./IPv6Address.h \
   ../../Util/cTTimerMessageCB.h \
   ../../Util/TimerConstants.h \
   ../MIPv6/MIPv6MStateCorrespondentNode.h \
@@ -4956,10 +4943,7 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -5185,9 +5169,6 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -5212,7 +5193,9 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
+  ./IPv6Address.h \
   IPv6Address.h
 IPv6SendCore.obj: IPv6SendCore.cc \
   ../../Util/sys.h \
@@ -5392,10 +5375,7 @@ IPv6SendCore.obj: IPv6SendCore.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -6119,11 +6099,8 @@ MLD.obj: MLD.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -6162,7 +6139,9 @@ MLD.obj: MLD.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
-  ./NDEntry.h
+  ./ipv6_addr.h \
+  ./NDEntry.h \
+  ./IPv6Address.h
 MLDMessage.obj: MLDMessage.cc \
   MLDMessage.h \
   ICMPv6Message.h \
@@ -6657,11 +6636,8 @@ MLDv2Record.obj: MLDv2Record.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
@@ -6699,7 +6675,9 @@ MLDv2Record.obj: MLDv2Record.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
-  ./NDEntry.h
+  ./ipv6_addr.h \
+  ./NDEntry.h \
+  ./IPv6Address.h
 NDEntry.obj: NDEntry.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -6928,6 +6906,7 @@ NDStateHost.obj: NDStateHost.cc \
   ../../NetworkInterfaces/Wireless/WirelessEtherModule.h \
   NDStates.h \
   ../../Util/boost/utility.hpp \
+  IPv6Address.h \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -6986,16 +6965,15 @@ NDStateHost.obj: NDStateHost.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
+  ../../Util/boost/operators.hpp \
+  ../../Util/boost/iterator.hpp \
   ICMPv6NDMessageBase.h \
   NDEntry.h \
   ICMPv6NDOptionBase.h \
   ICMPv6NDMessageBase.cc \
-  ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
   Constants.h \
   ICMPv6NDOptions.h \
   ../../Util/boost/weak_ptr.hpp \
-  IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -7005,10 +6983,19 @@ NDStateHost.obj: NDStateHost.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../../Util/cTypedArrays.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
+  ../../Util/cTimerMessageCB.h \
+  ../../Util/Loki/Functor.h \
+  ../../Util/Loki/HierarchyGenerators.h \
+  ../../Util/Loki/Typelist.h \
+  ../../Util/Loki/EmptyType.h \
+  ../../Util/Loki/SmallObj.h \
+  ../../Util/Loki/TypeTraits.h \
+  ../../Util/Loki/NullType.h \
+  ../../Util/Loki/TypeManip.h \
+  ../../Util/Loki/Threads.h \
+  ../../Util/Loki/Singleton.h \
+  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -7114,18 +7101,6 @@ NDStateHost.obj: NDStateHost.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Util/cTimerMessageCB.h \
-  ../../Util/Loki/Functor.h \
-  ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/Loki/Typelist.h \
-  ../../Util/Loki/EmptyType.h \
-  ../../Util/Loki/SmallObj.h \
-  ../../Util/Loki/TypeTraits.h \
-  ../../Util/Loki/NullType.h \
-  ../../Util/Loki/TypeManip.h \
-  ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h \
-  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
@@ -7134,7 +7109,9 @@ NDStateHost.obj: NDStateHost.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
+  ./IPv6Address.h \
   ../../Util/TimerConstants.h \
   ./ICMPv6NDOptionBase.h \
   ./NDStateHost.h \
@@ -7192,14 +7169,88 @@ NDStateRouter.obj: NDStateRouter.cc \
   Interface6Entry.h \
   NDStates.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ../../Util/boost/operators.hpp \
-  ./ipv6_addr.h \
-  ../../Util/boost/iterator.hpp \
+  ../../Util/boost/weak_ptr.hpp \
+  IPv6Address.h \
+  ../../Util/boost/shared_ptr.hpp \
+  ../../Util/boost/assert.hpp \
+  ../../Util/boost/checked_delete.hpp \
+  ../../Util/boost/throw_exception.hpp \
+  ../../Util/boost/detail/shared_count.hpp \
   ../../Util/boost/detail/workaround.hpp \
+  ../../Util/boost/detail/lightweight_mutex.hpp \
+  ../../Util/boost/detail/lwm_win32_nt.hpp \
+  ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Util/boost/operators.hpp \
+  ../../Util/boost/iterator.hpp \
+  ../../Util/boost/utility.hpp \
+  ../../Util/boost/utility/addressof.hpp \
+  ../../Util/boost/utility/base_from_member.hpp \
+  ../../Util/boost/next_prior.hpp \
+  ../../Util/boost/noncopyable.hpp \
+  ../../Util/boost/type_traits/add_pointer.hpp \
+  ../../Util/boost/type_traits/remove_reference.hpp \
+  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
+  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
+  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
+  ../../Util/boost/mpl/aux_/lambda_support.hpp \
+  ../../Util/boost/mpl/aux_/config/lambda.hpp \
+  ../../Util/boost/mpl/aux_/config/workaround.hpp \
+  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
+  ../../Util/boost/preprocessor/tuple/to_list.hpp \
+  ../../Util/boost/preprocessor/list/for_each_i.hpp \
+  ../../Util/boost/preprocessor/inc.hpp \
+  ../../Util/boost/preprocessor/cat.hpp \
+  ../../Util/boost/mpl/aux_/config/ttp.hpp \
+  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
+  ../../Util/boost/preprocessor/comma_if.hpp \
+  ../../Util/boost/preprocessor/repeat.hpp \
+  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
+  ../../Util/boost/preprocessor/config/config.hpp \
+  ../../Util/boost/preprocessor/control/if.hpp \
+  ../../Util/boost/preprocessor/facilities/empty.hpp \
+  ../../Util/boost/preprocessor/punctuation/comma.hpp \
+  ../../Util/boost/preprocessor/control/iif.hpp \
+  ../../Util/boost/preprocessor/logical/bool.hpp \
+  ../../Util/boost/preprocessor/repetition/repeat.hpp \
+  ../../Util/boost/preprocessor/debug/error.hpp \
+  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
+  ../../Util/boost/preprocessor/tuple/eat.hpp \
+  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
+  ../../Util/boost/preprocessor/list/adt.hpp \
+  ../../Util/boost/preprocessor/repetition/for.hpp \
+  ../../Util/boost/preprocessor/tuple/elem.hpp \
+  ../../Util/boost/preprocessor/tuple/rem.hpp \
+  ../../Util/boost/preprocessor/detail/is_binary.hpp \
+  ../../Util/boost/preprocessor/logical/compl.hpp \
+  ../../Util/boost/preprocessor/detail/check.hpp \
+  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
+  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
+  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
+  ../../Util/boost/preprocessor/control/expr_iif.hpp \
+  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
+  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
+  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
+  ../../Util/boost/utility_fwd.hpp \
+  ICMPv6NDMessageBase.h \
+  ICMPv6NDOptionBase.h \
+  ICMPv6NDMessageBase.cc \
+  Constants.h \
+  ICMPv6NDOptions.h \
+  ../../Util/ExpiryEntryList.h \
+  ../../Util/cTimerMessageCB.h \
+  ../../Util/Loki/Functor.h \
+  ../../Util/Loki/HierarchyGenerators.h \
+  ../../Util/Loki/Typelist.h \
+  ../../Util/Loki/EmptyType.h \
+  ../../Util/Loki/SmallObj.h \
+  ../../Util/Loki/TypeTraits.h \
+  ../../Util/Loki/NullType.h \
+  ../../Util/Loki/TypeManip.h \
+  ../../Util/Loki/Threads.h \
+  ../../Util/Loki/Singleton.h \
+  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
   ../../Util/boost/type_traits/remove_const.hpp \
@@ -7212,10 +7263,7 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/boost/mpl/aux_/has_xxx.hpp \
   ../../Util/boost/type_traits/detail/bool_trait_def.hpp \
   ../../Util/boost/type_traits/is_volatile.hpp \
-  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
   ../../Util/boost/type_traits/detail/cv_traits_impl.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
   ../../Util/boost/type_traits/is_reference.hpp \
   ../../Util/boost/type_traits/is_array.hpp \
   ../../Util/boost/type_traits/detail/false_result.hpp \
@@ -7225,52 +7273,14 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/boost/type_traits/detail/is_function_type_tester.hpp \
   ../../Util/boost/preprocessor/iterate.hpp \
   ../../Util/boost/preprocessor/enum_params.hpp \
-  ../../Util/boost/preprocessor/comma_if.hpp \
   ../../Util/boost/preprocessor/iteration/iterate.hpp \
   ../../Util/boost/preprocessor/arithmetic/dec.hpp \
-  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
   ../../Util/boost/preprocessor/array/elem.hpp \
   ../../Util/boost/preprocessor/array/size.hpp \
-  ../../Util/boost/preprocessor/cat.hpp \
   ../../Util/boost/preprocessor/slot/slot.hpp \
-  ../../Util/boost/preprocessor/tuple/elem.hpp \
-  ../../Util/boost/preprocessor/config/config.hpp \
   ../../Util/boost/preprocessor/array/data.hpp \
   ../../Util/boost/preprocessor/slot/detail/def.hpp \
   ../../Util/boost/preprocessor/repetition/enum_params.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
-  ../../Util/boost/preprocessor/repetition/repeat.hpp \
-  ../../Util/boost/preprocessor/control/if.hpp \
-  ../../Util/boost/preprocessor/facilities/empty.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma.hpp \
-  ../../Util/boost/preprocessor/control/iif.hpp \
-  ../../Util/boost/preprocessor/logical/bool.hpp \
-  ../../Util/boost/preprocessor/debug/error.hpp \
-  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
-  ../../Util/boost/preprocessor/tuple/eat.hpp \
-  ../../Util/boost/mpl/aux_/lambda_support.hpp \
-  ../../Util/boost/mpl/aux_/config/lambda.hpp \
-  ../../Util/boost/mpl/aux_/config/workaround.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
-  ../../Util/boost/preprocessor/tuple/to_list.hpp \
-  ../../Util/boost/preprocessor/list/for_each_i.hpp \
-  ../../Util/boost/preprocessor/inc.hpp \
-  ../../Util/boost/mpl/aux_/config/ttp.hpp \
-  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
-  ../../Util/boost/preprocessor/repeat.hpp \
-  ../../Util/boost/preprocessor/list/adt.hpp \
-  ../../Util/boost/preprocessor/repetition/for.hpp \
-  ../../Util/boost/preprocessor/tuple/rem.hpp \
-  ../../Util/boost/preprocessor/detail/is_binary.hpp \
-  ../../Util/boost/preprocessor/logical/compl.hpp \
-  ../../Util/boost/preprocessor/detail/check.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
-  ../../Util/boost/preprocessor/control/expr_iif.hpp \
-  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
-  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/type_traits/is_member_pointer.hpp \
   ../../Util/boost/type_traits/detail/ice_and.hpp \
   ../../Util/boost/type_traits/detail/ice_not.hpp \
@@ -7346,48 +7356,14 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Util/boost/weak_ptr.hpp \
-  IPv6Address.h \
-  ../../Util/boost/shared_ptr.hpp \
-  ../../Util/boost/assert.hpp \
-  ../../Util/boost/checked_delete.hpp \
-  ../../Util/boost/throw_exception.hpp \
-  ../../Util/boost/detail/shared_count.hpp \
-  ../../Util/boost/detail/lightweight_mutex.hpp \
-  ../../Util/boost/detail/lwm_win32_nt.hpp \
-  ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/boost/utility.hpp \
-  ../../Util/boost/utility/addressof.hpp \
-  ../../Util/boost/utility/base_from_member.hpp \
-  ../../Util/boost/next_prior.hpp \
-  ../../Util/boost/noncopyable.hpp \
-  ../../Util/boost/type_traits/add_pointer.hpp \
-  ../../Util/boost/type_traits/remove_reference.hpp \
-  ../../Util/boost/utility_fwd.hpp \
-  ICMPv6NDMessageBase.h \
-  ICMPv6NDOptionBase.h \
-  ICMPv6NDMessageBase.cc \
-  Constants.h \
-  ICMPv6NDOptions.h \
-  ../../Util/ExpiryEntryList.h \
-  ../../Util/cTimerMessageCB.h \
-  ../../Util/Loki/Functor.h \
-  ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/Loki/Typelist.h \
-  ../../Util/Loki/EmptyType.h \
-  ../../Util/Loki/SmallObj.h \
-  ../../Util/Loki/TypeTraits.h \
-  ../../Util/Loki/NullType.h \
-  ../../Util/Loki/TypeManip.h \
-  ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h \
-  ../IPv4/IPProtocolId_m.h \
   IRouterList.h \
   IPrefixList.h \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
+  ./IPv6Address.h \
   ../../Util/cTypedMessage.h \
   ./ICMPv6NDOptionBase.h \
   RoutingTable6Access.h
@@ -7586,9 +7562,7 @@ NDStates.obj: NDStates.cc \
   ./ICMPv6NDOptionBase.h \
   ./ipv6_addr.h \
   Interface6Entry.h \
-  ../../Util/cTypedArrays.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
   ../IPv4/IPProtocolId_m.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
@@ -7625,6 +7599,7 @@ NDStates.obj: NDStates.cc \
   ./Constants.h \
   ./ICMPv6NDOptions.h \
   ./IPv6Headers.h \
+  ./IPv6Address.h \
   ./NDStateRouter.h \
   ./Interface6Entry.h \
   ../../Util/boost/tuple/tuple.hpp \
@@ -7652,6 +7627,7 @@ NDTimers.obj: NDTimers.cc \
   RoutingTable6.h \
   ../../Util/boost/utility.hpp \
   ipv6_addr.h \
+  IPv6Address.h \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
   ../../Util/boost/checked_delete.hpp \
@@ -7825,12 +7801,8 @@ NDTimers.obj: NDTimers.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
-  IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -8043,8 +8015,6 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
-  ./IPv6Address.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -8429,10 +8399,7 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Util/cTypedArrays.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -8471,7 +8438,9 @@ RoutingTable6.obj: RoutingTable6.cc \
   INeighbourCache.h \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
+  ./ipv6_addr.h \
   ./NDEntry.h \
+  ./IPv6Address.h \
   MLDv2Record.h \
   ../MIPv6/MIPv6CDS.h \
   ../MIPv6/MIPv6MobilityHeaders.h \
@@ -8658,11 +8627,8 @@ RoutingTable6Access.obj: RoutingTable6Access.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../config.h \
-  ../../Util/cTypedArrays.h \
   NDEntry.h \
   IPv6Headers.h \
-  ./IPv6Address.h \
-  ./ipv6_addr.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
   ../../Util/boost/shared_ptr.hpp \

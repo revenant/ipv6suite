@@ -166,6 +166,15 @@ void RoutingTable::printRoutingTable()
     ev << "\n";
 }
 
+std::vector<IPAddress> RoutingTable::gatherAddresses()
+{
+    std::vector<IPAddress> addressvector;
+
+    for (int i=0; i<ift->numInterfaces(); ++i)
+        addressvector.push_back(ift->interfaceAt(i)->ipv4()->inetAddress());
+    return addressvector;
+}
+
 //---
 
 void RoutingTable::configureInterfaceForIPv4(InterfaceEntry *ie)

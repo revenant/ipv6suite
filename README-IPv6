@@ -1,9 +1,18 @@
+IPv6Suite 
+=========
+
+Authors: Johnny Lai, Eric Wu, Steve Woon (CTIE, Monash University, 
+Melbourne, Australia)
+
+
 <description here..>
 
 
 ********************************************************************
                      Simulation Protocol Suite
 ********************************************************************
+
+[dir tree below is outdated! --Andras]
 
 - World Processor -> World
 
@@ -20,7 +29,7 @@
         |--- Wireless Ethernet -> NetworkInterfaces/Wireless
         |--- PPP module for IPv6 -> NetworkInterfaces/PPP
 
-- IP Layer -> IP
+- IP Layer -> Network
    |
    |-- Dual IPv4/IPv6 stack --> IP/DualStack
    |-- IPv4 stack --> IP/IPv4

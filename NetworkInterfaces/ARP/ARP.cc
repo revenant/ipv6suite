@@ -151,12 +151,16 @@ void ARP::processOutboundPacket(cMessage *msg)
         delete controlInfo;
     }
 
-    if (nextHopAddr.isNull())
+    if (!nextHopAddr.isNull())
+    {
+        EV << "using next-hop address " << nextHopAddr << "\n";
+    }
+    else
     {
         // try proxy ARP
         IPDatagram *datagram = check_and_cast<IPDatagram *>(msg);
         nextHopAddr = datagram->destAddress();
-        EV << "destination address " << nextHopAddr << " (no next-hop address)\n";
+        EV << "no next-hop address, using destination address " << nextHopAddr << " (proxy ARP)\n";
     }
 
     //

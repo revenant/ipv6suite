@@ -42,13 +42,14 @@ void IPFragmentation::handleMessage(cMessage *msg)
     IPDatagram *datagram  = check_and_cast<IPDatagram *>(msg);
     IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision *>(msg->controlInfo());
     int outputPort = controlInfo->outputPort();
+    IPAddress nextHopAddr = controlInfo->nextHopAddr();
 
     int mtu = ift->interfaceByPortNo(outputPort)->mtu();
 
     // check if datagram does not require fragmentation
     if (datagram->length()/8 <= mtu)
     {
-        sendDatagramToOutput(datagram, outputPort);
+        sendDatagramToOutput(datagram, outputPort, nextHopAddr);
         return;
     }
 
@@ -92,17 +93,26 @@ void IPFragmentation::handleMessage(cMessage *msg)
         }
         fragment->setFragmentOffset( i*(mtu - datagram->headerLength()) );
 
-        sendDatagramToOutput(fragment, outputPort);
+        sendDatagramToOutput(fragment, outputPort, nextHopAddr);
     }
 
     delete datagram;
 }
 
 
-void IPFragmentation::sendDatagramToOutput(IPDatagram *datagram, int outputPort)
+void IPFragmentation::sendDatagramToOutput(IPDatagram *datagram, int outputPort, IPAddress nextHopAddr)
 {
+    // check port index
     if (outputPort >= numOfPorts)
         error("Illegal output port %d", outputPort);
+
+    // attach next hop address if needed
+    if (!nextHopAddr.isNull())
+    {
+        IPRoutingDecision *routingDecision = new IPRoutingDecision();
+        routingDecision->setNextHopAddr(nextHopAddr);
+        datagram->setControlInfo(routingDecision);
+    }
 
     send(datagram, "outputOut", outputPort);
 }

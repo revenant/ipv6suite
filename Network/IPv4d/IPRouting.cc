@@ -99,13 +99,16 @@ void IPRouting::endService(cMessage *msg)
         return;
     }
 
+    // get next-hop address
+    IPAddress nextHopAddr = rt->nextGatewayAddress(destAddress);
+
     // set datagram source address if not yet set
     if (datagram->srcAddress().isNull())
         datagram->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
     // default: send datagram to fragmentation
     routingDecision->setOutputPort(outputPort);
-    //TBD: routingDecision->setNextHopAddr(nextHopAddr);
+    routingDecision->setNextHopAddr(nextHopAddr);
 
     ev << "output port is " << outputPort << "\n";
     numForwarded++;

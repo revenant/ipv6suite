@@ -53,8 +53,6 @@ module TCPSvrNode
                 server_addr = 0;
             display: "p=84,69;b=40,24,rect";
         errorHandling: ErrorHandling;
-            parameters:
-                nodename = "none";
             display: "b=32,30;p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:

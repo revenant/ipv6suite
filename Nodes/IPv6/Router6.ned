@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Router6.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Router6.ned,v 1.2 2005/02/16 01:21:03 andras Exp $
 //
 // Copyright (C) 2002, 2004 Eric Wu
 //
@@ -32,29 +32,27 @@ import
 //
 module Router6
     parameters:
-        IPv6routingFile : string;    
+        IPv6routingFile : string;
     gates:
         in: in[];
         out: out[];
 
     submodules:
         errorHandling: ErrorHandling;
-            parameters:
-                nodename = "none";
             display: "b=32,30;p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
                 // waiting times
-		//icmp_delay = 0,
-		//fragmentation_delay = 0.2 us,
-		//multicast_delay = 0.5 us,
-		//ipoutput_delay = 50ms,
-		//ipsend_delay = 0,
-		//iptunneling_delay = 0,
-		//localdeliver_delay = 0,
-		//prerouting_delay = 0.2 us,
-		//routing_delay = 1 us,
-		//inputqueue_delay = 0,
+        //icmp_delay = 0,
+        //fragmentation_delay = 0.2 us,
+        //multicast_delay = 0.5 us,
+        //ipoutput_delay = 50ms,
+        //ipsend_delay = 0,
+        //iptunneling_delay = 0,
+        //localdeliver_delay = 0,
+        //prerouting_delay = 0.2 us,
+        //routing_delay = 1 us,
+        //inputqueue_delay = 0,
 
                 // hook names
                 preRoutingHookName = "NF_IP_PRE_ROUTING",

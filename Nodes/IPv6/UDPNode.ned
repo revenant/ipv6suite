@@ -1,5 +1,5 @@
 // -*- Ned -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/UDPNode.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/UDPNode.ned,v 1.2 2005/02/16 01:21:03 andras Exp $
 // Copyright (C) 2002, 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -50,8 +50,6 @@ module UDPNode
         out: out[];
     submodules:
         errorHandling: ErrorHandling;
-            parameters:
-                nodename = "none";
             display: "b=32,30;p=291,222;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
@@ -94,10 +92,10 @@ module UDPNode
             display: "p=168,292;i=prot3;b=32,30";
         udpLayer: UDPProcessing6;
             gatesizes:
-		from_app[numOfUDPApps],
-		to_app[numOfUDPApps];
+        from_app[numOfUDPApps],
+        to_app[numOfUDPApps];
             display: "i=fork;p=160,152;b=32,30";
-	udpApps: UDPAppLayer[numOfUDPApps];
+    udpApps: UDPAppLayer[numOfUDPApps];
             display: "p=296,44;i=cogwheel;b=32,30";
         ping6App: Ping6App;
             display: "p=79,168;b=40,24";
@@ -108,7 +106,7 @@ module UDPNode
                 linkIn[sizeof(in)],
                 linkOut[sizeof(in)];
             display: "p=172,348;b=168,8;o=#4359d7,#4159d7";
-	connections nocheck:
+    connections nocheck:
        networkLayer.errorOut --> errorHandling.in;
 
         // Link Layer <-> Network Layer

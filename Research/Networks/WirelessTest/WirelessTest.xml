@@ -3,8 +3,9 @@
 
 <netconf debugChannel="debug.log:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:xmlAddresses:WirelessEthernet">
   <global gHostDupAddrDetectTransmits="2"/>
+<!-- XXX config moved to ini file -AV
   <local node="ms1">
-    <interface name="wlan0">    
+    <interface name="wlan0">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" WEScanShortCircuit="off" WEAssociationTimeout="10" WEAuthenticationTimeout="10" WEChannelsNotToScan="0-2-3-4-5-7-8-9-10-11-12-13-14" />
       </WirelessEtherInfo>
@@ -67,27 +68,27 @@
     </interface>
   </local>
   <local node="ap2">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap3">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap4">
-    <interface name="wlanap">    
+    <interface name="wlanap">
       <WirelessEtherInfo>
         <WEInfo WETxPower="4.0" />
       </WirelessEtherInfo>
     </interface>
   </local>
-
+-->
   <misc>
     <ObjectMovement>
       <MovingNode NodeName="ms0" startTime="0">

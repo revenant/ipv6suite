@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.h,v 1.1 2005/02/22 07:13:27 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.h,v 1.2 2005/02/22 23:21:01 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -33,6 +33,7 @@
 #define IPv6_INPUT_QUEUE_H
 
 #include <omnetpp.h>
+#include "QueueBase.h"
 
 class IPv6Datagram;
 
@@ -41,17 +42,11 @@ class IPv6Datagram;
 
  @brief Receive input from all interfaces and forward to IP processing module
  */
-class IPv6InputQueue: public cSimpleModule
+class IPv6InputQueue: public QueueBase
 {
 public:
-  Module_Class_Members(IPv6InputQueue, cSimpleModule, 0);
-  virtual void initialize();
+  Module_Class_Members(IPv6InputQueue, QueueBase, 0);
   virtual void handleMessage(cMessage*);
-
-private:
-  simtime_t delay;
-  IPv6Datagram* datagram;
-  cMessage* waitTmr;
 };
 
 #endif

@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.cc,v 1.1 2005/02/22 07:13:27 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.cc,v 1.2 2005/02/22 23:21:01 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -38,49 +38,11 @@
 Define_Module( IPv6InputQueue );
 
 
-void IPv6InputQueue::initialize()
+void IPv6InputQueue::endService(cMessage* msg)
 {
-  delay = par("procDelay");
-  datagram = 0;
-  waitTmr = new cMessage("InputQueueWait");
-}
-
-void IPv6InputQueue::handleMessage(cMessage* msg)
-{
-  if (!msg->isSelfMessage())
-  {
-    if (!waitTmr->isScheduled() && datagram == 0 )
-    {
-      scheduleAt(delay+simTime(), waitTmr);
-      if (!(msg->className() == std::string("IPv6Datagram")))
-      {
-          std::cerr<<"What is msg"<< msg<<" name="<<msg->name()<<" class="<<msg->className()<< " nodename="<<OPP_Global::nodeName(this)<< " kind="<<msg->kind()<<" prio="<<msg->priority()<<" encap="<<msg->encapsulatedMsg() <<" senderModuleId="<<msg->senderModuleId()<<std::endl;
-          cPacket* pkt = boost::polymorphic_downcast<cPacket*>(msg);
-          std::cerr<<" prot="<<pkt->protocol()<<" pdu="<<pkt->pdu();
-      }
-      datagram = check_and_cast<IPv6Datagram*>(msg);
-      assert(datagram);
-      return;
-    }
-    else if (waitTmr->isScheduled())
-    {
-      std::cerr<<fullPath()<<" "<<simTime()<<" received new packet "
-               <<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime();
-      (boost::polymorphic_downcast<IPv6Datagram*> (msg))->writeTo(std::cerr);
-      std::cerr<<std::endl;
-      delete msg;
-      return;
-    }
-    assert(false);
-  }
-
-  assert(datagram);
-  //assuming gate fromNW is declared first in list of in gates for IPv6InputQueue
-  //ned module
+  datagram = check_and_cast<IPv6Datagram*>(msg);
   datagram->setInputPort(datagram->arrivalGate()->index());
-
   send(datagram, "toIP");
-  datagram = 0;
 }
 
 

@@ -33,7 +33,7 @@
 #include <omnetpp.h>
 
 #include "opp_utils.h"
-#include "IPv6Datagram.h"
+//#include "IPv6Datagram.h"
 #include "WorldProcessor.h"
 
 namespace OPP_Global

@@ -29,8 +29,8 @@ cd %root%\Nodes && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
-:#FIXME Util should not depend on IPv6 stuff and on PHY\Mobility!
-cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\Network\IPv6 -I..\Network\IPv4 -I..\World -I..\Base
+:#FIXME Util should not depend on PHY\Mobility!
+cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\World -I..\Base
 
 :#---------------
 :#FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!

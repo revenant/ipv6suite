@@ -118,8 +118,8 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule* mod, WESi
 #ifdef EWU_L2TRIGGER // Link up trigger ( movement detection for MIPv6 )
       ////dc.precision(6);
       assert(mod->getLayer2Trigger() && !mod->getLayer2Trigger()->isScheduled());
-        mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-        Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<" Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
+      mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
+      Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<" Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
 #endif // EWU_L2TRIGGER
     }
     // TODO: need to check supported rates and status code

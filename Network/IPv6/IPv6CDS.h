@@ -60,6 +60,8 @@ namespace IPv6NeighbourDiscovery
  * Split from RoutingTable6
  */
 
+// XXX FIXME why I? it's IRouterList etc are by no means interfaces --AV
+// XXX FIXME why conceptual? this is clearly a quite concrete implementation --AV
 
 class IPv6CDS: public IRouterList, public IPrefixList, public INeighbourCache,
                public IDestinationCache

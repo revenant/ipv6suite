@@ -86,6 +86,7 @@ namespace IPv6NeighbourDiscovery
 class IPv6Datagram;
 template <class Arg> class TFunctorBaseA;
 
+//XXX this is in fact tunneling, not encapsulation as in IPv6Send... --AV
 class IPv6Encapsulation : public cSimpleModule
 {
   struct Tunnel;

@@ -64,5 +64,5 @@ simple WorldProcessor
                                   // (not only routing tables)
         max_longitude : numeric const, // only used to define the size of the network
                                        // module graphics in Tkenv (pixels)
-        max_latitude : numeric const,  // see max_longitude
+        max_latitude : numeric const;  // see max_longitude
 endsimple

@@ -73,6 +73,9 @@ extern "C"{
  * many modules.  Should move towards either ipv6_addr for non prefix related
  * tasks or ipv6_prefix.
  */
+// XXX what about m_storedLifetime, m_preferredLifetime? are they needed as 
+// part of IPv6Address? --AV
+
 
 class IPv6Address : public boost::equality_comparable<IPv6Address>
 {

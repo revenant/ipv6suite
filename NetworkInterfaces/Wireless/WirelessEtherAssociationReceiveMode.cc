@@ -253,8 +253,8 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
 
 #ifdef EWU_L2TRIGGER // Link up trigger ( movement detection for MIPv6 )
       assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
-        mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-        Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
+      mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
+      Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
 #endif // EWU_L2TRIGGER
     }
     // TODO: need to check supported rates and status code

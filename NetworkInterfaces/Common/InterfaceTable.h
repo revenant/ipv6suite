@@ -98,8 +98,14 @@ class InterfaceTable: public cSimpleModule
     void printInterfaceTable();
     //@}
 
-    /** @name Interfaces */
-    //@{
+    /**
+     * Adds an interface, and sets and returns its Id.
+     *
+     * Note: Interface deletion is not supported, but one can mark them
+     * as "down".
+     */
+    int addInterface(InterfaceEntry *entry);
+
     /**
      * Returns the number of interfaces. Interface ids are in range
      * 0..numInterfaces()-1.
@@ -112,20 +118,8 @@ class InterfaceTable: public cSimpleModule
     InterfaceEntry *interfaceById(int id);
 
     /**
-     * Add an interface.
-     */
-    void addInterface(InterfaceEntry *entry);
-
-    /**
-     * Delete an interface. Throws an error if the interface is not in the
-     * interface table. Indices of interfaces above this one will change!
-     */
-    void deleteInterface(InterfaceEntry *entry);
-
-    /**
      * Returns an interface given by its port number (gate index).
-     * Returns NULL if not found (e.g. the loopback interface has no
-     * port number).
+     * Returns NULL if not found.
      */
     InterfaceEntry *interfaceByPortNo(int portNo);
 
@@ -133,7 +127,6 @@ class InterfaceTable: public cSimpleModule
      * Returns an interface given by its name. Returns NULL if not found.
      */
     InterfaceEntry *interfaceByName(const char *name);
-    //@}
 };
 
 #endif

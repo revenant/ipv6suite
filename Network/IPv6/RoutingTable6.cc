@@ -539,6 +539,7 @@ void RoutingTable6::print()
 
   PRINTF("============================================================================ \n");
 
+/* XXX debug only, not needed --AV
   IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
   assert(tunMod != 0);
@@ -548,6 +549,7 @@ void RoutingTable6::print()
   IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
     (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
   cout<<(*forwardMod);
+*/
 }
 
 // -----------------------------------

@@ -77,9 +77,9 @@ int Entity::distance(Entity* entity)
 void Entity::drawWirelessRange()
 {
   cModule *nodemod = findNetNodeModule(_mod);
-  std::string dispStr = nodemod->displayString().getString();
-  if (dispStr.find("r=") == std::string::npos)
-  {
+//  std::string dispStr = nodemod->displayString().getString();
+//  if (dispStr.find("r=") == std::string::npos)
+//  {
       cModule* mod = OPP_Global::findModuleByName(_mod, "wirelessAccessPoint");
       if(mod)
       {
@@ -90,12 +90,13 @@ void Entity::drawWirelessRange()
           check_and_cast<WirelessEtherModule*>(llmodule);
         assert(wem);
 
-        dispStr += ";r=";
+        nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
+        nodemod->displayString().setTagArg("r",2,"red");
 //XXX see comment above!   dispStr += OPP_Global::ltostr(wem->wirelessRange());
-        dispStr += ",,red";
+//        dispStr += ",,red";
       }
-  }
-  nodemod->displayString().parse(dispStr.c_str());
+//  }
+//  nodemod->displayString().parse(dispStr.c_str());
 }
 
 void Entity::getDispPosition(int& x, int& y)

@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.5 2005/02/10 05:29:29 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.4 2005/02/10 05:27:42 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -203,15 +203,15 @@ HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
 std::string IPv6Datagram::info()
 {
   ostringstream os;
-  os << "Source=" << header.src_addr
-     << " Dest=" << header.dest_addr;
+  os << buf << "Source="<<header.src_addr
+     <<" Dest=" << header.dest_addr;
 
   //For some reason the buf is filled with escape characters after this point
   //However the stdoutput from os is fine.
   //int ev_limit = os.str().size();
 
-  os << " len="<<length()<<" HL=" <<dec<<hopLimit()
-     << " prot="<<dec<<transportProtocol();
+  os <<" len="<<length()<<" HL=" <<dec<<hopLimit()
+     <<" prot="<<dec<<transportProtocol();
 
   //Can't use this as they're all pointers
   //std::copy(ext_hdrs.begin(), ext_hdrs.end(), ostream_iterator<HdrExtProc*>(os));

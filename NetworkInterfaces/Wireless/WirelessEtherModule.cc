@@ -334,7 +334,7 @@ InterfaceEntry *WirelessEtherModule::registerInterface()
   e->setName(interfaceName);
   delete [] interfaceName;
 */
-  std::string tmp = std::string("weth")+OPP_Global::ltostr(parentModule()->index());
+  std::string tmp = std::string("wlan")+OPP_Global::ltostr(parentModule()->index());
   e->setName(tmp.c_str()); // XXX HACK -- change back to above code!
 
   e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
@@ -343,15 +343,12 @@ InterfaceEntry *WirelessEtherModule::registerInterface()
   int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
   e->setOutputPort(outputPort);
 
-/*XXX TBD adopt this code
   // generate a link-layer address to be used as interface token for IPv6
-  InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
+  InterfaceToken token(address.intValue()[0], address.intValue()[0], 64);
   e->setInterfaceToken(token);
 
   // MAC address as string
-  e->setLLAddrStr(_myAddr.stringValue());
-*/
-printf("setting interfacetoken and lladdrstr not implemented in Wireless yet, don't expect this stuff to work yet!!!\n");
+  e->setLLAddrStr(address.stringValue());
 
   // MTU is 1500 on Ethernet
   e->setMtu(1500);
@@ -489,10 +486,13 @@ void WirelessEtherModule::setLayer2Trigger( cTimerMessage* trig, enum TrigVals v
          << fullPath() << " #: "<< v << "\n");
 
 }
+
+/*XXX no longer needed --AV
 const unsigned int* WirelessEtherModule::macAddress(void)
 {
   return address.intValue();
 }
+*/
 
 std::string WirelessEtherModule::macAddressString(void)
 {

@@ -157,7 +157,9 @@ public:
 
   long procDelay(void) { return procdelay; }
 
+/*XXX no longer needed --AV
   const unsigned int* macAddress(void);
+*/
   std::string macAddressString(void);
 
   std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;

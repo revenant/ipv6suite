@@ -26,7 +26,7 @@
 #include <sstream>
 
 #include "stlwatch.h"
-#include "InterfaceTable.h"
+#include "InterfaceEntry.h"
 
 
 InterfaceEntry::InterfaceEntry()
@@ -54,6 +54,9 @@ std::string InterfaceEntry::info() const
     out << "  gateIndex:" << outputPort();
     out << "  MTU:" << mtu();
     if (isDown()) out << " DOWN";
+    if (isLoopback()) out << " LOOPBACK";
+    out << "  LLAddr:" << (llAddrStr()[0] ? llAddrStr() : "n/a");
+
     if (_ipv4data)
         out << " " << ((cPolymorphic*)_ipv4data)->info(); // Khmm...
     if (_ipv6data)

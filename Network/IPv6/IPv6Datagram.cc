@@ -1,6 +1,6 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.2 2005/02/09 23:46:08 andras Exp $
 //
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@
 #include "HdrExtDestProc.h"
 
 #if defined __CN_PAYLOAD_H
-extern "C" 
+extern "C"
 {
 #include <netinet/ip6.h>
 #include <netinet/icmp6.h>
@@ -56,26 +56,25 @@ extern "C"
 using boost::polymorphic_downcast;
 
 
-static const ipv6_hdr IPV6_INITIAL_HDR = 
+static const ipv6_hdr IPV6_INITIAL_HDR =
 {
 	0x60000000, //version 6, traffic class of 0, flow label of 0
 	0,			//payload of 0
 	59,			//No next header yet
-	0,			//Hop Limit set to uninitialised 
+	0,			//Hop Limit set to uninitialised
 	IPv6_ADDR_UNSPECIFIED,
 	IPv6_ADDR_UNSPECIFIED
 };
 
 /**
    Protocol is set to PR_IPV6 to mean IPv6 packet (used to discriminate
-   between v4 & v6) 
+   between v4 & v6)
 */
 IPv6Datagram::IPv6Datagram(const ipv6_addr& src, const ipv6_addr& dest,
                            cPacket* pdu, const char* name)
   :/*cPacket(NULL, PR_IPV6, 0),*/ header(IPV6_INITIAL_HDR), route_hdr(0),
                                   frag_hdr(0), dest_hdr(0)
 {
-  //Don't use IPDatagram's setProtocol otherwise protocol() returns the wrong value
   cPacket::setProtocol( PR_IPV6);
   setLength(IPv6_HEADER_LENGTH);
   //This signifies a packet that has not arrived at a host
@@ -104,14 +103,14 @@ parseAllHeaders before using dup/copy ctor and continually use that
 same instance to dup multiple times.  This is create all the accessory
 objects if they have not been created as variable sized ext headers
 are only understood by them on how much memory to allocate.
-  
+
  */
 
 IPv6Datagram::IPv6Datagram(const IPv6Datagram& src)
   :route_hdr(0), frag_hdr(0), dest_hdr(0)
-{  
-  setName(src.name());  
-  operator=(src);  
+{
+  setName(src.name());
+  operator=(src);
 }
 
 IPv6Datagram::~IPv6Datagram()
@@ -122,9 +121,9 @@ IPv6Datagram::~IPv6Datagram()
 
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;
-  
+
   ext_hdrs.clear();
-  
+
   //for each element in ext_hdrs find out what type it is and have
   //a massive switch statement to do the deletion as appropriate for the
   //variable length fields.
@@ -132,7 +131,7 @@ IPv6Datagram::~IPv6Datagram()
   if (strcmp("encapsulating", name())==0||strcmp("encapsulated", name())==0)
     cerr <<" I've been deleted "<<name()<<endl;
 #endif  //EXCESSIVE_DUP
-  
+
 }
 
 bool IPv6Datagram::operator==(const IPv6Datagram& rhs) const
@@ -140,7 +139,7 @@ bool IPv6Datagram::operator==(const IPv6Datagram& rhs) const
   if (header == rhs.header)
   {
     if (ext_hdrs.size() == rhs.ext_hdrs.size())
-    {  
+    {
       EHI it, rit;
       for (it = ext_hdrs.begin(), rit = rhs.ext_hdrs.begin();
            it != ext_hdrs.end(); rit++, it++)
@@ -152,13 +151,14 @@ bool IPv6Datagram::operator==(const IPv6Datagram& rhs) const
 }
 
 
-const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs) 
+const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
 {
   //Check for assignment to self
   if (&rhs == this)
     return *this;
-  
-  IPDatagram::operator=(rhs);      
+
+  // XXX --AV  IPDatagram::operator=(rhs);
+  cPacket::operator=(rhs);
 
   header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
@@ -168,11 +168,11 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
   for (EHI it = rhs.ext_hdrs.begin(); it != rhs.ext_hdrs.end(); it++)
     ext_hdrs.push_back((*it)->dup());
 
-  return *this;  
+  return *this;
 }
 
 /**
-   Return the next ext hdr wrapper after fromHdrExt.  
+   Return the next ext hdr wrapper after fromHdrExt.
 
    @param fromHdrExt is the preceding extension If fromHdrExt is 0 then the
    first extension header is returned.
@@ -181,7 +181,7 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
 */
 
 HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
-{  
+{
   if (!ext_hdrs.empty())
   {
     if ( 0 == fromHdrExt)
@@ -195,11 +195,11 @@ HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
         if (++it != ext_hdrs.end())
           return *(it);
         else
-          return 0;  
+          return 0;
       }
     }
-  }  
-  return 0;  
+  }
+  return 0;
 }
 
 void IPv6Datagram::info(char *buf)
@@ -209,15 +209,15 @@ void IPv6Datagram::info(char *buf)
 
   ostringstream os;
   os << buf << "Source="<<header.src_addr
-     <<" Dest=" << header.dest_addr;    
+     <<" Dest=" << header.dest_addr;
 
   //For some reason the buf is filled with escape characters after this point
   //However the stdoutput from os is fine.
   //int ev_limit = os.str().size();
-    
+
   os <<" len="<<length()<<" HL=" <<dec<<hopLimit()
      <<" prot="<<dec<<transportProtocol();
-    
+
   //Can't use this as they're all pointers
   //std::copy(ext_hdrs.begin(), ext_hdrs.end(), ostream_iterator<HdrExtProc*>(os));
   EHI it;
@@ -228,7 +228,7 @@ void IPv6Datagram::info(char *buf)
   cerr << os.str()<<endl;
 #endif //VERBOSE
   //Magic buffer size from tkapp.cc TOmnetTkApp::messageSent
-   
+
   //void TOmnetTkApp::puts(const char *str) another func that has buf of only
   //128 and so the problem continues.
   //cout << dec<< " string size "<<os.str().size() <<'\n';
@@ -249,13 +249,13 @@ void IPv6Datagram::writeContents( ostream& os )
 {
 	os	<< "IPv6 Datagram:"
 		<< "\nSender: "	<< senderModuleId()
-	  //		<< "\nBit length: " << length() 
+	  //		<< "\nBit length: " << length()
 		<< "Byte len: " << totalLength()
 		<< "Ext header len:" << extensionLength()
 	        << "\nTransport Prot: " << (int)transportProtocol()
         << "TTL: " << timeToLive()<<"\n";
 //Should use writeTo of ext_hdr and info of contained objects?
-//    ext_hdrs.writeContents(os);    
+//    ext_hdrs.writeContents(os);
 
 }
 
@@ -267,8 +267,8 @@ HdrExtRteProc* IPv6Datagram::acquireRoutingInterface()
     if (proc != 0)
       return route_hdr = polymorphic_downcast<HdrExtRteProc*> (proc);
   }
-  
-  return route_hdr = static_cast<HdrExtRteProc*> (addExtHdr(EXTHDR_ROUTING));  
+
+  return route_hdr = static_cast<HdrExtRteProc*> (addExtHdr(EXTHDR_ROUTING));
 }
 
 HdrExtFragProc* IPv6Datagram::acquireFragInterface()
@@ -279,7 +279,7 @@ HdrExtFragProc* IPv6Datagram::acquireFragInterface()
     if (proc != 0)
       return frag_hdr = polymorphic_downcast<HdrExtFragProc*> (proc);
   }
-  
+
   return frag_hdr = static_cast<HdrExtFragProc*>(addExtHdr(EXTHDR_FRAGMENT));
 }
 
@@ -291,20 +291,20 @@ HdrExtDestProc* IPv6Datagram::acquireDestInterface()
     if (proc != 0)
       return dest_hdr = polymorphic_downcast<HdrExtDestProc*> (proc);
   }
-  
+
   return dest_hdr = static_cast<HdrExtDestProc*>(addExtHdr(EXTHDR_DEST));
 }
 
 IPProtocolFieldId IPv6Datagram::transportProtocol() const
 {
   if (ext_hdrs.empty())
-    return (IPProtocolFieldId) header.next_header; 
+    return (IPProtocolFieldId) header.next_header;
   else
     return (IPProtocolFieldId) (*(ext_hdrs.rbegin()))->nextHeader();
 }
 
 void IPv6Datagram::setTransportProtocol(const IPProtocolFieldId& prot)
-{		
+{
   //		ISVALID_IPV6_PROTOCOLFIELDID(prot);
   if (ext_hdrs.empty())
     header.next_header = prot;
@@ -339,16 +339,16 @@ cPacket* IPv6Datagram::decapsulate()
 
 /*
   void IPv6Datagram::setFragmentOffset(int offset);
-  { 
+  {
   assert(offset <= 1<<13 - 1);
   int pos = parseHeader(NEXTHDR_FRAGMENT);
   if (pos >= 0)
   {
   //Only Top 13 bits of 16 bit frag_off is where offset is stored
-  ext_hdrs[pos].frag_hdr.frag_off = offset << 3;			  
+  ext_hdrs[pos].frag_hdr.frag_off = offset << 3;
   }
-  else //Create and add fragmentation header after Routing, Dest opts, 
-  //Hop-by-Hop in that order			 
+  else //Create and add fragmentation header after Routing, Dest opts,
+  //Hop-by-Hop in that order
   {
   bool insertAfter = false;
   ext_hdrs.insert
@@ -357,10 +357,10 @@ cPacket* IPv6Datagram::decapsulate()
   int pos = parseHeader(NEXTHDR_ROUTING);
   if (pos >= 0)
   {
-  insertAfter = true;					
-  }									
+  insertAfter = true;
   }
-	
+  }
+
   }
   }
 */
@@ -372,12 +372,12 @@ struct network_payload *IPv6Datagram::networkOrder() const
    struct network_payload *packet;
    cPacket *enc;
    //ipv6_addr src;
-   in6_addr  srcnw, destnw; 
-   
+   in6_addr  srcnw, destnw;
+
    struct network_payload *payload = NULL;
    unsigned char data[ETH_FRAME_LEN];
 
-   ev << "IPv6Datagram::networkOrder()" << endl; 
+   ev << "IPv6Datagram::networkOrder()" << endl;
 
    memset(data, 0 , sizeof(struct ip6_hdr));
 
@@ -388,19 +388,19 @@ struct network_payload *IPv6Datagram::networkOrder() const
    memcpy(&(((struct ip6_hdr*)data)->ip6_dst),&destnw,sizeof(struct in6_addr));
    ((struct ip6_hdr*)data)->ip6_hlim = (unsigned char) hopLimit();
    // add the protocol version without touching the flow header;
-   ((struct ip6_hdr*)data)->ip6_vfc  &= 0x0f; 
+   ((struct ip6_hdr*)data)->ip6_vfc  &= 0x0f;
    ((struct ip6_hdr*)data)->ip6_vfc  |= (( 6 ) << 4);
    // todo: handle extension headers:
    // currently assume separate headers for each.
    // in model, extension headers are part of IPv6....
- 
+
    if(! (packet = new struct network_payload(ETH_FRAME_LEN, 0))){
       ev <<"IPv6Datagram::networkOrder() unable to create packet" << endl;
       return NULL;
    }
    if( ( enc = static_cast<cPacket*> (encapsulatedMsg())) &&
        (payload = enc->networkOrder())){
-      unsigned char ip6proto = 0;     
+      unsigned char ip6proto = 0;
       ev << "protocol number (Sim) " << ((cPacket *)enc)->protocol() << endl;
       switch(((cPacket *)enc)->protocol()){
          case IPPROTO_IP :
@@ -420,19 +420,19 @@ struct network_payload *IPv6Datagram::networkOrder() const
          case IPPROTO_PIM :
          case IPPROTO_COMP :
          case IPPROTO_RAW:
-            ev << "protocol number (IANA) " << 
+            ev << "protocol number (IANA) " <<
                     ((cPacket *)enc)->protocol() << endl;
-            ip6proto = ((cPacket *)enc)->protocol(); 
+            ip6proto = ((cPacket *)enc)->protocol();
             break;
          case IPPROTO_ICMPV6 :
-            ev << "protocol number (IANA) " << 
+            ev << "protocol number (IANA) " <<
                     ((cPacket *)enc)->protocol() << endl;
             // watch out for truncation of the data in the icmp message
             // TODO Fix this.
             ((struct icmp6_hdr *)payload->get_start())->icmp6_cksum =
              ((ICMPv6Message *)enc)->networkCheckSum(payload->get_start(),
                                           &srcnw,&destnw,payload->len()/*??*/);
-            ip6proto = ((cPacket *)enc)->protocol(); 
+            ip6proto = ((cPacket *)enc)->protocol();
             break;
          case  PR_IP:
             ip6proto = IPPROTO_IP;
@@ -443,7 +443,7 @@ struct network_payload *IPv6Datagram::networkOrder() const
          case PR_UDP:
             ip6proto = IPPROTO_UDP;
             break;
-         case PR_IPV6: 
+         case PR_IPV6:
             ip6proto = IPPROTO_IPV6;
             break;
          case PR_ICMP:
@@ -454,27 +454,27 @@ struct network_payload *IPv6Datagram::networkOrder() const
              ip6proto = IPPROTO_NONE;
              break;
       }
-      ((struct ip6_hdr*)data)->ip6_nxt  = ip6proto; 
+      ((struct ip6_hdr*)data)->ip6_nxt  = ip6proto;
       ((struct ip6_hdr*)data)->ip6_plen  = htons(payload->len() ); // octets?
-      ev<< "IPv6 payload len  " << payload->len()  << endl; 
-      ev<< "IPv6 packet lenpe " << packet->len() << endl ; 
+      ev<< "IPv6 payload len  " << payload->len()  << endl;
+      ev<< "IPv6 packet lenpe " << packet->len() << endl ;
       packet->set_data(data,sizeof(struct ip6_hdr));
-      ev<< "IPv6 packet lense " << packet->len() << endl ; 
+      ev<< "IPv6 packet lense " << packet->len() << endl ;
       packet->set_payload(payload, payload->len());
       //packet->set_
    }
    else{
       ev <<"IPv6Datagram::networkOrder() no encaps message" << endl;
-      ((struct ip6_hdr*)data)->ip6_plen = 0; 
-      ((struct ip6_hdr*)data)->ip6_nxt  = IPPROTO_NONE; 
-      ev<< "IPv6 packet lenpn " << packet->len() << endl ; 
+      ((struct ip6_hdr*)data)->ip6_plen = 0;
+      ((struct ip6_hdr*)data)->ip6_nxt  = IPPROTO_NONE;
+      ev<< "IPv6 packet lenpn " << packet->len() << endl ;
       packet->set_data(data, sizeof(struct ip6_hdr) );
-      ev<< "IPv6 packet lensn " << packet->len() << endl ; 
+      ev<< "IPv6 packet lensn " << packet->len() << endl ;
    }
-   ev<< "IPv6 packet len " << packet->len() << endl ; 
-   
+   ev<< "IPv6 packet len " << packet->len() << endl ;
+
    return packet;
-   
+
 
 }
 #endif /* __CN_PAYLOAD_H */
@@ -510,26 +510,26 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
       break;
       //Not supported i.e. is ignored completely. (log warning msg)
     case EXTHDR_ESP: case EXTHDR_AUTH:
-      opp_error("(%s)%s: Sorry ESP or AUTH ext hdr not supported yet", 
-                className(), fullName());      
+      opp_error("(%s)%s: Sorry ESP or AUTH ext hdr not supported yet",
+                className(), fullName());
       break;
     default:
       //Should not be adding anything else besides an ext hdr
-      opp_error("(%s)%s: Unrecoverable error: Unknown ext hdr type: %d", 
+      opp_error("(%s)%s: Unrecoverable error: Unknown ext hdr type: %d",
                 className(), fullName(), (int)hdr_type);
-      assert(false); 
+      assert(false);
       break;
     }
 
   if (proc != 0)
   {
     IPProtocolFieldId prot = transportProtocol();
-    
+
     if (ext_hdrs.empty())
       header.next_header = hdr_type;
     else
       (*(ext_hdrs.rbegin()))->setNextHeader(hdr_type);
-    
+
     ext_hdrs.push_back(proc);
     ext_hdr_len = proc -> cumul_len(*this);
         //Extension headers + encapsulated length of upper layer pdu
@@ -544,37 +544,37 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
 HdrExtProc* IPv6Datagram::findHeader(const IPv6ExtHeader& next_hdr) const
 {
   EHI it;
-  
+
   if (header.next_header == next_hdr && !ext_hdrs.empty())
     return *ext_hdrs.begin();
-  
+
 
   if (!ext_hdrs.empty())
     for (it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
       if ((int)(*it)->nextHeader() == (int)next_hdr)
-      {	      
+      {
         return *(++it);
       }
-      
+
   return 0;
-  
+
 //   switch (next_hdr)
 //   {
-//     case NEXTHDR_HOP:   // Hop-by-hop option header. 
-//     case NEXTHDR_ROUTING:		// Routing header. 
+//     case NEXTHDR_HOP:   // Hop-by-hop option header.
+//     case NEXTHDR_ROUTING:		// Routing header.
 //     case NEXTHDR_FRAGMENT:	// Fragmentation/reassembly header.
 //     case NEXTHDR_DEST: 	// Destination options header.
 
 //       //Not supported i.e. is ignored completely. (log warning msg)
-//     case NEXTHDR_ESP:	// Encapsulating security payload. 
-//     case NEXTHDR_AUTH: // Authentication header.			
-//       //Make sure that if the next header is an extension 
-//       //header that it exists in ext_hdrs.									
+//     case NEXTHDR_ESP:	// Encapsulating security payload.
+//     case NEXTHDR_AUTH: // Authentication header.
+//       //Make sure that if the next header is an extension
+//       //header that it exists in ext_hdrs.
 //       break;
 //     default:
 //       //Every other next header value should not be in the
 //       //extension headers list
-//       break;				
+//       break;
 //   }
 }
 
@@ -594,18 +594,18 @@ HdrExtProc* IPv6Datagram::findHeader(const IPv6ExtHeader& next_hdr) const
 std::ostream& operator<<(std::ostream& os, const IPv6Datagram& pdu)
 {
   os << "Source="<<pdu.header.src_addr
-     <<" Dest=" << pdu.header.dest_addr;    
+     <<" Dest=" << pdu.header.dest_addr;
   os <<" len="<<pdu.length()<<" HL=" <<dec<<pdu.hopLimit()
      <<" prot="<<dec<<pdu.transportProtocol();
-    
+
   //Should use writeTo of ext_hdr and info of contained objects?
-  //ext_hdrs.writeContents(os); 
+  //ext_hdrs.writeContents(os);
   //Can't use this as they're all pointers
   //std::copy(ext_hdrs.begin(), ext_hdrs.end(), ostream_iterator<HdrExtProc*>(os));
   IPv6Datagram::EHI it;
   for (it = pdu.ext_hdrs.begin(); it != pdu.ext_hdrs.end(); it++)
     (*it)->operator<<(os);
-   
+
   return os;
 
 }
@@ -619,11 +619,11 @@ class IPv6Address;
 /**
  * @class DatagramTest
  * @ingroup TestCases
- * @brief Tests IPv6Datagram and related extension headers 
+ * @brief Tests IPv6Datagram and related extension headers
  *
  * Addition and removal of extensions to the IPv6Datagram only routing headers
  * currently.
- * 
+ *
  *  Untested - the padding functionality of Hop-by-Hop options payload/hdr opt
  * length calculations and checksums are correct against precalculated
  * values. (Unnecessary?))
@@ -639,33 +639,33 @@ class DatagramTest: public CppUnit::TestFixture
   CPPUNIT_TEST( testIPv6Header );
   CPPUNIT_TEST_SUITE_END();
 public:
-  
+
   DatagramTest();
-  
-                           
+
+
   void testEqualCtorDtor();
 
   void testHeaders();
-  
+
   void testEncapsulation();
 
-#ifdef USE_MOBILITY  
+#ifdef USE_MOBILITY
   void testBindingUpdateAndHAOption();
-#endif // USE_MOBILITY    
+#endif // USE_MOBILITY
 
   void testIPv6Header();
 
   void setUp();
   void tearDown();
-    
+
 private:
   IPv6Address* ip_addr1;
   IPv6Address* ip_addr2;
-  
-  IPv6Datagram a1, a2, b, c;  
+
+  IPv6Datagram a1, a2, b, c;
   IPv6Datagram* new1;
   IPv6Datagram* new2;
-  
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( DatagramTest );
@@ -683,17 +683,17 @@ unsigned int int_addra1[] = {0x12345678,0xabcdef00,0x1234,0};
 unsigned int int_addra2[] = {0,0xabcdffff,0, 0x01010101};
 unsigned int *int_addr1 = int_addra1;
 unsigned int *int_addr2 = int_addra2;
-  
+
 DatagramTest::DatagramTest()
   :TestFixture(), ip_addr1(0), ip_addr2(0)
       , a1(IPv6Address("abcd:abcd:abcd:abcd:abcd:abcd:abcd:abcd"), IPv6Address("ef00:abcd:ef00:ffff:0:0f0f:0:0")), a2(a1)
-, b(IPv6Address(int_addr2), IPv6Address(addr1)), c(IPv6Address(int_addr2), IPv6Address(int_addr1)) 
+, b(IPv6Address(int_addr2), IPv6Address(addr1)), c(IPv6Address(int_addr2), IPv6Address(int_addr1))
 {}
 
 void DatagramTest::testEqualCtorDtor()
 {
 
-  ipv6_addr test_addr_string_initialise = 
+  ipv6_addr test_addr_string_initialise =
     {
 0xabcdabcd,0xabcdabcd,0xabcdabcd, 0xabcdabcd
     };
@@ -701,7 +701,7 @@ void DatagramTest::testEqualCtorDtor()
   //Test IPv6Address char* ctor and equals operator(ipv6_addr)
   CPPUNIT_ASSERT(!(ip_addr1->operator==(*ip_addr2)));
   CPPUNIT_ASSERT(*ip_addr1 == test_addr_string_initialise);
-  
+
   //Test IPv6Address ipv6_addr ctor
   *ip_addr2 = test_addr_string_initialise;
   CPPUNIT_ASSERT((ip_addr2->operator==(*ip_addr1)));
@@ -715,24 +715,24 @@ void DatagramTest::testEqualCtorDtor()
 
   delete new1;
   new1 = 0;
-  
+
   CPPUNIT_ASSERT(*new2 == a1);
 
   new1 = new2->dup();
   CPPUNIT_ASSERT(*new2 == *new1);
   delete new2;
   new2 = 0;
-  
+
   CPPUNIT_ASSERT(a1 == *new1);
 
-      
+
   CPPUNIT_ASSERT(b == c);
   b = a1;
   CPPUNIT_ASSERT ( b == a1);
   //Strange it didn't fail before.  Because well they should be the same as
   //neither a1 nor a2 are on lhs.
   CPPUNIT_ASSERT ( a1 == a2);
-      
+
   new1->setHopLimit( IPv6NeighbourDiscovery::NDHOPLIMIT);
   IPv6Datagram* dup = new1->dup();
   CPPUNIT_ASSERT(dup->hopLimit() ==  IPv6NeighbourDiscovery::NDHOPLIMIT);
@@ -741,7 +741,7 @@ void DatagramTest::testEqualCtorDtor()
 }
 
 /**
-   Add/remove routes from Routing ext header and test them for illegal 
+   Add/remove routes from Routing ext header and test them for illegal
    i.e. multicast address
 */
 void DatagramTest::testHeaders()
@@ -752,8 +752,8 @@ void DatagramTest::testHeaders()
   CPPUNIT_ASSERT(a1 != *new2);
   *new1 = *new2; //Test cArray copy
   CPPUNIT_ASSERT(new1->ext_hdrs.size() > 0);
-  
-  delete new2;  
+
+  delete new2;
   new2 = new IPv6Datagram(*new1);
   CPPUNIT_ASSERT(*new1==*new2);
 
@@ -765,10 +765,10 @@ void DatagramTest::testHeaders()
   CPPUNIT_ASSERT(rt -> segmentsLeft() == 2);
   CPPUNIT_ASSERT(rt->address(1) == rt->address(2));
   CPPUNIT_ASSERT(rp->addRoutingHeader(rt));
-  
+
   //processHeader tests the hop limit if its <= 1 it is rejected and ICMP hop
   //limit exceeded sent
-  dup->setHopLimit(2); 
+  dup->setHopLimit(2);
 
   IPv6Datagram* dup2 = dup->dup();
   std::stringstream os, os2;
@@ -805,24 +805,24 @@ void DatagramTest::testEncapsulation()
   CPPUNIT_ASSERT(os.str() == os2.str());
 #if defined UNITTESTOUTPUT
   cout << "tun dgram is "<<os.str();
-  cout << "duplicated tun dgram is "<<os2.str();  
+  cout << "duplicated tun dgram is "<<os2.str();
 #endif
 
   delete tunDgram;
-  
+
   CPPUNIT_ASSERT((*(IPv6Datagram*)dupTunDgram->encapsulatedMsg()) == *new2);
-  os <<"Duplicated tunnel dgram after tunDgram deleted "<< *dupTunDgram 
+  os <<"Duplicated tunnel dgram after tunDgram deleted "<< *dupTunDgram
      << " tunneled packet "<<(*(IPv6Datagram*)dupTunDgram->encapsulatedMsg())
      <<endl;
 #if defined UNITTESTOUTPUT
-  cout <<"Duplicated tunnel dgram after tunDgram deleted "<< *dupTunDgram 
+  cout <<"Duplicated tunnel dgram after tunDgram deleted "<< *dupTunDgram
        << " tunneled packet "<<(*(IPv6Datagram*)dupTunDgram->encapsulatedMsg())
        <<endl;
 #endif
 
   CPPUNIT_ASSERT(dupTunDgram->frag_hdr == 0 && dupTunDgram->route_hdr == 0);
   CPPUNIT_ASSERT(dupTunDgram->transportProtocol() == IP_PROT_IPv6);
-  
+
   delete dupTunDgram;
 }
 
@@ -833,69 +833,69 @@ void DatagramTest::testBindingUpdateAndHAOption()
   bool flags = false;
   unsigned int seq = 0xF8FEFABB;
   unsigned int lifetime = 12345;
-  
+
   using namespace MobileIPv6;
-  
+
   MIPv6MHBindingUpdate* bu = new MIPv6MHBindingUpdate(flags, flags, flags, flags, seq, lifetime, addr1);
-            
+
   IPv6Datagram* dgram = new IPv6Datagram(a2.srcAddress(), a2.destAddress(), bu);
 
   bu = boost::polymorphic_downcast<MIPv6MHBindingUpdate*>(dgram->encapsulatedMsg());
   CPPUNIT_ASSERT(bu != 0);
 
-  CPPUNIT_ASSERT(bu->ack() == flags);  
+  CPPUNIT_ASSERT(bu->ack() == flags);
   CPPUNIT_ASSERT(bu->homereg() == flags);
   CPPUNIT_ASSERT(bu->saonly() == flags);
   CPPUNIT_ASSERT(bu->dad() == flags);
-  CPPUNIT_ASSERT(bu->sequence() == seq);  
+  CPPUNIT_ASSERT(bu->sequence() == seq);
   CPPUNIT_ASSERT(bu->expires() == lifetime);
   CPPUNIT_ASSERT(bu->ha() == addr1);
 
   HdrExtDestProc* destProc = dgram->acquireDestInterface();
-            
+
   destProc->addOption(new MIPv6TLVOptHomeAddress(addr1));
 
   IPv6TLVOptionBase* destOpt = destProc->getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
-  
+
   CPPUNIT_ASSERT(destOpt != 0);
 
   MIPv6TLVOptHomeAddress* haOpt = boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(destOpt);
-  
+
   CPPUNIT_ASSERT(haOpt->homeAddr() == addr1);
 
   IPv6Datagram* dgramCopy = dgram->dup();
   delete dgram;
   dgram = 0;
-  
+
   bu = boost::polymorphic_downcast<MIPv6MHBindingUpdate*>(dgramCopy->encapsulatedMsg());
   CPPUNIT_ASSERT(bu != 0);
 
-  CPPUNIT_ASSERT(bu->ack() == flags);  
+  CPPUNIT_ASSERT(bu->ack() == flags);
   CPPUNIT_ASSERT(bu->homereg() == flags);
   CPPUNIT_ASSERT(bu->saonly() == flags);
   CPPUNIT_ASSERT(bu->dad() == flags);
-  CPPUNIT_ASSERT(bu->sequence() == seq);  
+  CPPUNIT_ASSERT(bu->sequence() == seq);
   CPPUNIT_ASSERT(bu->expires() == lifetime);
   CPPUNIT_ASSERT(bu->ha() == addr1);
-  
+
   destProc = boost::polymorphic_downcast<HdrExtDestProc*> (dgramCopy->findHeader(EXTHDR_DEST));
   CPPUNIT_ASSERT(destProc != 0);
-  
+
   IPv6TLVOptionBase* tlvOpt = destProc->getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
   CPPUNIT_ASSERT(tlvOpt != 0);
-  
+
   CPPUNIT_ASSERT(boost::polymorphic_downcast<MIPv6TLVOptHomeAddress*>(tlvOpt)->homeAddr() == addr1);
-  
-  
+
+
 }
-#endif // USE_MOBILITY    
+#endif // USE_MOBILITY
 
 void DatagramTest::testIPv6Header()
 {
   CPPUNIT_ASSERT(new1->version() == 6);
 #if defined UNITTESTOUTPUT
   cerr<<"headerverflow="<<new1->header.ver_traffic_flow<<endl;
-  
+
   cout<<"flow="<<new1->flowLabel()<<"traf class"<<new1->trafficClass()<< endl;
 #endif
   unsigned int trafficClass = 251;
@@ -926,7 +926,7 @@ void DatagramTest::setUp()
 {
   ip_addr1 = new IPv6Address("abcd:abcd:abcd:abcd:abcd:abcd:abcd:abcd/10");
   ip_addr2 = new IPv6Address("ef00:abcd:ef00:ffff:0:0f0f:0:0/10");
-  
+
   new1 = new IPv6Datagram(a1);
   new2 = new IPv6Datagram(*new1);
 }
@@ -938,9 +938,9 @@ void DatagramTest::tearDown()
 
   delete new1;
   delete new2;
-  
+
   delete ip_addr1;
   delete ip_addr2;
-        
+
 }
 #endif //defined USE_CPPUNIT

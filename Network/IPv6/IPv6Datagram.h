@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,9 +44,8 @@
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
-
 #ifndef __IPDATAGRAM_H
-#include "IPDatagram.h"
+#include "IPDatagram.h"   // XXX for IPProtocolFieldId only! should be separated!!!
 #endif //__IPDATAGRAM_H
 
 /**
@@ -60,7 +59,7 @@ class HdrExtHopOptProc;
 class HdrExtProc;
 
 /**
-   @class IPv6Datagram 
+   @class IPv6Datagram
 
    @brief represents both RFC IPv6 datagram for packets as they traverse through
    the ISO protocol stack and across physical medium.
@@ -75,10 +74,11 @@ class HdrExtProc;
    output the raw IPv6 packet structure when sending it to Upper/Lower
    layers or when MPI/PVM netPack/netUnpack is required (unimplemented
    yet).  IP layer will regenerate the c++ classes from the raw data so
-   we can deal with them and deallocate them when finished.  
+   we can deal with them and deallocate them when finished.
 */
 
-class IPv6Datagram: public IPDatagram, boost::equality_comparable<IPv6Datagram>
+// XXX was public IPDatagram, should be cMessage!!!! --AV
+class IPv6Datagram: public cPacket, boost::equality_comparable<IPv6Datagram>
 {
 public:
   friend class HdrExtRteProc;
@@ -86,7 +86,7 @@ public:
   friend class HdrExtProc;
   friend class HdrExtDestProc;
   friend class DatagramTest;
-  
+
   friend std::ostream& operator<<(std::ostream&, const IPv6Datagram& pdu);
 
 
@@ -108,7 +108,7 @@ public:
   */
 
   HdrExtProc* getNextHeader(const HdrExtProc* fromHdrExt) const;
-  
+
 
   /**
      Creates a new ext hdr and wrapper around it. Return the wrapper to
@@ -123,25 +123,25 @@ public:
 	Search for a header of type specified in next_hdr and return
     the header.  Returns the very first one.  To search the next one
     use getNextHeader
-	
+
 	@arg next_hdr The protocol block type you are looking for either
-	an IPv6 extension header.  The upper layer 
+	an IPv6 extension header.  The upper layer
 	protocol identifier is obtained from transportProtocol().
 
 	@returns The extension header if found or 0
   */
   HdrExtProc* findHeader(const IPv6ExtHeader& next_hdr) const;
-  
-  
+
+
 ///@name constructors, destructors and operators
 ///@{
-  IPv6Datagram(const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED, 
+  IPv6Datagram(const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                const ipv6_addr& dest = IPv6_ADDR_UNSPECIFIED,
                cPacket* pdu = 0, const char* name = 0);
-  
-  IPv6Datagram(const IPv6Datagram& srcObj);  
+
+  IPv6Datagram(const IPv6Datagram& srcObj);
   virtual ~IPv6Datagram();
-  const IPv6Datagram& operator=(const IPv6Datagram& d);    
+  const IPv6Datagram& operator=(const IPv6Datagram& d);
   bool operator==(const IPv6Datagram& rhs) const;
 ///@}
 
@@ -153,14 +153,14 @@ public:
   virtual void writeContents(ostream& os);
 ///@}
 
-///@name Redefined cMessage functions 
+///@name Redefined cMessage functions
 ///@{
   void encapsulate(cPacket *);
   cPacket *decapsulate();
 #ifdef __CN_PAYLOAD_H
   struct network_payload *networkOrder() const;
 #endif /* __CN_PAYLOAD_H*/
-///@}  
+///@}
 
   /**
      @name IPv6 Header Attributes
@@ -168,12 +168,12 @@ public:
   */
   //@{
   short version() const
-    { 
+    {
       //Top 4 bits of ver_traffic_flow
       assert(header.ver_traffic_flow >>28 <= static_cast<unsigned int> (IPv6_MAX_VERSION));
       return static_cast<unsigned char> (header.ver_traffic_flow >>28);
     }
-	
+
   unsigned int trafficClass() const
     {
       return (header.ver_traffic_flow >> 20) & 0xFF;
@@ -192,7 +192,7 @@ public:
     {
       return header.ver_traffic_flow & 0xFFFFF;
     }
-  
+
   void setFlowLabel(unsigned int label)
     {
       assert(label < 1<<20);
@@ -205,21 +205,21 @@ public:
   /// Payload length excludes the fixed IPv6 header length
   /// i.e. sizeof(ipv6_hdr) refer to RFC2460 Section 3.0
   int payloadLength() const { return header.payload_length;}
-  void setPayloadLength(int length) 
+  void setPayloadLength(int length)
     {
       assert(length >= 0);
       header.payload_length = length;
     }
-  
+
   /// length of IPv6 extension headers (Not part of IPv6 spec)
   short extensionLength() const { return ext_hdr_len;}
 
   /// length of Datagram in bytes (Not part of IPv6 spec)
   size_t totalLength() const
-	{ 
+	{
       //Doesn't exceed 2^16-1 as that's jumbogram size
       assert(IPv6_HEADER_LENGTH + header.payload_length <= 1<<16 - 1  );
-      return IPv6_HEADER_LENGTH + header.payload_length; 
+      return IPv6_HEADER_LENGTH + header.payload_length;
 	}
 
   void setTotalLength(unsigned int len)
@@ -230,33 +230,33 @@ public:
       assert(len <= 1<<16 - 1  );
 #endif
       header.payload_length = len - IPv6_HEADER_LENGTH;
-	}	
+	}
 
   short hopLimit() const { return header.hop_limit; }
-  void setHopLimit(short ttl) 
-    { 
-      assert(ttl >= 0 && ttl <= (short) MAX_HOPLIMIT); 
-      header.hop_limit= ttl; 
+  void setHopLimit(short ttl)
+    {
+      assert(ttl >= 0 && ttl <= (short) MAX_HOPLIMIT);
+      header.hop_limit= ttl;
     }
-	
+
   IPProtocolFieldId transportProtocol() const;
   void setTransportProtocol(const IPProtocolFieldId& prot);
-	
+
   // header checksum not required
-	
+
   /// source and destination address
   const ipv6_addr& srcAddress() const { return header.src_addr; }
-  
+
   void setSrcAddress(const char* src)
     {
       header.src_addr = c_ipv6_addr(src);
-    }  
+    }
   void setSrcAddress(const ipv6_addr& src){ header.src_addr = src; }
 
   const ipv6_addr& destAddress() const { return header.dest_addr; }
-  
+
   void setDestAddress(const char* dest)
-    { 
+    {
       header.dest_addr = c_ipv6_addr(dest);
     }
 
@@ -268,7 +268,7 @@ private:
   typedef std::list<HdrExtProc*> ExtHdrs;
   typedef ExtHdrs::iterator EHI;
   mutable ExtHdrs ext_hdrs;
-  
+
   /**
      To test consistency of payload length against hdr len.
   */
@@ -290,20 +290,20 @@ private:
   mutable HdrExtRteProc* route_hdr;
   mutable HdrExtFragProc* frag_hdr;
   mutable HdrExtDestProc* dest_hdr;
-		
+
   /**
      Add an extension header to this packet @hdr_type Identify
      what ext_hdr type you are appending @ext_hdr The ext_hdr
      itself.  Any memory that has been allocated in ext_hdr for
      pointers should not be deallocated.  This class will take
      care of that when it is destroyed.
-	  
+
      @return position in ext_hdrs
   */
   //	size_t addExtHeader(const IPv6ExtHeader& hdr_type, const ipv6_ext_hdr& ext_hdr);
 
   ///Update pos, and links to next procHdr
-  //void reLinkProcHdrs() const; 
+  //void reLinkProcHdrs() const;
 
 };
 

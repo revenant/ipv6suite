@@ -193,8 +193,12 @@ namespace OPP_Global
 
   unsigned int generateInterfaceId()
   {
+/* XXX has to be random??? --Andras
     static boost::mt19937 rng = boost::mt19937();
     return rng();
+*/
+    static long lastId = 1000;
+    return lastId++;
   }
 
   const char* nodeName(const cModule* callingMod)

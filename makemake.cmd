@@ -30,11 +30,12 @@ cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
 :FIXME Util should not depend on IPv6 stuff!
-cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6\Generic -I..\World
+cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\Network\IPv6\Generic -I..\Network\IPv4 -I..\World -I..\Base
 
 :---------------
 cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Network\IPv6\Generic && %MAKEMAKE% %OPTS% -n -r
+:# eliminate dep on IPv4 stuff!!!!
+cd %root%\Network\IPv6\Generic && %MAKEMAKE% %OPTS% -n -r -I..\..\..\Util -I..\..\..\Util\Loki -I..\..\..\World -I..\..\..\PHY -I. -I..\..\.. -I..\..\IPv4 -I..\..\..\Base
 cd %root%\Network\IPv6\MIPv6 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Network\IPv6\HMIPv6 && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Network\IPv6\Routing && %MAKEMAKE% %OPTS% -n -r

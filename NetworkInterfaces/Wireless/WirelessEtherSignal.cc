@@ -1,3 +1,4 @@
+/*
 // -*- C++ -*-
 //
 // Eric Wu
@@ -17,17 +18,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/*
+/ *
     @file WirelessEtherSignal.cc
     @brief WirelessEthernet control signal (also for simulation wise)
     @author Eric Wu
-*/
+* /
 
 #include "WirelessEtherSignal.h"
 #include "WirelessEtherFrame_m.h"
 
-WESignal::WESignal(EtherSignalType type, int c, double p)
-  : EtherSignal(type), PHYWirelessSignal(c, p)
+WESignal::WESignal(WirelessEtherSignalType type, int c, double p)
+  : cMessage(), PHYWirelessSignal(c, p) // XXX!!!!!!!!!!!!!!!!!!!!!!!!!, _type(type)
 {
   setName("WIRELESS_NONE");
   setKind(static_cast<int>(type));
@@ -40,7 +41,7 @@ WESignal::WESignal(const WESignal& p)
 
 WESignal& WESignal::operator=(const WESignal& p)
 {
-  EtherSignal::operator=(p);
+  cMessage::operator=(p);
   PHYWirelessSignal::operator=(p);
 
   setSourceName(p.sourceName());
@@ -123,3 +124,4 @@ WESignalIdle& WESignalIdle::operator=(const WESignalIdle& p)
 
   return *this;
 }
+*/

@@ -1,3 +1,4 @@
+/*
 // -*- C++ -*-
 //
 // Eric Wu
@@ -17,11 +18,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/*
+/ *
     @file WirelessEtherSignal.h
     @brief WirelessEthernet control signal (also for simulation wise)
     @author Eric Wu
-*/
+* /
 
 
 #ifndef __WIRELESS_ETHER_SIGNAL_H
@@ -30,15 +31,15 @@
 #include <cassert>
 #include <string>
 
-#include "EtherSignal.h"
+#include <omnetpp.h>
 #include "PHYWirelessSignal.h"
 
 class WirelessEtherBasicFrame;
 
-class WESignal : public EtherSignal, PHYWirelessSignal
+class WESignal : public cMessage, PHYWirelessSignal
 {
  public:
-  WESignal(EtherSignalType type = WIRELESS_EST_None, int c = -1, double p = -1);
+  WESignal(WirelessEtherSignalType type = WIRELESS_EST_None, int c = -1, double p = -1);
   WESignal(const WESignal &p);
   ~WESignal() {};
 
@@ -105,3 +106,4 @@ class WESignalData : public WESignal
 };
 
 #endif
+*/

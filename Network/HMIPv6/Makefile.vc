@@ -1796,6 +1796,7 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPInterfacePacket_m.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \

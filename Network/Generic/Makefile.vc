@@ -59,7 +59,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= InterfaceTable.obj
+OBJS= InterfaceEntry.obj InterfaceTable.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -86,6 +86,9 @@ $(EXT_DIR_TSTAMPS):
 	@exit /b 1
 
 subdirs: $(SUBDIR_TARGETS)
+
+InterfaceEntry.obj: InterfaceEntry.cc
+	$(CXX) -c $(COPTS) /Tp InterfaceEntry.cc
 
 InterfaceTable.obj: InterfaceTable.cc
 	$(CXX) -c $(COPTS) /Tp InterfaceTable.cc
@@ -120,7 +123,13 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
+InterfaceEntry.obj: InterfaceEntry.cc \
+  ../../Util/stlwatch.h \
+  InterfaceTable.h \
+  ../../Base/INETDefs.h \
+  InterfaceEntry.h
 InterfaceTable.obj: InterfaceTable.cc \
   ../../Util/stlwatch.h \
   InterfaceTable.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  InterfaceEntry.h

@@ -569,6 +569,7 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   WirelessEtherAScanReceiveMode.h \
   WirelessEtherPScanReceiveMode.h \
   ../../Util/cTTimerMessageCB.h \
+  ../../Util/opp_utils.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
   WEthernet.h \
@@ -660,7 +661,8 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../../Util/TimerConstants.h
+  ../../Util/TimerConstants.h \
+  ../../Util/boost/weak_ptr.hpp
 WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \

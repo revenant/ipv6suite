@@ -1959,6 +1959,7 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   RoutingTable6.h \
   IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -2198,6 +2199,7 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   IPv6Headers.h \
   RoutingTable6.h \
   ../../Util/ExpiryEntryList.h \
@@ -2271,6 +2273,7 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../../config.h \
   ipv6_addr.h \
   ../ICMPv6/NDEntry.h \
@@ -3681,6 +3684,7 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   RoutingTable6.h \
   IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -3904,6 +3908,7 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../../config.h \
   ../ICMPv6/NDEntry.h \
   ../../Util/boost/weak_ptr.hpp \
@@ -4119,6 +4124,7 @@ IPv6Output.obj: IPv6Output.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   RoutingTable6.h \
   IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -4525,6 +4531,7 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../../config.h \
   ../ICMPv6/NDEntry.h \
   ../../Util/boost/weak_ptr.hpp \
@@ -4934,6 +4941,7 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \

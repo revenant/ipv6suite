@@ -336,6 +336,7 @@ XMLCommon.obj: XMLCommon.cc \
   ../../Base/ModuleAccess.h \
   ../../Network/Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/InterfaceEntry.h \
   ../../config.h \
   ../../Network/ICMPv6/NDEntry.h \
   ../../Network/IPv6/IPv6Headers.h \
@@ -384,6 +385,7 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../boost/limits.hpp \
   ../boost/detail/select_type.hpp \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/InterfaceEntry.h \
   ../../Network/IPv6/ipv6_addr.h \
   ../../Network/IPv6/IPv6InterfaceData.h \
   ../ExpiryEntryList.h \

@@ -149,6 +149,7 @@ ARP.obj: ARP.cc \
   ../Ethernet/Ethernet.h \
   ../../Network/IPv4/IPProtocolId_m.h \
   ../../Network/IPv4/IPDatagram_m.h \
+  ../../Network/Generic/InterfaceEntry.h \
   ../Ethernet/EtherFrame_m.h \
   ../Ethernet/utils.h \
   ../../Base/ModuleAccess.h

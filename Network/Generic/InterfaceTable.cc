@@ -29,62 +29,6 @@
 #include "InterfaceTable.h"
 
 
-InterfaceEntry::InterfaceEntry()
-{
-    _outputPort = -1;
-
-    _mtu = 0;
-
-    _down = false;
-    _broadcast = false;
-    _multicast = false;
-    _pointToPoint= false;
-    _loopback = false;
-
-    _ipv4data = NULL;
-    _ipv6data = NULL;
-    _protocol3data = NULL;
-    _protocol4data = NULL;
-}
-
-std::string InterfaceEntry::info() const
-{
-    std::stringstream out;
-    out << (!_name.empty() ? name() : "*");
-    out << "  gateIndex:" << outputPort();
-    out << "  MTU:" << mtu();
-    if (isDown()) out << " DOWN";
-    if (_ipv4data)
-        out << " " << ((cPolymorphic*)_ipv4data)->info(); // Khmm...
-    if (_ipv6data)
-        out << " " << ((cPolymorphic*)_ipv6data)->info(); // Khmm...
-    if (_protocol3data)
-        out << " " << _protocol3data->info();
-    if (_protocol4data)
-        out << " " << _protocol4data->info();
-    return out.str();
-}
-
-std::string InterfaceEntry::detailedInfo() const
-{
-    std::stringstream out;
-    out << "name:" << (!_name.empty() ? name() : "*");
-    out << "\toutputPort:" << outputPort() << "\n";
-    out << "MTU: " << mtu() << " \t";
-    if (isDown()) out << "DOWN ";
-    if (isBroadcast()) out << "BROADCAST ";
-    if (isMulticast()) out << "MULTICAST ";
-    if (isPointToPoint()) out << "POINTTOPOINT ";
-    if (isLoopback()) out << "LOOPBACK ";
-    out << "\n";
-    out << "(IP/IPv6 info in RoutingTables)\n";
-
-    return out.str();
-}
-
-//==============================================================
-
-
 Define_Module( InterfaceTable );
 
 

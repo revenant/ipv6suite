@@ -143,7 +143,8 @@ NewBWRequestTester.obj: NewBWRequestTester.cc \
   ../MPLS/LIBtable.h \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
-  ../Generic/InterfaceTable.h
+  ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h
 NewRouteTester.obj: NewRouteTester.cc \
   ../MPLS/MPLSModule.h \
   ../RSVP_TE/RSVPTesterCommands.h \
@@ -161,4 +162,5 @@ NewRouteTester.obj: NewRouteTester.cc \
   ../IPv4/RoutingTableAccess.h \
   ../IPv4/RoutingTable.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../RSVP_TE/IntServ_m.h

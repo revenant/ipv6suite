@@ -160,4 +160,5 @@ NewLDP.obj: NewLDP.cc \
   ../IPv4/IPDatagram_m.h \
   ../IPv4/IPProtocolId_m.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/RoutingTable.h

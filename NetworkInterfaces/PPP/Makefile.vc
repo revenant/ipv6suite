@@ -135,5 +135,6 @@ PPPInterface.obj: PPPInterface.cc \
   ../../Network/Generic/InterfaceTableAccess.h \
   PPPInterface.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/InterfaceEntry.h \
   ../../Base/ModuleAccess.h \
   PPPFrame_m.h

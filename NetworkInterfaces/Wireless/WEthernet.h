@@ -26,7 +26,6 @@
 
 */
 
-// XXX FIXME TBD create separate file for Wireless!!!! not to be mixed together... --AV
 #ifndef __WETHERNET_H
 #define __WETHERNET_H
 

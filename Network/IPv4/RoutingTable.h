@@ -197,7 +197,7 @@ class RoutingTable: public cSimpleModule
 
     /** @name Interfaces */
     //@{
-    void addPv4InterfaceEntryFor(InterfaceEntry *e);
+    void addIPv4InterfaceDataFor(InterfaceEntry *ie);
 
     /**
      * Returns an interface given by its address. Returns NULL if not found.

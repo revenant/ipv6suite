@@ -47,6 +47,7 @@ using IPv6NeighbourDiscovery::PrefixEntry;
 using IPv6NeighbourDiscovery::NeighbourEntry;
 
 class InterfaceTable;
+class InterfaceEntry;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -261,7 +262,10 @@ public:
   unsigned int ctrIcmp6OutMsgs;
 
   bool displayIfconfig;
+
 private:
+  ///Add IPv6InterfaceData to given InterfaceEntry
+  void addIPv6InterfaceDataFor(InterfaceEntry *ie);
 
   ///Elapse all valid/preferredLifetimes of assigned addresses
   void elapseLifetimes(unsigned int seconds);

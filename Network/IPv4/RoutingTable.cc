@@ -93,7 +93,7 @@ void RoutingTable::initialize(int stage)
     // interface entries). Create the per-interface IPv4 data structures.
     InterfaceTable *interfaceTable = InterfaceTableAccess().get();
     for (int i=0; i<interfaceTable->numInterfaces(); ++i)
-        addPv4InterfaceEntryFor(interfaceTable->interfaceAt(i));
+        addIPv4InterfaceDataFor(interfaceTable->interfaceAt(i));
 
     // Add one extra interface, the loopback here.
     InterfaceEntry *lo0 = addLocalLoopback();
@@ -169,7 +169,7 @@ void RoutingTable::printRoutingTable()
 
 //---
 
-void RoutingTable::addPv4InterfaceEntryFor(InterfaceEntry *ie)
+void RoutingTable::addIPv4InterfaceDataFor(InterfaceEntry *ie)
 {
     IPv4InterfaceData *d = new IPv4InterfaceData();
     ie->setIPv4Data(d);

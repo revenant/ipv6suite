@@ -130,4 +130,5 @@ FlatNetworkConfigurator.obj: FlatNetworkConfigurator.cc \
   FlatNetworkConfigurator.h \
   ../IPv4/IPv4InterfaceData.h \
   ../../Base/INETDefs.h \
-  ../IPv4/IPAddress.h
+  ../IPv4/IPAddress.h \
+  ../Generic/InterfaceEntry.h

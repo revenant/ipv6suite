@@ -400,6 +400,7 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ./NDEntry.h \
   ../IPv6/RoutingTable6.h \
   ../../Util/ExpiryEntryList.h \
@@ -787,6 +788,7 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv6/RoutingTable6.h \
   ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -2239,6 +2241,7 @@ MLD.obj: MLD.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv6/RoutingTable6.h \
   ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -3137,6 +3140,7 @@ NDStateHost.obj: NDStateHost.cc \
   ./NDEntry.h \
   ../IPv6/IPv6Headers.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
@@ -3369,6 +3373,7 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../IPv6/Constants.h \
   ICMPv6NDOptions.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
@@ -4136,6 +4141,7 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv6/RoutingTable6.h \
   ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \

@@ -163,79 +163,7 @@ void RoutingTable6::initialize(int stage)
   {
     for(size_t i = 0; i < numOfIfaces; i ++)
     {
-      // label interface name according to the link layer
-      cModule* mod = OPP_Global::findModuleByType(this, "LinkLayer6");
-      LinkLayerModule* llmodule = 0;
-      mod = mod->parentModule()->submodule("linkLayers", i);
-
-      if(mod)
-      {
-        llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
-
-        // TODO: PLEASE DO A GRACEFUL SHUTDOWN
-        if(ift->interfaceByPortNo(i)->name()[0] &&
-           strcasecmp(ift->interfaceByPortNo(i)->name(), llmodule->getInterfaceName()))
-        {
-          cerr<< endl <<nodeName()<<":"<<i+1
-              <<" Check the network interface names in XML file: "
-              <<ift->interfaceByPortNo(i)->name()<<endl
-              <<" with corresponding OMNeT++ MAC iface: "
-              <<llmodule->getInterfaceName()<<endl;
-          exit(1);
-        }
-
-        // We already know that the loopback interface name and we just
-        // need to find out the network interface name in the link layer
-        ift->interfaceByPortNo(i)->setName(llmodule->getInterfaceName());//XXX check this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ift->interfaceByPortNo(i)->ipv6()->linkMod = llmodule;
-
-        // Assign interfaceID
-        switch(llmodule->getInterfaceType())
-        {
-          case PR_ETHERNET:
-            {
-              EtherModule* eth_iface = (EtherModule*)llmodule;
-              unsigned int iid[2];
-              iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
-              iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
-              //       std::stringstream ss;
-              //ss << std::hex << iid[0] << iid[1];
-              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(eth_iface->macAddressString());
-            }
-            break;
-
-#ifdef USE_MOBILITY
-          case PR_WETHERNET:
-            {
-              WirelessEtherModule* eth_iface = (WirelessEtherModule*)llmodule;
-              unsigned int iid[2];
-              iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
-              iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
-              //       std::stringstream ss;
-              //ss << std::hex << iid[0] << iid[1];
-              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(eth_iface->macAddressString());
-            }
-            break;
-#endif // USE_MOBILITY
-
-            case PR_PPP:
-            {
-              IPv6PPPInterface* ppp_iface = (IPv6PPPInterface*)llmodule;
-              unsigned int iid[2];
-              iid[0] = ppp_iface->highInterfaceId();
-              iid[1] = ppp_iface->lowInterfaceId();
-              ift->interfaceByPortNo(i)->ipv6()->setInterfaceID(iid);
-              std::stringstream ss1, ss2;
-              ss1 << std::hex << iid[0];
-              ss2 << std::hex << iid[1];
-              string lladdr = ss1.str() + string(":") + ss2.str();
-              ift->interfaceByPortNo(i)->ipv6()->setLLAddr(lladdr);
-            }
-            break;
-        }
-      }
+       addIPv6InterfaceDataFor(ift->interfaceByPortNo(i));
     }
 
     WorldProcessor *wp = check_and_cast<WorldProcessor*>
@@ -263,14 +191,8 @@ void RoutingTable6::initialize(int stage)
 /// handleMessage just throws the message away
 void RoutingTable6::handleMessage(cMessage* msg)
 {
-  if (msg->isSelfMessage())
-  {
-    check_and_cast<cTimerMessage *> (msg)->callFunc();
-  }
-  else
-    assert(false);
-
-  //if addr
+  assert(msg->isSelfMessage());
+  check_and_cast<cTimerMessage *>(msg)->callFunc();
 }
 
 void RoutingTable6::finish()
@@ -287,6 +209,29 @@ void RoutingTable6::finish()
   delete pel;
   delete rel;
   cds = 0;
+}
+
+void RoutingTable6::addIPv6InterfaceDataFor(InterfaceEntry *ie)
+{
+  IPv6InterfaceData *d = new IPv6InterfaceData();
+  ie->setIPv6Data(d);
+
+/* XXX Ethernet, Wireless
+          iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
+          iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
+*/
+
+/* XXX PPP
+          unsigned int iid[2];
+          iid[0] = ppp_iface->highInterfaceId();
+          iid[1] = ppp_iface->lowInterfaceId();
+          ie->ipv6()->setInterfaceID(iid);
+          std::stringstream ss1, ss2;
+          ss1 << std::hex << iid[0];
+          ss2 << std::hex << iid[1];
+          string lladdr = ss1.str() + string(":") + ss2.str();
+          ie->ipv6()->setLLAddr(lladdr);
+*/
 }
 
 void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,

@@ -181,6 +181,7 @@ IPFragmentation.obj: IPFragmentation.cc \
   ../IPv4/ICMPMessage.h \
   ../IPv4/RoutingTable.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/ICMPMessage_m.h
 IPInputQueue.obj: IPInputQueue.cc \
   IPInputQueue.h \
@@ -215,6 +216,7 @@ IPMulticast.obj: IPMulticast.cc \
   ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/RoutingTable.h
 IPOutput.obj: IPOutput.cc \
   IPOutput.h \
@@ -228,6 +230,7 @@ IPOutput.obj: IPOutput.cc \
   ../../Base/INETDefs.h \
   ../IPv4/IPAddress.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/ICMPMessage_m.h \
   ../IPv4/IPDatagram_m.h \
   ../IPv4/IPProtocolId_m.h
@@ -245,6 +248,7 @@ IPPreRouting.obj: IPPreRouting.cc \
   ../IPv4/ICMPMessage.h \
   ../IPv4/RoutingTable.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/ICMPMessage_m.h
 IPRouting.obj: IPRouting.cc \
   ../IPv4/IPControlInfo_m.h \
@@ -267,6 +271,7 @@ IPRouting.obj: IPRouting.cc \
   ../IPv4/ICMPMessage_m.h \
   ../IPv4/IPDatagram_m.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/RoutingTable.h
 IPSend.obj: IPSend.cc \
   IPSend.h \
@@ -281,6 +286,7 @@ IPSend.obj: IPSend.cc \
   ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
   ../IPv4/RoutingTable.h
 IPTunneling.obj: IPTunneling.cc \
   IPTunneling.h \

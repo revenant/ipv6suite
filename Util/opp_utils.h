@@ -128,11 +128,13 @@ namespace OPP_Global
   /**
      Converts string to double
    */
+  double atod(std::string s) {return atod(s.c_str());}
   double atod(const char *s);
 
   /**
      Converts string to unsigned long
    */
+  unsigned long atoul(std::string s) {return atoul(s.c_str());}
   unsigned long atoul(const char *s);
 
 /* XXX

@@ -172,12 +172,20 @@ namespace OPP_Global
 
   double atod(const char *s)
   {
-    //XXX
+    char *e;
+    double d = ::strtod(s,&e);
+    if (*e)
+        throw new cException("invalid cast: '%s' cannot be interpreted as a double", s);
+    return d;
   }
 
   unsigned long atoul(const char *s)
   {
-    //XXX
+    char *e;
+    unsigned long d = ::strtoul(s,&e,10);
+    if (*e)
+        throw new cException("invalid cast: '%s' cannot be interpreted as an unsigned long", s);
+    return d;
   }
 
   void stackUsage(cModule* self, std::ostream& os)

@@ -540,14 +540,18 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
 
 #endif // USE_MOBILITY
 #if FASTRA
+/* XXX let exception pass through as with other similar lines --AV
   try
   {
+*/
     rtrVar.maxFastRAS = OPP_Global::atoul(getNodeProperties(nif, "MaxFastRAS"));
+/* XXX let exception pass through as with other entries --AV
   }
   catch(boost::bad_lexical_cast& e)
   {
     Dout(dc::warning|error_cf,  rt->nodeName()<<" Cannot convert into integer maxRas="<<getNodeProperties(nif, "MaxFastRAS"));
   }
+*/
   rtrVar.fastRA = rtrVar.maxFastRAS != 0;
   if (rt->isRouter())
     Dout(dc::notice, rt->nodeName()<<":"<<iface_index<<" fastRA="<<rtrVar.fastRA

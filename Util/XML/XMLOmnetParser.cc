@@ -96,8 +96,8 @@ void XMLOmnetParser::parseFile(const char* filename)
   if(!filename || '\0' == filename[0])
   {
     cerr << "Empty name for XML input file"<<endl;
-    exit(1);    
-  }  
+    exit(1);
+  }
   _filename = filename;
   root = ev.getXMLDocument(filename);
 }
@@ -174,7 +174,7 @@ void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
     Dout(dc::debug, rt->nodeName()<<" does not have static routes in XML");
     return;
   }
-  
+
   std::string iface, dest, nextHop;
   cXMLElementList el = nroute->getChildrenByTagName("routeEntry");
   for (NodeIt it = el.begin(); it != el.end(); it++)
@@ -186,7 +186,7 @@ void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
     dest = getNodeProperties(nre, "routeDestination");
     nextHop = getNodeProperties(nre, "routeNextHop", false);
     bool destIsHost = getNodeProperties(nre, "isRouter") != XML_ON;
-    
+
     Dout(dc::debug, rt->nodeName()<<"iface="<<iface<<"dest="<<dest<<"nextHop="<<nextHop
          <<"destIsHost is "<<destIsHost);
     if (dest == "")
@@ -216,7 +216,7 @@ void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
     rt->addRoute(ifaceIdx, nextHopAddr, destAddr, destIsHost);
 
   }//end for loop of routeEntries
-  
+
   if (_version >= 2)
     tunnelConfiguration(rt);
 
@@ -259,7 +259,7 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
     if(ifaceIdx == -1)
     {
       Dout(dc::encapsulation|dc::warning, "Node: "<< rt->nodeName() <<
-	   " TunnelEntry has incorrect interface identifier in XML configuration file ..."
+           " TunnelEntry has incorrect interface identifier in XML configuration file ..."
            <<"(" << iface << ")"<<" IGNORING");
       assert(ifaceIdx != -1);
       continue;
@@ -274,13 +274,13 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
     if (vifIndex == 0)
     {
       cerr<<rt->nodeName()<<" tunnel not created from XML src="<<src<<endl
-	  <<" dest="<<dest<<" exitIface="<<dec<<ifaceIdx<<endl;
+          <<" dest="<<dest<<" exitIface="<<dec<<ifaceIdx<<endl;
       continue;
     }
 
     Dout(dc::encapsulation|continued_cf, rt->nodeName()
-	 <<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
-	 <<ifaceIdx);
+         <<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
+         <<ifaceIdx);
     cXMLElementList trigs = nte->getChildrenByTagName("triggers");
     for ( NodeIt trigIt = trigs.begin();trigIt != trigs.end();trigIt++)
     {
@@ -308,7 +308,7 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
       }
     } //end for triggers
     Dout(dc::finish, "-|");
-   
+
   } //end for tunnelEntries
 
   sourceRoute(rt);
@@ -330,7 +330,7 @@ void XMLOmnetParser::sourceRoute(RoutingTable6* rt)
   if (!nsource)
   {
     Dout(dc::debug|dc::forwarding, "No source routes for "<<rt->nodeName()
-	 <<" in XML config");
+         <<" in XML config");
     return;
   }
   else
@@ -400,7 +400,7 @@ void XMLOmnetParser::parseNetworkEntity(RoutingTable6* rt)
     parseInterfaceAttributes(rt, nif, iface_index);
   }
 
-  // do an additional parameter check	
+  // do an additional parameter check
   checkValidData (rt);
 }
 
@@ -584,7 +584,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
     cXMLElementList apl = napl->getChildrenByTagName("AdvPrefix");
     size_t numOfPrefixes = apl.size();
     ie.rtrVar.advPrefixList.resize(numOfPrefixes);
-    if (numOfPrefixes == 0) 
+    if (numOfPrefixes == 0)
       Dout(dc::xml_addresses|dc::warning, rt->nodeName()
            <<" no prefixes even though advPrefixList exists");
     NodeIt startPr = apl.begin();
@@ -607,7 +607,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
 #endif //USE_MOBILITY
       Dout(dc::xml_addresses, "prefix advertised is "<<pe);
     }
-    
+
   }
   //parse addresses
   cXMLElementList addrList = nif->getChildrenByTagName("inetAddr");
@@ -644,7 +644,7 @@ void XMLOmnetParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
 
   cXMLElement* nif = ne->getFirstChildWithAttribute("interface", "name", wlanMod->getInterfaceName());
   if (!nif)
-  {  
+  {
     Dout(dc::notice, nodeName<<":"<<wlanMod->getInterfaceName()<<"no config found for interface"
          <<wlanMod->getInterfaceName());
     return;
@@ -685,9 +685,9 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
   const_cast<double&>(wlanMod->associationTimeout) = boost::lexical_cast<double>(getNodeProperties(info, "WEAssociationTimeout"));
   const_cast<unsigned int&>(wlanMod->maxRetry) = boost::lexical_cast<unsigned int>(getNodeProperties(info, "WERetry"));
   wlanMod->fastActScan = getNodeProperties(info, "WEFastActiveScan") == XML_ON;
-  wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON; 
+  wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON;
   wlanMod->crossTalk = getNodeProperties(info, "WECrossTalk") == XML_ON;
-  wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON; 
+  wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON;
   wlanMod->chanNotToScan = getNodeProperties(info, "WEChannelsNotToScan");
   const_cast<unsigned int&>(wlanMod->sSMaxSample) = boost::lexical_cast<unsigned int>(getNodeProperties(info, "WESignalStrengthMaxSample"));
 
@@ -695,7 +695,7 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
 
   if(!wlanMod->apMode)
   {
-    if(addr != "0")    
+    if(addr != "0")
       wlanMod->address.set(addr.c_str());
     //Only want to initialise the MN mac address once otherwise routing tables
     //are wrong if we generate another random number from the stream
@@ -707,7 +707,7 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
         wlanMod->address.set(macAddr);
     }
   }
-	const_cast<double&>(wlanMod->bWRequirements) = boost::lexical_cast<double>(getNodeProperties(info, "WEBandwidthRequirements"));
+    const_cast<double&>(wlanMod->bWRequirements) = boost::lexical_cast<double>(getNodeProperties(info, "WEBandwidthRequirements"));
     wlanMod->statsVec = getNodeProperties(info, "WERecordStatisticVector") == XML_ON;
     wlanMod->activeScan = getNodeProperties(info, "WEActiveScan") == XML_ON;
     const_cast<double&>(wlanMod->channelScanTime) = boost::lexical_cast<double>(getNodeProperties(info, "WEChannelScanTime"));
@@ -728,7 +728,7 @@ void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
     Dout(dc::notice, "No misc element hence cannot parse movementInfo");
     return;
   }
-  
+
   cXMLElement* nobj = nmisc->getElementByPath("./ObjectMovement");
   if (!nobj)
   {
@@ -749,9 +749,9 @@ void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
   {
     cXMLElement* nmove = *it;
     me->addMove(boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToX")),
-		boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToY")),
-		boost::lexical_cast<float>(getNodeProperties(nmove, "moveSpeed"))
-		);    
+                boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToY")),
+                boost::lexical_cast<float>(getNodeProperties(nmove, "moveSpeed"))
+                );
   }
 }
 
@@ -799,9 +799,9 @@ void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
     mod->distance = boost::lexical_cast<unsigned int>(getNodeProperties(nrandompattern, "RPDistance"));
     mod->pauseTime = boost::lexical_cast<double>(getNodeProperties(nrandompattern, "RPPauseTime"));
   }
-  
+
   cXMLElement* nmovenode = nrandompattern->getFirstChildWithAttribute("RPNode", "RPNodeName", nodeName);
-  
+
   if (!nmovenode)
   {
     Dout(dc::debug|dc::notice, "No X/Y offsets of movement pattern info for node "<<nodeName);
@@ -809,7 +809,7 @@ void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
   }
 
   mod->xOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPXOffset"));
-  mod->yOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPYOffset"));  
+  mod->yOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPYOffset"));
 }
 
 #ifdef USE_HMIP
@@ -857,7 +857,7 @@ void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
   else
     hmipRtr->mnMUSTSetRoCAAsSource = false;
 
-  if (getNodeProperties(ne, "mapReverseTunnel") == XML_ON)  
+  if (getNodeProperties(ne, "mapReverseTunnel") == XML_ON)
     hmipRtr->reverseTunnel = true;
   else
     hmipRtr->reverseTunnel = false;
@@ -868,7 +868,7 @@ void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
   {
     if (startIf == ifaces.end())
     {
-      Dout(dc::warning|flush_cf, " No more interfaces found in XML for ifIndex>="<<i);      
+      Dout(dc::warning|flush_cf, " No more interfaces found in XML for ifIndex>="<<i);
       return;
     }
     cXMLElement* nif = *startIf;
@@ -913,7 +913,7 @@ void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
 
 /**
    @class XMLOmnetParserTest
-   @brief Unit test for	XMLOmnetParser
+   @brief Unit test for        XMLOmnetParser
    @ingroup TestCases
 */
 
@@ -970,13 +970,13 @@ void XMLOmnetParserTest::testOmnetParser()
 
   if (string("testnet") != simulation.systemModule()->name())
     return;
-  
+
   p = new XMLConfiguration::XMLOmnetParser();
   p->parseFile("XMLTEST.xml");
 
   std::string ver = p->getNodeProperties(p->doc(), "version");
   cerr<<" ver="<<ver<<" length="<<ver.length()<<endl;
-  
+
   CPPUNIT_ASSERT(ver == "0.0.5");
 
   assert(p->getNetNode("router") != 0);
@@ -1002,7 +1002,7 @@ void XMLOmnetParserTest::testOmnetParser()
   CPPUNIT_ASSERT(apl);
 
 
-  
+
   cXMLElement* nprefix = apl->getElementByPath("AdvPrefix");
   CPPUNIT_ASSERT(nprefix);
 
@@ -1011,8 +1011,8 @@ void XMLOmnetParserTest::testOmnetParser()
   // nprefix's internal pointer? Thus we will always need to copy the
   //iterator to retain a copy of it after the unnamed temporary goes out of scope
   //to retain node. (Valgrind analysis proved this)
-  
-  //  cXMLElement* nprefix = *((*it).find("AdvPrefix")); //*it; 
+
+  //  cXMLElement* nprefix = *((*it).find("AdvPrefix")); //*it;
   CPPUNIT_ASSERT(stripWhitespace(nprefix->getNodeValue()) == string("FEC0:0:0:ABCD:0:0:0:0/64"));
   CPPUNIT_ASSERT(888888 == boost::lexical_cast<unsigned int>(p->getNodeProperties(nprefix, "AdvValidLifetime")));
   CPPUNIT_ASSERT(88888 == boost::lexical_cast<unsigned int>(p->getNodeProperties(nprefix, "AdvPreferredLifetime")));

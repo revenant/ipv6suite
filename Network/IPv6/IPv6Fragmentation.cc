@@ -190,59 +190,59 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
   ctrIP6FragOKs++;
 
     /*
-		headerLength = datagram->headerLength();
-		payload = datagram->totalLength() - headerLength;
+        headerLength = datagram->headerLength();
+        payload = datagram->totalLength() - headerLength;
 
-		noOfFragments=
-			int(ceil((float(payload)/mtu) /
-			(1-float(headerLength)/mtu) ) );
+        noOfFragments=
+            int(ceil((float(payload)/mtu) /
+            (1-float(headerLength)/mtu) ) );
 
-		ev << "No of Fragments: " << noOfFragments << "\n";
+        ev << "No of Fragments: " << noOfFragments << "\n";
 
 
            // if "don't Fragment"-bit is set, throw
-			datagram away and send ICMP error message
-		if (datagram->dontFragment() && noOfFragments > 1)
-		{
-			sendErrorMessage (datagram,
-				ICMP_DESTINATION_UNREACHABLE,
-				ICMP_FRAGMENTATION_ERROR_CODE);
-			continue;
-		}
+            datagram away and send ICMP error message
+        if (datagram->dontFragment() && noOfFragments > 1)
+        {
+            sendErrorMessage (datagram,
+                ICMP_DESTINATION_UNREACHABLE,
+                ICMP_FRAGMENTATION_ERROR_CODE);
+            continue;
+        }
 
-		for (i=0; i<noOfFragments; i++)
-		{
+        for (i=0; i<noOfFragments; i++)
+        {
 
-			IPv6Datagram *fragment;
-			fragment = datagram->dup();
+            IPv6Datagram *fragment;
+            fragment = datagram->dup();
 
                 // total_length equal to mtu, except for
-				last fragment
+                last fragment
 
                 // "more Fragments"-bit is unchanged
-				in the last fragment, otherwise
-				true
-			if (i != noOfFragments-1)
-			{
+                in the last fragment, otherwise
+                true
+            if (i != noOfFragments-1)
+            {
 
-				fragment->setMoreFragments (true);
-				fragment->setTotalLength(mtu);
-			} else
-			{
+                fragment->setMoreFragments (true);
+                fragment->setTotalLength(mtu);
+            } else
+            {
                     // size of last fragment
-				fragment->setTotalLength
-					(datagram->totalLength() -
-					 (noOfFragments-1) *
-					 (mtu - datagram->headerLength()));
-			}
-			fragment->setFragmentOffset(
-					i*(mtu - datagram->headerLength()) );
+                fragment->setTotalLength
+                    (datagram->totalLength() -
+                     (noOfFragments-1) *
+                     (mtu - datagram->headerLength()));
+            }
+            fragment->setFragmentOffset(
+                    i*(mtu - datagram->headerLength()) );
 
 
-			wait(delay);
-			sendDatagramToOutput(fragment);
-		} // end for to noOfFragments
-		delete( datagram );
+            wait(delay);
+            sendDatagramToOutput(fragment);
+        } // end for to noOfFragments
+        delete( datagram );
 */
 
 }

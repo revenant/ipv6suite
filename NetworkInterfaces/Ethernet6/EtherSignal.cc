@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -40,11 +40,11 @@ EtherSignal::EtherSignal(const EtherSignal& p)
 
 EtherSignal& EtherSignal::operator=(const EtherSignal& p)
 {
-	cMessage::operator=(p);
+    cMessage::operator=(p);
     _type = p._type;
     srcModPathName = p.srcModPathName;
     setName(p.name());
-	return *this;
+    return *this;
 }
 
 EtherSignalData::EtherSignalData(EtherFrame* frame)
@@ -116,7 +116,7 @@ EtherSignalJamEnd& EtherSignalJamEnd::operator=(const EtherSignalJamEnd& p)
 {
   EtherSignal::operator=(p);
   setName(p.name());
-  
+
   return *this;
 }
 
@@ -134,7 +134,7 @@ EtherSignalIdle::EtherSignalIdle(const EtherSignalIdle& p)
 
 EtherSignalIdle& EtherSignalIdle::operator=(const EtherSignalIdle& p)
 {
-	EtherSignal::operator=(p);
+    EtherSignal::operator=(p);
     setName(p.name());
-	return *this;
+    return *this;
 }

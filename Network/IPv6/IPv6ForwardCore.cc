@@ -16,21 +16,21 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file IPv6ForwardCore.cc
-	@brief Forwarding of packets based on next hop prescribed by RoutingTable6
+    @file IPv6ForwardCore.cc
+    @brief Forwarding of packets based on next hop prescribed by RoutingTable6
 
-	-Responsibilities:
-	    -Receive valid IPv6 datagram
-	    -send datagram with Multicast addr. to Multicast module
+    -Responsibilities:
+        -Receive valid IPv6 datagram
+        -send datagram with Multicast addr. to Multicast module
         -Forward to IPv6Encapsulation module if next hop is a tunnel entry point
-	    -Drop datagram away and notify ICMP if dest. addr not in routing table
-	    -send to local Deliver if dest. addr. = 127.0.0.1
-	     or dest. addr. = NetworkCardAddr.[]
-	     otherwise, send to Fragmentation module
-	    -Dec Hop Limit when forwarding
+        -Drop datagram away and notify ICMP if dest. addr not in routing table
+        -send to local Deliver if dest. addr. = 127.0.0.1
+         or dest. addr. = NetworkCardAddr.[]
+         otherwise, send to Fragmentation module
+        -Dec Hop Limit when forwarding
 
-	@author Johnny Lai
-	@date 28/08/01
+    @author Johnny Lai
+    @date 28/08/01
 */
 
 
@@ -89,17 +89,17 @@ using boost::weak_ptr;
 
 Define_Module( IPv6ForwardCore );
 
-/* 	----------------------------------------------------------
-		Public Functions
-	----------------------------------------------------------	*/
+/*     ----------------------------------------------------------
+        Public Functions
+    ----------------------------------------------------------    */
 
 void IPv6ForwardCore::initialize(int stage)
 {
   if (stage == 0)
   {
-	RoutingTable6Access::initialize();
-	delay = par("procdelay");
-	hasHook = (findGate("netfilterOut") != -1);
+    RoutingTable6Access::initialize();
+    delay = par("procdelay");
+    hasHook = (findGate("netfilterOut") != -1);
     ctrIP6InAddrErrors = 0;
     ctrIP6OutNoRoutes = 0;
     waitTmr = new cMessage("IPv6ForwardCoreWait");
@@ -841,12 +841,12 @@ int IPv6ForwardCore::conceptualSending(AddrResInfo& info)
 } //end conceptualSending
 
 /**
- *	Choose an apropriate source address
- *	should do:
- *	i)	get an address with an apropriate scope
- *	ii)	see if there is a specific route for the destination and use
- *		an address of the attached interface
- *	iii) don't use deprecated addresses or Expired Addresses TODO
+ *    Choose an apropriate source address
+ *    should do:
+ *    i)   get an address with an apropriate scope
+ *    ii)  see if there is a specific route for the destination and use
+ *         an address of the attached interface
+ *    iii) don't use deprecated addresses or Expired Addresses TODO
  */
 
 ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex)
@@ -1023,9 +1023,9 @@ bool IPv6ForwardCore::processReceived(IPv6Datagram& datagram)
   return true;
 }
 
-/* 	----------------------------------------------------------
-		Private Functions
-	----------------------------------------------------------	*/
+/*     ----------------------------------------------------------
+        Private Functions
+    ----------------------------------------------------------    */
 
 // send error message to ICMP Module
 void IPv6ForwardCore::sendErrorMessage(ICMPv6Message* err)

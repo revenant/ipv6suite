@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -45,10 +45,10 @@ extern const int POSTAMBLE;
 /*  -------------------------------------------------
         Main class: EtherFrame
     -------------------------------------------------
-	field simulated:
-		protocol
-	constant fields not simulated:
-		flag (0x7e), control (0x03), RC (biterror)
+    field simulated:
+        protocol
+    constant fields not simulated:
+        flag (0x7e), control (0x03), RC (biterror)
 */
 
 class EtherFrame: public cPacket

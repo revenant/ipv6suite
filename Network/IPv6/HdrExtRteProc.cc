@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.cc,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,13 +18,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file HdrExtRteProc.cc
-	@brief Routing header operations.
-	@author Johnny Lai
-	@date 21.8.01
-	@test
-	Add routes from Routing ext header and test them for illegal 
-	i.e. multicast address
+    @file HdrExtRteProc.cc
+    @brief Routing header operations.
+    @author Johnny Lai
+    @date 21.8.01
+    @test
+    Add routes from Routing ext header and test them for illegal
+    i.e. multicast address
 */
 
 #include "HdrExtRteProc.h"
@@ -59,10 +59,10 @@ bool HdrExtRte::operator==(const HdrExtRte& rhs)
 {
   if (this == &rhs)
     return true;
-  
+
   if (rt0_hdr == rhs.rt0_hdr)
     return memcmp(rt0_hdr->addr, rhs.rt0_hdr->addr, n_addr())?false:true;
-  
+
   return false;
 }
 
@@ -73,10 +73,10 @@ HdrExtRte& HdrExtRte::operator=(const HdrExtRte& rhs)
     if (rt0_hdr->addr != 0)
       delete [] rt0_hdr->addr;
       rt0_hdr->addr = 0;
-      
+
       rt0_hdr->hdr_ext_len = 0;
       rt0_hdr->segments_left = 0;
-      
+
       if (rhs.n_addr() > 0)
       {
         ipv6_addr* addr = new ipv6_addr[rhs.n_addr()];
@@ -85,7 +85,7 @@ HdrExtRte& HdrExtRte::operator=(const HdrExtRte& rhs)
         rt0_hdr->hdr_ext_len = rhs.rt0_hdr->hdr_ext_len;
         rt0_hdr->segments_left = rhs.rt0_hdr->segments_left;
         rt0_hdr->next_header = rhs.rt0_hdr->next_header;
-        rt0_hdr->addr = addr;      
+        rt0_hdr->addr = addr;
       }
   }
   return *this;
@@ -98,7 +98,7 @@ std::ostream& HdrExtRte::operator<<(std::ostream& os)
   for (int i = 0; i < n_addr(); i++)
     os << "seg #" << i<< " addr="<<rt0_hdr->addr[i]<<'\n';
   return os;
-  
+
 //  os <<'\0';
 //  os.str().copy(buf, string::npos);
 };
@@ -141,23 +141,23 @@ void HdrExtRte::addAddress(const ipv6_addr& append_addr)
  * fix it (has to be localdeliver mod, is the caller).
  */
 
-bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu, 
+bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
                               int cumul_len)
 {
   static const string ICMPErrorGate("errorOut");
-  
+
   std::auto_ptr<IPv6Datagram> pdu(thePdu);
 
   //LocalDeliver6Core* core = polymorphic_downcast<LocalDeliver6Core*>(mod);
   LocalDeliver6Core* core = static_cast<LocalDeliver6Core*>(mod);
-  
+
   assert(!pdu->destAddress().isMulticast());
-  
+
   if (rt0_hdr->segments_left == 0)
   {
     pdu.release();
     return true;
-  }  
+  }
 
   int odd = rt0_hdr->hdr_ext_len%2;
 
@@ -171,19 +171,19 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
                                  ),
                ICMPErrorGate.c_str());
     return false;
-      
-  }  
 
-  
+  }
+
+
   if (rt0_hdr->segments_left > n_addr())
   {
     //Send send ICMP Par Prob 0 , mess to Src Address, point to
     //segments left field and discard packet
     core->send(new ICMPv6Message(ICMPv6_PARAMETER_PROBLEM, 0, pdu->dup(),
-                                 cumul_len),// - 
+                                 cumul_len),// -
 //                                   sizeof(ipv6_ext_segments_left)),
                ICMPErrorGate.c_str());
-    return false;	  
+    return false;
   }
 
   rt0_hdr->segments_left--;
@@ -193,16 +193,16 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   //actually from 0
   if (rt0_hdr->addr[index - 1].isMulticast() ||
       pdu->destAddress().isMulticast())
-  {      
+  {
     //drop packet
     cerr<<"Drop Routing Header packet with multicast destination addresses"<<endl;
     return false;
   }
-    
+
   ipv6_addr swap_addr = rt0_hdr->addr[index - 1];
   rt0_hdr->addr[index - 1] = pdu->destAddress();
-  pdu->setDestAddress(swap_addr);   
-	    
+  pdu->setDestAddress(swap_addr);
+
   if (pdu->hopLimit() <= 1)
   {
     //drop and send Time Exceeded
@@ -215,7 +215,7 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   //pdu->setInputPort(-1);
   //pdu->setHopLimit(pdu->hopLimit() - 1);
 #if defined TESTIPv6
-  if (core) 
+  if (core)
     core->send(pdu.release(), "routingOut");
   else //Required during unit testing
     pdu.release();
@@ -229,13 +229,13 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
 // void HdrExtRte::assign(const HdrExtRte& rhs)
 // {
 //   HdrExtProc::assign(rhs);
-//   assert(rt0_hdr->routing_type == IPV6_TYPE0_RT_HDR);  
+//   assert(rt0_hdr->routing_type == IPV6_TYPE0_RT_HDR);
 //   if (rhs.segmentsLeft())
 //     {
-//       ipv6_addr* addr = new ipv6_addr[segmentsLeft()];      
+//       ipv6_addr* addr = new ipv6_addr[segmentsLeft()];
 //       memcpy(addr, rhs.rt0_hdr->addr, segmentsLeft()*sizeof(ipv6_addr));
-//       rt0_hdr->addr = addr;      
-//     } 
+//       rt0_hdr->addr = addr;
+//     }
 // }
 
 /* Never used as address are never removed only swapped around
@@ -249,10 +249,10 @@ namespace MobileIPv6
 
 /**
  * @todo make sure that the address is indeed home address of this MN
- * 
+ *
  */
-  
-bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu, 
+
+bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
                                 int cumul_len)
 {
   assert(rt0_hdr->segments_left == 1);
@@ -286,7 +286,7 @@ HdrExtRteProc::~HdrExtRteProc(void)
 {
   for (RHIT it = rheads.begin(); it != rheads.end(); it++)
     delete *it;
-  
+
   rheads.clear();
 }
 
@@ -294,11 +294,11 @@ bool HdrExtRteProc::operator==(const HdrExtRteProc& rhs)
 {
   if (this == &rhs)
     return true;
-  
+
   if (HdrExtProc::operator==(rhs))
     if (rheads == rhs.rheads)
       return true;
-  
+
   return false;
 }
 
@@ -314,14 +314,14 @@ HdrExtRteProc& HdrExtRteProc::operator=(const HdrExtRteProc& rhs)
     {
       for (it = rheads.begin(); it != rheads.end(); it++)
         delete *it;
-      
-      rheads.clear();        
+
+      rheads.clear();
       }
-    
+
     for (it = rhs.rheads.begin(); it != rhs.rheads.end(); it++)
       rheads.push_back((*it)->dup());
   }
-   
+
   return *this;
 }
 
@@ -337,7 +337,7 @@ bool HdrExtRteProc::addRoutingHeader(HdrExtRte* rh)
     if((*it)->routingType() == rh->routingType())
       return false;
   }
-  
+
   rheads.push_back(rh);
   return true;
 }
@@ -350,14 +350,14 @@ HdrExtRte* HdrExtRteProc::routingHeader(unsigned char rt_type)
     if((*it)->routingType() == rt_type)
       return (*it);
   }
-  
+
   return 0;
 }
 
 size_t HdrExtRteProc::length() const
 {
   size_t len = 0;
-  
+
   //accumulate(rheads.begin(), rheads.end(), _1->length());
   for (RHIT it = rheads.begin(); it != rheads.end(); it++)
     len += (*it)->length();
@@ -370,17 +370,17 @@ bool HdrExtRteProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
 
  for (RHIT it = rheads.begin(); it != rheads.end(); it++)
  {
-   // cummulated length up to a particular routing header 
+   // cummulated length up to a particular routing header
    cuml_len_to_rh += (*it)->length();
-    
+
    if ( (*it)->segmentsLeft() != 0)
    {
      bool success = (*it)->processHeader(mod, pdu, cuml_len_to_rh);
-   
+
      if(!success)
        return false;
    }
- }  
+ }
 
  return true;
 }
@@ -388,10 +388,10 @@ bool HdrExtRteProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
 bool HdrExtRteProc::isSegmentsLeft(void)
 {
  for (RHIT it = rheads.begin(); it != rheads.end(); it++)
- {  
+ {
    if ((*it)->segmentsLeft() != 0)
      return true;
- }  
+ }
 
  return false;
 }

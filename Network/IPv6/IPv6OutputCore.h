@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,16 @@
 
 /**
 
-	@file IPv6OutputCore.h
-	@brief Header file for IPv6Output core module
-	------
-	Responsibilities: 
-	receive complete datagram from IPFragmentation
-        hop counter check 
+    @file IPv6OutputCore.h
+    @brief Header file for IPv6Output core module
+    ------
+    Responsibilities:
+    receive complete datagram from IPFragmentation
+        hop counter check
             -> throw away and notify ICMP if ttl==0
         otherwise  send it on to output queue
-	@author Johnny Lai
-	
+    @author Johnny Lai
+
 */
 
 #include "RoutingTable6Access.h"
@@ -50,7 +50,7 @@ class IPv6OutputCore: public RoutingTable6Access
 {
 public:
   Module_Class_Members(IPv6OutputCore, RoutingTable6Access, 0);
-  
+
   virtual void initialize();
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
@@ -62,7 +62,7 @@ private:
   bool hasHook;
   unsigned int ctrIP6OutForwDatagrams;
   unsigned int ctrIP6OutMcastPkts;
-  LLInterfacePkt* curPacket;    
+  LLInterfacePkt* curPacket;
   cMessage* waitTmr;
   cQueue waitQueue;
   ::IPv6ForwardCore* forwardMod;

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.h,v 1.1 2005/02/09 06:15:58 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,12 +24,12 @@
  *
  * @brief Provides the basic structures used to build the various ipv6 protocol
  * messages.
- * @test 
+ * @test
 
  Output structures to screen to see if they match Header structures in RFC2460.
  Compute sizeof to test if it's same as RFC2460 in terms of size. (not a
  requirement as we are not really sending this across wire).
- 
+
 
 
 */
@@ -47,13 +47,13 @@
 extern const unsigned int MAX_HOPLIMIT;
 
 namespace
-{ 
+{
   const unsigned int IPv6_HEADER_LENGTH = 40; //octets
   const unsigned int IPv6_MIN_MTU = 1280;
   const unsigned int IPv6_ADDRESS_LEN = 16;
   const unsigned int IPv6_MAX_VERSION = 15;
   const unsigned int IPv6_FRAG_HDR_LEN = 8;
-  
+
 //Implmentation Specific constants
   const int NEXT_HDR_FOUND = -2;
   const int HEADER_NOT_FOUND = -1;
@@ -66,39 +66,39 @@ extern const int IPv6_TYPE2_RT_HDR;
 
 
 /**
-   Possible Next Header values to identify the contents of the following 
+   Possible Next Header values to identify the contents of the following
    header/payload
 */
 enum IPv6NextHeader
 {
-  NEXTHDR_HOP = 0, // Hop-by-hop option header. 
-  NEXTHDR_TCP = 6, //	 TCP segment. 
-  NEXTHDR_UDP	= 17,
-  NEXTHDR_IPV6 = 41,	// IPv6 in IPv6 
-  NEXTHDR_ROUTING	= 43,	// Routing header. 
-  NEXTHDR_FRAGMENT = 44,	// Fragmentation/reassembly header.
+  NEXTHDR_HOP = 0, // Hop-by-hop option header.
+  NEXTHDR_TCP = 6, // TCP segment.
+  NEXTHDR_UDP = 17,
+  NEXTHDR_IPV6 = 41,     // IPv6 in IPv6
+  NEXTHDR_ROUTING = 43,  // Routing header.
+  NEXTHDR_FRAGMENT = 44, // Fragmentation/reassembly header.
 
-  // Notsupported //	
-  NEXTHDR_ESP	= 50,	// Encapsulating security payload. 
-  NEXTHDR_AUTH = 51,	// Authentication header. 
+  // Notsupported //
+  NEXTHDR_ESP = 50,  // Encapsulating security payload.
+  NEXTHDR_AUTH = 51, // Authentication header.
   // NotSupported //
 
-  NEXTHDR_ICMP = 58,	// ICMP for IPv6. 
-  NEXTHDR_NONE = 59,	// No next header 
-  NEXTHDR_DEST = 60,	// Destination options header.
-  NEXTHDR_MIPV6 = 135	/// RFC 3775 MIPv6 extension header 
+  NEXTHDR_ICMP = 58,    // ICMP for IPv6.
+  NEXTHDR_NONE = 59,    // No next header
+  NEXTHDR_DEST = 60,    // Destination options header.
+  NEXTHDR_MIPV6 = 135   /// RFC 3775 MIPv6 extension header
 };
 
 /*
-  #define ISVALID_IPV6_NEXT_HEADER(x)  { switch(x)						 \
-  {																		 \
-  case NEXTHDR_HOP: NEXTHDR_TCP: NEXTHDR_UDP: NEXTHDR_IPV6:				 \
-  NEXTHDR_ROUTING: NEXTHDR_FRAGMENT: NEXTHDR_ICMP: NEXTHDR_NONE:			 \
-  NEXTHDR_DEST: NEXTHDR_ESP: NEXTHDR_AUTH:								 \
-  break;																 \
-  default:																 \ 
-  assert(false);														 \
-  break;														 \
+  #define ISVALID_IPV6_NEXT_HEADER(x)  { switch(x)                  \
+  {                                                                 \
+  case NEXTHDR_HOP: NEXTHDR_TCP: NEXTHDR_UDP: NEXTHDR_IPV6:         \
+  NEXTHDR_ROUTING: NEXTHDR_FRAGMENT: NEXTHDR_ICMP: NEXTHDR_NONE:    \
+  NEXTHDR_DEST: NEXTHDR_ESP: NEXTHDR_AUTH:                          \
+  break;                                                            \
+  default:                                                          \
+  assert(false);                                                    \
+  break;                                                            \
   } }
 */
 
@@ -108,11 +108,11 @@ enum IPv6NextHeader
 /*
   enum IPv6ProtocolFieldId
   {
-  IPv6_PROT_TCP = 6, //	 TCP segment. 
-  IPv6_PROT_UDP	= 17,
-  IPv6_PROT_IPV6 = 41,	// IPv6 in IPv6
-  IPv6_PROT_ICMP = 58,	// ICMP for IPv6. 
-  IPv6_PROT_NONE = 59,	// No next header 	
+  IPv6_PROT_TCP = 6, // TCP segment.
+  IPv6_PROT_UDP = 17,
+  IPv6_PROT_IPV6 = 41,  // IPv6 in IPv6
+  IPv6_PROT_ICMP = 58,  // ICMP for IPv6.
+  IPv6_PROT_NONE = 59,  // No next header
   };
 */
 /*
@@ -121,7 +121,7 @@ enum IPv6NextHeader
   case IPv6_PROT_TCP: IPv6_PROT_UDP: IPv6_PROT_IPV6: \
   IPv6_PROT_ICMP: IPv6_PROT_NONE: IPv6_PROT_DEST: \
   break; \
-  default: \ 
+  default: \
   assert(false); \
   break; \
   }
@@ -134,18 +134,18 @@ enum IPv6NextHeader
 enum IPv6ExtHeader
 {
   EXTHDR_UNINITIALISED = -1,
-  EXTHDR_HOP = 0, // Hop-by-hop option header. 
-  EXTHDR_ROUTING	= 43,	// Routing header. 
-  EXTHDR_FRAGMENT = 44,	// Fragmentation/reassembly header.
-  EXTHDR_DEST = 60,	// Destination options header.
+  EXTHDR_HOP = 0,       // Hop-by-hop option header.
+  EXTHDR_ROUTING = 43,  // Routing header.
+  EXTHDR_FRAGMENT = 44, // Fragmentation/reassembly header.
+  EXTHDR_DEST = 60,     // Destination options header.
   //Not supported i.e. is ignored completely. (log warning msg)
-  EXTHDR_ESP	= 50,	// Encapsulating security payload. 
-  EXTHDR_AUTH = 51	// Authentication header.
+  EXTHDR_ESP = 50,      // Encapsulating security payload.
+  EXTHDR_AUTH = 51      // Authentication header.
 };
 //@}
 
-/** 
-    IPv6 header format: 
+/**
+    IPv6 header format:
     Version 4 Traffic Class 8 Flow Label 20
     Payload Length 16 Next header 8 Hop Limit 8
     Source Address 128
@@ -154,11 +154,11 @@ enum IPv6ExtHeader
 struct ipv6_hdr
 {
   /**
-     version is 6 for IPv6 
+     version is 6 for IPv6
      traffic class is 0 by default, upper layers can modify it.
      flow label is 0 as not supported and ignored
   */
-  unsigned int ver_traffic_flow; 
+  unsigned int ver_traffic_flow;
   unsigned short payload_length;
   unsigned char next_header;
   unsigned char hop_limit;
@@ -185,7 +185,7 @@ struct ipv6_ext_hdr
 
 /**
    @class ipv6_option
-   Primitive base for all TLV options used by destination and hop-by-hop 
+   Primitive base for all TLV options used by destination and hop-by-hop
    extension headers
 */
 struct ipv6_option
@@ -310,19 +310,19 @@ struct ipv6_ext_frag_hdr: public ipv6_ext_hdr
   ipv6_ext_frag_hdr()
     :frag_off(0), frag_id(0)
     {}
-  unsigned short	frag_off;
-  unsigned int	frag_id;
+  unsigned short frag_off;
+  unsigned int frag_id;
 };
 
 
 /**
-   ICMPv6 header 
+   ICMPv6 header
    Next Header Value: 58
    Type 8| Code 8| Checksum 16|
    Message body *
 //Refer to icmpv6.h in linux/icmpv6.h kernel code
 */
-struct ipv6_icmp_hdr 
+struct ipv6_icmp_hdr
 {
 
 };

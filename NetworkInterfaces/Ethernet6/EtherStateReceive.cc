@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceive.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceive.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,13 +20,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherStateReceive.cc
-	@brief Definition file for EtherStateReceive
+    @file EtherStateReceive.cc
+    @brief Definition file for EtherStateReceive
 
-	Defines simple FSM for Ethernet operation based on "Efficient and
-	Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
+    Defines simple FSM for Ethernet operation based on "Efficient and
+    Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
-	@author Eric Wu */
+    @author Eric Wu */
 
 #include <sys.h> // Dout
 #include "debug.h" // Dout
@@ -54,7 +54,7 @@ EtherStateReceive* EtherStateReceive::instance(void)
 {
   if (_instance == 0)
     _instance = new EtherStateReceive;
-  
+
   return _instance;
 }
 
@@ -107,7 +107,7 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceive::processIdle(EtherModule* mod, 
 
   if ( mod->isMediumBusy() )
     return idle;
-  
+
   if ( !mod->inputFrame )
   {
     mod->changeState(EtherStateIdle::instance());

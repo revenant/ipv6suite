@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   HMIPv6NDStateHost.cc
  * @author Johnny Lai
  * @date   04 Sep 2002
- * 
+ *
  * @brief  Implementation of HMIPv6NDStateHost class
  *
- * 
+ *
  */
 
 
@@ -53,17 +53,17 @@ namespace HierarchicalMIPv6
 {
 
 HMIPv6NDStateHost::HMIPv6NDStateHost(NeighbourDiscovery* mod)
-  :MIPv6NDStateHost(mod), 
+  :MIPv6NDStateHost(mod),
    hmipv6cdsMN(*(boost::polymorphic_downcast<HMIPv6CDSMobileNode*> (mipv6cdsMN)))
 {
   //Dout(dc::custom, "HMIPv6NDStateHost ctor");
 }
-  
+
 HMIPv6NDStateHost::~HMIPv6NDStateHost()
 {
 }
 
-std::auto_ptr<ICMPv6Message>  
+std::auto_ptr<ICMPv6Message>
 HMIPv6NDStateHost::processMessage(std::auto_ptr<ICMPv6Message> msg)
 {
   return this->MobileIPv6::MIPv6NDStateHost::processMessage(msg);
@@ -84,7 +84,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
          <<" HMIP rtrAdv was invalidated after normal MIPv6 processing");
     return rtrAdv;
   }
-  
+
   IPv6Datagram* dgram = rtrAdv->encapsulatedMsg();
 
   //!mipv6cdsMN->primaryHA() does not imply that we do not allow map reg when
@@ -99,8 +99,8 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     if (!hmipv6cdsMN.isMAPValid())
       return rtrAdv;
 
-    if (mipv6cdsMN->currentRouter() && mipv6cdsMN->currentRouter()->re.lock() && 
-	dgram->srcAddress() != mipv6cdsMN->currentRouter()->re.lock()->addr())
+    if (mipv6cdsMN->currentRouter() && mipv6cdsMN->currentRouter()->re.lock() &&
+    dgram->srcAddress() != mipv6cdsMN->currentRouter()->re.lock()->addr())
     {
       //Store old map address so we can do forwarding from MAP to coa when no map
       //What if many RA and only some have map options? Do we want to trigger any
@@ -118,7 +118,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 
     //Assuming 0 because multihomed hosts would be problematic I mean should we
     //check which RA comes from which ifIndex before doing this?
-    rt->removeAddress(hmipv6cdsMN.remoteCareOfAddr(), dgram->inputPort()); 
+    rt->removeAddress(hmipv6cdsMN.remoteCareOfAddr(), dgram->inputPort());
     const ipv6_addr& ll_addr = dgram->srcAddress();
     boost::shared_ptr<MIPv6RouterEntry> accessRouter = mipv6cdsMN->findRouter(ll_addr);
     //bind to pHA with coa of lcoa?
@@ -133,7 +133,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 bool isInvalidMAP(const MAPOptions::value_type& m)
 {
    assert(m.dist() > 0);
-    
+
    //No more m option in latest HMIP drafts as no more extended mode only basic
    assert(!m.m());
 
@@ -234,7 +234,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
       Dout(dc::hmip, rt->nodeName()<<" rtrAdv from "<<dgram->srcAddress()
            <<" MAP option "<<curMapCopy.addr()
            <<" distance changed from "<<curMapCopy.distance()<<" to "
-           <<hmipv6cdsMN.currentMap().distance()); 
+           <<hmipv6cdsMN.currentMap().distance());
       //Should we do AR-AR handover?
       handover(accessRouter);
       //Don't think this was ever tested.
@@ -271,8 +271,8 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
     Dout(dc::hmip, rt->nodeName()<<" MAP at "<<bestMap.addr()<<" V set - should trigger on HA for lcoa tunnel");
   }
 
-  ///Form LCOA 
-  //This lcoa registration with MAP should be done by HMIP handover.  
+  ///Form LCOA
+  //This lcoa registration with MAP should be done by HMIP handover.
   //We leave processBA to do pHA binding of hoa and rcoa
   Interface6Entry& ie = rt->getInterfaceByIndex(accessRouter->re.lock()->ifIndex());
 
@@ -284,7 +284,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
 
   //Checking for outstanding BU that are waiting on DAD of lcoa for the same
   //MAP. If MAP is different I guess we use this one?
-    
+
   if (ocb)
   {
     const HMIPv6MAPEntry& potentialMap =  boost::get<0>(Loki::Field<0>(ocb->args));
@@ -318,7 +318,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   {
     assigned = true;
   }
-    
+
   ///The initial MAP may be false since home domain can have map options
   ///too. But since its hard to use missedRtrAdv to trigger real layer 3
   ///movement culminating in hmip handover will assume it is for now. (to do
@@ -340,11 +340,11 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
 
     //hmipv6cdsMN.setFutureRCOA(rcoa);
 
-    
+
     Dout(dc::hmip, rt->nodeName()<<" lcoa="<<lcoa
          <<" assigned already so binding with best map MAPOption "<<bestMap<<" at "<<nd->simTime());
 
-      
+
     //sendBUtomap
     //Then in processBA send BU to HA if bu hoa was different to coa of primaryha binding
     //oldrcoa is in pha
@@ -352,16 +352,16 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
     //mapHandover(bestMap, rcoa, lcoa, nd->simTime(), accessRouter.lock()->re->ifIndex());
     mapHandover(arg);
   }
-  else 
+  else
   {
     Dout(dc::notice, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
          <<" iface="<<dgram->inputPort()<<" HMIP lcoa not assigned yet undergoing DAD");
-    
+
     cbSendMapBU* cb = new cbSendMapBU(5444, nd, this, &HMIPv6NDStateHost::mapHandover, "SendMAPBU-lcoa");
     Loki::Field<0>(cb->args) = arg;
 
     addCallbackToAddress(lcoa, cb);
- 
+
   }
 }
 
@@ -395,12 +395,12 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
   //Need to wait for BA from new MAP before setting it to currentMAP?
   //Also registering with the HA and perhaps CN too.
-  hmipv6cdsMN.setCurrentMap(bestMap.addr());    
+  hmipv6cdsMN.setCurrentMap(bestMap.addr());
 
   //sendBU to new/better MAP initially. (inter AR handover is done by by mip handover)
   //sendBU to HA at processBA of MIPv6 when BA from MAP received. (rcoa is valid now)
-    
-  //lifetime should really be min(map.lifetime(), lifetime of lcoa)    
+
+  //lifetime should really be min(map.lifetime(), lifetime of lcoa)
   mstateMN->sendMapBU(hmipv6cdsMN.currentMap().addr(), lcoa,
                       rcoa,
                       //This may not be exact lifetime as DAD delay will have reduced this
@@ -411,7 +411,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   assert(tunMod != 0);
 
-  
+
 
   //Create rcoa to HA tunnel
   size_t vIfIndex = tunMod->findTunnel(rcoa, mipv6cdsMN->primaryHA()->prefix().prefix);
@@ -420,16 +420,16 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   vIfIndex = tunMod->createTunnel(rcoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
   Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" reverse tunnel created entry rcoa="
        <<rcoa<<" exit ha="<< mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<vIfIndex);
-  
+
 
   //Create lcoa to MAP tunnel
   if (bestMap.v())
   {
     vIfIndex = tunMod->findTunnel(lcoa, hmipv6cdsMN.currentMap().addr());
     assert(!vIfIndex);
-    //assuming single mobile interface at 0   
+    //assuming single mobile interface at 0
     vIfIndex = tunMod->createTunnel(lcoa, hmipv6cdsMN.currentMap().addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
-  
+
     Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" reverse tunnel created entry lcoa="
          <<lcoa<<" exit map="<< hmipv6cdsMN.currentMap().addr()<<" vIfIndex="<<vIfIndex
          <<" V flag set so triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
@@ -442,7 +442,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   }
   else
   {
-    
+
     if (!mipv6cdsMN->primaryHA().get())
       return;
 
@@ -453,7 +453,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
       formRemoteCOA(curMapCopy.addr(), ifIndex);
     //We should have a binding to it still I think unless we went into a no map
     //zone for a long time or very short binding lifetime with MAP
-    assert(oldBULE); 
+    assert(oldBULE);
     Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
     assert(ie.addrAssigned(oldRcoa));
 
@@ -463,12 +463,12 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
     //PCOAF lifetime?
     //DAD is not done here as addr is already in BUL
-    mstateMN->sendMapBU(curMapCopy.addr(), lcoa, oldRcoa, 
+    mstateMN->sendMapBU(curMapCopy.addr(), lcoa, oldRcoa,
                         //need a floor round down func
                         static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()),
                         ifIndex, mob);
-    
-    
+
+
     //Destroy tunnel from old lcoa to old map
     if (oldBULE && curMapCopy.v())
       tunMod->destroyTunnel(oldBULE->careOfAddr(), curMapCopy.addr());
@@ -479,32 +479,32 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
 }
 /*
-   - "Eager" to perform new bindings 
-      - "Lazy" in releasing existing bindings 
-    
-   The above means that the MN should register with any "new" MAP 
-   advertised by the AR (Eager). 
-   The method by which the MN determines whether the MAP is a "new" MAP 
-   is described in chapter 5 above. The MN should not release existing 
-   bindings until it no longer receives the MAP option or the lifetime 
-   of its existing binding expires (Lazy). 
-   This Eager-Lazy approach described above will assist in providing a 
-   fallback mechanism in case one of the MAP routers crash as it would 
-   reduce the time it takes for a MN to inform its CNs and HA about its 
-   new COA. 
-  
-*/  
+   - "Eager" to perform new bindings
+      - "Lazy" in releasing existing bindings
+
+   The above means that the MN should register with any "new" MAP
+   advertised by the AR (Eager).
+   The method by which the MN determines whether the MAP is a "new" MAP
+   is described in chapter 5 above. The MN should not release existing
+   bindings until it no longer receives the MAP option or the lifetime
+   of its existing binding expires (Lazy).
+   This Eager-Lazy approach described above will assist in providing a
+   fallback mechanism in case one of the MAP routers crash as it would
+   reduce the time it takes for a MN to inform its CNs and HA about its
+   new COA.
+
+*/
 ///Forms a remote coa from prefix of MAP me at the interface ifIndex
 ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
                                            unsigned int ifIndex)
 {
   assert(me.addr() != IPv6_ADDR_UNSPECIFIED);
-  
+
   ipv6_addr rcoa = me.addr();
   Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
-   
+
   assert(ie.interfaceIDLength() == EUI64_LENGTH);
-   
+
   rcoa.normal = ie.interfaceID()[0];
   rcoa.low = ie.interfaceID()[1];
   return rcoa;
@@ -548,7 +548,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 //boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> newRtr)
 
   //until we get the newRtr arg assume single iface
-  unsigned int ifIndex = 0; 
+  unsigned int ifIndex = 0;
 
   //assert(newRtr.get());
 
@@ -558,12 +558,12 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
     //Do base ipv6 handover
     return false;
   }
-  
+
   //As long as currentMap exists we will assume handover between ARs in MAP
   //domain.  Only during reception of RtrAdv's MAP options can we tell if we
   //have changed map domain by missing current MAP option.  or no MAP options
   //advertised at all
-  
+
   //AR to AR handover BU to currentMAP
   assert(mipv6cdsMN->primaryHA());
 
@@ -578,10 +578,10 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 
   ipv6_addr oldcoa = hmipv6cdsMN.localCareOfAddr();
   assert(oldcoa != mipv6cdsMN->homeAddr());
-        
+
     //There's no need to resend BU containing exactly the same information
   if (oldcoa != lcoa)
-  {          
+  {
       //Iterate through every BU_entry and send updates only to currentMAP and
       //TODO optionally CNs that are on same link as lcoa (same prefix)
 //       for_each(mipv6cdsMN->bul.begin(), mipv6cdsMN->bul.end(),
@@ -593,8 +593,8 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
          <<hmipv6cdsMN.currentMap().lifetime()<<" ifIndex="
          <<ifIndex);
 //           <<newRtr->re.lock()->ifIndex());
-      
-    //lifetime should really be min(map.lifetime(), lifetime of lcoa)    
+
+    //lifetime should really be min(map.lifetime(), lifetime of lcoa)
     mstateMN->sendMapBU(hmipv6cdsMN.currentMap().addr(), lcoa,
                         hmipv6cdsMN.remoteCareOfAddr(),
                         //This may not be exact lifetime as DAD delay will have reduced this
@@ -607,19 +607,19 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 
 
     if (hmipv6cdsMN.currentMap().v())
-    {    
+    {
       //Set up reverse tunnelled link from LCOA to map here as we update lcoa and remove old one
       IPv6Encapsulation* tunMod = boost::polymorphic_downcast<IPv6Encapsulation*>
         (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
       assert(tunMod != 0);
 
       tunMod->destroyTunnel(oldcoa, hmipv6cdsMN.currentMap().addr());
-  
+
       size_t vIfIndex = tunMod->findTunnel(lcoa, hmipv6cdsMN.currentMap().addr());
       assert(!vIfIndex);
       //assuming single mobile interface at 0
       vIfIndex = tunMod->createTunnel(lcoa, hmipv6cdsMN.currentMap().addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
-  
+
       Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" reverse tunnel created entry lcoa="
            <<lcoa<<" exit map="<< hmipv6cdsMN.currentMap().addr()<<" vIfIndex="<<vIfIndex
            <<" V flag set so triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);

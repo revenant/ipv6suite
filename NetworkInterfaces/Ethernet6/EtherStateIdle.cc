@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateIdle.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateIdle.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,13 +20,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherStateIdle.cc
-	@brief Definition file for EtherStateIdle
+    @file EtherStateIdle.cc
+    @brief Definition file for EtherStateIdle
 
-	Defines simple FSM for Ethernet operation based on "Efficient and
-	Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
+    Defines simple FSM for Ethernet operation based on "Efficient and
+    Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
-	@author Eric Wu */
+    @author Eric Wu */
 
 #include <sys.h> // Dout
 #include "debug.h" // Dout
@@ -49,7 +49,7 @@ EtherStateIdle* EtherStateIdle::instance()
 {
   if (_instance == 0)
     _instance = new EtherStateIdle;
-  
+
   return _instance;
 }
 
@@ -60,7 +60,7 @@ void EtherStateIdle::chkOutputBuffer(EtherModule* mod)
 {
   mod->interframeGap = 0;
 
-  // Network Interface Idling... 
+  // Network Interface Idling...
   // ready to accept data from upper layer
   mod->idleNetworkInterface();
 
@@ -69,8 +69,8 @@ void EtherStateIdle::chkOutputBuffer(EtherModule* mod)
 
   if (mod->outputBuffer.size())
   {
-    EtherSignalData* data = *(mod->outputBuffer.begin());  
- 
+    EtherSignalData* data = *(mod->outputBuffer.begin());
+
     Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << ": start sending DATA... ");
 
     mod->sendFrame(data->dup(), mod->outPHYGate());
@@ -86,14 +86,14 @@ void EtherStateIdle::chkOutputBuffer(EtherModule* mod)
     {
       Loki::cTimerMessageCB<void, TYPELIST_1(EtherModule*)>* sendSig;
 
-      sendSig  = new Loki::cTimerMessageCB<void, 
+      sendSig  = new Loki::cTimerMessageCB<void,
         TYPELIST_1(EtherModule*)>
         (TRANSMIT_SENDDATA, mod, static_cast<EtherStateSend*>
-         (mod->currentState()), &EtherStateSend::endSendingData, 
+         (mod->currentState()), &EtherStateSend::endSendingData,
          "endSendingData");
-        
+
       Loki::Field<0> (sendSig->args) = mod;
-        
+
       mod->addTmrMessage(sendSig);
       tmrMessage = sendSig;
     }
@@ -118,19 +118,19 @@ std::auto_ptr<EtherSignalData> EtherStateIdle::processData(EtherModule* mod, std
   // We can cancel the InterfameGap if it is previously
   // scheduled. This is because the minimum frame size is 512 bits and
   // is a much higer value than InterframeGap, which is 96 bits.
-  cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP); 
+  cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP);
   if (tmrMessage && tmrMessage->isScheduled())
     tmrMessage->cancel();
 
-  // make sure the inputFrame is null 
+  // make sure the inputFrame is null
   assert(!mod->inputFrame);
 
     Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << ": receiving DATA... ");
 
   // has to duplicate the data because the auto_ptr will delete the
   // instance afterwards
-  mod->inputFrame = data.get()->dup();  
- 
+  mod->inputFrame = data.get()->dup();
+
   // entering receive state and waiting to finish receiving the frame
   mod->changeState(EtherStateReceive::instance());
 
@@ -139,7 +139,7 @@ std::auto_ptr<EtherSignalData> EtherStateIdle::processData(EtherModule* mod, std
 
 std::auto_ptr<EtherSignalJam> EtherStateIdle::processJam(EtherModule* mod, std::auto_ptr<EtherSignalJam> jam)
 {
-  cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP); 
+  cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP);
   if (tmrMessage && tmrMessage->isScheduled())
   {
     mod->interframeGap = tmrMessage->remainingTime();

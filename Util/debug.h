@@ -85,9 +85,9 @@
 #include <libcw/debug.h>
 #endif //defined OPP_VERSION && OPP_VERSION >= 3
 
-namespace simulacrum {		// >
-  namespace debug {		//  >---> This part must match DEBUGCHANNELS
-    namespace channels {	// >
+namespace simulacrum {       // >
+  namespace debug {          //  >---> This part must match DEBUGCHANNELS
+    namespace channels {     // >
 
       namespace dc {
         using namespace ::libcwd::channels::dc;

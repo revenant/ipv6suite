@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.cc,v 1.1 2005/02/09 06:15:58 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,14 +18,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file IPv6Headers.cc
-	@brief Implementation of global operators  of for IPv6 headers.
-	@author Johnny Lai
-	@date 19.8.01
+    @file IPv6Headers.cc
+    @brief Implementation of global operators  of for IPv6 headers.
+    @author Johnny Lai
+    @date 19.8.01
 
-	@test Output structures to screen to see if they match Header structures in
-	RFC2460.  Compute sizeof to test if it's same as RFC2460 in terms of
-	size. (not a requirement as we are not really sending this across wire).
+    @test Output structures to screen to see if they match Header structures in
+    RFC2460.  Compute sizeof to test if it's same as RFC2460 in terms of
+    size. (not a requirement as we are not really sending this across wire).
 
 
 
@@ -45,11 +45,11 @@ ipv6_option::~ipv6_option(){}
 
 bool operator== (const ipv6_hdr& lhs, const ipv6_hdr& rhs)
 {
-  return lhs.ver_traffic_flow == rhs.ver_traffic_flow && 
+  return lhs.ver_traffic_flow == rhs.ver_traffic_flow &&
     lhs.payload_length == rhs.payload_length && lhs.next_header == rhs.next_header &&
     lhs.hop_limit == rhs.hop_limit && lhs.src_addr == rhs.src_addr &&
     lhs.dest_addr == rhs.dest_addr;
-  
+
 }
 
 bool operator==(const ipv6_ext_hdr& lhs, const ipv6_ext_hdr& rhs)

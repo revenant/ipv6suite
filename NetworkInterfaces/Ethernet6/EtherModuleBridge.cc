@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherModuleBridge.cc
-	@brief Definition file for EtherModuleBridge
+    @file EtherModuleBridge.cc
+    @brief Definition file for EtherModuleBridge
 
-	simple implementation of ethernet interface in Bridge
+    simple implementation of ethernet interface in Bridge
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include "sys.h"

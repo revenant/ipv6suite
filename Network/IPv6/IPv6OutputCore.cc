@@ -17,14 +17,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file IPv6OutputCore.cc
-	@brief Implementation for IPOutput core module
+    @file IPv6OutputCore.cc
+    @brief Implementation for IPOutput core module
 
-	Responsibilities:
-	receive complete datagram from IPFragmentation
-	hop counter check
-	-> throw away and notify ICMP if ttl==0
-	otherwise  send it on to output queue
+    Responsibilities:
+    receive complete datagram from IPFragmentation
+    hop counter check
+    -> throw away and notify ICMP if ttl==0
+    otherwise  send it on to output queue
 
     @author Johnny Lai
     based on IPOutputCore by Jochen Reber
@@ -71,7 +71,7 @@ void IPv6OutputCore::initialize()
 {
   RoutingTable6Access::initialize();
 
-	delay = par("procdelay");
+    delay = par("procdelay");
     if (delay == 0)
       delay = ZERO_WAIT_DELAY;
     hasHook = (findGate("netfilterOut") != -1);
@@ -333,7 +333,7 @@ void IPv6OutputCore::activity()
 
 
 
-	}
+    }
 }
 */
 void IPv6OutputCore::finish()

@@ -22,10 +22,10 @@
  * @file   IPv6XMLWrapManager.cc
  * @author Johnny Lai
  * @date   15 Jul 2003
- * 
+ *
  * @brief  Implementation of IPv6XMLWrapManager
  *
- * 
+ *
  */
 
 #include "sys.h"
@@ -114,9 +114,9 @@ struct findElementByName:
     {}
 
   bool operator()(const xml::node& n) const
-    {    
+    {
       if (n.get_type() != xml::node::type_element)
-	return false;
+    return false;
       return elementName == n.get_name();
     }
 private:
@@ -126,15 +126,15 @@ private:
 struct findElementByValue: public findElementByName
 {
   findElementByValue(const char* name, const char* attr,
-		     const char* value):findElementByName(name),
-					       attributeName(attr),
-					       value(value)
+             const char* value):findElementByName(name),
+                           attributeName(attr),
+                           value(value)
     {}
-  
+
    bool operator()(const xml::node& n) const
-    { 
+    {
       if (!findElementByName::operator()(n))
-	return false;
+        return false;
       typedef xml::attributes::const_iterator AttIt;
       AttIt ait;
       return (ait = n.get_attributes().find(attributeName)) != n.get_attributes().end() && !strcmp((*ait).get_value(), value);
@@ -146,8 +146,8 @@ private:
 
 /**
    @brief Returns the Element for a network node with name of name
-   @param name of network node		
-   
+   @param name of network node
+
    @todo Allow unconfigured nodes at this stage. They only get default values
    defined in ctors not in the schema. Should use prototype object method to
    transfer default values.
@@ -165,7 +165,7 @@ IPv6XMLWrapManager::NodeIt IPv6XMLWrapManager::getNetNode(const char* name) cons
 
 std::string IPv6XMLWrapManager::getNodeProperties(const xml::node& n, const char* attrName, bool required) const
 {
-  return SingularParser::Instance().getNodeProperties(n, attrName, required);  
+  return SingularParser::Instance().getNodeProperties(n, attrName, required);
 }
 
 void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
@@ -320,7 +320,7 @@ void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
       break;
     }
     const Node& nif = *startIf;
- 
+
     rtrVar.advSendAds = getNodeProperties(nif, "AdvSendAdvertisements") == XML_ON;
     rtrVar.maxRtrAdvInt = boost::lexical_cast<double>(getNodeProperties(nif, "MaxRtrAdvInterval"));
     rtrVar.minRtrAdvInt = boost::lexical_cast<double>(getNodeProperties(nif, "MinRtrAdvInterval"));
@@ -383,11 +383,11 @@ void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
     if (it != nif.end())
     {
       const Node& napl = *it;
-    
+
       //Parse prefixes
       size_t numOfPrefixes = count_if(napl.begin(), napl.end(), findElementByName("AdvPrefix"));
       ie.rtrVar.advPrefixList.resize(numOfPrefixes);
-      if (numOfPrefixes == 0) 
+      if (numOfPrefixes == 0)
         Dout(dc::xml_addresses|dc::warning, rt->nodeName()
              <<" no prefixes even though advPrefixList exists");
       NodeIt startPr = napl.begin();
@@ -413,7 +413,7 @@ void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
 #endif //USE_MOBILITY
         Dout(dc::xml_addresses, "prefix advertised is "<<pe);
       }
-    
+
     }
     //parse addresses
     size_t numOfAddrs = count_if(nif.begin(), nif.end(), findElementByName("inet_addr"));
@@ -435,8 +435,8 @@ void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
     }
 
   }
-  
-  // do an additional parameter check	
+
+  // do an additional parameter check
   checkValidData (rt);
 }
 
@@ -447,7 +447,7 @@ void IPv6XMLWrapManager::parseNetworkEntity(RoutingTable6* rt)
 void IPv6XMLWrapManager::parseDualInterfaceInfo(DualInterfaceLayer* dualMod)
 {
   assert(dualMod);
-  
+
   // obtain movement info from XML
   const char* nodeName = OPP_Global::findNetNodeModule(dualMod)->name();
 
@@ -477,20 +477,20 @@ void IPv6XMLWrapManager::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
 
   it = find_if(ne.begin(), ne.end(), findElementByValue("interface", "name", wlanMod->getInterfaceName()));
   if (it == ne.end())
-  {  
+  {
     Dout(dc::notice, nodeName<<":"<<wlanMod->getInterfaceName()<<"no config found for "
          <<wlanMod->getInterfaceName());
     return;
   }
- 
-  NodeIt weIt = (*it).find("WirelessEtherInfo"); 
+
+  NodeIt weIt = (*it).find("WirelessEtherInfo");
   if (weIt == (*it).end())
   {
     cerr<<"Node: "<< nodeName <<" - "
-	<< "Iface: " << wlanMod->getInterfaceName()
-	<< " Make sure you have <WirelessEtherInfo> "
-	<< " </WirelessEtherInfo> under <interface>"
-	<< endl;
+        << "Iface: " << wlanMod->getInterfaceName()
+        << " Make sure you have <WirelessEtherInfo> "
+        << " </WirelessEtherInfo> under <interface>"
+        << endl;
     exit(1);
   }
 
@@ -519,9 +519,9 @@ void IPv6XMLWrapManager::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
   const_cast<double&>(wlanMod->associationTimeout) = boost::lexical_cast<double>(getNodeProperties(info, "WEAssociationTimeout"));
   const_cast<unsigned int&>(wlanMod->maxRetry) = boost::lexical_cast<unsigned int>(getNodeProperties(info, "WERetry"));
   wlanMod->fastActScan = getNodeProperties(info, "WEFastActiveScan") == XML_ON;
-  wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON; 
+  wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON;
   wlanMod->crossTalk = getNodeProperties(info, "WECrossTalk") == XML_ON;
-  wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON; 
+  wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON;
   wlanMod->chanNotToScan = getNodeProperties(info, "WEChannelsNotToScan");
   const_cast<unsigned int&>(wlanMod->sSMaxSample) = boost::lexical_cast<unsigned int>(getNodeProperties(info, "WESignalStrengthMaxSample"));
 
@@ -539,7 +539,7 @@ void IPv6XMLWrapManager::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
     else
       wlanMod->address.set(addr.c_str());
   }
-	const_cast<double&>(wlanMod->bWRequirements) = boost::lexical_cast<double>(getNodeProperties(info, "WEBandwidthRequirements"));
+    const_cast<double&>(wlanMod->bWRequirements) = boost::lexical_cast<double>(getNodeProperties(info, "WEBandwidthRequirements"));
     wlanMod->statsVec = getNodeProperties(info, "WERecordStatisticVector") == XML_ON;
     wlanMod->activeScan = getNodeProperties(info, "WEActiveScan") == XML_ON;
     const_cast<double&>(wlanMod->channelScanTime) = boost::lexical_cast<double>(getNodeProperties(info, "WEChannelScanTime"));
@@ -559,16 +559,16 @@ void IPv6XMLWrapManager::parseMovementInfo(MobilityStatic* mod)
     Dout(dc::notice, "No misc element hence cannot parse movementInfo");
     return;
   }
-  
-  const Node& nmisc = *it;  
+
+  const Node& nmisc = *it;
   it = nmisc.find("ObjectMovement");
   if (it == nmisc.end())
   {
     DoutFatal(dc::core, "Cannot find ObjectMovement in misc");
   }
-  
+
   const Node& nobj = *it;
-  
+
   it = find_if(nobj.begin(), nobj.end(), findElementByValue("MovingNode", "NodeName", nodeName));
   if (it == nobj.end())
   {
@@ -587,9 +587,9 @@ void IPv6XMLWrapManager::parseMovementInfo(MobilityStatic* mod)
       break;
     const Node& nmove = *it;
     me->addMove(boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToX")),
-		boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToY")),
-		boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveSpeed"))
-		);    
+                boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveToY")),
+                boost::lexical_cast<unsigned int>(getNodeProperties(nmove, "moveSpeed"))
+               );
   }
 }
 
@@ -603,16 +603,16 @@ void IPv6XMLWrapManager::parseRandomWPInfo(MobilityRandomWP* mod)
     Dout(dc::notice, "No misc element hence cannot parse RandomWPInfo");
     return;
   }
-  
-  const Node& nmisc = *it;  
+
+  const Node& nmisc = *it;
   it = nmisc.find("ObjectMovement");
   if (it == nmisc.end())
   {
     DoutFatal(dc::core, "Cannot find ObjectMovement in misc");
   }
-  
+
   const Node& nobj = *it;
-  
+
   it = find_if(nobj.begin(), nobj.end(), findElementByValue("RandomMovement", "RWNodeName", nodeName));
   if (it == nobj.end())
   {
@@ -643,7 +643,7 @@ void IPv6XMLWrapManager::parseRandomPatternInfo(MobilityRandomPattern* mod)
     return;
   }
 
-  const Node& nmisc = *it;  
+  const Node& nmisc = *it;
   it = nmisc.find("ObjectMovement");
   if (it == nmisc.end())
   {
@@ -668,9 +668,9 @@ void IPv6XMLWrapManager::parseRandomPatternInfo(MobilityRandomPattern* mod)
     mod->distance = boost::lexical_cast<unsigned int>(getNodeProperties(nrandompattern, "RPDistance"));
     mod->pauseTime = boost::lexical_cast<double>(getNodeProperties(nrandompattern, "RPPauseTime"));
   }
-  
+
   const Node& nobj = *it;
-  
+
   it = find_if(nobj.begin(), nobj.end(), findElementByValue("RPNode", "RPNodeName", nodeName));
   if (it == nobj.end())
   {
@@ -680,7 +680,7 @@ void IPv6XMLWrapManager::parseRandomPatternInfo(MobilityRandomPattern* mod)
 
   const Node& nmovenode = *it;
   mod->xOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPXOffset"));
-  mod->yOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPYOffset"));  
+  mod->yOffset = boost::lexical_cast<unsigned int>(getNodeProperties(nmovenode, "RPYOffset"));
 }
 
 #endif //USE_MOBILITY
@@ -704,7 +704,7 @@ void IPv6XMLWrapManager::staticRoutingTable(RoutingTable6* rt)
     return;
   }
   const Node& nroute = *it;
-  std::string iface, dest, nextHop;    
+  std::string iface, dest, nextHop;
   for (it = nroute.begin(); it != nroute.end(); it++)
   {
     it = nroute.find("routeEntry", it);
@@ -715,7 +715,7 @@ void IPv6XMLWrapManager::staticRoutingTable(RoutingTable6* rt)
     dest = getNodeProperties(nre, "routeDestination");
     nextHop = getNodeProperties(nre, "routeNextHop", false);
     bool destIsHost = getNodeProperties(nre, "isRouter") != XML_ON;
-    
+
     Dout(dc::debug, rt->nodeName()<<"iface="<<iface<<"dest="<<dest<<"nextHop="<<nextHop
          <<"destIsHost is "<<destIsHost);
     if (dest == "")
@@ -745,7 +745,7 @@ void IPv6XMLWrapManager::staticRoutingTable(RoutingTable6* rt)
     rt->addRoute(ifaceIdx, nextHopAddr, destAddr, destIsHost);
 
   }//end for loop of routeEntries
-  
+
   if (_version >= 2)
     tunnelConfiguration(rt);
 }
@@ -840,7 +840,7 @@ void IPv6XMLWrapManager::tunnelConfiguration(RoutingTable6* rt)
       }
     } //end for triggers
     Dout(dc::finish, "-|");
-   
+
   } //end for tunnelEntries
 
   sourceRoute(rt);
@@ -869,7 +869,7 @@ void IPv6XMLWrapManager::sourceRoute(RoutingTable6* rt)
     Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in sourceRoute");
 
   const Node& nsource = *it;
-  
+
   for (it = nsource.begin();;it++)
   {
     it = nsource.find("sourceRouteEntry", it);
@@ -890,7 +890,7 @@ void IPv6XMLWrapManager::sourceRoute(RoutingTable6* rt)
     }
     forwardMod->addSrcRoute(route);
   }
- 
+
 }
 
 #ifdef USE_HMIP
@@ -939,7 +939,7 @@ void IPv6XMLWrapManager::parseMAPInfo(RoutingTable6* rt)
   else
     hmipRtr->mnMUSTSetRoCAAsSource = false;
 
-  if (getNodeProperties(ne, "mapReverseTunnel") == XML_ON)  
+  if (getNodeProperties(ne, "mapReverseTunnel") == XML_ON)
     hmipRtr->reverseTunnel = true;
   else
     hmipRtr->reverseTunnel = false;
@@ -947,11 +947,11 @@ void IPv6XMLWrapManager::parseMAPInfo(RoutingTable6* rt)
   NodeIt startIf = ne.begin();
   for(size_t i = 0; i < rt->interfaceCount(); i++, ++startIf)
   {
-  
+
     startIf = ne.find("interface", startIf);
     if (startIf == ne.end())
     {
-      Dout(dc::warning|flush_cf, " No more interfaces found in XML for ifIndex>="<<i);      
+      Dout(dc::warning|flush_cf, " No more interfaces found in XML for ifIndex>="<<i);
       return;
     }
     const Node& nif = *startIf;
@@ -985,7 +985,7 @@ void IPv6XMLWrapManager::parseMAPInfo(RoutingTable6* rt)
 /// parse node level attributes
 void IPv6XMLWrapManager::parseNodeAttributes(RoutingTable6* rt)
 {
-  
+
 }
 
 ///Returns a string for further tokenising into logfile & debug channel names
@@ -1018,12 +1018,12 @@ class IPv6XMLWrapManagerTest: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  
+
   // Constructor/destructor.
   IPv6XMLWrapManagerTest();
   virtual ~IPv6XMLWrapManagerTest();
 
-  void testXmlWrap(); 
+  void testXmlWrap();
 
   void setUp();
   void tearDown();
@@ -1065,12 +1065,12 @@ void IPv6XMLWrapManagerTest::testXmlWrap()
 
   if (string("testnet") != simulation.systemModule()->name())
     return;
-  
+
   p = new XMLConfiguration::IPv6XMLWrapManager("XMLTEST.xml");
 
   std::string ver = p->getNodeProperties(p->root(), "version");
   cerr<<" ver="<<ver<<" length="<<ver.length()<<endl;
-  
+
   CPPUNIT_ASSERT(ver == "0.0.3");
 
   assert(p->getNetNode("router") != p->root().end());
@@ -1101,15 +1101,15 @@ void IPv6XMLWrapManagerTest::testXmlWrap()
   const IPv6XMLWrapManager::Node& apl = *it;
   it = apl.find("AdvPrefix");
   CPPUNIT_ASSERT(it != apl.end());
-  const IPv6XMLWrapManager::Node& nprefix = *it; 
+  const IPv6XMLWrapManager::Node& nprefix = *it;
 
   //The line below is alternative to previous block and will cause segfault
   //because the temporary const iterator from the find() call is same as
   // nprefix's internal pointer? Thus we will always need to copy the
   //iterator to retain a copy of it after the unnamed temporary goes out of scope
   //to retain node. (Valgrind analysis proved this)
-  
-  //  const IPv6XMLWrapManager::Node& nprefix = *((*it).find("AdvPrefix")); //*it; 
+
+  //  const IPv6XMLWrapManager::Node& nprefix = *((*it).find("AdvPrefix")); //*it;
   CPPUNIT_ASSERT(stripWhitespace(nprefix.get_content()) == string("FEC0:0:0:ABCD:0:0:0:0/64"));
   CPPUNIT_ASSERT(888888 == boost::lexical_cast<unsigned int>(p->getNodeProperties(nprefix, "AdvValidLifetime")));
   CPPUNIT_ASSERT(88888 == boost::lexical_cast<unsigned int>(p->getNodeProperties(nprefix, "AdvPreferredLifetime")));

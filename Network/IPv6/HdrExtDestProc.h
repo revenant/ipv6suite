@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtDestProc.h,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtDestProc.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,10 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file HdrExtDestProc.h
-	@brief  Destination Options header processing
-	@author Johnny Lai
-	@date 04.4.02
+    @file HdrExtDestProc.h
+    @brief  Destination Options header processing
+    @author Johnny Lai
+    @date 04.4.02
 */
 
 #ifndef HDREXTDESTPROC_H
@@ -53,7 +53,7 @@ using namespace std;
    encoded options
 */
 
-class IPv6TLVOptionBase 
+class IPv6TLVOptionBase
 {
 
 public:
@@ -68,27 +68,27 @@ public:
   };
 
   virtual ~IPv6TLVOptionBase();
-  
+
   virtual IPv6TLVOptionBase* dup() const = 0;
 
   // force a "real" destination option to override this function
   virtual bool processOption(cSimpleModule* mod, IPv6Datagram* pdu) = 0;
 
   TLVOptType type() { return _type; }
-  
+
   /**
      a unit of 8 octets for the length of the option including the sub-options
   */
-  int length() 
+  int length()
     {
       int sLen = 0;
 
       for ( size_t i = 0; i < _subOptions.size(); i ++ )
         sLen += _subOptions[i]->length();
 
-      return static_cast<int>((_len+sLen) / 8); 
+      return static_cast<int>((_len+sLen) / 8);
     }
-  
+
 protected:
   IPv6TLVOptionBase(TLVOptType otype, unsigned char len);
 
@@ -108,7 +108,7 @@ typedef vector<IPv6TLVOptionBase*> DestOptions;
  * @brief Destination Options Extension header
  *
  * Acts as a container for the various options and the processing of options in
- * a abstract manner by providing the interface below. 
+ * a abstract manner by providing the interface below.
  */
 class HdrExtDestProc:public HdrExtProc
 {
@@ -118,15 +118,15 @@ public:
   //@name constructors and operators
   //@{
   explicit HdrExtDestProc();
-  
+
   explicit HdrExtDestProc(const HdrExtDestProc& src);
-  
+
   virtual const char* className() const { return "HdrExtDestProc"; }
 
   bool operator==(const HdrExtDestProc& rhs);
 
   HdrExtDestProc& operator=(const HdrExtDestProc& rhs);
-  
+
   virtual std::ostream& operator<<(std::ostream& os);
   //@}
 
@@ -134,7 +134,7 @@ public:
     {
       return new HdrExtDestProc(*this);
     }
-  
+
   //@name Overridden HdrExtProc functions
   //@{
   ///processed at every dest in routing header
@@ -146,7 +146,7 @@ public:
 
   // return a pointer to a destination option
   IPv6TLVOptionBase* getOption(IPv6TLVOptionBase::TLVOptType type);
-  
+
 protected:
   ipv6_ext_opts_hdr& opt_hdr;
   DestOptions destOpts;
@@ -155,7 +155,7 @@ protected:
 
 /**
  * @class IPv6SubOptionBase
- * 
+ *
  * @brief Currently only Pad1 and PadN defined (unimplemented)
  */
 
@@ -169,12 +169,12 @@ class IPv6SubOptionBase
     DOSOT_PadN = 1
   };
 
-public:  
+public:
   bool operator==(const IPv6SubOptionBase& rhs) const
     {
       return _type == rhs._type;
     }
-  
+
   SubOptType type() { return _type; }
 
 protected:

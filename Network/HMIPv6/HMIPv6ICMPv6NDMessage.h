@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,13 +16,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file HMIPv6ICMPv6NDMessage.h
-    
-	@brief Specific HMIPv6 options
-    
-	@author Eric Wu
+    @file HMIPv6ICMPv6NDMessage.h
+
+    @brief Specific HMIPv6 options
+
+    @author Eric Wu
     @date 7/5/2002
- 
+
 */
 
 #ifndef HMIPV6ICMPV6NDMESSAGE_H
@@ -57,7 +57,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
   friend class XMLConfiguration::XMLOmnetParser;
 
  public:
-  HMIPv6ICMPv6NDOptMAP(const int dist = 0, const int pref = 0, 
+  HMIPv6ICMPv6NDOptMAP(const int dist = 0, const int pref = 0,
                        const unsigned int expires = 0,
                        const ipv6_addr& map_addr = IPv6_ADDR_UNSPECIFIED,
                        bool r = false,
@@ -71,7 +71,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
 
   void setDist(int dist);
   void setPref(int pref);
-  
+
   void setR(bool r);
   void setM(bool m);
   void setI(bool i);
@@ -92,19 +92,19 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
 
   /**
    * prefix length assumed to be 24
-   * 
+   *
    */
 
   const ipv6_addr& addr() const
     {
       return map_addr;
     }
-  
+
   unsigned int lifetime() const
     {
       return expires;
     }
-  
+
  private:
   unsigned int _dist;
   unsigned int _pref;
@@ -121,7 +121,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
 };
 
 typedef std::vector<HMIPv6ICMPv6NDOptMAP> MAPOptions;
-  
+
 } // end namespace HierarchicalMIPv6
 
 #endif // HMIPV6ICMPV6NDMESSAGE_H

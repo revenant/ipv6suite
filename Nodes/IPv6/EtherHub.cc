@@ -33,7 +33,7 @@ void Repeater::initialize(void)
 
 void Repeater::handleMessage(cMessage* msg)
 {
-#ifdef PrintResult	// by Wally
+#ifdef PrintResult    // by Wally
   if(msg->name() == string("SendDummy"))
   {
     cout << "SendDummy" << endl;
@@ -65,7 +65,7 @@ void Repeater::handleMessage(cMessage* msg)
   }
 #endif
   repeatFrame(static_cast<EtherSignalData*>(msg), msg->arrivalGateId());
-#ifdef PrintResult	// by Wally
+#ifdef PrintResult    // by Wally
   if(msg->length()&&fpOccur)
   {
     Occur = msg->length();
@@ -83,7 +83,7 @@ void Repeater::repeatFrame(EtherSignalData* recFrame,int orig_gate_id)
 {
   int nosend_gate_id = orig_gate_id - from_net_gate_id + to_net_gate_id;
 
-  for (int i=to_net_gate_id; i< to_net_gate_id + gate("to_net")->size();i++) 	
+  for (int i=to_net_gate_id; i< to_net_gate_id + gate("to_net")->size();i++)
   {
     if (i != nosend_gate_id)
       send(recFrame->dup(), i);

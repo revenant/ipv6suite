@@ -33,9 +33,9 @@
 
 #include "libcwdsetup.h"
 
-namespace simulacrum {		// >
-  namespace debug {		//  >--> This part must match DEBUGCHANNELS, see debug.h
-    namespace channels {	// >
+namespace simulacrum {      // >
+  namespace debug {         //  >--> This part must match DEBUGCHANNELS, see debug.h
+    namespace channels {    // >
 
       namespace dc {
 
@@ -107,7 +107,7 @@ namespace simulacrum {		// >
         void addChannels()
         {
           using libcwdsetup::addChannel;
-                    
+
           //libcw defined channels
           Debug( addChannel(ch_Debug, dc::debug); );
           Debug( addChannel(ch_Notice, notice); );
@@ -130,7 +130,7 @@ namespace simulacrum {		// >
           Debug( addChannel(ch_MobileMove, mobile_move); );
 
           Debug( addChannel(ch_MIPv6MissedAdv, mip_missed_adv); );
-          
+
           Debug( addChannel(ch_UDPVideoStreamSvr, udp_video_svr); );
           Debug( addChannel(ch_EdgeHandover, eh); );
           Debug( addChannel(ch_HMIP, hmip); );

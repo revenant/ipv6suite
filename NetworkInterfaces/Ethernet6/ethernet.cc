@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/ethernet.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/ethernet.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file ethernet.cc
-	@brief Predefined values
+    @file ethernet.cc
+    @brief Predefined values
 
-	@author Eric Wu
-	@date 29.10.2002
+    @author Eric Wu
+    @date 29.10.2002
 
 */
 
@@ -43,7 +43,7 @@ const char* ETH_BROADCAST_ADDRESS="ff:ff:ff:ff:ff:ff";
 const int JAM_LENGTH = 4; // bytes
 
 const int MIN_FRAMESIZE = 512; // bits
- 
+
 const unsigned int MAX_RETRY = 15;
 
 const double SLOT_TIME = (double) MIN_FRAMESIZE / BANDWIDTH; // 512 bit times

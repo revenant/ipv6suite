@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Multicast.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Multicast.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -24,7 +24,7 @@
     Responsibilities:
     receive datagram with Multicast address from Routing
     duplicate datagram if it is sent to more than one output port
-		and IPForward is true
+        and IPForward is true
     map multicast address on output port, use multicast routing table
     Outsend copy to  local deliver, if
     NetworkCardAddr.[] is part of multicast address
@@ -37,7 +37,7 @@
 
     Based on IPMulticast by Jochen Reber
 
-	@author Johnny Lai
+    @author Johnny Lai
 
 
     @todo @see RoutingTable6.h Tunneling and IGMP not implemented
@@ -65,8 +65,8 @@ Define_Module( IPv6Multicast );
 
 void IPv6Multicast::initialize()
 {
-	RoutingTable6Access::initialize();
-	delay = par("procdelay");
+    RoutingTable6Access::initialize();
+    delay = par("procdelay");
     fc = boost::polymorphic_downcast<IPv6ForwardCore*> (
       OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
     assert(fc != 0);
@@ -176,7 +176,7 @@ inline void IPv6Multicast::dupAndSendPacket(const IPv6Datagram* datagram, size_t
                       ifIndex,
                       multicastLLAddr(datagramCopy->destAddress())};
   AddrResMsg* addrResMsg = new AddrResMsg(info);
-  
+
   send(addrResMsg, "fragmentationOut");
 }
 

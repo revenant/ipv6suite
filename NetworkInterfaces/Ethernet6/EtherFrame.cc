@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -47,18 +47,18 @@ EtherFrame::EtherFrame(const char* name): cPacket(name)
 
 EtherFrame::EtherFrame(const EtherFrame& p)
 {
-	setName( p.name() );
-	operator=(p);
-}
+    setName( p.name() );
+    operator=(p);
+¦}
 
 // assignment operator
 EtherFrame& EtherFrame::operator=(const EtherFrame& p)
 {
-	cPacket::operator=(p);
-//	_protocol = p._protocol;
+    cPacket::operator=(p);
+    // _protocol = p._protocol;
     _srcAddr = p._srcAddr;
     _destAddr = p._destAddr;
-	return *this;
+    return *this;
 }
 
 // information functions
@@ -71,11 +71,11 @@ std::string EtherFrame::info()
 
 void EtherFrame::writeContents(std::ostream& os)
 {
-	os << "EtherFrame: "
-		<< "\nProtocol :" << (int)_protocol
-		<< "\nsrcmac   :" << _srcAddr.stringValue()
-		<< "\ndestmac  :" << _destAddr.stringValue()
-		<< "\n";
+    os << "EtherFrame: "
+        << "\nProtocol :" << (int)_protocol
+        << "\nsrcmac   :" << _srcAddr.stringValue()
+        << "\ndestmac  :" << _destAddr.stringValue()
+        << "\n";
 }
 
 const char *EtherFrame::dumpContents(void)
@@ -212,10 +212,10 @@ int EtherFrame::pack_mac_addr(const char *straddr, unsigned char *pack) const
 #endif //defined __CN_PAYLOAD_H
 
 /* encapsulate a packet of type cPacket of the Network Layer;
-	protocol set by default to IP;
+    protocol set by default to IP;
     assumes that networkPacket->length() is
     length of transport packet in bits
-	adds to it the Ethernet header length in bits */
+    adds to it the Ethernet header length in bits */
 void EtherFrame::encapsulate(cPacket* networkPacket)
 {
     cPacket::encapsulate(networkPacket);

@@ -1,7 +1,7 @@
-// -*- C++ -*-  
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// -*- C++ -*-
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ IPv6InterfacePacket::IPv6InterfacePacket(const char* src, const char* dest,cPack
   cPacket::setProtocol(PR_IPV6);
   if (msg)
   {
-    encapsulate(msg);  
+    encapsulate(msg);
     setName(msg->name());
   }
   // initValues();
@@ -73,7 +73,7 @@ void IPv6InterfacePacket::info( char *buf )
 {
   IPInterfacePacket::info( buf );
   sprintf( buf+strlen(buf), " Prot: %i Src: %s Dest: %s",
-	   protocol(), ipv6_addr_toString(_src).c_str(), ipv6_addr_toString(_dest).c_str());
+           protocol(), ipv6_addr_toString(_src).c_str(), ipv6_addr_toString(_dest).c_str());
 
 }
 
@@ -84,7 +84,7 @@ void IPv6InterfacePacket::writeContents(ostream& os)
      << "\nDestination addr: " << ipv6_addr_toString(_dest)
      << "\nProtocol: " << (int)protocol()
      << " TTL: " << timeToLive()
-     << "\n";	
+     << "\n";
 }
 
 #ifdef USE_CPPUNIT
@@ -105,15 +105,15 @@ class InterfacePacketTest: public CppUnit::TestFixture
 public:
 
   InterfacePacketTest();
-  
-  
+
+
   void testAssignCtorDtor();
   ///Test involving use of pointers to both v6 and v4 interface packets
   void testIntegration();
 
   void setUp();
   void tearDown();
-    
+
 private:
   IPInterfacePacket* intv4Packet;
   IPInterfacePacket* intv6Packet;
@@ -127,13 +127,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION( InterfacePacketTest );
 InterfacePacketTest::InterfacePacketTest():
   TestFixture(), intv4Packet(0), intv6Packet(0)
 {}
-  
+
 static const char* src_addr = "a010:f0f0:b0b0:0:0:ffff:eeee:aaaa";
 static const char* dest_addr = "ef00:abcd:ef00:ffff:0:f0f:0:0";
 
-/** 
+/**
  * @warning why is one 59 and the other 6 in UNITTEST
- * 
+ *
  * @todo find out why the commented out line segfaults and fix
  * assert(v6copy.protocol() == intv6Packet->cPacket::protocol());
  */
@@ -146,7 +146,7 @@ void InterfacePacketTest::testAssignCtorDtor()
   //Did this test ever run? It should have failed before as the test condition
   //was wrong (these addresses should be the same
   CPPUNIT_ASSERT(strcmp(v4copy.srcAddr(), intv4Packet->srcAddr()) == 0);
-  
+
       //Test ctor
   intv6Packet = new IPv6InterfacePacket(src_addr, dest_addr);
 #if defined UNITTESTOUTPUT
@@ -159,7 +159,7 @@ void InterfacePacketTest::testAssignCtorDtor()
   CPPUNIT_ASSERT(strcmp(dest_addr, intv6Packet->destAddr())==0);
   intv6Packet->setProtocol(IP_PROT_TCP);
   intv6Packet->setTimeToLive(55);
-  
+
   //test default ctor
   IPv6InterfacePacket v6copy;
 
@@ -167,8 +167,8 @@ void InterfacePacketTest::testAssignCtorDtor()
   CPPUNIT_ASSERT(strcmp("0:0:0:0:0:0:0:0", v6copy.destAddr())==0);
 
   //Calls initialisation of super class
-  CPPUNIT_ASSERT((int)v6copy.protocol() == (int)PR_IPV6); 
-  
+  CPPUNIT_ASSERT((int)v6copy.protocol() == (int)PR_IPV6);
+
   //Test assignment
   v6copy = *(boost::polymorphic_downcast<IPv6InterfacePacket*> (intv6Packet));
   CPPUNIT_ASSERT(strcmp(src_addr, v6copy.srcAddr())==0);
@@ -177,29 +177,29 @@ void InterfacePacketTest::testAssignCtorDtor()
 #if defined UNITTESTOUTPUT
   cout << "v6intpkt obj protocol="<<v6copy.protocol()
        <<" vs. ptr ipv4intpkt protocol="<<intv6Packet->protocol()<<endl;
-#endif  
+#endif
 
   //Don't know why this fails
   //CPPUNIT_ASSERT(v6copy.protocol() == intv6Packet->cPacket::protocol());
   CPPUNIT_ASSERT(v6copy.timeToLive() == intv6Packet->timeToLive());
-  
+
   CPPUNIT_ASSERT(strcmp(intv6Packet->className(), "IPv6InterfacePacket") == 0);
-  
+
   CPPUNIT_ASSERT(strcmp(intv4Packet->className(), "IPInterfacePacket") == 0);
-  
+
   intv4Packet = intv6Packet->dup();
   CPPUNIT_ASSERT(strcmp(intv6Packet->className(), "IPv6InterfacePacket") == 0);
 
   delete intv4Packet;
   delete intv6Packet;
-  
+
 }
 
 ///Test involving use of pointers to both v6 and v4 interface packets
 void InterfacePacketTest::testIntegration()
 {
   //Input strings into cPar and see what happens
-  
+
 }
 
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file cTimerMessage.h
-	@brief Encapsulate timer messages and the behaviour that goes with
-    them when expired.  
+        @file cTimerMessage.h
+        @brief Encapsulate timer messages and the behaviour that goes with
+    them when expired.
 
-	@author Johnny Lai
-	@date 2.11.01
+        @author Johnny Lai
+        @date 2.11.01
 
 */
 
@@ -32,7 +32,7 @@
 #if !defined OPP_VERSION || OPP_VERSION < 3
 #ifndef __CMODULE_H
 #include <cmodule.h>
-#endif 
+#endif
 #else
 #ifndef __CSIMPLEMODULE_H
 #include <csimplemodule.h>
@@ -68,7 +68,7 @@ using boost::polymorphic_downcast;
 
 /**
    @class cTimerMessage
-   @brief Base class to timer messages.  
+   @brief Base class to timer messages.
 
    Convenience handle to timer messages so that once received and identified via
    (cMessage::isSelfMessage) can invoke callFunc to handle expiry of message.
@@ -88,16 +88,16 @@ class cTimerMessage: public cMessage, boost::noncopyable
       //is currently in (cMessageHeap)simulation.scheduled-events, it cannot be
       //deleted.
       //if (isScheduled())
-      //cancel();      
+      //cancel();
 //      printf("%s in %s at %f is deleted \n", name(), mod->fullPath(), mod->simTime());
     }
 
   /**
      @brief operator() as a function name looks funny for pointers i.e.
      g->operator()() so give it a name instead
-     
+
   */
-  virtual void callFunc()=0;  
+  virtual void callFunc()=0;
 
   ///Checks timer and cancels if necessary before recheduling to arrivalTime
   void reschedule(simtime_t arrivalTime)
@@ -114,19 +114,19 @@ class cTimerMessage: public cMessage, boost::noncopyable
       mod->scheduleAt(arrivalTime, this);
     }
 
-  ///schedule msg for arrival at interval seconds from now  
+  ///schedule msg for arrival at interval seconds from now
   void rescheduleDelay(simtime_t interval)
     {
       //setOwner(mod);
       reschedule(mod->simTime()+interval);
     }
-  
+
   void cancel()
     {
       assert(isScheduled());
       mod->cancelEvent(this);
     }
-  
+
   ///Time remaing till message arrive/timeout expires/callback invoked
   simtime_t remainingTime() const
     {
@@ -135,7 +135,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
         return 0;
 
       simtime_t rem = arrivalTime() - mod->simTime();
-      
+
       //Should only be called when callback has not been invoked yet
       assert(rem >= 0 );
 
@@ -143,7 +143,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
       //this class is displayed.
       return rem;
     }
-  
+
   ///Time elapsed since timer message was triggered/sent
   simtime_t elapsedTime() const
     {
@@ -152,12 +152,12 @@ class cTimerMessage: public cMessage, boost::noncopyable
         return 0;
 
       simtime_t elapsed = mod->simTime() - sendingTime();
-      
+
       assert(elapsed >= 0);
-      
+
       return elapsed;
     }
-  
+
  protected:
   cTimerMessage(int message_id, cSimpleModule* module = 0,
                 const char* name = NULL):
@@ -169,27 +169,27 @@ class cTimerMessage: public cMessage, boost::noncopyable
       setKind(message_id);
     }
 
-  cSimpleModule* module() const 
+  cSimpleModule* module() const
     {
       assert(mod != 0);
       return mod;
     }
 
 protected: // needed for cOutVector purposes
-  
+
   cSimpleModule* mod;
 };
 
 /**
-   @class cTTimerMessage 
-   
+   @class cTTimerMessage
+
    @brief Associate a member function of T as a call back when this message is
    sent with scheduleAt.
 
    T does not have to be a cSimpleModule.  This object has to have an owner of
    type cSimpleModule for rescheduleTimer to work.
 
-   @deprecated Use cTimerMessageCB 
+   @deprecated Use cTimerMessageCB
 */
 template<class R, class T>
 class cTTimerMessage:public cTimerMessage, std::mem_fun_t<R, T>
@@ -199,17 +199,17 @@ class cTTimerMessage:public cTimerMessage, std::mem_fun_t<R, T>
                  const char* name = NULL)
     : cTimerMessage(message_id, 0, name), std::mem_fun_t<R, T>(f), obj(self)
     {}
-  
+
   ~cTTimerMessage()
     {}
-  
+
   virtual void callFunc()
     {
-      (*this)(obj);      
+      (*this)(obj);
     };
-  
+
  private:
- 
+
   T* obj;
 };
 
@@ -242,11 +242,11 @@ cTimerMessage* createTmrMsg(int message_id, T* const module,
 
    @brief Provide the same functinality as cTTimerMessage except the member
    function can take a single argument.
-   
+
    This allows multiple triggers of the timer e.g.  implement retransmission
    timers.
 
-   @deprecated Use cTimerMessageCB 
+   @deprecated Use cTimerMessageCB
 */
 template<class Result, class T, class Arg>
 class cTTimerMessageA:public cTimerMessage, std::mem_fun1_t<Result, T, Arg*>
@@ -259,18 +259,18 @@ class cTTimerMessageA:public cTimerMessage, std::mem_fun1_t<Result, T, Arg*>
     {
       //_arg->msg = this;
     }
-  
+
   virtual ~cTTimerMessageA()
     {
       if (ownArg)
-        delete _arg;      
+        delete _arg;
     }
-  
+
   virtual void callFunc()
     {
-      (*this)(obj, _arg);      
+      (*this)(obj, _arg);
     }
-  
+
   Arg* arg() const
     {
       return _arg;
@@ -280,7 +280,7 @@ class cTTimerMessageA:public cTimerMessage, std::mem_fun1_t<Result, T, Arg*>
   ///Disable copy constructor
   //cTTimerMessageA(const cTTimerMessageA& src);
   //cTTimerMessageA& operator =(const cTTimerMessageA& rhs);
-  T* obj;      
+  T* obj;
   Arg* _arg;
   bool ownArg;
 };
@@ -324,7 +324,7 @@ cTTimerMessageA<void, C, Arg>* createTmrMsg(const int& message_id, T* const modu
    and deletion of arg/msg problem because we are the argument/message so the
    callback function can call delete on us.
 
-   @deprecated Use cTimerMessageCB 
+   @deprecated Use cTimerMessageCB
 */
 template<class Module, class Result, class T, class Arg>
 class cTTimerMessageAS:public cTimerMessage, std::mem_fun1_t<Result, T, Arg*>
@@ -337,26 +337,26 @@ public:
      _obj(obj)
     {
       assert(!pause && alarmTime > 0 || pause && alarmTime == 0);
-      
+
       //setOwner(mod);
 
       if (!pause && alarmTime > 0)
         reschedule(alarmTime);
     }
-  
+
   //Shouldn't need to be virtual as we're not gonna hold pointers to subclasses
   //of these by this class signature (whatever that means)
   ~cTTimerMessageAS()
     {}
-  
+
   virtual void callFunc()
     {
-      (*this)(_obj, arg());      
+      (*this)(_obj, arg());
     }
 
   /**
    * @warning why does dynamic cast fail is it RTTI doesnt work or cast is really incorrect?
-   * 
+   *
    */
 
   Module* msgOwner()
@@ -364,16 +364,16 @@ public:
       //return polymorphic_downcast<Module*>(module());
       return static_cast<Module*> (module());
     }
-  
+
 private:
-  
+
   Arg* arg()
     {
       return polymorphic_downcast<Arg*>(this);
     }
 
 private:
-  
+
   T* _obj;
 };
 
@@ -382,10 +382,10 @@ private:
 // /*cTimerMessage*/
 // cTTimerMessageAS<Module, Result, T, Arg>* createTmrMsg(
 //   const int& message_id, T* const module, C* const obj,
-//   Result (C::*f)(Arg*), bool pause = true, simtime_t arrivalTime = 0, 
+//   Result (C::*f)(Arg*), bool pause = true, simtime_t arrivalTime = 0,
 //   const char* name = NULL)
 // {
-//   return new cTTimerMessageAS<Result, C, Arg>* 
+//   return new cTTimerMessageAS<Result, C, Arg>*
 //     (message_id, module, obj, f, pause, arrivalTime, name);
 // }
 
@@ -405,16 +405,16 @@ class cTTimerMessageAE:public cTTimerMessageA<Result, T, Arg>
   cTTimerMessageAE(const int& message_id, T* const self, Result (T::*f)(Arg),
                    Arg a, const Expire& exp, const char* name = NULL): cTTimerMessageA<Result, T, Arg>(message_id, self, f, a, name), expObj(exp)
     {
-      
+
     }
-  
+
   ///Should really provide a predicate argument in ctor that calls expire
   ///when callFunc is invoked to test if expire should be called instead
   void expire()
     {
-      expObj();      
+      expObj();
     }
-  
+
  virtual void callFunc()
     {
       //Check predicate if true
@@ -423,12 +423,12 @@ class cTTimerMessageAE:public cTTimerMessageA<Result, T, Arg>
 //       else
 //         expire();
     }
-  
+
   ~cTTimerMessageAE()
     {}
-  
 
-  
+
+
  private:
   Expire expObj;
 };

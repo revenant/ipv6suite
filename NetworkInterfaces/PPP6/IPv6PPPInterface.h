@@ -1,8 +1,8 @@
 // -*- C++ -*-
 //
-// Copyright (C) 2001, 2004 Johnny Lai 
+// Copyright (C) 2001, 2004 Johnny Lai
 // Monash University, Melbourne, Australia
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -18,10 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file: IPv6PPPInterface.h
-    
-	@brief Implements the PPP network transport by implementing the prototype
-	NetworkInterface module
+    @file: IPv6PPPInterface.h
+
+    @brief Implements the PPP network transport by implementing the prototype
+    NetworkInterface module
 */
 
 #ifndef IPV6PPPINTERFACE_H
@@ -43,11 +43,11 @@ class IPv6PPPInterface: public LinkLayerModule
 public:
   Module_Class_Members(IPv6PPPInterface, LinkLayerModule, 0);
                        //ACTIVITY_STACK_SIZE);
-  
+
   virtual void initialize();
-  virtual void activity();  
+  virtual void activity();
   virtual void handleMessage(cMessage* theMsg);
-  
+
   unsigned int lowInterfaceId();
   unsigned int highInterfaceId();
 
@@ -57,7 +57,7 @@ protected:
 
 protected:
   unsigned int interfaceID[2];
-  
+
   cMessage* waitTmr;
   cMessage* curMessage;
 };

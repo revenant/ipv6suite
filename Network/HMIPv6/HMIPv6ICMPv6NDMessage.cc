@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,13 +16,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file HMIPv6ICMPv6NDMessage.cc
-    
-	@brief Specific HMIPv6 options
-    
-	@author Eric Wu
+    @file HMIPv6ICMPv6NDMessage.cc
+
+    @brief Specific HMIPv6 options
+
+    @author Eric Wu
     @date 8/5/2002
- 
+
 */
 
 #include "HMIPv6ICMPv6NDMessage.h"
@@ -33,7 +33,7 @@ namespace HierarchicalMIPv6
 
 HMIPv6ICMPv6NDOptMAP::HMIPv6ICMPv6NDOptMAP(const int dist, const int pref,
                                            const unsigned int exp,
-                                           const ipv6_addr& addr, 
+                                           const ipv6_addr& addr,
                                            bool r, bool m, bool i, bool t,
                                            bool p, bool v
 )
@@ -49,7 +49,7 @@ HMIPv6ICMPv6NDOptMAP::HMIPv6ICMPv6NDOptMAP(const int dist, const int pref,
   setP(p);
   setV(v);
 }
-  
+
 void HMIPv6ICMPv6NDOptMAP::setDist(int dist)
 {
   assert( dist < 0xF );
@@ -69,7 +69,7 @@ void HMIPv6ICMPv6NDOptMAP::setR(bool r)
 
 void HMIPv6ICMPv6NDOptMAP::setM(bool m)
 {
-  _m = m; 
+  _m = m;
 }
 
 void HMIPv6ICMPv6NDOptMAP::setI(bool i)

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6ForwardCore.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6ForwardCore.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,22 +18,22 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file IPv6ForwardCore.h
-	@brief Implementation of IP packet forwarding via table lookups
+    @file IPv6ForwardCore.h
+    @brief Implementation of IP packet forwarding via table lookups
 
-	Responsibilities: 
-	    -Receive valid IPv6 datagram
-	    -send datagram with Multicast addr. to Multicast module
+    Responsibilities:
+        -Receive valid IPv6 datagram
+        -send datagram with Multicast addr. to Multicast module
         -Forward to IPv6Encapsulation module if next hop is a tunnel entry point
-	    -Drop datagram away and notify ICMP if dest. addr not in routing table
-	    -send to local Deliver if dest. addr. = 127.0.0.1 
-	     or dest. addr. = NetworkCardAddr.[]
-	     otherwise, send to Fragmentation module
-	    -Check hopLimit and drop or decrement at end of routing header proc.
-	Error Messages
+        -Drop datagram away and notify ICMP if dest. addr not in routing table
+        -send to local Deliver if dest. addr. = 127.0.0.1
+         or dest. addr. = NetworkCardAddr.[]
+         otherwise, send to Fragmentation module
+        -Check hopLimit and drop or decrement at end of routing header proc.
+    Error Messages
        ICMP Time exceeded when hopLimit of packet is at 0
-	@author Johnny Lai
-	@date 28/08/01
+    @author Johnny Lai
+    @date 28/08/01
 */
 
 #ifndef ROUTING6CORE_H
@@ -83,7 +83,7 @@ public:
 
 /**
  * @class IPv6ForwardCore
- * @brief Process datagrams and determine where they go 
+ * @brief Process datagrams and determine where they go
  */
 class ICMPv6Message;
 class AddrResInfo; //remove this dependency when conceptual sending is removed
@@ -94,7 +94,7 @@ namespace IPv6NeighbourDiscovery
   class NDStateRouter; //for sending redirect
 };
 
-class IPv6ForwardCore: public RoutingTable6Access 
+class IPv6ForwardCore: public RoutingTable6Access
 {
   friend std::ostream& operator<<(std::ostream & os,
                                   IPv6ForwardCore& routeMod);
@@ -105,7 +105,7 @@ public:
   virtual void handleMessage(cMessage* theMsg);
   virtual int  numInitStages() const  {return 4;}
   virtual void finish();
-  
+
   void addSrcRoute(const SrcRoute& routes);
 
   /**
@@ -140,11 +140,11 @@ private:
   bool processReceived(IPv6Datagram& datagram);
 
   void sendErrorMessage (ICMPv6Message* err);
-  
+
   //typedef std::hash_map<ipv6_addr, SrcRoute, ipv6AddrHash, less<ipv6_addr> > SrcRoutes;
   typedef std::map<ipv6_addr, SrcRoute> SrcRoutes;
   typedef SrcRoutes::iterator SRI;
-  
+
   ///Preconfigured source routes.  Only 1 preconfigured source route per
   ///destination. New ones to same destination will replace existing ones
   ///without warning.

@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherModuleAP.h
-	@brief Header file for EtherModuleAP
-	
+    @file EtherModuleAP.h
+    @brief Header file for EtherModuleAP
+
     simple implementation of ethernet interface in AP
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __ETHERMODULE_AP__
@@ -36,16 +36,16 @@ class WirelessEtherBridge;
 class EtherModuleAP : public EtherModule
 {
   friend class WirelessEtherBridge;
-  
+
  public:
   Module_Class_Members(EtherModuleAP, EtherModule, 0);
-  
+
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish(void);
 
   virtual int numInitStages(void) const { return 2; }
-  
+
   // frames from bridge module
   virtual bool receiveData(std::auto_ptr<cMessage> msg);
 
@@ -54,12 +54,12 @@ class EtherModuleAP : public EtherModule
 
  private:
   void addMacEntry(std::string addr);
-  
+
  private:
   typedef std::list<std::string> NeighbourMacList;
   NeighbourMacList ngbrMacList;
 
-  
+
 };
 
 #endif

@@ -79,16 +79,16 @@ void Entity::drawWirelessRange(std::string& dispStr)
       if(mod)
       {
         LinkLayerModule* llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
-	assert(llmodule->getInterfaceType() == PR_WETHERNET);
+        assert(llmodule->getInterfaceType() == PR_WETHERNET);
 
-        WirelessEtherModule* wem = 
+        WirelessEtherModule* wem =
           boost::polymorphic_downcast<WirelessEtherModule*>(llmodule);
         assert(wem);
 
         dispStr += ";r=";
         dispStr += boost::lexical_cast<std::string>(wem->wirelessRange());
         dispStr += ",,red";
-      }    
+      }
   }
 }
 
@@ -154,7 +154,7 @@ void Entity::setDispPosition(int x, int y)
     }
 
     drawWirelessRange(tempDispStr);
-    
+
     findNetNodeModule(_mod)->setDisplayString(tempDispStr.c_str());
   }
 }

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -18,14 +18,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file ICMPv6Message.h
+    @file ICMPv6Message.h
 
-	@brief ICMPv6 Error Messages definition in ICMPv6Message and ICMPv6
+    @brief ICMPv6 Error Messages definition in ICMPv6Message and ICMPv6
     Informational Messages definition in ICMPv6Echo.
 
     Refer to RFC2463.
-	@author Johnny Lai
-	@date 13.9.01
+    @author Johnny Lai
+    @date 13.9.01
 */
 #if !defined ICMPV6MESSAGE_H
 #define ICMPV6MESSAGE_H

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,8 +35,8 @@
 #include <iostream>
 
 //Use static qualifier if this does not compile
-namespace 
-{  
+namespace
+{
   const char IPv6_PREFIX_SEPARATOR = '/';
 
   const int NUMBER_OF_SEGMENT_BIT = 32;
@@ -50,7 +50,7 @@ namespace
 }
 
 /**
- * @ingroup ipv6_addrOp 
+ * @ingroup ipv6_addrOp
  */
 
 #if defined OPP_VERSION && OPP_VERSION >= 3
@@ -73,11 +73,11 @@ IPv6Address operator+(const IPv6Address& lhs, const IPv6Address& rhs)
 {
   IPv6Address combine;
 #if !defined __INTEL_COMPILER
-  Dout(dc::ipv6addrdealloc, __FUNCTION__<<" Called from " 
-       <<location_ct((char*)__builtin_return_address(0) + 
+  Dout(dc::ipv6addrdealloc, __FUNCTION__<<" Called from "
+       <<location_ct((char*)__builtin_return_address(0) +
                      libcwd::builtin_return_address_offset));
 //  Dout(dc::ipv6addrdealloc, " Storage is "<< combine.storage());
-#endif  //__INTEL_COMPILER  
+#endif  //__INTEL_COMPILER
   unsigned int combine_int_addr[TOTAL_NUMBER_OF_32BIT_SEGMENT];
 
   for(int i=0; i<TOTAL_NUMBER_OF_32BIT_SEGMENT; i++)
@@ -93,10 +93,10 @@ IPv6Address operator+(const IPv6Address& lhs, const IPv6Address& rhs)
     combine.setPrefixLength(lhs.prefixLength());
   else if(rhs.prefixLength()>0)
     combine.setPrefixLength(rhs.prefixLength());
-  
+
   combine.setAddress(combine_int_addr);
 
-  return combine;  
+  return combine;
 }
 
 Register_Class( IPv6Address );
@@ -114,7 +114,7 @@ IPv6Address::IPv6Address(unsigned int* addr_seg, int prefix_len, const char *n)
   Dout(dc::ipv6addrdealloc, "ctor(int*, int, char*) "<<(void*)this);
 #endif  //__INTEL_COMPILER
   if (addr_seg)
-    setAddress(addr_seg); 
+    setAddress(addr_seg);
 }
 
 IPv6Address::IPv6Address(const ipv6_prefix& pref)
@@ -171,12 +171,12 @@ void IPv6Address::setAddress(unsigned int* addr_seg)
 {
   for(int i=0; i<TOTAL_NUMBER_OF_32BIT_SEGMENT; i++)
     m_full_addr[i] = addr_seg[i];
-  m_scope = ipv6_addr::Scope_None;  
+  m_scope = ipv6_addr::Scope_None;
 }
 
 /**
-   Parse IPv6 address in fully specified x:x:x:x:x:x:x:x: notation    
-   @param t can be 0 to initialise with Unspecified address 
+   Parse IPv6 address in fully specified x:x:x:x:x:x:x:x: notation
+   @param t can be 0 to initialise with Unspecified address
 */
 void IPv6Address::setAddress(const char* t)
 {
@@ -184,10 +184,10 @@ void IPv6Address::setAddress(const char* t)
   {
     m_addr = IPv6ADDRESS_UNSPECIFIED_STRUCT;
     m_prefix_length = 0;
-    return;    
+    return;
   }
-  
-  stringstream is(t); 
+
+  stringstream is(t);
   this->operator>>(is);
 
   m_scope = ipv6_addr::Scope_None;
@@ -196,17 +196,17 @@ void IPv6Address::setAddress(const char* t)
 void IPv6Address::setAddress(const ipv6_addr& addr)
 {
   m_addr = addr;
-  m_scope = ipv6_addr::Scope_None;  
+  m_scope = ipv6_addr::Scope_None;
 }
 
 ///Want order in maps to be longest prefix first followed by shorter
 ///prefixes so longest prefix is the least
 bool IPv6Address::operator<(const IPv6Address& rhs) const
 {
-  if (m_prefix_length != rhs.m_prefix_length) 
+  if (m_prefix_length != rhs.m_prefix_length)
     return (m_prefix_length < rhs.m_prefix_length)?false:true;
-  //Compare prefixes 
-  return m_addr < rhs.m_addr;  
+  //Compare prefixes
+  return m_addr < rhs.m_addr;
 }
 
 bool IPv6Address::operator==(const IPv6Address& rhs) const
@@ -246,8 +246,8 @@ IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
   cObject::operator=(obj);
   m_prefix_length = obj.m_prefix_length;
 /*  m_prefix = obj.m_prefix;*/
-  m_addr = obj.m_addr;  	
-  m_scope = obj.m_scope;  
+  m_addr = obj.m_addr;
+  m_scope = obj.m_scope;
   return *this;
 };
 
@@ -272,40 +272,40 @@ IPv6Address& IPv6Address::operator=(const ipv6_addr& addr)
 
 std::istream& IPv6Address::operator>>(std::istream& is)
 {
-  unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0} ;  
+  unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0} ;
   char sep = '\0';
-  
+
   //Assume no prefix is specified initially
-  m_prefix_length = 0; 
+  m_prefix_length = 0;
 
 /*
   //Allow uncaught exceptions to propagate and abort program
-  try 
+  try
   {
 */
     for (int i = 0; i < 8; i ++)
     {
-      
+
       is >> hex >> octals[i];
       if (is.eof() )
-        break;      
+        break;
       is >> sep;
       if (sep == IPv6_PREFIX_SEPARATOR)
         is >> dec >> m_prefix_length;
     }
-/*    
+/*
   }
-  catch (...) 
+  catch (...)
   {
     ev << "exception thrown while parsing IPv6Address";
   }
-*/  
-  
+*/
+
   for (int i = 0; i < TOTAL_NUMBER_OF_32BIT_SEGMENT; i++ )
     m_full_addr[i] = (octals[i*2]<<(NUMBER_OF_SEGMENT_BIT/2)) + octals[2*i + 1];
 
   return is;
-  
+
 }
 
 void IPv6Address::writeContents(std::ostream& os)
@@ -328,7 +328,7 @@ bool IPv6Address::isNetwork(const IPv6Address& toCmp) const
 }
 
 bool IPv6Address::isNetwork(const ipv6_addr& prefix) const
-{  
+{
   if(nbBitsMatching(prefix)>=m_prefix_length)
     return true;
   return false;
@@ -344,12 +344,12 @@ std::string IPv6Address::lowerNbBits(int nbbits)
 
   int nb_segs = nbbits / 32;
   int nth_bit = nbbits % 32;
-  
+
   for(int i = 0; i < 3 - nb_segs; i++)
     addr_int[i] = 0;
 
   addr_int[3-nb_segs] = (addr_int[3-nb_segs] << 32 - nth_bit) >> 32 - nth_bit;
-    
+
   return toTextFormat(addr_int);
 }
 
@@ -357,31 +357,31 @@ std::string IPv6Address::lowerNbBits(int nbbits)
 ipv6_addr IPv6Address::higherNbBits(size_t nbbits)
 {
   assert(nbbits <= IPv6_ADDR_LENGTH);
-  
+
   if (nbbits == 0)
     return IPv6_ADDR_UNSPECIFIED;
   if (nbbits == IPv6_ADDR_LENGTH)
     return m_addr;
-  
+
   unsigned int addr_int[TOTAL_NUMBER_OF_32BIT_SEGMENT];
 
   for(int i = 0; i < TOTAL_NUMBER_OF_32BIT_SEGMENT; i++)
     addr_int[i] = m_full_addr[i];
-  
+
   int nb_segs = nbbits / NUMBER_OF_SEGMENT_BIT;
   int nth_bit = NUMBER_OF_SEGMENT_BIT - nbbits % NUMBER_OF_SEGMENT_BIT;
-  
+
   for (int i = nb_segs; i < TOTAL_NUMBER_OF_32BIT_SEGMENT; i++)
   {
     if (i == nb_segs)
-    {  
+    {
       addr_int[i] = addr_int[i] >> nth_bit;
       addr_int[i] = addr_int[i] << nth_bit;
       continue;
     }
     addr_int[i] = 0;
   }
-  
+
   ipv6_addr prefix = {addr_int[0], addr_int[1], addr_int[2], addr_int[3]};
 
   return prefix;
@@ -394,14 +394,14 @@ size_t IPv6Address::nbBitsMatching(const IPv6Address* to_cmp) const
 
 size_t IPv6Address::nbBitsMatching(const ipv6_addr& prefix) const
 {
-  const unsigned int addr2[4] = {prefix.extreme, prefix.high, prefix.normal, prefix.low};  
+  const unsigned int addr2[4] = {prefix.extreme, prefix.high, prefix.normal, prefix.low};
   return calcBitsMatch(m_full_addr, addr2);
 }
 
 
 std::string IPv6Address::toTextFormat(const unsigned int* addr) const
 {
-  ipv6_addr ipaddr = 
+  ipv6_addr ipaddr =
     {
       addr[0], addr[1], addr[2], addr[3]
     };
@@ -414,12 +414,12 @@ const char* IPv6Address::scope_str() const
 {
   //Determine scope if necessary
   m_scope = scope();
-  
+
   switch(m_scope)
   {
   case ipv6_addr::Scope_None:
     return "None";
-    break;    
+    break;
   case ipv6_addr::Scope_Node:
     return "Node";
     break;
@@ -458,42 +458,42 @@ class AddressTest: public CppUnit::TestFixture
   CPPUNIT_TEST( test );
   CPPUNIT_TEST_SUITE_END();
 public:
-  
+
   AddressTest();
-  
-                           
+
+
   void test();
 
   void setUp();
   void tearDown();
-    
+
 private:
   IPv6Address* ip_addr1;
   IPv6Address* ip_addr2;
-  
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( AddressTest );
 
 /**
  * @addtogroup TestCases
- * @{ 
+ * @{
  */
 
 static ipv6_addr addr1 = {0x12345678,0xabcdef00,0x1234,0};
 static unsigned int int_addra1[] = {0x12345678,0xabcdef00,0x1234,0};
 static unsigned int *int_addr1 = int_addra1;
 ///@}
-  
+
 AddressTest::AddressTest()
   :TestFixture(), ip_addr1(0), ip_addr2(0)
 {}
-  
-                           
+
+
 void AddressTest::test()
 {
 
-  ipv6_addr test_addr_string_initialise = 
+  ipv6_addr test_addr_string_initialise =
     {
 0xabcdabcd,0xabcdabcd,0xabcdabcd, 0xabcdabcd
     };
@@ -501,19 +501,19 @@ void AddressTest::test()
   //Test IPv6Address char* ctor and equals operator(ipv6_addr)
   CPPUNIT_ASSERT(!(ip_addr1->operator==(*ip_addr2)));
   CPPUNIT_ASSERT(*ip_addr1 == test_addr_string_initialise);
-  
+
   //Test IPv6Address ipv6_addr assingment
   *ip_addr2 = test_addr_string_initialise;
-  ip_addr2->setPrefixLength(100);  
+  ip_addr2->setPrefixLength(100);
   CPPUNIT_ASSERT((ip_addr2->operator==(*ip_addr1)));
 
   //test address struct == int* address
   CPPUNIT_ASSERT( addr1 == int_addr1);
 
   CPPUNIT_ASSERT(string("abcd:abcd:abcd:abcd:abcd:abcd:abcd:abcd") == ip_addr1->addressSansPrefix());
-  
+
   ip_addr1->setAddress("1234:5678:abcd:ef00:1234:abcd:efff:ffff/108");
-  
+
   CPPUNIT_ASSERT(ip_addr1->prefixLength() == 108);
   IPv6Address* ip_addr3 = ip_addr1->dup();
   ip_addr1->truncate();
@@ -521,8 +521,8 @@ void AddressTest::test()
   CPPUNIT_ASSERT("1234:5678:abcd:ef00:1234:abcd:efff:ffff" == ip_addr3->addressSansPrefix());
   CPPUNIT_ASSERT(!strcmp("1234:5678:abcd:ef00:1234:abcd:efff:ffff/108", ip_addr3->address().c_str()));
   CPPUNIT_ASSERT("1234:5678:abcd:ef00:1234:abcd:efff:ffff/108" == ip_addr3->address());
-  
-  ipv6_addr bitwiseAnd = {0xfe800000,0,0x026097ff,0x2};   
+
+  ipv6_addr bitwiseAnd = {0xfe800000,0,0x026097ff,0x2};
   CPPUNIT_ASSERT((bitwiseAnd & IPv6_ADDR_LINK_LOCAL_PREFIX) == IPv6_ADDR_LINK_LOCAL_PREFIX);
 
   const char* equalString = "Equal Strings";
@@ -533,7 +533,7 @@ void AddressTest::test()
 
   const std::string addr1String("1234:5678:abcd:ef00:1234:abcd:eff0:0/108Scope: None");
   ostringstream os, os2;
-  os<<*ip_addr1;  
+  os<<*ip_addr1;
   CPPUNIT_ASSERT(!strcmp(os.str().c_str(), addr1String.c_str()));
   CPPUNIT_ASSERT(os.str() == addr1String);
 
@@ -545,10 +545,10 @@ void AddressTest::test()
   ipv6_addr test = c_ipv6_addr("abcd:1234:fefe:abde:1234:0:7789:9999");
   ostringstream testos;
   testos<<test;
-  CPPUNIT_ASSERT("abcd:1234:fefe:abde:1234:0:7789:9999" == testos.str()); 
+  CPPUNIT_ASSERT("abcd:1234:fefe:abde:1234:0:7789:9999" == testos.str());
   CPPUNIT_ASSERT(test == IPv6Address("abcd:1234:fefe:abde:1234:0:7789:9999"));
 }
-  
+
 void AddressTest::setUp()
 {
   ip_addr1 = new IPv6Address("abcd:abcd:abcd:abcd:abcd:abcd:abcd:abcd/100");
@@ -558,7 +558,7 @@ void AddressTest::setUp()
 void AddressTest::tearDown()
 {
   delete ip_addr1;
-  delete ip_addr2;  
+  delete ip_addr2;
 }
 
 #endif //USE_CPPUNIT

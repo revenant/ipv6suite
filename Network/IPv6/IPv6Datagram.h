@@ -193,7 +193,7 @@ public:
     {
       assert(traffic_class < 1<<8);
       if (traffic_class >= 1<<8)
-	return;
+        return;
       header.ver_traffic_flow &= 0xF00FFFFF;
       header.ver_traffic_flow |= (traffic_class << 20);
     }
@@ -207,7 +207,7 @@ public:
     {
       assert(label < 1<<20);
       if (label >= 1<<20)
-	return;
+        return;
       header.ver_traffic_flow &= 0xFFF00000;
       header.ver_traffic_flow |= label;
     }
@@ -226,21 +226,21 @@ public:
 
   /// length of Datagram in bytes (Not part of IPv6 spec)
   size_t totalLength() const
-	{
+    {
       //Doesn't exceed 2^16-1 as that's jumbogram size
       assert(IPv6_HEADER_LENGTH + header.payload_length <= 1<<16 - 1  );
       return IPv6_HEADER_LENGTH + header.payload_length;
-	}
+    }
 
   void setTotalLength(unsigned int len)
-	{
+    {
 #ifdef DEBUG
       //Doesn't exceed 2^16-1 as that's jumbogram size
       assert(len >= IPv6_HEADER_LENGTH);
       assert(len <= 1<<16 - 1  );
 #endif
       header.payload_length = len - IPv6_HEADER_LENGTH;
-	}
+    }
 
   short hopLimit() const { return header.hop_limit; }
   void setHopLimit(short ttl)
@@ -313,7 +313,7 @@ private:
 
      @return position in ext_hdrs
   */
-  //	size_t addExtHeader(const IPv6ExtHeader& hdr_type, const ipv6_ext_hdr& ext_hdr);
+  // size_t addExtHeader(const IPv6ExtHeader& hdr_type, const ipv6_ext_hdr& ext_hdr);
 
   ///Update pos, and links to next procHdr
   //void reLinkProcHdrs() const;

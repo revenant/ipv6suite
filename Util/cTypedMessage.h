@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/cTypedMessage.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/cTypedMessage.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,12 +18,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file cTypedMessage.h
-	@brief Typesafe cMessage class to eliminate use of cPars in cMessages
+        @file cTypedMessage.h
+        @brief Typesafe cMessage class to eliminate use of cPars in cMessages
 
-    
-	@author Johnny Lai
-	@date 2.11.01
+
+        @author Johnny Lai
+        @date 2.11.01
 
 */
 #include "cmessage.h"
@@ -33,32 +33,32 @@
 template<class T>
 class cTypedMessage: public cMessage
 {
-public:  
+public:
   cTypedMessage(const T& data):_data(data){};
   virtual cTypedMessage* dup() const;
-  T& data() { return _data; }  
-private:  
-  T _data;  
+  T& data() { return _data; }
+private:
+  T _data;
 };
 
 template<class T>
 class cTypedMessage<T*>: public cMessage
 {
-public:  
+public:
   explicit cTypedMessage(const T*& data):_data(data){};
   virtual cTypedMessage* dup() const;
-  virtual ~cTypedMessage();  
+  virtual ~cTypedMessage();
   cTypedMessage& operator=(const cTypedMessage& src);
-  T* data() { return _data; }  
-  T* release() 
-    { 
+  T* data() { return _data; }
+  T* release()
+    {
       T* temp = _data;
       _data = 0;
       return temp;
     }
-  
-private:  
-  T* _data;  
+
+private:
+  T* _data;
 };
 
 template<class T>
@@ -82,14 +82,14 @@ cTypedMessage<T*>* cTypedMessage<T*>::dup() const
 template<class T>
 cTypedMessage<T*>::~cTypedMessage()
 {
-  delete data;      
+  delete data;
 }
 
 template<class T>
 cTypedMessage<T*>& cTypedMessage<T*>::operator=(const cTypedMessage<T*>& src)
 {
   // delete data;
-  //data = new T(*(src->data));  
+  //data = new T(*(src->data));
   //Reuse is probably more efficient
   *data = *(src.data);
   return *this;

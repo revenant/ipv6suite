@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,21 +21,21 @@
     @file IPv6SendCore.h
     @brief IPv6SendCore simple module definition
 
-	Responsibilities: 
-	receive IPInterfacePacket from Transport layer or ICMP 
-	or Tunneling (IP tunneled datagram)
-	take out control information
-	encapsulate data packet in IP datagram
-	set version
-	set hoplimit according to router's advertised value
-	set Protocol to received value
-	set destination address to received value
-	send datagram to Routing
+    Responsibilities:
+    receive IPInterfacePacket from Transport layer or ICMP
+    or Tunneling (IP tunneled datagram)
+    take out control information
+    encapsulate data packet in IP datagram
+    set version
+    set hoplimit according to router's advertised value
+    set Protocol to received value
+    set destination address to received value
+    send datagram to Routing
 
-	if IPInterfacePacket is invalid (e.g. invalid source address),
-	 it is thrown away without feedback 
+    if IPInterfacePacket is invalid (e.g. invalid source address),
+     it is thrown away without feedback
 
-	@author Johnny Lai
+    @author Johnny Lai
 */
 
 #ifndef IPv6SENDCORE_H
@@ -55,9 +55,9 @@ class IPv6Datagram;
  * encapsulated by datagrams
  */
 
-class IPv6SendCore: public RoutingTable6Access 
+class IPv6SendCore: public RoutingTable6Access
 {
-  
+
 public:
   Module_Class_Members(IPv6SendCore, RoutingTable6Access, 0);
 

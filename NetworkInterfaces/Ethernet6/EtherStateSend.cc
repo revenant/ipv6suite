@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateSend.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateSend.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,13 +20,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherStateSend.cc
-	@brief Definition file for EtherStateSend
+    @file EtherStateSend.cc
+    @brief Definition file for EtherStateSend
 
-	Defines simple FSM for Ethernet operation based on "Efficient and
-	Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
+    Defines simple FSM for Ethernet operation based on "Efficient and
+    Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
-	@author Eric Wu */
+    @author Eric Wu */
 
 #include "sys.h" // Dout
 #include "debug.h" // Dout
@@ -52,7 +52,7 @@ EtherStateSend* EtherStateSend::instance(void)
 {
   if (_instance == 0)
     _instance = new EtherStateSend;
-  
+
   return _instance;
 }
 
@@ -82,9 +82,9 @@ void EtherStateSend::endSendingData(EtherModule* mod)
       if ( mod->getRetry() > MAX_RETRY)
       {
         Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << ": " << " MAXIMUM RETRY! abort sending! ");
-      
+
         removeFrameFromBuffer(mod);
-        
+
         mod->resetRetry();
         mod->cancelAllTmrMessages();
 
@@ -112,26 +112,26 @@ void EtherStateSend::endSendingData(EtherModule* mod)
     removeFrameFromBuffer(mod);
 
     mod->resetRetry();
-    
+
     mod->changeState(EtherStateIdle::instance());
 
     double d = (double)INTER_FRAME_GAP*8;
     simtime_t interFrameGapTime = d / BANDWIDTH;
-    
+
     cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP);
     if (!tmrMessage)
     {
-      Loki::cTimerMessageCB<void, 
-        TYPELIST_1(EtherModule*)>* selfInterframeGap;    
+      Loki::cTimerMessageCB<void,
+        TYPELIST_1(EtherModule*)>* selfInterframeGap;
 
-      selfInterframeGap  = new Loki::cTimerMessageCB<void, 
+      selfInterframeGap  = new Loki::cTimerMessageCB<void,
         TYPELIST_1(EtherModule*)>
         (SELF_INTERFRAMEGAP, mod, static_cast<EtherStateIdle*>
-         (EtherStateIdle::instance()), &EtherStateIdle::chkOutputBuffer, 
+         (EtherStateIdle::instance()), &EtherStateIdle::chkOutputBuffer,
          "selfInterframeGap");
 
       Loki::Field<0> (selfInterframeGap->args) = mod;
-          
+
       mod->addTmrMessage(selfInterframeGap);
       tmrMessage = selfInterframeGap;
     }
@@ -147,7 +147,7 @@ void EtherStateSend::endSendingJam(EtherModule* mod, cTimerMessage* msg)
   assert(msg);
 
   EtherSignalJamEnd* jamEnd = new EtherSignalJamEnd;
-  jamEnd->setSrcModPathName(mod->fullPath());  
+  jamEnd->setSrcModPathName(mod->fullPath());
   mod->sendFrame(jamEnd, mod->outPHYGate());
 
   if(mod->isMediumBusy())
@@ -193,24 +193,24 @@ void EtherStateSend::sendJam(EtherModule* mod)
   simtime_t transmTime = d / BANDWIDTH;
 
   EtherSignalJam* jam = new EtherSignalJam;
-  jam->setSrcModPathName(mod->fullPath());  
+  jam->setSrcModPathName(mod->fullPath());
   mod->sendFrame(jam, mod->outPHYGate());
 
   cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_JAM);
   if (!tmrMessage)
   {
-    Loki::cTimerMessageCB<void, 
-      TYPELIST_2(EtherModule*, cTimerMessage*)>* selfJamMsg;    
+    Loki::cTimerMessageCB<void,
+      TYPELIST_2(EtherModule*, cTimerMessage*)>* selfJamMsg;
 
-    selfJamMsg  = new Loki::cTimerMessageCB<void, 
+    selfJamMsg  = new Loki::cTimerMessageCB<void,
       TYPELIST_2(EtherModule*, cTimerMessage*)>
       (TRANSMIT_JAM, mod, static_cast<EtherStateSend*>
-       (EtherStateSend::instance()), &EtherStateSend::endSendingJam, 
+       (EtherStateSend::instance()), &EtherStateSend::endSendingJam,
        "endSendingJam");
-        
+
     Loki::Field<0> (selfJamMsg->args) = mod;
     Loki::Field<1> (selfJamMsg->args) = selfJamMsg;
-          
+
     mod->addTmrMessage(selfJamMsg);
     tmrMessage = selfJamMsg;
   }
@@ -219,7 +219,7 @@ void EtherStateSend::sendJam(EtherModule* mod)
   // receiving the start-of-frame message in the SEND state
   if(tmrMessage->isScheduled())
     tmrMessage->cancel();
-  
+
   tmrMessage->reschedule(mod->simTime() + transmTime);
 }
 
@@ -261,7 +261,7 @@ std::auto_ptr<EtherSignalJam> EtherStateSend::processJam(EtherModule* mod, std::
 //  if (tmrSend->isScheduled())
 //  {
 //    mod->incrementRetry();
-    
+
     // compute backoff period
 //    mod->backoffRemainingTime = getBackoffInterval(mod);
 
@@ -273,7 +273,7 @@ std::auto_ptr<EtherSignalJam> EtherStateSend::processJam(EtherModule* mod, std::
   // message while it is sending the data. Therefore, it should be the
   // first attemp of the trasnmission.
 //  assert( mod->getRetry() <= MAX_RETRY );
-  
+
 //  cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_JAM);
 //  if (tmrMessage && !tmrMessage->isScheduled())
 //    mod->changeState(EtherStateWaitBackoffJam::instance());
@@ -306,7 +306,7 @@ std::auto_ptr<EtherSignalJamEnd> EtherStateSend::processJamEnd(EtherModule* mod,
 std::auto_ptr<EtherSignalIdle> EtherStateSend::processIdle(EtherModule* mod, std::auto_ptr<EtherSignalIdle> idle)
 {
   mod->decNumOfRxIdle(idle->getSrcModPathName());
-  
+
   if (!mod->isMediumBusy() && !mod->getTmrMessage(TRANSMIT_SENDDATA)->isScheduled() && !mod->getTmrMessage(TRANSMIT_JAM)->isScheduled())
   {
     mod->frameCollided = false;
@@ -340,6 +340,6 @@ void EtherStateSend::removeFrameFromBuffer(EtherModule* mod)
   EtherSignalData* data = *(mod->outputBuffer.begin());
   delete data;
   mod->outputBuffer.pop_front();
-  
+
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << ": Output packet removed from the buffer, the size of output buffer is: " << mod->outputBuffer.size());
 }

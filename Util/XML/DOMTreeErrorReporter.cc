@@ -82,23 +82,23 @@ void DOMTreeErrorReporter::error(const SAXParseException& toCatch)
 {
     fSawErrors = true;
     cerr << "Error at file \"" << DOMString(toCatch.getSystemId()).transcode()
-		 << "\", line " << toCatch.getLineNumber()
-		 << ", column " << toCatch.getColumnNumber()
-         << "\n   Message: " << DOMString(toCatch.getMessage()).transcode() 
+                 << "\", line " << toCatch.getLineNumber()
+                 << ", column " << toCatch.getColumnNumber()
+         << "\n   Message: " << DOMString(toCatch.getMessage()).transcode()
          << endl;
-    exit(0);    
+    exit(0);
 }
 
 void DOMTreeErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     fSawErrors = true;
-    cerr << "Fatal Error at file \"" 
+    cerr << "Fatal Error at file \""
          << DOMString(toCatch.getSystemId()).transcode()
-		 << "\", line " << toCatch.getLineNumber()
-		 << ", column " << toCatch.getColumnNumber()
-         << "\n   Message: " << DOMString(toCatch.getMessage()).transcode() 
+                 << "\", line " << toCatch.getLineNumber()
+                 << ", column " << toCatch.getColumnNumber()
+         << "\n   Message: " << DOMString(toCatch.getMessage()).transcode()
          << endl;
-    exit(0);    
+    exit(0);
 }
 
 void DOMTreeErrorReporter::resetErrors()

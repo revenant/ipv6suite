@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Copyright (C) 2001, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,11 +17,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file ICMPv6NDMessageBase.h
-    
-	@brief Abstract base class definitions for ICMP Neighbour Discovery
-	messages.    
-	@author Johnny Lai
+    @file ICMPv6NDMessageBase.h
+
+    @brief Abstract base class definitions for ICMP Neighbour Discovery
+    messages.
+    @author Johnny Lai
     @date 14.9.01
 
 
@@ -41,9 +41,9 @@ class IPv6Datagram;
 
 namespace IPv6NeighbourDiscovery
 {
-  
+
 /**
-   @class ICMPv6NDMessageBase 
+   @class ICMPv6NDMessageBase
 
    @brief This is a template base class which holds common functionality for all
    Neigbour Discovery (ND) messages.
@@ -62,9 +62,9 @@ template<size_t n_addrs, size_t n_opts>
 class ICMPv6NDMessageBase:public ICMPv6Message
 {
 public:
-  
+
   /**
-     Ensure that removal of options always zeroes out 
+     Ensure that removal of options always zeroes out
      the pointers in the opts array.
   */
   virtual ~ICMPv6NDMessageBase();
@@ -72,7 +72,7 @@ public:
 
   bool hasOptions() const
     {
-      return opts[0] != 0;      
+      return opts[0] != 0;
     }
 
 /**
@@ -82,30 +82,30 @@ public:
   ///Force decendents to provide function
   virtual ICMPv6NDMessageBase* dup() const = 0;
 //@}
-  
+
   ///Returns the number of possible options but not the number of options
   ///in use i.e. a RtrAd message has a pointer to srcLLAddr but it is not in use
   virtual size_t optionCount() const
     {
-      return n_opts;      
+      return n_opts;
     }
-  
+
 protected:
-  
+
   bool hasLLAddr(size_t i) const { return !LLAddress(i).empty(); }
-  
+
   void setAddress(const ipv6_addr& addr, size_t i)
     {
       assert( i < n_addrs);
-      addrs[i] = addr;      
+      addrs[i] = addr;
     }
-  
+
   ipv6_addr address(size_t i) const
     {
-      assert(i < n_addrs);      
-      return addrs[i];      
+      assert(i < n_addrs);
+      return addrs[i];
     }
-  
+
   /// return link layer address
   std::string LLAddress(size_t index = 0) const;
 
@@ -113,8 +113,8 @@ protected:
   ///Ethernet
   void setLLAddress(bool source, const string& addr, int len = 1, size_t index = 0);
 
-protected:  
-  
+protected:
+
   ICMPv6NDMessageBase(const ICMPv6Type& otype, const ICMPv6Code& ocode = 0);
   ICMPv6NDMessageBase(const ICMPv6NDMessageBase& src);
 
@@ -128,7 +128,7 @@ private:
 
   void init();
 
-  ipv6_addr addrs[n_addrs];  
+  ipv6_addr addrs[n_addrs];
 
 };
 

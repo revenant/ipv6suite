@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherModuleBridge.h
-	@brief Definition file for EtherModuleBridge
+    @file EtherModuleBridge.h
+    @brief Definition file for EtherModuleBridge
 
-	simple implementation of ethernet interface in Bridge
+    simple implementation of ethernet interface in Bridge
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __ETHERMODULE_BRIDGE__
@@ -33,13 +33,13 @@ class EtherModuleBridge : public EtherModuleAP
 {
  public:
   Module_Class_Members(EtherModuleBridge, EtherModuleAP, 0);
-  
+
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish(void);
 
   virtual int numInitStages(void) const { return 2; }
-  
+
   // frames from bridge module
   virtual bool receiveData(std::auto_ptr<cMessage> msg);
 

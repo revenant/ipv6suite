@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   HMIPv6Entry.cc
  * @author Johnny Lai
  * @date   08 Sep 2002
- * 
+ *
  * @brief  Implementation of HMIPv6MAPEntry
  *
- * 
+ *
  */
 
 
@@ -34,14 +34,14 @@
 #include <algorithm>
 
 namespace HierarchicalMIPv6
-{ 
+{
   std::ostream& operator<<(std::ostream& os, const HMIPv6MAPEntry& me)
   {
     return os<<me.addr()<<" pref="<<me.preference()<<" dist="
              <<me.distance()<<" RMITPV="<<me.r()<<me.m()<<me.i()<<me.t()
              <<me.p()<<me.v()<<" lifetime="<<me.lifetime()
              <<" option="<<me.options<<endl;
-    
+
   }
 
   HMIPv6MAPEntry::HMIPv6MAPEntry(const HMIPv6ICMPv6NDOptMAP& src)
@@ -49,14 +49,14 @@ namespace HierarchicalMIPv6
   {
     setDistance(src.dist());
     setPreference(src.pref());
-      
+
     setR(src.r());
     setM(src.m());
     setI(src.i());
     setT(src.t());
     setP(src.p());
     setV(src.v());
-     
+
     setLifetime(src.lifetime());
     setAddr(src.addr());
   }
@@ -75,7 +75,7 @@ using HierarchicalMIPv6::HMIPv6MAPEntry;
 
 /**
  *  @class HMIPv6EntryTest
- *  @brief UnitTest for HMIPv6Entry	
+ *  @brief UnitTest for HMIPv6Entry
  *  @ingroup TestCases
  */
 
@@ -83,7 +83,7 @@ class HMIPv6EntryTest: public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( HMIPv6EntryTest );
   CPPUNIT_TEST( test );
-  CPPUNIT_TEST_SUITE_END(); 
+  CPPUNIT_TEST_SUITE_END();
 public:
 
   HMIPv6EntryTest();
@@ -92,7 +92,7 @@ public:
 
   void setUp();
   void tearDown();
-  
+
 private:
   HMIPv6MAPEntry *mapA, *mapB;
   ipv6_addr mapAddr;
@@ -123,46 +123,46 @@ void HMIPv6EntryTest::test()
 {
   mapA->setDistance(5);
   mapB->setDistance(10);
-  
+
   CPPUNIT_ASSERT(*mapB < *mapA);
-  
+
   mapA->setDistance(10);
-  
+
   CPPUNIT_ASSERT(!(*mapA<*mapB) && !(*mapB<*mapA));
 
   mapB->setLifetime(10);
-  
+
   mapB->setAddr(mapAddr);
- 
+
   stringstream a, b;
   a<<*mapA;
   b<<*mapB;
   CPPUNIT_ASSERT(a.str() == b.str());
 
   CPPUNIT_ASSERT(*mapB == *mapA);
-  
+
   mapA->setR(true);
-  
+
   CPPUNIT_ASSERT(*mapB != *mapA);
-  
+
   mapA->setR(false);
   CPPUNIT_ASSERT(*mapB == *mapA);
 
   mapB->setM(true);
   mapB->setI(true);
-  
+
   HMIPv6MAPEntry* mapC = new HMIPv6MAPEntry(*mapB);
   CPPUNIT_ASSERT(*mapC == *mapB);
-  
+
   CPPUNIT_ASSERT(*mapC != *mapA);
-  
+
   delete mapC;
-  
+
   HMIPv6MAPEntry* mapD = new HMIPv6MAPEntry(*mapB);
   CPPUNIT_ASSERT(*mapD == *mapB);
 
   CPPUNIT_ASSERT(!(*mapA<*mapD) && !(*mapD<*mapA));
-  
+
   list<boost::shared_ptr<HMIPv6MAPEntry> > sortMaps;
   sortMaps.push_back(boost::shared_ptr<HMIPv6MAPEntry>(mapA));
   sortMaps.push_back(boost::shared_ptr<HMIPv6MAPEntry>(mapB));
@@ -172,7 +172,7 @@ void HMIPv6EntryTest::test()
 
 
   //preference does not affect sort now
-  
+
   mapB->setPreference(8);
   mapB->setDistance(1);
   CPPUNIT_ASSERT(*mapB>*mapD);
@@ -191,19 +191,19 @@ void HMIPv6EntryTest::test()
   }
 
 }
-  
+
 void HMIPv6EntryTest::setUp()
 {
   mapA = new HMIPv6MAPEntry(mapAddr, 10);
   mapB = new HMIPv6MAPEntry();
-  
+
 }
-  
+
 void HMIPv6EntryTest::tearDown()
 {
   //delete mapA;
   //delete mapB;
 }
-  
+
 #endif //USE_CPPUNIT
 

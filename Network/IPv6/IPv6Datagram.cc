@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.4 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.6 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -17,10 +17,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file IPv6Datagram.cc
-	@brief Implementation of IPv6Datagram class
-	@author Johnny Lai
-	@date 19.8.01
+    @file IPv6Datagram.cc
+    @brief Implementation of IPv6Datagram class
+    @author Johnny Lai
+    @date 19.8.01
 
 */
 
@@ -56,12 +56,12 @@ using boost::polymorphic_downcast;
 
 static const ipv6_hdr IPV6_INITIAL_HDR =
 {
-	0x60000000, //version 6, traffic class of 0, flow label of 0
-	0,			//payload of 0
-	59,			//No next header yet
-	0,			//Hop Limit set to uninitialised
-	IPv6_ADDR_UNSPECIFIED,
-	IPv6_ADDR_UNSPECIFIED
+    0x60000000,    //version 6, traffic class of 0, flow label of 0
+    0,             //payload of 0
+    59,            //No next header yet
+    0,             //Hop Limit set to uninitialised
+    IPv6_ADDR_UNSPECIFIED,
+    IPv6_ADDR_UNSPECIFIED
 };
 
 /**
@@ -203,15 +203,15 @@ HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
 std::string IPv6Datagram::info()
 {
   ostringstream os;
-  os << buf << "Source="<<header.src_addr
-     <<" Dest=" << header.dest_addr;
+  os << "Source=" << header.src_addr
+     << " Dest=" << header.dest_addr;
 
   //For some reason the buf is filled with escape characters after this point
   //However the stdoutput from os is fine.
   //int ev_limit = os.str().size();
 
-  os <<" len="<<length()<<" HL=" <<dec<<hopLimit()
-     <<" prot="<<dec<<transportProtocol();
+  os << " len="<<length()<<" HL=" <<dec<<hopLimit()
+     << " prot="<<dec<<transportProtocol();
 
   //Can't use this as they're all pointers
   //std::copy(ext_hdrs.begin(), ext_hdrs.end(), ostream_iterator<HdrExtProc*>(os));
@@ -231,13 +231,13 @@ std::string IPv6Datagram::info()
 // output function for datagram
 void IPv6Datagram::writeContents( ostream& os )
 {
-	os	<< "IPv6 Datagram:"
-		<< "\nSender: "	<< senderModuleId()
-	  //		<< "\nBit length: " << length()
-		<< "Byte len: " << totalLength()
-		<< "Ext header len:" << extensionLength()
-	        << "\nTransport Prot: " << (int)transportProtocol()
-                << "\n";
+    os << "IPv6 Datagram:"
+       << "\nSender: " << senderModuleId()
+       // << "\nBit length: " << length()
+       << "Byte len: " << totalLength()
+       << "Ext header len:" << extensionLength()
+       << "\nTransport Prot: " << (int)transportProtocol()
+       << "\n";
 //Should use writeTo of ext_hdr and info of contained objects?
 //    ext_hdrs.writeContents(os);
 
@@ -289,7 +289,7 @@ IPProtocolId IPv6Datagram::transportProtocol() const
 
 void IPv6Datagram::setTransportProtocol(const IPProtocolId& prot)
 {
-  //		ISVALID_IPV6_PROTOCOLFIELDID(prot);
+  //        ISVALID_IPV6_PROTOCOLFIELDID(prot);
   if (ext_hdrs.empty())
     header.next_header = prot;
   else
@@ -465,12 +465,12 @@ struct network_payload *IPv6Datagram::networkOrder() const
 /// @name Private Functions
 //@{
 /**
-	  Add an extension header to this packet.  This will be appended
-	  to the end of the current ext hdrs list.  Length of datagram is
-	  updated automatically.
+      Add an extension header to this packet.  This will be appended
+      to the end of the current ext hdrs list.  Length of datagram is
+      updated automatically.
 
-	  @param hdr_type Identify what ext_hdr type you are appending
-	  @return The wrapper object of the created ext hdr.
+      @param hdr_type Identify what ext_hdr type you are appending
+      @return The wrapper object of the created ext hdr.
 */
 HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
 {
@@ -545,12 +545,12 @@ HdrExtProc* IPv6Datagram::findHeader(const IPv6ExtHeader& next_hdr) const
 //   switch (next_hdr)
 //   {
 //     case NEXTHDR_HOP:   // Hop-by-hop option header.
-//     case NEXTHDR_ROUTING:		// Routing header.
-//     case NEXTHDR_FRAGMENT:	// Fragmentation/reassembly header.
-//     case NEXTHDR_DEST: 	// Destination options header.
+//     case NEXTHDR_ROUTING:        // Routing header.
+//     case NEXTHDR_FRAGMENT:    // Fragmentation/reassembly header.
+//     case NEXTHDR_DEST:     // Destination options header.
 
 //       //Not supported i.e. is ignored completely. (log warning msg)
-//     case NEXTHDR_ESP:	// Encapsulating security payload.
+//     case NEXTHDR_ESP:    // Encapsulating security payload.
 //     case NEXTHDR_AUTH: // Authentication header.
 //       //Make sure that if the next header is an extension
 //       //header that it exists in ext_hdrs.

@@ -24,11 +24,11 @@
 //#define DEBUG
 
 #ifdef DEBUG
-	#define d(x) ev<<((parentModule()->id()-2)/5)<<","<<name()<<":"<<x<<"\n"
+        #define d(x) ev<<((parentModule()->id()-2)/5)<<","<<name()<<":"<<x<<"\n"
 #endif
 
 #ifndef DEBUG
-	#define d(x) /* x .*/
+        #define d(x) /* x .*/
 #endif
 
 #define dd(x) ev<<((parentModule()->id()-2)/5)<<","<<name()<<":"<<x<<"\n"

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherState.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherState.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,13 +20,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherState.h
-	@brief Header file for EtherState
+    @file EtherState.h
+    @brief Header file for EtherState
 
-	Defines simple FSM for Ethernet operation based on "Efficient and
-	Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
+    Defines simple FSM for Ethernet operation based on "Efficient and
+    Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
-	@author Eric Wu */
+    @author Eric Wu */
 
 #ifndef __ETHER_STATE_H__
 #define __ETHER_STATE_H__
@@ -53,8 +53,8 @@ class EtherSignalIdle;
 class EtherState
 {
 public:
-  EtherState(void) {} 
-  
+  EtherState(void) {}
+
   virtual std::auto_ptr<cMessage> processSignal(EtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
@@ -71,10 +71,10 @@ private:
   void printMsg(EtherModule* mod, const EtherSignalType type);
 };
 
-template<class Target, class  Source> std::auto_ptr<Target> 
+template<class Target, class  Source> std::auto_ptr<Target>
 auto_downcast(std::auto_ptr<Source> & r)
 {
-  boost::polymorphic_downcast<Target*> (r.get());    
+  boost::polymorphic_downcast<Target*> (r.get());
   return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
 }
 

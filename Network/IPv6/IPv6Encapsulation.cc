@@ -160,11 +160,11 @@ bool IPv6Encapsulation::tunnelDestination(const ipv6_addr& dest, size_t vIfIndex
  * @param vIfIndex is the virtual interface index of tunnel
  * @return true if destination can be forwarded to tunnel false otherwise
  */
-bool IPv6Encapsulation::tunnelDestination(const IPv6Address& dest, 
-		size_t vIfIndex)
+bool IPv6Encapsulation::tunnelDestination(const IPv6Address& dest,
+        size_t vIfIndex)
 {
-  Dout(dc::encapsulation|flush_cf, "Tunnel Dest pref: addrObj=" << dest 
-	<< " prefixLen=" << dest.prefixLength()); 
+  Dout(dc::encapsulation|flush_cf, "Tunnel Dest pref: addrObj=" << dest
+    << " prefixLen=" << dest.prefixLength());
   if (tunnels.count(vIfIndex) > 0)
   {
     Tunnel& tun = tunnels[vIfIndex];
@@ -302,7 +302,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
       tunDgram->setTimeToLive(tunHopLimit);
     else
       tunDgram->setTimeToLive(rt->getInterfaceByIndex(tun.ifIndex).curHopLimit);
-    
+
     tunDgram->setName(tunDgram->encapsulatedMsg()->name());
     sendDelayed(tunDgram.release(), delay, "encapsulatedSendOut");
 
@@ -317,7 +317,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     {
       cerr<<"Unknown tunnel Packet "
           <<static_cast<int> (tunDgram->transportProtocol())<<endl;
-      
+
       return;
     }
 
@@ -343,7 +343,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     origDgram->setInputPort(IMPL_INPUT_PORT_LOCAL_PACKET);
 #endif //!NOIPMASQ
 
-    
+
     sendDelayed(origDgram.release(), delay/2, "decapsulatedPreRoutingOut");
 
   }
@@ -352,7 +352,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     assert(false);
     cerr<<rt->nodeId()<<":"<<name()<<": Unexpected message received \" "
         <<dgram->arrivalGate()->name()<<"\""<<endl;
-    
+
   }
 
 }

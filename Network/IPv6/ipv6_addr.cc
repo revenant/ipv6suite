@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/ipv6_addr.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/ipv6_addr.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 // Copyright (C) 2001  Eric Wu (eric.wu@eng.monash.edu.au)
 // Monash University, Melbourne, Australia
 
@@ -38,8 +38,8 @@ const char* ALL_ROUTERS_SITE_ADDRESS = "FF05:0:0:0:0:0:0:2/0";
 const char* LINK_LOCAL_PREFIX = "FE80:0:0:0:0:0:0:0/64";
 const char* SOLICITED_NODE_PREFIX = "FF02:0:0:0:0:1:FF00:0000/108";
 
-namespace 
-{  
+namespace
+{
   const unsigned int NUMBER_OF_SEGMENT_BIT = 32;
   const unsigned int TOTAL_NUMBER_OF_32BIT_SEGMENT = 4;
 
@@ -83,7 +83,7 @@ ipv6_addr& ipv6_addr::operator+=(const ipv6_addr& rhs)
   high += rhs.high;
   extreme += rhs.extreme;
   return *this;
-  
+
 }
 
 namespace
@@ -105,21 +105,21 @@ namespace
     val.normal = addr[0]>>NUMBER_OF_SEGMENT_BIT;
     val.low = addr[0]&(((long long)1<<NUMBER_OF_SEGMENT_BIT)-1);
     return val;
-  }  
-}  
+  }
+}
 
 ipv6_addr& ipv6_addr::operator>>=(unsigned int shift)
 {
   if (shift == 0)
     return *this;
-  
+
   ipv6_addr_llarray addr = ipv6_addr_toLongArray(*this);
-  
+
   if (shift < sizeof(addr[0])*8)
   {
-    addr[0] >>= shift ;    
-    unsigned long long carry = addr[1] & ((1<<shift)-1);    
-    addr[1] >>= shift;    
+    addr[0] >>= shift ;
+    unsigned long long carry = addr[1] & ((1<<shift)-1);
+    addr[1] >>= shift;
     addr[0]|=(carry<<(sizeof(addr[0])*8 - shift));
   }
   else if (shift == sizeof(addr[0])*8)
@@ -130,7 +130,7 @@ ipv6_addr& ipv6_addr::operator>>=(unsigned int shift)
   else
   {
     unsigned int mod = shift % (sizeof(addr[0])*8);
-    addr[0] = addr[1]>>mod;    
+    addr[0] = addr[1]>>mod;
     addr[1] = 0;
   }
 
@@ -142,13 +142,13 @@ ipv6_addr& ipv6_addr::operator<<=(unsigned int shift)
 {
   if (shift == 0)
     return *this;
-  
+
   ipv6_addr_llarray addr = ipv6_addr_toLongArray(*this);
- 
+
   if (shift < sizeof(addr[0])*8)
   {
     addr[1] <<= shift;
-    unsigned long long carry = (addr[0] >> (sizeof(addr[0])*8-shift));       
+    unsigned long long carry = (addr[0] >> (sizeof(addr[0])*8-shift));
     addr[1] |= carry;
     addr[0] <<= shift;
   }
@@ -163,7 +163,7 @@ ipv6_addr& ipv6_addr::operator<<=(unsigned int shift)
     addr[1] = addr[0]<<mod;
     addr[0] = 0;
   }
- 
+
   return *this = c_ipv6_addr(addr);
 }
 
@@ -183,12 +183,12 @@ ipv6_addr& ipv6_addr::operator&=( const ipv6_addr& rhs)
   normal &= rhs.normal;
   low &= rhs.low;
   return *this;
-  
+
 }
 
 /**
  * @defgroup ipv6_addrOp free ipv6_addr operators
- * 
+ *
  */
 //@{
 bool operator==(const ipv6_addr& lhs, const ipv6_addr& rhs)
@@ -199,7 +199,7 @@ bool operator==(const ipv6_addr& lhs, const ipv6_addr& rhs)
 
 bool operator!=(const ipv6_addr& lhs, const ipv6_addr& rhs)
 {
-	  return !(lhs==rhs);
+      return !(lhs==rhs);
 }
 
 // reverse sorting
@@ -220,14 +220,14 @@ ipv6_addr operator&(const ipv6_addr& lhs, const ipv6_addr& rhs)
 {
   ipv6_addr ret = lhs;
   return ret &= rhs;
-  
+
 }
 
 ipv6_addr operator|(const ipv6_addr& lhs, const ipv6_addr& rhs)
 {
   ipv6_addr ret = lhs;
   return ret |= rhs;
-  
+
 }
 
 ipv6_addr operator>>(const ipv6_addr& src, unsigned int shift)
@@ -266,42 +266,42 @@ ipv6_addr c_ipv6_addr(const char* addr)
 {
   if (addr == 0)
     addr = "";
-  
+
   stringstream is(addr);
-  
-  unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0} ;  
+
+  unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0} ;
   char sep = '\0';
-  
-  try 
+
+  try
   {
     for (int i = 0; i < 8; i ++)
     {
-      
+
       is >> hex >> octals[i];
       if (is.eof() )
-        break;      
+        break;
       is >> sep;
       if (sep == IPv6_PREFIX_SEPARATOR)
         break;
-    }   
+    }
   }
-  catch (...) 
+  catch (...)
   {
     std::cerr << "exception thrown while parsing ipv6 char* address";
     return IPv6_ADDR_UNSPECIFIED;
   }
-  
+
   unsigned int int_addr[TOTAL_NUMBER_OF_32BIT_SEGMENT];
   for (unsigned int i = 0; i < TOTAL_NUMBER_OF_32BIT_SEGMENT; i++ )
     int_addr[i] = (octals[i*2]<<(NUMBER_OF_SEGMENT_BIT/2)) + octals[2*i + 1];
 
   ipv6_addr ret;
-  
+
   ret.extreme = int_addr[0];
   ret.high = int_addr[1];
   ret.normal = int_addr[2];
   ret.low = int_addr[3];
-  
+
   return ret;
 }
 
@@ -340,7 +340,7 @@ string longToBinary(unsigned long long no)
     for (unsigned int i = sizeof(no)*8; i > 0; i--)
     {
       if (i < sizeof(no)*8 && i % 16 == 0)
-        ss<<":";      
+        ss<<":";
       ss<<(no&(1<<i-1)?"1":"0");
     }
     return ss.str();
@@ -371,10 +371,10 @@ size_t calcBitsMatch(const unsigned int* addr1, const unsigned int* addr2)
 
 /**
  * Return the number of bits that match in addr1 and addr2
- * 
+ *
  */
 size_t calcBitsMatch(const ipv6_addr_array& addr1, const ipv6_addr_array& addr2)
-{  
+{
   unsigned int a1[TOTAL_NUMBER_OF_32BIT_SEGMENT] = {addr1[0], addr1[1], addr1[2], addr1[3]};
   unsigned int a2[TOTAL_NUMBER_OF_32BIT_SEGMENT] = {addr2[0], addr2[1], addr2[2], addr2[3]};
   return calcBitsMatch(a1,a2);
@@ -384,7 +384,7 @@ size_t calcBitsMatch(const ipv6_addr_array& addr1, const ipv6_addr_array& addr2)
 bool ipv6_prefix::matchPrefix(const ipv6_addr& addr) const
 {
     //return IPv6Address(*this).isNetwork(rhs.prefix);
-  return calcBitsMatch(ipv6_addr_toArray(prefix), 
+  return calcBitsMatch(ipv6_addr_toArray(prefix),
                        ipv6_addr_toArray(addr))>=length;
 }
 
@@ -417,9 +417,9 @@ class ipv6_addrTest: public CppUnit::TestFixture
 
   void testShift()
     {
-      const std::string saddr("8000:0:0:8002:0:0:0:0");  
+      const std::string saddr("8000:0:0:8002:0:0:0:0");
       ipv6_addr addr = c_ipv6_addr(saddr.c_str());
-      
+
       addr >>=  2;
       cout << ipv6_addr_toBinary(addr)<<endl;
 
@@ -431,7 +431,7 @@ class ipv6_addrTest: public CppUnit::TestFixture
       addr <<= 65;
       CPPUNIT_ASSERT(ipv6_addr_toString(addr) == saddr);
 
-      //const std::string saddr("abcd:1234:5678:8888:1111:2222:3333:4444"); 
+      //const std::string saddr("abcd:1234:5678:8888:1111:2222:3333:4444");
     }
 
   void prefixEquality()
@@ -441,16 +441,16 @@ class ipv6_addrTest: public CppUnit::TestFixture
       ipv6_prefix pa(a, 64);
       ipv6_prefix pb(b, 64);
       CPPUNIT_ASSERT(pa != pb);
-      
+
       ipv6_addr_array c = {{0x3232, 0xabcd, 0xef00,0xfe }};
       ipv6_addr_array d = {{0x3232, 0xabcd, 0x2, 0x0}};
       CPPUNIT_ASSERT(calcBitsMatch(c, d) == 80);
 
       ipv6_addr_array e = {{0x3232, 0xabecd, 0xef00,0xfe }};
-      ipv6_addr_array f = {{0x3232, 0xabcd, 0x2, 0x0}};      
+      ipv6_addr_array f = {{0x3232, 0xabcd, 0x2, 0x0}};
       CPPUNIT_ASSERT(calcBitsMatch(e, f) == 44);
     }
-  
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ipv6_addrTest);

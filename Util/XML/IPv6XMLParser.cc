@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/XML/Attic/IPv6XMLParser.cc,v 1.1 2005/02/09 06:15:59 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/XML/Attic/IPv6XMLParser.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -173,7 +173,7 @@ IPv6Address* IPv6XMLParser::addresses(RoutingTable6* rt, const string& netNodeNa
     MyString str_minInt(((DOM_Element&)netNodeIface).
                         getAttribute(MINRTRADVINTERVAL).transcode());
     rt->getInterfaceByIndex(iface_index).rtrVar.minRtrAdvInt = atof(str_minInt.get());
-    
+
     if (rt->isRouter())
       Dout(dc::notice, rt->nodeName()<<":"<<iface_index<<" minRtrAdv="
            <<rt->getInterfaceByIndex(iface_index).rtrVar.minRtrAdvInt
@@ -440,7 +440,7 @@ void IPv6XMLParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
     return;
 
   DOM_Node info = (( DOM_Element&)(dom_iface)).getElementsByTagName(DOMString("WEInfo")).item(0);
-  
+
   DOM_Element& dom_info = (DOM_Element&)info;
 
   if(dom_info.isNull())
@@ -473,7 +473,7 @@ void IPv6XMLParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
   const_cast<double&>(wlanMod->authenticationTimeout) = atof(str_authtout.get());
   MyString str_asstout(dom_info.getAttribute(DOMString("WEAssociationTimeout")).transcode());
   const_cast<double&>(wlanMod->associationTimeout) = atof(str_asstout.get());
-	MyString str_retry(dom_info.getAttribute(DOMString("WERetry")).transcode());
+    MyString str_retry(dom_info.getAttribute(DOMString("WERetry")).transcode());
   const_cast<unsigned int&>(wlanMod->maxRetry) = atoi(str_retry.get());
   MyString str_fastactivescan(dom_info.getAttribute("WEFastActiveScan").transcode());
         if (str_fastactivescan.get() == XML_ON)
@@ -516,9 +516,9 @@ void IPv6XMLParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
       wlanMod->address.set(addr.c_str());
   }
 
-	MyString str_bwreq(dom_info.getAttribute(DOMString("WEBandwidthRequirements")).transcode());
-	const_cast<double&>(wlanMod->bWRequirements) = atof(str_bwreq.get());
-	MyString str_statsVec(dom_info.getAttribute("WERecordStatisticVector").transcode());
+    MyString str_bwreq(dom_info.getAttribute(DOMString("WEBandwidthRequirements")).transcode());
+    const_cast<double&>(wlanMod->bWRequirements) = atof(str_bwreq.get());
+    MyString str_statsVec(dom_info.getAttribute("WERecordStatisticVector").transcode());
     if (str_statsVec.get() == XML_ON)
       wlanMod->statsVec = true;
     else
@@ -816,7 +816,7 @@ void IPv6XMLParser::staticRoutingTable(RoutingTable6* rt, const string& netNodeN
     {
 
       (*rt->cds)[destAddr].neighbour = rt->cds->router(re->addr());
-      
+
       if (destAddr != nextHopAddr && !( destAddr == IPv6_ADDR_UNSPECIFIED))
         Dout(dc::forwarding|dc::routing|dc::xml_addresses, netNodeName<<" Next hop for "<<destAddr <<" is "<<nextHopAddr);
     }
@@ -900,8 +900,8 @@ void IPv6XMLParser::tunnelConfiguration(RoutingTable6* rt, const DOM_Node& netNo
     }
 
     Dout(dc::encapsulation|continued_cf, rt->nodeName()
-	<<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
-	<<ifaceIdx);
+    <<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
+    <<ifaceIdx);
 
     for(size_t j = 0; j <  numOfTriggers; j++)
     {
@@ -910,7 +910,7 @@ void IPv6XMLParser::tunnelConfiguration(RoutingTable6* rt, const DOM_Node& netNo
 
       destination.reset(elem->getAttribute(DOMString("destination")).transcode());
       bool associatedTrigger = false;
-      IPv6Address dest(destination.get()); 
+      IPv6Address dest(destination.get());
       if (dest.prefixLength() == 0 || dest.prefixLength() == IPv6_ADDR_LENGTH)
       {
         ipv6_addr trigdest=c_ipv6_addr(destination.get());

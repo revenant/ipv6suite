@@ -23,7 +23,7 @@
  * @brief Definition of ExpiryEntryList
  *
  *
- * 
+ *
  */
 
 
@@ -93,18 +93,18 @@ class ExpiryEntryList
   typedef typename  Loki::Select< Loki::TypeTraits<Entry>::isPointer, TYPELIST_1(Loki::Int2Type<true>), TYPELIST_1(Loki::Int2Type<false>) >::Result ArgType;
   public:
   typedef Entry ElementType;
-    
+
   ExpiryEntryList(cSimpleModule *module, unsigned int timerId = TMR_ENTRYEXPIRED, bool relative = false);
   ExpiryEntryList(Timer* tmr, bool relative = false);
   ~ExpiryEntryList(void);
-    
+
   void addEntry(Entry newEntry);
   ///Callback for aggregate Entry types. Removes the entry from list and reschedules.
   void removeExpiredEntry(Loki::Int2Type<false>);
   ///Callback for pointer Entry types. Removes the entry from list and reschedules.
   Entry removeExpiredEntry(Loki::Int2Type<true>);
   void removeEntry(Entry &target);
-    
+
   bool empty(void);
   bool findEntry(Entry &target);
 
@@ -119,7 +119,7 @@ class ExpiryEntryList
 
 /**
    @struct greaterExpiryTime
-   @brief  Function object for heap comparison 
+   @brief  Function object for heap comparison
 
    @ingroup Timer Framework
 */
@@ -134,7 +134,7 @@ class ExpiryEntryList
       }
     bool operator()(const Entry lhs, const typename Loki::Select< Loki::TypeTraits<Entry>::isPointer, Entry, void*>::Result rhs) const
       {
-	return (lhs->expiryTime() > rhs->expiryTime());
+        return (lhs->expiryTime() > rhs->expiryTime());
       }
   };
 
@@ -149,7 +149,7 @@ class ExpiryEntryList
   {
     return e->expiryTime();
   }
-  
+
   ///overloaded printEntry for non-pointer Entry types
   std::ostream& printEntry(std::ostream& os, const Entry& e, Loki::Int2Type<false>) const
   {
@@ -161,7 +161,7 @@ class ExpiryEntryList
   {
     return os<<*e;
   }
-  
+
   typedef typename std::vector<Entry> EntryList;
   typedef typename std::vector<Entry>::iterator EntryListIt;
   typedef typename std::vector<Entry>::const_iterator ELCI;
@@ -171,12 +171,12 @@ class ExpiryEntryList
   //<> because function template operator<< cannot be declared/defined prior to ExpiryEntryList.
   //Alternative is to define an inline non member, non template operator<< at the
   //point of this friend declaration. See 8.4.1 of C++ Templates by Nicholai Josuttis
-  
+
   template <class E, class T> friend std::ostream& operator<< (std::ostream&, const ExpiryEntryList<E,T> &);
 
   ///required to disambiguate between overloaded removeExpiredEntry call
   typedef void (ExpiryEntryList::*removeExpiredEntryPtr)(typename Loki::Select< Loki::TypeTraits<Entry>::isPointer, Loki::Int2Type<true>, Loki::Int2Type<false> >::Result);
-  
+
   Timer* entryExpiredNotifier;
   EntryList entries;
   bool relative;
@@ -184,10 +184,10 @@ class ExpiryEntryList
 
 /**
    @brief Construct list to manage lifetime of entries using default timer message.
-   
+
    Default timer is assigned an appropriate version of removeExpiredEntry as the
    callback function determined by whether Entry is a pointer or not.
-   
+
    @param module the module in which the self message timer will be running in
 
    @param timerId A unique identifier within scope of each module type (only
@@ -196,16 +196,16 @@ class ExpiryEntryList
 
    @param relative treat expiryTime as the relative time i.e. add simTime() to
    it before rescheduling. By default false i.e. treat as absolute time to
-   expire at.   
+   expire at.
 */
 template <class Entry, class Timer>
 ExpiryEntryList<Entry, Timer>::ExpiryEntryList(
   cSimpleModule *module, unsigned int timerId, bool relative):
     entryExpiredNotifier(
       new Loki::cTimerMessageCB<ReturnType, ArgType>(
-	timerId, module, this, static_cast<removeExpiredEntryPtr>(
-	  &ExpiryEntryList<Entry,Timer>::removeExpiredEntry),
-        "removeExpiredEntry")), relative(relative)
+        timerId, module, this, static_cast<removeExpiredEntryPtr>(
+          &ExpiryEntryList<Entry,Timer>::removeExpiredEntry),
+          "removeExpiredEntry")), relative(relative)
 {}
 
 /**
@@ -218,7 +218,7 @@ ExpiryEntryList<Entry, Timer>::ExpiryEntryList(
 
    @param relative treat expiryTime as the relative time i.e. add simTime() to
    it before rescheduling. By default false i.e. treat as absolute time to
-   expire at.   
+   expire at.
 
 */
 template <class Entry, class Timer>
@@ -235,7 +235,7 @@ ExpiryEntryList<Entry, Timer>::~ExpiryEntryList(void)
   {
     entries.clear();
   }
-  
+
   if (!entryExpiredNotifier->isScheduled())
     delete entryExpiredNotifier;
 }
@@ -246,13 +246,13 @@ void ExpiryEntryList<Entry, Timer>::addEntry(Entry newEntry)
 {
   // Remove any existing entry from the list
   entries.erase(std::remove(entries.begin(), entries.end(), newEntry), entries.end());
-  
+
   // Insert the new entry into the heap
   entries.push_back(newEntry);
   make_heap(entries.begin(), entries.end(), greaterExpiryTime());
-    
+
   assert(entryExpiredNotifier);
-	
+
   // Cancel the old scheduled expiry and schedule the soonest to expire.
   // Since the new entry could be the most recent.
   if (!relative)
@@ -270,8 +270,8 @@ void ExpiryEntryList<Entry, Timer>::addEntry(Entry newEntry)
 }
 
 /**
-   @brief Non-pointer version. Remove the entry that has expired and reschedule for next one. 
- 
+   @brief Non-pointer version. Remove the entry that has expired and reschedule for next one.
+
    There are two versions of this due to non/pointer semantics for the call to
    expiryTime. While it is possible to reduce this to a single function via use
    of the ExpiryEntryList::expiryTime this is necessary for the
@@ -294,7 +294,7 @@ void ExpiryEntryList<Entry, Timer>::removeExpiredEntry(Loki::Int2Type<false>)
   if(!entries.empty())
   {
     assert(entryExpiredNotifier && !entryExpiredNotifier->isScheduled());
-	
+
     // Schedule next entry to expire
     if (!relative)
       entryExpiredNotifier->reschedule(entries.front().expiryTime());
@@ -320,7 +320,7 @@ Entry ExpiryEntryList<Entry, Timer>::removeExpiredEntry(Loki::Int2Type<true>)
   if(!entries.empty())
   {
     assert(entryExpiredNotifier && !entryExpiredNotifier->isScheduled());
-	
+
     // Schedule next entry to expire
     //mod->scheduleAt(entries.front().expiryTime(), entryExpiredNotifier);
     if (!relative)
@@ -365,9 +365,9 @@ template <class Entry, class Timer>
 bool ExpiryEntryList<Entry, Timer>::findEntry(Entry &target)
 {
   EntryListIt it = std::find(entries.begin(), entries.end(), target);
-  
+
   if (it != entries.end())
-  {  
+  {
         target = *(it);
         return true;
   }
@@ -415,7 +415,7 @@ void ExpiryEntryList<Entry,Timer>::printList(void)
     std::cerr << it->identifier() << " " << it->expiryTime() << std::endl;
   }
  }
-    
+
 template <class Entry, class Timer>
 bool ExpiryEntryList<Entry,Timer>::findMaxEntry(Entry &max, bool (*lessThan)(const Entry&,const Entry&))
 {

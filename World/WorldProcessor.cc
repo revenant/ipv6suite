@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.1 2005/02/09 06:15:59 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2002 CTIE, Monash University
 //
@@ -97,9 +97,9 @@ void WorldProcessor::initialize(int stage)
     // Read routing table file once only
     if (filename[0] != '\0')
     {
-#ifndef USE_XMLWRAPP	
+#ifndef USE_XMLWRAPP
 #ifndef USE_XERCES
-#if defined OPP_VERSION && OPP_VERSION >= 3 
+#if defined OPP_VERSION && OPP_VERSION >= 3
       parser = new XMLConfiguration::XMLOmnetParser();
       parser->parseFile(filename);
 #endif
@@ -150,7 +150,7 @@ void WorldProcessor::initialize(int stage)
       setDisplayString(disParser.getString());
     }
 
-    //A bit of a hack 
+    //A bit of a hack
     //BASE_SPEED is in wirelessEthernet.h/cc unit
     BASE_SPEED = par("wlan_speed").doubleValue() * 1024 * 1024;
     Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
@@ -160,17 +160,17 @@ void WorldProcessor::initialize(int stage)
     updateStatsNotifier  =
       new Loki::cTimerMessageCB<void>
       (TMR_WPSTATS, this, this, &WorldProcessor::updateStats, "updateStats");
-    
+
     scheduleAt(simTime()+1, updateStatsNotifier);
 #endif //USE_MOBILITY
   }
 #ifdef USE_CPPUNIT
-  else if (stage == RoutingTable6StageCount-1) 
+  else if (stage == RoutingTable6StageCount-1)
   {
     //Has to be after XML loaded as one of the tests is on XML parsing
-    //Has to be at least after RoutingTable module is initialised. 
+    //Has to be at least after RoutingTable module is initialised.
     assert(runUnitTests());
-  } 
+  }
 #endif //USE_CPPUNIT
 
 }
@@ -198,7 +198,7 @@ void WorldProcessor::parseMAPInfo(RoutingTable6* rt)
 
 void WorldProcessor::staticRoutingTable(RoutingTable6* rt)
 {
-  parser->staticRoutingTable(rt);  
+  parser->staticRoutingTable(rt);
 }
 
 #if defined USE_CPPUNIT
@@ -304,10 +304,10 @@ findWirelessEtherModulesByChannel(const int channel)
   for (size_t i = 0; i < modList.size(); i++)
   {
     //Get the interface's link layer
-    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();   
+    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();
     cModule* phylayer = interface->gate("wlin")->toGate()->ownerModule();
     cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule();
- 
+
     if(linkLayer != NULL)
     {
       if (std::string(linkLayer->par("NWIName")) == "WirelessEtherModule" ||
@@ -332,9 +332,9 @@ findWirelessEtherModulesByChannelRange(const int minChan, const int maxChan)
   for (size_t i = 0; i < modList.size(); i++)
   {
     //Get the entity's interface
-    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();  
+    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();
     unsigned int noOfInterface = interface->gate("wlin")->size();
-    
+
     //Check all interface in entity
     for(size_t j=0; j< noOfInterface; j++)
     {
@@ -351,7 +351,7 @@ findWirelessEtherModulesByChannelRange(const int minChan, const int maxChan)
           if ( (a->getChannel() >= minChan)&&(a->getChannel() <= maxChan) )
           {
             // Only add into the list once
-            mods.push_back(modList[i]);      
+            mods.push_back(modList[i]);
             break;
           }
         }
@@ -375,14 +375,14 @@ Entity* WorldProcessor::findEntityByModule(cModule* module)
 void WorldProcessor::updateStats(void)
 {
   double balanceIndex =0, loadSum=0, loadSquaredSum=0, n=0, usedBW;
-  
+
   for (size_t i = 0; i < modList.size(); i++)
   {
     //Get the interface's link layer
-    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();   
+    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();
     cModule* phylayer = interface->gate("wlin")->toGate()->ownerModule();
     cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule();
- 
+
     if(linkLayer != NULL)
     {
       if (std::string(linkLayer->par("NWIName")) == "WirelessAccessPoint")

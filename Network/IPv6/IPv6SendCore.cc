@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.4 2005/02/10 05:43:47 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.5 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -21,20 +21,20 @@
     @file IPv6SendCore.cc
     @brief Implementation for IPSendCore
     ------
-	Responsibilities:
-	receive IPInterfacePacket from Transport layer or ICMP
-	or Tunneling (IP tunneled datagram)
-	encapsulate in IP datagram
-	set version
-	set hoplimit
-	set Protocol to received value
-	set destination address to received value
-	send datagram to Routing
+    Responsibilities:
+    receive IPInterfacePacket from Transport layer or ICMP
+    or Tunneling (IP tunneled datagram)
+    encapsulate in IP datagram
+    set version
+    set hoplimit
+    set Protocol to received value
+    set destination address to received value
+    send datagram to Routing
 
     if IPInterfacePacket is invalid (e.g. invalid source address),
      it is thrown away without feedback
 
-	@author Johnny Lai
+    @author Johnny Lai
     based on IPSendCore by Jochen Reber
 */
 #include "sys.h"
@@ -150,7 +150,7 @@ void IPv6SendCore::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
 
     //datagram->take(datagram->encapsulatedMsg());
 
-	// if no interface exists, do not send datagram
+    // if no interface exists, do not send datagram
     if (rt->interfaceCount() == 0 ||
         rt->getInterfaceByIndex(0).inetAddrs.size() == 0)
     {
@@ -163,7 +163,7 @@ void IPv6SendCore::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
 
     // when source address given in Interface Message, use it
     if (interfaceMsg->srcAddress() != IPv6_ADDR_UNSPECIFIED)
-	{
+    {
 Debug(
       //Test if source address actually exists
       bool found = false;
@@ -186,14 +186,14 @@ Debug(
       );
 
       datagram->setSrcAddress(interfaceMsg->srcAddr());
-	}
+    }
     else
     {
       //Let RoutingCore determine src addr
-	}
+    }
 
-	datagram->setTransportProtocol ( static_cast<IPProtocolId> (interfaceMsg->protocol()));
-	datagram->setInputPort(-1);
+    datagram->setTransportProtocol ( static_cast<IPProtocolId> (interfaceMsg->protocol()));
+    datagram->setInputPort(-1);
 
     if (interfaceMsg->timeToLive() > 0)
       datagram->setHopLimit(interfaceMsg->timeToLive());
@@ -202,19 +202,19 @@ Debug(
     ctrIP6OutRequests++;
 
 /*
-	// pass Datagram through netfilter if it exists
-	if (hasHook)
-	{
-		send(datagram.release(), "netfilterOut");
+    // pass Datagram through netfilter if it exists
+    if (hasHook)
+    {
+        send(datagram.release(), "netfilterOut");
         cMessage *dfmsg = receiveNewOn("netfilterIn");
-		if (dfmsg->kind() == DISCARD_PACKET)
-		{
-			delete dfmsg;
+        if (dfmsg->kind() == DISCARD_PACKET)
+        {
+            delete dfmsg;
 
-			return;
-		}
-		datagram.reset(static_cast<IPv6Datagram*>(dfmsg));
-	}
+            return;
+        }
+        datagram.reset(static_cast<IPv6Datagram*>(dfmsg));
+    }
 */
 
     curPacket = datagram.release();

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.h,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -18,10 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file HdrExtRteProc.h
-	@brief Routing header operations.
-	@author Johnny Lai
-	@date 21.8.01
+    @file HdrExtRteProc.h
+    @brief Routing header operations.
+    @author Johnny Lai
+    @date 21.8.01
 */
 
 #include <list>

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.h,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -124,13 +124,13 @@ public:
     }
 
   /*
-	bool dontFragment() { return dont_fragment; }
-	void setDontFragment(bool dontFragment)
+   bool dontFragment() { return dont_fragment; }
+   void setDontFragment(bool dontFragment)
     { dont_fragment = dontFragment; }
   */
 
   //Don't need this as this class will take care of all frag details
-//	void setFragmentOffset(int offset);
+//    void setFragmentOffset(int offset);
 
   /**
      Test if fragments are outstanding for this packet id.
@@ -140,10 +140,10 @@ public:
   bool moreFragments() const;
 
   /*
-	bool lastFragment()
-	{
+    bool lastFragment()
+    {
     return moreFragments()?false:true;
-	}
+    }
   */
 
 protected:

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateWaitBackoff.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateWaitBackoff.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,13 +20,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherStateWaitBackoff.cc
-	@brief Definition file for EtherStateWaitBackoff
+    @file EtherStateWaitBackoff.cc
+    @brief Definition file for EtherStateWaitBackoff
 
-	Defines simple FSM for Ethernet operation based on "Efficient and
-	Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
+    Defines simple FSM for Ethernet operation based on "Efficient and
+    Accurate Ethernet Simulation" by Jia Wang and Srinivasan Keshav
 
-	@author Eric Wu */
+    @author Eric Wu */
 
 #include <sys.h> // Dout
 #include "debug.h" // Dout
@@ -47,7 +47,7 @@ EtherStateWaitBackoff* EtherStateWaitBackoff::instance(void)
 {
   if (_instance == 0)
     _instance = new EtherStateWaitBackoff;
-  
+
   return _instance;
 }
 
@@ -78,7 +78,7 @@ std::auto_ptr<EtherSignalData> EtherStateWaitBackoff::processData(EtherModule* m
 
   cTimerMessage* tmrBackoff = mod->getTmrMessage(SELF_BACKOFF);
   assert(tmrBackoff && tmrBackoff->isScheduled());
-  
+
   mod->backoffRemainingTime = tmrBackoff->remainingTime();
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << " @receives a DATA message and ceases to back off, BackoffRemainingTime =" << mod->backoffRemainingTime);
   tmrBackoff->cancel();
@@ -94,7 +94,7 @@ std::auto_ptr<EtherSignalJam> EtherStateWaitBackoff::processJam(EtherModule* mod
 
   cTimerMessage* tmrBackoff = mod->getTmrMessage(SELF_BACKOFF);
   assert(tmrBackoff && tmrBackoff->isScheduled());
-  
+
   mod->backoffRemainingTime = tmrBackoff->remainingTime();
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << " @ receives a JAM message and ceases to back off, BackoffRemainingTime = " << mod->backoffRemainingTime);
   tmrBackoff->cancel();
@@ -125,15 +125,15 @@ void EtherStateWaitBackoff::backoff(EtherModule* mod)
   cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_BACKOFF);
   if (!tmrMessage)
   {
-    Loki::cTimerMessageCB<void, 
+    Loki::cTimerMessageCB<void,
       TYPELIST_1(EtherModule*)>* selfBackoff;
 
-    selfBackoff  = new Loki::cTimerMessageCB<void, 
+    selfBackoff  = new Loki::cTimerMessageCB<void,
       TYPELIST_1(EtherModule*)>
       (SELF_BACKOFF, mod, static_cast<EtherStateWaitBackoff*>
-       (mod->currentState()), &EtherStateWaitBackoff::endBackoff, 
+       (mod->currentState()), &EtherStateWaitBackoff::endBackoff,
          "endBackoff");
-        
+
     Loki::Field<0> (selfBackoff->args) = mod;
 
     mod->addTmrMessage(selfBackoff);

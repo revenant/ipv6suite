@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.cc,v 1.2 2005/02/10 04:00:43 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtProc.cc,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -57,16 +57,16 @@ int HdrExtProc::cumul_len(const IPv6Datagram& pdu) const
   for(;;)
   {
     if (proc == 0)
-	{
+    {
 
-	  cerr << "Error in calculating cumulative length. Wrapper not found"<<endl;
-	  return len;
-	}
+      cerr << "Error in calculating cumulative length. Wrapper not found"<<endl;
+      return len;
+    }
 
     len += proc->length();
     //Find cumulative length until it reaches us.
     if (proc == this)
-	  return len + length();
+      return len + length();
     proc = pdu.getNextHeader(proc);
   }
 
@@ -81,7 +81,7 @@ size_t HdrExtProc::length() const
 
   switch (_type)
   {
-	//Detect Pad1/PadN and figure out length
+    //Detect Pad1/PadN and figure out length
     case EXTHDR_HOP:
       cerr << "Hop extension header not implemented "<<endl;
       break;

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
 //
 // Eric Wu
@@ -20,12 +20,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherModule.h
-	@brief Header file for EtherModule
+    @file EtherModule.h
+    @brief Header file for EtherModule
 
-	Simple implementation of Ethernet module
+    Simple implementation of Ethernet module
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __ETHER_MODULE_H__
@@ -108,7 +108,7 @@ class EtherModule: public LinkLayerModule
   // CSMA-CD
 
   bool frameCollided;
-  
+
   EtherState* currentState()
     {
       return _currentState;
@@ -131,7 +131,7 @@ class EtherModule: public LinkLayerModule
   bool isMediumBusy(void);
 
   simtime_t interframeGap;
-  
+
  protected:
   EtherState* _currentState;
   long procdelay; // ms

@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file EtherModuleAP.cc
-	@brief Definition file for EtherModuleAP
+    @file EtherModuleAP.cc
+    @brief Definition file for EtherModuleAP
 
-	simple implementation of ethernet interface in AP
+    simple implementation of ethernet interface in AP
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include <sys.h> // Dout

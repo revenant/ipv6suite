@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.3 2005/02/10 05:59:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -88,10 +88,10 @@ bool HdrExtFragProc::moreFragments() const
 }
 
 /**
-	Assemble packets. The assembled packet is stored in this instance.
-	@nfrags count of fragments in array frags
-	@frags array of fragments with count given in nfrags
-	@return true if packet was assembled successfully, false otherwise
+    Assemble packets. The assembled packet is stored in this instance.
+    @nfrags count of fragments in array frags
+    @frags array of fragments with count given in nfrags
+    @return true if packet was assembled successfully, false otherwise
 */
 bool HdrExtFragProc::assemblePacket(const int& nfrags, IPv6Datagram* frags,
                                     IPv6Datagram*& defragPdu)
@@ -100,10 +100,10 @@ bool HdrExtFragProc::assemblePacket(const int& nfrags, IPv6Datagram* frags,
 }
 
 /**
-	Fragment this packet.
-	@path_mtu specifies the MTU to fragment for
-	@nfrags count of fragments returned
-	@returns the fragment array sorted by frag_off with count in nfrags
+    Fragment this packet.
+    @path_mtu specifies the MTU to fragment for
+    @nfrags count of fragments returned
+    @returns the fragment array sorted by frag_off with count in nfrags
 */
 //TODO This function is not correct
 IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
@@ -136,9 +136,9 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
       offset = frag_len/nfrags;
       frag_pdu_len = unfrag_len + length() + offset;
       if (frag_pdu_len <= path_mtu)
-	{
-	  remainder = frag_len%nfrags;
-	}
+        {
+          remainder = frag_len%nfrags;
+        }
     }
 
   //Create a new pdu (the first one which will be duplicated)

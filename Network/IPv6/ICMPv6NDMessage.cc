@@ -1,6 +1,6 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6NDMessage.cc,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6NDMessage.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,12 +17,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file ICMPv6NDMessage.cc 
+    @file ICMPv6NDMessage.cc
     @brief Implementations of Neighbour Discovery
-	         Message classes and their options.  
-    
-    @author Johnny Lai 
-    @date 14.9.01 
+             Message classes and their options.
+
+    @author Johnny Lai
+    @date 14.9.01
 */
 
 #include "ICMPv6Message.h"
@@ -36,7 +36,7 @@
 #define __ICMPv6NDMESSAGE_CC
 
 using namespace IPv6NeighbourDiscovery;
-  
+
 const short IPv6NeighbourDiscovery::NDHOPLIMIT = 255;
 const int IPv6NeighbourDiscovery::ISROUTER_MASK = 0x80000000;
 const int IPv6NeighbourDiscovery::SOLICITED_MASK = 0x40000000;
@@ -49,7 +49,7 @@ const int IPv6NeighbourDiscovery::HOMEAGENT_MASK = 0x100000;
 #endif
 
 
-ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach, 
+ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
                                unsigned int retrans,
                                const AdvPrefixList& prefixList,
                                bool managed, bool other)
@@ -64,10 +64,10 @@ ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
   setReachableTime(reach);
   setRetransTimer(retrans);
   setPrefixesInfo(prefixList);
-  
+
   size_t len = length();
-  for (size_t i = 0; i < prefixes.size(); i++)    
-    len += prefixes[i].length()*ICMPv6_OCTETS_UNIT;  
+  for (size_t i = 0; i < prefixes.size(); i++)
+    len += prefixes[i].length()*ICMPv6_OCTETS_UNIT;
   setLength(len);
 }
 
@@ -82,36 +82,36 @@ ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
   setOther(other);
   setRouterLifetime(lifetime);
   setReachableTime(reach);
-  setRetransTimer(retrans); 
+  setRetransTimer(retrans);
 }
 
-ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(const ICMPv6NDMRtrAd& src) 
+ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(const ICMPv6NDMRtrAd& src)
   :ICMPv6NDMsgBaseRtrAd(ICMPv6_ROUTER_AD)
 {
   setName(src.name());
-  operator=(src);  
+  operator=(src);
 }
 
 const ICMPv6NDMRtrAd& ICMPv6NDMRtrAd::operator=(const ICMPv6NDMRtrAd& src)
 {
   if (this != &src)
-  {  
-    ICMPv6NDMsgBaseRtrAd::operator=(src);    
+  {
+    ICMPv6NDMsgBaseRtrAd::operator=(src);
     prefixes = src.prefixes;
 
 #ifdef USE_HMIP
     mapOpts = src.mapOpts;
 #endif //USE_HMIP
   }
-  
-  return *this;  
+
+  return *this;
 }
 
 bool ICMPv6NDMRtrAd::operator==(const ICMPv6NDMRtrAd& rhs) const
 {
   if (this == &rhs)
     return true;
-  
+
   if (!ICMPv6NDMsgBaseRtrAd::operator==(rhs))
     return false;
   if (curHopLimit() == rhs.curHopLimit() && managed() == rhs.managed() &&
@@ -120,16 +120,16 @@ bool ICMPv6NDMRtrAd::operator==(const ICMPv6NDMRtrAd& rhs) const
   {
     if (prefixes.size() != rhs.prefixes.size())
       return false;
-    
+
     for (size_t i = 0; i < prefixes.size(); i++)
       if (prefixes[i] != rhs.prefixes[i])
-        return false;    
+        return false;
   }
   else
     return false;
-  
+
   return true;
-  
+
 }
 
 inline void ICMPv6NDMRtrAd::setPrefixesInfo(const AdvPrefixList& pe)
@@ -137,7 +137,7 @@ inline void ICMPv6NDMRtrAd::setPrefixesInfo(const AdvPrefixList& pe)
   prefixes.assign(pe.begin(), pe.end());
 
 #if defined VERBOSE
-  copy(prefixes.begin(), prefixes.end(), 
+  copy(prefixes.begin(), prefixes.end(),
        ostream_iterator<PrefixEntry> (cout,"\n"));
 #endif //VERBOSE
 }
@@ -161,22 +161,22 @@ ICMPv6NDMRedirect::ICMPv6NDMRedirect(const ICMPv6NDMRedirect& src)
   :ICMPv6NDMsgBaseRedirect(ICMPv6_REDIRECT)
 {
   setName(src.name());
-  operator=(src);  
+  operator=(src);
 }
 
 const ICMPv6NDMRedirect& ICMPv6NDMRedirect::operator=(const ICMPv6NDMRedirect& src)
 {
-  if (this != &src)  
-    ICMPv6NDMsgBaseRedirect::operator=(src);  
+  if (this != &src)
+    ICMPv6NDMsgBaseRedirect::operator=(src);
 
-  return *this;  
+  return *this;
 }
 
 bool ICMPv6NDMRedirect::operator==(const ICMPv6NDMRedirect& rhs) const
 {
   if (this == &rhs)
     return true;
-  
+
   if (!ICMPv6NDMsgBaseRedirect::operator==(rhs))
     return false;
   if (targetLLAddr() != rhs.targetLLAddr())
@@ -184,27 +184,27 @@ bool ICMPv6NDMRedirect::operator==(const ICMPv6NDMRedirect& rhs) const
   //Can't assume that this exists always but if it exists then rhs exists too
   //since ICMPv6MessageBase::operator== takes care of that checking
   if (header())
-  {    
-    assert(rhs.header() != 0);    
-    return *header() == *rhs.header()?true:false;    
+  {
+    assert(rhs.header() != 0);
+    return *header() == *rhs.header()?true:false;
   }
-  
-  return true;  
+
+  return true;
 }
 
 
 void ICMPv6NDMRedirect::attachHeader(IPv6Datagram* dgram)
 {
   ICMPv6NDOptRedirect* redirHeader = static_cast<ICMPv6NDOptRedirect*> (opts[1]);
-  
+
   if (opts[1])
     delete opts[1];
-      
-  redirHeader = new ICMPv6NDOptRedirect(dgram, dgram->length()/ICMPv6_OCTETS_UNIT);    
-  opts[1] = redirHeader;    
-  
+
+  redirHeader = new ICMPv6NDOptRedirect(dgram, dgram->length()/ICMPv6_OCTETS_UNIT);
+  opts[1] = redirHeader;
+
   //TODO suppose to truncate to 1280 octets
-  setLength(length()+dgram->length());  
+  setLength(length()+dgram->length());
 }
 
 const IPv6Datagram* ICMPv6NDMRedirect::header() const
@@ -213,21 +213,21 @@ const IPv6Datagram* ICMPv6NDMRedirect::header() const
 }
 
 IPv6Datagram* ICMPv6NDMRedirect::detachHeader()
-{  
+{
   ICMPv6NDOptRedirect* redirHeader = static_cast<ICMPv6NDOptRedirect*> (opts[1]);
   if (!redirHeader)
     return 0;
-  
-  IPv6Datagram* dgram = redirHeader->removeHeader();  
+
+  IPv6Datagram* dgram = redirHeader->removeHeader();
   setLength(length()-dgram->length());
   delete opts[1];
   opts[1] = 0;
-  return dgram; 
+  return dgram;
 }
 
-ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(size_t prefix_len, 
+ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(size_t prefix_len,
                                      const ipv6_addr& oprefix,
-                                     bool onLink, bool autoConf, 
+                                     bool onLink, bool autoConf,
                                      size_t validTime, size_t preferredTime
 #ifdef USE_MOBILITY
                                      , bool rtr_addr
@@ -244,7 +244,7 @@ ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(size_t prefix_len,
 ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(const PrefixEntry& pe)
   :ICMPv6_NDOptionBase(NDO_PREFIX_INFO, 4), prefixLen(pe.prefix().prefixLength()),
    onLink(pe.advOnLink()), autoConf(pe.advAutoFlag()),
-   validLifetime(pe.advValidLifetime()), preferredLifetime(pe.advPrefLifetime()), 
+   validLifetime(pe.advValidLifetime()), preferredLifetime(pe.advPrefLifetime()),
    prefix(pe.prefix())
 #ifdef USE_MOBILITY
    ,rtrAddr(pe.advRtrAddr())
@@ -253,7 +253,7 @@ ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(const PrefixEntry& pe)
 
 void ICMPv6NDOptRedirect::setHeader(IPv6Datagram* header)
 {
-  setLength(length() - _header->length()/ICMPv6_OCTETS_UNIT);      
+  setLength(length() - _header->length()/ICMPv6_OCTETS_UNIT);
   delete _header;
   _header = header;
   setLength(length() + _header->length()/ICMPv6_OCTETS_UNIT);
@@ -262,14 +262,14 @@ void ICMPv6NDOptRedirect::setHeader(IPv6Datagram* header)
 IPv6Datagram* ICMPv6NDOptRedirect::removeHeader()
 {
   ::IPv6Datagram* dgram = _header;
-  _header = 0;  
-  setLength(length() - dgram->length()/ICMPv6_OCTETS_UNIT);      
+  _header = 0;
+  setLength(length() - dgram->length()/ICMPv6_OCTETS_UNIT);
   return dgram;
 }
 
 ICMPv6NDOptRedirect::~ICMPv6NDOptRedirect()
 {
-  delete removeHeader();      
+  delete removeHeader();
 }
 
 ICMPv6NDMRtrSol::ICMPv6NDMRtrSol()
@@ -283,26 +283,26 @@ ICMPv6NDMRtrSol::ICMPv6NDMRtrSol(const ICMPv6NDMRtrSol& src)
 {
   setName(src.name());
   operator=(src);
-  
+
 }
 
 const ICMPv6NDMRtrSol& ICMPv6NDMRtrSol::operator=(const ICMPv6NDMRtrSol& src)
 {
-  if (this != &src)  
-    ICMPv6NDMsgBseRtrSol::operator=(src);  
+  if (this != &src)
+    ICMPv6NDMsgBseRtrSol::operator=(src);
   return *this;
-  
+
 }
 
 bool ICMPv6NDMRtrSol::operator==(const ICMPv6NDMRtrSol& rhs) const
 {
   if (this == &rhs)
     return true;
-  
+
   if (!ICMPv6NDMsgBseRtrSol::operator==(rhs))
     return false;
   return srcLLAddr() == rhs.srcLLAddr()?true:false;
-  
+
 }
 ICMPv6NDMNgbrSol::ICMPv6NDMNgbrSol(const ipv6_addr& targetAddr, const string&
                                    srcLLAddr)
@@ -312,7 +312,7 @@ ICMPv6NDMNgbrSol::ICMPv6NDMNgbrSol(const ipv6_addr& targetAddr, const string&
 
   setTargetAddr(targetAddr);
   if (!srcLLAddr.empty())
-    setSrcLLAddr(srcLLAddr);      
+    setSrcLLAddr(srcLLAddr);
 }
 
 ICMPv6NDMNgbrSol::ICMPv6NDMNgbrSol(const ICMPv6NDMNgbrSol& src)
@@ -320,28 +320,28 @@ ICMPv6NDMNgbrSol::ICMPv6NDMNgbrSol(const ICMPv6NDMNgbrSol& src)
 {
   setName(src.name());
   operator=(src);
-  
+
 }
 
 const ICMPv6NDMNgbrSol& ICMPv6NDMNgbrSol::operator=(const ICMPv6NDMNgbrSol& src)
 {
   if (this != &src)
     ICMPv6NDMsgBaseNgbrSol::operator=(src);
-    
+
   return *this;
-  
+
 }
 
 bool ICMPv6NDMNgbrSol::operator==(const ICMPv6NDMNgbrSol& rhs) const
 {
   if (this == &rhs)
     return true;
-  
+
   if (!ICMPv6NDMsgBaseNgbrSol::operator==(rhs))
     return false;
-  
+
   return hasSrcLLAddr() == rhs.hasSrcLLAddr()?srcLLAddr() == rhs.srcLLAddr():false;
-  
+
 }
 
 
@@ -352,35 +352,35 @@ ICMPv6NDMNgbrAd::ICMPv6NDMNgbrAd(const ipv6_addr& targetAddr, const string& addr
 
   setTargetAddr(targetAddr);
   setFlags(isRouter, solicited, override);
-  setTargetLLAddr(addr);      
+  setTargetLLAddr(addr);
 }
 
 ICMPv6NDMNgbrAd::ICMPv6NDMNgbrAd(const ICMPv6NDMNgbrAd& src)
   :ICMPv6NDMsgBaseNgbrAd(ICMPv6_NEIGHBOUR_AD)
 {
   setName(src.name());
-  operator=(src);  
+  operator=(src);
 }
 
 const ICMPv6NDMNgbrAd& ICMPv6NDMNgbrAd::operator=(const ICMPv6NDMNgbrAd& src)
 {
-  if (this != &src)  
-    ICMPv6NDMsgBaseNgbrAd::operator=(src);  
+  if (this != &src)
+    ICMPv6NDMsgBaseNgbrAd::operator=(src);
   return *this;
-  
+
 }
 
 bool ICMPv6NDMNgbrAd::operator==(const ICMPv6NDMNgbrAd& rhs) const
 {
   if (this == &rhs)
     return true;
-  
+
   if (!ICMPv6NDMsgBaseNgbrAd::operator==(rhs))
     return false;
-  
+
   return targetLLAddr() == rhs.targetLLAddr() && isRouter() == rhs.isRouter() &&
     solicited() == rhs.solicited() && override() == rhs.override()?true:false;
-  
+
 }
 
 std::ostream& ICMPv6NDMNgbrAd::operator<<(std::ostream& os) const
@@ -404,7 +404,7 @@ void ICMPv6NDMRtrAd::addOption(const HierarchicalMIPv6::HMIPv6ICMPv6NDOptMAP& ma
   mapOpts.push_back(mapOpt);
 }
 
-  
+
 
 void ICMPv6NDMRtrAd::setOptions(const HierarchicalMIPv6::MAPOptions& opts)
 {

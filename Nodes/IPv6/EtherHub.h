@@ -11,7 +11,7 @@
 #include "EtherFrame.h"
 #include "MLDv2Record.h"
 
-//#define	PrintResult
+//#define    PrintResult
 
 extern const int DISTANCE;
 
@@ -39,7 +39,7 @@ class Repeater :public cSimpleModule
   int countAgg;
   simtime_t stAggregate;
 
-  FILE *fpOccur;	// aggregate
+  FILE *fpOccur;    // aggregate
   double Occur;
   int countOccur;
 #endif

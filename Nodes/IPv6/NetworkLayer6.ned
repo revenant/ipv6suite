@@ -96,13 +96,13 @@ module NetworkLayer6
                 transportIn[2],
                 transportOut[2],
                 queueOut[numOfPorts];
-            display: "b=32,30;p=148,90;i=cogwheel";
+            display: "p=148,90;i=cogwheel";
         inputQueue: IPInputQueue;
             parameters:
                 procDelay = inputqueue_delay;
             gatesizes:
                 fromNW[numOfPorts];
-            display: "b=32,30;p=79,157;i=queue";
+            display: "p=79,157;i=queue";
 
     connections nocheck:
         // transport Layer

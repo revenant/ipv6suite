@@ -42,13 +42,13 @@ import
 module MIPv6NetworkMacBridge
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=316,40;i=bwgen_s;b=17,17";
+            display: "p=316,40;i=bwgen_s";
         client1: MobileNode; //
             parameters:
                 // network parameters
                 //# routingFile = "client1.irt",
                 IPForward = false;
-            display: "b=40,37;p=96,102;i=laptop3";
+            display: "p=96,102;i=laptop3";
         server4: UDPNode;
             parameters:
                 // network parameters
@@ -57,47 +57,47 @@ module MIPv6NetworkMacBridge
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=38,32;p=39,441;i=pc";
+            display: "p=39,441;i=pc";
         ha: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=96,200;i=router;b=32,32";
+            display: "p=96,200;i=router";
         router1: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "b=32,32;p=250,198;i=router";
+            display: "p=250,198;i=router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=152,152;i=switch1_s;b=32,11";
+            display: "p=152,152;i=switch1_s";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=304,152;i=switch1_s;b=32,11";
+            display: "p=304,152;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=304,352;i=switch1_s;b=32,11";
+            display: "p=304,352;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=152,352;i=switch1_s;b=32,11";
+            display: "p=152,352;i=switch1_s";
         router2: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=256,372;i=router;b=32,32";
+            display: "p=256,372;i=router";
         router3: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=92,368;i=router;b=32,32";
+            display: "p=92,368;i=router";
         hub1: Hub;
             gatesizes:
                 in[3],

@@ -19,46 +19,46 @@
 //   Purpose: implementation of Ethernet bridge
 //   author: Eric Wu
 
-import  
-    "EtherRelayUnit", 
-    "LinkLayer6"; 
-                  
- 
-module EtherBridge 
-    parameters: 
-        entryTimeout : numeric; 
-    gates: 
-        out: out[]; 
-        in: in[]; 
-    submodules: 
-        ethernet: LinkLayer6[sizeof(in)]; 
-            parameters: 
-                NWIName = "EtherModuleBridge", 
-                nwi_delay = 0, 
-                enqueueHookName = "L2_EnqueueHook", 
-                dequeueHookName = "L2_DequeueHook", 
-                enqueue_delay = 0, 
-                dequeue_delay = 0; 
-            display: "p=136,124;i=card2;b=29,23";
-        relayUnit: EtherRelayUnit; 
-            parameters: 
-                numOfPorts = sizeof(in), 
-                entryTimeout = entryTimeout; 
-            gatesizes: 
-                ethIn[sizeof(in)], 
-                ethOut[sizeof(in)]; 
-            display: "p=248,188;i=bwxconn;b=32,30";
-    connections nocheck: 
-        for i=0..sizeof(in)-1 do 
-            in[i] --> ethernet[i].physIn; 
-            out[i] <-- ethernet[i].physOut; 
-        endfor; 
+import
+    "EtherRelayUnit",
+    "LinkLayer6";
+
+
+module EtherBridge
+    parameters:
+        entryTimeout : numeric;
+    gates:
+        out: out[];
+        in: in[];
+    submodules:
+        ethernet: LinkLayer6[sizeof(in)];
+            parameters:
+                NWIName = "EtherModuleBridge",
+                nwi_delay = 0,
+                enqueueHookName = "L2_EnqueueHook",
+                dequeueHookName = "L2_DequeueHook",
+                enqueue_delay = 0,
+                dequeue_delay = 0;
+            display: "p=136,124;i=card2";
+        relayUnit: EtherRelayUnit;
+            parameters:
+                numOfPorts = sizeof(in),
+                entryTimeout = entryTimeout;
+            gatesizes:
+                ethIn[sizeof(in)],
+                ethOut[sizeof(in)];
+            display: "p=248,188;i=bwxconn";
+    connections nocheck:
+        for i=0..sizeof(in)-1 do
+            in[i] --> ethernet[i].physIn;
+            out[i] <-- ethernet[i].physOut;
+        endfor;
 
         // ds <--> relayUnit
-        for i=0..sizeof(in)-1 do 
-            relayUnit.ethOut[i] --> ethernet[i].outputQueueIn; 
-            ethernet[i].inputQueueOut --> relayUnit.ethIn[i]; 
-        endfor; 
+        for i=0..sizeof(in)-1 do
+            relayUnit.ethOut[i] --> ethernet[i].outputQueueIn;
+            ethernet[i].inputQueueOut --> relayUnit.ethIn[i];
+        endfor;
     display: "p=10,10;b=320,298";
-endmodule 
+endmodule
 

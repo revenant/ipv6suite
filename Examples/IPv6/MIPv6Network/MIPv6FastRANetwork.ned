@@ -41,46 +41,46 @@ import
 module MIPv6FastRANetwork
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=316,40;i=bwgen_s;b=17,17";
+            display: "p=316,40;i=bwgen_s";
         client1: MobileNode;
             parameters:
                 IPForward = false;
         gatesizes:
             wlin[1],
             wlout[1];
-            display: "b=32,32;p=88,118;i=laptop3";
+            display: "p=88,118;i=laptop3";
         server4: UDPNode;
             parameters:
                 IPForward = false;
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=38,32;p=55,249;i=pc";
+            display: "p=55,249;i=pc";
         ha: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=216,248;i=router;b=32,32";
+            display: "p=216,248;i=router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=134,158;i=switch1_s;b=32,32";
+            display: "p=134,158;i=switch1_s";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,158;i=switch1_s;b=32,32";
+            display: "p=306,158;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,330;i=switch1_s;b=32,11";
+            display: "p=306,330;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=134,330;i=switch1_s;b=32,11";
+            display: "p=134,330;i=switch1_s";
     connections nocheck:
 
         // Correct for ping test

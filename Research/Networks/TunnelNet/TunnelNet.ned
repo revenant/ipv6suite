@@ -31,14 +31,14 @@ import
 module TunnelNet
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=60,48;i=bwgen_s;b=17,17";
+            display: "p=60,48;i=bwgen_s";
         client: UDPNode;
             parameters:
                 IPForward = false;
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=36,32;p=42,194;i=comp";
+            display: "p=42,194;i=comp";
         // clients
         server: UDPNode;
             parameters:
@@ -46,27 +46,27 @@ module TunnelNet
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=38,32;p=311,193;i=pc";
+            display: "p=311,193;i=pc";
         routerA: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "b=32,15;p=82,110;i=ipc";
+            display: "p=82,110;i=ipc";
         routerB: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "b=32,15;p=178,38;i=ipc";
+            display: "p=178,38;i=ipc";
         routerC: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "b=32,15;p=274,110;i=ipc";
+            display: "p=274,110;i=ipc";
         routerD: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "b=32,15;p=178,182;i=ipc";
+            display: "p=178,182;i=ipc";
     connections nocheck:
         client.out[0] --> routerA.in[0];
         client.in[0] <-- routerA.out[0];

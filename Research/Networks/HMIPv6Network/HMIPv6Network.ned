@@ -32,72 +32,72 @@ import
 // wireless access points, a MAP and a laptop as mobile node.
 //
 // Router 1 and 2 are in the MAP domain, and router 3 is not part
-// of the domain. The network can be used to test inter-domain 
+// of the domain. The network can be used to test inter-domain
 // handovers.
 //
 module HMIPv6Network
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=316,40;i=bwgen_s;b=17,17";
+            display: "p=316,40;i=bwgen_s";
         client1: MobileNode;
             parameters:
                 IPForward = false;
-	    gatesizes: 
-	        wlin[1],
-	        wlout[1];
-            display: "b=32,32;p=88,118;i=laptop3";
+        gatesizes:
+            wlin[1],
+            wlout[1];
+            display: "p=88,118;i=laptop3";
         server4: UDPNode;
             parameters:
                 IPForward = false;
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=38,32;p=39,441;i=pc";
+            display: "p=39,441;i=pc";
         ha: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=96,200;i=router;b=32,32";
+            display: "p=96,200;i=router";
         router1: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "b=32,32;p=250,198;i=router";
+            display: "p=250,198;i=router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=144,168;i=switch1_s;b=32,32";
+            display: "p=144,168;i=switch1_s";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=296,168;i=switch1_s;b=19,20";
+            display: "p=296,168;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=304,408;i=switch1_s;b=19,20";
+            display: "p=304,408;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=144,408;i=switch1_s;b=19,20";
+            display: "p=144,408;i=switch1_s";
         router2: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=256,372;i=router;b=32,32";
+            display: "p=256,372;i=router";
         router3: Router6;
             gatesizes:
                 in[6],
                 out[6];
-            display: "p=92,368;i=router;b=32,32";
+            display: "p=92,368;i=router";
         map1: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "p=308,276;i=router2;b=55,45";
+            display: "p=308,276;i=router2";
     connections nocheck:
 
         //Correct for ping test

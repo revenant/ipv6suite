@@ -52,7 +52,7 @@ module MobileNode
         out: wlout[];
     submodules:
         errorHandling: ErrorHandling;
-            display: "b=32,30;p=291,222;i=sink";
+            display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
                 // waiting times
@@ -83,7 +83,7 @@ module MobileNode
                 physIn[sizeof(wlin)],
                 physOut[sizeof(wlin)];
 
-            display: "p=164,212;i=prot2;b=32,30";
+            display: "p=164,212;i=prot2";
         linkLayers: LinkLayer6[sizeof(wlin)];
             parameters:
                 nwi_delay = 0,
@@ -91,15 +91,15 @@ module MobileNode
                 dequeueHookName = "L2_DequeueHook",
                 enqueue_delay = 0,
                 dequeue_delay = 0;
-            display: "p=168,292;i=prot3;b=32,30";
+            display: "p=168,292;i=prot3";
 
         udpLayer: UDPProcessing6;
             gatesizes:
         from_app[numOfUDPApps],
         to_app[numOfUDPApps];
-            display: "i=fork;p=160,152;b=32,30";
+            display: "i=fork;p=160,152";
     udpApps: UDPAppLayer[numOfUDPApps];
-            display: "p=296,44;i=cogwheel;b=32,30";
+            display: "p=296,44;i=cogwheel";
 
         ping6App: Ping6App;
             display: "p=79,168;b=40,24";

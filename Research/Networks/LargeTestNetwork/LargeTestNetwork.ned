@@ -31,7 +31,7 @@ import
 module LargeTestNetwork
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=60,288;i=bwgen_s;b=17,17";
+            display: "p=60,288;i=bwgen_s";
         ctie: Ethernet;
             parameters:
                 numOfHosts = 4,
@@ -43,7 +43,7 @@ module LargeTestNetwork
                 routerOut[1],
                 additionalIn[1],
                 additionalOut[1];
-            display: "p=260,172;i=cloud;b=32,32";
+            display: "p=260,172;i=cloud";
         ecse: Ethernet;
             parameters:
                 numOfHosts = 5,
@@ -55,7 +55,7 @@ module LargeTestNetwork
                 routerOut[2],
                 additionalIn[0],
                 additionalOut[0];
-            display: "p=204,220;i=cloud;b=32,32;o=#76dcdc";
+            display: "p=204,220;i=cloud;o=#76dcdc";
         bigpond: Ethernet;
             parameters:
                 numOfHosts = 13,
@@ -67,7 +67,7 @@ module LargeTestNetwork
                 routerOut[2],
                 additionalIn[1],
                 additionalOut[1];
-            display: "p=116,240;i=cloud;b=32,32";
+            display: "p=116,240;i=cloud";
         optus: Ethernet;
             parameters:
                 numOfHosts = 10,
@@ -79,7 +79,7 @@ module LargeTestNetwork
                 routerOut[1],
                 additionalIn[1],
                 additionalOut[1];
-            display: "p=160,132;i=cloud;b=32,32";
+            display: "p=160,132;i=cloud";
         Johnny_PC: TCPNode;
             parameters:
                 local_addr = (10 << 24) + 2,
@@ -89,7 +89,7 @@ module LargeTestNetwork
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=160,48;i=pc;b=38,32";
+            display: "p=160,48;i=pc";
         Eric_PC: TCPNode;
             parameters:
                 local_addr = (10 << 24) + 1,
@@ -99,7 +99,7 @@ module LargeTestNetwork
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=48,144;i=pc;b=38,32";
+            display: "p=48,144;i=pc";
         Ahmet_PC: TCPSvrNode;
             parameters:
                 local_addr = (10 << 24) + 2,
@@ -108,7 +108,7 @@ module LargeTestNetwork
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=308,268;i=pc;b=38,32";
+            display: "p=308,268;i=pc";
     connections nocheck:
         Eric_PC.out[0] --> bigpond.additionalIn[0];
         Eric_PC.in[0] <-- bigpond.additionalOut[0];

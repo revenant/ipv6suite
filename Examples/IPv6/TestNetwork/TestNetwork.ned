@@ -31,7 +31,7 @@ import
 module ClientServerNetwork
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=140,168;i=bwgen_s;b=17,17";
+            display: "p=140,168;i=bwgen_s";
         client1: UDPNode;
             parameters:
                 // network parameters
@@ -109,7 +109,7 @@ endmodule
 module TestNetwork
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=140,168;i=bwgen_s;b=17,17";
+            display: "p=140,168;i=bwgen_s";
         routingTableTest: Router6;
            gatesizes:
                 in[1],

@@ -18,15 +18,15 @@
 
 
 import  //
-    "EtherHub", 
-    "Router6", 
-    "UDPNode", 
-    "WorldProcessor", 
-    "WirelessAccessPoint", 
+    "EtherHub",
+    "Router6",
+    "UDPNode",
+    "WorldProcessor",
+    "WirelessAccessPoint",
     "WirelessMobileNode",
     "Cables";
-                          
-                          
+
+
 //
 // A MIPv6 test network containing a server, several routers with
 // wireless access points, and a laptop as mobile node.
@@ -34,105 +34,105 @@ import  //
 // Can be used to test handovers between access points.
 // Mobile node is pinging the server while it's moving.
 //
-module MIPv6Network 
-    submodules: 
-        worldProcessor: WorldProcessor; 
-            display: "p=316,40;i=bwgen_s;b=17,17";
+module MIPv6Network
+    submodules:
+        worldProcessor: WorldProcessor;
+            display: "p=316,40;i=bwgen_s";
         client1: MobileNode; //
-            parameters: 
+            parameters:
                 //# routingFile = "client1.irt",
                 IPForward = false;
-	    gatesizes: 
-	        wlin[1],
-	        wlout[1];
-            display: "b=32,32;p=88,118;i=laptop3";
-        server4: UDPNode; 
-            parameters: 
+        gatesizes:
+            wlin[1],
+            wlout[1];
+            display: "p=88,118;i=laptop3";
+        server4: UDPNode;
+            parameters:
                 //# routingFile = "server4.irt",
-                IPForward = false; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
-            display: "b=38,32;p=39,441;i=pc";
-        ha: Router6; 
-            gatesizes: 
-                in[4], 
-                out[4]; 
-            display: "p=96,200;i=router;b=32,32";
-        router1: Router6; 
-            gatesizes: 
-                in[4], 
-                out[4]; 
-            display: "b=32,32;p=250,198;i=router";
-        ap1: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
-            display: "p=134,158;i=switch1_s;b=32,32";
-        ap2: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
-            display: "p=306,158;i=switch1_s;b=32,32";
-        ap3: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
-            display: "p=306,330;i=switch1_s;b=32,11";
-        ap4: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
-            display: "p=134,330;i=switch1_s;b=32,11";
-        router2: Router6; 
-            gatesizes: 
-                in[4], 
-                out[4]; 
-            display: "p=256,372;i=router;b=32,32";
-        router3: Router6; 
-            gatesizes: 
-                in[5], 
-                out[5]; 
-            display: "p=92,368;i=router;b=32,32";
-    connections nocheck: 
-                         
+                IPForward = false;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=39,441;i=pc";
+        ha: Router6;
+            gatesizes:
+                in[4],
+                out[4];
+            display: "p=96,200;i=router";
+        router1: Router6;
+            gatesizes:
+                in[4],
+                out[4];
+            display: "p=250,198;i=router";
+        ap1: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=134,158;i=switch1_s";
+        ap2: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=306,158;i=switch1_s";
+        ap3: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=306,330;i=switch1_s";
+        ap4: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=134,330;i=switch1_s";
+        router2: Router6;
+            gatesizes:
+                in[4],
+                out[4];
+            display: "p=256,372;i=router";
+        router3: Router6;
+            gatesizes:
+                in[5],
+                out[5];
+            display: "p=92,368;i=router";
+    connections nocheck:
+
         // Correct for ping test
-        ha.in[0] <-- intranetCable <-- ap1.out[0]; 
-        ha.out[0] --> intranetCable --> ap1.in[0]; 
-                                                   
-        ap2.out[0] --> intranetCable --> router1.in[0]; 
-        ap2.in[0] <-- intranetCable <-- router1.out[0]; 
-                                                        
-        router1.out[1] --> intranetCable --> ha.in[1]; 
-        router1.in[1] <-- intranetCable <-- ha.out[1]; 
-                                                       
-        ap3.out[0] --> intranetCable --> router2.in[0]; 
-        ap3.in[0] <-- intranetCable <-- router2.out[0]; 
-                                                        
-        router2.out[1] --> internetCable --> router1.in[2]; 
-        router2.in[1] <-- internetCable <-- router1.out[2]; 
-                                                            
-        ap4.out[0] --> intranetCable --> router3.in[0]; 
-        ap4.in[0] <-- intranetCable <-- router3.out[0]; 
-                                                        
-        router3.out[1] --> internetCable --> router2.in[2]; 
-        router3.in[1] <-- internetCable <-- router2.out[2]; 
-                                                            
-        router3.out[2] --> intranetCable --> server4.in[0]; 
-        router3.in[2] <-- intranetCable <-- server4.out[0]; 
-                                                            
-        ha.in[2] <-- intranetCable <-- router3.out[3]; 
-        ha.out[2] --> intranetCable --> router3.in[3]; 
-                                                       
-        ha.in[3] <-- intranetCable <-- router2.out[3]; 
-        ha.out[3] --> intranetCable --> router2.in[3]; 
-                                                       
-        router1.out[3] --> internetCable --> router3.in[4]; 
-        router1.in[3] <-- internetCable <-- router3.out[4]; 
-                                                            
+        ha.in[0] <-- intranetCable <-- ap1.out[0];
+        ha.out[0] --> intranetCable --> ap1.in[0];
+
+        ap2.out[0] --> intranetCable --> router1.in[0];
+        ap2.in[0] <-- intranetCable <-- router1.out[0];
+
+        router1.out[1] --> intranetCable --> ha.in[1];
+        router1.in[1] <-- intranetCable <-- ha.out[1];
+
+        ap3.out[0] --> intranetCable --> router2.in[0];
+        ap3.in[0] <-- intranetCable <-- router2.out[0];
+
+        router2.out[1] --> internetCable --> router1.in[2];
+        router2.in[1] <-- internetCable <-- router1.out[2];
+
+        ap4.out[0] --> intranetCable --> router3.in[0];
+        ap4.in[0] <-- intranetCable <-- router3.out[0];
+
+        router3.out[1] --> internetCable --> router2.in[2];
+        router3.in[1] <-- internetCable <-- router2.out[2];
+
+        router3.out[2] --> intranetCable --> server4.in[0];
+        router3.in[2] <-- intranetCable <-- server4.out[0];
+
+        ha.in[2] <-- intranetCable <-- router3.out[3];
+        ha.out[2] --> intranetCable --> router3.in[3];
+
+        ha.in[3] <-- intranetCable <-- router2.out[3];
+        ha.out[3] --> intranetCable --> router2.in[3];
+
+        router1.out[3] --> internetCable --> router3.in[4];
+        router1.in[3] <-- internetCable <-- router3.out[4];
+
     display: "p=2,10;b=461,539";
-endmodule 
+endmodule
 
 
-network mipv6Network : MIPv6Network 
-endnetwork 
+network mipv6Network : MIPv6Network
+endnetwork

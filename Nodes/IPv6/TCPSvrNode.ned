@@ -53,7 +53,7 @@ module TCPSvrNode
                 server_addr = 0;
             display: "p=84,69;b=40,24,rect";
         errorHandling: ErrorHandling;
-            display: "b=32,30;p=163,86;i=sink";
+            display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
                 // waiting times
@@ -84,7 +84,7 @@ module TCPSvrNode
                 physIn[sizeof(in)],
                 physOut[sizeof(in)];
 
-            display: "p=84,148;i=fork;b=32,30";
+            display: "p=84,148;i=fork";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
                 //                NWIName = "IPv6PPPInterface",
@@ -93,7 +93,7 @@ module TCPSvrNode
                 dequeueHookName = "L2_DequeueHook",
                 enqueue_delay = 0,
                 dequeue_delay = 0;
-            display: "p=88,212;i=prot3;b=32,30";
+            display: "p=88,212;i=prot3";
         phyLayer: PHYLayer;
             gatesizes:
                 in[sizeof(in)],

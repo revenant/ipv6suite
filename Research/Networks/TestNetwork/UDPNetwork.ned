@@ -32,7 +32,7 @@ import  "WorldProcessor",
 module UDPNetwork
     submodules:
         worldProcessor: WorldProcessor;
-        display: "p=100,184;i=bwgen_s;b=17,17";
+        display: "p=100,184;i=bwgen_s";
         client1: UDPNode;
         parameters:
         gatesizes:

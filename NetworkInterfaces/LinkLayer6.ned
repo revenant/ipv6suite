@@ -62,7 +62,7 @@ module LinkLayer6
             gatesizes:
                 extSignalIn[sizeof(extSignalIn)],
                 extSignalOut[sizeof(extSignalOut)];
-            display: "b=32,30;p=87,125;i=bwxconn";
+            display: "p=87,125;i=bwxconn";
     connections nocheck:
 
         // IP layer to Network interface

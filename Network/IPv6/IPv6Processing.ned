@@ -80,11 +80,11 @@ module IPv6Processing
         preRouting: PreRouting6;
             parameters:
                 procdelay = prerouting_delay;
-            display: "b=32,30;p=59,125;i=prot3";
+            display: "p=59,125;i=prot3";
         forwarding: IPv6Forward;
             parameters:
                 procdelay = routing_delay;
-            display: "b=34,34;p=146,217;i=bwgen";
+            display: "p=146,217;i=bwgen";
         localDeliver: LocalDeliver6;
             parameters:
                 procdelay = localdeliver_delay,
@@ -92,11 +92,11 @@ module IPv6Processing
                 fragmentTimeout = fragmentTimeout;
             gatesizes:
                 transportOut[numOfTransportProt];
-            display: "b=32,30;p=130,51;i=fork";
+            display: "p=130,51;i=fork";
         multicast: IPv6Multicast;
             parameters:
                 procdelay = multicast_delay;
-            display: "b=17,17;p=226,106;i=bwgen_s";
+            display: "p=226,106;i=bwgen_s";
         ICMP: ICMPv6;
             parameters:
                 numOfPorts = numOfPorts,
@@ -104,7 +104,7 @@ module IPv6Processing
             gatesizes:
                 ipOutputIn[numOfPorts],
                 outputOut[numOfPorts];
-            display: "b=32,30;p=293,69;i=cogwheel";
+            display: "p=293,69;i=cogwheel";
         send: IPv6Send;
             parameters:
                 procdelay = ipsend_delay,
@@ -112,37 +112,37 @@ module IPv6Processing
                 numOfTransportProt = numOfTransportProt;
             gatesizes:
                 transportIn[numOfTransportProt];
-            display: "b=32,30;p=439,59;i=prot1";
+            display: "p=439,59;i=prot1";
         fragmentation: IPv6Fragmentation;
             parameters:
                 procdelay = fragmentation_delay,
                 numOfPorts = numOfPorts;
             gatesizes:
                 outputOut[numOfPorts];
-            display: "b=32,30;p=428,195;i=bwxconn";
+            display: "p=428,195;i=bwxconn";
         output: IPv6Output[numOfPorts];
             parameters:
                 procdelay = ipoutput_delay;
-            display: "b=32,30;p=302,282;i=prot2";
+            display: "p=302,282;i=prot2";
         routingTable6: RoutingTable6;
             parameters:
                 IPv6routingFile = ancestor IPv6routingFile,
                 numOfPorts = ancestor numOfPorts;
-            display: "b=32,32;p=478,288;i=box3";
+            display: "p=478,288;i=box3";
         addrResln: AddressResolution;
             parameters:
                 numOfPorts = ancestor numOfPorts;
             gatesizes:
                 outputOut[numOfPorts];
-            display: "p=193,280;i=queue;b=32,30";
+            display: "p=193,280;i=queue";
         tunneling: IPv6Encapsulation;
             parameters:
                 procdelay = iptunneling_delay;
-            display: "b=16,15;p=274,182;i=bwxcon_s";
+            display: "p=274,182;i=bwxcon_s";
         mobility: IPv6Mobility;
-            display: "p=60,268;i=cogwheel;b=40,40";
+            display: "p=60,268;i=cogwheel";
         routing6: Routing6;
-            display: "b=32,32;p=448,288;i=box3";
+            display: "p=448,288;i=box3";
     connections nocheck:
         // PreRouting Input
         queueIn --> preRouting.queueIn;

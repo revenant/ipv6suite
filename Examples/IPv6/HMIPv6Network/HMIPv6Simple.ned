@@ -69,61 +69,61 @@ endchannel
 module HMIPv6Simple
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=672,31;i=bwgen_s;b=17,17";
+            display: "p=672,31;i=bwgen_s";
         client1: MobileNode;
             parameters:
                 IPForward = false;
         gatesizes:
             wlin[1],
             wlout[1];
-            display: "b=1,1;p=32,334;i=laptop3";
+            display: "p=32,334;i=laptop3";
         server: UDPNode;
             parameters:
                 IPForward = false;
             gatesizes:
                 in[1],
                 out[1];
-            display: "b=38,32;p=407,41;i=pc";
+            display: "p=407,41;i=pc";
         ar: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=480,208;i=router;b=32,32";
+            display: "p=480,208;i=router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=250,286;i=switch1_s;b=32,11";
+            display: "p=250,286;i=switch1_s";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=400,286;i=switch1_s;b=32,11";
+            display: "p=400,286;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=550,286;i=switch1_s;b=32,11";
+            display: "p=550,286;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=700,286;i=switch1_s;b=32,11";
+            display: "p=700,286;i=switch1_s";
         ha: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=72,56;i=router;b=32,32";
+            display: "p=72,56;i=router";
         hap: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=100,286;i=switch1_s;b=32,11";
+            display: "p=100,286;i=switch1_s";
         map: Router6;
             gatesizes:
                 in[3],
                 out[3];
-            display: "p=280,136;i=router;b=32,32";
+            display: "p=280,136;i=router";
     connections nocheck:
         ar.in[0] <-- HMIPv6SimpleIntranetCable <-- ap1.out[0];
         ar.out[0] --> HMIPv6SimpleIntranetCable --> ap1.in[0];

@@ -59,7 +59,7 @@ module DualIntMobileNode
         in: wlin[];
     submodules:
         errorHandling: ErrorHandling;
-            display: "b=32,30;p=291,222;i=sink";
+            display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
                 // waiting times
@@ -90,14 +90,14 @@ module DualIntMobileNode
                 physIn[sizeof(wlin)],
                 physOut[sizeof(wlin)];
 
-            display: "p=164,236;i=prot2;b=32,30";
+            display: "p=164,236;i=prot2";
         dualInterfaceLayer: DualInterfaceLayer;
             gatesizes:
                 fromLL[sizeof(wlin)],
                 toLL[sizeof(wlin)],
                 extSignalIn[sizeof(wlin)],
                 extSignalOut[sizeof(wlin)];
-            display: "p=160,298;i=prot3;b=32,30";
+            display: "p=160,298;i=prot3";
         linkLayers: LinkLayer6[sizeof(wlin)];
             parameters:
                 nwi_delay = 0,
@@ -108,14 +108,14 @@ module DualIntMobileNode
             gatesizes:
                 extSignalIn[1],
                 extSignalOut[1];
-            display: "p=160,364;i=prot3;b=32,30";
+            display: "p=160,364;i=prot3";
         udpLayer: UDPProcessing6;
             gatesizes:
         from_app[numOfUDPApps],
         to_app[numOfUDPApps];
-            display: "i=fork;p=160,152;b=32,30";
+            display: "i=fork;p=160,152";
     udpApps: UDPAppLayer[numOfUDPApps];
-            display: "p=296,44;i=cogwheel;b=32,30";
+            display: "p=296,44;i=cogwheel";
         ping6App: Ping6App;
             display: "p=79,168;b=40,24";
         phyLayer: PHYLayer[sizeof(wlin)];

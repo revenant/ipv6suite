@@ -41,97 +41,97 @@ endchannel
 module WirelessEtherNetwork2
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=68,432;i=bwgen_s;b=17,17";
+            display: "p=68,432;i=bwgen_s";
         ms1: MobileNode;
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=60,120;i=laptop;b=32,29";
+            display: "p=60,120;i=laptop";
         ms2: MobileNode;
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=510,120;i=laptop;b=32,29";
+            display: "p=510,120;i=laptop";
         ms3: MobileNode;
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=60,220;i=laptop;b=32,29";
+            display: "p=60,220;i=laptop";
         ms4: MobileNode;
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=510,220;i=laptop;b=32,29";
+            display: "p=510,220;i=laptop";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=100,160;i=pctower1;b=18,31";
+            display: "p=100,160;i=pctower1";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=180,160;i=pctower1;b=18,31";
+            display: "p=180,160;i=pctower1";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=260,160;i=pctower1;b=18,31";
+            display: "p=260,160;i=pctower1";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=340,160;i=pctower1;b=18,31";
+            display: "p=340,160;i=pctower1";
         ap5: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=420,160;i=pctower1;b=18,31";
+            display: "p=420,160;i=pctower1";
         ap6: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=500,160;i=pctower1;b=18,31";
+            display: "p=500,160;i=pctower1";
         hub1: Hub;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=136,260;i=switch1;b=44,13";
+            display: "p=136,260;i=switch1";
         hub2: Hub;
             gatesizes:
                 in[7],
                 out[7];
-            display: "p=292,260;i=switch1;b=44,13";
+            display: "p=292,260;i=switch1";
         hub3: Hub;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=440,260;i=switch1;b=44,13";
+            display: "p=440,260;i=switch1";
         swoon: UDPNode;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=200,340;i=pc;b=38,32";
+            display: "p=200,340;i=pc";
         gdaley: UDPNode;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=290,340;i=pc;b=38,32";
+            display: "p=290,340;i=pc";
         printer: UDPNode;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=380,340;i=printer;b=32,32";
+            display: "p=380,340;i=printer";
         ewu: UDPNode;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=110,340;i=pc;b=32,32";
+            display: "p=110,340;i=pc";
         johnny: UDPNode;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=470,340;i=pc;b=32,32";
+            display: "p=470,340;i=pc";
     connections nocheck:
         ap1.out[0] --> EtherLink --> hub1.in[0];
         ap1.in[0] <-- EtherLink <-- hub1.out[0];

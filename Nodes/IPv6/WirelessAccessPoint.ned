@@ -24,98 +24,98 @@
 //  @todo Access Point and Mobile Node should have wlin[] arrays to support
 //  multiple wireless interfaces.
 
-import  
-    "WirelessEtherBridge", 
+import
+    "WirelessEtherBridge",
 
     "PhysicalLayer",
     "MobilityManager",
-    "LinkLayer6"; 
-                  
-                  
-                  
-                  
-                  
-                  
-                  
- 
-module AccessPoint 
-    parameters: 
+    "LinkLayer6";
+
+
+
+
+
+
+
+
+module AccessPoint
+    parameters:
         chann : numeric, // channel
-        beaconPeriod : numeric, 
-        authWaitEntryTimeout : numeric, 
-        authEntryTimeout : numeric, 
+        beaconPeriod : numeric,
+        authWaitEntryTimeout : numeric,
+        authEntryTimeout : numeric,
         assEntryTimeout : numeric,
-				consecFailedTransLimit : numeric,
-        beginCollectionTime : numeric, 
-        endCollectionTime : numeric; 
-    gates: 
-        out: out[], wlout; 
+                consecFailedTransLimit : numeric,
+        beginCollectionTime : numeric,
+        endCollectionTime : numeric;
+    gates:
+        out: out[], wlout;
         in: in[], wlin;
-    submodules: 
-        ds: LinkLayer6[sizeof(in)]; 
-            parameters: 
-                nwi_delay = 0, 
-                enqueueHookName = "L2_EnqueueHook", 
-                dequeueHookName = "L2_DequeueHook", 
-                enqueue_delay = 0, 
-                dequeue_delay = 0; 
-            display: "p=136,124;i=card2;b=29,23";
-        wirelessAccessPoint: LinkLayer6; 
-            parameters: 
-                NWIName = "WirelessAccessPoint", 
-                nwi_delay = 0, 
-                enqueueHookName = "L2_EnqueueHook", 
-                dequeueHookName = "L2_DequeueHook", 
-                enqueue_delay = 0, 
-                dequeue_delay = 0; 
-            display: "p=144,268;i=card2;b=29,23";
-        bridge: WirelessEtherBridge; 
-            gatesizes: 
-                dsIn[sizeof(in)], 
-                dsOut[sizeof(in)]; 
-            display: "p=248,188;i=bwxconn;b=32,30";
-        phyLayerAP: PHYLayer; 
-            gatesizes: 
-                in[sizeof(wlin)], 
-                out[sizeof(wlin)], 
-                linkIn[sizeof(wlin)], 
-                linkOut[sizeof(wlin)]; 
+    submodules:
+        ds: LinkLayer6[sizeof(in)];
+            parameters:
+                nwi_delay = 0,
+                enqueueHookName = "L2_EnqueueHook",
+                dequeueHookName = "L2_DequeueHook",
+                enqueue_delay = 0,
+                dequeue_delay = 0;
+            display: "p=136,124;i=card2";
+        wirelessAccessPoint: LinkLayer6;
+            parameters:
+                NWIName = "WirelessAccessPoint",
+                nwi_delay = 0,
+                enqueueHookName = "L2_EnqueueHook",
+                dequeueHookName = "L2_DequeueHook",
+                enqueue_delay = 0,
+                dequeue_delay = 0;
+            display: "p=144,268;i=card2";
+        bridge: WirelessEtherBridge;
+            gatesizes:
+                dsIn[sizeof(in)],
+                dsOut[sizeof(in)];
+            display: "p=248,188;i=bwxconn";
+        phyLayerAP: PHYLayer;
+            gatesizes:
+                in[sizeof(wlin)],
+                out[sizeof(wlin)],
+                linkIn[sizeof(wlin)],
+                linkOut[sizeof(wlin)];
             display: "p=144,336;b=128,16;o=#d73948,#d73849";
-        phyLayer: PHYLayer; 
-            gatesizes: 
-                in[sizeof(in)], 
-                out[sizeof(in)], 
-                linkIn[sizeof(in)], 
-                linkOut[sizeof(in)]; 
+        phyLayer: PHYLayer;
+            gatesizes:
+                in[sizeof(in)],
+                out[sizeof(in)],
+                linkIn[sizeof(in)],
+                linkOut[sizeof(in)];
             display: "p=136,72;b=96,16;o=#5853d7,#5951d7";
-        mobilityManager: MobilityManager; 
+        mobilityManager: MobilityManager;
             display: "p=332,284;b=104,56";
-    connections nocheck: 
-                         
+    connections nocheck:
+
         // dsPHY <--> network
-        for i=0..sizeof(in)-1 do 
-            in[i] --> phyLayer.in[0]; 
-            out[i] <-- phyLayer.out[0]; 
-        endfor; 
+        for i=0..sizeof(in)-1 do
+            in[i] --> phyLayer.in[0];
+            out[i] <-- phyLayer.out[0];
+        endfor;
 
         // ds <--> dsPHY
-        for i=0..sizeof(in)-1 do 
-            phyLayer.linkOut[i] --> ds[i].physIn; 
-            phyLayer.linkIn[i] <-- ds[i].physOut; 
-        endfor; 
+        for i=0..sizeof(in)-1 do
+            phyLayer.linkOut[i] --> ds[i].physIn;
+            phyLayer.linkIn[i] <-- ds[i].physOut;
+        endfor;
 
         // ds <--> bridge
-        for i=0..sizeof(in)-1 do 
-            bridge.dsOut[i] --> ds[i].outputQueueIn; 
-            ds[i].inputQueueOut --> bridge.dsIn[i]; 
-        endfor; 
+        for i=0..sizeof(in)-1 do
+            bridge.dsOut[i] --> ds[i].outputQueueIn;
+            ds[i].inputQueueOut --> bridge.dsIn[i];
+        endfor;
 
         // bridge <--> ap
-        bridge.apOut --> wirelessAccessPoint.outputQueueIn; 
-        bridge.apIn <-- wirelessAccessPoint.inputQueueOut; 
-                                                           
+        bridge.apOut --> wirelessAccessPoint.outputQueueIn;
+        bridge.apIn <-- wirelessAccessPoint.inputQueueOut;
+
         wirelessAccessPoint.physIn <-- phyLayerAP.linkOut[0];
         wlin --> phyLayerAP.in[0];
     display: "p=10,10;b=408,374";
-endmodule 
+endmodule
 

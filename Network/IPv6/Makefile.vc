@@ -6313,6 +6313,7 @@ MLD.obj: MLD.cc \
   ../../Util/boost/cast.hpp \
   ipv6_addr.h \
   RoutingTable6.h \
+  RoutingTable6Access.h \
   IPv6Datagram.h \
   IPv6InterfacePacket.h \
   ../../Util/opp_utils.h \
@@ -6496,6 +6497,7 @@ MLD.obj: MLD.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Base/ModuleAccess.h \
   ../IPv4/IPProtocolId_m.h \
   IPInterfacePacket.h \
   IPInterfacePacket_m.h \
@@ -8210,6 +8212,7 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../../Util/opp_utils.h \
   NDStates.h \
   RoutingTable6.h \
+  RoutingTable6Access.h \
   ../../Util/cTimerMessage.h \
   ICMPv6NDMessageBase.h \
   ipv6_addr.h \
@@ -8409,6 +8412,7 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ../../Base/ModuleAccess.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \

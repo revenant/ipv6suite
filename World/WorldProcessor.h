@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.h,v 1.1 2005/02/09 06:15:59 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.h,v 1.2 2005/02/15 05:01:33 andras Exp $
 //
 // Copyright (C) 2002, 2003 CTIE, Monash University
 //
@@ -94,13 +94,13 @@ class WorldProcessor : public cSimpleModule
 
   /**
    * Fills in the given RoutingTable6 data structure with the routing table
-   * of the host whose hostname is passed in the RoutingTable6 data structure. 
+   * of the host whose hostname is passed in the RoutingTable6 data structure.
    */
   void parseNetworkEntity(RoutingTable6* rt );
 
   /**
    * Fills in the given RoutingTable6 data structure with the static routing table
-   * of the host given by the nodeName parameter. 
+   * of the host given by the nodeName parameter.
    */
   void staticRoutingTable(RoutingTable6* rt);
 
@@ -112,35 +112,9 @@ class WorldProcessor : public cSimpleModule
   void parseMAPInfo(RoutingTable6* rt);
 #endif // USE_HMIP
 
-#ifndef USE_XMLWRAPP
-#ifndef USE_XERCES
-#if defined OPP_VERSION && OPP_VERSION >= 3
   XMLConfiguration::XMLOmnetParser* xmlManager() const { return parser; }
 private:
-
   mutable XMLConfiguration::XMLOmnetParser* parser;
-#endif
-#endif //ifndef USE_XERCES
-#else //ifndef USE_XMLWRAPP
-#if defined OPP_VERSION && OPP_VERSION >= 3
-  XMLConfiguration::XMLOmnetParser* xmlManager() const { return oparser; }
-
-private:
-  mutable XMLConfiguration::XMLOmnetParser* oparser;
-#endif
-  mutable XMLConfiguration::IPv6XMLWrapManager* parser;
-#endif
-
-#ifdef USE_XERCES
-  /**
-   * Returns pointer to the internal XML parser entity. 
-   */
-  XMLConfiguration::IPv6XMLManager* xmlManager() const { return parser; }
-
-private:
-
-  mutable XMLConfiguration::IPv6XMLManager* parser;
-#endif //ifdef USE_XERCES
 
 #ifdef USE_MOBILITY
 public:
@@ -179,8 +153,8 @@ public:
   Entity* findEntityByName(std::string entityName);
 
   /**
-   * Get the list of Wireless Ethernet modules on a given channel. 
-   * This is used when a wireless entity wants to send a frame to determine 
+   * Get the list of Wireless Ethernet modules on a given channel.
+   * This is used when a wireless entity wants to send a frame to determine
    * who should receive a copy of the frame.
    */
   ModuleList findWirelessEtherModulesByChannel(const int channel);
@@ -191,7 +165,7 @@ public:
    * Find entity by its module.
    */
   Entity* findEntityByModule(cModule* module);
-  
+
  private:
   ModuleList modList;
   int _maxLongitude;

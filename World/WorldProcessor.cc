@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.3 2005/02/15 05:01:32 andras Exp $
 //
 // Copyright (C) 2002 CTIE, Monash University
 //
@@ -33,17 +33,7 @@
 #include "Entity.h"
 #include "WorldProcessor.h"
 #include "RoutingTable6.h"
-#ifndef USE_XERCES
-#include "XMLOmnetParser.h"
-#endif
-#ifdef USE_XMLWRAPP
-#include "IPv6XMLWrapManager.h"
-#include <xmlwrapp/xmlwrapp.h>
-#endif //USE_XMLWRAPP
-
-#ifdef USE_XERCES
-#include "IPv6XMLManager.h"
-#endif //USE_XERCES
+#include "XML/XMLOmnetParser.h"
 
 #include "libcwdsetup.h"
 

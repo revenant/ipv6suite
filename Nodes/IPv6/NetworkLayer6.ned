@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/NetworkLayer6.ned,v 1.1 2005/02/16 01:21:03 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/NetworkLayer6.ned,v 1.2 2005/02/16 01:34:38 andras Exp $
 //
 //
 //
@@ -26,7 +26,7 @@ import
 //
 // Represents the network layer (L3).
 //
-// The module has ports to connect to a higher layer (TCP,UDP) and 
+// The module has ports to connect to a higher layer (TCP,UDP) and
 // several network interfaces (see LinkLayer and LinkLayer6).
 //
 // Incoming packets from all network interfaces are fed into a common
@@ -100,9 +100,9 @@ module NetworkLayer6
                 transportOut[2],
                 queueOut[numOfPorts];
             display: "b=32,30;p=148,90;i=cogwheel";
-        inputQueue: InputQueue;
+        inputQueue: IPInputQueue;
             parameters:
-                procdelay = inputqueue_delay;
+                procDelay = inputqueue_delay;
             gatesizes:
                 fromNW[numOfPorts];
             display: "b=32,30;p=79,157;i=queue";

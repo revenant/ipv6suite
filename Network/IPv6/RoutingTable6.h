@@ -257,7 +257,7 @@ public:
   const Interface6Entry& getInterfaceByIndex(unsigned int index) const;
 
   /// Get loopback interface
-  Interface6Entry& loopbackInterface() { return interfaces[0]; }
+  Interface6Entry& loopbackInterface() { return *(interfaces[0]); }
 
   // Search the index of an interface given by its name. The index is
   // determined from an array index of Interface6Entries
@@ -350,7 +350,7 @@ private:
 
   WorldProcessor* wp;
 
-  typedef std::vector<Interface6Entry> InterfaceEntries6;
+  typedef std::vector<Interface6Entry*> InterfaceEntries6;
 
   /**
      Interface  Warning:

@@ -99,28 +99,31 @@ void RoutingTable6::initialize(int stage)
     odadSupport = false;
     ctrIcmp6OutMsgs = 0;
 
+/*XXX now we have ptrs -- not needed --AV
     interfaces.reserve(MAX_IPv6INTERFACE_NO<interfaces.max_size()?
                        MAX_IPv6INTERFACE_NO:
                        interfaces.max_size());
-
+*/
     numOfIfaces = par("numOfPorts").longValue();
     displayIfconfig = par("displayIfconfig").boolValue();
 
-     // add in loopback InterfaceEntry
-    Interface6Entry loopback_iface;
+    interfaces.resize(numOfIfaces + 1);
+
+    // add in loopback InterfaceEntry
+    Interface6Entry *loopback_iface = new Interface6Entry();
     //loopback_iface.loopback = true;
-    loopback_iface.iface_name = "lo";
+    loopback_iface->iface_name = "lo";
 
     IPv6Address loopback_adr(LOOPBACK_ADDRESS);
 
-    loopback_iface.inetAddrs.push_back(loopback_adr);
-    interfaces.push_back(loopback_iface);
+    loopback_iface->inetAddrs.push_back(loopback_adr);
+    interfaces[0] = loopback_iface;
 
-    interfaces.resize(numOfIfaces + 1);
+    for(size_t i = 0; i < numOfIfaces; i++)
+        interfaces[i+1] = new Interface6Entry();
 
     wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
-    assert(wp != 0);
     // XXX try
     // XXX {
       //parse this network node's parameters and load them into this.
@@ -166,12 +169,12 @@ void RoutingTable6::initialize(int stage)
         llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
 
         // TODO: PLEASE DO A GRACEFUL SHUTDOWN
-        if(!interfaces[i+1].iface_name.empty() &&
-           strcasecmp(interfaces[i+1].iface_name.c_str(), llmodule->getInterfaceName()))
+        if(!interfaces[i+1]->iface_name.empty() &&
+           strcasecmp(interfaces[i+1]->iface_name.c_str(), llmodule->getInterfaceName()))
         {
           cerr<< endl <<nodeName()<<":"<<i+1
               <<" Check the network interface names in XML file: "
-              <<interfaces[i+1].iface_name<<endl
+              <<interfaces[i+1]->iface_name<<endl
               <<" with corresponding OMNeT++ MAC iface: "
               <<llmodule->getInterfaceName()<<endl;
           exit(1);
@@ -179,8 +182,8 @@ void RoutingTable6::initialize(int stage)
 
         // We already know that the loopback interface name and we just
         // need to find out the network interface name in the link layer
-        interfaces[i+1].iface_name = llmodule->getInterfaceName();
-        interfaces[i+1].linkMod = llmodule;
+        interfaces[i+1]->iface_name = llmodule->getInterfaceName();
+        interfaces[i+1]->linkMod = llmodule;
 
         // Assign interfaceID
         switch(llmodule->getInterfaceType())
@@ -191,10 +194,10 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
               iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              interfaces[i+1].setInterfaceID(iid);
+              interfaces[i+1]->setInterfaceID(iid);
               //       std::stringstream ss;
               //ss << std::hex << iid[0] << iid[1];
-              interfaces[i+1].setLLAddr(eth_iface->macAddressString());
+              interfaces[i+1]->setLLAddr(eth_iface->macAddressString());
             }
             break;
 
@@ -205,10 +208,10 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ( eth_iface->macAddress()[0] << 8 ) | 0xFF;
               iid[1] = eth_iface->macAddress()[1] | 0xFE000000;
-              interfaces[i+1].setInterfaceID(iid);
+              interfaces[i+1]->setInterfaceID(iid);
               //       std::stringstream ss;
               //ss << std::hex << iid[0] << iid[1];
-              interfaces[i+1].setLLAddr(eth_iface->macAddressString());
+              interfaces[i+1]->setLLAddr(eth_iface->macAddressString());
             }
             break;
 #endif // USE_MOBILITY
@@ -219,12 +222,12 @@ void RoutingTable6::initialize(int stage)
               unsigned int iid[2];
               iid[0] = ppp_iface->highInterfaceId();
               iid[1] = ppp_iface->lowInterfaceId();
-              interfaces[i+1].setInterfaceID(iid);
+              interfaces[i+1]->setInterfaceID(iid);
               std::stringstream ss1, ss2;
               ss1 << std::hex << iid[0];
               ss2 << std::hex << iid[1];
               string lladdr = ss1.str() + string(":") + ss2.str();
-              interfaces[i+1].setLLAddr(lladdr);
+              interfaces[i+1]->setLLAddr(lladdr);
             }
             break;
         }
@@ -502,11 +505,11 @@ void RoutingTable6::print()
 
   for (size_t i =0; i < interfaces.size(); i++)
   {
-    if(interfaces[i].iface_name != "lo")
+    if(interfaces[i]->iface_name != "lo")
     {
-      interfaces[i].print(IPForward);
+      interfaces[i]->print(IPForward);
       Dout(dc::xml_addresses, "HWAddr "<<nodeName()<<":"<<i-1<<" "
-           <<interfaces[i].LLAddr());
+           <<interfaces[i]->LLAddr());
     }
   }
   PRINTF("==============  Node Level Configuration Variables  ======================== \n");
@@ -572,7 +575,7 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
   {
     for(size_t i=0; i<interfaces.size(); i++)
     {
-      if (interfaces[i].addrAssigned(dest))
+      if (interfaces[i]->addrAssigned(dest))
         return true;
 
       if (odad()
@@ -582,7 +585,7 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
          )
       {
         //Tentative addresses considered assigned while DAD is carried out
-        if (interfaces[i].tentativeAddrAssigned(dest))
+        if (interfaces[i]->tentativeAddrAssigned(dest))
           return true;
       }
     }
@@ -616,7 +619,7 @@ Interface6Entry& RoutingTable6::getInterfaceByIndex(unsigned int index)
     DoutFatal(dc::core, nodeName()<<" index is "<<index<<" while interfaces.size"
               <<interfaces.size());
   //Want to return only real interfaces not the loop back
-  return interfaces[index + 1];
+  return *(interfaces[index + 1]);
 }
 
 /*
@@ -628,7 +631,7 @@ const Interface6Entry& RoutingTable6::getInterfaceByIndex(unsigned int index) co
     DoutFatal(dc::core, nodeName()<<" index is "<<index<<" while interfaces.size"
               <<interfaces.size());
   //Want to return only real interfaces not the loop back
-  return interfaces[index + 1];
+  return *(interfaces[index + 1]);
 }
 
 /*
@@ -641,7 +644,7 @@ int RoutingTable6::interfaceNameToNo(const char *iface_name) const
 
   for (size_t i = 0; i < interfaces.size(); i++)
   {
-    if (interfaces[i].iface_name == iface_name)
+    if (interfaces[i]->iface_name == iface_name)
       // the interface index corresponds to the port index
           return i-1;
   }
@@ -657,9 +660,9 @@ int RoutingTable6::interfaceAddressToNo(const IPv6Address& addr) const
 {
   for (size_t i = 0; i < interfaces.size(); i++)
   {
-    for (size_t j = 0; j < interfaces[i].inetAddrs.size(); j++)
+    for (size_t j = 0; j < interfaces[i]->inetAddrs.size(); j++)
     {
-      if (addr==interfaces[i].inetAddrs[j])
+      if (addr==interfaces[i]->inetAddrs[j])
         return i;
     }
   }
@@ -994,12 +997,12 @@ void RoutingTableTest::setUp()
   if (!rt)
     return;
 
-  Interface6Entry ie1;
-  ie1.iface_name = "eth800";
+  Interface6Entry *ie1 = new Interface6Entry();
+  ie1->iface_name = "eth800";
   rt->interfaces.push_back(ie1);
 
-  Interface6Entry ie2;
-  ie2.iface_name = "ppp200";
+  Interface6Entry *ie2 = new Interface6Entry();
+  ie2->iface_name = "ppp200";
   rt->interfaces.push_back(ie2);
 
   PrefixEntry p1;
@@ -1010,23 +1013,23 @@ void RoutingTableTest::setUp()
   p2.setPrefix("3271:2222:3312:4444:6433:0:0:0/50");
   rt->cds->insertPrefixEntry(p2, rt->interfaceNameToNo(ie2.iface_name.c_str()));
 
-  Interface6Entry ie3;
-  ie3.iface_name = "ppp201";
+  Interface6Entry *ie3 = new Interface6Entry();
+  ie3->iface_name = "ppp201";
   rt->interfaces.push_back(ie3);
 
   PrefixEntry p3;
   p3.setPrefix("3271:2222:3312:4444:6433:3343:0:0/96");
   rt->cds->insertPrefixEntry(p3, rt->interfaceNameToNo(ie3.iface_name.c_str()));
 
-  Interface6Entry ie4;
-  ie4.iface_name = "eth101";
+  Interface6Entry *ie4 = new Interface6Entry();
+  ie4->iface_name = "eth101";
   rt->interfaces.push_back(ie4);
 
   PrefixEntry p4;
   p4.setPrefix("3271:1111:3312:4444:6433:3343:0:0/96");
   rt->cds->insertPrefixEntry(p4, rt->interfaceNameToNo(ie4.iface_name.c_str()));
 
-  rt->numOfIfaces = rt->numOfIfaces + 4;
+  rt->numOfIfaces += 4;
 
 }
 
@@ -1050,7 +1053,7 @@ void RoutingTableTest::testLookupAddress()
   size_t ifIndex = 0;
 
   CPPUNIT_ASSERT(rt->cds->lookupAddress(c_ipv6_addr("3271:2222:3312:4444:6433:3343:1234:0"), ifIndex));
-  Interface6Entry ie = rt->getInterfaceByIndex(ifIndex);
+  Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
 
   // result should be "ppp201" since ppp201 interface has longer prefix
   // length specified than ppp200 interface

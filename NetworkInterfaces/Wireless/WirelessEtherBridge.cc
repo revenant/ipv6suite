@@ -221,11 +221,21 @@ int WirelessEtherBridge::getOutputPort(LinkLayerModule* llmod)
   return it->second + 1;
 }
 
-cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
+cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
 {
   cMessage* signal = 0;
 
-  switch(frame->protocol())
+  int frameProtocol;
+  if (dynamic_cast<PPP6Frame*>(frame))
+    frameProtocol = PR_PPP;
+  else if (dynamic_cast<EtherFrame*>(frame))
+    frameProtocol = PR_ETHERNET;
+  else if (dynamic_cast<WirelessEtherDataFrame*>(frame))
+    frameProtocol = PR_WETHERNET;
+  else
+    error("unrecognized frame type '%s'", frame->className);
+
+  switch(frameProtocol)
   {
     case PR_WETHERNET:
     {
@@ -312,7 +322,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
           destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 +
                                FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL +
                                FL_FCS);
-          destFrame->setProtocol(PR_WETHERNET);
+          //XXX destFrame->setProtocol(PR_WETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
           cPacket* dupData = static_cast<cPacket*>(data->dup());
@@ -364,7 +374,7 @@ cMessage* WirelessEtherBridge::translateFrame(cPacket* frame, int destProtocol)
           destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 +
                                FL_ADDR2 +  FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL +
                                FL_FCS);
-          destFrame->setProtocol(PR_WETHERNET);
+          //XXX destFrame->setProtocol(PR_WETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
           destFrame->encapsulate(static_cast<cPacket*>(data->dup()));

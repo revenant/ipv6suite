@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.2 2005/02/10 07:06:45 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.3 2005/02/14 01:20:38 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
@@ -44,8 +44,8 @@ const int CONNECT = 1111;
 const int DISCONNECT = 1112;
 const char* CONNECT_MSG = "CONNECT";
 
-const char* OUT = "to";
-const char* IN = "from";
+const char* ME_OUT = "to";
+const char* ME_IN = "from";
 
 bool operator==(MEConnInfo& lhs, MEConnInfo& rhs)
 {
@@ -237,18 +237,18 @@ int MobileEntity::connectWith(Entity* otherEntity, bool isOutgoing)
   if (isOutgoing)
   {
     selfDirection = 'O';
-    selfGtName = OUT;
+    selfGtName = ME_OUT;
 
     otherDirection = 'I';
-    otherGtName = IN;
+    otherGtName = ME_IN;
   }
   else
   {
     selfDirection = 'I';
-    selfGtName = IN;
+    selfGtName = ME_IN;
 
     otherDirection = 'O';
-    otherGtName = OUT;
+    otherGtName = ME_OUT;
   }
 
   // assign gate names recursively from simple module to the network

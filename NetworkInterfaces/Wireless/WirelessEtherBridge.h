@@ -54,7 +54,7 @@ class WirelessEtherBridge : public cSimpleModule
  private:
   int getOutputPort(LinkLayerModule* llmod);
   LinkLayerModule* findMacByAddress(std::string addr);
-  cMessage* translateFrame(cPacket* frame, int destProt);
+  cMessage* translateFrame(cMessage* frame, int destProt);
 
  protected:
   MACAddress address;

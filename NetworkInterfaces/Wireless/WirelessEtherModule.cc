@@ -92,7 +92,7 @@
 #include"hodec.h"
 #endif // L2FUZZYHO
 
-#include "XMLOmnetParser.h"
+#include "XML/XMLOmnetParser.h"
 
 Define_Module_Like( WirelessEtherModule, NetworkInterface );
 

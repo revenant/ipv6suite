@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.h,v 1.2 2005/02/10 04:00:43 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.h,v 1.3 2005/02/14 01:20:38 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
@@ -42,8 +42,8 @@
 
 using namespace std;
 
-extern const char* OUT;
-extern const char* IN;
+extern const char* ME_OUT;
+extern const char* ME_IN;
 
 extern const int CONNECT;
 extern const int DISCONNECT;

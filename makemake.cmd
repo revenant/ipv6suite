@@ -31,8 +31,6 @@ cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
 :#FIXME Util should not depend on PHY\Mobility!
 cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\World -I..\Base
-cd %root%\Util\Loki && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
 
 :#---------------
 :#FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!
@@ -42,8 +40,9 @@ cd %root%\Network\MIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\HMIPv6 -I..\..
 cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\MIPv6 -I..\..\Util -I..\..\Util\Loki -I..\..\World -I..\..\PHY -I. -I..\.. -I..\IPv4 -I..\..\Base
 cd %root%\Network\RIP && %MAKEMAKE% %OPTS% -n -r
 
+cd %root%\Util\Loki && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r -I..\.. -I.. -I..\..\PHY\Mobility -I..\..\Base -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\IPv6 -I..\..\Network\IPv4 -I..\..\Network\MIPv6 -I..\..\Network\HMIPv6
 cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
 

@@ -24,7 +24,7 @@
 #include <vector>
 #include <omnetpp.h>
 
-#include "IPControlInfo_m.h"
+#include "IPvXAddress.h"
 
 
 /**
@@ -55,14 +55,14 @@ class IPTrafGen : public IPTrafSink
     int protocol;
     int msgLength;
     int numPackets;
-    std::vector<IPAddress> destAddresses;
+    std::vector<IPvXAddress> destAddresses;
 
     static int counter; // counter for generating a global number for each packet
 
     int numSent;
 
     // chooses random destination address
-    virtual IPAddress chooseDestAddr();
+    virtual IPvXAddress chooseDestAddr();
     virtual void sendPacket();
 
   public:

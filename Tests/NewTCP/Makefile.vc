@@ -160,15 +160,19 @@ re-makemake: makefiles
 TcpTestClient.obj: TcpTestClient.cc \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
-  ../../Network/IPv4/IPAddress.h \
+  ../../Network/Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h
 TCPTester.obj: TCPTester.cc \
   TCPTester.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
-  ../../Network/IPv4/IPAddress.h \
+  ../../Network/Generic/IPControlInfo_m.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Network/IPv4/IPDatagram_m.h \
   ../../Transport/TCP/TCPSegment.h \
   ../../Transport/TCP/TCPDump.h \
   ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
-  ../../Transport/TCP/TCPSegment_m.h
+  ../../Network/Generic/IPProtocolId_m.h \
+  ../../Transport/TCP/TCPSegment_m.h \
+  ../../Network/Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h

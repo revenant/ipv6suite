@@ -1,6 +1,5 @@
 //
-// Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2004 Andras Varga
+// Copyright (C) 2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,26 +16,17 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-
-cplusplus {{
+#include <iostream>
 #include "IPvXAddress.h"
-}}
 
-class noncobject IPvXAddress;
-
-
-//
-// Control info for sending/receiving data via UDP. Travels between
-// application and UDPProcessing.
-//
-class UDPControlInfo
+std::string IPv6Address_::str()
 {
-    fields:
-        IPvXAddress srcAddr;  // source IP address
-        IPvXAddress destAddr; // destination IP address
-        int codePoint; // QoS field
-        int srcPort;   // UDP source port in packet
-        int destPort;  // UDP destination port in packet
-        int inputPort; // port number (gate index) of interface on which the packet was received
-};
+    std::stringstream os;
+    //os << hex;
+    os << (d[0]>>16) << ":" << (d[0]&0xffff) << ":"
+       << (d[1]>>16) << ":" << (d[1]&0xffff) << ":"
+       << (d[2]>>16) << ":" << (d[2]&0xffff) << ":"
+       << (d[3]>>16) << ":" << (d[3]&0xffff);
+    return os.str();
+}
 

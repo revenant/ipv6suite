@@ -563,7 +563,7 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../Loki/Singleton.h \
   ../../Network/IPv6/IPv6Datagram.h \
   ../../Base/QueueBase.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
+  ../../Network/Generic/IPProtocolId_m.h \
   ../../Network/IPv6/IPv6Datagram_m.h \
   ../../Base/AbstractQueue.h \
   ../../Network/ICMPv6/IRouterList.h \

@@ -60,10 +60,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= ICMPMessage_m.obj IPControlInfo_m.obj IPDatagram_m.obj IPProtocolId_m.obj ICMP.obj IP.obj IPAddress.obj IPAddressResolver.obj IPFragBuf.obj IPv4InterfaceData.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
+OBJS= ICMPMessage_m.obj IPDatagram_m.obj ICMP.obj IP.obj IPFragBuf.obj IPv4InterfaceData.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= ICMPMessage_m.h IPControlInfo_m.h IPDatagram_m.h IPProtocolId_m.h
+GENERATEDHEADERS= ICMPMessage_m.h IPDatagram_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -94,35 +94,17 @@ ICMPMessage_m.obj: ICMPMessage_m.cc
 ICMPMessage_m.cc ICMPMessage_m.h: ICMPMessage.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) ICMPMessage.msg
 
-IPControlInfo_m.obj: IPControlInfo_m.cc
-	$(CXX) -c $(NEDCOPTS) /Tp IPControlInfo_m.cc
-
-IPControlInfo_m.cc IPControlInfo_m.h: IPControlInfo.msg
-	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPControlInfo.msg
-
 IPDatagram_m.obj: IPDatagram_m.cc
 	$(CXX) -c $(NEDCOPTS) /Tp IPDatagram_m.cc
 
 IPDatagram_m.cc IPDatagram_m.h: IPDatagram.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPDatagram.msg
 
-IPProtocolId_m.obj: IPProtocolId_m.cc
-	$(CXX) -c $(NEDCOPTS) /Tp IPProtocolId_m.cc
-
-IPProtocolId_m.cc IPProtocolId_m.h: IPProtocolId.msg
-	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPProtocolId.msg
-
 ICMP.obj: ICMP.cc
 	$(CXX) -c $(COPTS) /Tp ICMP.cc
 
 IP.obj: IP.cc
 	$(CXX) -c $(COPTS) /Tp IP.cc
-
-IPAddress.obj: IPAddress.cc
-	$(CXX) -c $(COPTS) /Tp IPAddress.cc
-
-IPAddressResolver.obj: IPAddressResolver.cc
-	$(CXX) -c $(COPTS) /Tp IPAddressResolver.cc
 
 IPFragBuf.obj: IPFragBuf.cc
 	$(CXX) -c $(COPTS) /Tp IPFragBuf.cc
@@ -170,10 +152,10 @@ re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 ICMP.obj: ICMP.cc \
-  IPControlInfo_m.h \
+  ../Generic/IPControlInfo_m.h \
   ICMP.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/INETDefs.h \
   RoutingTableAccess.h \
   ICMPMessage.h \
@@ -188,13 +170,13 @@ ICMPMessage_m.obj: ICMPMessage_m.cc \
   ICMPMessage_m.h \
   IPDatagram.h \
   IPDatagram_m.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/INETDefs.h
 IP.obj: IP.cc \
   IP.h \
   IPDatagram.h \
-  IPControlInfo_m.h \
+  ../Generic/IPControlInfo_m.h \
   ICMPMessage_m.h \
   IPv4InterfaceData.h \
   ../../Base/QueueBase.h \
@@ -209,31 +191,15 @@ IP.obj: IP.cc \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
-  IPAddress.h \
+  ../Generic/IPAddress.h \
   ICMP.h \
   ICMPMessage.h \
   IPDatagram_m.h \
-  IPProtocolId_m.h
-IPAddress.obj: IPAddress.cc \
-  IPAddress.h \
-  ../../Base/INETDefs.h
-IPAddressResolver.obj: IPAddressResolver.cc \
-  IPAddressResolver.h \
-  ../Generic/InterfaceTable.h \
-  IPv4InterfaceData.h \
-  RoutingTable.h \
-  IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../Generic/InterfaceEntry.h
-IPControlInfo_m.obj: IPControlInfo_m.cc \
-  IPControlInfo_m.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
-  ../../Base/INETDefs.h
+  ../Generic/IPProtocolId_m.h
 IPDatagram_m.obj: IPDatagram_m.cc \
   IPDatagram_m.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/INETDefs.h
 IPFragBuf.obj: IPFragBuf.cc \
   IPFragBuf.h \
@@ -241,8 +207,8 @@ IPFragBuf.obj: IPFragBuf.cc \
   ../../Base/INETDefs.h \
   IPDatagram.h \
   IPDatagram_m.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   RoutingTableAccess.h \
   ICMPMessage.h \
   ../../Base/ModuleAccess.h \
@@ -250,12 +216,10 @@ IPFragBuf.obj: IPFragBuf.cc \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h \
   ICMPMessage_m.h
-IPProtocolId_m.obj: IPProtocolId_m.cc \
-  IPProtocolId_m.h
 IPv4InterfaceData.obj: IPv4InterfaceData.cc \
   IPv4InterfaceData.h \
   ../../Base/INETDefs.h \
-  IPAddress.h
+  ../Generic/IPAddress.h
 ProtocolMap.obj: ProtocolMap.cc \
   ProtocolMap.h
 RoutingTable.obj: RoutingTable.cc \
@@ -266,7 +230,7 @@ RoutingTable.obj: RoutingTable.cc \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceTableAccess.h \
   ../../Base/INETDefs.h \
-  IPAddress.h \
+  ../Generic/IPAddress.h \
   ../Generic/InterfaceEntry.h \
   ../../Base/ModuleAccess.h
 RoutingTableParser.obj: RoutingTableParser.cc \
@@ -275,6 +239,6 @@ RoutingTableParser.obj: RoutingTableParser.cc \
   IPv4InterfaceData.h \
   RoutingTable.h \
   ../../Base/INETDefs.h \
-  IPAddress.h \
+  ../Generic/IPAddress.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h

@@ -21,7 +21,7 @@
 
 #include <omnetpp.h>
 #include "INETDefs.h"
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 #include "TCPMain.h"
 
 
@@ -224,7 +224,7 @@ class TCPStateVariables : public cPolymorphic
  *
  * The "entry points" of TCPConnnection from TCPMain are:
  *  - processTimer(cMessage *msg): handle self-messages which belong to the connection
- *  - processTCPSegment(TCPSegment *tcpSeg, IPAddress srcAddr, IPAddress destAddr):
+ *  - processTCPSegment(TCPSegment *tcpSeg, IPvXAddress srcAddr, IPvXAddress destAddr):
  *    handle segment arrivals
  *  - processAppCommand(cMessage *msg): process commands which arrive from the
  *    application (TCP_C_xxx)
@@ -257,8 +257,8 @@ class TCPConnection
     int connId;       // identifies connection within the app
 
     // socket pair
-    IPAddress localAddr;
-    IPAddress remoteAddr;
+    IPvXAddress localAddr;
+    IPvXAddress remoteAddr;
     int localPort;
     int remotePort;
 
@@ -316,9 +316,9 @@ class TCPConnection
      * Process incoming TCP segment. Returns a specific event code (e.g. TCP_E_RCV_SYN)
      * which will drive the state machine.
      */
-    TCPEventCode process_RCV_SEGMENT(TCPSegment *tcpseg, IPAddress src, IPAddress dest);
-    TCPEventCode processSegmentInListen(TCPSegment *tcpseg, IPAddress src, IPAddress dest);
-    TCPEventCode processSegmentInSynSent(TCPSegment *tcpseg, IPAddress src, IPAddress dest);
+    TCPEventCode process_RCV_SEGMENT(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest);
+    TCPEventCode processSegmentInListen(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest);
+    TCPEventCode processSegmentInSynSent(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest);
     TCPEventCode processSegment1stThru8th(TCPSegment *tcpseg);
     TCPEventCode processRstInSynReceived(TCPSegment *tcpseg);
     bool processAckInEstabEtc(TCPSegment *tcpseg);
@@ -366,9 +366,9 @@ class TCPConnection
     /** Utility: sends RST */
     void sendRst(uint32 seqNo);
     /** Utility: sends RST (called from TCPMain) */
-    static void sendRst(uint32 seq, IPAddress src, IPAddress dest, int srcPort, int destPort);
+    static void sendRst(uint32 seq, IPvXAddress src, IPvXAddress dest, int srcPort, int destPort);
     /** Utility: sends RST+ACK (called from TCPMain) */
-    static void sendRstAck(uint32 seq, uint32 ack, IPAddress src, IPAddress dest, int srcPort, int destPort);
+    static void sendRstAck(uint32 seq, uint32 ack, IPvXAddress src, IPvXAddress dest, int srcPort, int destPort);
 
     /** Utility: sends FIN */
     void sendFin();
@@ -391,7 +391,7 @@ class TCPConnection
     cMessage *cancelEvent(cMessage *msg)  {return tcpMain->cancelEvent(msg);}
 
     /** Utility: send IP packet */
-    static void sendToIP(TCPSegment *tcpseg, IPAddress src, IPAddress dest);
+    static void sendToIP(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest);
 
     /** Utility: sends packet to application */
     void sendToApp(cMessage *msg);
@@ -419,7 +419,7 @@ class TCPConnection
      * Static function, invoked from TCPMain when a segment arrives which
      * doesn't belong to an existing connection.
      */
-    static void segmentArrivalWhileClosed(TCPSegment *tcpseg, IPAddress src, IPAddress dest);
+    static void segmentArrivalWhileClosed(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest);
 
     /**
      * Constructor.
@@ -453,7 +453,7 @@ class TCPConnection
      * of false means that the connection structure must be deleted by the
      * caller (TCPMain).
      */
-    bool processTCPSegment(TCPSegment *tcpSeg, IPAddress srcAddr, IPAddress destAddr);
+    bool processTCPSegment(TCPSegment *tcpSeg, IPvXAddress srcAddr, IPvXAddress destAddr);
 
     /**
      * Process commands from the application.

@@ -50,8 +50,8 @@ void UDPSink::printPacket(cMessage *msg)
 {
     UDPControlInfo *controlInfo = check_and_cast<UDPControlInfo *>(msg->controlInfo());
 
-    IPAddress src = controlInfo->getSrcAddr();
-    IPAddress dest = controlInfo->getDestAddr();
+    IPvXAddress src = controlInfo->getSrcAddr();
+    IPvXAddress dest = controlInfo->getDestAddr();
     int sentPort = controlInfo->getSrcPort();
     int recPort = controlInfo->getDestPort();
 
@@ -110,7 +110,7 @@ void UDPApp::initialize(int stage)
     scheduleAt((double)par("message_freq"), timer);
 }
 
-IPAddress UDPApp::chooseDestAddr()
+IPvXAddress UDPApp::chooseDestAddr()
 {
     int k = intrand(destAddresses.size());
     return destAddresses[k];
@@ -125,7 +125,7 @@ void UDPApp::sendPacket()
     payload->setLength(msgLength);
 
     UDPControlInfo *controlInfo = new UDPControlInfo();
-    IPAddress destAddr = chooseDestAddr();
+    IPvXAddress destAddr = chooseDestAddr();
     controlInfo->setDestAddr(destAddr);
     controlInfo->setSrcPort(localPort);
     controlInfo->setDestPort(destPort);

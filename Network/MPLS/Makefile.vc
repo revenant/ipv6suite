@@ -138,7 +138,7 @@ LIBtable.obj: LIBtable.cc \
   ../../Base/ModuleAccess.h \
   ../IPv4/RoutingTable.h \
   ../../Base/INETDefs.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h
 MPLSModule.obj: MPLSModule.cc \
@@ -152,8 +152,8 @@ MPLSModule.obj: MPLSModule.cc \
   LIBTableAccess.h \
   ConstType.h \
   ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   LIBtable.h \

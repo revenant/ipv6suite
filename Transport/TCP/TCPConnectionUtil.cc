@@ -168,30 +168,46 @@ void TCPConnection::sendToIP(TCPSegment *tcpseg)
     tcpseg->setLength(8*(TCP_HEADER_OCTETS+tcpseg->payloadLength()));
     // TBD account for Options (once they get implemented)
 
-    IPControlInfo *controlInfo = new IPControlInfo();
-    controlInfo->setProtocol(IP_PROT_TCP);
-    controlInfo->setSrcAddr(localAddr);
-    controlInfo->setDestAddr(remoteAddr);
-    tcpseg->setControlInfo(controlInfo);
+    if (!remoteAddr.isIPv6())
+    {
+        IPControlInfo *controlInfo = new IPControlInfo();
+        controlInfo->setProtocol(IP_PROT_TCP);
+        controlInfo->setSrcAddr(localAddr.get4());
+        controlInfo->setDestAddr(remoteAddr.get4());
+        tcpseg->setControlInfo(controlInfo);
 
-    tcpEV << "Send: ";
-    printSegmentBrief(tcpseg);
+        tcpEV << "Send: ";
+        printSegmentBrief(tcpseg);
 
-    tcpMain->send(tcpseg,"to_ip");
+        tcpMain->send(tcpseg,"to_ip");
+    }
+    else
+    {
+        // FIXME send over IPv6
+        opp_error("sending over IPv6 not yet implemented");
+    }
 }
 
-void TCPConnection::sendToIP(TCPSegment *tcpseg, IPAddress src, IPAddress dest)
+void TCPConnection::sendToIP(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest)
 {
-    IPControlInfo *controlInfo = new IPControlInfo();
-    controlInfo->setProtocol(IP_PROT_TCP);
-    controlInfo->setSrcAddr(src);
-    controlInfo->setDestAddr(dest);
-    tcpseg->setControlInfo(controlInfo);
+    if (!dest.isIPv6())
+    {
+        IPControlInfo *controlInfo = new IPControlInfo();
+        controlInfo->setProtocol(IP_PROT_TCP);
+        controlInfo->setSrcAddr(src.get4());
+        controlInfo->setDestAddr(dest.get4());
+        tcpseg->setControlInfo(controlInfo);
 
-    tcpEV << "Send: ";
-    printSegmentBrief(tcpseg);
+        tcpEV << "Send: ";
+        printSegmentBrief(tcpseg);
 
-    check_and_cast<TCPMain *>(simulation.contextModule())->send(tcpseg,"to_ip");
+        check_and_cast<TCPMain *>(simulation.contextModule())->send(tcpseg,"to_ip");
+    }
+    else
+    {
+        // FIXME send over IPv6
+        opp_error("sending over IPv6 not yet implemented");
+    }
 }
 
 void TCPConnection::signalConnectionTimeout()
@@ -315,7 +331,7 @@ void TCPConnection::sendRst(uint32 seqNo)
     sendRst(seqNo, localAddr, remoteAddr, localPort, remotePort);
 }
 
-void TCPConnection::sendRst(uint32 seq, IPAddress src, IPAddress dest, int srcPort, int destPort)
+void TCPConnection::sendRst(uint32 seq, IPvXAddress src, IPvXAddress dest, int srcPort, int destPort)
 {
     TCPSegment *tcpseg = new TCPSegment("RST");
 
@@ -329,7 +345,7 @@ void TCPConnection::sendRst(uint32 seq, IPAddress src, IPAddress dest, int srcPo
     sendToIP(tcpseg, src, dest);
 }
 
-void TCPConnection::sendRstAck(uint32 seq, uint32 ack, IPAddress src, IPAddress dest, int srcPort, int destPort)
+void TCPConnection::sendRstAck(uint32 seq, uint32 ack, IPvXAddress src, IPvXAddress dest, int srcPort, int destPort)
 {
     TCPSegment *tcpseg = new TCPSegment("RST+ACK");
 

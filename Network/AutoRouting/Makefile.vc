@@ -126,9 +126,11 @@ FlatNetworkConfigurator.obj: FlatNetworkConfigurator.cc \
   ../IPv4/RoutingTable.h \
   ../Generic/InterfaceTable.h \
   ../../Util/StringTokenizer.h \
-  ../IPv4/IPAddressResolver.h \
+  ../Generic/IPAddressResolver.h \
   FlatNetworkConfigurator.h \
   ../IPv4/IPv4InterfaceData.h \
   ../../Base/INETDefs.h \
-  ../IPv4/IPAddress.h \
-  ../Generic/InterfaceEntry.h
+  ../Generic/IPAddress.h \
+  ../Generic/InterfaceEntry.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h

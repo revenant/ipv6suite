@@ -180,7 +180,7 @@ bool TCPConnection::processTimer(cMessage *msg)
     return performStateTransition(event);
 }
 
-bool TCPConnection::processTCPSegment(TCPSegment *tcpseg, IPAddress segSrcAddr, IPAddress segDestAddr)
+bool TCPConnection::processTCPSegment(TCPSegment *tcpseg, IPvXAddress segSrcAddr, IPvXAddress segDestAddr)
 {
     printConnBrief();
     if (!localAddr.isNull())

@@ -376,7 +376,7 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ICMPv6NDMessageBase.h \
   NDEntry.h \
@@ -623,7 +623,7 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Util/boost/non_type.hpp \
   ../../Base/QueueBase.h \
   ../../Base/AbstractQueue.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
@@ -823,7 +823,7 @@ ICMPv6Message.obj: ICMPv6Message.cc \
   ../IPv6/IPv6Address.h \
   ../IPv6/IPv6Headers.h \
   ../IPv6/ipv6_addr.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
@@ -1008,7 +1008,7 @@ ICMPv6NDMessage.obj: ICMPv6NDMessage.cc \
   ICMPv6NDOptions.h \
   ./ICMPv6NDOptionBase.h \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ../IPv6/IPv6Address.h \
@@ -1333,7 +1333,7 @@ ICMPv6NDMessageBase.obj: ICMPv6NDMessageBase.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   NDEntry.h \
   ../../Util/boost/weak_ptr.hpp \
@@ -2262,7 +2262,7 @@ MLD.obj: MLD.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/IPInterfacePacket_m.h \
@@ -2797,7 +2797,7 @@ MLDv2Record.obj: MLDv2Record.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../IPv6/IPInterfacePacket.h \
   ../IPv6/IPInterfacePacket_m.h \
@@ -3012,7 +3012,7 @@ NDEntry.obj: NDEntry.cc \
   ../IPv6/Constants.h \
   ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ./ICMPv6NDOptionBase.h \
   ../../Util/boost/utility.hpp \
@@ -3150,7 +3150,7 @@ NDStateHost.obj: NDStateHost.cc \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
@@ -3396,7 +3396,7 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \
@@ -3710,7 +3710,7 @@ NDStates.obj: NDStates.cc \
   ../IPv6/IPv6InterfaceData.h \
   ./NDEntry.h \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
@@ -3935,7 +3935,7 @@ NDTimers.obj: NDTimers.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
@@ -3990,7 +3990,7 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../IPv6/Constants.h \
   ICMPv6NDOptions.h \
   ../IPv6/IPv6Headers.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
   ../../Util/boost/array.hpp \
   ../../Util/boost/detail/iterator.hpp \

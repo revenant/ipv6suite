@@ -101,7 +101,7 @@ void TCPSocket::bind(int lPort)
     sockstate = CLOSED;
 }
 
-void TCPSocket::bind(IPAddress lAddr, int lPort)
+void TCPSocket::bind(IPvXAddress lAddr, int lPort)
 {
     if (sockstate!=NOT_BOUND)
         opp_error("TCPSocket::bind(): socket already bound");
@@ -130,7 +130,7 @@ void TCPSocket::listen(bool fork)
     sockstate = LISTENING;
 }
 
-void TCPSocket::connect(IPAddress remoteAddress, int remotePort)
+void TCPSocket::connect(IPvXAddress remoteAddress, int remotePort)
 {
     if (sockstate!=NOT_BOUND && sockstate!=CLOSED)
         opp_error( "TCPSocket::connect(): connect() or listen() already called");

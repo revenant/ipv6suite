@@ -23,7 +23,7 @@
 
 #include <omnetpp.h>
 #include "TCPCommand_m.h"
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 
 class TCPStatusInfo;
 
@@ -45,7 +45,7 @@ class TCPStatusInfo;
  *
  * <pre>
  *   TCPSocket socket;
- *   socket.connect(IPAddress("10.0.0.2"), 2000);
+ *   socket.connect(IPvXAddress("10.0.0.2"), 2000);
  *
  *   msg = new cMessage("data1");
  *   msg->setLength(8*16*1024);  // 16K
@@ -135,9 +135,9 @@ class TCPSocket
     int connId;
     int sockstate;
 
-    IPAddress localAddr;
+    IPvXAddress localAddr;
     int localPrt;
-    IPAddress remoteAddr;
+    IPvXAddress remoteAddr;
     int remotePrt;
 
     CallbackInterface *cb;
@@ -188,9 +188,9 @@ class TCPSocket
 
     /** @name Getter functions */
     //@{
-    IPAddress localAddress() {return localAddr;}
+    IPvXAddress localAddress() {return localAddr;}
     int localPort() {return localPrt;}
-    IPAddress remoteAddress() {return remoteAddr;}
+    IPvXAddress remoteAddress() {return remoteAddr;}
     int remotePort() {return remotePrt;}
     //@}
 
@@ -212,7 +212,7 @@ class TCPSocket
      * Bind the socket to a local port number and IP address (useful with
      * multi-homing).
      */
-    void bind(IPAddress localAddr, int localPort);
+    void bind(IPvXAddress localAddr, int localPort);
 
     //
     // TBD add support for these options too!
@@ -233,7 +233,7 @@ class TCPSocket
     /**
      * Active OPEN to the given remote socket.
      */
-    void connect(IPAddress remoteAddr, int remotePort);
+    void connect(IPvXAddress remoteAddr, int remotePort);
 
     /**
      * Sends data packet.

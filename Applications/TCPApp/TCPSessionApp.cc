@@ -115,7 +115,7 @@ void TCPSessionApp::activity()
     if (!address[0])
         socket.bind(port);
     else
-        socket.bind(IPAddress(address), port);
+        socket.bind(IPvXAddress(address), port);
 
     ev << "issuing OPEN command\n";
     if (ev.isGUI()) displayString().setTagArg("t",0, active?"connecting":"listening");

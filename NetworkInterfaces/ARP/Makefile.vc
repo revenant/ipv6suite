@@ -137,17 +137,17 @@ ARP.obj: ARP.cc \
   ../../Network/IPv4/IPv4InterfaceData.h \
   ../../Network/IPv4/RoutingTableAccess.h \
   ../../Base/INETDefs.h \
-  ../../Network/IPv4/IPAddress.h \
+  ../../Network/Generic/IPAddress.h \
   ARPPacket_m.h \
   ../Ethernet/EtherCtrl_m.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
+  ../../Network/Generic/IPControlInfo_m.h \
   ../../Network/IPv4/IPDatagram.h \
   ../../Network/Generic/InterfaceTable.h \
   ../../Network/IPv4/RoutingTable.h \
   ../Ethernet/EtherMAC.h \
   ../_802/MACAddress.h \
   ../Ethernet/Ethernet.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
+  ../../Network/Generic/IPProtocolId_m.h \
   ../../Network/IPv4/IPDatagram_m.h \
   ../../Network/Generic/InterfaceEntry.h \
   ../Ethernet/EtherFrame_m.h \
@@ -155,6 +155,6 @@ ARP.obj: ARP.cc \
   ../../Base/ModuleAccess.h
 ARPPacket_m.obj: ARPPacket_m.cc \
   ARPPacket_m.h \
-  ../../Network/IPv4/IPAddress.h \
+  ../../Network/Generic/IPAddress.h \
   ../_802/MACAddress.h \
   ../../Base/INETDefs.h

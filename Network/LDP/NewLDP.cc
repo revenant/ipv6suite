@@ -79,8 +79,8 @@ void NewLDP::handleMessage(cMessage *msg)
         // every LDP capable router periodically sends HELLO messages to the
         // "all routers in the sub-network" multicast address
 
-        // FIXME something is seriously wrong here. Only neighbours should become peers, 
-        // and looks like currently *all* routers are peers! probably 224.0.0.0 should 
+        // FIXME something is seriously wrong here. Only neighbours should become peers,
+        // and looks like currently *all* routers are peers! probably 224.0.0.0 should
         // not be routable in IP???
 
         ev << "Broadcasting LDP Hello\n";
@@ -127,7 +127,7 @@ void NewLDP::sendHelloTo(IPAddress dest)
 void NewLDP::processLDPHello(LDPHello *msg)
 {
     UDPControlInfo *controlInfo = check_and_cast<UDPControlInfo *>(msg->controlInfo());
-    IPAddress peerAddr = controlInfo->getSrcAddr(); // FIXME use hello->senderAddress() instead?
+    IPAddress peerAddr = controlInfo->getSrcAddr().get4(); // FIXME use hello->senderAddress() instead?
 
     int inputPort = controlInfo->getInputPort();
     delete msg;
@@ -191,7 +191,7 @@ void NewLDP::processMessageFromTCP(cMessage *msg)
         socket = new TCPSocket(msg);
         socket->setOutputGate(gate("to_tcp_interface"));
 
-        IPAddress peerAddr = socket->remoteAddress();
+        IPAddress peerAddr = socket->remoteAddress().get4();
 
         int i = findPeer(peerAddr);
         if (i==-1 || myPeers[i].socket)

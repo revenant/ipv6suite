@@ -35,8 +35,8 @@ int TCPMain::nextConnId = 0;
 
 static std::ostream & operator<<(std::ostream & os, const TCPMain::SockPair& sp)
 {
-    os << "loc=" << IPAddress(sp.localAddr) << ":" << sp.localPort << " "
-       << "rem=" << IPAddress(sp.remoteAddr) << ":" << sp.remotePort;
+    os << "loc=" << IPvXAddress(sp.localAddr) << ":" << sp.localPort << " "
+       << "rem=" << IPvXAddress(sp.remoteAddr) << ":" << sp.remotePort;
     return os;
 }
 
@@ -91,8 +91,8 @@ void TCPMain::handleMessage(cMessage *msg)
         TCPSegment *tcpseg = check_and_cast<TCPSegment *>(msg);
 
         IPControlInfo *controlInfo = check_and_cast<IPControlInfo *>(msg->removeControlInfo());
-        IPAddress srcAddr = controlInfo->srcAddr();
-        IPAddress destAddr = controlInfo->destAddr();
+        IPvXAddress srcAddr = controlInfo->srcAddr();
+        IPvXAddress destAddr = controlInfo->destAddr();
         delete controlInfo;
 
         TCPConnection *conn = findConnForSegment(tcpseg, srcAddr, destAddr);
@@ -190,11 +190,11 @@ void TCPMain::updateDisplayString()
     displayString().setTagArg("t",0,buf2);
 }
 
-TCPConnection *TCPMain::findConnForSegment(TCPSegment *tcpseg, IPAddress srcAddr, IPAddress destAddr)
+TCPConnection *TCPMain::findConnForSegment(TCPSegment *tcpseg, IPvXAddress srcAddr, IPvXAddress destAddr)
 {
     SockPair key;
-    key.localAddr = destAddr.getInt();
-    key.remoteAddr = srcAddr.getInt();
+    key.localAddr = destAddr;
+    key.remoteAddr = srcAddr;
     key.localPort = tcpseg->destPort();
     key.remotePort = tcpseg->srcPort();
     SockPair save = key;
@@ -206,21 +206,21 @@ TCPConnection *TCPMain::findConnForSegment(TCPSegment *tcpseg, IPAddress srcAddr
         return i->second;
 
     // try with localAddr missing (only localPort specified in passive/active open)
-    key.localAddr = 0;
+    key.localAddr = IPvXAddress();
     i = tcpConnMap.find(key);
     if (i!=tcpConnMap.end())
         return i->second;
 
     // try fully qualified local socket + blank remote socket (for incoming SYN)
     key = save;
-    key.remoteAddr = 0;
+    key.remoteAddr = IPvXAddress();
     key.remotePort = -1;
     i = tcpConnMap.find(key);
     if (i!=tcpConnMap.end())
         return i->second;
 
     // try with blank remote socket, and localAddr missing (for incoming SYN)
-    key.localAddr = 0;
+    key.localAddr = IPvXAddress();
     i = tcpConnMap.find(key);
     if (i!=tcpConnMap.end())
         return i->second;
@@ -247,11 +247,11 @@ short TCPMain::getEphemeralPort()
     return nextEphemeralPort++;
 }
 
-void TCPMain::updateSockPair(TCPConnection *conn, IPAddress localAddr, IPAddress remoteAddr, int localPort, int remotePort)
+void TCPMain::updateSockPair(TCPConnection *conn, IPvXAddress localAddr, IPvXAddress remoteAddr, int localPort, int remotePort)
 {
     SockPair key;
-    key.localAddr = conn->localAddr.getInt();
-    key.remoteAddr = conn->remoteAddr.getInt();
+    key.localAddr = conn->localAddr;
+    key.remoteAddr = conn->remoteAddr;
     key.localPort = conn->localPort;
     key.remotePort = conn->remotePort;
     TcpConnMap::iterator i = tcpConnMap.find(key);
@@ -261,14 +261,14 @@ void TCPMain::updateSockPair(TCPConnection *conn, IPAddress localAddr, IPAddress
         tcpConnMap.erase(i);
     }
 
-    key.localAddr = (conn->localAddr = localAddr).getInt();
-    key.remoteAddr = (conn->remoteAddr = remoteAddr).getInt();
+    key.localAddr = conn->localAddr = localAddr;
+    key.remoteAddr = conn->remoteAddr = remoteAddr;
     key.localPort = conn->localPort = localPort;
     key.remotePort = conn->remotePort = remotePort;
     tcpConnMap[key] = conn;
 }
 
-void TCPMain::addForkedConnection(TCPConnection *conn, TCPConnection *newConn, IPAddress localAddr, IPAddress remoteAddr, int localPort, int remotePort)
+void TCPMain::addForkedConnection(TCPConnection *conn, TCPConnection *newConn, IPvXAddress localAddr, IPvXAddress remoteAddr, int localPort, int remotePort)
 {
     // update conn's socket pair, and register newConn (which'll keep LISTENing)
     updateSockPair(conn, localAddr, remoteAddr, localPort, remotePort);
@@ -298,8 +298,8 @@ void TCPMain::removeConnection(TCPConnection *conn)
     tcpAppConnMap.erase(key);
 
     SockPair key2;
-    key2.localAddr = conn->localAddr.getInt();
-    key2.remoteAddr = conn->remoteAddr.getInt();
+    key2.localAddr = conn->localAddr;
+    key2.remoteAddr = conn->remoteAddr;
     key2.localPort = conn->localPort;
     key2.remotePort = conn->remotePort;
     tcpConnMap.erase(key2);

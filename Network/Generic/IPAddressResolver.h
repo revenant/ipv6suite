@@ -24,16 +24,24 @@
 #define __IPADDRESSRESOLVER_H
 
 #include <omnetpp.h>
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 
-class RoutingTable;
 class InterfaceTable;
+class RoutingTable;
+class RoutingTable6;
 
 /**
- * Utility class for finding IP address of a host/router.
+ * Utility class for finding IPv4 or IPv6 address of a host or router.
  */
 class IPAddressResolver
 {
+  private:
+    // internal
+    IPAddress getIPv4AddressFrom(InterfaceTable *ift);
+
+    // internal
+    IPv6Address_ getIPv6AddressFrom(InterfaceTable *ift);
+
   public:
     IPAddressResolver() {}
     ~IPAddressResolver() {}
@@ -45,26 +53,33 @@ class IPAddressResolver
      * looked up using <tt>simulation.moduleByPath()</tt>, and then
      * addressOf() will be called to determine its IP address.
      */
-    IPAddress resolve(const char *str);
+    IPvXAddress resolve(const char *str);
 
     /** @name Utility functions supporting resolve() */
     //@{
     /**
-     * Returns IP address of the given host or router. If different interfaces
+     * Returns IP or IPv6 address of the given host or router. If different interfaces
      * of the host/router have different IP addresses, the function throws
      * an error.
      *
      * This function uses routingTableOf() to find the RoutingTable module,
      * then invokes getAddressFrom() to extract the IP address.
      */
-    IPAddress addressOf(cModule *host);
+    IPvXAddress addressOf(cModule *host, bool preferIPv6=false);
 
     /**
-     * Returns the IP address of the given host or router, given its InterfaceTable
+     * Returns the IP or IPv6 address of the given host or router, given its InterfaceTable
      * module. If different interfaces have different IP addresses, the function
      * throws an error.
      */
-    IPAddress getAddressFrom(InterfaceTable *ift);
+    IPvXAddress getAddressFrom(InterfaceTable *ift, bool preferIPv6=false);
+
+    /**
+     * The function tries to look up the InterfaceTable module as submodule
+     * <tt>"interfaceTable"</tt> or <tt>"networkLayer.interfaceTable"</tt> within
+     * the host/router module. Throws an error if not found.
+     */
+    InterfaceTable *interfaceTableOf(cModule *host);
 
     /**
      * The function tries to look up the RoutingTable module as submodule
@@ -73,12 +88,14 @@ class IPAddressResolver
      */
     RoutingTable *routingTableOf(cModule *host);
 
+#ifdef WITH_IPv6
     /**
-     * The function tries to look up the InterfaceTable module as submodule
-     * <tt>"interfaceTable"</tt> or <tt>"networkLayer.interfaceTable"</tt> within
+     * The function tries to look up the RoutingTable6 module as submodule
+     * <tt>"routingTable6"</tt> or <tt>"networkLayer.routingTable6"</tt> within
      * the host/router module. Throws an error if not found.
      */
-    InterfaceTable *interfaceTableOf(cModule *host);
+    RoutingTable6 *routingTable6Of(cModule *host);
+#endif
     //@}
 };
 

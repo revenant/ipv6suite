@@ -35,7 +35,7 @@
 void TCPConnection::process_OPEN_ACTIVE(TCPEventCode& event, TCPCommand *tcpCommand, cMessage *msg)
 {
     TCPOpenCommand *openCmd = check_and_cast<TCPOpenCommand *>(tcpCommand);
-    IPAddress localAddr, remoteAddr;
+    IPvXAddress localAddr, remoteAddr;
     short localPort, remotePort;
 
     switch(fsm.state())
@@ -82,7 +82,7 @@ void TCPConnection::process_OPEN_ACTIVE(TCPEventCode& event, TCPCommand *tcpComm
 void TCPConnection::process_OPEN_PASSIVE(TCPEventCode& event, TCPCommand *tcpCommand, cMessage *msg)
 {
     TCPOpenCommand *openCmd = check_and_cast<TCPOpenCommand *>(tcpCommand);
-    IPAddress localAddr;
+    IPvXAddress localAddr;
     short localPort;
 
     switch(fsm.state())
@@ -102,7 +102,7 @@ void TCPConnection::process_OPEN_PASSIVE(TCPEventCode& event, TCPCommand *tcpCom
 
             tcpEV << "Starting to listen on: " << localAddr << ":" << localPort << "\n";
 
-            tcpMain->updateSockPair(this, localAddr, IPAddress(), localPort, -1);
+            tcpMain->updateSockPair(this, localAddr, IPvXAddress(), localPort, -1);
             break;
 
         default:

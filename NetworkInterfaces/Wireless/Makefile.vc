@@ -1120,6 +1120,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/boost/utility_fwd.hpp \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/ipv6_addr.h \
+  ../../Network/Generic/IPProtocolId_m.h \
   ../../Network/IPv6/IPv6Datagram_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \

@@ -62,21 +62,21 @@ cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6
 cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Transport/UDP6
 
-cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv4  -I../../Network/IPv6 -I../../Network/ICMPv6
+cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv4 -I../../Network/Generic -I../../Network/IPv6 -I../../Network/ICMPv6
 :#FIXME should not depend on all L2 stuff!
 cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I.. -I../Util -I../Mobility -I../Network/IPv4  -I../Network/IPv6 -I../Network/ICMPv6 -I../NetworkInterfaces -I../NetworkInterfaces/Wireless -I../NetworkInterfaces/Ethernet6
 :#FIXME move cc files to Ethernet6 directory!!!
-cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r -I../../Util -I../../NetworkInterfaces/Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/IPv4
+cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r -I../../Util -I../../NetworkInterfaces/Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/IPv4 -I../../Network/Generic
 :#----
 
 
 cd %root%\Applications\Generic && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Network/Generic -I../../Base -I../../Util
 cd %root%\Applications\Ethernet && %MAKEMAKE% %OPTS% -n -r -I../../NetworkInterfaces/Ethernet -I../../Network/Generic -I../../NetworkInterfaces/_802 -I../../Base -I../../Util
-cd %root%\Applications\PingApp && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Base -I../../Util
+cd %root%\Applications\PingApp && %MAKEMAKE% %OPTS% -n -r -I../../Network/Generic -I../../Base -I../../Util
 cd %root%\Applications\TCPApp && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Generic
 cd %root%\Applications\UDPApp && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Generic
 
-cd %root%\Network\Generic && %MAKEMAKE% %OPTS% -n -r -I../../Base -I../../Util
+cd %root%\Network\Generic && %MAKEMAKE% %OPTS% -n -r -I../../Base -I../../Util -I../IPv4
 cd %root%\Network\IPv4 && %MAKEMAKE% %OPTS% -n -r -I../../Base -I../../Util -I../Generic
 cd %root%\Network\IPv4d && %MAKEMAKE% %OPTS% -n -r -I../IPv4 -I../../Base -I../../Util -I../Generic
 cd %root%\Network\AutoRouting && %MAKEMAKE% %OPTS% -n -r -I../IPv4  -I../../Base -I../../Util -I../Generic
@@ -93,9 +93,9 @@ cd %root%\NetworkInterfaces\ARP && %MAKEMAKE% %OPTS% -n -r -I../../Base -I../../
 cd %root%\Nodes\INET && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Network/IPv4d -I../../Network/IPv4/QoS -I../../Transport/UDP -I../../NetworkInterfaces/PPP -I../../NetworkInterfaces  -I../../Applications/Generic -I../../Applications/TCPApp -I../../Applications/UDPApp -I../../Applications/PingApp -I../../Base -I../../Util
 cd %root%\Nodes\MPLS && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Network/IPv4d -I../../Network/IPv4/QoS -I../../Network/MPLS -I../../Network/LDP -I../../Network/RSVP_TE -I../../Transport/UDP -I../../NetworkInterfaces/PPP -I../../NetworkInterfaces  -I../../Applications/Generic -I../../Applications/TCPApp -I../../Applications/PingApp -I../INET -I../../Base -I../../Util
 
-cd %root%\Transport\UDP && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Base -I../../Util
-cd %root%\Transport\RTP && %MAKEMAKE% %OPTS% -n -r -I../../Network/IPv4 -I../../Base -I../../Util
-cd %root%\Transport\TCP && %MAKEMAKE% %OPTS% -n -I../../Network/IPv4 -I../../Base -I../../Util
+cd %root%\Transport\UDP && %MAKEMAKE% %OPTS% -n -r -I../../Network/Generic -I../../Base -I../../Util
+cd %root%\Transport\RTP && %MAKEMAKE% %OPTS% -n -r -I../../Network/Generic -I../../Base -I../../Util
+cd %root%\Transport\TCP && %MAKEMAKE% %OPTS% -n -I../../Network/IPv4 -I../../Network/Generic -I../../Base -I../../Util
 
 cd %root%\Examples\bin && %MAKEMAKE% %OPTS% -w -o INET %ALL_INET_INCLUDES% %ALL_IPv6_INCLUDES% %ALL_MPLS_INCLUDES%
 

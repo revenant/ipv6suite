@@ -24,7 +24,7 @@ void TCPSrvHostApp::initialize()
     int port = par("port");
 
     serverSocket.setOutputGate(gate("tcpOut"));
-    serverSocket.bind(address[0] ? IPAddress(address) : IPAddress(), port);
+    serverSocket.bind(address[0] ? IPvXAddress(address) : IPvXAddress(), port);
     serverSocket.listen(true);
 }
 

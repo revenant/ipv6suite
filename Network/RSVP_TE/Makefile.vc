@@ -159,12 +159,12 @@ re-makemake: makefiles
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 IntServ_m.obj: IntServ_m.cc \
   IntServ_m.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../../Base/INETDefs.h
 OspfTe.obj: OspfTe.cc \
   OspfTe.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPAddressResolver.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPAddressResolver.h \
   ../IPv4/RoutingTableAccess.h \
   IntServ_m.h \
   TED.h \
@@ -174,19 +174,21 @@ OspfTe.obj: OspfTe.cc \
   ../MPLS/LIBTableAccess.h \
   ../MPLS/ConstType.h \
   ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
   ../../Base/INETDefs.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
   ../IPv4/RoutingTable.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h
 RSVP.obj: RSVP.cc \
   RSVP.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../MPLS/MPLSModule.h \
-  ../IPv4/IPAddressResolver.h \
-  ../IPv4/IPControlInfo_m.h \
+  ../Generic/IPAddressResolver.h \
+  ../Generic/IPControlInfo_m.h \
   ../Generic/InterfaceTableAccess.h \
   ../IPv4/IPv4InterfaceData.h \
   ../IPv4/RoutingTableAccess.h \
@@ -210,13 +212,15 @@ RSVP.obj: RSVP.cc \
   ../MPLS/MPLSPacket.h \
   ../IPv4/IPDatagram.h \
   ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPProtocolId_m.h
+  ../Generic/IPProtocolId_m.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h
 RSVPApp.obj: RSVPApp.cc \
   RSVPApp.h \
   ../IPv4/RoutingTable.h \
   RSVPTesterCommands.h \
   ../MPLS/MPLSModule.h \
-  ../IPv4/IPAddressResolver.h \
+  ../Generic/IPAddressResolver.h \
   ../../Util/StringTokenizer.h \
   ../Generic/InterfaceTableAccess.h \
   ../IPv4/IPv4InterfaceData.h \
@@ -233,7 +237,7 @@ RSVPApp.obj: RSVPApp.cc \
   RSVPPathMsg_m.h \
   IntServ_m.h \
   RSVPPacket.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../../Base/INETDefs.h \
   RSVPPacket_m.h \
   RSVPResvMsg_m.h \
@@ -244,30 +248,32 @@ RSVPApp.obj: RSVPApp.cc \
   ../MPLS/MPLSPacket.h \
   ../IPv4/IPDatagram.h \
   ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPProtocolId_m.h
+  ../Generic/IPProtocolId_m.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h
 RSVPPacket_m.obj: RSVPPacket_m.cc \
   RSVPPacket_m.h \
   IntServ_m.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../../Base/INETDefs.h
 RSVPPathMsg_m.obj: RSVPPathMsg_m.cc \
   RSVPPathMsg_m.h \
   IntServ_m.h \
   RSVPPacket.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../../Base/INETDefs.h \
   RSVPPacket_m.h
 RSVPResvMsg_m.obj: RSVPResvMsg_m.cc \
   RSVPResvMsg_m.h \
   IntServ_m.h \
   RSVPPacket.h \
-  ../IPv4/IPAddress.h \
+  ../Generic/IPAddress.h \
   ../../Base/INETDefs.h \
   RSVPPacket_m.h
 TED.obj: TED.cc \
   TED.h \
   ../../Util/StringTokenizer.h \
-  ../IPv4/IPAddressResolver.h \
+  ../Generic/IPAddressResolver.h \
   ../../Util/stlwatch.h \
   ../Generic/InterfaceTableAccess.h \
   ../IPv4/IPv4InterfaceData.h \
@@ -279,11 +285,13 @@ TED.obj: TED.cc \
   ../MPLS/LIBTableAccess.h \
   ../MPLS/ConstType.h \
   ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPProtocolId_m.h \
   ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   ../MPLS/LIBtable.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h \
   ../IPv4/RoutingTable.h

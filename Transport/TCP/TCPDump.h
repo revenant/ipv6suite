@@ -20,7 +20,7 @@
 #define __TCPDUMP_H
 
 #include <omnetpp.h>
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 #include "IPDatagram_m.h"
 #include "TCPSegment.h"
 

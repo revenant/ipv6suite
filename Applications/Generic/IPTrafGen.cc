@@ -48,10 +48,11 @@ void IPTrafSink::handleMessage(cMessage *msg)
 
 void IPTrafSink::printPacket(cMessage *msg)
 {
+    // FIXME prepare this for handling IPv6 as well!!!
     IPControlInfo *controlInfo = check_and_cast<IPControlInfo *>(msg->controlInfo());
 
-    IPAddress src = controlInfo->srcAddr();
-    IPAddress dest = controlInfo->destAddr();
+    IPvXAddress src = controlInfo->srcAddr();
+    IPvXAddress dest = controlInfo->destAddr();
     int protocol = controlInfo->protocol();
 
     ev  << msg << endl;
@@ -109,7 +110,7 @@ void IPTrafGen::initialize(int stage)
     scheduleAt(startTime, timer);
 }
 
-IPAddress IPTrafGen::chooseDestAddr()
+IPvXAddress IPTrafGen::chooseDestAddr()
 {
     int k = intrand(destAddresses.size());
     return destAddresses[k];
@@ -123,16 +124,29 @@ void IPTrafGen::sendPacket()
     cMessage *payload = new cMessage(msgName);
     payload->setLength(msgLength);
 
-    IPControlInfo *controlInfo = new IPControlInfo();
-    IPAddress destAddr = chooseDestAddr();
-    controlInfo->setDestAddr(destAddr);
-    controlInfo->setProtocol(protocol);
-    payload->setControlInfo(controlInfo);
+    IPvXAddress destAddr = chooseDestAddr();
+    if (!destAddr.isIPv6())
+    {
+        IPControlInfo *controlInfo = new IPControlInfo();
+        controlInfo->setDestAddr(destAddr.get4());
+        controlInfo->setProtocol(protocol);
+        payload->setControlInfo(controlInfo);
 
-    ev << "Sending packet: ";
-    printPacket(payload);
+        ev << "Sending packet: ";
+        printPacket(payload);
 
-    send(payload, "to_ip");
+        send(payload, "to_ip");
+    }
+    else
+    {
+        // FIXME TBD send over IPv6!
+        error("cannot send over IPv6 at the moment, not implemented");
+
+        ev << "Sending packet: ";
+        printPacket(payload);
+
+        send(payload, "to_ipv6");
+    }
     numSent++;
 }
 

@@ -150,15 +150,23 @@ void UDPProcessing::processMsgFromApp(cMessage *appData)
     udpPacket->setSourcePort(udpControlInfo->getSrcPort());
     udpPacket->setDestinationPort(udpControlInfo->getDestPort());
 
-    IPControlInfo *ipControlInfo = new IPControlInfo();
-    ipControlInfo->setProtocol(IP_PROT_UDP);
-    ipControlInfo->setSrcAddr(udpControlInfo->getSrcAddr());
-    ipControlInfo->setDestAddr(udpControlInfo->getDestAddr());
-    udpPacket->setControlInfo(ipControlInfo);
-    delete udpControlInfo;
+    if (!udpControlInfo->getDestAddr().isIPv6())
+    {
+        IPControlInfo *ipControlInfo = new IPControlInfo();
+        ipControlInfo->setProtocol(IP_PROT_UDP);
+        ipControlInfo->setSrcAddr(udpControlInfo->getSrcAddr().get4());
+        ipControlInfo->setDestAddr(udpControlInfo->getDestAddr().get4());
+        udpPacket->setControlInfo(ipControlInfo);
+        delete udpControlInfo;
 
-    // send to IP
-    send(udpPacket,"to_ip");
+        // send to IP
+        send(udpPacket,"to_ip");
+    }
+    else
+    {
+        // FIXME send over IPv6
+        opp_error("sending over IPv6 not yet implemented");
+    }
     numSent++;
 }
 

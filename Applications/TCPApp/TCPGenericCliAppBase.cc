@@ -34,7 +34,7 @@ void TCPGenericCliAppBase::initialize()
     if (!address[0])
         socket.bind(port);
     else
-        socket.bind(IPAddress(address), port);
+        socket.bind(IPvXAddress(address), port);
 
     socket.setCallbackObject(this);
     socket.setOutputGate(gate("tcpOut"));

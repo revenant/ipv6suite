@@ -23,8 +23,7 @@
 
 #include <vector>
 #include <omnetpp.h>
-
-#include "IPControlInfo_m.h"
+#include "IPvXAddress.h"
 
 
 /**
@@ -54,14 +53,14 @@ class UDPApp : public UDPSink
     std::string nodeName;
     int localPort, destPort;
     int msgLength;
-    std::vector<IPAddress> destAddresses;
+    std::vector<IPvXAddress> destAddresses;
 
     static int counter; // counter for generating a global number for each packet
 
     int numSent;
 
     // chooses random destination address
-    virtual IPAddress chooseDestAddr();
+    virtual IPvXAddress chooseDestAddr();
     virtual void sendPacket();
 
   public:

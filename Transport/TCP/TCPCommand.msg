@@ -18,10 +18,10 @@
 
 
 cplusplus {{
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 }}
 
-class noncobject IPAddress;
+class noncobject IPvXAddress;
 
 
 //
@@ -133,8 +133,8 @@ class TCPOpenCommand extends TCPCommand
     properties:
         omitGetVerb = true;
     fields:
-        IPAddress localAddr;      // may be left empty
-        IPAddress remoteAddr;     // required for active open
+        IPvXAddress localAddr; // may be left empty
+        IPvXAddress remoteAddr;// required for active open
         int localPort = -1;       // required for passive open
         int remotePort = -1;      // required for active open
         bool fork = false;        // used only for passive open
@@ -168,8 +168,8 @@ class TCPConnectInfo extends TCPCommand
     properties:
         omitGetVerb = true;
     fields:
-        IPAddress localAddr;
-        IPAddress remoteAddr;
+        IPvXAddress localAddr;
+        IPvXAddress remoteAddr;
         int localPort;
         int remotePort;
 };
@@ -190,8 +190,8 @@ class TCPStatusInfo extends TCPCommand
         int state;
         string stateName;
 
-        IPAddress localAddr;
-        IPAddress remoteAddr;
+        IPvXAddress localAddr;
+        IPvXAddress remoteAddr;
         int localPort;
         int remotePort;
 

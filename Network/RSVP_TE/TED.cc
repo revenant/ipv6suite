@@ -108,7 +108,7 @@ void TED::buildDatabase()
         RoutingTable *myRT = IPAddressResolver().routingTableOf(module);
         IPAddress modAddr = myRT->getRouterId();
         if (modAddr.isNull())
-            modAddr = IPAddressResolver().getAddressFrom(myIFT);
+            modAddr = IPAddressResolver().getAddressFrom(myIFT).get4();
 
         for (int j = 0; j < node->outLinks(); j++)
         {
@@ -118,7 +118,7 @@ void TED::buildDatabase()
             RoutingTable *neighbourRT = IPAddressResolver().routingTableOf(neighbour);
             IPAddress neighbourAddr = neighbourRT->getRouterId();
             if (neighbourAddr.isNull())
-                neighbourAddr = IPAddressResolver().getAddressFrom(neighbourIFT);
+                neighbourAddr = IPAddressResolver().getAddressFrom(neighbourIFT).get4();
 
             // For each link
             // Get linkId

@@ -32,7 +32,7 @@ void TCPEchoApp::initialize()
 
     TCPSocket socket;
     socket.setOutputGate(gate("tcpOut"));
-    socket.bind(address[0] ? IPAddress(address) : IPAddress(), port);
+    socket.bind(address[0] ? IPvXAddress(address) : IPvXAddress(), port);
     socket.listen(true);
 }
 

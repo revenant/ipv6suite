@@ -127,8 +127,8 @@ UDPApp.obj: UDPApp.cc \
   UDPApp.h \
   ../../Transport/UDP/UDPControlInfo_m.h \
   ../../Util/StringTokenizer.h \
-  ../../Network/IPv4/IPAddressResolver.h \
-  ../../Network/IPv4/IPControlInfo_m.h \
-  ../../Network/IPv4/IPAddress.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
+  ../../Network/Generic/IPAddressResolver.h \
+  ../../Network/Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h

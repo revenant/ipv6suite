@@ -25,7 +25,7 @@
 
 #include <omnetpp.h>
 #include <map>
-#include "IPAddress.h"
+#include "IPvXAddress.h"
 
 
 class TCPConnection;
@@ -115,8 +115,8 @@ class TCPMain : public cSimpleModule
     };
     struct SockPair
     {
-        int localAddr;
-        int remoteAddr;
+        IPvXAddress localAddr;
+        IPvXAddress remoteAddr;
         short localPort;
         short remotePort;
 
@@ -144,7 +144,7 @@ class TCPMain : public cSimpleModule
 
     short nextEphemeralPort;
 
-    TCPConnection *findConnForSegment(TCPSegment *tcpseg, IPAddress srcAddr, IPAddress destAddr);
+    TCPConnection *findConnForSegment(TCPSegment *tcpseg, IPvXAddress srcAddr, IPvXAddress destAddr);
     TCPConnection *findConnForApp(int appGateIndex, int connId);
     void removeConnection(TCPConnection *conn);
     void updateDisplayString();
@@ -164,13 +164,13 @@ class TCPMain : public cSimpleModule
      * To be called from TCPConnection when socket pair (key for TcpConnMap) changes
      * (e.g. becomes fully qualified).
      */
-    void updateSockPair(TCPConnection *conn, IPAddress localAddr, IPAddress remoteAddr, int localPort, int remotePort);
+    void updateSockPair(TCPConnection *conn, IPvXAddress localAddr, IPvXAddress remoteAddr, int localPort, int remotePort);
 
     /**
      * Update conn's socket pair, and register newConn (which'll keep LISTENing).
      * Also, conn will get a new connId (and newConn will live on with its old connId).
      */
-    void addForkedConnection(TCPConnection *conn, TCPConnection *newConn, IPAddress localAddr, IPAddress remoteAddr, int localPort, int remotePort);
+    void addForkedConnection(TCPConnection *conn, TCPConnection *newConn, IPvXAddress localAddr, IPvXAddress remoteAddr, int localPort, int remotePort);
 
     /**
      * To be called from TCPConnection: reserves an ephemeral port for the connection.

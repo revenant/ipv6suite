@@ -64,8 +64,8 @@ OBJS= LL6ControlInfo_m.obj LinkLayerModule.obj
 GENERATEDHEADERS= LL6ControlInfo_m.h
 
 # subdirectories to recurse into
-SUBDIRS= _802 ARP Common Ethernet Ethernet6 PPP PPP6 Wireless
-SUBDIR_TARGETS=  _802_dir ARP_dir Common_dir Ethernet_dir Ethernet6_dir PPP_dir PPP6_dir Wireless_dir
+SUBDIRS= _802 ARP Ethernet Ethernet6 PPP PPP6 Wireless
+SUBDIR_TARGETS=  _802_dir ARP_dir Ethernet_dir Ethernet6_dir PPP_dir PPP6_dir Wireless_dir
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -91,9 +91,6 @@ _802_dir:
 
 ARP_dir:
 	cd ARP && cd && nmake /nologo /f Makefile.vc
-
-Common_dir:
-	cd Common && cd && nmake /nologo /f Makefile.vc
 
 Ethernet_dir:
 	cd Ethernet && cd && nmake /nologo /f Makefile.vc

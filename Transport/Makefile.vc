@@ -67,10 +67,6 @@ GENERATEDHEADERS=
 SUBDIRS= TCP UDP UDP6
 SUBDIR_TARGETS=  TCP_dir UDP_dir UDP6_dir
 
-# inserted from file 'makefrag.vc':
-
-
-
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
 .tstamp: $(OBJS)

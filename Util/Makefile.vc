@@ -70,10 +70,6 @@ GENERATEDHEADERS=
 SUBDIRS= Loki XML
 SUBDIR_TARGETS=  Loki_dir XML_dir
 
-# inserted from file 'makefrag.vc':
-
-
-
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
 .tstamp: $(OBJS)

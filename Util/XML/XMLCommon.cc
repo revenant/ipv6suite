@@ -47,6 +47,8 @@ void checkValidData(RoutingTable6* rt)
 
     for(size_t i = 0; i < rt->interfaceCount(); i++)
     {
+      Interface6Entry *ie = rt->getInterfaceByIndex(i);
+
       //Todo Max/MinRtrAdvInt checks are clumsy as the DTD can have another set
       //i.e. MIPv6MaxRtrAdvInterval attr for MIPv6 defaults they are not parsed
       //unless actual interface element exists. Need to really do the default
@@ -54,35 +56,35 @@ void checkValidData(RoutingTable6* rt)
       //the objects do.
 #ifdef USE_MOBILITY
         // mobility support
-      if ((rt->mobilitySupport() && rt->getInterfaceByIndex(i)->rtrVar.advSendAds &&
-          (rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt > 1.5 ||
-           rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt < MIN_MIPV6_MAX_RTR_ADV_INT)) ||
+      if ((rt->mobilitySupport() && ie->rtrVar.advSendAds &&
+          (ie->rtrVar.maxRtrAdvInt > 1.5 ||
+           ie->rtrVar.maxRtrAdvInt < MIN_MIPV6_MAX_RTR_ADV_INT)) ||
           // without mobility support
           (!rt->mobilitySupport() &&
 #else
       if
 #endif
-           (rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt < 4 ||
-            rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt > 1800)
+           (ie->rtrVar.maxRtrAdvInt < 4 ||
+            ie->rtrVar.maxRtrAdvInt > 1800)
 #ifdef USE_MOBILITY
            ))
 #endif //USE_MOBILITY
       {
         cerr<<nodeName << ", interface[" << i
             <<"], MaxRtrAdvInterval not set correctly "
-            <<rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt<<endl;
+            <<ie->rtrVar.maxRtrAdvInt<<endl;
         Dout(dc::warning, nodeName << ", interface[" << i
              <<"], MaxRtrAdvInterval not set correctly "
-             <<rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt);
+             <<ie->rtrVar.maxRtrAdvInt);
         isError = true;
         break;
       }
 
 #ifdef USE_MOBILITY
-      if((rt->mobilitySupport() && rt->getInterfaceByIndex(i)->rtrVar.advSendAds &&
-          rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt < MIN_MIPV6_MIN_RTR_ADV_INT) ||
-         (rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt >
-          rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt) ||
+      if((rt->mobilitySupport() && ie->rtrVar.advSendAds &&
+          ie->rtrVar.minRtrAdvInt < MIN_MIPV6_MIN_RTR_ADV_INT) ||
+         (ie->rtrVar.minRtrAdvInt >
+          ie->rtrVar.maxRtrAdvInt) ||
          // without mobility support
          (!rt->mobilitySupport() &&
 #else
@@ -90,27 +92,27 @@ void checkValidData(RoutingTable6* rt)
       // than .75 * MaxRtrAdvInterval Sec. 6.2.1 of RFC 2461
       if
 #endif
-          (rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt < 3 ||
-         rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt > 0.75 *
-           rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt)
+          (ie->rtrVar.minRtrAdvInt < 3 ||
+         ie->rtrVar.minRtrAdvInt > 0.75 *
+           ie->rtrVar.maxRtrAdvInt)
 #ifdef USE_MOBILITY
           ))
 #endif //USE_MOBILITY
       {
         cerr<<nodeName << ", interface[" << i
-            <<"], MinRtrAdvInterval="<<rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt
+            <<"], MinRtrAdvInterval="<<ie->rtrVar.minRtrAdvInt
             <<" not set correctly. MaxRtrAdvInterval="
-            <<rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt
+            <<ie->rtrVar.maxRtrAdvInt
             <<endl;
         Dout(dc::warning, nodeName << ", interface[" << i
-             <<"], MinRtrAdvInterval="<<rt->getInterfaceByIndex(i)->rtrVar.minRtrAdvInt
+             <<"], MinRtrAdvInterval="<<ie->rtrVar.minRtrAdvInt
              <<" not set correctly. MaxRtrAdvInterval="
-             <<rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt);
+             <<ie->rtrVar.maxRtrAdvInt);
         isError = true;
         break;
       }
 
-      if(rt->getInterfaceByIndex(i)->rtrVar.advReachableTime > 3600000)
+      if(ie->rtrVar.advReachableTime > 3600000)
       {
         cerr<<nodeName << ", interface[" << i
             <<"], AdvReachableTime not set correctly" << endl;
@@ -120,14 +122,14 @@ void checkValidData(RoutingTable6* rt)
 
       // AdvDefaultLifetime MUST be either 0 or between
       // MaxRtrAdvInterval and 9000 seconds
-      if(rt->getInterfaceByIndex(i)->rtrVar.advDefaultLifetime != 0 &&
-         (rt->getInterfaceByIndex(i)->rtrVar.advDefaultLifetime <
-          rt->getInterfaceByIndex(i)->rtrVar.maxRtrAdvInt ||
-          rt->getInterfaceByIndex(i)->rtrVar.advDefaultLifetime > 9000 ))
+      if(ie->rtrVar.advDefaultLifetime != 0 &&
+         (ie->rtrVar.advDefaultLifetime <
+          ie->rtrVar.maxRtrAdvInt ||
+          ie->rtrVar.advDefaultLifetime > 9000 ))
       {
         cerr<<nodeName << ", interface[" << i
             <<"], AdvDefaultLifetime not set correctly "
-            <<rt->getInterfaceByIndex(i)->rtrVar.advDefaultLifetime<< endl;
+            <<ie->rtrVar.advDefaultLifetime<< endl;
         isError = true;
         break;
       }

@@ -141,16 +141,14 @@ ARP.obj: ARP.cc \
   ../Ethernet/EtherCtrl_m.h \
   ../../Network/IPv4/IPControlInfo_m.h \
   ../../Network/IPv4/IPDatagram.h \
-  ../Common/InterfaceTable.h \
-  ../Common/InterfaceTableAccess.h \
   ../Ethernet/EtherMAC.h \
   ../_802/MACAddress.h \
   ../Ethernet/Ethernet.h \
   ../../Network/IPv4/IPProtocolId_m.h \
   ../../Network/IPv4/IPDatagram_m.h \
-  ../../Base/ModuleAccess.h \
   ../Ethernet/EtherFrame_m.h \
-  ../Ethernet/utils.h
+  ../Ethernet/utils.h \
+  ../../Base/ModuleAccess.h
 ARPPacket_m.obj: ARPPacket_m.cc \
   ARPPacket_m.h \
   ../../Network/IPv4/IPAddress.h \

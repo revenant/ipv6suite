@@ -67,10 +67,6 @@ GENERATEDHEADERS=
 SUBDIRS= NewTCP
 SUBDIR_TARGETS=  NewTCP_dir
 
-# inserted from file 'makefrag.vc':
-
-
-
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
 .tstamp: $(OBJS)

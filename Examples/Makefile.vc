@@ -67,10 +67,6 @@ GENERATEDHEADERS=
 SUBDIRS= bin Ethernet INET IPv6 MPLS
 SUBDIR_TARGETS=  bin_dir Ethernet_dir INET_dir IPv6_dir MPLS_dir
 
-# inserted from file 'makefrag.vc':
-
-
-
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
 .tstamp: $(OBJS)

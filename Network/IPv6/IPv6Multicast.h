@@ -58,11 +58,11 @@ struct ipv6_addr;
  * @brief Handle sending and forwarding of multicast packets
  */
 
-class IPv6Multicast: public RoutingTable6Access
+class IPv6Multicast : public cSimpleModule
 {
 
 public:
-  Module_Class_Members(IPv6Multicast, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6Multicast, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage*);
@@ -71,6 +71,8 @@ public:
   static std::string multicastLLAddr(const ipv6_addr& addr);
 private:
   void dupAndSendPacket(const IPv6Datagram* datagram, size_t ifIndex);
+
+  RoutingTable6 *rt;
 
   simtime_t delay;
   IPv6ForwardCore* fc;

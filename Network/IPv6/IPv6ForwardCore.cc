@@ -94,7 +94,7 @@ void IPv6ForwardCore::initialize(int stage)
 {
   if (stage == 0)
   {
-    RoutingTable6Access::initialize();
+    rt = RoutingTable6Access().get();
     delay = par("procdelay");
     hasHook = (findGate("netfilterOut") != -1);
     ctrIP6InAddrErrors = 0;

@@ -51,10 +51,10 @@ typedef cTypedMessage<AddrResInfo> AddrResMsg;
  * sent problems are likely to occur.
  */
 
-class IPv6Fragmentation:public RoutingTable6Access
+class IPv6Fragmentation : public cSimpleModule
 {
 public:
-  Module_Class_Members(IPv6Fragmentation, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6Fragmentation, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage*);
@@ -64,6 +64,8 @@ private:
 
   void sendErrorMessage(ICMPv6Message* err);
   void sendOutput(AddrResMsg* msg );
+
+  RoutingTable6 *rt;
 
   int numOfPorts;
   simtime_t delay;

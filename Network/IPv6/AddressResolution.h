@@ -49,11 +49,11 @@ typedef NDARTimers::iterator NDARTI;
 /**
    @class AddressResolution
  */
-class AddressResolution:public RoutingTable6Access
+class AddressResolution : public cSimpleModule
 {
 
  public:
-  Module_Class_Members(AddressResolution, RoutingTable6Access, 0);
+  Module_Class_Members(AddressResolution, cSimpleModule, 0);
   virtual void initialize();
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
@@ -74,6 +74,8 @@ class AddressResolution:public RoutingTable6Access
 
   void resendNS();
   void timedOutNS();
+
+  RoutingTable6 *rt;
 
   ///Pending Packet Queue for packets awaiting addr res
   PendingPacketQ ppq;

@@ -1,7 +1,6 @@
-// -*- C++ -*-
 //
-// Copyright (C) 2000, 2004 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,35 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
+
+
+#ifndef __ROUTINGTABLE6_ACCESS_H__
+#define __ROUTINGTABLE6_ACCESS_H__
+
+#include <omnetpp.h>
+#include "ModuleAccess.h"
+#include "RoutingTable6.h"
+
 
 /**
-   @file RoutingTable6Access.h
-   @brief Provide access to RoutingTable6
-   @author Johnny Lai
-   @note Based on RoutingTableAccess by Jochen Reber
+ * Gives access to the RoutingTable6 module.
  */
-
-#ifndef ROUTING_TABLE6_ACCESS_H
-#define ROUTING_TABLE6_ACCESS_H
-
-#ifndef __OMNETPP_H
-#include <omnetpp.h>
-#endif //__OMNETPP_H
-
-class RoutingTable6;
-
-class RoutingTable6Access: public cSimpleModule
+class RoutingTable6Access : public ModuleAccess<RoutingTable6>
 {
-private:
-
-protected:
-
-    RoutingTable6 *rt;
-
-public:
-    Module_Class_Members(RoutingTable6Access, cSimpleModule, 0);
-
-    virtual void initialize();
+    public:
+        RoutingTable6Access() : ModuleAccess<RoutingTable6>("routingTable6") {}
 };
 
 #endif

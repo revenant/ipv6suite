@@ -64,7 +64,7 @@ Define_Module( IPv6Multicast );
 
 void IPv6Multicast::initialize()
 {
-    RoutingTable6Access::initialize();
+    rt = RoutingTable6Access().get();
     delay = par("procdelay");
     fc = check_and_cast<IPv6ForwardCore*> (
       OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));

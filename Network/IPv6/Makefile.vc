@@ -71,7 +71,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IPv6Utils.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingTable6.obj RoutingTable6Access.obj
+OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IPv6Utils.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingTable6.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= IPInterfacePacket_m.h
@@ -239,9 +239,6 @@ PreRouting6Core.obj: PreRouting6Core.cc
 
 RoutingTable6.obj: RoutingTable6.cc
 	$(CXX) -c $(COPTS) /Tp RoutingTable6.cc
-
-RoutingTable6Access.obj: RoutingTable6Access.cc
-	$(CXX) -c $(COPTS) /Tp RoutingTable6Access.cc
 
 
 #doc: neddoc doxy
@@ -449,6 +446,7 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
+  ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ../IPv4/IPProtocolId_m.h \
   ICMPv6NDMessageBase.h \
@@ -509,12 +507,9 @@ ErrorHandling6.obj: ErrorHandling6.cc \
   ErrorHandling6.h \
   IPv6Datagram.h \
   ICMPv6Message.h \
-  ../IPv4/IPControlInfo_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
   IPv6Headers.h \
   ipv6_addr.h \
+  ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/config.hpp \
@@ -1559,7 +1554,8 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  RoutingTable6Access.h
+  RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h
 ICMPv6Message.obj: ICMPv6Message.cc \
   ICMPv6Message.h \
   IPv6Datagram.h \
@@ -2628,8 +2624,6 @@ Interface6Entry.obj: Interface6Entry.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp
-IPInterfacePacket_m.obj: IPInterfacePacket_m.cc \
-  IPInterfacePacket_m.h
 IPrefixList.obj: IPrefixList.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -3560,6 +3554,7 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Base/ModuleAccess.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3876,6 +3871,7 @@ IPv6ForwardCore.obj: IPv6ForwardCore.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Base/ModuleAccess.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/array.hpp \
   ../../Util/boost/iterator.hpp \
@@ -3987,6 +3983,8 @@ IPv6ForwardCore.obj: IPv6ForwardCore.cc \
   ./IPv6Datagram.h \
   ./IPv6Mobility.h \
   ./RoutingTable6Access.h \
+  ./RoutingTable6.h \
+  ./Interface6Entry.h \
   ./IPInterfacePacket.h \
   ./IPInterfacePacket_m.h \
   ../HMIPv6/HMIPv6Entry.h \
@@ -4013,6 +4011,7 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   Messages.h \
   ../../NetworkInterfaces/LL6ControlInfo_m.h \
   RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h \
   ipv6_addr.h \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
@@ -4738,6 +4737,7 @@ IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/boost/non_type.hpp \
   RoutingTable6Access.h \
   ../../config.h \
+  ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
   ../IPv4/IPProtocolId_m.h \
@@ -4958,6 +4958,7 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
   RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
   ../IPv4/IPProtocolId_m.h \
@@ -5161,6 +5162,7 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   ../../NetworkInterfaces/LL6ControlInfo_m.h \
   IPv6Utils.h \
   RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
   ../IPv4/IPProtocolId_m.h \
@@ -5387,6 +5389,7 @@ IPv6SendCore.obj: IPv6SendCore.cc \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
   RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
   ../IPv4/IPProtocolId_m.h \
@@ -7532,7 +7535,8 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
-  RoutingTable6Access.h
+  RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h
 NDStates.obj: NDStates.cc \
   NDStates.h \
   ../../config.h \
@@ -7782,7 +7786,8 @@ NDStates.obj: NDStates.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
-  RoutingTable6Access.h
+  RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h
 NDTimers.obj: NDTimers.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -8377,7 +8382,34 @@ PreRouting6Core.obj: PreRouting6Core.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/boost/weak_ptr.hpp
+  ../../Base/ModuleAccess.h \
+  RoutingTable6.h \
+  Interface6Entry.h \
+  ../../Util/ExpiryEntryList.h \
+  ../../config.h \
+  NDEntry.h \
+  ../../Util/boost/weak_ptr.hpp \
+  IPv6Address.h \
+  ../../Util/cTimerMessageCB.h \
+  ../../Util/cTimerMessage.h \
+  ../../Util/Loki/Functor.h \
+  ../../Util/Loki/HierarchyGenerators.h \
+  ../../Util/boost/utility.hpp \
+  ../../Util/boost/noncopyable.hpp \
+  ../../Util/boost/utility/addressof.hpp \
+  ../../Util/boost/utility/base_from_member.hpp \
+  ../../Util/boost/next_prior.hpp \
+  ../../Util/boost/type_traits/add_pointer.hpp \
+  ../../Util/boost/type_traits/remove_reference.hpp \
+  ../../Util/boost/utility_fwd.hpp \
+  ../../Util/Loki/Typelist.h \
+  ../../Util/Loki/EmptyType.h \
+  ../../Util/Loki/SmallObj.h \
+  ../../Util/Loki/TypeTraits.h \
+  ../../Util/Loki/NullType.h \
+  ../../Util/Loki/TypeManip.h \
+  ../../Util/Loki/Threads.h \
+  ../../Util/Loki/Singleton.h
 RoutingTable6.obj: RoutingTable6.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -8596,6 +8628,7 @@ RoutingTable6.obj: RoutingTable6.cc \
   IPv6Address.h \
   ../IPv4/IPProtocolId_m.h \
   RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h \
   IRouterList.h \
   IPrefixList.h \
   INeighbourCache.h \
@@ -8623,201 +8656,3 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../NetworkInterfaces/Ethernet6/ethernet.h \
   ../../PHY/Mobility/Entity.h \
   ../../NetworkInterfaces/PPP6/IPv6PPPInterface.h
-RoutingTable6Access.obj: RoutingTable6Access.cc \
-  ../../Util/sys.h \
-  ../../Util/debug.h \
-  RoutingTable6Access.h \
-  RoutingTable6.h \
-  ipv6_addr.h \
-  Interface6Entry.h \
-  ../../Util/ExpiryEntryList.h \
-  ../../Util/boost/operators.hpp \
-  ../../Util/boost/array.hpp \
-  ../../Util/boost/config.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../../Util/boost/detail/workaround.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/non_type.hpp \
-  ../../Util/boost/detail/iterator.hpp \
-  ../../Util/boost/type_traits/remove_const.hpp \
-  ../../Util/boost/type_traits/detail/yes_no_type.hpp \
-  ../../Util/boost/type_traits/is_pointer.hpp \
-  ../../Util/boost/type_traits/is_same.hpp \
-  ../../Util/boost/type_traits/remove_pointer.hpp \
-  ../../Util/boost/type_traits/is_base_and_derived.hpp \
-  ../../Util/boost/mpl/if.hpp \
-  ../../Util/boost/mpl/aux_/has_xxx.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_def.hpp \
-  ../../Util/boost/type_traits/is_volatile.hpp \
-  ../../Util/boost/type_traits/broken_compiler_spec.hpp \
-  ../../Util/boost/type_traits/detail/cv_traits_impl.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_def.hpp \
-  ../../Util/boost/type_traits/detail/type_trait_undef.hpp \
-  ../../Util/boost/type_traits/is_reference.hpp \
-  ../../Util/boost/type_traits/is_array.hpp \
-  ../../Util/boost/type_traits/detail/false_result.hpp \
-  ../../Util/boost/type_traits/detail/bool_trait_undef.hpp \
-  ../../Util/boost/type_traits/config.hpp \
-  ../../Util/boost/type_traits/detail/wrap.hpp \
-  ../../Util/boost/type_traits/detail/is_function_type_tester.hpp \
-  ../../Util/boost/preprocessor/iterate.hpp \
-  ../../Util/boost/preprocessor/enum_params.hpp \
-  ../../Util/boost/preprocessor/comma_if.hpp \
-  ../../Util/boost/preprocessor/iteration/iterate.hpp \
-  ../../Util/boost/preprocessor/arithmetic/dec.hpp \
-  ../../Util/boost/preprocessor/arithmetic/inc.hpp \
-  ../../Util/boost/preprocessor/array/elem.hpp \
-  ../../Util/boost/preprocessor/array/size.hpp \
-  ../../Util/boost/preprocessor/cat.hpp \
-  ../../Util/boost/preprocessor/slot/slot.hpp \
-  ../../Util/boost/preprocessor/tuple/elem.hpp \
-  ../../Util/boost/preprocessor/config/config.hpp \
-  ../../Util/boost/preprocessor/array/data.hpp \
-  ../../Util/boost/preprocessor/slot/detail/def.hpp \
-  ../../Util/boost/preprocessor/repetition/enum_params.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma_if.hpp \
-  ../../Util/boost/preprocessor/repetition/repeat.hpp \
-  ../../Util/boost/preprocessor/control/if.hpp \
-  ../../Util/boost/preprocessor/facilities/empty.hpp \
-  ../../Util/boost/preprocessor/punctuation/comma.hpp \
-  ../../Util/boost/preprocessor/control/iif.hpp \
-  ../../Util/boost/preprocessor/logical/bool.hpp \
-  ../../Util/boost/preprocessor/debug/error.hpp \
-  ../../Util/boost/preprocessor/detail/auto_rec.hpp \
-  ../../Util/boost/preprocessor/tuple/eat.hpp \
-  ../../Util/boost/mpl/aux_/lambda_support.hpp \
-  ../../Util/boost/mpl/aux_/config/lambda.hpp \
-  ../../Util/boost/mpl/aux_/config/workaround.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/params.hpp \
-  ../../Util/boost/preprocessor/tuple/to_list.hpp \
-  ../../Util/boost/preprocessor/list/for_each_i.hpp \
-  ../../Util/boost/preprocessor/inc.hpp \
-  ../../Util/boost/mpl/aux_/config/ttp.hpp \
-  ../../Util/boost/mpl/aux_/config/preprocessor.hpp \
-  ../../Util/boost/preprocessor/repeat.hpp \
-  ../../Util/boost/preprocessor/list/adt.hpp \
-  ../../Util/boost/preprocessor/repetition/for.hpp \
-  ../../Util/boost/preprocessor/tuple/rem.hpp \
-  ../../Util/boost/preprocessor/detail/is_binary.hpp \
-  ../../Util/boost/preprocessor/logical/compl.hpp \
-  ../../Util/boost/preprocessor/detail/check.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/edg/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/msvc/for.hpp \
-  ../../Util/boost/preprocessor/repetition/detail/for.hpp \
-  ../../Util/boost/preprocessor/control/expr_iif.hpp \
-  ../../Util/boost/type_traits/detail/template_arity_spec.hpp \
-  ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
-  ../../Util/boost/type_traits/is_member_pointer.hpp \
-  ../../Util/boost/type_traits/detail/ice_and.hpp \
-  ../../Util/boost/type_traits/detail/ice_not.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_tester.hpp \
-  ../../Util/boost/type_traits/detail/ice_or.hpp \
-  ../../Util/boost/type_traits/is_member_function_pointer.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp \
-  ../../Util/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp \
-  ../../Util/boost/type_traits/is_class.hpp \
-  ../../Util/boost/type_traits/is_convertible.hpp \
-  ../../Util/boost/type_traits/remove_cv.hpp \
-  ../../Util/boost/type_traits/is_union.hpp \
-  ../../Util/boost/type_traits/is_scalar.hpp \
-  ../../Util/boost/type_traits/is_void.hpp \
-  ../../Util/boost/type_traits/is_function.hpp \
-  ../../Util/boost/type_traits/intrinsics.hpp \
-  ../../Util/boost/type_traits/is_arithmetic.hpp \
-  ../../Util/boost/type_traits/is_enum.hpp \
-  ../../Util/boost/type_traits/is_integral.hpp \
-  ../../Util/boost/type_traits/is_float.hpp \
-  ../../Util/boost/type_traits/add_reference.hpp \
-  ../../Util/boost/type_traits/detail/is_function_ptr_helper.hpp \
-  ../../Util/boost/type_traits/ice.hpp \
-  ../../Util/boost/type_traits/detail/ice_eq.hpp \
-  ../../Util/boost/mpl/void.hpp \
-  ../../Util/boost/mpl/aux_/value_wknd.hpp \
-  ../../Util/boost/mpl/aux_/static_cast.hpp \
-  ../../Util/boost/mpl/aux_/void_spec.hpp \
-  ../../Util/boost/mpl/arg_fwd.hpp \
-  ../../Util/boost/mpl/void_fwd.hpp \
-  ../../Util/boost/mpl/bool.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc.hpp \
-  ../../Util/boost/mpl/bool_fwd.hpp \
-  ../../Util/boost/mpl/aux_/config/static_constant.hpp \
-  ../../Util/boost/mpl/aux_/config/eti.hpp \
-  ../../Util/boost/mpl/int.hpp \
-  ../../Util/boost/mpl/int_fwd.hpp \
-  ../../Util/boost/mpl/aux_/integral_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/config/nttp.hpp \
-  ../../Util/boost/mpl/lambda_fwd.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/enum.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/def_params_tail.hpp \
-  ../../Util/boost/mpl/aux_/arity.hpp \
-  ../../Util/boost/mpl/aux_/lambda_arity_param.hpp \
-  ../../Util/boost/mpl/aux_/algorithm_namespace.hpp \
-  ../../Util/boost/mpl/aux_/config/dtp.hpp \
-  ../../Util/boost/mpl/limits/arity.hpp \
-  ../../Util/boost/preprocessor/logical/and.hpp \
-  ../../Util/boost/preprocessor/identity.hpp \
-  ../../Util/boost/preprocessor/empty.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/filter_params.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/sub.hpp \
-  ../../Util/boost/preprocessor/arithmetic/add.hpp \
-  ../../Util/boost/preprocessor/arithmetic/sub.hpp \
-  ../../Util/boost/preprocessor/logical/bitand.hpp \
-  ../../Util/boost/preprocessor/facilities/identity.hpp \
-  ../../Util/boost/mpl/aux_/preprocessor/tuple.hpp \
-  ../../Util/boost/preprocessor/control/while.hpp \
-  ../../Util/boost/preprocessor/list/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/fold_right.hpp \
-  ../../Util/boost/preprocessor/control/detail/edg/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/msvc/while.hpp \
-  ../../Util/boost/preprocessor/control/detail/while.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_left.hpp \
-  ../../Util/boost/preprocessor/list/detail/edg/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/detail/fold_right.hpp \
-  ../../Util/boost/preprocessor/list/reverse.hpp \
-  ../../Util/boost/mpl/aux_/type_wrapper.hpp \
-  ../../Util/boost/mpl/aux_/yes_no.hpp \
-  ../../Util/boost/mpl/aux_/config/msvc_typename.hpp \
-  ../../Util/boost/mpl/aux_/config/ctps.hpp \
-  ../../Util/boost/mpl/integral_c.hpp \
-  ../../Util/boost/mpl/integral_c_fwd.hpp \
-  ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../config.h \
-  NDEntry.h \
-  IPv6Headers.h \
-  ../../Util/boost/weak_ptr.hpp \
-  IPv6Address.h \
-  ../../Util/boost/shared_ptr.hpp \
-  ../../Util/boost/assert.hpp \
-  ../../Util/boost/checked_delete.hpp \
-  ../../Util/boost/throw_exception.hpp \
-  ../../Util/boost/detail/shared_count.hpp \
-  ../../Util/boost/detail/lightweight_mutex.hpp \
-  ../../Util/boost/detail/lwm_win32_nt.hpp \
-  ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTimerMessageCB.h \
-  ../../Util/cTimerMessage.h \
-  ../../Util/Loki/Functor.h \
-  ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/boost/utility.hpp \
-  ../../Util/boost/noncopyable.hpp \
-  ../../Util/boost/utility/addressof.hpp \
-  ../../Util/boost/utility/base_from_member.hpp \
-  ../../Util/boost/next_prior.hpp \
-  ../../Util/boost/type_traits/add_pointer.hpp \
-  ../../Util/boost/type_traits/remove_reference.hpp \
-  ../../Util/boost/utility_fwd.hpp \
-  ../../Util/Loki/Typelist.h \
-  ../../Util/Loki/EmptyType.h \
-  ../../Util/Loki/SmallObj.h \
-  ../../Util/Loki/TypeTraits.h \
-  ../../Util/Loki/NullType.h \
-  ../../Util/Loki/TypeManip.h \
-  ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h

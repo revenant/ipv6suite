@@ -47,10 +47,10 @@ class IPv6ForwardCore;
  */
 
 //XXX FIXME TBD rewrite with QueueBase!!!!! --AV
-class IPv6OutputCore: public RoutingTable6Access
+class IPv6OutputCore : public cSimpleModule
 {
 public:
-  Module_Class_Members(IPv6OutputCore, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6OutputCore, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage* msg);
@@ -63,6 +63,8 @@ private:
 
   //XXX LLInterfacePkt* processArrivingMessage(cMessage* msg);
   void processArrivingMessage(IPv6Datagram* msg);
+
+  RoutingTable6 *rt;
 
   simtime_t delay;
   //bool hasHook;

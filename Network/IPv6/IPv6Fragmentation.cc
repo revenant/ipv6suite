@@ -52,7 +52,7 @@ Define_Module( IPv6Fragmentation );
 
 void IPv6Fragmentation::initialize()
 {
-  RoutingTable6Access::initialize();
+  rt = RoutingTable6Access().get();
   numOfPorts = par("numOfPorts");
   delay = par("procdelay");
   ctrIP6InTooBig = 0;

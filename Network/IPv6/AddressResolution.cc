@@ -66,7 +66,7 @@ size_t AddressResolution::outputUnicastGate = UINT_MAX;
 
 void AddressResolution::initialize()
 {
-  RoutingTable6Access::initialize();
+  rt = RoutingTable6Access().get();
   //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
   //another class with exactly same name?
   fc = check_and_cast<::IPv6ForwardCore*> (

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,7 +60,7 @@ namespace MobileIPv6
   extern const int Sched_SendBU;
   extern const int Sched_SendHoTI;
   extern const int Sched_SendCoTI;
-  
+
   class MIPv6CDS;
   class MIPv6MStateCorrespondentNode;
   class MIPv6MStateMobileNode;
@@ -75,11 +75,9 @@ class cTimerMessage;
  *
  * @brief Processes MIPv6 protocol messages and manages lifetime of MIPv6
  * Conceptual data structures
- *
- * 
  */
 
-class IPv6Mobility:public RoutingTable6Access
+class IPv6Mobility : public cSimpleModule
 {
 public:
 
@@ -87,16 +85,16 @@ public:
   friend class MobileIPv6::MIPv6MStateMobileNode;
   friend class MobileIPv6::MIPv6MStateHomeAgent;
   friend class MobileIPv6::MIPv6MobilityState;
-  
+
   //@name constructors, destructors and operators
   //@{
-  Module_Class_Members(IPv6Mobility, RoutingTable6Access, 0);
-  
+  Module_Class_Members(IPv6Mobility, cSimpleModule, 0);
+
   //@}
 
   //@name reimplemented cSimpleModule functions
   //@{
-  virtual void finish();  
+  virtual void finish();
   virtual void initialize(int stage);
   virtual int numInitStages() const  {return 2;}
   virtual void handleMessage(cMessage* msg);
@@ -112,29 +110,29 @@ public:
   bool isMobileNode();
 
   bool isHomeAgent();
-  
+
   bool isCorrespondentNode();
 
   bool routeOptimise() { return _routeOptimise; }
   void setRouteOptimise(bool ro) { _routeOptimise = ro; }
 
   bool returnRoutability() { return _returnRoutability; }
-  void setReturnRoutability(bool rr) 
-    { 
+  void setReturnRoutability(bool rr)
+    {
       if (!_routeOptimise && rr)
-      {        
+      {
         std::cerr<<"Error: "<<fullPath()<<" Return Routability Procedure is on while Route Optimisation is off"<<endl;
         exit(1);
       }
-      _returnRoutability = rr; 
+      _returnRoutability = rr;
     }
-  
+
   bool earlyBindingUpdate() { return _isEBU; }
   void setEarlyBindingUpdate(bool isEBU)
     {
       if (!_returnRoutability && isEBU)
       {
-        std::cerr<<"Error: "<<fullPath()<<" Early BU is true while Route Optimisation is off"<<endl;        
+        std::cerr<<"Error: "<<fullPath()<<" Early BU is true while Route Optimisation is off"<<endl;
         exit(1);
       }
       _isEBU = isEBU;
@@ -144,20 +142,20 @@ public:
   void setDirectSignaling(bool ds)
     {
       if (!_returnRoutability && ds)
-      {        
-        std::cerr<<"Error: "<<fullPath()<<" Direct Signaling is true while Route Optimisation is off"<<endl;                
+      {
+        std::cerr<<"Error: "<<fullPath()<<" Direct Signaling is true while Route Optimisation is off"<<endl;
         exit(1);
       }
       _directSignaling = ds;
     }
 
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
-  
-  const simtime_t getl2LinkDownTime() 
+
+  const simtime_t getl2LinkDownTime()
     {
       return l2LinkDownTime;
     }
-  
+
   void setl2LinkDownTime(const simtime_t linkdownTime)
     {
       l2LinkDownTime = linkdownTime;
@@ -195,7 +193,7 @@ public:
 #endif //EDGEHANDOVER
 #endif // USE_HMIP
 
-  const char* nodeName() const;  
+  const char* nodeName() const;
 
 protected:
 #ifdef USE_MOBILITY
@@ -203,21 +201,23 @@ protected:
 #endif // USE_MOBILITY
 
 private:
-  
+
   IPv6Mobility(const IPv6Mobility& src);
   IPv6Mobility& operator=(IPv6Mobility& src);
 
 private:
+  RoutingTable6 *rt;
+
   MobileIPv6::MIPv6MobilityState* _MobilityState;
   MobileIPv6::MIPv6CDS* mipv6cds;
 
   cTimerMessage* periodTmr;
-  
+
   ///Enable route optimisation?
   bool _routeOptimise;
 
   bool _returnRoutability;
-  
+
   bool _isEBU;
 
   bool _directSignaling;

@@ -60,7 +60,7 @@ Define_Module( IPv6SendCore );
 ///@{
 void IPv6SendCore::initialize()
 {
-  RoutingTable6Access::initialize();
+  rt = RoutingTable6Access().get();
 
   delay = par("procdelay");
   defaultMCTimeToLive = par("multicastTimeToLive");

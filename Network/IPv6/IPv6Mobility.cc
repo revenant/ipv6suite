@@ -96,6 +96,7 @@ void IPv6Mobility::initialize(int stage)
 {
   if (stage == 0)
   {
+    rt = RoutingTable6Access().get();
     mipv6cds = 0;
     _MobilityState = 0;
     periodTmr = 0;
@@ -108,8 +109,6 @@ void IPv6Mobility::initialize(int stage)
     //ehType = "";
 #endif // EDGEHANDOVER
 #endif // USE_MOBILITY
-
-    RoutingTable6Access::initialize();
   }
   else if (stage == 1)
   {

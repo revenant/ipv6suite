@@ -86,7 +86,7 @@ namespace IPv6NeighbourDiscovery
 class IPv6Datagram;
 template <class Arg> class TFunctorBaseA;
 
-class IPv6Encapsulation: public RoutingTable6Access
+class IPv6Encapsulation : public cSimpleModule
 {
   struct Tunnel;
 
@@ -141,7 +141,7 @@ class IPv6Encapsulation: public RoutingTable6Access
                                   const IPv6Encapsulation& tunMod);
 
 public:
-  Module_Class_Members(IPv6Encapsulation, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6Encapsulation, cSimpleModule, 0);
 
   ///Create tunnel and create lookup entries by inserting into Dest Cache
   size_t createTunnel(const ipv6_addr& src, const ipv6_addr& dest,
@@ -186,6 +186,7 @@ public:
   //@}
 
 private:
+  RoutingTable6 *rt;
   simtime_t delay;
   ///traffic class (-1 for copied, 0 for default and others preconfigured)
   int trafficClass;

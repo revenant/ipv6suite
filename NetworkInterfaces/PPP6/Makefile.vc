@@ -139,7 +139,6 @@ IPv6PPPAPInterface.obj: IPv6PPPAPInterface.cc \
   ../../Network/IPv6/Messages.h \
   ../Ethernet6/MACAddress6.h \
   PPP6Frame.h \
-  ../LLInterfacePkt.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \

@@ -31,14 +31,9 @@
 #ifndef UDPAPPLICATION_H
 #define UDPAPPLICATION_H
 
-#ifndef ROUTING_TABLE6_ACCESS_H
-#include "RoutingTable6Access.h"
-#endif 
-
-#ifndef STRING
-#define STRING
 #include <string>
-#endif //STRING
+#include <omnetpp.h>
+
 
 
 /**
@@ -49,13 +44,12 @@
  * For usage look at UDPVideoStream application. This allows all UDP apps to
  * share common port registering code
  */
-
-class UDPApplication: public RoutingTable6Access
+class UDPApplication: public cSimpleModule
 {
 public:
   friend class UDPApplicationTest;
-  
-  Module_Class_Members(UDPApplication, RoutingTable6Access, 0);
+
+  Module_Class_Members(UDPApplication, cSimpleModule, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -73,7 +67,6 @@ protected:
   //binding anonymously the port will store the bound port.
   void bindPort();
   bool isReady() const { return bound; }
-
 
   std::string address;
   unsigned int port;

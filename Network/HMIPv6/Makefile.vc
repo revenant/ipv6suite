@@ -361,7 +361,12 @@ EHCDSMobileNode.obj: EHCDSMobileNode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../IPv6/RoutingTable6Access.h \
-  ../../config.h
+  ../../config.h \
+  ../../Base/ModuleAccess.h \
+  ../IPv6/RoutingTable6.h \
+  ../IPv6/Interface6Entry.h \
+  ../../Util/ExpiryEntryList.h \
+  ../IPv6/NDEntry.h
 EHNDStateHost.obj: EHNDStateHost.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -610,7 +615,8 @@ EHNDStateHost.obj: EHNDStateHost.cc \
   ../MIPv6/MIPv6CDS.h \
   ../IPv6/Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
-  ../IPv6/RoutingTable6Access.h
+  ../IPv6/RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h
 EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -828,18 +834,11 @@ EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/boost/type_traits/is_const.hpp \
   ../../Util/boost/type_traits/remove_volatile.hpp \
   ../IPv6/RoutingTable6Access.h \
-  ../../Util/boost/utility.hpp \
-  ../../Util/boost/noncopyable.hpp \
-  ../../Util/boost/utility/base_from_member.hpp \
-  ../../Util/boost/next_prior.hpp \
-  ../../Util/boost/utility_fwd.hpp \
-  ../MIPv6/MIPv6MobilityHeaders.h \
+  ../../Base/ModuleAccess.h \
+  ../IPv6/RoutingTable6.h \
+  ../IPv6/Interface6Entry.h \
+  ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
-  ../MIPv6/MIPv6MessageBase.h \
-  ../MIPv6/MIPv6MHParameters.h \
-  ../IPv6/IPInterfacePacket.h \
-  ../IPv6/HdrExtProc.h \
-  ../IPv6/IPInterfacePacket_m.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/Loki/Typelist.h \
@@ -850,6 +849,17 @@ EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ../../Util/boost/utility.hpp \
+  ../../Util/boost/noncopyable.hpp \
+  ../../Util/boost/utility/base_from_member.hpp \
+  ../../Util/boost/next_prior.hpp \
+  ../../Util/boost/utility_fwd.hpp \
+  ../MIPv6/MIPv6MobilityHeaders.h \
+  ../MIPv6/MIPv6MessageBase.h \
+  ../MIPv6/MIPv6MHParameters.h \
+  ../IPv6/IPInterfacePacket.h \
+  ../IPv6/HdrExtProc.h \
+  ../IPv6/IPInterfacePacket_m.h \
   ../MIPv6/MIPv6CDS.h \
   ../MIPv6/MIPv6MStateCorrespondentNode.h \
   ../MIPv6/MIPv6MobilityState.h
@@ -1060,7 +1070,12 @@ HMIPv6CDSMobileNode.obj: HMIPv6CDSMobileNode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../IPv6/RoutingTable6Access.h \
-  ../../config.h
+  ../../config.h \
+  ../../Base/ModuleAccess.h \
+  ../IPv6/RoutingTable6.h \
+  ../IPv6/Interface6Entry.h \
+  ../../Util/ExpiryEntryList.h \
+  ../IPv6/NDEntry.h
 HMIPv6Entry.obj: HMIPv6Entry.cc \
   HMIPv6Entry.h \
   HMIPv6ICMPv6NDMessage.h \
@@ -1818,7 +1833,8 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../MIPv6/MIPv6MStateCorrespondentNode.h \
   ../MIPv6/MIPv6MobilityState.h \
   ../IPv6/IPv6Mobility.h \
-  ../IPv6/RoutingTable6Access.h
+  ../IPv6/RoutingTable6Access.h \
+  ../../Base/ModuleAccess.h
 HMIPv6NDStateRouter.obj: HMIPv6NDStateRouter.cc \
   HMIPv6NDStateRouter.h \
   HMIPv6ICMPv6NDMessage.h \

@@ -54,11 +54,11 @@ class IPv6Datagram;
  * encapsulated by datagrams
  */
 
-class IPv6SendCore: public RoutingTable6Access
+class IPv6SendCore : public cSimpleModule
 {
 
 public:
-  Module_Class_Members(IPv6SendCore, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6SendCore, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage*);
@@ -66,6 +66,8 @@ public:
 
 private:
   void sendDatagram(IPv6InterfacePacket *);
+
+  RoutingTable6 *rt;
 
   int defaultTimeToLive;
   int defaultMCTimeToLive;

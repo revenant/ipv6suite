@@ -68,7 +68,7 @@ Define_Module ( IPv6OutputCore );
 
 void IPv6OutputCore::initialize()
 {
-  RoutingTable6Access::initialize();
+    rt = RoutingTable6Access().get();
 
     delay = par("procdelay");
     if (delay == 0)

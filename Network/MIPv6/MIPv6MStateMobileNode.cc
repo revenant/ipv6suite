@@ -20,11 +20,8 @@
  * @file MIPv6MStateMobileNode.cc
  * @author Eric Wu, Johnny Lai
  * @date 16.4.2002
-
+ *
  * @brief Implements functionality of Mobile Node
- *
- *
- *
  */
 
 #include "sys.h"

@@ -93,12 +93,12 @@ namespace IPv6NeighbourDiscovery
   class NDStateRouter; //for sending redirect
 };
 
-class IPv6ForwardCore: public RoutingTable6Access
+class IPv6ForwardCore : public cSimpleModule
 {
   friend std::ostream& operator<<(std::ostream & os,
                                   IPv6ForwardCore& routeMod);
 public:
-  Module_Class_Members(IPv6ForwardCore, RoutingTable6Access, 0);
+  Module_Class_Members(IPv6ForwardCore, cSimpleModule, 0);
 
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* theMsg);
@@ -132,6 +132,8 @@ public:
   bool routingInfoDisplay;
 
 private:
+  RoutingTable6 *rt;
+
   simtime_t delay;
   bool hasHook;
   unsigned int ctrIP6InAddrErrors;

@@ -73,8 +73,8 @@ void IPv6Encapsulation::initialize(int stageNo)
 {
   if (stageNo == 0)
   {
+    rt = RoutingTable6Access().get();
     mipv6CheckTunnelCB = 0;
-    RoutingTable6Access::initialize();
     delay = par("procdelay");
 
     trafficClass = 0; //Use the value of 0 which is protocol default

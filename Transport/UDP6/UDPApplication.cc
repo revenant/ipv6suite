@@ -45,7 +45,6 @@ Define_Module(UDPApplication);
 
 void UDPApplication::initialize()
 {
-  RoutingTable6Access::initialize();
   server = par("server");
   if (server)
   {

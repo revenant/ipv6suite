@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.3 2005/02/16 00:41:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.4 2005/02/16 00:48:30 andras Exp $
 //
 //
 // Eric Wu
@@ -50,7 +50,7 @@
 class EtherState;
 class EtherSignal;
 class EtherSignalData;
-class EtherFrame;
+class EtherFrame6;
 
 class EtherModule: public LinkLayerModule
 {
@@ -69,7 +69,7 @@ class EtherModule: public LinkLayerModule
   virtual bool receiveData(std::auto_ptr<cMessage> msg);
 
   // send packet to other layer besides physical layer
-  virtual bool sendData(EtherFrame* frame);
+  virtual bool sendData(EtherFrame6* frame);
 
   // reset back to initial state
   void reset(void);

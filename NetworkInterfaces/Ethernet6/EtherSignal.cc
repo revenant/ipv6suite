@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.cc,v 1.3 2005/02/16 00:48:30 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -26,7 +26,7 @@
 
 #include <cassert>
 #include "EtherSignal.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 
 EtherSignal::EtherSignal(EtherSignalType type)
   : _type(type)
@@ -47,7 +47,7 @@ EtherSignal& EtherSignal::operator=(const EtherSignal& p)
     return *this;
 }
 
-EtherSignalData::EtherSignalData(EtherFrame* frame)
+EtherSignalData::EtherSignalData(EtherFrame6* frame)
   : EtherSignal(EST_Data), _frame(frame->dup())
 {
   setName("FRAME");
@@ -72,11 +72,11 @@ EtherSignalData& EtherSignalData::operator=(const EtherSignalData& p)
   EtherSignal::operator=(p);
   setName(p.name());
 
-  _frame = static_cast<EtherFrame*>(p._frame->dup());
+  _frame = static_cast<EtherFrame6*>(p._frame->dup());
   return *this;
 }
 
-EtherFrame* EtherSignalData::data()
+EtherFrame6* EtherSignalData::data()
 {
   return _frame;
 }

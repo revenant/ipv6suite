@@ -47,7 +47,7 @@ bool EtherModuleBridge::receiveData(std::auto_ptr<cMessage> msg)
   return EtherModuleAP::receiveData(msg);
 }
 
-bool EtherModuleBridge::sendData(EtherFrame* frame)
+bool EtherModuleBridge::sendData(EtherFrame6* frame)
 {
   return EtherModuleAP::sendData(frame);
 }

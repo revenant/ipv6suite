@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.h,v 1.3 2005/02/16 00:48:30 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -33,7 +33,7 @@
 #include <omnetpp.h>
 #include "ethernet.h"
 
-class EtherFrame;
+class EtherFrame6;
 
 class EtherSignal : public cMessage
 {
@@ -67,7 +67,7 @@ public:
 class EtherSignalData : public EtherSignal
 {
  public:
-  EtherSignalData(EtherFrame* frame = 0);
+  EtherSignalData(EtherFrame6* frame = 0);
   EtherSignalData(const EtherSignalData &p);
   ~EtherSignalData();
 
@@ -80,10 +80,10 @@ class EtherSignalData : public EtherSignal
   virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 
-  EtherFrame* data();
+  EtherFrame6* data();
 
  private:
-  EtherFrame* _frame;
+  EtherFrame6* _frame;
 };
 
 class EtherSignalJam : public EtherSignal

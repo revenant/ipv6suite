@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.6 2005/02/16 00:41:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherFrame6.cc,v 1.1 2005/02/16 00:48:30 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -30,7 +30,7 @@
 #include <cstring>
 #include <cstdio>
 
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 
 // All field length is in bits
 
@@ -42,17 +42,17 @@ const int CRC = 32;
 const int POSTAMBLE = 8;
 
 // constructors
-EtherFrame::EtherFrame(const char* name): cMessage(name)
+EtherFrame6::EtherFrame6(const char* name): cMessage(name)
 {}
 
-EtherFrame::EtherFrame(const EtherFrame& p)
+EtherFrame6::EtherFrame6(const EtherFrame6& p)
 {
     setName( p.name() );
     operator=(p);
 }
 
 // assignment operator
-EtherFrame& EtherFrame::operator=(const EtherFrame& p)
+EtherFrame6& EtherFrame6::operator=(const EtherFrame6& p)
 {
     cMessage::operator=(p);
     // _protocol = p._protocol;
@@ -62,7 +62,7 @@ EtherFrame& EtherFrame::operator=(const EtherFrame& p)
 }
 
 // information functions
-std::string EtherFrame::info()
+std::string EtherFrame6::info()
 {
     std::stringstream out;
     out << "prot= " << _protocol
@@ -71,26 +71,26 @@ std::string EtherFrame::info()
     return out.str();
 }
 
-void EtherFrame::writeContents(std::ostream& os)
+void EtherFrame6::writeContents(std::ostream& os)
 {
-    os << "EtherFrame: "
+    os << "EtherFrame6: "
         << "\nProtocol :" << (int)_protocol
         << "\nsrcmac   :" << _srcAddr.stringValue()
         << "\ndestmac  :" << _destAddr.stringValue()
         << "\n";
 }
 
-const char *EtherFrame::dumpContents(void)
+const char *EtherFrame6::dumpContents(void)
 {
      static char buff[400];
-     sprintf(buff, "EtherFrame:\nProtocol :%x\nsrcmac   :%s\n",
+     sprintf(buff, "EtherFrame6:\nProtocol :%x\nsrcmac   :%s\n",
               (int)_protocol, srcAddrString());
      // two sprintfs since only one static storage array for stringValue();
      sprintf(buff+strlen(buff), "destmac  :%s\n", destAddrString());
      return (const char *) buff;
 }
 
-const char *EtherFrame::destAddrString(void) const
+const char *EtherFrame6::destAddrString(void) const
 {
 /*  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: "
        << " --------------------------------------------- \n"
@@ -100,7 +100,7 @@ const char *EtherFrame::destAddrString(void) const
      return _destAddr.stringValue();
 }
 
-const char *EtherFrame::srcAddrString(void) const
+const char *EtherFrame6::srcAddrString(void) const
 {
 /*  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: "
        << " --------------------------------------------- \n"
@@ -114,14 +114,14 @@ const char *EtherFrame::srcAddrString(void) const
 
 #include <netinet/if_ether.h>
 
-struct network_payload *EtherFrame::networkOrder()  const
+struct network_payload *EtherFrame6::networkOrder()  const
 {
        struct network_payload *packet;
        cPacket *enc;
        struct network_payload *payload = NULL;
        unsigned char data[ETH_FRAME_LEN];
 
-       ev << "EtherFrame::networkOrder()" << endl;
+       ev << "EtherFrame6::networkOrder()" << endl;
        // set source and dest and zlen
        // start with packet containing no data currently
        // all data to go behind start pointer.
@@ -175,7 +175,7 @@ struct network_payload *EtherFrame::networkOrder()  const
        return packet;
 }
 
-int EtherFrame::pack_mac_addr(const char *straddr, unsigned char *pack) const
+int EtherFrame6::pack_mac_addr(const char *straddr, unsigned char *pack) const
 {
     int i, j;
     unsigned char val;
@@ -219,13 +219,13 @@ int EtherFrame::pack_mac_addr(const char *straddr, unsigned char *pack) const
     length of transport packet in bits
     adds to it the Ethernet header length in bits */
 /* XXX seems like this is not strictly necessary --AV
-void EtherFrame::encapsulate(cPacket* networkPacket)
+void EtherFrame6::encapsulate(cPacket* networkPacket)
 {
     cPacket::encapsulate(networkPacket);
     setName(networkPacket->name());
 }
 */
-int EtherFrame::headerByteLength() const
+int EtherFrame6::headerByteLength() const
 {
   int headerlen = (PREAMBLE +
                    DEST_ADDR_LEN +
@@ -237,18 +237,18 @@ int EtherFrame::headerByteLength() const
 }
 
 /* XXX no need -- removed to reduce clutter.  --AV
-cPacket* EtherFrame::decapsulate()
+cPacket* EtherFrame6::decapsulate()
 {
   return (cPacket *)(cPacket::decapsulate());
 }
 */
 
-void EtherFrame::setProtocol(int prot)
+void EtherFrame6::setProtocol(int prot)
 {
   _protocol = prot;
 }
 
-void EtherFrame::setSrcAddress( const  MACAddress6& src)
+void EtherFrame6::setSrcAddress( const  MACAddress6& src)
 {
   _srcAddr = src;
 /*
@@ -259,7 +259,7 @@ void EtherFrame::setSrcAddress( const  MACAddress6& src)
        << " --------------------------------------------- \n");*/
 }
 
-void EtherFrame::setDestAddress( const  MACAddress6& dest)
+void EtherFrame6::setDestAddress( const  MACAddress6& dest)
 {
    _destAddr = dest;
 /*
@@ -270,27 +270,27 @@ void EtherFrame::setDestAddress( const  MACAddress6& dest)
        << " --------------------------------------------- \n");*/
 }
 
-void EtherFrame::setDataLength(int dataLen)
+void EtherFrame6::setDataLength(int dataLen)
 {
   setLength(dataLen + headerByteLength());
 }
 
-int EtherFrame::protocol() const
+int EtherFrame6::protocol() const
 {
   return _protocol;
 }
 
-const MACAddress6& EtherFrame::srcAddress(void)  const
+const MACAddress6& EtherFrame6::srcAddress(void)  const
 {
   return _srcAddr;
 }
 
-const MACAddress6& EtherFrame::destAddress(void) const
+const MACAddress6& EtherFrame6::destAddress(void) const
 {
   return _destAddr;
 }
 /*
-const int EtherFrame::packetLength(void)
+const int EtherFrame6::packetLength(void)
 {
   return headerByteLength() + _dataLen;
 }

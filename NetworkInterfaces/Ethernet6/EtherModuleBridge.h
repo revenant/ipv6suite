@@ -44,7 +44,7 @@ class EtherModuleBridge : public EtherModuleAP
   virtual bool receiveData(std::auto_ptr<cMessage> msg);
 
   // send packet to other layer besides physical layer
-  virtual bool sendData(EtherFrame* frame);
+  virtual bool sendData(EtherFrame6* frame);
 };
 
 #endif // __ETHERMODULE_BRIDGE__

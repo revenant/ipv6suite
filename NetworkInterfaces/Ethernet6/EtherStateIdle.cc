@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateIdle.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateIdle.cc,v 1.3 2005/02/16 00:48:30 andras Exp $
 //
 //
 // Eric Wu
@@ -33,7 +33,7 @@
 
 #include "EtherStateIdle.h"
 #include "cTimerMessageCB.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "ethernet.h"
 #include "EtherModule.h"
 #include "EtherSignal.h"

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.6 2005/02/16 00:41:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherFrame6.h,v 1.1 2005/02/16 00:48:30 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-    @file EtherFrame.h
+    @file EtherFrame6.h
     @brief Ethernet frame format definition
     @author Eric Wu
 */
@@ -43,7 +43,7 @@ extern const int CRC;
 extern const int POSTAMBLE;
 
 /*  -------------------------------------------------
-        Main class: EtherFrame
+        Main class: EtherFrame6
     -------------------------------------------------
     field simulated:
         protocol
@@ -51,19 +51,19 @@ extern const int POSTAMBLE;
         flag (0x7e), control (0x03), RC (biterror)
 */
 
-class EtherFrame: public cMessage
+class EtherFrame6: public cMessage
 {
 public:
   // constructors
-  EtherFrame(const char* name = NULL);
-  EtherFrame(const EtherFrame &p);
+  EtherFrame6(const char* name = NULL);
+  EtherFrame6(const EtherFrame6 &p);
 
   // assignment operator
-  virtual EtherFrame& operator=(const EtherFrame& p);
-  virtual EtherFrame *dup() const { return new EtherFrame(*this); }
+  virtual EtherFrame6& operator=(const EtherFrame6& p);
+  virtual EtherFrame6 *dup() const { return new EtherFrame6(*this); }
 
   // info functions
-  virtual const char *className() const { return "EtherFrame"; }
+  virtual const char *className() const { return "EtherFrame6"; }
   virtual std::string info();
   virtual void writeContents(std::ostream& os);
   const char  *dumpContents(void);

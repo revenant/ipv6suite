@@ -36,7 +36,7 @@
 #include "ethernet.h"
 #include "PHYSimple.h"
 #include "EtherSignal.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "EtherStateIdle.h"
 
 #include "MACAddress6.h"
@@ -123,7 +123,7 @@ bool EtherModuleAP::receiveData(std::auto_ptr<cMessage> msg)
   return true;
 }
 
-bool EtherModuleAP::sendData(EtherFrame* frame)
+bool EtherModuleAP::sendData(EtherFrame6* frame)
 {
   assert(frame);
 

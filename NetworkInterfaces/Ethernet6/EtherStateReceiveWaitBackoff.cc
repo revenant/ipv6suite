@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceiveWaitBackoff.cc,v 1.3 2005/02/16 00:41:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceiveWaitBackoff.cc,v 1.4 2005/02/16 00:48:30 andras Exp $
 //
 //
 // Eric Wu
@@ -40,7 +40,7 @@
 #include "EtherStateWaitBackoff.h"
 #include "EtherStateWaitBackoffJam.h"
 #include "EtherStateReceive.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "MACAddress6.h"
 
 using std::string;
@@ -111,7 +111,7 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceiveWaitBackoff::processIdle(EtherMo
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << " @ EtherStateReceiveWaitBackoff, BackoffRemainingTime = " << mod->backoffRemainingTime);
 
   assert(mod->inputFrame);
-  EtherFrame* recFrame = mod->inputFrame->data();
+  EtherFrame6* recFrame = mod->inputFrame->data();
 
   // send to upper layer
   mod->sendData(recFrame);

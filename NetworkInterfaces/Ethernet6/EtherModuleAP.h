@@ -52,7 +52,7 @@ class EtherModuleAP : public EtherModule
   virtual bool receiveData(std::auto_ptr<cMessage> msg);
 
   // send packet to other layer besides physical layer
-  virtual bool sendData(EtherFrame* frame);
+  virtual bool sendData(EtherFrame6* frame);
 
  private:
   void addMacEntry(std::string addr);

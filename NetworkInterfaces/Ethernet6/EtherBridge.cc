@@ -9,7 +9,7 @@
 #include "EtherBridge.h"
 #include "ethernet.h"
 #include "EtherSignal.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "MACAddress6.h"
 
 Define_Module( EtherRelayUnit );
@@ -34,8 +34,8 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
     return;
   }
 
-  EtherFrame* frame =
-    boost::polymorphic_downcast<EtherFrame*>(msg);
+  EtherFrame6* frame =
+    boost::polymorphic_downcast<EtherFrame6*>(msg);
   assert(frame);
 
   int chkOutputPort = outputPortByAddress(frame->destAddrString());

@@ -64,7 +64,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= EtherBridge.obj EtherFrame.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress6.obj
+OBJS= EtherBridge.obj EtherFrame6.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress6.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -95,8 +95,8 @@ subdirs: $(SUBDIR_TARGETS)
 EtherBridge.obj: EtherBridge.cc
 	$(CXX) -c $(COPTS) /Tp EtherBridge.cc
 
-EtherFrame.obj: EtherFrame.cc
-	$(CXX) -c $(COPTS) /Tp EtherFrame.cc
+EtherFrame6.obj: EtherFrame6.cc
+	$(CXX) -c $(COPTS) /Tp EtherFrame6.cc
 
 EtherModule.obj: EtherModule.cc
 	$(CXX) -c $(COPTS) /Tp EtherModule.cc

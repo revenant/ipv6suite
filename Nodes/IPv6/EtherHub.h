@@ -8,7 +8,7 @@
 
 
 #include <omnetpp.h>
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "MLDv2Record.h"
 
 //#define    PrintResult

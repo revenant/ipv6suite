@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceive.cc,v 1.3 2005/02/16 00:41:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceive.cc,v 1.4 2005/02/16 00:48:30 andras Exp $
 //
 //
 // Eric Wu
@@ -37,7 +37,7 @@
 #include "EtherSignal.h"
 #include "EtherStateSend.h"
 #include "EtherStateIdle.h"
-#include "EtherFrame.h"
+#include "EtherFrame6.h"
 #include "MACAddress6.h"
 #include "cTTimerMessageCB.h"
 #include "EtherStateWaitJam.h"
@@ -115,7 +115,7 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceive::processIdle(EtherModule* mod, 
     return idle;
   }
 
-  EtherFrame* recFrame = mod->inputFrame->data();
+  EtherFrame6* recFrame = mod->inputFrame->data();
 
   // send to upper layer
   mod->sendData(recFrame);

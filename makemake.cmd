@@ -9,7 +9,7 @@ set OPTS=-f -N -b %root% -c %root%\inetconfig.vc
 
 set ALL_INET_INCLUDES=-I%root%/Network/IPv4 -I%root%/Network/IPv4d -I%root%/Network/AutoRouting -I%root%/Transport/TCP -I%root%/Transport/UDP -I%root%/NetworkInterfaces -I%root%/NetworkInterfaces/_802 -I%root%/NetworkInterfaces/ARP -I%root%/NetworkInterfaces/Ethernet -I%root%/NetworkInterfaces/PPP -I%root%/Applications/Generic -I%root%/Applications/Ethernet -I%root%/Applications/TCPApp -I%root%/Applications/UDPApp -I%root%/Applications/PingApp -I%root%/Base -I%root%/Util -I%root%/Nodes/INET
 set ALL_MPLS_INCLUDES=-I%root%/Network/MPLS -I%root%/Network/LDP -I%root%/Network/RSVP_TE -I%root%/Network/Scenario -I%root%/Nodes/MPLS
-set ALL_IPv6_INCLUDES=-I%root%/Applications/Ping6 -I%root%/Applications/VideoStream -I%root%/Transport/UDP6 -I%root%/Network/IPv6 -I%root%/Network/MIPv6 -I%root%/Network/HMIPv6 -I%root%/World -I%root%/PHY/Mobility -I%root%/PHY/Wireless -I%root%/NetworkInterfaces/Ethernet6 -I%root%/NetworkInterfaces/PPP6 -I%root%/NetworkInterfaces/Wireless -I%root%/Util/XML -I%root%/Util/Loki
+set ALL_IPv6_INCLUDES=-I%root%/Applications/Ping6 -I%root%/Applications/VideoStream -I%root%/Transport/UDP6 -I%root%/Network/IPv6 -I%root%/Network/MIPv6 -I%root%/Network/HMIPv6 -I%root%/World -I%root%/PHY/Mobility -I%root%/PHY/Mobility/adHocSim -I%root%/PHY/Wireless -I%root%/NetworkInterfaces/Ethernet6 -I%root%/NetworkInterfaces/PPP6 -I%root%/NetworkInterfaces/Wireless -I%root%/Util/XML -I%root%/Util/Loki
 
 :set ALL_MODEL_OPTS=%OPTS% -w %ALL_MPLS_INET_INCLUDES%
 set ALL_MODEL_OPTS=%OPTS% -n
@@ -43,8 +43,6 @@ cd %root%\Network\RIP && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\Loki && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r -I..\.. -I.. -I..\..\PHY\Mobility -I..\..\Base -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\IPv6 -I..\..\Network\IPv4 -I..\..\Network\MIPv6 -I..\..\Network\HMIPv6
 cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util\adHocSim && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
 
 :#FIXME remove -IWireless from Eth!!!!! --AV
 cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I..\Wireless -I..\..\PHY\Wireless -I.. -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\World
@@ -58,8 +56,9 @@ cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv6
 cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\Transport\UDP6
 
-:#FIXME remove dep on NetworkInterfaces!!! and on ..\..\Util\adHocSim\h!!!
-cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\World -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless  -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Util\adHocSim\h
+:#FIXME remove dep on NetworkInterfaces!!!
+cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\World -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless  -I..\..\NetworkInterfaces\Ethernet6 -IadHocSim
+cd %root%\PHY\Mobility\adHocSim && %MAKEMAKE% %OPTS% -n -r
 cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6
 
 cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv4  -I..\..\Network\IPv6

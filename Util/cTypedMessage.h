@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/cTypedMessage.h,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/cTypedMessage.h,v 1.3 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -66,7 +66,7 @@ cTypedMessage<T>* cTypedMessage<T>::dup() const
 {
   cTypedMessage<T>* dupl = new cTypedMessage(_data);
   //@warning omnetpp does not dup this but we want to
-  dupl->setKind(kind());
+  dupl->setKind(kind());  // XXX yes sure it DOES! --AV
   return dupl;
 }
 
@@ -75,7 +75,7 @@ cTypedMessage<T*>* cTypedMessage<T*>::dup() const
 {
   cTypedMessage<T>* dupl = new cTypedMessage<T*>(new T(*_data));
  //@warning omnetpp does not dup this but we want to
-  dupl->setKind(kind());
+  dupl->setKind(kind());  // XXX yes sure it DOES! --AV
   return dupl;
 }
 

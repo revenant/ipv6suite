@@ -18,13 +18,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
-// Required for MACAddress declarations
+// Required for MACAddress6 declarations
 //
 cplusplus
 {{
-    #include "MACAddress.h"
+    #include "MACAddress6.h"
 }};
-class MACAddress;
+class MACAddress6;
 
 enum SignalType
 {
@@ -56,7 +56,7 @@ message WirelessExternalSignalConnectionStatus extends WirelessExternalSignal
 {
   fields:
     int state enum(Status);
-    MACAddress connectedAddress;
+    MACAddress6 connectedAddress;
     int connectedChannel;
     double signalStrength;
     double estAvailBW;
@@ -83,6 +83,6 @@ message WirelessExternalSignalChannel extends WirelessExternalSignal
 message WirelessExternalSignalHandover extends WirelessExternalSignal
 {
   fields:
-    MACAddress target;
+    MACAddress6 target;
 };
 

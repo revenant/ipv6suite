@@ -39,9 +39,9 @@ class WirelessEtherInterface
 
   // Needed to use ExpiryEntryList
   double expiryTime(void) const { return expire; }
-  MACAddress identifier(void) { return address; }
+  MACAddress6 identifier(void) { return address; }
 
-  MACAddress address;
+  MACAddress6 address;
 
   ReceiveMode receiveMode;
 
@@ -70,7 +70,7 @@ bool operator<(const WirelessEtherInterface& lhs,
 class WESignalData;
 class WirelessEtherBridge;
 class FrameBody;
-class MACAddress;
+class MACAddress6;
 class WirelessEtherBridge;
 
 extern const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE;
@@ -97,15 +97,15 @@ public:
   virtual void receiveData(std::auto_ptr<cMessage> msg);
   virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
 
-  WirelessEtherInterface findIfaceByMAC(MACAddress mac);
+  WirelessEtherInterface findIfaceByMAC(MACAddress6 mac);
   void updateConsecutiveFailedCount();
   double getEstAvailBW(void) { return estAvailBW; }
 
 
 
 private:
-  void addIface(MACAddress mac, ReceiveMode receiveMode);
-  void setIfaceStatus(MACAddress mac, StatusCode);
+  void addIface(MACAddress6 mac, ReceiveMode receiveMode);
+  void setIfaceStatus(MACAddress6 mac, StatusCode);
   void sendBeacon(void);
 
 private:

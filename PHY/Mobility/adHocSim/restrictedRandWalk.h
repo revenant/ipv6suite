@@ -6,6 +6,7 @@
 #include <omnetpp.h>
 #include "costants.h"
 
+/* XXX out of order currently
 #include "physic.h"
 // element of the precursor list containing the IP
 // address for each its neighbors that are
@@ -70,5 +71,6 @@ class RestrictedRandWalk : public cSimpleModule
         int stepsNum;
         double partial;
 };
+*/
 
 #endif

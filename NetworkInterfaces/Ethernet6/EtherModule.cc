@@ -169,7 +169,7 @@ void EtherModule::idleNetworkInterface(void)
 
 bool EtherModule::sendData(EtherFrame* frame)
 {
-  MACAddress frameDestAddr = frame->destAddress();
+  MACAddress6 frameDestAddr = frame->destAddress();
   std::string strFrameDestAddr = (const char*)frameDestAddr;
 
   // TODO: LL passes the data to the upper layer if the
@@ -199,9 +199,9 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
   assert(recPkt != 0);
 
   EtherFrame* frame = new EtherFrame;
-  frame->setSrcAddress(MACAddress(macAddressString().c_str()));
+  frame->setSrcAddress(MACAddress6(macAddressString().c_str()));
 
-  MACAddress destAddress;
+  MACAddress6 destAddress;
   destAddress.set(recPkt->data().destLLAddr.c_str());
   frame->setDestAddress(destAddress);
 

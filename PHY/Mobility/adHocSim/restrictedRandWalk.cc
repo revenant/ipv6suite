@@ -1,6 +1,7 @@
 
 #include "restrictedRandWalk.h"
 
+/* XXX out of order currently
 
 Define_Module_Like(RestrictedRandWalk,Mobility);
 
@@ -212,4 +213,4 @@ void RestrictedRandWalk::finish()
         fclose(fout);
 }
 
-
+*/

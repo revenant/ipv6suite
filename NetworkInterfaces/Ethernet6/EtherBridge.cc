@@ -10,7 +10,7 @@
 #include "ethernet.h"
 #include "EtherSignal.h"
 #include "EtherFrame.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 Define_Module( EtherRelayUnit );
 

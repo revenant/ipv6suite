@@ -60,7 +60,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
   WirelessEtherManagementFrame* authentication =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if(authentication->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     AuthenticationFrameBody* aFrameBody =
       static_cast<AuthenticationFrameBody*>(authentication->decapsulate());
@@ -81,7 +81,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
       // send ACK to confirm the transmission has been sucessful
       WirelessEtherBasicFrame* ack = mod->
         createFrame(FT_CONTROL, ST_ACK,
-                    MACAddress(mod->macAddressString().c_str()),
+                    MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       WESignalData* ackSignal = new WESignalData(ack);
       sendAck(mod, ackSignal);
@@ -98,7 +98,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
       //send association request frame
       WirelessEtherBasicFrame* assRequest = mod->
           createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
-                    MACAddress(mod->macAddressString().c_str()),
+                    MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
       assRequest->encapsulate(assRequestFrameBody);
@@ -133,7 +133,7 @@ void WEAuthenticationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalDa
   WirelessEtherBasicFrame* ack =
       static_cast<WirelessEtherBasicFrame*>(signal->data());
 
-  if(ack->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     // Since both interfaces have the same MAC Address in a dual interface node, you may
     // process an ACK which is meant for the other interface. Condition checks that you

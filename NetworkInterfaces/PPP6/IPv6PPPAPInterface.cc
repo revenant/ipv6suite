@@ -36,7 +36,7 @@
 #include "IPv6PPPAPInterface.h"
 
 #include "Messages.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 #include "PPP6Frame.h"
 #include "LLInterfacePkt.h"
 
@@ -82,7 +82,7 @@ void IPv6PPPAPInterface::handleMessage(cMessage* msg)
     // needed for AP bridge
     if ( std::string(msg->name()) == "WIRELESS_AP_NOTIFY_MAC")
     {
-      MACAddress addrObj;
+      MACAddress6 addrObj;
       addrObj.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
       MAC_address addr = static_cast<MAC_address>(addrObj);
       interfaceID[0] = addr.high;

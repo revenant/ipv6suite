@@ -140,7 +140,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
                 WirelessEtherInterface dest = ap->findIfaceByMAC(outputFrame->getAddress1());
 
                 // Remove if its a unicast address not in the list of associated MS
-                if(    (outputFrame->getAddress1() == MACAddress(ETH_BROADCAST_ADDRESS)) ||
+                if(    (outputFrame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS)) ||
                         (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
                 {
                     ap->usedBW.sampleTotal += outputFrame->length();

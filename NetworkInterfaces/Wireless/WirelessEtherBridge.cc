@@ -185,7 +185,7 @@ LinkLayerModule* WirelessEtherBridge::findMacByAddress(std::string addr)
         WirelessAccessPoint* macMod = dynamic_cast<WirelessAccessPoint*>(it->first);
         assert(macMod);
 
-        if ( macMod->findIfaceByMAC(MACAddress(addr.c_str())) != UNSPECIFIED_WIRELESS_ETH_IFACE )
+        if ( macMod->findIfaceByMAC(MACAddress6(addr.c_str())) != UNSPECIFIED_WIRELESS_ETH_IFACE )
           return macMod;
       }
       break;
@@ -248,8 +248,8 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
         case PR_ETHERNET:
         {
           EtherFrame* destFrame = new EtherFrame;
-          destFrame->setSrcAddress(MACAddress(srcAddr.c_str()));
-          destFrame->setDestAddress(MACAddress(destAddr.c_str()));
+          destFrame->setSrcAddress(MACAddress6(srcAddr.c_str()));
+          destFrame->setDestAddress(MACAddress6(destAddr.c_str()));
           destFrame->setProtocol(PR_ETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
@@ -310,9 +310,9 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
         case PR_WETHERNET:
         {
           WirelessEtherDataFrame* destFrame = new WirelessEtherDataFrame;
-          destFrame->setAddress1(MACAddress(destAddr.c_str())); // dest addr
-          destFrame->setAddress2(MACAddress(address)); // ap addr
-          destFrame->setAddress3(MACAddress(srcAddr.c_str())); // src addr
+          destFrame->setAddress1(MACAddress6(destAddr.c_str())); // dest addr
+          destFrame->setAddress2(MACAddress6(address)); // ap addr
+          destFrame->setAddress3(MACAddress6(srcAddr.c_str())); // src addr
           destFrame->getFrameControl().protocolVer = 0;
           destFrame->getFrameControl().type = FT_DATA;
           destFrame->getFrameControl().subtype = ST_DATA;
@@ -363,8 +363,8 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
         case PR_WETHERNET:
         {
           WirelessEtherDataFrame* destFrame = new WirelessEtherDataFrame;
-          destFrame->setAddress1(MACAddress(srcFrame->destAddr.c_str())); // dest addr
-          destFrame->setAddress2(MACAddress(address)); // ap addr
+          destFrame->setAddress1(MACAddress6(srcFrame->destAddr.c_str())); // dest addr
+          destFrame->setAddress2(MACAddress6(address)); // ap addr
           destFrame->getFrameControl().protocolVer = 0;
           destFrame->getFrameControl().type = FT_DATA;
           destFrame->getFrameControl().subtype = ST_DATA;

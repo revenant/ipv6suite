@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.5 2005/02/12 01:28:02 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.6 2005/02/16 00:41:32 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -248,7 +248,7 @@ void EtherFrame::setProtocol(int prot)
   _protocol = prot;
 }
 
-void EtherFrame::setSrcAddress( const  MACAddress& src)
+void EtherFrame::setSrcAddress( const  MACAddress6& src)
 {
   _srcAddr = src;
 /*
@@ -259,7 +259,7 @@ void EtherFrame::setSrcAddress( const  MACAddress& src)
        << " --------------------------------------------- \n");*/
 }
 
-void EtherFrame::setDestAddress( const  MACAddress& dest)
+void EtherFrame::setDestAddress( const  MACAddress6& dest)
 {
    _destAddr = dest;
 /*
@@ -280,12 +280,12 @@ int EtherFrame::protocol() const
   return _protocol;
 }
 
-const MACAddress& EtherFrame::srcAddress(void)  const
+const MACAddress6& EtherFrame::srcAddress(void)  const
 {
   return _srcAddr;
 }
 
-const MACAddress& EtherFrame::destAddress(void) const
+const MACAddress6& EtherFrame::destAddress(void) const
 {
   return _destAddr;
 }

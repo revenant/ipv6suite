@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.5 2005/02/12 01:28:02 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.6 2005/02/16 00:41:32 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -29,7 +29,7 @@
 #define __EHTER_FRAME_H
 
 #include <omnetpp.h>
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 /*  -------------------------------------------------
         Constants
@@ -70,14 +70,14 @@ public:
 
   // set functions
   void setProtocol(int prot);
-  void setSrcAddress(const MACAddress& src);
-  void setDestAddress( const  MACAddress& dest);
+  void setSrcAddress(const MACAddress6& src);
+  void setDestAddress( const  MACAddress6& dest);
   void setDataLength(int dataLen);
 
   // get functions
   int protocol() const;
-  const MACAddress& srcAddress(void) const;
-  const MACAddress& destAddress(void) const;
+  const MACAddress6& srcAddress(void) const;
+  const MACAddress6& destAddress(void) const;
   const char *destAddrString(void) const;
   const char *srcAddrString(void) const;
 
@@ -98,8 +98,8 @@ public:
 
 private:
   int _protocol;
-  MACAddress _srcAddr;
-  MACAddress _destAddr;
+  MACAddress6 _srcAddr;
+  MACAddress6 _destAddr;
   int pack_mac_addr(const char *straddr, unsigned char *pack) const;
 //  int _dataLen;
 

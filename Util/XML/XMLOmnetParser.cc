@@ -46,7 +46,7 @@
 #include "IPv6Encapsulation.h"
 #include "IPv6ForwardCore.h"
 #include "IPv6CDS.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 #ifdef USE_MOBILITY
 #include "WirelessEtherModule.h"
@@ -703,7 +703,7 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
       wlanMod->address.set(addr.c_str());
     //Only want to initialise the MN mac address once otherwise routing tables
     //are wrong if we generate another random number from the stream
-    else if (wlanMod->address == MACAddress())
+    else if (wlanMod->address == MACAddress6())
     {
         MAC_address macAddr;
         macAddr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;

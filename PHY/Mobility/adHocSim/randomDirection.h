@@ -5,18 +5,19 @@
 #include <omnetpp.h>
 #include "costants.h"
 
-#include "physic.h"
+//#include "physic.h"
 
+/* XXX out of order currently --AV
 class RandomDirection : public cSimpleModule
 {
 
         //Macro that contains the costructor,destructor
         //and other Omnett++ stuff
-        Module_Class_Members(RandomDirection,cSimpleModule,0)
+//        Module_Class_Members(RandomDirection,cSimpleModule,0)
 
-        virtual void initialize();
-        virtual void handleMessage(cMessage* );
-        virtual void finish();
+//        virtual void initialize();
+//        virtual void handleMessage(cMessage* );
+//        virtual void finish();
         //
 
    private:
@@ -29,15 +30,15 @@ class RandomDirection : public cSimpleModule
 
         //quoantum of time between to moves
         //e.g. 1s if the speed is in m/sec
-        cPar* moveInterval;
-        cPar* pauseTime;
-        cPar* moveKind;
-        cPar* maxSpeed;
-        cPar* minSpeed;
+//        cPar* moveInterval;
+//        cPar* pauseTime;
+//        cPar* moveKind;
+//        cPar* maxSpeed;
+//        cPar* minSpeed;
 
         //pointer of the physic module wich
         //store the actual <x,y> position
-        Physic*  physic;
+//        Physic*  physic;
 
         //size of the movement field
         int minX,maxX,minY,maxY;
@@ -49,5 +50,6 @@ class RandomDirection : public cSimpleModule
         int stepsNum;
         double partial;
 };
+*/
 
 #endif

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.h,v 1.2 2005/02/15 05:01:33 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.h,v 1.3 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2002, 2003 CTIE, Monash University
 //
@@ -142,6 +142,7 @@ public:
 
   /**
    * Register a wireless entity in the world processor.
+   * XXX returns existing entity if already exists
    *
    * FIXME deregistration?
    */

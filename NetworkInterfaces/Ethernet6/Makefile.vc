@@ -64,7 +64,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= EtherBridge.obj EtherFrame.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress.obj
+OBJS= EtherBridge.obj EtherFrame.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress6.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -140,8 +140,8 @@ EtherStateWaitBackoffJam.obj: EtherStateWaitBackoffJam.cc
 EtherStateWaitJam.obj: EtherStateWaitJam.cc
 	$(CXX) -c $(COPTS) /Tp EtherStateWaitJam.cc
 
-MACAddress.obj: MACAddress.cc
-	$(CXX) -c $(COPTS) /Tp MACAddress.cc
+MACAddress6.obj: MACAddress6.cc
+	$(CXX) -c $(COPTS) /Tp MACAddress6.cc
 
 
 #doc: neddoc doxy

@@ -32,7 +32,7 @@
 #include <list>
 #include "EtherModule.h"
 
-class MACAddress;
+class MACAddress6;
 class WirelessEtherBridge;
 
 class EtherModuleAP : public EtherModule

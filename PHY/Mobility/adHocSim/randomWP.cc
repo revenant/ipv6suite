@@ -25,7 +25,7 @@ double RandomWP::randomWaypoint(int& x, int& y)
                 c = (int) intuniform(minX,maxX);
                 d = (int) intuniform(minY,maxY);
 
-                distance = sqrt(((c-a)*(c-a))+((d-b)*(d-b))) ;
+                distance = sqrt((double)((c-a)*(c-a))+((d-b)*(d-b))) ;
 
 //              d("DISTANCE = "<<distance);
                 if ( speed !=0)

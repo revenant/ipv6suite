@@ -1,8 +1,8 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.cc,v 1.2 2005/02/12 07:17:55 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/MACAddress6.cc,v 1.1 2005/02/16 00:41:32 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
- *  File:    MACAddress.cc
+ *  File:    MACAddress6.cc
  *
  *  Purpose: Represention of an Ethernet MAC address
  *
@@ -12,7 +12,7 @@
  */
 
 
-#include "MACAddress.h"
+#include "MACAddress6.h"
 #include <sstream>
 #include <cstdio>
 
@@ -51,71 +51,71 @@ bool operator!=(const MAC_address& lhs, const MAC_address& rhs)
   return !(lhs.high & 0xFFFFFF) == (rhs.high & 0xFFFFFF) && (lhs.low & 0xFFFFFF) == (rhs.low & 0xFFFFFF);
 }
 
-MACAddress::MACAddress(const char* addr) :
+MACAddress6::MACAddress6(const char* addr) :
   mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT)
 {
   set(addr);
 }
 
-MACAddress::MACAddress(const MAC_address& addr) :
+MACAddress6::MACAddress6(const MAC_address& addr) :
   mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT)
 {
   mac_addr.high = addr.high;
   mac_addr.low = addr.low;
 }
 
-MACAddress::MACAddress(const MACAddress& obj)
+MACAddress6::MACAddress6(const MACAddress6& obj)
 {
-  MACAddress::operator=(obj);
+  MACAddress6::operator=(obj);
 }
 
-MACAddress& MACAddress::operator=(const MACAddress& obj)
+MACAddress6& MACAddress6::operator=(const MACAddress6& obj)
 {
   mac_addr = obj.mac_addr;
   return *this;
 }
 
-inline std::ostream& operator<<(std::ostream& os, MACAddress& obj)
+inline std::ostream& operator<<(std::ostream& os, MACAddress6& obj)
 {
   obj.writeContents(os);
   return os;
 }
 
-void MACAddress::writeContents(std::ostream& os)
+void MACAddress6::writeContents(std::ostream& os)
 {
   os << stringValue();
 }
 
-std::string MACAddress::info()
+std::string MACAddress6::info()
 {
   ostringstream os;
   os << *this ;
   return os.str();
 }
 
-void MACAddress::set(const char* addr)
+void MACAddress6::set(const char* addr)
 {
   stringstream is(addr);
   this->operator>>(is);
 }
 
-MACAddress::operator MAC_address() const
+MACAddress6::operator MAC_address() const
 {
   return mac_addr;
 }
 
-MACAddress::operator const char*()
+MACAddress6::operator const char*()
 {
   return stringValue();
 }
 
-void MACAddress::set(const MAC_address& addr)
+void MACAddress6::set(const MAC_address& addr)
 {
   mac_addr.high = addr.high;
   mac_addr.low = addr.low;
 }
 
-const char* MACAddress::stringValue(void) const
+const char* MACAddress6::stringValue(void) const
 {
   // address format ABCD:ABCD
   static char output_str[9];
@@ -135,7 +135,7 @@ const char* MACAddress::stringValue(void) const
   return output_str;
 }
 
-std::istream& MACAddress::operator>>(std::istream& is)
+std::istream& MACAddress6::operator>>(std::istream& is)
 {
   int octals[6] = {0, 0, 0, 0, 0, 0};
   char sep = '\0';
@@ -163,7 +163,7 @@ std::istream& MACAddress::operator>>(std::istream& is)
 
 }
 
-std::ostream& operator<<(std::ostream& os, const MACAddress& obj)
+std::ostream& operator<<(std::ostream& os, const MACAddress6& obj)
 {
   return os<<obj.mac_addr;
 }

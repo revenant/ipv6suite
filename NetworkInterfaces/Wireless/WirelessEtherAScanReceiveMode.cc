@@ -57,7 +57,7 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
   WirelessEtherManagementFrame* probeResponse =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if (probeResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
       ProbeResponseFrameBody* probeResponseBody =
       static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
@@ -117,7 +117,7 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
 
     // send ACK
     WirelessEtherBasicFrame* ack = mod->
-      createFrame(FT_CONTROL, ST_ACK, MACAddress(mod->macAddressString().c_str()),
+      createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
                   probeResponse->getAddress2());
     WESignalData* ackSignal = new WESignalData(ack);
     sendAck(mod, ackSignal);

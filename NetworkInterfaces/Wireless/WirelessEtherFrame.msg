@@ -18,13 +18,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
-// Required for MACAddress declarations
+// Required for MACAddress6 declarations
 //
 cplusplus
 {{
-   #include "MACAddress.h"
+   #include "MACAddress6.h"
 }};
-class MACAddress;
+class MACAddress6;
 
 //
 // Enumerations of different frame types
@@ -99,7 +99,7 @@ message WirelessEtherBasicFrame
     fields:
         FrameControl frameControl;
         DurationID durationID;
-        MACAddress address1;
+        MACAddress6 address1;
 };
 
 //
@@ -108,7 +108,7 @@ message WirelessEtherBasicFrame
 message WirelessEtherRTSFrame extends WirelessEtherBasicFrame
 {
     fields:
-        MACAddress address2;
+        MACAddress6 address2;
 };
 
 //
@@ -117,7 +117,7 @@ message WirelessEtherRTSFrame extends WirelessEtherBasicFrame
 message WirelessEtherManagementFrame extends WirelessEtherRTSFrame
 {
     fields:
-        MACAddress address3;
+        MACAddress6 address3;
         SequenceControl sequenceControl;
 };
 
@@ -127,5 +127,5 @@ message WirelessEtherManagementFrame extends WirelessEtherRTSFrame
 message WirelessEtherDataFrame extends WirelessEtherManagementFrame
 {
     fields:
-        MACAddress address4;
+        MACAddress6 address4;
 };

@@ -45,7 +45,7 @@
 #include "MobilityHandler.h"
 #include "WirelessEtherSignal.h"
 #include "WirelessEtherStateIdle.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 #include "WirelessEtherAPReceiveMode.h"
 #include <memory>
 
@@ -55,7 +55,7 @@ Define_Module_Like( WirelessAccessPoint, NetworkInterface );
 
 const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE =
 {
-  MACAddress(MAC_ADDRESS_UNSPECIFIED_STRUCT),
+  MACAddress6(MAC_ADDRESS_UNSPECIFIED_STRUCT),
   RM_UNSPECIFIED,
   0,
     0,
@@ -194,7 +194,7 @@ void WirelessAccessPoint::sendBeacon(void)
 
   WirelessEtherBasicFrame* beacon =
         createFrame(FT_MANAGEMENT, ST_BEACON, address,
-                    MACAddress(ETH_BROADCAST_ADDRESS));
+                    MACAddress6(ETH_BROADCAST_ADDRESS));
   FrameBody* beaconFrameBody = createFrameBody(beacon);
   beacon->encapsulate(beaconFrameBody);
   WESignalData* beaconSignal = new WESignalData(beacon);
@@ -455,7 +455,7 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
     return frameBody;
 }
 
-void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
+void WirelessAccessPoint::addIface(MACAddress6 mac, ReceiveMode receiveMode)
 {
   WirelessEtherInterface iface;
 
@@ -485,13 +485,13 @@ void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
   ifaces->addEntry(iface);
 }
 
-void WirelessAccessPoint::setIfaceStatus(MACAddress mac, StatusCode)
+void WirelessAccessPoint::setIfaceStatus(MACAddress6 mac, StatusCode)
 {
   WirelessEtherInterface wie = findIfaceByMAC(mac);
   assert(wie != UNSPECIFIED_WIRELESS_ETH_IFACE);
 }
 
-WirelessEtherInterface WirelessAccessPoint::findIfaceByMAC(MACAddress mac)
+WirelessEtherInterface WirelessAccessPoint::findIfaceByMAC(MACAddress6 mac)
 {
   WirelessEtherInterface target;
   target.address = mac;

@@ -17,9 +17,10 @@
 
 
 
-Define_Module_Like(RandomDirection,Mobility);
+//Define_Module_Like(RandomDirection,Mobility);
 
 
+/*
 bool RandomDirection::checkBounds(int x, int y)
 {
         if( (x <= minX) || (x >= maxX) )
@@ -117,8 +118,9 @@ double RandomDirection::randomDirection(int& x, int& y)
             return (double)moveInterval->doubleValue();
 
 }
+*/
 
-
+/*
 void RandomDirection::initialize()
 {
 
@@ -160,7 +162,9 @@ void RandomDirection::initialize()
         partial = 0;
 
 }
+*/
 
+/*
 void RandomDirection::handleMessage(cMessage *msg)
 {
         int x,y;
@@ -184,9 +188,10 @@ void RandomDirection::handleMessage(cMessage *msg)
         //tell to the physic module to move
         scheduleAt(simTime()+time, msg);
 }
+*/
 
 
-
+/*
 void RandomDirection::finish()
 {
         d("Drection random says bye");
@@ -195,5 +200,5 @@ void RandomDirection::finish()
         fprintf(fout,"\nSpeed avatage............... %.2f\n",partial/stepsNum);
         fclose(fout);
 }
-
+*/
 

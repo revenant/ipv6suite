@@ -1,9 +1,9 @@
 //  -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.h,v 1.3 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/MACAddress6.h,v 1.1 2005/02/16 00:41:32 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
- *  File:    MACAddress.h
+ *  File:    MACAddress6.h
  *
  *  Purpose: Represention of an Ethernet MAC address
  *
@@ -28,7 +28,7 @@
  * @struct MAC_address
  * @brief 48 bit MAC address
  *
- * raw data type used bye MACAddress
+ * raw data type used bye MACAddress6
 
  * @warning encoding of the 48 bits is as follows the first 24 bits in high and
  * the next 24 bits in low. Not very intuitive.
@@ -47,36 +47,36 @@ bool operator!=(const MAC_address& lhs, const MAC_address& rhs);
 extern const MAC_address MAC_ADDRESS_UNSPECIFIED_STRUCT;
 
 /**
- * @class MACAddress
+ * @class MACAddress6
  * @brief IEEE802.3 MAC address object
  * @sa MAC_address
  */
 
-class MACAddress : public cObject, boost::equality_comparable<MACAddress>
+class MACAddress6 : public cObject, boost::equality_comparable<MACAddress6>
 {
  public:
   // Constructor
-  MACAddress(void):mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT){}
-  MACAddress(const char* addr);
-  MACAddress(const MAC_address& addr);
-  MACAddress(const MACAddress& obj);
+  MACAddress6(void):mac_addr(MAC_ADDRESS_UNSPECIFIED_STRUCT){}
+  MACAddress6(const char* addr);
+  MACAddress6(const MAC_address& addr);
+  MACAddress6(const MACAddress6& obj);
 
   ///@name cObject functions redefined
   //@{
   virtual const char* className() const { return "MACAdress"; }
-  virtual cObject *dup() const { return new MACAddress(*this); }
+  virtual cObject *dup() const { return new MACAddress6(*this); }
   virtual std::string info();
   virtual void writeContents(std::ostream& os);
   //@}
 
-  friend std::ostream& operator<<(std::ostream& os, const MACAddress& obj);
+  friend std::ostream& operator<<(std::ostream& os, const MACAddress6& obj);
 
   // operator functions
-  MACAddress& operator=(const MACAddress& obj);
+  MACAddress6& operator=(const MACAddress6& obj);
   operator MAC_address() const;
   operator const char*();
 
-  bool operator==(const MACAddress& rhs)
+  bool operator==(const MACAddress6& rhs)
     {
       return mac_addr == rhs.mac_addr;
     }

@@ -30,7 +30,7 @@
 
 #include <omnetpp.h>
 #include "WirelessEtherModule.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 class LinkLayerModule;
 
@@ -57,7 +57,7 @@ class WirelessEtherBridge : public cSimpleModule
   cMessage* translateFrame(cMessage* frame, int destProt);
 
  protected:
-  MACAddress address;
+  MACAddress6 address;
   MACPortMap macPortMap;
 };
 

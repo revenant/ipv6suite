@@ -39,7 +39,7 @@
 #include "EtherFrame.h"
 #include "EtherStateIdle.h"
 
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 #ifdef USE_MOBILITY
 #include "WirelessEtherBridge.h"

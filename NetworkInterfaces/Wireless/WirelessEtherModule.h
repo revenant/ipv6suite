@@ -50,7 +50,7 @@
 #include "LLInterfacePkt.h"
 #include "LinkLayerModule.h"
 #include "wirelessethernet.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
@@ -291,7 +291,7 @@ protected:
   // general attributes
   // ----------
 
-  MACAddress address;
+  MACAddress6 address;
   bool apMode;
   bool adhocMode; // parsed from XML
   std::string ssid; // parsed from XML
@@ -417,8 +417,8 @@ protected:
   // generate frame
   WirelessEtherBasicFrame* createFrame(FrameType frameType,
                                        SubType subType,
-                                       MACAddress source,
-                                       MACAddress destination = MACAddress(ETH_BROADCAST_ADDRESS));
+                                       MACAddress6 source,
+                                       MACAddress6 destination = MACAddress6(ETH_BROADCAST_ADDRESS));
 
   //create Frame body
   virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
@@ -435,7 +435,7 @@ private:
 
   struct APInfo
   {
-    MACAddress address;
+    MACAddress6 address;
     int channel;
     double rxpower; // received power from AP
     double hOValue;    // value to resolve handover decisions

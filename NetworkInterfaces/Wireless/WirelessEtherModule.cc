@@ -343,7 +343,7 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   assert(recPkt != 0);
 
   WirelessEtherBasicFrame* frame = createFrame
-    (FT_DATA, ST_DATA, address, MACAddress(recPkt->data().destLLAddr.c_str()));
+    (FT_DATA, ST_DATA, address, MACAddress6(recPkt->data().destLLAddr.c_str()));
 
 /*XXX replaced with 1 line below --AV
   cMessage* dupMsg = recPkt->data().dgram->dup();
@@ -612,7 +612,7 @@ bool WirelessEtherModule::handleSendingBcastFrame(void)
 
   assert(frame);
 
-  if (frame->getAddress1() == MACAddress(ETH_BROADCAST_ADDRESS))
+  if (frame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS))
   {
     if (frame->getFrameControl().subtype == ST_PROBEREQUEST)
     {
@@ -826,7 +826,7 @@ void WirelessEtherModule::reset(void)
 bool WirelessEtherModule::isFrameForMe(WirelessEtherBasicFrame* chkFrame)
 {
   return ( chkFrame->getAddress1() == address ||
-           chkFrame->getAddress1() == MACAddress(ETH_BROADCAST_ADDRESS));
+           chkFrame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS));
 }
 
 // Find the AP with the highest signal strength
@@ -1303,7 +1303,7 @@ WESignalData* WirelessEtherModule::generateProbeReq(void)
 {
   WirelessEtherBasicFrame* probeFrame =
     createFrame(FT_MANAGEMENT, ST_PROBEREQUEST, address,
-                MACAddress(ETH_BROADCAST_ADDRESS));
+                MACAddress6(ETH_BROADCAST_ADDRESS));
   FrameBody* probeFrameBody = createFrameBody(probeFrame);
 
   probeFrame->encapsulate(probeFrameBody);
@@ -1317,7 +1317,7 @@ WESignalData* WirelessEtherModule::generateProbeReq(void)
 
 WirelessEtherBasicFrame* WirelessEtherModule::
 createFrame(FrameType frameType, SubType subType,
-            MACAddress source, MACAddress destination)
+            MACAddress6 source, MACAddress6 destination)
 {
   WirelessEtherBasicFrame *frame;
   FrameControl frameControl;
@@ -1391,7 +1391,7 @@ createFrame(FrameType frameType, SubType subType,
       // need to determine ACK + SIFS time check for multicast not
       // just broadcast as well; note also that having no moreFrag
       // support, eliminates other potential values for duration
-      (destination == MACAddress(ETH_BROADCAST_ADDRESS)) ?
+      (destination == MACAddress6(ETH_BROADCAST_ADDRESS)) ?
         durationID.bit14to0 = 0 :
         durationID.bit14to0 = (unsigned)((ACKLENGTH/BASE_SPEED)+SIFS)*1000; //add ACK
 
@@ -1459,7 +1459,7 @@ createFrame(FrameType frameType, SubType subType,
       // must check for multicast not just broadcast
       // note also that having no moreFrag support, eliminates other
       // potential values for duration
-      (destination == MACAddress(ETH_BROADCAST_ADDRESS)) ?
+      (destination == MACAddress6(ETH_BROADCAST_ADDRESS)) ?
         durationID.bit14to0 = 0 :
         durationID.bit14to0 = (unsigned)((ACKLENGTH/BASE_SPEED)+SIFS)*1000; //add ACK
 

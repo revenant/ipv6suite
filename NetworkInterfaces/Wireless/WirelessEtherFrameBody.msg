@@ -18,13 +18,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
-// Required for MACAddress declarations
+// Required for MACAddress6 declarations
 //
 cplusplus
 {{
-    #include "MACAddress.h"
+    #include "MACAddress6.h"
 }};
-class MACAddress;
+class MACAddress6;
 
 //
 // Capability Information field format
@@ -151,7 +151,7 @@ message AssociationRequestFrameBody extends ProbeRequestFrameBody
 message ReAssociationRequestFrameBody extends AssociationRequestFrameBody
 {
     fields:
-        MACAddress currentAP;
+        MACAddress6 currentAP;
 };
 
 //

@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.3 2005/02/15 05:01:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.4 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2002 CTIE, Monash University
 //
@@ -252,6 +252,8 @@ Entity* WorldProcessor::registerEntity(string name,
                                              MobileEntityType type,
                                              cSimpleModule* mod)
 {
+  // XXX for loop is obsolete, this gets called only once per mobile host
+/*XXX
   for ( size_t i = 0; i < modList.size(); i++)
   {
     if ( modList[i]->entityName == name && modList[i]->entityType() == type)
@@ -259,7 +261,7 @@ Entity* WorldProcessor::registerEntity(string name,
       return modList[i];
     }
   }
-
+*/
   Entity* entity;
 
   switch(type)
@@ -269,7 +271,7 @@ Entity* WorldProcessor::registerEntity(string name,
       break;
 
     case MobileMN:
-      entity = new MobileEntity(mod);
+      entity = new MobileEntity(mod);   // XXX why not let caller do this?
       break;
 
     default:
@@ -277,7 +279,7 @@ Entity* WorldProcessor::registerEntity(string name,
       exit(1);
       break;
   }
-  entity->entityName = name;
+  entity->entityName = name;  //XXX why not let caller do this? --AV
   modList.push_back(entity);
 
   return entity;

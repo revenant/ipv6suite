@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherModule.h,v 1.3 2005/02/16 00:41:32 andras Exp $
 //
 //
 // Eric Wu
@@ -43,7 +43,7 @@
 
 #include "LinkLayerModule.h"
 #include "ethernet.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 #include "cTimerMessage.h"
 #include <string>
 
@@ -135,7 +135,7 @@ class EtherModule: public LinkLayerModule
  protected:
   EtherState* _currentState;
   long procdelay; // ms
-  MACAddress _myAddr;
+  MACAddress6 _myAddr;
   std::list<cTimerMessage*> tmrs;
   std::list<std::string> jams;
   std::list<std::string> idles;

@@ -62,7 +62,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
   WirelessEtherManagementFrame* authentication =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if(authentication->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     AuthenticationFrameBody* aFrameBody =
       static_cast<AuthenticationFrameBody*>(authentication->decapsulate());
@@ -90,7 +90,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
       // send ACK to confirm the transmission has been sucessful
       WirelessEtherBasicFrame* ack = mod->
         createFrame(FT_CONTROL, ST_ACK,
-                    MACAddress(mod->macAddressString().c_str()),
+                    MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       WESignalData* ackSignal = new WESignalData(ack);
       sendAck(mod, ackSignal);
@@ -100,7 +100,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
       //send association request frame
       WirelessEtherBasicFrame* assRequest = mod->
           createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
-                    MACAddress(mod->macAddressString().c_str()),
+                    MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
 
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
@@ -135,7 +135,7 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, 
   WirelessEtherManagementFrame* deAuthentication =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if(deAuthentication->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(deAuthentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
 
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
@@ -153,7 +153,7 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, 
     // send ACK to confirm the transmission has been sucessful
     WirelessEtherBasicFrame* ack = mod->
       createFrame(FT_CONTROL, ST_ACK,
-                  MACAddress(mod->macAddressString().c_str()),
+                  MACAddress6(mod->macAddressString().c_str()),
                   deAuthentication->getAddress2());
     WESignalData* ackSignal = new WESignalData(ack);
     sendAck(mod, ackSignal);
@@ -180,7 +180,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
   WirelessEtherManagementFrame* associationResponse =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if(associationResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(associationResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     AssociationResponseFrameBody* aRFrameBody =
       static_cast<AssociationResponseFrameBody*>(associationResponse->decapsulate());
@@ -205,7 +205,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
     // send ACK to confirm the transmission has been sucessful
     WirelessEtherBasicFrame* ack = mod->
       createFrame(FT_CONTROL, ST_ACK,
-                  MACAddress(mod->macAddressString().c_str()),
+                  MACAddress6(mod->macAddressString().c_str()),
                   associationResponse->getAddress2());
     WESignalData* ackSignal = new WESignalData(ack);
     sendAck(mod, ackSignal);
@@ -267,7 +267,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
   WirelessEtherManagementFrame* reAssociationResponse =
       static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-  if(reAssociationResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(reAssociationResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     ReAssociationResponseFrameBody* rARFrameBody =
       static_cast<ReAssociationResponseFrameBody*>(reAssociationResponse->decapsulate());
@@ -292,7 +292,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
     // send ACK to confirm the transmission has been sucessful
     WirelessEtherBasicFrame* ack = mod->
       createFrame(FT_CONTROL, ST_ACK,
-                  MACAddress(mod->macAddressString().c_str()),
+                  MACAddress6(mod->macAddressString().c_str()),
                   reAssociationResponse->getAddress2());
     WESignalData* ackSignal = new WESignalData(ack);
     sendAck(mod, ackSignal);
@@ -326,7 +326,7 @@ void WEAssociationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData*
   WirelessEtherBasicFrame* ack =
       static_cast<WirelessEtherBasicFrame*>(signal->data());
 
-  if(ack->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+  if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
     // Since both interfaces have the same MAC Address in a dual interface node, you may
     // process an ACK which is meant for the other interface. Condition checks that you

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceiveWaitBackoff.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateReceiveWaitBackoff.cc,v 1.3 2005/02/16 00:41:32 andras Exp $
 //
 //
 // Eric Wu
@@ -41,7 +41,7 @@
 #include "EtherStateWaitBackoffJam.h"
 #include "EtherStateReceive.h"
 #include "EtherFrame.h"
-#include "MACAddress.h"
+#include "MACAddress6.h"
 
 using std::string;
 

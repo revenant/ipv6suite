@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityHandler.cc,v 1.3 2005/02/10 06:26:21 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityHandler.cc,v 1.4 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -52,7 +52,7 @@ void MobilityHandler::initialize(int stage)
     cModule* mod = OPP_Global::findModuleByName(this, "worldProcessor");
     assert(mod);
 
-    wproc = static_cast<WorldProcessor*>(mod);
+    wproc = check_and_cast<WorldProcessor*>(mod);
     mobileEntity = dynamic_cast<MobileEntity*>(wproc->registerEntity(fullPath(), MobileMN, this));
     assert(mobileEntity);
   }
@@ -63,7 +63,7 @@ void MobilityHandler::handleMessage(cMessage* msg)
   if (msg->isSelfMessage() && msg->kind() == TMR_WIRELESSMOVE)
   {
     if (mobileEntity->moving())
-      scheduleAt(simTime() + elapsedTime, static_cast<cMessage*>(msg->dup()));
+      scheduleAt(simTime() + elapsedTime, static_cast<cMessage*>(msg->dup())); //XXX WHY DUP? --AV
   }
   else
     assert(false);

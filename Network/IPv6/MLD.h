@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.h,v 1.2 2005/02/10 06:26:20 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.h,v 1.3 2005/02/11 12:23:46 andras Exp $
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -45,6 +45,7 @@ class cTTimerMessageA;
 
 namespace
 {
+  // global constants
   const unsigned int robustVar = 2;
   const unsigned int queryInt = 125;
   const unsigned int responseInt = 10;
@@ -63,6 +64,10 @@ namespace
   const int Tmr_Report = 3;
 }
 
+/**
+ * Multicast Listener Discovery (MLD) for IPv6.
+ * RFC 2710, updated by RFC 3590, RFC 3810.
+ */
 class MLD: public cSimpleModule
 {
 public:

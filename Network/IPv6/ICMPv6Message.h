@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.3 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.4 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -110,7 +110,7 @@ class IPv6Datagram;
    The offending PDU that caused this ICMP message to be issued will
    be stored and accessed using encapsulate/decapsulate respectively.
 */
-class ICMPv6Message: public cPacket
+class ICMPv6Message: public cMessage
 {
 public:
 
@@ -138,14 +138,15 @@ public:
 
 ///@name Redefined cMessage functions
 ///@{
+/* XXX not strictly necessary -- removed to reduce complexity  --AV
   ///ICMP Error messages contain the offending datagram
-  ///Use cPacket::encapsulate() to encapsulate any cMessage
+  ///Use cMessage::encapsulate() to encapsulate any cMessage
   void encapsulate(IPv6Datagram* errorPdu);
-  ///Use cPacket::decapsulate() if you want a cPacket back instead
+  ///Use cMessage::decapsulate() if you want a cPacket back instead
   IPv6Datagram *decapsulate();
   ///Use cPacket::encapsulatedMsg() if you want a cPacket back instead
   IPv6Datagram *encapsulatedMsg() const;
-
+*/
 #if defined __CN_PAYLOAD_H
   virtual struct network_payload *networkOrder() const;
   unsigned short networkCheckSum(unsigned char*icmpmsg,

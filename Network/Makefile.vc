@@ -72,8 +72,9 @@ SUBDIR_TARGETS=  AutoRouting_dir HMIPv6_dir IPv4_dir IPv4d_dir IPv6_dir LDP_dir 
 # preserve default target
 all: $(TARGET)
 
-# add dependencies across directories
-MIPv6_dir HMIPv6_dir : IPv6_dir
+# preferred build order
+MIPv6_dir : IPv6_dir
+HMIPv6_dir : MIPv6_dir IPv6_dir
 
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp

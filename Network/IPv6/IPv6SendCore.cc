@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.5 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.6 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
@@ -132,9 +132,10 @@ void IPv6SendCore::handleMessage(cMessage* msg)
 void IPv6SendCore::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
 {
     std::auto_ptr<IPv6InterfacePacket> interfaceMsg(theInterfaceMsg);
-    std::auto_ptr<IPv6Datagram> datagram(new IPv6Datagram());
+    std::auto_ptr<IPv6Datagram> datagram(new IPv6Datagram()); // XXX FIXME why auto_ptr if we release() at the end? --AV
 
     datagram->encapsulate(interfaceMsg->decapsulate());
+    datagram->setTransportProtocol((IPProtocolId)interfaceMsg->protocol());  // XXX khmm..
 
     datagram->setName(interfaceMsg->name());
 
@@ -217,7 +218,7 @@ Debug(
     }
 */
 
-    curPacket = datagram.release();
+    curPacket = datagram.release();  // XXX rather
 
 }
 

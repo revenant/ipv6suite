@@ -274,12 +274,13 @@ void IPv6Fragmentation::sendOutput(AddrResMsg* msg )
 
   if (!(outputPort < numOfPorts))
   {
-    ev << "Error in IPv6Fragmentation: "
-       << "illegal output port: " << outputPort << "\n";
+    error("illegal output port %d", outputPort);
 
+/* XXX --AV
     delete msg->data().dgram;
     delete msg;
     return;
+*/
   }
   LLInterfaceInfo info = { msg->data().dgram, msg->data().linkLayerAddr };
   LLInterfacePkt* ifpkt = new LLInterfacePkt(info);

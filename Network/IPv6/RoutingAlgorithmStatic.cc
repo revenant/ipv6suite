@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.cc,v 1.3 2005/02/11 12:23:46 andras Exp $
 // Copyright (C) 2003, 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -29,6 +29,9 @@
  *
  */
 
+//XXX temporarily disabled because I don't have xmlwrapp --AV
+#if 0
+
 #include "sys.h"
 #include "debug.h"
 
@@ -37,7 +40,7 @@
 #include "WorldProcessor.h"
 #include "opp_utils.h"
 #include "RoutingTable6.h"
-#include "IPv6XMLWrapManager.h"
+#include "XML/IPv6XMLWrapManager.h"
 
 #include <cassert>
 #include <boost/cast.hpp>
@@ -307,3 +310,4 @@ void RoutingAlgorithmStaticTest::testExample2()
 
 #endif //defined USE_CPPUNIT
 
+#endif //0

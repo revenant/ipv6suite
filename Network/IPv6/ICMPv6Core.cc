@@ -382,7 +382,7 @@ void ICMPv6Core::processError(cMessage* msg)
 {
   ICMPv6Message* errorMessage = static_cast<ICMPv6Message*> (msg);
 
-  IPv6Datagram *pdu =  errorMessage->encapsulatedMsg();
+  IPv6Datagram *pdu =  check_and_cast<IPv6Datagram *>(errorMessage->encapsulatedMsg());
 
   // don't send ICMPv6 if the following conditions are met
   if (pdu->destAddress().isMulticast() &&
@@ -465,67 +465,69 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
       case ICMPv6_DESTINATION_UNREACHABLE:
         errorOut(icmpmsg);
         ctrIcmp6InDestUnreachable++;
-
         break;
+
       case ICMPv6_PACKET_TOO_BIG:
         errorOut(icmpmsg);
         ctrIcmp6InPacketTooBig++;
-
         break;
+
       case ICMPv6_TIME_EXCEEDED:
         errorOut(icmpmsg);
         ctrIcmp6InTimeExceeded++;
-
         break;
+
       case ICMPv6_PARAMETER_PROBLEM:
         errorOut(icmpmsg);
         ctrIcmp6InParamProblem++;
-
         break;
+
       case ICMPv6_ECHO_REQUEST:
         dgram->encapsulate(icmpmsg);
+        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
         dgram->setName(icmpmsg->name());
         recEchoRequest(dgram);
         dgram = 0;
         ctrIcmp6InEchos++;
-
         break;
+
       case ICMPv6_ECHO_REPLY:
         dgram->encapsulate(icmpmsg);
+        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
         dgram->setName(icmpmsg->name());
         recEchoReply(dgram);
         dgram = 0;
         ctrIcmp6InEchoReplies++;
-
         break;
 
-    case ICMPv6_MLD_QUERY: case ICMPv6_MLD_REPORT: case ICMPv6_MLD_DONE: case ICMPv6_MLDv2_REPORT:
+      case ICMPv6_MLD_QUERY: case ICMPv6_MLD_REPORT: case ICMPv6_MLD_DONE: case ICMPv6_MLDv2_REPORT:
 //      cerr<<"MLD message of type "<<icmpmsg->type()<<endl;
-      dgram->encapsulate(icmpmsg);
-      dgram->setName(icmpmsg->name());
-      send(dgram, MLDGATE);
-      dgram=0;
-      break;
+        dgram->encapsulate(icmpmsg);
+        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+        dgram->setName(icmpmsg->name());
+        send(dgram, MLDGATE);
+        dgram=0;
+        break;
 
       case ICMPv6_ROUTER_SOL: case ICMPv6_ROUTER_AD:
       case ICMPv6_NEIGHBOUR_SOL:case ICMPv6_NEIGHBOUR_AD:
       case ICMPv6_REDIRECT:
-        icmpmsg->cPacket::encapsulate(dgram);
-            //Very important otherwise packet is deleted
+        icmpmsg->encapsulate(dgram);
+        //Very important otherwise packet is deleted
         dgram = 0;
         send(icmpmsg, NDGATE);
         break;
 
-  default:
-    error("wrong ICMP type %d", (int)icmpmsg->type());
+      default:
+        error("wrong ICMP type %d", (int)icmpmsg->type());
 /* XXX changed to error --Andras
-    Dout(dc::warning|flush_cf,"*** ICMPv6: type not found! "
-         << (int)icmpmsg->type());
-    if (icmpmsg->isErrorMessage())
-        //Notify Upper layer
-      errorOut(icmpmsg);
-    else //Discard
-      delete(icmpmsg);
+        Dout(dc::warning|flush_cf,"*** ICMPv6: type not found! "
+             << (int)icmpmsg->type());
+        if (icmpmsg->isErrorMessage())
+            //Notify Upper layer
+          errorOut(icmpmsg);
+        else //Discard
+          delete(icmpmsg);
 */
   }
   delete dgram;
@@ -549,7 +551,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   ICMPv6Echo* req = boost::polymorphic_downcast<ICMPv6Echo*> (request->encapsulatedMsg());
   assert(req);
   echo_int_info echo_req = boost::polymorphic_downcast<
-    IPv6InterfaceData<echo_int_info>* > (req->cPacket::encapsulatedMsg())->data();
+    IPv6InterfaceData<echo_int_info>* > (req->encapsulatedMsg())->data();
 
   if (icmpRecordStats)
   {
@@ -625,7 +627,7 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 
   ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
   IPv6InterfaceData<echo_int_info>* app_req =
-    static_cast<IPv6InterfaceData<echo_int_info>*> (echo_reply->cPacket::decapsulate());
+    static_cast<IPv6InterfaceData<echo_int_info>*> (echo_reply->decapsulate());
 
 
   //As the whole ping request info was sent there is no need to reconstruct
@@ -658,7 +660,7 @@ void ICMPv6Core::sendEchoRequest(cMessage *msg)
   ICMPv6Message *request = new ICMPv6Echo(echo_req.id, echo_req.seqNo, true);
   request->setName("PING6_REQ");
   //Send the upper layer req across as test
-  request->cPacket::encapsulate(app_req);
+  request->encapsulate(app_req);
 
   sendInterfacePacket(request, app_req->destAddress(), app_req->srcAddress(),
                       app_req->data().hopLimit);

@@ -50,7 +50,6 @@
 /**
    Forward declarations
 */
-class cPacket;
 class HdrExtFragProc;
 class HdrExtRteProc;
 class HdrExtDestProc;
@@ -64,7 +63,7 @@ class HdrExtProc;
    the ISO protocol stack and across physical medium.
 
    The datagram is represented as ext header structures and the upper
-   layer payload in an encapsulated cPacket object.  As the structs
+   layer payload in an encapsulated cMessage object.  As the structs
    themselves do not have any copy constructors, assignment operators and
    destructors, wrappers derived from HdrExtProc have been created to
    deal with that.
@@ -76,8 +75,8 @@ class HdrExtProc;
    we can deal with them and deallocate them when finished.
 */
 
-// XXX was public IPDatagram, should be cMessage!!!! --AV
-class IPv6Datagram: public cPacket, boost::equality_comparable<IPv6Datagram>
+// XXX was public IPDatagram --AV
+class IPv6Datagram: public cMessage, boost::equality_comparable<IPv6Datagram>
 {
 public:
   friend class HdrExtRteProc;
@@ -136,7 +135,7 @@ public:
 ///@{
   IPv6Datagram(const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                const ipv6_addr& dest = IPv6_ADDR_UNSPECIFIED,
-               cPacket* pdu = 0, const char* name = 0);
+               cMessage *pdu = 0, const char* name = 0);
 
   IPv6Datagram(const IPv6Datagram& srcObj);
   virtual ~IPv6Datagram();
@@ -154,8 +153,10 @@ public:
 
 ///@name Redefined cMessage functions
 ///@{
-  void encapsulate(cPacket *);
-  cPacket *decapsulate();
+  void encapsulate(cMessage *);
+/* XXX removed --AV
+  cMessage *decapsulate();
+*/
 #ifdef __CN_PAYLOAD_H
   struct network_payload *networkOrder() const;
 #endif /* __CN_PAYLOAD_H*/
@@ -177,6 +178,7 @@ public:
      Get/Set functions for IPv6 Header fields
   */
   //@{
+
   short version() const
     {
       //Top 4 bits of ver_traffic_flow

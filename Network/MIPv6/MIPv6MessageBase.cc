@@ -31,7 +31,7 @@ namespace MobileIPv6
 
 MIPv6MobilityHeaderBase::
 MIPv6MobilityHeaderBase(MIPv6MobilityHeaderType headertype, int len)
-  : cPacket("", IP_PROT_IPv6_MOBILITY),
+  : cMessage("", IP_PROT_IPv6_MOBILITY),
     _payloadprot(IP_PROT_NONE),
     _headertype(headertype),
     _checksum(0)
@@ -59,7 +59,7 @@ operator=(const MIPv6MobilityHeaderBase& rhs)
 {
   if (this != &rhs)
   {
-    cPacket::operator=(rhs);
+    cMessage::operator=(rhs);
     _checksum = rhs._checksum;
     _payloadprot = rhs._payloadprot;
     _headertype = rhs._headertype;

@@ -2,5 +2,6 @@
 # preserve default target
 all: $(TARGET)
 
-# add dependencies across directories
-MIPv6_dir HMIPv6_dir : IPv6_dir
+# preferred build order
+MIPv6_dir : IPv6_dir
+HMIPv6_dir : MIPv6_dir IPv6_dir

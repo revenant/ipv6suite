@@ -42,7 +42,7 @@
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
-#include "nwiface.h"
+//XXX #include "nwiface.h"
 #include "cTimerMessage.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
@@ -664,7 +664,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
 ///disc 6.3.4 and autoconf 5.5.3
 std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 {
-  IPv6Datagram* dgram = rtrAdv->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
   ipv6_addr srcAddr = dgram->srcAddress();
   size_t ifIndex = dgram->inputPort();
 
@@ -1250,7 +1250,7 @@ bool NDStateHost::valNgbrAd(NA* ad)
  */
 bool NDStateHost::valNgbrSol(NS* sol)
 {
-  IPv6Datagram* dgram = sol->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(sol->encapsulatedMsg());
 
   assert(dgram->hopLimit() == NDHOPLIMIT);
 

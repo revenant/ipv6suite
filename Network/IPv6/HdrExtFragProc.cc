@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.3 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.4 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -171,8 +171,7 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   //frag_hdr's next_header to that.
 
   //Replicate this arrangement to the other fragments along with
-  //copying the actual upper layer packet chunk by chunk. (don't know
-  //if cPacket has this func.
+  //copying the actual upper layer packet chunk by chunk.
   IPv6Datagram** frags = new IPv6Datagram* [nfrags];
   frags[0] = first_frag;
   for (size_t i = 1; i < nfrags; i++)

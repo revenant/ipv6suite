@@ -81,7 +81,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
 {
   IPv6Datagram* dup_dgram = dgram->dup();
 
-  cPacket* pkt = dup_dgram->decapsulate();
+  cMessage *pkt = dup_dgram->decapsulate();
   MIPv6MobilityHeaderBase* mhb = dynamic_cast<MIPv6MobilityHeaderBase*>(pkt);
 
   // Fix the bu->physicalLenInOctet
@@ -179,7 +179,7 @@ void MIPv6MobilityState::processMobilityMsg(IPv6Datagram* dgram,
                                             MIPv6MobilityHeaderBase*& mhb,
                                             IPv6Mobility* mod)
 {
-  cPacket* pkt = dgram->decapsulate();
+  cMessage *pkt = dgram->decapsulate();
   mhb = boost::polymorphic_downcast<MIPv6MobilityHeaderBase*>(pkt);
 
   if (!mhb)

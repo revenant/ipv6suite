@@ -1,5 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Record.h,v 1.2 2005/02/10 06:26:20 andras Exp $
-// Copyright (C) 2001, 2002 CTIE, Monash University
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Record.h,v 1.3 2005/02/11 12:23:46 andras Exp $// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,7 +56,7 @@ namespace
   const unsigned int MLDv2_GQ_LEN = 20;
   const unsigned int MLDv2_MAR_HEADER = 20;
 
-  const int LISTENER_RECORD = 0;
+  const int LISTENER_RECORD = 1;  //XXX was = 0, but compiler said "illegal zero-sized array" below  --AV
 }
 
 typedef struct SARecord

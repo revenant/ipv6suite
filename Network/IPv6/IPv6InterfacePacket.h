@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.h,v 1.2 2005/02/10 05:27:42 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.h,v 1.3 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -48,8 +48,8 @@
 class IPv6InterfacePacket: public IPInterfacePacket
 {
 public:
-  IPv6InterfacePacket(const char* src = 0, const char* dest = 0, cPacket* msg = 0);
-  IPv6InterfacePacket(const ipv6_addr& src, const ipv6_addr& dest, cPacket* msg = 0);
+  IPv6InterfacePacket(const char* src = 0, const char* dest = 0, cMessage *msg = 0);
+  IPv6InterfacePacket(const ipv6_addr& src, const ipv6_addr& dest, cMessage *msg = 0);
 
   IPv6InterfacePacket(const IPv6InterfacePacket& );
 

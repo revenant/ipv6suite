@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.h,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Headers.h,v 1.3 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2002 CTIE, Monash University
 //
@@ -41,6 +41,8 @@
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
+
+#include <assert.h>
 
 ///@name IPv6 Constants and Header Enumerated Types
 //@{

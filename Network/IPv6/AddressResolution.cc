@@ -285,6 +285,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
     NS* ns = new NS(tmr->targetAddr, ie.LLAddr());
 
     tmr->dgram->encapsulate(ns);
+    //XXX TBD: tmr->dgram->setTransportProtocol(???);
     tmr->dgram->setName(ns->name());
 
     tmr->msg = new ARTmrMsg(Tmr_AddrReslnTimeout, this,
@@ -417,7 +418,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
   std::auto_ptr<NS> ngbrSol(thengbrSol);
 
   //Retrieve details from packet and send off response
-  IPv6Datagram* dgram = ngbrSol->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram *>(ngbrSol->encapsulatedMsg());
 
   assert(dgram->inputPort() > -1 && dgram->inputPort() < (int)rt->interfaceCount());
   //Send reply back on this interface
@@ -501,6 +502,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
                     !dupDetectSource, override);
 
     response->encapsulate(na);
+    // XXX TBD response->setTransportProtocol(???);
     response->setName(na->name());
 
     if (dupDetectSource)
@@ -544,7 +546,7 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
   std::auto_ptr<NA> ngbrAdv(thengbrAdv);
 
   //Read in new LL addr and test if ifIndex
-  IPv6Datagram* dgram = ngbrAdv->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram *>(ngbrAdv->encapsulatedMsg());
 
   ipv6_addr src = dgram->srcAddress();
   int ifIndex = dgram->inputPort();

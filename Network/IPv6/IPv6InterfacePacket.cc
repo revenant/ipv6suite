@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6InterfacePacket.cc,v 1.3 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -29,9 +29,9 @@
 #include "IPv6InterfacePacket.h"
 
 // constructors
-IPv6InterfacePacket::IPv6InterfacePacket(const char* src, const char* dest,cPacket* msg): IPInterfacePacket(), _src(c_ipv6_addr(src)), _dest(c_ipv6_addr(dest))
+IPv6InterfacePacket::IPv6InterfacePacket(const char* src, const char* dest,cMessage *msg): IPInterfacePacket(), _src(c_ipv6_addr(src)), _dest(c_ipv6_addr(dest))
 {
-  cPacket::setProtocol(PR_IPV6);
+  setProtocol(PR_IPV6);
   if (msg)
   {
     encapsulate(msg);
@@ -40,10 +40,10 @@ IPv6InterfacePacket::IPv6InterfacePacket(const char* src, const char* dest,cPack
   // initValues();
 }
 
-IPv6InterfacePacket::IPv6InterfacePacket(const ipv6_addr& src, const ipv6_addr& dest, cPacket* msg)
+IPv6InterfacePacket::IPv6InterfacePacket(const ipv6_addr& src, const ipv6_addr& dest, cMessage *msg)
   :IPInterfacePacket(), _src(src), _dest(dest)
 {
-  cPacket::setProtocol(PR_IPV6);
+  setProtocol(PR_IPV6);
   if (msg)
   {
     encapsulate(msg);
@@ -69,12 +69,12 @@ IPv6InterfacePacket& IPv6InterfacePacket::operator=(const IPv6InterfacePacket& i
 }
 
 // output functions
-void IPv6InterfacePacket::info( char *buf )
+std::string IPv6InterfacePacket::info()
 {
-  IPInterfacePacket::info( buf );
-  sprintf( buf+strlen(buf), " Prot: %i Src: %s Dest: %s",
-           protocol(), ipv6_addr_toString(_src).c_str(), ipv6_addr_toString(_dest).c_str());
-
+  ostringstream os;
+  os << "prot=" << protocol() << " src=" << _src << " dest=" << _dest;
+  // XXX protocol(), ipv6_addr_toString(_src).c_str(), ipv6_addr_toString(_dest).c_str());
+  return os.str();
 }
 
 void IPv6InterfacePacket::writeContents(ostream& os)

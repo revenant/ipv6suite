@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateRouter.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateRouter.cc,v 1.3 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -427,7 +427,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
   //already.
   //Equivalent to next scheduled Adv.
 
-  IPv6Datagram* dgram = rtrSol->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrSol->encapsulatedMsg());
   bool found = false;
   RtrTimer* tmr = 0;
   double delay = 0;
@@ -661,6 +661,7 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
           //new ICMPv6NDMRedirect(dgram->destAddress(), nextHop, dgram->dup(),
           new ICMPv6NDMRedirect(dgram->destAddress(), nextHop, dgram,
                                 redirNE != 0 ? redirNE->linkLayerAddr():0));
+        redirect->setTransportProtocol(IP_PROT_IPv6_ICMP);
         //TODO Unicast send required with addr res ability
 
         if (ne->linkLayerAddr() == "")
@@ -719,6 +720,7 @@ IPv6Datagram* NDStateRouter
   dgram->setHopLimit(NDHOPLIMIT);
 
   dgram->encapsulate(rtrAd);
+  //XXX TBD dgram->setTransportProtocol(???);
   dgram->setName(rtrAd->name());
 
 #ifdef USE_HMIP

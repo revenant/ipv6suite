@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.3 2005/02/10 06:26:20 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.4 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -354,10 +354,9 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
 IPv6InterfacePacket *LocalDeliver6Core::setInterfacePacket
 (IPv6Datagram *datagram)
 {
-  cPacket *packet;
   IPv6InterfacePacket *interfacePacket = new IPv6InterfacePacket;
 
-  packet = datagram->decapsulate();
+  cMessage *packet = datagram->decapsulate();
   interfacePacket->encapsulate(packet);
   interfacePacket->setName(packet->name());
   interfacePacket->setProtocol(datagram->transportProtocol());

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.cc,v 1.3 2005/02/10 06:33:33 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.cc,v 1.4 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -56,7 +56,7 @@ const static int ICMPv6_INFO_MESSAGES = 128;
 // ICMPv6Message
 ICMPv6Message::ICMPv6Message(const ICMPv6Type otype, const ICMPv6Code ocode,
                              IPv6Datagram* errorPdu, size_t optInfo)
-  :cPacket("", IP_PROT_IPv6_ICMP), _type(otype), _code(ocode), _checksum(0), _opt_info(optInfo)
+  :cMessage("", IP_PROT_IPv6_ICMP), _type(otype), _code(ocode), _checksum(0), _opt_info(optInfo)
 //Added PR_ICMP to protocol.h of omnetpp
 {
   //All setLength calls are in units of octects unless otherwise noted.
@@ -82,7 +82,7 @@ ICMPv6Message& ICMPv6Message::operator=(const ICMPv6Message& rhs)
 {
   if (this != &rhs)
   {
-    cPacket::operator=(rhs);
+    cMessage::operator=(rhs);
     _checksum = rhs._checksum;
     _opt_info = rhs._opt_info;
     _type = rhs._type;
@@ -98,7 +98,7 @@ struct network_payload *ICMPv6Message::networkOrder() const{
    int icmphdrlen = 0;
    struct network_payload *payload = NULL;
    struct network_payload *packet;
-   cPacket *enc = NULL;
+   cMessage *enc = NULL;
 
 
    ev << "ICMPv6Message::networkOrder()" << endl;
@@ -310,9 +310,7 @@ unsigned short ICMPv6Message::networkCheckSum(unsigned char*icmpmsg,
  */
 bool ICMPv6Message::operator==(const ICMPv6Message& rhs) const
 {
-  //Too bad it doesn't have one
-      //cPacket::operator==
-  if (this == &rhs)
+  if (*this == rhs)
     return true;
 
   return (_type == rhs._type) && (_code == rhs._code) && (_checksum == rhs._checksum)
@@ -325,6 +323,7 @@ std::string ICMPv6Message::info()
   return std::string();
 }
 
+/* XXX not strictly necessary -- removed to reduce complexity  --AV
 void ICMPv6Message::encapsulate(IPv6Datagram* errorPdu)
 {
   cPacket::encapsulate(errorPdu);
@@ -340,6 +339,7 @@ IPv6Datagram *ICMPv6Message::encapsulatedMsg() const
 {
   return static_cast<IPv6Datagram *> (cPacket::encapsulatedMsg());
 }
+*/
 
 bool ICMPv6Message::isErrorMessage() const
 {

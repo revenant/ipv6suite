@@ -33,6 +33,8 @@
 #include <boost/utility.hpp>
 #endif //BOOST_UTILITY_HPP
 
+#include <omnetpp.h>
+
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H

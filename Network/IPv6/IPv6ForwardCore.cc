@@ -42,7 +42,7 @@
 #include <iterator> //ostream_iterator
 #include <omnetpp.h>
 #include <boost/cast.hpp>
-//#include <boost/functional.hpp>
+#include <boost/functional.hpp>
 
 
 #include "IPv6ForwardCore.h"

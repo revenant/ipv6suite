@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.6 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.7 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -69,11 +69,10 @@ static const ipv6_hdr IPV6_INITIAL_HDR =
    between v4 & v6)
 */
 IPv6Datagram::IPv6Datagram(const ipv6_addr& src, const ipv6_addr& dest,
-                           cPacket* pdu, const char* name)
+                           cMessage *pdu, const char* name)
   :/*cPacket(NULL, PR_IPV6, 0),*/ header(IPV6_INITIAL_HDR), route_hdr(0),
                                   frag_hdr(0), dest_hdr(0)
 {
-  cPacket::setProtocol( PR_IPV6);
   setLength(IPv6_HEADER_LENGTH);
   //This signifies a packet that has not arrived at a host
   setInputPort(-1);
@@ -155,8 +154,7 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
   if (&rhs == this)
     return *this;
 
-  // XXX --AV  IPDatagram::operator=(rhs);
-  cPacket::operator=(rhs);
+  cMessage::operator=(rhs);
 
   header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
@@ -303,23 +301,26 @@ void IPv6Datagram::setTransportProtocol(const IPProtocolId& prot)
    @arg transportPacket to encapsulate.  It is possible that transport packet
    encapsulate other PDUs.
 */
-void IPv6Datagram::encapsulate(cPacket* transportPacket)
+void IPv6Datagram::encapsulate(cMessage *transportPacket)
 {
-  cPacket::encapsulate(transportPacket);
+  cMessage::encapsulate(transportPacket);
+/* XXX set transportProtocol() where encapsulate() is invoked!
   if (transportPacket->protocol() == PR_IPV6)
     setTransportProtocol(IP_PROT_IPv6);
   else
     setTransportProtocol((IPProtocolId)transportPacket->protocol());
   setName(transportPacket->name());
+*/
 }
 
+/* thrown out --AV
 cPacket* IPv6Datagram::decapsulate()
 {
   //May need to do special things if ICMPv6 will not be encapsulated
   //as sub class of CPacket or current IPv4 ICMP impl.
   return (cPacket *)(cPacket::decapsulate());
 }
-
+*/
 
 /*
   void IPv6Datagram::setFragmentOffset(int offset);

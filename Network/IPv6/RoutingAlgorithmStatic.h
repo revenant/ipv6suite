@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.h,v 1.2 2005/02/11 12:23:46 andras Exp $
 // Copyright (C) 2003 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -46,7 +46,7 @@ namespace xml
 
 
 #ifndef USE_XMLWRAPP
-#error "Cannot use static routing algorithm with Xerces-c!"
+//XXX ? --AV   #error "Cannot use static routing algorithm with Xerces-c!"
 #endif //USE_XMLWRAPP
 
 /**

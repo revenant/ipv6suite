@@ -107,7 +107,7 @@ class MIPv6MHParameterBase
    all MIPv6 mobility headers
  */
 
-class MIPv6MobilityHeaderBase : public cPacket
+class MIPv6MobilityHeaderBase : public cMessage
 {
  public:
   virtual ~MIPv6MobilityHeaderBase(void);

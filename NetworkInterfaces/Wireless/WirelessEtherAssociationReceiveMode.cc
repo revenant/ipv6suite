@@ -331,15 +331,15 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
 void WEAssociationReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
 {
   WirelessEtherManagementFrame* probeResponse =
-  	static_cast<WirelessEtherManagementFrame*>(signal->data());
-	
-  if (probeResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
+    check_and_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
+
+  if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
-  	ProbeResponseFrameBody* probeResponseBody =
-      static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
-	
+    ProbeResponseFrameBody* probeResponseBody =
+      check_and_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
+
     assert(probeResponseBody);
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
          << mod->fullPath() << "\n"
          << " ----------------------------------------------- \n"
          << " Probe Response received by: " << mod->macAddressString() << "\n"
@@ -351,9 +351,9 @@ void WEAssociationReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WES
 
     // send ACK
     WirelessEtherBasicFrame* ack = mod->
-      createFrame(FT_CONTROL, ST_ACK, MACAddress(mod->macAddressString().c_str()),
+      createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
                   probeResponse->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     scheduleAck(mod, ackSignal);
     delete ack;
     changeState = false;

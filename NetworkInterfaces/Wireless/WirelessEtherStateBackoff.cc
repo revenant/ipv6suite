@@ -125,10 +125,10 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   mod->sendFrame(data);
 
   // Keeping track of number of attempted tx
-  WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (data->data());
+  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>
+    (data->encapsulatedMsg());
   assert(frame);
-  
+
   if (frame->getFrameControl().subtype == ST_DATA)
   {
     mod->noOfAttemptedTx++;

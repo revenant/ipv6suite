@@ -85,6 +85,7 @@ Network/IPv6/ICMPv6.ned
 Network/IPv6/IPv6Encapsulation.ned
 Network/IPv6/IPv6Forward.ned
 Network/IPv6/IPv6Fragmentation.ned
+Network/IPv6/IPv6InputQueue.ned
 Network/IPv6/IPv6LocalDeliver.ned
 Network/IPv6/IPv6Mobility.ned
 Network/IPv6/IPv6Multicast.ned

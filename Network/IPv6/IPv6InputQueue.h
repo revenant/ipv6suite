@@ -1,0 +1,58 @@
+// -*- C++ -*-
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.h,v 1.1 2005/02/22 07:13:27 andras Exp $
+//
+// Copyright (C) 2001, 2003 CTIE, Monash University
+// Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+/*
+	file: InputQueue.h
+	Purpose: Header file for InputQueue
+	Responsibilities:
+		Demultiplex incoming packets from all network interfaces to
+		one Queue for IP
+		arrange the queue in the right order
+
+	author: Johnny Lai
+*/
+
+#ifndef IPv6_INPUT_QUEUE_H
+#define IPv6_INPUT_QUEUE_H
+
+#include <omnetpp.h>
+
+class IPv6Datagram;
+
+/**
+ @class IPv6InputQueue
+
+ @brief Receive input from all interfaces and forward to IP processing module
+ */
+class IPv6InputQueue: public cSimpleModule
+{
+public:
+  Module_Class_Members(IPv6InputQueue, cSimpleModule, 0);
+  virtual void initialize();
+  virtual void handleMessage(cMessage*);
+
+private:
+  simtime_t delay;
+  IPv6Datagram* datagram;
+  cMessage* waitTmr;
+};
+
+#endif
+

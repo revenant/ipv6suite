@@ -17,7 +17,7 @@
 
 import
     "IPv6Processing",
-    "InputQueue";
+    "IPv6InputQueue";
 
 
 //
@@ -83,7 +83,7 @@ module NetworkLayer6
                 transportOut[2],
                 queueOut[numOfPorts];
             display: "p=148,90;i=cogwheel";
-        inputQueue: IPInputQueue;
+        inputQueue: IPv6InputQueue;
             parameters:
                 procDelay = inputqueue_delay;
             gatesizes:

@@ -15,15 +15,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherBridge.cc
-	@brief Definition file for WirelessEtherBridge
+    @file WirelessEtherBridge.cc
+    @brief Definition file for WirelessEtherBridge
 
-	simple implementation of Wireless bridge module
+    simple implementation of Wireless bridge module
 
-	Bridges data frames from Wired ethernet to Wireless ethernet, and vice
+    Bridges data frames from Wired ethernet to Wireless ethernet, and vice
   versa.
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include "sys.h"

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6DestOptMessages.cc
-	@brief MIPv6 Destination Options and Sub-Options
+    @brief MIPv6 Destination Options and Sub-Options
     @see draft-ietf-mobileip-ipv6-16.txt, section 5.3 and section 5.5
-	@author Eric Wu
-	@date 10/4/2002
+    @author Eric Wu
+    @date 10/4/2002
 */
 
 #include "LocalDeliver6Core.h"
@@ -49,19 +49,19 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
   //ipv6_addr coa = dgram->srcAddres();
   if (dgram->transportProtocol() != IP_PROT_IPv6_MOBILITY)
   {
-#ifdef TESTMIPv6 
+#ifdef TESTMIPv6
   cout<<"Processed DestOpt HomeAddress ha=:"<<opt.home_addr<<" coa="
       <<dgram->srcAddress()<<"\n";
 #endif //TESTMIPv6
     dgram->setSrcAddress(opt.home_addr);
   }
-  
+
   //It doesn't say swap in the spec. but it's simplest method rather than check
   //whether payload is MIPv6 protocol but perhaps that's more precise and clear
   //opt.home_addr = coa;
   return true;
 }
- 
+
 } //namespace MobileIPv6
 
 //Duplicated class !!!!
@@ -69,7 +69,7 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
 // {
 
 // // class MIPv6TLVOptHomeAddress definition
-  
+
 // MIPv6TLVOptHomeAddress::MIPv6TLVOptHomeAddress(const ipv6_addr& addr)
 //   : IPv6TLVOptionBase(MIPv6_HOME_ADDRESS_OPT, 18),
 //     _homeAddress(addr)
@@ -78,7 +78,7 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
 // MIPv6TLVOptHomeAddress::~MIPv6TLVOptHomeAddress(void)
 // {
 //   _subOptions.empty();
-// }  
+// }
 
 // bool MIPv6TLVOptHomeAddress::
 // processOption(cSimpleModule* mod, IPv6Datagram* pdu)

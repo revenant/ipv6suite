@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateBackoffReceive.cc
-	@brief Header file for WirelessEtherStateBackoffReceive
-    
+    @file WirelessEtherStateBackoffReceive.cc
+    @brief Header file for WirelessEtherStateBackoffReceive
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -45,7 +45,7 @@ WirelessEtherStateBackoffReceive* WirelessEtherStateBackoffReceive::instance()
 {
   if (_instance == 0)
     _instance = new WirelessEtherStateBackoffReceive;
-  
+
   return _instance;
 }
 
@@ -75,7 +75,7 @@ void WirelessEtherStateBackoffReceive::changeNextState(WirelessEtherModule* mod)
   cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
   assert(a);
 
-  if ( mod->getTmrMessage(TMR_PRBENERGYSCAN) && 
+  if ( mod->getTmrMessage(TMR_PRBENERGYSCAN) &&
        mod->getTmrMessage(TMR_PRBENERGYSCAN)->isScheduled())
   {
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": handover triggered! go back to idle state");
@@ -88,7 +88,7 @@ void WirelessEtherStateBackoffReceive::changeNextState(WirelessEtherModule* mod)
   assert(a && !a->isScheduled());
 
   mod->scheduleAt(mod->simTime() + mod->backoffTime, a);
-  
+
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": resume backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds");
 
   mod->changeState(WirelessEtherStateBackoff::instance());

@@ -16,11 +16,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherAPReceiveMode.h
-	@brief Header file for WEAPReceiveMode
-    
+    @file WirelessEtherAPReceiveMode.h
+    @brief Header file for WEAPReceiveMode
 
-	@author	Steve Woon
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -34,19 +34,19 @@ class WirelessAccessPoint;
 
 class WEAPReceiveMode : public WEReceiveMode
 {
-	public:
-		virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal);
-		virtual void handleReAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal);
-		virtual void handleProbeRequest(WirelessAccessPoint* mod, WESignalData* signal);
-		virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleData(WirelessEtherModule* mod, WESignalData* signal);
-		
-		static WEAPReceiveMode* instance();
+    public:
+        virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal);
+        virtual void handleReAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal);
+        virtual void handleProbeRequest(WirelessAccessPoint* mod, WESignalData* signal);
+        virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleData(WirelessEtherModule* mod, WESignalData* signal);
 
-	protected:
-		static WEAPReceiveMode* _instance;
-		WEAPReceiveMode(void) {}
+        static WEAPReceiveMode* instance();
+
+    protected:
+        static WEAPReceiveMode* _instance;
+        WEAPReceiveMode(void) {}
 };
 
 #endif // __WIRELESS_ETHER_AP_RECEIVE_MODE_H__

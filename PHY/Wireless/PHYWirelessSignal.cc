@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/PHYWirelessSignal.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/PHYWirelessSignal.cc,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -40,5 +40,5 @@ PHYWirelessSignal& PHYWirelessSignal::operator=(const PHYWirelessSignal& p)
     ch = p.ch;
     pwr = p.pwr;
 
-	return *this;
+    return *this;
 }

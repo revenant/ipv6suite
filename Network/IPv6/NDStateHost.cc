@@ -114,7 +114,7 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   // join all-node multicast group
   IPv6Address node_multicast(ALL_NODES_NODE_ADDRESS);
   IPv6Address link_multicast(ALL_NODES_LINK_ADDRESS);
-  IPv6Address site_multicast(ALL_NODES_SITE_ADDRESS);  
+  IPv6Address site_multicast(ALL_NODES_SITE_ADDRESS);
   rt->joinMulticastGroup(node_multicast);
   rt->joinMulticastGroup(link_multicast);
   rt->joinMulticastGroup(site_multicast);
@@ -132,12 +132,12 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
     Interface6Entry& ie = rt->getInterfaceByIndex(i);
-  
+
     if (ie.linkMod->className() == std::string("WirelessEtherModule"))
-    { 
+    {
       WirelessEtherModule* wlanMod =
         static_cast<WirelessEtherModule*>(ie.linkMod);
-       
+
       assert(wlanMod != 0);
 
       //We can make a subclass fo this type and add ifIndex as part of the
@@ -170,7 +170,7 @@ NDStateHost::~NDStateHost()
   delete cbRetrySol;
 
   //Shouldn't need to cancel messages as we are quiting --> YES you need (Andras)
-  for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++) 
+  for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
     {
       nd->cancelEvent(*it);
       delete *it;
@@ -333,7 +333,7 @@ bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
 {
   Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
   for ( int i = 0; i < ie.inetAddrs.items(); i++)
-    if ( ie.inetAddrs[i].scope() == ipv6_addr::Scope_Global )  
+    if ( ie.inetAddrs[i].scope() == ipv6_addr::Scope_Global )
       return true;
   return false;
 }
@@ -428,7 +428,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     }
 
     NS* ns = new NS;
-    
+
     tmr->dgram = new IPv6Datagram(IPv6Address(IPv6_ADDR_UNSPECIFIED), solimcast_addr);
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
@@ -449,7 +449,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
 #ifdef USE_MOBILITY
     //last paragraph of 11.5.2 of mipv6 revision 24  says should not delay
-    if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome()) 
+    if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome())
       delay = 0;
     else
     {
@@ -482,9 +482,9 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(4) << tmr->timeout
          <<" initial delay:"<<delay);
 
-    Debug( IPv6Datagram* dg = tmr->dgram->dup(); 
+    Debug( IPv6Datagram* dg = tmr->dgram->dup();
            assert(*dynamic_cast<ICMPv6Message*>(dg->encapsulatedMsg()) ==
-                  *dynamic_cast<ICMPv6Message*> (tmr->dgram->encapsulatedMsg())); 
+                  *dynamic_cast<ICMPv6Message*> (tmr->dgram->encapsulatedMsg()));
            delete dg; );
 
     //Send directly to IPv6Output as we need to send to a particular interface
@@ -498,7 +498,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
   else
   {
 
-    Dout(dc::ipv6|dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex 
+    Dout(dc::ipv6|dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
          <<" tentative addr: "<<*(tmr->tentativeAddr)<<" assigned on "<<nd->simTime());
 
 
@@ -551,7 +551,7 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
   if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome())
   {
     ipv6_addr potentialCoa = ie.inetAddrs[ie.inetAddrs.size()-1];
-    MobileIPv6::MIPv6NDStateHost* mipv6StateMN = 
+    MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
       boost::polymorphic_downcast<MobileIPv6::MIPv6NDStateHost*> (this);
     assert(mipv6StateMN);
     Dout(dc::debug, rt->nodeName()<<" potential coa in dupAddrDetSuc "<<potentialCoa);
@@ -595,8 +595,8 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
 
     RS* rs = new RS;
 
-    if (!ie.inetAddrs.empty() 
-        || (rt->odad() && !ie.tentativeAddrAssigned(tmr->dgram->srcAddress())))      
+    if (!ie.inetAddrs.empty()
+        || (rt->odad() && !ie.tentativeAddrAssigned(tmr->dgram->srcAddress())))
       rs->setSrcLLAddr(ie.LLAddr());
 
     tmr->dgram->encapsulate(rs);
@@ -852,7 +852,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       if (prefixFound)
       {
         if (prefOpt.validLifetime > 0)
-        {	  
+        {
           OPP_Global::ContextSwitcher switcher(rt);
           //Updating prefix
           //@todo Really should enforce the two calls should occur together but
@@ -1001,12 +1001,12 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 }
 
 /**
-   @brief	auto configure an address from a rtr adv prefix
+   @brief    auto configure an address from a rtr adv prefix
    The address will go through DAD if link local addr was not autoconfigured.
 
    For MIPv6 will always under DAD for non-link local addresses when away from
    home assuming that if we're at home the address is unique since link-local
-   was unique. 
+   was unique.
 
    @note We're gonna do DAD always on new prefixes regardless of where we are as
    long as we are a mobile node for simplicity and to make sure results aren't
@@ -1118,7 +1118,7 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
 
       if (rt->odad() && !ifStats[recDgram->inputPort()].manualLinkLocal)
         Dout(dc::custom, rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<nd->simTime()
-             <<" ODAD @todo Should attmmpt address generation when failed dad");      
+             <<" ODAD @todo Should attmmpt address generation when failed dad");
 
       // TODO : Provide ND function to do all this
       for(TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
@@ -1194,7 +1194,7 @@ void NDStateHost::processNgbrSol(std::auto_ptr<NS> msg)
         {
           Dout(dc::neighbour_disc|dc::notice, rt->nodeName()
                <<"Ignoring Ngbr Sol with target of "<<msg->targetAddr()
-               <<" as target is a tentative address.");        
+               <<" as target is a tentative address.");
           return;
         }
       }
@@ -1332,7 +1332,7 @@ void  NDStateHost::processRedirect(std::auto_ptr<Redirect> msg)
 
 #if OPTIMISTIC_DAD
 /*
-  opt dad Sec. 3.3    
+  opt dad Sec. 3.3
 
   @todo does not do the exp backoff if dad failed and attempting generateAddr
   again
@@ -1345,7 +1345,7 @@ ipv6_addr NDStateHost::generateAddress(const ipv6_prefix& prefix) const
   ret.high=prefix.prefix.high;
   ret.normal = OPP_Global::generateInterfaceId();
   ret.low = OPP_Global::generateInterfaceId();
-  
+
   //set u and g bits to 0
   ret.normal &= 0xFFFcFFFF;
   return ret;

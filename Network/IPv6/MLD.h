@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.h,v 1.1 2005/02/09 06:15:58 andras Exp $ 
-// Copyright (C) 2001, 2002 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.h,v 1.2 2005/02/10 06:26:20 andras Exp $
+// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,12 +49,12 @@ namespace
   const unsigned int queryInt = 125;
   const unsigned int responseInt = 10;
   const unsigned int lastlistenerInt = 1;
-  
+
   const unsigned int mul_listener_Int = (robustVar*queryInt)+responseInt;
-  
+
   const unsigned int MAX_RESPONES_CODE = 10000;
   const unsigned int LLQI_RESPONES_CODE = 1000;
-  
+
   //Router Timers
   const int Tmr_SendGenQuery = 1;
   const int Tmr_MulticastListenerInterval = 2;
@@ -70,7 +70,7 @@ public:
   virtual void initialize();
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
-  
+
   void sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src=IPv6_ADDR_UNSPECIFIED, size_t hopLimit=1);
 
   void startReportTimer(const ipv6_addr& addr, unsigned int responseInterval = responseInt);
@@ -80,7 +80,7 @@ public:
   void sendOwnReportMsg(const ipv6_addr& addr);
   void processRouterMLDMessages(cMessage* msg);
   void processNodeMLDMessages(cMessage* msg);
-  
+
 //  void MLDv2NodeParsing(cMessage* Qmsg);
 
   void MLDv2GenQuery();
@@ -119,7 +119,7 @@ private:
   int genqueryCounter;
 
   cTimerMessage *findTmr(int MLDTimerType, const ipv6_addr& multicast_addr);
-  cTimerMessage *resetTmr(int MLDTimerType);  
+  cTimerMessage *resetTmr(int MLDTimerType);
   typedef std::list<cTimerMessage*> TimerMsgs;
   TimerMsgs tmrs;
 
@@ -128,7 +128,7 @@ private:
 
   // flag
   bool MLDv2_On;
-  
+
 //  QueueMASSQ_t* MASSQtask;
 //  int nMASSQtask;
 
@@ -136,11 +136,11 @@ private:
   char RouterType;
 
   // MLDv2 Record
-  int LSTsize;		// Listener State Table Size
-  MLDv2Record* LStable;	// Listener State Table
-  MLDv2Record* MASSQtable;	// for Router
-  MLDv2Record* ReportTable;	// for Nodes
-  
+  int LSTsize;               // Listener State Table Size
+  MLDv2Record* LStable;      // Listener State Table
+  MLDv2Record* MASSQtable;   // for Router
+  MLDv2Record* ReportTable;  // for Nodes
+
   // for application flow emulating
   double kbs;
   double SampleingRate;

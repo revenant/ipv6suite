@@ -20,8 +20,8 @@
 //
 // Required for MACAddress declarations
 //
-cplusplus 
-{{ 
+cplusplus
+{{
    #include "MACAddress.h"
 }};
 class MACAddress;
@@ -59,15 +59,15 @@ enum SubType
 // Frame control format
 //
 struct FrameControl
-{	
-	fields:
-	unsigned short protocolVer;	//2 bits
-	int type enum(FrameType);	//2 bits
-    	unsigned short subtype;		//4 bits
-    	bool toDS;					//1 bit
-    	bool fromDS;				//1 bit
-    	//bool moreFrag; 			
-    	bool retry;					//1 bit
+{
+    fields:
+    unsigned short protocolVer;  //2 bits
+    int type enum(FrameType);    //2 bits
+        unsigned short subtype;  //4 bits
+        bool toDS;               //1 bit
+        bool fromDS;             //1 bit
+        //bool moreFrag;
+        bool retry;              //1 bit
 };
 
 //
@@ -75,10 +75,10 @@ struct FrameControl
 //
 struct DurationID
 {
-	fields:
-		bool bit15;
-		bool bit14;
-		unsigned short bit14to0;
+    fields:
+        bool bit15;
+        bool bit14;
+        unsigned short bit14to0;
 };
 
 //
@@ -86,9 +86,9 @@ struct DurationID
 //
 struct SequenceControl
 {
-	fields:
-		unsigned short fragmentNumber;
-		unsigned short sequenceNumber;
+    fields:
+        unsigned short fragmentNumber;
+        unsigned short sequenceNumber;
 };
 
 //
@@ -96,10 +96,10 @@ struct SequenceControl
 //
 message WirelessEtherBasicFrame extends cPacket
 {
-	fields:
-		FrameControl frameControl;
-		DurationID durationID;
-		MACAddress address1;
+    fields:
+        FrameControl frameControl;
+        DurationID durationID;
+        MACAddress address1;
 };
 
 //
@@ -107,8 +107,8 @@ message WirelessEtherBasicFrame extends cPacket
 //
 message WirelessEtherRTSFrame extends WirelessEtherBasicFrame
 {
-	fields:
-		MACAddress address2;
+    fields:
+        MACAddress address2;
 };
 
 //
@@ -116,9 +116,9 @@ message WirelessEtherRTSFrame extends WirelessEtherBasicFrame
 //
 message WirelessEtherManagementFrame extends WirelessEtherRTSFrame
 {
-	fields:
-		MACAddress address3;
-		SequenceControl sequenceControl;
+    fields:
+        MACAddress address3;
+        SequenceControl sequenceControl;
 };
 
 //
@@ -126,6 +126,6 @@ message WirelessEtherManagementFrame extends WirelessEtherRTSFrame
 //
 message WirelessEtherDataFrame extends WirelessEtherManagementFrame
 {
-	fields:
-		MACAddress address4;
+    fields:
+        MACAddress address4;
 };

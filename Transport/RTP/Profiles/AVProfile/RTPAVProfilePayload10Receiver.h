@@ -31,11 +31,11 @@
 
 class RTPAVProfilePayload10Receiver : public RTPAVProfileSampleBasedAudioReceiver {
 
-	Module_Class_Members(RTPAVProfilePayload10Receiver, RTPAVProfileSampleBasedAudioReceiver, 0);
+    Module_Class_Members(RTPAVProfilePayload10Receiver, RTPAVProfileSampleBasedAudioReceiver, 0);
 
-	virtual void initialize();
+    virtual void initialize();
 
-	protected:
-		virtual void insertSilence(simtime_t duration);
+    protected:
+        virtual void insertSilence(simtime_t duration);
 
 };

@@ -788,7 +788,7 @@ void IPv6XMLWrapManager::tunnelConfiguration(RoutingTable6* rt)
     if(ifaceIdx == -1)
     {
       Dout(dc::encapsulation|dc::warning, "Node: "<< rt->nodeName() <<
-	   " TunnelEntry has incorrect interface identifier in XML configuration file ..."
+       " TunnelEntry has incorrect interface identifier in XML configuration file ..."
            <<"(" << iface << ")"<<" IGNORING");
       assert(ifaceIdx != -1);
       continue;
@@ -803,13 +803,13 @@ void IPv6XMLWrapManager::tunnelConfiguration(RoutingTable6* rt)
     if (vifIndex == 0)
     {
       cerr<<rt->nodeName()<<" tunnel not created from XML src="<<src<<endl
-	  <<" dest="<<dest<<" exitIface="<<dec<<ifaceIdx<<endl;
+      <<" dest="<<dest<<" exitIface="<<dec<<ifaceIdx<<endl;
       continue;
     }
 
     Dout(dc::encapsulation|continued_cf, rt->nodeName()
-	 <<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
-	 <<ifaceIdx);
+     <<" read tunnel config: src="<<src<<" dest="<<dest<<" exitIface="<<dec
+     <<ifaceIdx);
 
     for ( NodeIt trigIt = nte.begin();;trigIt++)
     {
@@ -862,7 +862,7 @@ void IPv6XMLWrapManager::sourceRoute(RoutingTable6* rt)
   if (it == netNode.end())
   {
     Dout(dc::debug|dc::forwarding, "No source routes for "<<rt->nodeName()
-	 <<" in XML config");
+     <<" in XML config");
     return;
   }
   else

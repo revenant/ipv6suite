@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file MobilityHandler.h
-	@brief Header file for MobilityHandler.h
+    @file MobilityHandler.h
+    @brief Header file for MobilityHandler.h
 
-	An 'abstract' class for all network interface classes
+    An 'abstract' class for all network interface classes
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef MOBILITY_HANDLER_H
@@ -46,7 +46,7 @@ class MobilityHandler : public cSimpleModule
 {
  public:
   Module_Class_Members(MobilityHandler, cSimpleModule, 0);
-  virtual void initialize(int stage);  
+  virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
 

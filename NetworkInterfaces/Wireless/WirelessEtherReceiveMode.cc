@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherReceiveMode.cc
-	@brief Source file for WEReceiveMode
-    
+    @file WirelessEtherReceiveMode.cc
+    @brief Source file for WEReceiveMode
+
     Super class of wireless Ethernet Receive Mode
 
-	@author	Steve Woon
+    @author    Steve Woon
           Eric Wu
 */
 #include "sys.h" // Dout
@@ -57,7 +57,7 @@ WEReceiveMode* WEReceiveMode::instance()
 {
   if (_instance == 0)
     _instance = new WEReceiveMode;
-  
+
   return _instance;
 }
 
@@ -65,12 +65,13 @@ void WEReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherBasicFrame* frame = signal->data();
   assert(frame);
-	
+
   FrameControl frameControl = frame->getFrameControl();
 
   //mod->changeState(WirelessEtherStateIdle::instance());
   changeState = true;
-	
+
+
   switch(frameControl.subtype)
   {
     case ST_BEACON:
@@ -121,7 +122,7 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
 {
   WESignalData* signal = *(mod->outputBuffer.begin());
   assert(signal->data());
-  
+
   WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
     (signal->data());
   assert(frame);
@@ -131,8 +132,8 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
   {
     mod->noOfSuccessfulTx++;
     mod->throughput.sampleTotal += (double)(frame->encapsulatedMsg()->length());
-  }  
-    
+  }
+
   delete *(mod->outputBuffer.begin());
   mod->outputBuffer.pop_front();
   mod->resetRetry();
@@ -143,7 +144,7 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
   mod->ackReceived = true;
 }
 
-void WEReceiveMode::sendAck(WirelessEtherModule* mod, 
+void WEReceiveMode::sendAck(WirelessEtherModule* mod,
                             WESignalData* ack)
 {
   //mod->changeState(WirelessEtherStateReceive::instance());
@@ -154,12 +155,12 @@ void WEReceiveMode::sendAck(WirelessEtherModule* mod,
   if (!a)
   {
     Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
-      
+
     tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-      (WIRELESS_SELF_ENDSENDACK, mod, 
-       static_cast<WirelessEtherStateReceive*>(mod->currentState()), 
+      (WIRELESS_SELF_ENDSENDACK, mod,
+       static_cast<WirelessEtherStateReceive*>(mod->currentState()),
        &WirelessEtherStateReceive::endSendingAck, "endSendingAck");
-      
+
     Loki::Field<0> (tmr->args) = mod;
     mod->addTmrMessage(tmr);
     a = tmr;
@@ -173,8 +174,8 @@ void WEReceiveMode::sendAck(WirelessEtherModule* mod,
   assert(!a->isScheduled());
   a->reschedule(mod->simTime() + transmTime);
 
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime() 
-       << " sec, " << mod->fullPath() << ": " 
-       << "schedule to finish sending ack at " 
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime()
+       << " sec, " << mod->fullPath() << ": "
+       << "schedule to finish sending ack at "
        << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() +  transmTime << " sec");
 }

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/wirelessethernet.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/wirelessethernet.h,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file wirelessethernet.h
-	@brief Predefined values
+    @file wirelessethernet.h
+    @brief Predefined values
 
-	@author Eric Wu
-	@date 17.04.2003
+    @author Eric Wu
+    @date 17.04.2003
 
 */
 
@@ -42,7 +42,7 @@ extern const int CW_MIN;
 
 // predefined constants in 802.11 standard
 
-extern const double TU;    // Time Unit 
+extern const double TU;    // Time Unit
 
 
 extern const double SLOTTIME; // 15 us; a slot time
@@ -64,7 +64,7 @@ extern const int TMR_REMOVEENTRY;
 extern const int TMR_AUTHTIMEOUT;
 extern const int TMR_ASSTIMEOUT;
 extern const int TMR_PRBRESPSCAN;
-extern const int TMR_HANDOVERWAIT; 
+extern const int TMR_HANDOVERWAIT;
 extern const int TMR_SETMONITORMODE;
 extern const int TMR_MONITORCHANNEL;
 extern const int TMR_APLISTENTRYTIMEOUT;
@@ -104,8 +104,8 @@ enum ReceiveMode
   RM_DATA = 5,
   RM_ACK = 6,
   RM_MONITOR = 7,
-	RM_ASSRSP_ACKWAIT = 8,
-	RM_AUTHRSP_ACKWAIT = 9
+  RM_ASSRSP_ACKWAIT = 8,
+  RM_AUTHRSP_ACKWAIT = 9
 };
 
 #endif //__WIRELESS_ETH_MISC_H

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6MobilityHeaders.h
-	@brief MIPv6 Mobility Headers
+    @brief MIPv6 Mobility Headers
     @see draft-ietf-mobileip-ipv6-16.txt, section 5.1.2 to 5.1.8
-	@author Eric Wu
-	@date 4/4/2002
+    @author Eric Wu
+    @date 4/4/2002
 */
 
 #ifndef MIPv6MOBILITYHEADERS_H
@@ -33,12 +33,12 @@ namespace MobileIPv6
 {
 
 // constants
-  
+
 // use these constants accordingly in the fields of BA when BU was rejected
 extern const unsigned int UNDEFINED_REFRESH;
 extern const unsigned int UNDEFINED_EXPIRES;
 extern const unsigned int UNDEFINED_SEQ;
- 
+
 struct bit_64
 {
   unsigned int high;
@@ -46,7 +46,7 @@ struct bit_64
 };
 
 extern bool operator==(const bit_64& lhs, const bit_64& rhs);
-extern bool operator!=(const bit_64& lhs, const bit_64& rhs);  
+extern bool operator!=(const bit_64& lhs, const bit_64& rhs);
 
 extern const bit_64 UNSPECIFIED_BIT_64;
 
@@ -57,15 +57,15 @@ class MIPv6MHBindingRequest : public MIPv6MobilityHeaderBase
   MIPv6MHBindingRequest(const MIPv6MHBindingRequest& src);
   virtual ~MIPv6MHBindingRequest(void);
   virtual MIPv6MHBindingRequest& operator=(const MIPv6MHBindingRequest& rhs);
-  
+
   virtual MIPv6MHBindingRequest* dup() const
     { return new MIPv6MHBindingRequest(*this); }
-  virtual const char* className() const 
+  virtual const char* className() const
     { return "MIPv6MHBindingRequest"; }
   virtual void info(char* buf);
 
   virtual bool addMPar(MIPv6MHParameterBase* param);
-  
+
  private:
   // reserved
 };
@@ -77,15 +77,15 @@ class MIPv6MHTestInit : public MIPv6MobilityHeaderBase
   MIPv6MHTestInit(const MIPv6MHTestInit& src);
   virtual ~MIPv6MHTestInit(void);
   virtual MIPv6MHTestInit& operator=(const MIPv6MHTestInit& rhs);
-  
+
   virtual MIPv6MHTestInit* dup() const
     { return new MIPv6MHTestInit(*this); }
-  virtual const char* className() const 
-    { 
+  virtual const char* className() const
+    {
       if (_headertype==MIPv6MHT_HoTI)
-        return "HoTI"; 
+        return "HoTI";
       else if (_headertype==MIPv6MHT_CoTI)
-        return "CoTI"; 
+        return "CoTI";
       else
         assert(false);
     }
@@ -94,7 +94,7 @@ class MIPv6MHTestInit : public MIPv6MobilityHeaderBase
   virtual bool addMPar(MIPv6MHParameterBase* param);
 
   bit_64 cookie;
-  
+
  private:
   // reserved
 };
@@ -102,21 +102,21 @@ class MIPv6MHTestInit : public MIPv6MobilityHeaderBase
 class MIPv6MHTest : public MIPv6MobilityHeaderBase
 {
  public:
-  MIPv6MHTest(MIPv6MobilityHeaderType _headertype, int hni, 
+  MIPv6MHTest(MIPv6MobilityHeaderType _headertype, int hni,
               const bit_64& __cookie = UNSPECIFIED_BIT_64,
               const bit_64& __token = UNSPECIFIED_BIT_64);
   MIPv6MHTest(const MIPv6MHTest& src);
   virtual ~MIPv6MHTest(void);
   virtual MIPv6MHTest& operator=(const MIPv6MHTest& rhs);
-  
+
   virtual MIPv6MHTest* dup() const
     { return new MIPv6MHTest(*this); }
-  virtual const char* className() const 
+  virtual const char* className() const
     {
       if (_headertype==MIPv6MHT_HoT)
-        return "HoT"; 
+        return "HoT";
       else if (_headertype==MIPv6MHT_CoT)
-        return "CoT"; 
+        return "CoT";
       else
         assert(false);
     }
@@ -138,7 +138,7 @@ class MIPv6MHTest : public MIPv6MobilityHeaderBase
 
 class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
 {
- public: 
+ public:
   MIPv6MHBindingUpdate(bool ack = false, bool homereg = false,
                        bool saonly = false, bool dad = false,
                        unsigned int seq = 0,
@@ -151,10 +151,10 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
   MIPv6MHBindingUpdate(const MIPv6MHBindingUpdate& src);
   virtual ~MIPv6MHBindingUpdate(void);
   virtual MIPv6MHBindingUpdate& operator=(const MIPv6MHBindingUpdate& rhs);
-  
+
   virtual MIPv6MHBindingUpdate* dup() const
     { return new MIPv6MHBindingUpdate(*this); }
-  virtual const char* className() const 
+  virtual const char* className() const
     { return "MIPv6MHBindingUpdate"; }
   virtual void info(char* buf);
 
@@ -168,7 +168,7 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
 #ifdef USE_HMIP
   bool mapreg(void) const { return _map; }
 #endif
-  
+
   unsigned int sequence(void) const  { return _seq; }
   unsigned int expires(void) const  { return _expires; }
   const ipv6_addr& ha(void) const  { return _ha; }
@@ -176,14 +176,14 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
   void setSequence(unsigned int sequence) { _seq = sequence; }
 
   cModule* senderModule(void) const { return _senderMod; }
-  
+
   // I don't know if I should create functions to explicitely set all
   // of BU's attributes yet so I leave it blank for the moment being
 
   // ...
-  
+
  private:
-  bool _ack, _homereg, _saonly, _dad;  
+  bool _ack, _homereg, _saonly, _dad;
   unsigned int _seq;
   unsigned int _expires;
   ipv6_addr _ha; // home address
@@ -191,7 +191,7 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
   bool _map;
 #endif
   cModule* _senderMod;
-  
+
 };
 
 class MIPv6MHBindingAcknowledgement : public MIPv6MobilityHeaderBase
@@ -208,7 +208,7 @@ class MIPv6MHBindingAcknowledgement : public MIPv6MobilityHeaderBase
       BAS_HR_NOT_SUPPORTED = 131,
       BAS_NOT_HOME_SUBNET=132,
       BAS_NOT_HA_FOR_MN = 133,
-      BAS_DAD_FAILED = 134,      
+      BAS_DAD_FAILED = 134,
       BAS_SEQ_OUT_OF_WINDOW = 135,
       BAS_UNREC_HONI = 136,
       BAS_UNREC_CONI= 137,
@@ -227,7 +227,7 @@ class MIPv6MHBindingAcknowledgement : public MIPv6MobilityHeaderBase
   MIPv6MHBindingAcknowledgement(const MIPv6MHBindingAcknowledgement& src);
   virtual ~MIPv6MHBindingAcknowledgement(void);
   virtual MIPv6MHBindingAcknowledgement& operator=(const MIPv6MHBindingAcknowledgement& rhs);
-  
+
   virtual MIPv6MHBindingAcknowledgement* dup() const
     { return new MIPv6MHBindingAcknowledgement(*this); }
   virtual const char* className() const
@@ -240,12 +240,12 @@ class MIPv6MHBindingAcknowledgement : public MIPv6MobilityHeaderBase
   unsigned int sequence(void) const { return _seq; }
   unsigned int lifetime(void) const { return _expires; }
   unsigned int refresh(void) const { return _refresh; }
-  
+
   // I don't know if I should create functions to set explicitely all
   // of BA's attributes yet so I leave it blank for the moment being
 
   // ...
-  
+
  private:
   BAStatus _status;
   unsigned int _seq;
@@ -260,10 +260,10 @@ class MIPv6MHBindingMissing : public MIPv6MobilityHeaderBase
   MIPv6MHBindingMissing(const MIPv6MHBindingMissing& src);
   virtual ~MIPv6MHBindingMissing(void);
   virtual MIPv6MHBindingMissing& operator=(const MIPv6MHBindingMissing& rhs);
-  
+
   virtual MIPv6MHBindingMissing* dup() const
     { return new MIPv6MHBindingMissing(*this); }
-  virtual const char* className() const 
+  virtual const char* className() const
     { return "MIPv6MHBindingMissing"; }
   virtual void info(char* buf);
 
@@ -274,9 +274,9 @@ class MIPv6MHBindingMissing : public MIPv6MobilityHeaderBase
   // should I explicitely set the home addrss of BM?
 
   // ...
-  
+
  private:
-  ipv6_addr _ha; // home address  
+  ipv6_addr _ha; // home address
 };
 
 } // end namespace

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/SingletonRandomPattern.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/SingletonRandomPattern.cc,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -18,14 +18,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file SingletonRandomPattern.cc
-	@brief Header file for SingletonRandomPattern
+    @file SingletonRandomPattern.cc
+    @brief Header file for SingletonRandomPattern
 
-	Responsibilities:
+    Responsibilities:
         - mobility handling
 
-  Initially implemented in PHYWirelessModule (now obsolete and 
-  evolved into PHYSimple), but taken out since it makes more sense 
+  Initially implemented in PHYWirelessModule (now obsolete and
+  evolved into PHYSimple), but taken out since it makes more sense
   as a seperate entity rather than part of the physical layer
 
   @author Eric Wu
@@ -43,7 +43,7 @@ RandomPattern* RandomPattern:: initializePattern()
 {
   if (_instance == 0)
     _instance = new RandomPattern;
-  
+
   _instance->refCount++;
   _instance->currentRefCounter = refCount - 1;
   return _instance;
@@ -55,7 +55,7 @@ double RandomPattern::wayPoint(int& x, int& y)
   {
     // calculate point
     _nextInterval = randomWaypoint(x, y);
-    
+
     _x = x;
     _y = y;
 

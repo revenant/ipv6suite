@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6CDSHomeAgent.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2003 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6CDSHomeAgent.h,v 1.2 2005/02/10 06:26:20 andras Exp $
+// Copyright (C) 2002, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -70,37 +70,37 @@ namespace MobileIPv6
       {}
 
     size_t ifIndex() const { return _ifIndex; }
-    
+
     const ipv6_addr& local_addr() const { return link_local_addr; }
 
     ///Suppose to keep whole list of them but we'll just keep the first one for
     ///now
-    const ipv6_addr& global_addr(size_t i = 0) const 
+    const ipv6_addr& global_addr(size_t i = 0) const
       {
         return _global_addr;
       }
-    
-    int global_addr_count() const 
+
+    int global_addr_count() const
       {
         return 1;
       }
-    
+
     ///Unimplemented
     void addAddress(const ipv6_addr& addr)
       {
         assert(false);
       }
 
-    
+
     const int& preference() const { return _preference; }
-    
+
     void setPreference(int pref) { _preference = pref; }
-    
+
     void setLifetime(unsigned long lifetime) { expire = lifetime; }
-    
+
   private:
 
-	size_t _ifIndex;
+    size_t _ifIndex;
 
     /**
      * @brief link local address of router with home agent bit set
@@ -108,7 +108,7 @@ namespace MobileIPv6
      * Obtained from source address of Router Advertisement
      */
 
-    ipv6_addr link_local_addr;    
+    ipv6_addr link_local_addr;
 
     /**
      * @brief one or more global addresses derived from Prefix Information with
@@ -117,15 +117,15 @@ namespace MobileIPv6
      * @note These global addresses must be removed once the associated prefix
      * expires
      */
-	ipv6_addr _global_addr;
+    ipv6_addr _global_addr;
 
     /// remaining lifetime, decremented until it reaches zero when this home
     /// agent entry is removed from HA List.
-	unsigned long expire;
+    unsigned long expire;
 
     // preference fo this home agent; higher values indicate a more
     // preferable home agent
-	int _preference;
+    int _preference;
   };
 
 
@@ -151,11 +151,11 @@ namespace MobileIPv6
     boost::weak_ptr<ha_entry> findHomeAgent(const ipv6_addr& addr);
     void insertHomeAgent(ha_entry* ha);
     void removeHomeAgent(boost::weak_ptr<ha_entry> ha);
-    
+
     typedef std::list< boost::weak_ptr<ha_entry> > HomeAgents;
     ///Return a list of home agents belonging to a particular interface
     HomeAgents& getHomeAgents(size_t ifIndex);
-    
+
     ///Find a homeAgent with matching prefix
     boost::weak_ptr<ha_entry> lookupHomeAgents(size_t ifIndex, ipv6_addr prefix, int prefix_len) const;
 

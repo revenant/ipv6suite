@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Applications/MLD/Attic/MLDIface.h,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Applications/MLD/Attic/MLDIface.h,v 1.2 2005/02/10 06:26:20 andras Exp $
 //
 // Copyright Copyright (C) 2001 Johnny Lai
 // Monash University, Melbourne, Australia
@@ -49,15 +49,15 @@ struct MLD_int_info
   {
     return _length;
   }
-  
+
   void setLength(unsigned int len)
   {
     _length = len;
   }
-  
+
   int _length;
   MLDv2_Command Command;
-  char type;		// Record Type
+  char type;     // Record Type
   ipv6_addr MA;
   ipv6_addr SA;
 };

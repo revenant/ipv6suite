@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/RIP/RoutingProtocolRIP.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/RIP/RoutingProtocolRIP.cc,v 1.2 2005/02/10 06:26:21 andras Exp $
 // Copyright (C) 2003 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -22,14 +22,14 @@
  * @file   RoutingProtocolRIP.cc
  * @author Johnny Lai
  * @date   25 Jul 2003
- * 
+ *
  * @brief  Implementation of RoutingProtocolRIP
  *
  * Implements split horizon with poison reverse with configuration in xml to
  * disable poisoned reverse.
  * Triggerered updates for changed route metrics at limited rate acc. to 3.10.1
- * 
- * Format of packet is 
+ *
+ * Format of packet is
  */
 
 
@@ -65,7 +65,7 @@ void RoutingProtocolRIP::handleMessage(cMessage* msg)
 
 /**
    @class RoutingProtocolRIPTest
-   @brief 	
+   @brief
    @ingroup TestCases
 */
 
@@ -78,7 +78,7 @@ class RoutingProtocolRIPTest: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  
+
   // Constructor/destructor.
   RoutingProtocolRIPTest();
   virtual ~RoutingProtocolRIPTest();

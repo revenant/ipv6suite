@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/SingletonRandomPattern.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/SingletonRandomPattern.h,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -19,10 +19,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file SingletonRandomPattern.h
-	@brief Header file for MobilityRandomPattern
+    @file SingletonRandomPattern.h
+    @brief Header file for MobilityRandomPattern
 
-	Responsibilities:
+    Responsibilities:
              - mobility handling
 
     @author Eric Wu, Steve Woon
@@ -35,7 +35,7 @@
 
 class RandomPattern : public RandomWP
 {
-  friend class MobilityRandomPattern;  
+  friend class MobilityRandomPattern;
 public:
   // call this function at the initialiation of a cModule instance
   static RandomPattern* initializePattern();

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,15 +16,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file MIPv6ICMPv6NDMessage.h
-    
-	@brief Modification to IPv6 ND messages and prefix information option
+    @file MIPv6ICMPv6NDMessage.h
+
+    @brief Modification to IPv6 ND messages and prefix information option
              as well as new specific MIPv6 options
              (draft-ietf-mobileip-ipv6-16), section 6.1
-    
-	@author Eric Wu
+
+    @author Eric Wu
     @date 7/4/2002
- 
+
 */
 
 #ifndef MIPv6ICMPV6NDMESSAGE_H
@@ -44,9 +44,9 @@ namespace MobileIPv6
 {
 
 // class MIPv6ICMPv6NDOptHomeAgentInfo
-// 
+//
 // New Home Agent Information Option
- 
+
 class MIPv6ICMPv6NDOptHomeAgentInfo: public ICMPv6_NDOptionBase
 {
 public:
@@ -56,7 +56,7 @@ public:
     {
       return new MIPv6ICMPv6NDOptHomeAgentInfo(*this);
     }
-  
+
   int haPref;
   int haLifetime;
 };
@@ -78,14 +78,14 @@ class MIPv6ICMPv6NDMRtrAd : public IPv6NeighbourDiscovery::ICMPv6NDMRtrAd
                            // ... specific attributes
                            bool homeagent = false
                            );
-  
+
   MIPv6ICMPv6NDMRtrAd(int lifetime, int hopLimit = 0,
                            unsigned int reach = 0, unsigned int retrans = 0,
                            bool managed = false, bool other = false,
                            // ... specific attributes
                            bool homeagent = false
                            );
-  
+
   MIPv6ICMPv6NDMRtrAd(const MIPv6ICMPv6NDMRtrAd& src);
 
   ~MIPv6ICMPv6NDMRtrAd(void)
@@ -95,23 +95,23 @@ class MIPv6ICMPv6NDMRtrAd : public IPv6NeighbourDiscovery::ICMPv6NDMRtrAd
     }
 
   const MIPv6ICMPv6NDMRtrAd& operator=
-    (const MIPv6ICMPv6NDMRtrAd& src);  
+    (const MIPv6ICMPv6NDMRtrAd& src);
 
   bool operator==(const MIPv6ICMPv6NDMRtrAd& rhs) const;
-  
+
   virtual MIPv6ICMPv6NDMRtrAd* dup() const
     { return new MIPv6ICMPv6NDMRtrAd(*this); }
 
   void setHomeAgent(bool b_ha)
     {
 #ifdef USE_MOBILITY // for HOMEAGENT_MASK
-      if ( b_ha )        
+      if ( b_ha )
         setOptInfo(optInfo() | HOMEAGENT_MASK);
       else
         setOptInfo(optInfo() & ~HOMEAGENT_MASK);
 #endif
     }
-  
+
   bool hasHomeAgentInfo() const
     {
       return _haInfo != 0;
@@ -122,25 +122,25 @@ class MIPv6ICMPv6NDMRtrAd : public IPv6NeighbourDiscovery::ICMPv6NDMRtrAd
       bool changeLength = true;
       if (_haInfo)
       {
-        changeLength = false;      
+        changeLength = false;
         _haInfo->haPref = haPref;
         _haInfo->haLifetime = haLifetime;
       }
       else
         _haInfo = new MIPv6ICMPv6NDOptHomeAgentInfo(haPref, haLifetime);
-      
+
       if (changeLength)
         setLength(length() + _haInfo->length());
     }
-  
+
   const MIPv6ICMPv6NDOptHomeAgentInfo& homeAgentInfo()
     {
       return *(static_cast<MIPv6ICMPv6NDOptHomeAgentInfo*> (_haInfo));
     }
-  
+
  protected:
   MIPv6ICMPv6NDOptHomeAgentInfo* _haInfo;
-};  
+};
 
 } // end namespace MobileIPv6
 

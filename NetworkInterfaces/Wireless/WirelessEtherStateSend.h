@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateSend.h
-	@brief Header file for WirelessEtherStateSend
-    
+    @file WirelessEtherStateSend.h
+    @brief Header file for WirelessEtherStateSend
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -45,14 +45,14 @@ class WESignalData;
 class WirelessEtherStateSend : public WirelessEtherState
 {
   friend class WirelessEtherStateBackoff;
-  
+
 public:
   static WirelessEtherStateSend* instance();
-  
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
-  WirelessEtherStateSend(void) {} 
+  WirelessEtherStateSend(void) {}
 
   virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
   virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);

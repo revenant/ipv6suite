@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -67,7 +67,7 @@ MIPv6MobilityState::~MIPv6MobilityState(void)
 /*
 
   @todo rev. 24 SEc. 9.2 sending binding error for unrecognised messages. Check payload
-  field is IPPROTO_NONE or send ICMP param prob code 0 to src addr.  
+  field is IPPROTO_NONE or send ICMP param prob code 0 to src addr.
   Check if the length in the option is actually greater or equal to how long it
   SHOULD be according to the draft standard
 
@@ -83,7 +83,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
 
   cPacket* pkt = dup_dgram->decapsulate();
   MIPv6MobilityHeaderBase* mhb = dynamic_cast<MIPv6MobilityHeaderBase*>(pkt);
-  
+
   // Fix the bu->physicalLenInOctet
   //if ( bu->physicalLenInOctet() < bu->length() )
   //  return false;
@@ -102,15 +102,15 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
         BU* bu = boost::polymorphic_downcast<BU*>(mhb);
         assert(bu != 0);
 
-        if (mod->isHomeAgent() && 
-            (bu->homereg() 
-#ifdef USE_HMIP		
+        if (mod->isHomeAgent() &&
+            (bu->homereg()
+#ifdef USE_HMIP
              || bu->mapreg()
 #endif //USE_HMIP
              )
             )
         {
-#ifdef USE_HMIP		
+#ifdef USE_HMIP
           if ( mod->isMAP() && bu->mapreg())
             mod->changeState(HierarchicalMIPv6::HMIPv6MStateMAP::instance());
           else
@@ -119,16 +119,16 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
         }
         else if (mod->isMobileNode())
           //Allowing MN to act as CN too
-          mod->changeState(MIPv6MStateMobileNode::instance()); 
+          mod->changeState(MIPv6MStateMobileNode::instance());
         else
           mod->changeState(MIPv6MStateCorrespondentNode::instance());
       }
       break;
-      case MIPv6MHT_BA: 
+      case MIPv6MHT_BA:
       {
         BA* ba = boost::polymorphic_downcast<BA*>(mhb);
         assert(ba != 0);
-        
+
         mod->changeState(MIPv6MStateMobileNode::instance());
       }
       break;
@@ -136,7 +136,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
       {
         BM* bm = boost::polymorphic_downcast<BM*>(mhb);
         assert(bm != 0);
-        
+
         mod->changeState(MIPv6MStateMobileNode::instance());
       }
       break;
@@ -147,8 +147,8 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
       TIMsg* ti = boost::polymorphic_downcast<TIMsg*>(mhb);
       assert(ti != 0);
       if (mod->isMobileNode())
-        mod->changeState(MIPv6MStateMobileNode::instance()); 
-      else        
+        mod->changeState(MIPv6MStateMobileNode::instance());
+      else
         mod->changeState(MIPv6MStateCorrespondentNode::instance());
     }
     break;
@@ -163,7 +163,7 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
     default:
       cerr << " Unrecognised or Unimplemented message type "<<mhb->header_type()
            << " received at Mobility module"<<endl;
-      break;      
+      break;
   }
 
   delete mhb;
@@ -175,22 +175,22 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
 //This fn is actually used by subclasses although I think it is a very bad form
 //of reuse. Would be better to actually make it pure virtual and just stick
 //these lines into the derived classes' fn
-void MIPv6MobilityState::processMobilityMsg(IPv6Datagram* dgram, 
+void MIPv6MobilityState::processMobilityMsg(IPv6Datagram* dgram,
                                             MIPv6MobilityHeaderBase*& mhb,
                                             IPv6Mobility* mod)
 {
   cPacket* pkt = dgram->decapsulate();
   mhb = boost::polymorphic_downcast<MIPv6MobilityHeaderBase*>(pkt);
-  
+
   if (!mhb)
     delete pkt;
 }
-  
+
 // private functions
 
 /**
  *
- * 
+ *
  */
 
 bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod, ipv6_addr& hoa, ipv6_addr& coa)
@@ -209,12 +209,12 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
   bool hoaOptFound = false;
 
   // check if the packet contains home address option
-  HdrExtProc* proc = dgram->findHeader(EXTHDR_DEST); 
+  HdrExtProc* proc = dgram->findHeader(EXTHDR_DEST);
   if (proc)
   {
 
     IPv6TLVOptionBase* opt = boost::polymorphic_downcast<HdrExtDestProc*>(proc)->
-      getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);    
+      getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
     if (opt)
     {
 
@@ -223,7 +223,7 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
       hoa = haOpt->homeAddr();
       Dout(dc::mipv6, mod->nodeName()<<" home address opt hoa="<<hoa);
       hoaOptFound = true;
-    }    
+    }
   }
 
   if (hoa.isMulticast() ||
@@ -234,8 +234,8 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
     Dout(dc::mipv6, mod->nodeName()<<" BU has non unicast home address");
     return false;
   }
-  if (ipv6_addr_scope(hoa) == ipv6_addr::Scope_None || 
-      ipv6_addr_scope(hoa) == ipv6_addr::Scope_Node || 
+  if (ipv6_addr_scope(hoa) == ipv6_addr::Scope_None ||
+      ipv6_addr_scope(hoa) == ipv6_addr::Scope_Node ||
       ipv6_addr_scope(hoa) == ipv6_addr::Scope_Link)
   {
     Dout(dc::mipv6, mod->nodeName()<<" BU has non routable address");
@@ -247,7 +247,7 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
   if (acoaExist)
   {
     MIPv6MHAlternateCareofAddress* acoaPar = boost::polymorphic_downcast<MIPv6MHAlternateCareofAddress*>(acoaExist);
-  
+
     assert(acoaPar);
     coa = acoaPar->address();
     Dout(dc::mipv6, mod->nodeName()<<" alternate coa="<<coa);
@@ -259,12 +259,12 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
   boost::weak_ptr<bc_entry> bce = mod->mipv6cds->findBinding(hoa);
   if (bce.lock().get() != 0 && bu->sequence() < bce.lock()->seq_no )
   {
-    BA* ba = new BA(BA::BAS_SEQ_OUT_OF_WINDOW, bce.lock()->seq_no, 
+    BA* ba = new BA(BA::BAS_SEQ_OUT_OF_WINDOW, bce.lock()->seq_no,
                     bce.lock()->expires, UNDEFINED_REFRESH);
 
     sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
     Dout(dc::mipv6|dc::warning, " BU seq="<<bu->sequence()<<" < BC entry seq="<<bce.lock()->seq_no);
-    return false;    
+    return false;
   }
 
   if (!bu->homereg())
@@ -297,19 +297,19 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
 }
 
 ///Register in binding cache
-void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu, 
+void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
                                      IPv6Mobility* mod)
 {
-  IPv6NeighbourDiscovery::IPv6CDS::DCI it;  
+  IPv6NeighbourDiscovery::IPv6CDS::DCI it;
 
   bool success = mod->rt->cds->findDestEntry(bu->ha(), it);
-  
+
   if (!success)
   {
     //CN's should already have a destEntry for the MN?  Assuming it was not away
     //from home before it initiated communications I guess
     assert(mod->isHomeAgent());
-    
+
     if (mod->isHomeAgent())
     {
       //HA needs to destroy its knowledge of MN and set the neighbour to none
@@ -318,9 +318,9 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
       mod->rt->cds->findDestEntry(bu->ha(), it);
     }
   }
-  
+
   boost::weak_ptr<bc_entry> bce = mod->mipv6cds->findBinding(bu->ha());
-  
+
   if (bce.lock().get() != 0)
   {
     bce.lock()->care_of_addr = dgram->srcAddress();
@@ -334,7 +334,7 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   {
     // create a new entry bu does not exists in bc
     bc_entry* be = new bc_entry;
-    
+
     //Create a ctor for this
     be->home_addr = bu->ha();
     if (mod->earlyBindingUpdate())

@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherAuthenticationReceiveMode.cc
-	@brief Source file for WEAuthenticationReceiveMode
-    
-	@author	Steve Woon
+    @file WirelessEtherAuthenticationReceiveMode.cc
+    @brief Source file for WEAuthenticationReceiveMode
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -51,15 +51,15 @@ WEAuthenticationReceiveMode* WEAuthenticationReceiveMode::instance()
 {
   if (_instance == 0)
     _instance = new WEAuthenticationReceiveMode;
-  
+
   return _instance;
 }
 
 void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* authentication =
-  	static_cast<WirelessEtherManagementFrame*>(signal->data());
-	
+      static_cast<WirelessEtherManagementFrame*>(signal->data());
+
   if(authentication->getAddress1() == MACAddress(mod->macAddressString().c_str()))
   {
     AuthenticationFrameBody* aFrameBody =
@@ -68,10 +68,10 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
     // Check if its an authentication response for "open system"
     if(aFrameBody->getSequenceNumber() == 2)
     {
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << mod->fullPath() << "\n"
            << " ----------------------------------------------- \n"
-           << " Authentication received by: " 
+           << " Authentication received by: "
            << mod->macAddressString() << "\n"
            << " from " << authentication->getAddress2() << " \n"
            << " Sequence No.: " << aFrameBody->getSequenceNumber() << "\n"
@@ -80,14 +80,14 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
 
       // send ACK to confirm the transmission has been sucessful
       WirelessEtherBasicFrame* ack = mod->
-        createFrame(FT_CONTROL, ST_ACK, 
+        createFrame(FT_CONTROL, ST_ACK,
                     MACAddress(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       WESignalData* ackSignal = new WESignalData(ack);
       sendAck(mod, ackSignal);
       delete ack;
       changeState = false;
-        
+
       mod->associateAP.address = authentication->getAddress2();
       mod->associateAP.channel = signal->channel();
       mod->associateAP.rxpower = signal->power();
@@ -97,7 +97,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
       // TODO: need to check status code
       //send association request frame
       WirelessEtherBasicFrame* assRequest = mod->
-      	createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST, 
+          createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
                     MACAddress(mod->macAddressString().c_str()),
                     authentication->getAddress2());
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
@@ -131,28 +131,28 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
 void WEAuthenticationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherBasicFrame* ack =
-  	static_cast<WirelessEtherBasicFrame*>(signal->data());
+      static_cast<WirelessEtherBasicFrame*>(signal->data());
 
   if(ack->getAddress1() == MACAddress(mod->macAddressString().c_str()))
   {
-    // Since both interfaces have the same MAC Address in a dual interface node, you may 
+    // Since both interfaces have the same MAC Address in a dual interface node, you may
     // process an ACK which is meant for the other interface. Condition checks that you
     // are expecting an ACK before processing it.
     if( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
     {
       mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
-      
+
       finishFrameTx(mod);
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << mod->fullPath() << "\n"
            << " ----------------------------------------------- \n"
            << " ACK received by: " << mod->macAddressString() << "\n"
            << " ----------------------------------------------- \n");
-      
+
       changeState = false;
     }
   }
-  
+
   if ( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
     changeState = false;
 }

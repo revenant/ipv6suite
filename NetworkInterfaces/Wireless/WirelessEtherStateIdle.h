@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateIdle.h
-	@brief Header file for WirelessEtherStateIdle
-    
+    @file WirelessEtherStateIdle.h
+    @brief Header file for WirelessEtherStateIdle
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -49,7 +49,7 @@ class WirelessEtherStateIdle : public WirelessEtherState
 
 public:
   static WirelessEtherStateIdle* instance();
-  
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
   void chkOutputBuffer(WirelessEtherModule* mod);

@@ -39,13 +39,12 @@ private:
 
 protected:
 
-	RoutingTable6 *rt;
+    RoutingTable6 *rt;
 
 public:
     Module_Class_Members(RoutingTable6Access, cSimpleModule, 0);
 
-	virtual void initialize();
-	
+    virtual void initialize();
 };
 
 #endif

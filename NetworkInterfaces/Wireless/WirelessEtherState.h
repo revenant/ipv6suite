@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherState.h
-	@brief Header file for WirelessEtherState
-    
+    @file WirelessEtherState.h
+    @brief Header file for WirelessEtherState
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -45,8 +45,8 @@ class WESignalData;
 class WirelessEtherState
 {
 public:
-  WirelessEtherState(void) {} 
-  
+  WirelessEtherState(void) {}
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
@@ -58,10 +58,10 @@ private:
   void printMsg(WirelessEtherModule* mod, const EtherSignalType type);
 };
 
-template<class Target, class  Source> std::auto_ptr<Target> 
+template<class Target, class  Source> std::auto_ptr<Target>
 auto_downcast(std::auto_ptr<Source> & r)
 {
-  boost::polymorphic_downcast<Target*> (r.get());    
+  boost::polymorphic_downcast<Target*> (r.get());
   return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
 }
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingTable6Access.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingTable6Access.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -36,22 +36,22 @@ Define_Module( RoutingTable6Access );
 
 void RoutingTable6Access::initialize()
 {
-	cObject *foundmod;
-	cModule *curmod = this;
+        cObject *foundmod;
+        cModule *curmod = this;
 
-	
 
-	// find Routing Table
-	rt = NULL;
-	for (curmod = parentModule(); curmod != NULL;
-			curmod = curmod->parentModule())
-	{
-		if ((foundmod = curmod->findObject("routingTable6", false)) != NULL)
-		{
-			rt = (RoutingTable6 *)foundmod;
-			break;
-		}
-	}
+
+        // find Routing Table
+        rt = NULL;
+        for (curmod = parentModule(); curmod != NULL;
+                        curmod = curmod->parentModule())
+        {
+                if ((foundmod = curmod->findObject("routingTable6", false)) != NULL)
+                {
+                        rt = (RoutingTable6 *)foundmod;
+                        break;
+                }
+        }
 
 }
 

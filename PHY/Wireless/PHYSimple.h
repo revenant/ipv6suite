@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/PHYSimple.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/PHYSimple.h,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -19,10 +19,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file PHYSimple.h
-	@brief Header file for PHYSimple
+    @file PHYSimple.h
+    @brief Header file for PHYSimple
 
-	Responsibilities: 
+    Responsibilities:
         - simple physical layer which passes data between layers
 
     @author Eric Wu

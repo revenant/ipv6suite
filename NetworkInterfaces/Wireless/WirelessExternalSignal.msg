@@ -22,7 +22,7 @@
 //
 cplusplus
 {{
-	#include "MACAddress.h"
+    #include "MACAddress.h"
 }};
 class MACAddress;
 
@@ -48,7 +48,7 @@ enum Status
 //
 message WirelessExternalSignal extends cMessage
 {
-	fields:
+    fields:
     int type enum(SignalType);
 };
 
@@ -85,4 +85,4 @@ message WirelessExternalSignalHandover extends WirelessExternalSignal
   fields:
     MACAddress target;
 };
-  
+

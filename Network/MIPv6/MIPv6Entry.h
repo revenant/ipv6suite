@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6Entry.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6Entry.h,v 1.2 2005/02/10 06:26:20 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,12 +17,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
-	@file MIPv6Entry.h
-	@brief Implementation of "Mobility Support in IPv6 draft 16" -
+    @file MIPv6Entry.h
+    @brief Implementation of "Mobility Support in IPv6 draft 16" -
              Conceptual Data Structures
     @see draft-ietf-mobileip-ipv6-16.txt, section 4.6
-	@author Eric Wu
-	@date 2/4/2002
+    @author Eric Wu
+    @date 2/4/2002
 */
 
 #ifndef __MIPv6ENTRY_H__
@@ -53,18 +53,18 @@
 //using namespace std;
 
 namespace MobileIPv6
-{ 
+{
   /**
    * @defgroup MIPv6CDS Mobile IPv6 Conceptual Data Structures
    *
    * Reference from MIPv6 Draft 16 Sec. 4.7
-   * 
+   *
    */
   //@{
-  
+
   /**
    * @struct bc_entry
-   * @brief Binding Cache entry 
+   * @brief Binding Cache entry
    *
    * Cache Replacement policy can remove any bc_entry except when is_home_reg is
    * set.  In such cases only when the entry expires can it be removed.
@@ -74,21 +74,21 @@ namespace MobileIPv6
 
   struct bc_entry
   {
-	ipv6_addr home_addr;
-	ipv6_addr care_of_addr;
+    ipv6_addr home_addr;
+    ipv6_addr care_of_addr;
 
     /// remaining lifetime
-	unsigned long expires;
+    unsigned long expires;
 
-    /// a flag to indicate if the entry is a home registration entry 
-	bool is_home_reg;
+    /// a flag to indicate if the entry is a home registration entry
+    bool is_home_reg;
 
     ///maximum received Sequence Number in previous binding update
     unsigned int seq_no;
 
     ///Placeholder for the BSA for authenticating BU and calculating BA
     int bsa;
-    
+
     //@name Valid only when is_home_reg is true
     //@{
 
@@ -97,7 +97,7 @@ namespace MobileIPv6
 
     ///prefix length of home_addr
     unsigned char prefix_len;
-    
+
     //@}
   };
 
@@ -131,7 +131,7 @@ namespace MobileIPv6
      *
      * It is a pointer as we need to delete it once the lifetime expires or from
      * CRP.
-     */    
+     */
     boost::weak_ptr<bc_entry> bce;
   };
 
@@ -140,14 +140,14 @@ namespace MobileIPv6
 
   // simple stl list typedef for BUL, BC for the moment being before
   // the actual MIPv6CDS constructed
-  
+
 //   typedef list<bu_entry> BUL;
 //   typedef BUL::iterator BUIT;
 
 //   // the key is the home address of the BC
 //   typedef map<ipv6_addr, boost::shared_ptr<bc_entry> > BC;
 //   typedef BC::iterator BCIT;
-  
+
 //   struct MIPv6CDS
 //   {
 //     BUL bul;
@@ -155,7 +155,7 @@ namespace MobileIPv6
 
 //   };
 
-  
+
 }
 
 #endif // __MIPv6ENTRY__

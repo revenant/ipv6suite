@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.h,v 1.2 2005/02/10 06:26:20 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -21,13 +21,13 @@
    @file LocalDeliver6Core.h
    @brief Receive IPv6 datagrams for local delivery
 
-   Responsibilities: 
+   Responsibilities:
      strip off IP header
      Process destination options
      Forward to IPv6Encapsulation module if decapsulated payload is another datagram.
      buffer fragments for ip_fragmenttime
      wait until all fragments of one fragment number are received
-     discard without notification if not all fragments arrive in 
+     discard without notification if not all fragments arrive in
      ip_fragmenttime
      Defragment once all fragments have arrived
      send Transport packet up to the transport layer
@@ -70,7 +70,7 @@ struct FragmentationBufferEntry
 
 /*  -------------------------------------------------
     Main Module class: LocalDeliverCore
-    -------------------------------------------------	*/
+    -------------------------------------------------    */
 class IPv6InterfacePacket;
 class IPv6Datagram;
 
@@ -107,7 +107,7 @@ private:
   bool hasHook;
   unsigned int ctrIP6InUnknownProtos;
   unsigned int ctrIP6InDeliver;
-  
+
   int fragmentBufSize;
   FragmentationBufferEntry fragmentBuf [FRAGMENT_BUFFER_MAXIMUM];
   cMessage* waitTmr;
@@ -115,7 +115,7 @@ private:
   IPv6Datagram* dgram;
   simtime_t lastCheckTime;
   cQueue waitQueue;
-  
+
 };
 
 #endif

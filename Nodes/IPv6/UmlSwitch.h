@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.h,v 1.2 2005/02/10 04:00:43 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.h,v 1.3 2005/02/10 06:26:21 andras Exp $
 //
 // Uml Switch Client interface for Omnet++ IPv6.
 // * Copyright (C) 2002 Greg Daley Monash University, Melbourne, Australia
@@ -27,8 +27,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file: UmlSwitch.h
-	Purpose: Implements the NetworkInterface Ned module Interfaces to \
+    @file: UmlSwitch.h
+    Purpose: Implements the NetworkInterface Ned module Interfaces to \
                  uml_switch
 */
 
@@ -72,7 +72,7 @@ private:
   void sw_init_args(char *control_path, char *data_path);
     /* return the fd tuple (control, send, receive) or NULL */
   int *init_swdriver(char *control_path, char *data_path,
-		unsigned char *macaddr, int fds[]);
+        unsigned char *macaddr, int fds[]);
 
   struct sockaddr_un *new_addr(void *name, int len);
   struct sockaddr_un *gen_local_addr(void);

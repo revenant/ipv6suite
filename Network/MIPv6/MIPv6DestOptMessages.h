@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6DestOptMessages.h
-	@brief MIPv6 Destination Options and Sub-Options
+    @brief MIPv6 Destination Options and Sub-Options
     @see draft-ietf-mobileip-ipv6-16.txt, section 5.3 and section 5.5
-	@author Eric Wu
-	@date 10/4/2002
+    @author Eric Wu
+    @date 10/4/2002
 */
 
 #ifndef __MIPv6DESTOPTMESSAGES_H__
@@ -39,14 +39,14 @@
 */
 namespace MobileIPv6
 {
-  
+
 /**
    @struct mipv6_home_address_opt
 
-   @brief Home Address Destination option 
+   @brief Home Address Destination option
 
    home address must not be a multicast/link-local/loopback/ipv4
-   derived/unspecified. 8n+6. 
+   derived/unspecified. 8n+6.
 
    After routing header, before fragment/ AH/ ESP header
 */
@@ -68,7 +68,7 @@ namespace MobileIPv6
   class MIPv6TLVOptHomeAddress:public IPv6TLVOptionBase
   {
   public:
-    
+
     MIPv6TLVOptHomeAddress(const ipv6_addr& haddr)
       :IPv6TLVOptionBase(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT, (unsigned char) 16), opt(haddr)
       {}
@@ -85,7 +85,7 @@ namespace MobileIPv6
   private:
     mipv6_home_address_opt opt;
   };
-  
+
 };
 
 //Duplicated class !!!
@@ -98,21 +98,21 @@ namespace MobileIPv6
 //   MIPv6TLVOptHomeAddress(const ipv6_addr& _homeAddress = IPv6_ADDR_UNSPECIFIED);
 
 //   virtual ~MIPv6TLVOptHomeAddress();
-  
+
 //   virtual MIPv6TLVOptHomeAddress* dup(void) const
 //     {
 //       return new MIPv6TLVOptHomeAddress(*this);
 //     }
-  
+
 //   virtual bool processOption(cSimpleModule* mod, IPv6Datagram* pdu);
-  
+
 //   void setHomeAddr(const ipv6_addr& addr)
 //     {
 //       _homeAddress = addr;
 //     }
 
 //   const ipv6_addr& homeAddr(void) { return _homeAddress; }
-  
+
 //  private:
 //   ipv6_addr _homeAddress;
 // };

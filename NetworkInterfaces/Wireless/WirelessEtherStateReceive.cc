@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateReceive.cc
-	@brief Header file for WirelessEtherStateReceive
-    
+    @file WirelessEtherStateReceive.cc
+    @brief Header file for WirelessEtherStateReceive
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -43,7 +43,7 @@ WirelessEtherStateReceive* WirelessEtherStateReceive::instance()
 {
   if (_instance == 0)
     _instance = new WirelessEtherStateReceive;
-  
+
   return _instance;
 }
 
@@ -55,7 +55,7 @@ std::auto_ptr<cMessage> WirelessEtherStateReceive::processSignal(WirelessEtherMo
 std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
 {
   mod->decNoOfRxFrames();
-  
+
   // If the input buffer points to nothing, this means that there was
   // collision detected by this ms/ap and the packet was discarded
   // silently. Therefore, we simply go to idle state when the sender
@@ -65,7 +65,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEther
       cTimerMessage* tmrMessage = mod->getTmrMessage(WIRELESS_SELF_ENDSENDACK);
       // Check that all frames are fully received or ACK is fully sent before changing states
       if((mod->getNoOfRxFrames() == 0) && !(tmrMessage && tmrMessage->isScheduled()))
-      { 
+      {
         mod->totalWaitTime.sampleTotal += mod->simTime()-mod->waitStartTime;
         static_cast<WirelessEtherStateReceive*>(mod->currentState())->
           changeNextState(mod);
@@ -95,7 +95,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateReceive::processData(WirelessEther
 {
   //Increment number of frames being received. It will be greater than 1 hence there is a collision.
   mod->incNoOfRxFrames();
-  
+
   // collision
   delete mod->inputFrame;
   mod->inputFrame = 0;
@@ -116,7 +116,7 @@ void WirelessEtherStateReceive::endSendingAck(WirelessEtherModule* mod)
   mod->sendEndOfFrame();
 
   mod->idleNetworkInterface();
-  
+
   // Check that all frames are fully received before changing states
   if(mod->getNoOfRxFrames() == 0)
   {

@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessAccessPoint.cc
-	@brief Definition file for WirelessAccessPoint
+    @file WirelessAccessPoint.cc
+    @brief Definition file for WirelessAccessPoint
 
-	simple implementation of access point module
+    simple implementation of access point module
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include "sys.h"
@@ -58,7 +58,7 @@ const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE =
   MACAddress(MAC_ADDRESS_UNSPECIFIED_STRUCT),
   RM_UNSPECIFIED,
   0,
-	0,
+    0,
   RC_UNSPECIFIED,
   SC_UNSPECIFIED
 };
@@ -76,9 +76,9 @@ bool operator!=(const WirelessEtherInterface& lhs,
 }
 
 bool operator<(const WirelessEtherInterface& lhs,
-							 const WirelessEtherInterface& rhs)
+                             const WirelessEtherInterface& rhs)
 {
-	return (lhs.expire < rhs.expire);
+    return (lhs.expire < rhs.expire);
 }
 
 void WirelessAccessPoint::initialize(int stage)
@@ -155,8 +155,8 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
            << " MAXRETRY: " << maxRetry << "\n"
            << " BEACON PERIOD: " << beaconPeriod << "\n"
            << " AUTH WAIT ENTRY TIMEOUT: " << authWaitEntryTimeout << "\n"
-					 << " AUTH ENTRY TIMEOUT: " << authEntryTimeout << "\n"
-					 << " ASS ENTRY TIMEOUT: " << assEntryTimeout << "\n"
+                     << " AUTH ENTRY TIMEOUT: " << authEntryTimeout << "\n"
+                     << " ASS ENTRY TIMEOUT: " << assEntryTimeout << "\n"
            << " FAST ACTIVE SCAN: " << fastActScan << "\n"
            << " CROSSTALK: " << crossTalk << "\n");
 
@@ -180,7 +180,7 @@ void WirelessAccessPoint::finish(void)
 
 void WirelessAccessPoint::idleNetworkInterface(void)
 {
-	cMessage *nwiIdleMsg = new cMessage();
+    cMessage *nwiIdleMsg = new cMessage();
   nwiIdleMsg->setKind(NWI_IDLE);
   send(nwiIdleMsg, outputQueueOutGate());
 }
@@ -211,7 +211,7 @@ void WirelessAccessPoint::sendBeacon(void)
   tmr->reschedule(nextSchedTime);
 
   if(_currentState == WirelessEtherStateIdle::instance())
-  	static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
+      static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
 }
 
 void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
@@ -222,9 +222,9 @@ void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
 
   outputBuffer.push_back(frame);
 
-	// relying on internal outputBuffer, therefore need to get data from external
-	// outputQueue into it quickly.
-	idleNetworkInterface();
+    // relying on internal outputBuffer, therefore need to get data from external
+    // outputQueue into it quickly.
+    idleNetworkInterface();
 
   // when received something from bridge into outputBuffer, need to send it
   // on Wireless side
@@ -234,13 +234,13 @@ void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
 
 FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
 {
-	FrameBody* frameBody;
-	CapabilityInformation capabilityInfo;
+    FrameBody* frameBody;
+    CapabilityInformation capabilityInfo;
     HandoverParameters handoverParams;
-	unsigned int i;
+    unsigned int i;
 
-	switch(f->getFrameControl().subtype)
-	{
+    switch(f->getFrameControl().subtype)
+    {
       case ST_BEACON:
       {
         frameBody = new BeaconFrameBody;
@@ -287,20 +287,20 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
       }
       break;
 
-			case ST_AUTHENTICATION:
-				frameBody = new AuthenticationFrameBody;
+            case ST_AUTHENTICATION:
+                frameBody = new AuthenticationFrameBody;
 
-				// Only supports "open mode", therefore only two sequence number
-				if(apMode == true)
-					static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(2);
-				else
-					static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(1);
+                // Only supports "open mode", therefore only two sequence number
+                if(apMode == true)
+                    static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(2);
+                else
+                    static_cast<AuthenticationFrameBody*>(frameBody)->setSequenceNumber(1);
 
-      	// TODO: successful for now, but how are we going to represent
-      	// in module?
-      	static_cast<AuthenticationFrameBody*>(frameBody)->setStatusCode(0);
+          // TODO: successful for now, but how are we going to represent
+          // in module?
+          static_cast<AuthenticationFrameBody*>(frameBody)->setStatusCode(0);
 
-      	frameBody->setLength(FL_STATUSCODE + FL_SEQNUM);
+          frameBody->setLength(FL_STATUSCODE + FL_SEQNUM);
       break;
       case ST_ASSOCIATIONRESPONSE:
       {
@@ -451,8 +451,8 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
       default:
         assert(false);
       break;
-	}
-	return frameBody;
+    }
+    return frameBody;
 }
 
 void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
@@ -462,19 +462,19 @@ void WirelessAccessPoint::addIface(MACAddress mac, ReceiveMode receiveMode)
   iface.address = mac;
   iface.receiveMode = receiveMode;
   iface.expire = simTime();
-	iface.consecFailedTrans = 0;
+    iface.consecFailedTrans = 0;
 
   // Choosing entry's expiry time depending on
   // its type
-	if(receiveMode == RM_AUTHRSP_ACKWAIT)
-		iface.expire += authWaitEntryTimeout;
-	else if(receiveMode == RM_ASSOCIATION)
-		iface.expire += authEntryTimeout;
-	else if(receiveMode == RM_ASSRSP_ACKWAIT)
-		iface.expire += authEntryTimeout;
+    if(receiveMode == RM_AUTHRSP_ACKWAIT)
+        iface.expire += authWaitEntryTimeout;
+    else if(receiveMode == RM_ASSOCIATION)
+        iface.expire += authEntryTimeout;
+    else if(receiveMode == RM_ASSRSP_ACKWAIT)
+        iface.expire += authEntryTimeout;
     //iface.expire += iface.expire - elapsed;
-	else if(receiveMode == RM_DATA)
-		iface.expire += assEntryTimeout;
+    else if(receiveMode == RM_DATA)
+        iface.expire += assEntryTimeout;
 
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << fullPath() << " " << simTime()
@@ -505,42 +505,42 @@ WirelessEtherInterface WirelessAccessPoint::findIfaceByMAC(MACAddress mac)
 // the number of consecutive failed data frame tranmissions.
 void WirelessAccessPoint::updateConsecutiveFailedCount()
 {
-	assert(outputBuffer.size());
+    assert(outputBuffer.size());
 
-	// Access frame in the front of buffer
-	WESignalData* a = *(outputBuffer.begin());
-	WirelessEtherBasicFrame* outputFrame =
-  	static_cast<WirelessEtherBasicFrame*>(a->data());
-	FrameControl frameControl = outputFrame->getFrameControl();
+    // Access frame in the front of buffer
+    WESignalData* a = *(outputBuffer.begin());
+    WirelessEtherBasicFrame* outputFrame =
+      static_cast<WirelessEtherBasicFrame*>(a->data());
+    FrameControl frameControl = outputFrame->getFrameControl();
 
-	// Only consider data frames
-	if(frameControl.subtype == ST_DATA)
-	{
-		WirelessEtherInterface dest = findIfaceByMAC(outputFrame->getAddress1());
+    // Only consider data frames
+    if(frameControl.subtype == ST_DATA)
+    {
+        WirelessEtherInterface dest = findIfaceByMAC(outputFrame->getAddress1());
 
-		// Check that destination is in AP list
-		if(dest != UNSPECIFIED_WIRELESS_ETH_IFACE)
-		{
-			// Remove entry if consecutive transmission limit is reached
-			if(dest.consecFailedTrans >= consecFailedTransLimit)
-			{
-				Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
+        // Check that destination is in AP list
+        if(dest != UNSPECIFIED_WIRELESS_ETH_IFACE)
+        {
+            // Remove entry if consecutive transmission limit is reached
+            if(dest.consecFailedTrans >= consecFailedTransLimit)
+            {
+                Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << fullPath() << " " << simTime()
            << " Entry removed: " << outputFrame->getAddress1());
-				ifaces->removeEntry(dest);
-			}
-			else
-			{
-				dest.consecFailedTrans++;
-				ifaces->addEntry(dest);
-			}
-		}
-		else
-			Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
+                ifaces->removeEntry(dest);
+            }
+            else
+            {
+                dest.consecFailedTrans++;
+                ifaces->addEntry(dest);
+            }
+        }
+        else
+            Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
            << fullPath() << " " << simTime()
            << " Entry already removed");
 
-	}
+    }
 }
 
 void WirelessAccessPoint::updateStats(void)

@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherMonitorReceiveMode.cc
-	@brief Source file for WEMonitorReceiveMode
-    
-	@author	Steve Woon
+    @file WirelessEtherMonitorReceiveMode.cc
+    @brief Source file for WEMonitorReceiveMode
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -48,22 +48,22 @@ WEMonitorReceiveMode* WEMonitorReceiveMode::instance()
 {
   if (_instance == 0)
     _instance = new WEMonitorReceiveMode;
-  
+
   return _instance;
 }
 
 void WEMonitorReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
 {
-	// need to print or store contents of Frame.
+    // need to print or store contents of Frame.
   // pass frame up to higher layer
   WirelessEtherBasicFrame* frame = signal->data();
   assert(frame);
 
   FrameControl frameControl = frame->getFrameControl();
-  
+
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << "Frame Control: "<<frameControl.subtype<<endl);
 
-  
+
   mod->sendMonitorFrameToUpperLayer(signal);
 
   static_cast<WirelessEtherStateReceive*>(mod->currentState())->

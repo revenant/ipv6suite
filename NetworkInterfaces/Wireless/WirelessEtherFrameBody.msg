@@ -22,34 +22,34 @@
 //
 cplusplus
 {{
-	#include "MACAddress.h"
+    #include "MACAddress.h"
 }};
 class MACAddress;
-	
+
 //
 // Capability Information field format
 //
 struct CapabilityInformation
 {
-	fields:
-		bool ESS;
-		bool IBSS;
-		bool CFPollable;
-		bool CFPollRequest;
-		bool privacy;
+    fields:
+        bool ESS;
+        bool IBSS;
+        bool CFPollable;
+        bool CFPollRequest;
+        bool privacy;
 };
 
 //
-// Additional parameters for handover decisions 
+// Additional parameters for handover decisions
 // (Not part of standard, for experimental purposes)
 //
 struct HandoverParameters
 {
-	fields:
-		double avgBackoffTime;
-		double avgWaitTime;
-		double avgErrorRate;
-		double estAvailBW;
+    fields:
+        double avgBackoffTime;
+        double avgWaitTime;
+        double avgErrorRate;
+        double estAvailBW;
 };
 
 enum ReasonCode
@@ -77,7 +77,7 @@ enum StatusCode
   SC_CHALLANGE_FAILURE = 7;
   SC_AUTH_TIMEOUT = 8;
   SC_ASS_TOO_MANY_MS = 9;
-  SC_DATARATE_SUP = 10;  
+  SC_DATARATE_SUP = 10;
 };
 
 //
@@ -85,9 +85,9 @@ enum StatusCode
 //
 struct SupportedRatesElement
 {
-	fields:
-		bool supported; //true=supported, false=unsupported
-		double rate; 	//in Mbit/sec
+    fields:
+        bool supported; //true=supported, false=unsupported
+        double rate;     //in Mbit/sec
 };
 
 //
@@ -95,8 +95,8 @@ struct SupportedRatesElement
 //
 message FrameBody extends cPacket
 {
-	fields:
-		unsigned short length;
+    fields:
+        unsigned short length;
 };
 
 //
@@ -104,9 +104,9 @@ message FrameBody extends cPacket
 //
 message AuthenticationFrameBody extends FrameBody
 {
-	fields:
-		unsigned short sequenceNumber; 
-		int statusCode enum(StatusCode);
+    fields:
+        unsigned short sequenceNumber;
+        int statusCode enum(StatusCode);
 };
 
 //
@@ -114,8 +114,8 @@ message AuthenticationFrameBody extends FrameBody
 //
 message DeAuthenticationFrameBody extends FrameBody
 {
-	fields:
-		int reasonCode enum(ReasonCode);
+    fields:
+        int reasonCode enum(ReasonCode);
 };
 
 //
@@ -123,7 +123,7 @@ message DeAuthenticationFrameBody extends FrameBody
 //
 message DisAssociationFrameBody extends DeAuthenticationFrameBody
 {
-	fields:
+    fields:
 };
 
 //
@@ -131,9 +131,9 @@ message DisAssociationFrameBody extends DeAuthenticationFrameBody
 //
 message ProbeRequestFrameBody extends FrameBody
 {
-	fields:
-		string SSID;
-		SupportedRatesElement supportedRates[];
+    fields:
+        string SSID;
+        SupportedRatesElement supportedRates[];
 };
 
 //
@@ -141,8 +141,8 @@ message ProbeRequestFrameBody extends FrameBody
 //
 message AssociationRequestFrameBody extends ProbeRequestFrameBody
 {
-	fields:
-		CapabilityInformation capabilityInformation;
+    fields:
+        CapabilityInformation capabilityInformation;
 };
 
 //
@@ -150,8 +150,8 @@ message AssociationRequestFrameBody extends ProbeRequestFrameBody
 //
 message ReAssociationRequestFrameBody extends AssociationRequestFrameBody
 {
-	fields:
-		MACAddress currentAP;
+    fields:
+        MACAddress currentAP;
 };
 
 //
@@ -159,9 +159,9 @@ message ReAssociationRequestFrameBody extends AssociationRequestFrameBody
 //
 message AssociationResponseFrameBody extends AuthenticationFrameBody
 {
-	fields:
-		CapabilityInformation capabilityInformation;
-		SupportedRatesElement supportedRates[];
+    fields:
+        CapabilityInformation capabilityInformation;
+        SupportedRatesElement supportedRates[];
 };
 
 //
@@ -169,7 +169,7 @@ message AssociationResponseFrameBody extends AuthenticationFrameBody
 //
 message ReAssociationResponseFrameBody extends AssociationResponseFrameBody
 {
-	fields:
+    fields:
 };
 
 //
@@ -177,11 +177,11 @@ message ReAssociationResponseFrameBody extends AssociationResponseFrameBody
 //
 message BeaconFrameBody extends AssociationRequestFrameBody
 {
-	fields:
-		double timestamp;
-		unsigned short beaconInterval;
-		unsigned short DSChannel;
-		HandoverParameters handoverParameters;
+    fields:
+        double timestamp;
+        unsigned short beaconInterval;
+        unsigned short DSChannel;
+        HandoverParameters handoverParameters;
 };
 
 //
@@ -189,5 +189,5 @@ message BeaconFrameBody extends AssociationRequestFrameBody
 //
 message ProbeResponseFrameBody extends BeaconFrameBody
 {
-	fields:
+    fields:
 };

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/PreRouting6Core.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/PreRouting6Core.h,v 1.2 2005/02/10 06:26:20 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,10 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file PreRouting6Core.h
-	@brief Header file for PreRouting Module		
-	@author Johnny Lai	
-	@date 27/08/01	
+    @file PreRouting6Core.h
+    @brief Header file for PreRouting Module
+    @author Johnny Lai
+    @date 27/08/01
 */
 
 #ifndef PREROUTING6CORE_H
@@ -41,7 +41,7 @@ class PreRouting6Core: public cSimpleModule
 {
 public:
   Module_Class_Members(PreRouting6Core, cSimpleModule, 0);
-  
+
   virtual void initialize();
   virtual void finish();
   virtual void handleMessage(cMessage* theMsg);

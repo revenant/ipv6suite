@@ -16,11 +16,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherAScanReceiveMode.h
-	@brief Header file for WEAScanReceiveMode
-    
+    @file WirelessEtherAScanReceiveMode.h
+    @brief Header file for WEAScanReceiveMode
 
-	@author	Steve Woon
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -34,15 +34,15 @@ class WirelessEtherModule;
 
 class WEAScanReceiveMode : public WEReceiveMode
 {
-	public:
+    public:
     virtual void handleProbeResponse(WirelessEtherModule* mod, WESignalData* signal);
 
-		static WEAScanReceiveMode* instance();
-		
-	protected:
+        static WEAScanReceiveMode* instance();
 
-		static WEAScanReceiveMode* _instance;
-		WEAScanReceiveMode(void) {}
+    protected:
+
+        static WEAScanReceiveMode* _instance;
+        WEAScanReceiveMode(void) {}
 };
 
 #endif // __WIRELESS_ETHER_ASCAN_RECEIVE_MODE_H__

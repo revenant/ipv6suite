@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ class RoutingTable6;
 class IPv6Address;
 
 
-namespace IPv6NeighbourDiscovery 
+namespace IPv6NeighbourDiscovery
 {
   /**
      @class NDTimerBase
@@ -58,29 +58,29 @@ namespace IPv6NeighbourDiscovery
     NDTimerBase(cTimerMessage* omsg = 0);
     virtual ~NDTimerBase() = 0;
   };
-  
+
   /**
      @class NDTimer
-     @brief	General data for timer messages
+     @brief    General data for timer messages
   */
   class NDTimer: public NDTimerBase
-  {   
-  public:    
-    NDTimer();    
+  {
+  public:
+    NDTimer();
     ///Buffered datagram used for retries
     IPv6Datagram* dgram;
     int counter;
     int max_sends;
     double timeout;
-    size_t ifIndex;  
+    size_t ifIndex;
     IPv6Address* tentativeAddr;
     ~NDTimer();
   };
 
   /**
      @class RtrTimer
-     @brief  Contains state information for use in generating router adv.   
-  */  
+     @brief  Contains state information for use in generating router adv.
+  */
   class RtrTimer: public NDTimerBase
   {
   public:
@@ -91,7 +91,7 @@ namespace IPv6NeighbourDiscovery
     //separate ones for each interface.
     size_t maxInitAds;
     double maxInitRtrInterval;
-    ~RtrTimer();    
+    ~RtrTimer();
   };
 
   class NDARTimer;
@@ -105,12 +105,12 @@ namespace IPv6NeighbourDiscovery
     NDARTimer();
     ~NDARTimer();
     NDARTimer* dup(size_t ifIndex) const;
-    ipv6_addr targetAddr;  
+    ipv6_addr targetAddr;
     IPv6Datagram* dgram;
     size_t counter;
     //int max_sends;
     //double timeout;
-    //If this is UINT_MAX then that means addr res is trying on all ifaces 
+    //If this is UINT_MAX then that means addr res is trying on all ifaces
     //for the LL addr of the targetAddr (on multihomed hosts)
     size_t ifIndex;
   };
@@ -122,7 +122,7 @@ namespace IPv6NeighbourDiscovery
   /**
      @class AddrExpiryTmr
 
-     @brief Timer to manage lifetimes of addresses assigned to a network node. 
+     @brief Timer to manage lifetimes of addresses assigned to a network node.
 
      It is primed for the earliest address to expire i.e. the address with the
      shortest validLifetime. Once expired will remove the appropriate
@@ -130,22 +130,22 @@ namespace IPv6NeighbourDiscovery
      and reprime the timer again according to chronological order.  Time is in
      seconds.
   */
-  
+
   class AddrExpiryTmr:public cTTimerMessage<void, RoutingTable6>
   {
   public:
-  
+
     AddrExpiryTmr(RoutingTable6* const rt);
 
   };
-  
+
   class PrefixEntry;
 
   /**
      @class PrefixExpiryTmr
-     
+
      @brief Timer class to handle the lifetime expiration of PrefixEntries in
-     the PrefixList. 
+     the PrefixList.
 
      There is a one to one mapping of PrefixEntry instances to PrefixExpiry
      timers.
@@ -160,7 +160,7 @@ namespace IPv6NeighbourDiscovery
     /// Constructor/destructor.
     PrefixExpiryTmr(RoutingTable6* rt, PrefixEntry* pe, simtime_t lifetime);
     ~PrefixExpiryTmr(){}
-    
+
   };
 
   class RouterEntry;
@@ -170,19 +170,19 @@ namespace IPv6NeighbourDiscovery
      @brief Timer class to handle the lifetime expiration of RouterEntries in
      the Default Router Listq. Same in terms of functionality as PrefixExpiryTmr
      @see PrefixExpiryTmr
-  
+
   class RouterExpiryTmr
-    :public cTTimerMessageAS<RoutingTable6, void, RouterEntry, RouterExpiryTmr> 
+    :public cTTimerMessageAS<RoutingTable6, void, RouterEntry, RouterExpiryTmr>
   {
   public:
 
     /// Constructor/destructor.
     RouterExpiryTmr(RoutingTable6* rt, RouterEntry* re, simtime_t lifetime);
     ~RouterExpiryTmr(){}
-    
+
   private:
   };
-*/ 
+*/
 } //End NeighbourDiscovery namespace
 
 #endif //NDTIMERS_H

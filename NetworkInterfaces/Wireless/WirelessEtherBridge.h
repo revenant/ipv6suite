@@ -15,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherBridge.h
-	@brief Header file for WirelessEtherBridge
-	
+    @file WirelessEtherBridge.h
+    @brief Header file for WirelessEtherBridge
+
     simple implementation of bridge for access point
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __WIRELESS_ETHERBRIDGE__
@@ -42,7 +42,7 @@ class WirelessEtherBridge : public cSimpleModule
 {
  public:
   Module_Class_Members(WirelessEtherBridge, cSimpleModule, 0);
-  
+
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish(void);
@@ -55,7 +55,7 @@ class WirelessEtherBridge : public cSimpleModule
   int getOutputPort(LinkLayerModule* llmod);
   LinkLayerModule* findMacByAddress(std::string addr);
   cMessage* translateFrame(cPacket* frame, int destProt);
-  
+
  protected:
   MACAddress address;
   MACPortMap macPortMap;

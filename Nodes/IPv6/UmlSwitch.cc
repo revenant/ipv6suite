@@ -1,4 +1,4 @@
-//$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.cc,v 1.2 2005/02/10 05:43:47 andras Exp $
+//$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Attic/UmlSwitch.cc,v 1.3 2005/02/10 06:26:21 andras Exp $
 //
 // Uml Switch Client for Omnet++ IPv6
 // * Copyright (C) 2002 Greg Daley Monash University, Melbourne, Australia
@@ -24,8 +24,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file: UmlSwitch.cc
-	Purpose: Attempting to connect to uml_switch
+    @file: UmlSwitch.cc
+    Purpose: Attempting to connect to uml_switch
 
 */
 

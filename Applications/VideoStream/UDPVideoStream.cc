@@ -22,13 +22,13 @@
  * @file   UDPVideoStream.cc
  * @author Johnny Lai
  * @date   25 May 2004
- * 
+ *
  * @brief  Implementation of UDPVideoStream
  *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include <iostream>
@@ -46,8 +46,8 @@ using std::endl;
 void UDPVideoStream::initialize()
 {
   UDPApplication::initialize();
- 
-  //server Address from UDPApplication	
+
+  //server Address from UDPApplication
 
   if (!server)
     svrPort = par("UDPPort");
@@ -79,7 +79,7 @@ void UDPVideoStream::handleMessage(cMessage* theMsg)
 
   if (!isReady())
   {
-    UDPApplication::handleMessage(msg.get());      
+    UDPApplication::handleMessage(msg.get());
     return;
   }
 
@@ -109,13 +109,13 @@ void UDPVideoStream::requestStream()
 
 void UDPVideoStream::receiveStream(cMessage* msg)
 {
-   UDPAppInterfacePacket* pkt = 
+   UDPAppInterfacePacket* pkt =
      boost::polymorphic_downcast<UDPAppInterfacePacket*>(msg);
    UDPPacketBase* udpPkt =
      boost::polymorphic_downcast<UDPPacketBase*>(pkt->encapsulatedMsg());
    assert(port == udpPkt->getDestPort());
    Dout(dc::udp_video_svr|flush_cf, className()<<":"<<port<<" received packet from "
-	<<pkt->getSrcIPAddr()<<":"<<udpPkt->getSrcPort()<<" len="<<udpPkt->length());
+    <<pkt->getSrcIPAddr()<<":"<<udpPkt->getSrcPort()<<" len="<<udpPkt->length());
    eed.record(simTime() - udpPkt->timestamp());
 
    //Check for ending kind in udpPkt
@@ -129,7 +129,7 @@ void UDPVideoStream::receiveStream(cMessage* msg)
 
 /**
    @class UDPVideoStreamTest
-   @brief Unit test for	UDPVideoStream
+   @brief Unit test for    UDPVideoStream
    @ingroup TestCases
 */
 
@@ -142,7 +142,7 @@ class UDPVideoStreamTest: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  
+
   // Constructor/destructor.
   UDPVideoStreamTest();
   virtual ~UDPVideoStreamTest();

@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.cc,v 1.1 2005/02/09 06:15:58 andras Exp $ 
-// Copyright (C) 2001, 2002 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLD.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
+// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,7 +58,7 @@ Define_Module( MLD );
 void MLD::initialize()
 {
   srand((unsigned)time(NULL));
-  
+
   rt = static_cast<RoutingTable6*>(OPP_Global::findModuleByName(this,"routingTable6"));
   assert(rt!=0);
   reportCounter = 0;
@@ -90,8 +90,8 @@ void MLD::initialize()
     ipv6_addr bufSA;
     char bufAddr[40];
 
-//    Group = par("Group");    
-//    Source = par("Source");    
+//    Group = par("Group");
+//    Source = par("Source");
 /*
     // Generate constant Groups with constant Sources
     for(i=0;i<Group;i++)
@@ -108,7 +108,7 @@ void MLD::initialize()
       }
     }
   */
-  
+
     // Generate constant Groups with random Sources
     srand((unsigned)OPP_Global::findNetNodeModule(this));
     for(i=0;i<Group;i++)
@@ -158,24 +158,24 @@ void MLD::handleMessage(cMessage* msg)
   {
     if(MLD_version==2)
     {
-    	IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);
+        IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);
 //        cout << "extension length:" << dgram->extensionLength() << endl;
 //        cout << "srcAddress:" << dgram->srcAddress() << endl;
 //        cout << "destAddress:" << dgram->destAddress() << endl;
 
         MLDv2Message * mldmsg = boost::polymorphic_downcast<MLDv2Message *>(dgram->decapsulate());
 //        cout << "optLength():" << mldmsg->optLength() << endl;
-	
-//	dumpMAL();
-	
+
+//    dumpMAL();
+
       if(!rt->isRouter())
       {
-      	if(mldmsg->type()==ICMPv6_MLD_QUERY)
-      	{
+        if(mldmsg->type()==ICMPv6_MLD_QUERY)
+        {
           cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
           cout << "[MLDv2]Receive packet at:" << simTime() << endl;
           cout << "Type: " << mldmsg->type() << ", NS:" << mldmsg->NS() << endl;
-          if(mldmsg->MA()==c_ipv6_addr(0))	// General Query
+          if(mldmsg->MA()==c_ipv6_addr(0))    // General Query
           {
             cout << "receive General Query" << endl;
             if(simTime()<300) // for block GQ after 20 senconds
@@ -186,13 +186,13 @@ void MLD::handleMessage(cMessage* msg)
               scheduleAt(simTime()+Delay,new cMessage("GQreport"));
             }
           }
-          else if(mldmsg->NS()==0)	// Multicast Address Specific Query
+          else if(mldmsg->NS()==0)    // Multicast Address Specific Query
           {
             cout << "receive Multicast Address Specific Query" << endl;
             cout << "MLDv2ReportMASQ()" << endl;
             MLDv2ReportMASQ();
           }
-          else			// Multicast Address and Source Specific Query
+          else            // Multicast Address and Source Specific Query
           {
             cout << "receive Multicast Address and Source Specific Query" << endl;
             cout << "Multicast Address:" << ipv6_addr_toString(mldmsg->MA()) << endl;
@@ -205,30 +205,30 @@ void MLD::handleMessage(cMessage* msg)
               scheduleAt(simTime()+Delay,new cMessage("MLDv2ReportMASSQ"));
             }
           }
-      	}
+          }
         //MLDv2NodeParsing(dgram);
       }
-      else if(mldmsg->type()==ICMPv6_MLDv2_REPORT)	// for router
+      else if(mldmsg->type()==ICMPv6_MLDv2_REPORT)    // for router
       {
         cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
         cout << "MLD length:" << mldmsg->length() << endl;
         cout << "[MLDv2]Receive packet" << ", Type: " << mldmsg->type() << ", at:" << simTime() << endl;
 //        cout << "srcAddress:" << dgram->srcAddress() << endl;
-      	cout << "MLDv2RouterParsingMsg()" << endl;
+        cout << "MLDv2RouterParsingMsg()" << endl;
         MLDv2RouterParsingMsg(mldmsg,dgram->srcAddress());
       }
       delete msg;
       return;
     }
     else if(MLD_version==1)
-    {    
-	cout << "[MLDv1]processing packet" << endl;
+    {
+      cout << "[MLDv1]processing packet" << endl;
       //From custom UDP application bad method of starting via sendDirect
-      if(msg->arrivalGate()->name()== string("ReportMessage"))    
+      if(msg->arrivalGate()->name()== string("ReportMessage"))
       {
 
         sendReport(c_ipv6_addr(msg->name()));
-        startReportTimer(c_ipv6_addr(msg->name()));            
+        startReportTimer(c_ipv6_addr(msg->name()));
         delete msg;
         return;
       }
@@ -270,7 +270,7 @@ void MLD::handleMessage(cMessage* msg)
       else
       {
         scheduleAt(simTime()+MLDv2_QI,new cMessage("GeneralQuery"));
-        sendGenQuery(); 
+        sendGenQuery();
       }
 
       ipv6_addr temp = c_ipv6_addr("FF02:0:0:0:0:0:0:16");
@@ -454,7 +454,7 @@ void MLD::processRouterMLDMessages(cMessage* msg)
 {
   //this is a router
 
-  IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);    
+  IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(msg);
   MLDMessage* mldmsg = boost::polymorphic_downcast<MLDMessage*>(dgram->encapsulatedMsg());
 
   switch(mldmsg->type())
@@ -499,8 +499,8 @@ void MLD::processRouterMLDMessages(cMessage* msg)
         masTmr->rescheduleDelay(lastlistenerInt);
       }
     }
-    break;    
-    case ICMPv6_MLD_QUERY:    
+    break;
+    case ICMPv6_MLD_QUERY:
     //it is assumed that router do not receive MLD Query from any source
     break;
   default:
@@ -513,9 +513,9 @@ void MLD::processRouterMLDMessages(cMessage* msg)
 void MLD::startReportTimer(const ipv6_addr& addr, unsigned int responseInterval)
 {
     //tmrs.push_back(createTmrMsg(Tmr_Report, this,  &MLD::sendReport, addr, simTime()+responseInterval, true, "Report message"));
-    cout<<"In "<<rt->nodeName()<<" , a report timer created for "<<addr<<endl;    
+    cout<<"In "<<rt->nodeName()<<" , a report timer created for "<<addr<<endl;
 }
-  
+
 void MLD::removeRtEntry(const ipv6_addr& addr)
 {
 //I think it is unnecessary to put timer in tmr list if we only use it once. Other than to delete it. But easier if we just pass timer as arg of function anyway.
@@ -528,18 +528,18 @@ void MLD::removeRtEntry(const ipv6_addr& addr)
     if (mul_listener_Tmr->isScheduled())
       mul_listener_Tmr->cancel();
     delete mul_listener_Tmr;
-    tmrs.remove(mul_listener_Tmr);    
-    cout<<rt->nodeName()<<" removes Routing Entry at "<<simTime()<<"\n"<<endl;    
-  }  
+    tmrs.remove(mul_listener_Tmr);
+    cout<<rt->nodeName()<<" removes Routing Entry at "<<simTime()<<"\n"<<endl;
+  }
   rt->cds->removeNeighbourEntry(addr);
 }
-  
+
 
 void MLD::sendOwnReportMsg(const ipv6_addr& addr)
 {
   cMessage * msg = new cMessage(ipv6_addr_toString(addr).c_str());
   msg->setKind(131);
-  scheduleAt(simTime(), msg);   
+  scheduleAt(simTime(), msg);
 }
 
 void MLD::sendReport(const ipv6_addr& addr)
@@ -547,14 +547,14 @@ void MLD::sendReport(const ipv6_addr& addr)
   //only called by timer expired(callback fn) or when just started listening. thus no timer needed reschedule nor started
   MLDMessage* mldmsg = new MLDMessage(ICMPv6_MLD_REPORT);
   mldmsg->setDelay(0);//query response interval
-  mldmsg->setAddress(addr); 
-  
+  mldmsg->setAddress(addr);
+
   // sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_ROUTERS_LINK_ADDRESS),IPv6_ADDR_UNSPECIFIED,1);
-  
+
   sendInterfacePacket(mldmsg, addr, IPv6_ADDR_UNSPECIFIED,1);
-  
+
   reportCounter++;
-  cout<<"####REPORT funct called @ "<<simTime()<<endl;           
+  cout<<"####REPORT funct called @ "<<simTime()<<endl;
   //report msg should have addr as its header file but it doesn't work in this so use ALL Router link add for now
   //NOPE that was fixed.temporarily in localDeliver() in RoutingTable6.cc
 }
@@ -563,7 +563,7 @@ void MLD::sendDone(const ipv6_addr& addr)
 {
   MLDMessage* mldmsg = new MLDMessage(ICMPv6_MLD_DONE);
   mldmsg->setDelay(0);//query response interval
-  mldmsg->setAddress(addr);          
+  mldmsg->setAddress(addr);
   sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_ROUTERS_LINK_ADDRESS) ,IPv6_ADDR_UNSPECIFIED,1);
 }
 
@@ -599,10 +599,10 @@ void MLD::sendGenQuery()
   mldmsg->setQRV(2);
   mldmsg->setQQIC(125);
   mldmsg->setNS(0);
-	cout << "Type: " << mldmsg->type() << endl;
-	cout << "QRV:" << mldmsg->QRV() << endl;
-	cout << "QQIC:" << mldmsg->QQIC() << endl;
-	cout << "NS:" << mldmsg->NS() << endl;
+    cout << "Type: " << mldmsg->type() << endl;
+    cout << "QRV:" << mldmsg->QRV() << endl;
+    cout << "QQIC:" << mldmsg->QQIC() << endl;
+    cout << "NS:" << mldmsg->NS() << endl;
 */
   sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_NODES_LINK_ADDRESS),IPv6_ADDR_UNSPECIFIED,1);
 }
@@ -616,8 +616,8 @@ void MLD::sendMASQuery(const ipv6_addr& addr)
 //  mldmsg->setQRV(2);
 //  mldmsg->setQQIC(125);
 //  mldmsg->setNS(0);
-          
-  sendInterfacePacket(mldmsg, addr,IPv6_ADDR_UNSPECIFIED,1);       
+
+  sendInterfacePacket(mldmsg, addr,IPv6_ADDR_UNSPECIFIED,1);
 }
 
 void MLD::sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src, size_t hopLimit)
@@ -626,9 +626,9 @@ void MLD::sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6
 //  cout << "showAddress:" << msg->showAddress() << endl;
   IPv6InterfacePacket* interfacePacket = new IPv6InterfacePacket;
 //  IPv6Datagram* dgram = new IPv6Datagram;
-  
+
   assert(dest != IPv6_ADDR_UNSPECIFIED);
-  
+
   interfacePacket->encapsulate(msg);
   interfacePacket->setDestAddr(dest);
   interfacePacket->setSrcAddr(src);
@@ -638,18 +638,18 @@ void MLD::sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6
     interfacePacket->setTimeToLive(hopLimit);
   send(interfacePacket, "MLDOut");
 }
- 
+
 cTimerMessage* MLD::findTmr(int MLDTimerType, const ipv6_addr& multicast_addr)
 {
   for(TimerMsgs::iterator it = tmrs.begin(); it!=tmrs.end(); it++)
   {
-    
+
     if((*it)->kind() == MLDTimerType)
     {
-      
+
       switch(MLDTimerType)
       {
-        
+
         case Tmr_SendGenQuery:
           return *it;
           break;
@@ -671,20 +671,20 @@ cTimerMessage* MLD::findTmr(int MLDTimerType, const ipv6_addr& multicast_addr)
   }
   return (cTimerMessage*)0;
 }
- 
+
 cTimerMessage* MLD::resetTmr(int MLDTimerType)
 {
   for(TimerMsgs::iterator it = tmrs.begin(); it!=tmrs.end(); it++)
   {
-    
+
     if((*it)->kind() == MLDTimerType)
     {
       if ((*(boost::polymorphic_downcast<ReportTmr*>(*it))->arg()) != IPv6_ADDR_UNSPECIFIED)
-      {        
+      {
         return *it;
-        break;       
-      }    
-    }    
+        break;
+      }
+    }
   }
   return (cTimerMessage*)0;
 }
@@ -736,11 +736,11 @@ void MLD::MLDv2MASSQ(ipv6_addr MA, SARecord_t* headSAR)
   MASSQmsg->setQRV(MLDv2_RV);
   MASSQmsg->setQQIC(MLDv2_LLQI);
   MASSQmsg->setNS(count);
-  
+
   cout << "MLDv2MASSQ()==>, NS:" << MASSQmsg->NS() << ", at " << simTime() << endl;
-  
+
   int offset = MLDv2_GQ_LEN;
-  
+
   ptrSAR = headSAR;
   while(ptrSAR)
   {
@@ -772,7 +772,7 @@ void MLD::MLDv2ReportGQ()
     RptGQmsg->setOpt((char*)ptrMAR,offset,MLDv2_MAR_HEADER);
     cout << " NS:" << ptrMAR->NS;
     offset += MLDv2_MAR_HEADER;
-    
+
     if(ptrMAR->type==IS_IN)
       ptrSAR = ptrMAR->inSAL;
     else if(ptrMAR->type==IS_EX)
@@ -840,7 +840,7 @@ void MLD::MLDv2ReportMASSQ()
     RptMASSQ->setOpt((char*)ptrMAR,offset,MLDv2_MAR_HEADER);
     cout << ", NS:" << ptrMAR->NS;
     offset += MLDv2_MAR_HEADER;
-    
+
     if(ptrMAR->type==IS_IN)
       ptrSAR = ptrMAR->inSAL;
     else if(ptrMAR->type==IS_EX)
@@ -874,7 +874,7 @@ void MLD::MLDv2ChangeReport(MLDv2Record* headChange)
   // set Header of Multicast Listener Record
   ChangeMsg->setNoMAR(count);
   cout << "MLD::MLDv2ChangeReport(), Size:" << Size << endl;
-  
+
   int offset=0;
   SARecord_t* ptrSAR=NULL;
 
@@ -890,13 +890,13 @@ void MLD::MLDv2ChangeReport(MLDv2Record* headChange)
 //    cout << "count:" << count << endl;
     cout << "MA:" << ipv6_addr_toString(ptrMAR->MA) << ", type:" << (int)ptrMAR->type << ", NS:" << count << endl;
     ChangeMsg->setOpt((char*)&ptrMAR->type,offset,sizeof(char));
-    offset += (sizeof(char)*2);	// Record Type + Aux Data Len
+    offset += (sizeof(char)*2);    // Record Type + Aux Data Len
     ChangeMsg->setOpt((char*)&count,offset,sizeof(short int));
     offset += sizeof(short int);
     ChangeMsg->setOpt((char*)&ptrMAR->MA,offset,sizeof(ipv6_addr));
     offset += sizeof(ipv6_addr);
 
-    ptrSAR = ptrMAR->inSAL;	// This is no related to Record Type
+    ptrSAR = ptrMAR->inSAL;    // This is no related to Record Type
     while(ptrSAR)
     {
       ChangeMsg->setOpt((char*)&ptrSAR->SA,offset,sizeof(ipv6_addr));
@@ -912,7 +912,7 @@ void MLD::MLDv2ChangeReport(MLDv2Record* headChange)
 void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_addr& src, size_t hopLimit)
 {
   IPv6Datagram* dgram = new IPv6Datagram;
-  
+
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 
   dgram->encapsulate(msg);
@@ -937,7 +937,7 @@ void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_
 void MLD::MLDv2NodeParsing(cMessage* Qmsg)
 {
   IPv6Datagram* dgram = boost::polymorphic_downcast<IPv6Datagram*>(Qmsg);
-	cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
+    cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
         cout << "[MLDv2]Receive packet at:" << simTime() << endl;
         cout << "payload length:" << dgram->payloadLength() << endl;
         cout << "extension length:" << dgram->extensionLength() << endl;
@@ -957,7 +957,7 @@ void MLD::MLDv2NodeParsing(cMessage* Qmsg)
     cout << "[MLDv2]NodeParsingMsg() ==> ICMP type:" << mldmsg->type() << endl;
     if(mldmsg->MA()==0)
     { // General Query
-      
+
 //      IPv6Datagram *dgram = new IPv6Datagram;
     }
     else if(mldmsg->NS()==0)
@@ -983,7 +983,7 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
     SARecord_t* MASSQ_SAR=NULL;
     ipv6_addr tempAddr;
     int i,j,k;
-    
+
     for(i=0;i<(int)mldmsg->NoMAR();i++)
     {
       // get Header of Multicast Address Record
@@ -994,15 +994,15 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
       ptrMAR = LStable->searchMAR(bufMAR.MA);
       if(ptrMAR)
       {
-      	cout << "prtMAR->type:" << (int)ptrMAR->type << ", MA:" << ipv6_addr_toString(ptrMAR->MA) << endl;
-//      	MASSQtable->dumpMAL();
-      	if(ptrMAR->type == IS_IN)
-      	{
-      	  switch(bufMAR.type)
-      	  {
-      	    case IS_IN:
-      	    case ALLOW:
-      	      cout << "IS_IN, ALLOW message" << endl;
+        cout << "prtMAR->type:" << (int)ptrMAR->type << ", MA:" << ipv6_addr_toString(ptrMAR->MA) << endl;
+//      MASSQtable->dumpMAL();
+        if(ptrMAR->type == IS_IN)
+        {
+          switch(bufMAR.type)
+          {
+            case IS_IN:
+            case ALLOW:
+              cout << "IS_IN, ALLOW message" << endl;
               for(j=0;j<bufMAR.NS;j++)
               {
                 mldmsg->getOpt((char*)&tempAddr,offset,sizeof(ipv6_addr));
@@ -1051,16 +1051,16 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
                   }
                 }
               }
-      	      break;
+              break;
 
-      	    case IS_EX:
-      	      break;
+            case IS_EX:
+              break;
 
-      	    case BLOCK:
-      	    {
-      	      bool bBlock=false;
-      	      
-      	      cout << "BLOCK message" << endl;
+            case BLOCK:
+           {
+              bool bBlock=false;
+
+              cout << "BLOCK message" << endl;
 
               for(j=0;j<bufMAR.NS;j++)
               {
@@ -1081,7 +1081,7 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
                       k = LISTENER_RECORD;
                     }
                   }
-                  
+
                   if(ptrSAR->countListener==0)
                   {
                     if(MASSQtable->searchMAR(bufMAR.MA)==NULL)
@@ -1096,32 +1096,32 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
               }
               if(bBlock)
               {
-//                MASSQtable->dumpSAL(bufMAR.MA);
+//              MASSQtable->dumpSAL(bufMAR.MA);
                 tempMASSO = MASSQtable->searchMAR(bufMAR.MA);
                 tempMASSO->tPrevious = simTime();
                 MASSQ_SAR = tempMASSO->inSAL;
                 MLDv2MASSQ(bufMAR.MA,MASSQ_SAR);
                 scheduleAt(simTime()+MLDv2_LLQI,new cMessage("QueueMASSQ"));
               }
-      	    }
-      	      break;
+            }
+            break;
 
-      	    case TO_IN:
-      	      break;
+            case TO_IN:
+              break;
 
-      	    case TO_EX:
-      	      break;
+            case TO_EX:
+              break;
 
-      	    default:
-      	      break;
-      	  }
+            default:
+              break;
+          }
         }
         else if(ptrMAR->type == IS_EX)
         {
-      	  switch(bufMAR.type)
-      	  {
-      	    case IS_IN:
-      	    case ALLOW:
+          switch(bufMAR.type)
+          {
+            case IS_IN:
+            case ALLOW:
               for(j=0;j<bufMAR.NS;j++)
               {
                 mldmsg->getOpt((char*)&tempAddr,offset,sizeof(ipv6_addr));
@@ -1150,25 +1150,25 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
                   }
                 }
               }
-      	      break;
+              break;
 
-      	    case IS_EX:
+            case IS_EX:
               ptrMAR->FilterTimer = MLDv2_MALI;
-      	      break;
+              break;
 
-      	    case BLOCK:
-      	      break;
+            case BLOCK:
+              break;
 
-      	    case TO_IN:
-      	      break;
+            case TO_IN:
+              break;
 
-      	    case TO_EX:
+            case TO_EX:
               ptrMAR->FilterTimer = MLDv2_MALI;
-      	      break;
+              break;
 
-      	    default:
-      	      break;
-      	  }
+            default:
+              break;
+          }
         }
         else
         { // Invalid Record type, destroy all record
@@ -1179,10 +1179,10 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
         LStable->addMA(bufMAR.MA,bufMAR.type);
         if(bufMAR.type == IS_IN)
         {
-      	  switch(bufMAR.type)
-      	  {
-      	    case IS_IN:
-      	    case ALLOW:
+          switch(bufMAR.type)
+          {
+            case IS_IN:
+            case ALLOW:
               for(j=0;j<bufMAR.NS;j++)
               {
                 mldmsg->getOpt((char*)&tempAddr,offset,sizeof(ipv6_addr));
@@ -1202,49 +1202,49 @@ void MLD::MLDv2RouterParsingMsg(MLDv2Message* mldmsg,ipv6_addr SrcAddr)
                   }
                 }
               }
-      	      break;
+              break;
 
-      	    case IS_EX:
-      	      break;
+            case IS_EX:
+              break;
 
-      	    case BLOCK:
-      	      break;
+            case BLOCK:
+              break;
 
-      	    case TO_IN:
-      	      break;
+            case TO_IN:
+              break;
 
-      	    case TO_EX:
-      	      break;
+            case TO_EX:
+              break;
 
-      	    default:
-      	      break;
-      	  }
+            default:
+              break;
+          }
         }
         else if(bufMAR.type == IS_EX)
         {
-      	  switch(bufMAR.type)
-      	  {
-      	    case IS_IN:
-      	      break;
+          switch(bufMAR.type)
+          {
+            case IS_IN:
+              break;
 
-      	    case ALLOW:
-      	      break;
+            case ALLOW:
+              break;
 
-      	    case IS_EX:
-      	      break;
+            case IS_EX:
+              break;
 
-      	    case BLOCK:
-      	      break;
+            case BLOCK:
+              break;
 
-      	    case TO_IN:
-      	      break;
+            case TO_IN:
+              break;
 
-      	    case TO_EX:
-      	      break;
+            case TO_EX:
+              break;
 
-      	    default:
-      	      break;
-      	  }
+            default:
+              break;
+          }
         }
       }
     }
@@ -1260,7 +1260,7 @@ void MLD::MLDv2CheckTimer()
   bool bMAdelete=false;
   bool bSAdelete=false;
 
-//  cout << endl << "MLDv2CheckTimer(), at " << simTime() << endl;  
+//  cout << endl << "MLDv2CheckTimer(), at " << simTime() << endl;
   while(ptrMAR)
   {
     bMAdelete = false;
@@ -1379,7 +1379,7 @@ void MLD::SendJoin()
   ipv6_addr bufMA;
   ipv6_addr bufSA;
   char bufAddr[40];
-    
+
   cout << endl << OPP_Global::findNetNodeModule(this)->name() << "send Join message" << endl;
   for(i=0;i<1;i++)
   {
@@ -1398,7 +1398,7 @@ void MLD::SendJoin()
 
   MLDv2ChangeReport(JoinList);
   JoinList->destroyMAL();
-  
+
   delete JoinList;
 }
 
@@ -1409,7 +1409,7 @@ void MLD::SendRandJoin()
   ipv6_addr bufMA;
   ipv6_addr bufSA;
   char bufAddr[40];
-    
+
   cout << endl << OPP_Global::findNetNodeModule(this)->name() << "SendRandJoine at " << simTime() << endl;
   for(i=0;i<Group;i++)
   {
@@ -1436,7 +1436,7 @@ void MLD::SendRandJoin()
 
   MLDv2ChangeReport(JoinList);
   JoinList->destroyMAL();
-  
+
   delete JoinList;
 }
 
@@ -1447,7 +1447,7 @@ void MLD::SendBlock()
   ipv6_addr bufMA;
   ipv6_addr bufSA;
   char bufAddr[40];
-    
+
   cout << endl << OPP_Global::findNetNodeModule(this)->name() << " send Leave message at " << simTime() << endl;
   for(i=0;i<Group;i++)
   {
@@ -1478,9 +1478,9 @@ void MLD::SendAllBlock()
 //  int i,j;
   MARecord_t* ptrMAR=LStable->MAR();
   SARecord_t* ptrSAR=NULL;
-    
+
   cout << endl << OPP_Global::findNetNodeModule(this)->name() << " send All Leave message at " << simTime() << endl;
-  
+
   while(ptrMAR)
   {
     BlockList->addMA(ptrMAR->MA,BLOCK);

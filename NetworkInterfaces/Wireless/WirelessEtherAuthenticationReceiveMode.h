@@ -16,11 +16,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherAuthenticationReceiveMode.h
-	@brief Header file for WEAuthenticationReceiveMode
-    
+    @file WirelessEtherAuthenticationReceiveMode.h
+    @brief Header file for WEAuthenticationReceiveMode
 
-	@author	Steve Woon
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -37,7 +37,7 @@ class WEAuthenticationReceiveMode : public WEReceiveMode
 public:
   virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
   virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
-		
+
   static WEAuthenticationReceiveMode* instance();
 
 protected:

@@ -22,14 +22,14 @@
  * @file   UDPProcessing6.cc
  * @author Johnny Lai
  * @date   21 May 2004
- * 
+ *
  * @brief  Implementation of UDPProcessing6
  *
- * 
+ *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include <boost/cast.hpp>
@@ -66,13 +66,13 @@ void UDPProcessing6::handleMessage(cMessage* theMsg)
   }
   else if (msg->kind() ==  KIND_DATA) // The message is from the application layer..
   {
-    std::auto_ptr<UDPAppInterfacePacket> appIntPkt = 
+    std::auto_ptr<UDPAppInterfacePacket> appIntPkt =
       OPP_Global::auto_downcast<UDPAppInterfacePacket>(msg);
     processApplicationMsg(appIntPkt.get());
   }
   else if (!strcmp(msg->arrivalGate()->name(), "from_ip"))
   {
-    // TODO: need to do the IP version checking in order to dynamically   
+    // TODO: need to do the IP version checking in order to dynamically
     // cast to the appropriate type
     std::auto_ptr<IPv6InterfacePacket> pkt =
       OPP_Global::auto_downcast<IPv6InterfacePacket>(msg);
@@ -84,7 +84,7 @@ void UDPProcessing6::handleMessage(cMessage* theMsg)
 
 bool UDPProcessing6::bind(cMessage* msg)
 {
-  
+
   UDPPacketBase* pkt = boost::polymorphic_downcast<UDPPacketBase*>(msg);
   if (pkt->getSrcPort() == 0)
   {
@@ -96,12 +96,12 @@ bool UDPProcessing6::bind(cMessage* msg)
     pkt->setSrcPort(tempPortID);
   }
   if (isBound(pkt->getSrcPort()))
-	{
-		Dout(dc::warning|dc::udp|flush_cf, fullName()<<" UDP port "<<pkt->getSrcPort()<<" is already bound "
-			<<" to application gate "<<boundPorts[pkt->getSrcPort()]<<" requested by "
-		  << msg->arrivalGate()->id());
-		return false;
-	}
+    {
+        Dout(dc::warning|dc::udp|flush_cf, fullName()<<" UDP port "<<pkt->getSrcPort()<<" is already bound "
+            <<" to application gate "<<boundPorts[pkt->getSrcPort()]<<" requested by "
+          << msg->arrivalGate()->id());
+        return false;
+    }
   assert(findGate("to_app", msg->arrivalGate()->index()) != -1);
   boundPorts[pkt->getSrcPort()] = findGate("to_app", msg->arrivalGate()->index());
   Dout(dc::udp, fullName()<<" UDP port "<<pkt->getSrcPort()<<" bound to application gate "
@@ -130,7 +130,7 @@ void UDPProcessing6::processNetworkMsg(IPv6InterfacePacket* pkt)
   appIntPkt->setDestIPAddr(pkt->destAddr());
   appIntPkt->encapsulate(udpPkt);
 
-  Dout(dc::udp|continued_cf, fullPath()<<" Received data from " 
+  Dout(dc::udp|continued_cf, fullPath()<<" Received data from "
        << pkt->srcAddr() << ", port " << dec <<  udpPkt->getSrcPort());
 
   Dout(dc::finish," to " << pkt->destAddr() << ", port "
@@ -141,19 +141,19 @@ void UDPProcessing6::processNetworkMsg(IPv6InterfacePacket* pkt)
 
   UDPApplicationPorts::iterator it;
   it = boundPorts.find( udpPkt->getDestPort());
-    
+
   if(it == boundPorts.end())
   {
     Dout(dc::udp|dc::warning, FILE_LINE<<" "<<fullPath()
          << " UDP Layer: Destination Process belonging to port "
          << udpPkt->getDestPort()<<" not found");
-    cerr << "UDP Layer: Error -  Destination Port incorrect! " 
+    cerr << "UDP Layer: Error -  Destination Port incorrect! "
          << udpPkt->getDestPort()<<" not found"<< endl;
-    return;     
+    return;
   }
 
   ctrUdpInDgrams++;
-       
+
   send(appIntPkt, it->second);
 }
 
@@ -164,17 +164,17 @@ bool UDPProcessing6::isBound(UDPPort p)
 
 void UDPProcessing6::processApplicationMsg(UDPAppInterfacePacket* appIntPkt)
 {
-  UDPPacketBase* udpPkt = 
+  UDPPacketBase* udpPkt =
     boost::polymorphic_downcast<UDPPacketBase*> (appIntPkt->decapsulate());
 
   // destination port not assigned
   if(udpPkt->getDestPort() == 0)
   {
     Dout(dc::udp|dc::core, FILE_LINE<<" "<<fullPath()
-         << " UDP Layer: destination port not assigned for packet! ");  
-    return;      
+         << " UDP Layer: destination port not assigned for packet! ");
+    return;
   }
-  
+
   if (udpPkt->getSrcPort() == 0)
   {
     DoutFatal(dc::udp|dc::core, fullPath()<<" application src port not specified");
@@ -201,7 +201,7 @@ void UDPProcessing6::processApplicationMsg(UDPAppInterfacePacket* appIntPkt)
 
 /**
    @class UDPProcessing6Test
-   @brief Unit test for	UDPProcessing6
+   @brief Unit test for    UDPProcessing6
    @ingroup TestCases
 */
 
@@ -214,7 +214,7 @@ class UDPProcessing6Test: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  
+
   // Constructor/destructor.
   UDPProcessing6Test();
   virtual ~UDPProcessing6Test();

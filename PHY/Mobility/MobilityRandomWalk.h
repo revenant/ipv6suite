@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomWalk.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomWalk.h,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -19,10 +19,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file MobilityRandomWalk.h
-	@brief Header file for MobilityRandomWalk
+    @file MobilityRandomWalk.h
+    @brief Header file for MobilityRandomWalk
 
-	Responsibilities:
+    Responsibilities:
              - mobility handling
 
     Note:

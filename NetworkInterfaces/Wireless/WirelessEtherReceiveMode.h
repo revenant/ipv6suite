@@ -1,5 +1,4 @@
-// -*- C++ -*-
-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// -*- C++ -*-// Copyright (C) 2001 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +15,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherReceiveMode.h
-	@brief Header file for WEReceiveMode
-    
+    @file WirelessEtherReceiveMode.h
+    @brief Header file for WEReceiveMode
+
     Super class of Wireless Ethernet Receive Mode
 
-	@author	Steve Woon
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -38,7 +37,7 @@ class WEReceiveMode
 {
 public:
   virtual void decodeFrame(WirelessEtherModule* mod, WESignalData* signal);
-		
+
   // handled by mobile station
   virtual void handleProbeResponse(WirelessEtherModule* mod, WESignalData* signal) {}
   virtual void handleAssociationResponse(WirelessEtherModule* mod, WESignalData* signal) {}
@@ -55,8 +54,8 @@ public:
   // handled by both
   virtual void handleData(WirelessEtherModule* mod, WESignalData* signal) {}
   virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal) {}
-	virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal) {}
-  		
+    virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal) {}
+
   static WEReceiveMode* instance();
 
   void finishFrameTx(WirelessEtherModule* mod);
@@ -67,5 +66,6 @@ protected:
 
   void sendAck(WirelessEtherModule* mod, WESignalData* ack);
 };
+
 
 #endif // __WIRELESS_ETHER_RECEIVE_MODE_H__

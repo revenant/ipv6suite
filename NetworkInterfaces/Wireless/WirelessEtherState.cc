@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherState.cc
-	@brief Header file for WirelessEtherState
-    
+    @file WirelessEtherState.cc
+    @brief Header file for WirelessEtherState
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -78,7 +78,7 @@ std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule* m
   {
     case WIRELESS_EST_Data:
       msg.reset((processData(mod, auto_downcast<WESignalData> (msg))).release());
-      break;      
+      break;
     case WIRELESS_EST_Idle:
       msg.reset((processIdle(mod, auto_downcast<WESignalIdle> (msg))).release());
       break;
@@ -109,7 +109,7 @@ void WirelessEtherState::printMsg(WirelessEtherModule* mod, const EtherSignalTyp
   {
     case WIRELESS_EST_Data:
       s = "WIRELESS_DATA";
-      break;      
+      break;
     case WIRELESS_EST_Idle:
       s = "WIRELESS_IDLE";
       break;
@@ -135,10 +135,10 @@ void WirelessEtherState::printMsg(WirelessEtherModule* mod, const EtherSignalTyp
 
   else if ( mod->currentState() == WirelessEtherStateBackoffReceive::instance())
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_BACKOFFRECEIVE state");
-  
+
   else if ( mod->currentState() == WirelessEtherStateReceive::instance())
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_RECEIVE state");
-  
+
   else
     assert(false);
 }

@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateAwaitACK.h
-	@brief Header file for WirelessEtherStateAwaitACK
-    
+    @file WirelessEtherStateAwaitACK.h
+    @brief Header file for WirelessEtherStateAwaitACK
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -50,17 +50,17 @@ class WirelessEtherStateAwaitACK : public WirelessEtherState
 
 public:
   static WirelessEtherStateAwaitACK* instance();
-  
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
-  WirelessEtherStateAwaitACK(void) {} 
+  WirelessEtherStateAwaitACK(void) {}
 
   virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
   virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);
 
   void endAwaitACK(WirelessEtherModule* mod);
-  
+
   static WirelessEtherStateAwaitACK* _instance;
 };
 #endif

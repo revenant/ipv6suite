@@ -20,10 +20,10 @@
  * @file   libcwdsetup.cc
  * @author Johnny Lai
  * @date   29 Jan 2003
- * 
+ *
  * @brief  Implementation of l_debugSettings function
  *
- * 
+ *
  */
 
 
@@ -59,7 +59,7 @@ namespace
   class DeleteThem
   {
   public:
-    
+
     ///@warning no attempt is made to detect if channel  has already been added
     void addChannel(::libcwd::channel_ct* channel)
       {
@@ -81,8 +81,8 @@ namespace
    * @name g_handleExit
    * Function called when exceptions are unhandled or when program quits.
    * This functioin closes the libcwd debug stream and will flush all pending
-   * output 
-   * 
+   * output
+   *
    */
 
   void g_handleExit(void)
@@ -100,7 +100,7 @@ namespace libcwdsetup
   using std::cerr;
   using std::endl;
   using std::ofstream;
-  
+
   /**
    * @name l_debugSettings
    *
@@ -116,17 +116,17 @@ namespace libcwdsetup
     if (doOnceOnly)
       return;
     doOnceOnly = true;
-    
+
     if (!channels.empty())
     {
-      
+
       typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
       typedef tokenizer::iterator tokenizerIt;
-      
+
       boost::char_separator<char> sep(":");
       tokenizer tokens(channels, sep);
 
-      string filename = *tokens.begin();      
+      string filename = *tokens.begin();
       //Turn on pid insertion by using a 'p' as first token?
       bool insertPid = false;
       if (filename.size() == 1 && filename.find('p') == 0)
@@ -141,13 +141,13 @@ namespace libcwdsetup
             <<"the xml configuration file\n";
         exit(-1);
       }
-      
+
       if (insertPid)
-        filename.insert(pos, "-" + boost::lexical_cast<std::string>(getpid()));      
+        filename.insert(pos, "-" + boost::lexical_cast<std::string>(getpid()));
 
       cout<<"debug output is placed into file "<<filename<<endl;
       g_debugFile.open(filename.c_str());
-      
+
       if (!libcwd::channels::dc::malloc.is_on())//!defined EARLY_CWDEBUG
       {
         Debug( libcw_do.set_ostream(&g_debugFile) );
@@ -158,7 +158,7 @@ namespace libcwdsetup
       }
       else
       {
-        std::ostream* oldOStream;      
+        std::ostream* oldOStream;
         Debug( oldOStream = libcw_do.get_ostream() );
         Debug( libcw_do.set_ostream(&g_debugFile) );
         boost::polymorphic_downcast<ofstream*>(oldOStream)->close();
@@ -186,7 +186,7 @@ namespace libcwdsetup
         Debug( read_rcfile() );
       }
       else
-#endif //defined OPP_VERSION && OPP_VERSION >= 3        
+#endif //defined OPP_VERSION && OPP_VERSION >= 3
       {
         bool activate = true;
         if (find(tokens.begin(), tokens.end(), "all") != tokens.end())
@@ -201,12 +201,12 @@ namespace libcwdsetup
         }
 
         for (tokenizerIt it = tokens.begin(); it != tokens.end(); it++)
-        { 
+        {
           bool found = false;
           Debug( found = activateChannel((*it).c_str(), activate); );
           if (!found)
             Dout(dc::notice|dc::custom, "Debug channel "<<*it<<" not found");
-        }  
+        }
       }
 
       if (find(tokens.begin(), tokens.end(), "listAllocations") != tokens.end())
@@ -218,7 +218,7 @@ namespace libcwdsetup
       //Force output up to this point
       g_debugFile.flush();
     }
-    
+
   }
 
   ///Add a channel and associate with name in xml file
@@ -226,30 +226,30 @@ namespace libcwdsetup
   {
     Debug( ::g_channels.insert(std::make_pair(channelName, &chn)); );
   }
-        
+
   bool activateChannel(const char* channelName, bool on)
-  {          
+  {
     typedef Channels::iterator ChannelsIt;
     ChannelsIt it = ::g_channels.find(std::string(channelName));
     if (it != ::g_channels.end())
-    {  
+    {
       if (on)
       {
-	if (!it->second->is_on())
-	  it->second->on();
-	Dout(dc::notice|dc::custom, "activated channel "<<channelName);
+    if (!it->second->is_on())
+      it->second->on();
+    Dout(dc::notice|dc::custom, "activated channel "<<channelName);
       }
       else
       {
-	if (it->second->is_on())
-	  it->second->off();
-	Dout(dc::notice|dc::custom, "DeActivated channel "<<channelName);
+    if (it->second->is_on())
+      it->second->off();
+    Dout(dc::notice|dc::custom, "DeActivated channel "<<channelName);
       }
       return true;
     }
     return false;
   }
-        
+
   /**
    * @name createChannel
    * @return created channel which can be used subsequently in Dout debug statements

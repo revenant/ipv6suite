@@ -1,5 +1,4 @@
-// -*- C++ -*-
-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// -*- C++ -*-// Copyright (C) 2001 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,19 +14,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/*
-	@file WirelessEtherPScanReceiveMode.cc
-	@brief Source file for WEPScanReceiveMode
-    
-	@author	Steve Woon
-          Eric Wu
+/*    @file WirelessEtherPScanReceiveMode.cc
+    @brief Source file for WEPScanReceiveMode
+    @author    Steve Woon          Eric Wu
 */
 
-#include <sys.h> // Dout
-#include "debug.h" // Dout
+#include <sys.h> // Dout#include "debug.h" // Dout
 
-#include "WirelessEtherPScanReceiveMode.h"
-#include "WirelessEtherState.h"
+
+#include "WirelessEtherPScanReceiveMode.h"#include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal.h"
 #include "WirelessEtherFrame_m.h"
@@ -47,38 +42,38 @@ WEPScanReceiveMode* WEPScanReceiveMode::instance()
 {
   if (_instance == 0)
     _instance = new WEPScanReceiveMode;
-  
+
   return _instance;
 }
 
 void WEPScanReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* signal)
 {
-	WirelessEtherManagementFrame* beacon =
- 		static_cast<WirelessEtherManagementFrame*>(signal->data());
-			
-	if(mod->isFrameForMe(static_cast<WirelessEtherBasicFrame*>(beacon)))
-	{
-      BeaconFrameBody* beaconBody =
-    	static_cast<BeaconFrameBody*>(beacon->decapsulate());
-	
-		assert(beaconBody);
+    WirelessEtherManagementFrame* beacon =
+         static_cast<WirelessEtherManagementFrame*>(signal->data());
 
-        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+    if(mod->isFrameForMe(static_cast<WirelessEtherBasicFrame*>(beacon)))
+    {
+      BeaconFrameBody* beaconBody =
+        static_cast<BeaconFrameBody*>(beacon->decapsulate());
+
+        assert(beaconBody);
+
+        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
          << mod->fullPath() << "\n"
          << " ----------------------------------------------- \n"
-         << " Beacon received by: " 
+         << " Beacon received by: "
          << mod->macAddressString() << "\n"
          << " from " << beacon->getAddress2() << " \n"
          << " rx power: " << signal->power() << "\n"
          << " ----------------------------------------------- \n");
-		
+
     //TODO: need to check supported rates
-        WirelessEtherModule::APInfo apInfo = 
-          { 
+        WirelessEtherModule::APInfo apInfo =
+          {
             beacon->getAddress2(),
-            beaconBody->getDSChannel(), 
+            beaconBody->getDSChannel(),
             signal->power(),
-			0,
+            0,
             false,
             (beaconBody->getHandoverParameters()).estAvailBW,
             (beaconBody->getHandoverParameters()).avgErrorRate,
@@ -90,3 +85,4 @@ void WEPScanReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* si
         delete beaconBody;
     } // endif
 }
+

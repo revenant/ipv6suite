@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file LinkLayerModule.cc
-	@brief Header file for LinkLayerModule.h
+    @file LinkLayerModule.cc
+    @brief Header file for LinkLayerModule.h
 
-	an 'abstract' class for all network interface classes
+    an 'abstract' class for all network interface classes
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include "LinkLayerModule.h"
@@ -32,7 +32,7 @@ LinkLayerModule::~LinkLayerModule()
 {}
 
 void LinkLayerModule::initialize()
-{  
+{
   delay = par("procdelay");
   iface_type = 0; // unknown protocol
   cntReceivedPackets = 0;

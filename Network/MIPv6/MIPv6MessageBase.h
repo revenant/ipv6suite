@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6MessageBase.h
-	@brief Abstract classes for Mobility Support IPv6 Messages
+    @brief Abstract classes for Mobility Support IPv6 Messages
     @see draft-ietf-mobileip-ipv6-16.txt, section 5
-	@author Eric Wu
-	@date 2/4/2002
+    @author Eric Wu
+    @date 2/4/2002
 */
 
 #ifndef __MIPv6MESSAGEBASE_H__

@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Message.h,v 1.1 2005/02/09 06:15:58 andras Exp $ 
-// Copyright (C) 2001, 2002 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Message.h,v 1.2 2005/02/10 06:26:20 andras Exp $
+// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,9 +36,9 @@ class MLDv2Message: public ICMPv6Message
   MLDv2Message* duplicate() const
     { return new MLDv2Message(*this); }
 
-  void setMaxRspCode(unsigned int maxDelay);	// Maximum Response Code
+  void setMaxRspCode(unsigned int maxDelay);  // Maximum Response Code
   unsigned int MaxRspCode();
-  void setNoMAR(unsigned int num);	// Number of Multicast Address Record
+  void setNoMAR(unsigned int num);    // Number of Multicast Address Record
   unsigned int NoMAR();
   void setMAR(char *src, int offset, int size);
 
@@ -46,8 +46,8 @@ class MLDv2Message: public ICMPv6Message
   {
     return new MLDv2Message(*this);
   }
-  
-  virtual const char* classname() const 
+
+  virtual const char* classname() const
   {
     return "MLDv2Message";
   }

@@ -103,11 +103,11 @@ void Ping6App::initialize()
 //Really bad warnings from valgrind about invalid mem access to 0xc addr
 //Is it because cObject* now has operator<< overload
 
-  cout << "vector " << this << " " << fullPath() << " " 
+  cout << "vector " << this << " " << fullPath() << " "
        << pingDelay->name() << " 1" << endl;
-  cout << "vector " << this+1 << " " << fullPath() << " " 
+  cout << "vector " << this+1 << " " << fullPath() << " "
        << pingDrop->name() << " 1" << endl;
-//  cout << "vector "<< this+2 << " " << fullPath() << " " 
+//  cout << "vector "<< this+2 << " " << fullPath() << " "
 //       << handoverLatency->name() << " 1" << endl;
 #endif //!defined OPP_VERSION || OPP_VERSION < 3
 }
@@ -182,7 +182,7 @@ void Ping6App::sendPing(void)
 
   Dout(dc::ping6, rt->nodeName()<<" "<<simTime()<<" sending ping packet dropCount="<<dropCount
        <<" echo_resp.seqNo="<<echo_req.seqNo<<" nextEstSeqNo="<<nextEstSeqNo);
-  seqNo++;	
+  seqNo++;
 
   if ( (simTime() + interval) > deadline)
     return;
@@ -201,7 +201,7 @@ void Ping6App::receivePing(cMessage* msg)
     Dout(dc::notice, rt->nodeName()<<" "<<simTime()
          <<" ping packets arrived after deadline seq="
          <<(boost::polymorphic_downcast<IPv6InterfaceData<echo_int_info>* >(msg))->data().seqNo);
-    return;    
+    return;
   }
 
   IPv6InterfaceData<echo_int_info> *app_reply = 0;
@@ -227,8 +227,8 @@ void Ping6App::receivePing(cMessage* msg)
 //    assert(echo_resp.seqNo != nextEstSeqNo - 1);
     if (echo_resp.seqNo == nextEstSeqNo - 1)
     {
-      Dout(dc::ping6, rt->nodeName()<<" Duplicate packet detected and dropped " << "\t" 
-	   << simTime() << "\t echo_resp.seqNo=" <<echo_resp.seqNo
+      Dout(dc::ping6, rt->nodeName()<<" Duplicate packet detected and dropped " << "\t"
+       << simTime() << "\t echo_resp.seqNo=" <<echo_resp.seqNo
            <<" badDropCount="<< (unsigned short)(echo_resp.seqNo - nextEstSeqNo));
       return;
     }
@@ -240,7 +240,7 @@ void Ping6App::receivePing(cMessage* msg)
     //to the rollover mark(not handling this case yet)?
 
     dropCount = dropCount + (unsigned short)(echo_resp.seqNo - nextEstSeqNo);
-    Dout(dc::ping6, rt->nodeName() << "\t" << simTime() << "\tdroppedPackets=" 
+    Dout(dc::ping6, rt->nodeName() << "\t" << simTime() << "\tdroppedPackets="
          << (unsigned short)(echo_resp.seqNo - nextEstSeqNo));
     Dout(dc::statistic|flush_cf, rt->nodeName()<<" "<<simTime()<<" PingHandoverDropped="<<(unsigned short)(echo_resp.seqNo - nextEstSeqNo));
     pingDrop->record((unsigned short)(echo_resp.seqNo - nextEstSeqNo));
@@ -258,7 +258,7 @@ void Ping6App::receivePing(cMessage* msg)
 //              (unsigned short)(echo_resp.seqNo - nextEstSeqNo));
     AkParamObservation(1, simTime() - lastReceiveTime);
 #endif //USE_AKAROA
-  } 
+  }
 
   if (echo_resp.seqNo <  nextEstSeqNo)
   {
@@ -268,7 +268,7 @@ void Ping6App::receivePing(cMessage* msg)
   else
   {
     stat->collect(simTime() - echo_resp.sendingTime);
-    pingDelay->record(simTime() - echo_resp.sendingTime);    
+    pingDelay->record(simTime() - echo_resp.sendingTime);
     nextEstSeqNo = echo_resp.seqNo + 1;
   }
 
@@ -289,11 +289,11 @@ void Ping6App::receivePing(cMessage* msg)
     avg = (avg + simTime() - echo_resp.sendingTime)/2;
   }
 
-//   cout << this << "\t" << simTime() << "\t" 
+//   cout << this << "\t" << simTime() << "\t"
 //        << simTime() - echo_resp.sendingTime << endl;
 
   Dout(dc::statistic|flush_cf, rt->nodeName()<<" pingAppRTTDelay \t"
-	<<simTime()<<"\t"<<simTime() - echo_resp.sendingTime);
+    <<simTime()<<"\t"<<simTime() - echo_resp.sendingTime);
 #if USE_AKAROA
   AkObservation(3, simTime() - echo_resp.sendingTime);
 #endif //USE_AKAROA

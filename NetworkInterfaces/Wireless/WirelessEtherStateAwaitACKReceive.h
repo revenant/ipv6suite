@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateAwaitACKReceive.h
-	@brief Header file for WirelessEtherStateAwaitACKReceive
-    
+    @file WirelessEtherStateAwaitACKReceive.h
+    @brief Header file for WirelessEtherStateAwaitACKReceive
+
     Super class of wireless Ethernet State
 
-	@author Steve Woon
+    @author Steve Woon
 */
 
 #ifndef __WIRELESS_ETHER_STATE_AWAITACK_RECEIVE_H__
@@ -45,14 +45,14 @@ class WESignalData;
 class WirelessEtherStateAwaitACKReceive : public WirelessEtherState
 {
   friend class WirelessEtherStateSend;
-  
+
 public:
   static WirelessEtherStateAwaitACKReceive* instance();
-  
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
-  WirelessEtherStateAwaitACKReceive(void) {} 
+  WirelessEtherStateAwaitACKReceive(void) {}
 
   virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
   virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);

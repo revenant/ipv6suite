@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/RoutingAlgorithmStatic.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
 // Copyright (C) 2003, 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -22,11 +22,11 @@
  * @file   RoutingAlgorithmStatic.cc
  * @author Johnny Lai
  * @date   13 Jul 2003
- * 
+ *
  * @brief  Implementation of RoutingAlgorithmStatic
  *
  * @todo
- * 
+ *
  */
 
 #include "sys.h"
@@ -57,12 +57,12 @@ void RoutingAlgorithmStatic::initialize(int stageNo)
      wp = boost::polymorphic_downcast<WorldProcessor*>
        (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
      assert(wp != 0);
- 
+
      //parse this network node's parameters and load them into this.
      //parseNetworkEntity(rt->nodeName());
- 
+
   }
-  
+
   //No reason why we do this in stage 3
   //Should be done after all nodes are connected.
   //After link local addr are assigned
@@ -130,10 +130,10 @@ void RoutingAlgorithmStatic::initialize(int stageNo)
 
 
         //key.atAddress = atNode->module()->par("address");
-        
+
         unsigned int ifIndex = atNode->path(0)->localGate()->index();
         //art->
-        
+
         //rtable[key] = gateId;
         //ev << "  from " << key.atAddress << " towards " << key.destAddress << " gateId is " << gateId << endl;
       }
@@ -156,7 +156,7 @@ void RoutingAlgorithmStatic::parseInterface(const xml::node& iface)
 {
   const XMLConfiguration::IPv6XMLWrapManager* man = wp->xmlManager();
   cerr << man->getNodeProperties(iface, "AdvManagedFlag");
-  
+
 }
 
 void RoutingAlgorithmStatic::parseNetworkNodeProperties(const xml::node& netNode)
@@ -229,7 +229,7 @@ void RoutingAlgorithmStatic::parseNetworkEntity(const char* nodeName)
   //const xml::node& netNode = man->getNetNode(rt->nodeName());
   xml::node netNode;
   parseNetworkNodeProperties(netNode);
-  
+
   typedef xml::node::const_iterator NodeIt;
   for (NodeIt it = netNode.begin(); it != netNode.end(); it++)
   {
@@ -246,7 +246,7 @@ void RoutingAlgorithmStatic::parseNetworkEntity(const char* nodeName)
 
 /**
    @class RoutingAlgorithmStaticTest
-   @brief 	
+   @brief
    @ingroup TestCases
 */
 
@@ -259,7 +259,7 @@ public:
   CPPUNIT_TEST( testExample2 );
   CPPUNIT_TEST_SUITE_END();
  public:
-  
+
   // Constructor/destructor.
   RoutingAlgorithmStaticTest();
   virtual ~RoutingAlgorithmStaticTest();

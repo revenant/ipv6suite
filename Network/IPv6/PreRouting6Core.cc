@@ -17,14 +17,14 @@
 
 
 /**
-	@file PreRouting6Core.cc
-	@brief Implementation of PreRouting
-	-Responsibilities:
-		receive IP datagram
-		send correct datagram to Forwarding Module
-	@author Johnny Lai
-	@date 27/08/01
-	Based on PreRoutingCore module by Jochen Reber
+    @file PreRouting6Core.cc
+    @brief Implementation of PreRouting
+    -Responsibilities:
+        receive IP datagram
+        send correct datagram to Forwarding Module
+    @author Johnny Lai
+    @date 27/08/01
+    Based on PreRoutingCore module by Jochen Reber
 */
 
 #include "sys.h"
@@ -102,10 +102,10 @@ void PreRouting6Core::handleMessage(cMessage* msg)
 /*
     //No header checksums for IPv6 only ICMPv6
     // check for header biterror
-	//		if (datagram->hasBitError())
-	//		{
-    // 	probability of bit error in header =
-    //	size of header / size of total message
+    //        if (datagram->hasBitError())
+    //        {
+    //     probability of bit error in header =
+    //    size of header / size of total message
     relativeHeaderLength =
       datagram->headerLength() / datagram->totalLength();
     if (dblrand() <= relativeHeaderLength)

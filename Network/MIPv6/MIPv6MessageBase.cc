@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002 CTIE, Monash University 
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6MessageBase.cc
-	@brief Abstract classes for Mobility Support IPv6 Messages
+    @brief Abstract classes for Mobility Support IPv6 Messages
     @see draft-ietf-mobileip-ipv6-16.txt, section 5
-	@author Eric Wu
-	@date 4/4/2002
+    @author Eric Wu
+    @date 4/4/2002
 */
 
 #include "MIPv6MessageBase.h"
@@ -58,14 +58,14 @@ MIPv6MobilityHeaderBase& MIPv6MobilityHeaderBase::
 operator=(const MIPv6MobilityHeaderBase& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     cPacket::operator=(rhs);
     _checksum = rhs._checksum;
     _payloadprot = rhs._payloadprot;
     _headertype = rhs._headertype;
     _parameters = rhs._parameters;
   }
-  
+
   return* this;
 }
 
@@ -94,16 +94,16 @@ MIPv6MHParameterBase::MIPv6MHParameterBase(MIPv6MHParameterType type)
 
 MIPv6MHParameterBase::~MIPv6MHParameterBase(void)
 {}
-  
+
 MIPv6MHParameterBase& MIPv6MHParameterBase::operator=(MIPv6MHParameterBase& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     _type = rhs._type;
     _len = rhs._len;
   }
-  
+
   return *this;
 }
- 
+
 } // end namespace MobileIPv6

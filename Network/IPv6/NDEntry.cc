@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,11 +15,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
-	@file NDEntry.cc
-	@brief Neighbour Discovery Entries - Prefix, Neighbour and Router
+    @file NDEntry.cc
+    @brief Neighbour Discovery Entries - Prefix, Neighbour and Router
     @see RFC2461 Sec 5
-	@author Johnny Lai
-	@date 19.9.01
+    @author Johnny Lai
+    @date 19.9.01
 
 */
 
@@ -41,17 +41,17 @@ const unsigned int VALID_LIFETIME_DEFAULT = 2592000;  //30 days
 const unsigned int VALID_PREFLIFETIME_DEFAULT = 605800; //7 days
 
 namespace IPv6NeighbourDiscovery
-{  
+{
 
 bool operator<(const PrefixEntry& lhs, const PrefixEntry& rhs)
 {
   int lhs_pref_len = lhs._prefix.prefixLength();
-  int rhs_pref_len = rhs._prefix.prefixLength();  
+  int rhs_pref_len = rhs._prefix.prefixLength();
 
   if(lhs_pref_len != rhs_pref_len)
     return (lhs_pref_len < rhs_pref_len)? false : true;
 
-  return ((ipv6_addr)lhs._prefix < (ipv6_addr)rhs._prefix);  
+  return ((ipv6_addr)lhs._prefix < (ipv6_addr)rhs._prefix);
 }
 
 std::ostream& operator<<(std::ostream& os, const PrefixEntry& dat)
@@ -77,7 +77,7 @@ PrefixEntry::PrefixEntry(const IPv6Address& addr, unsigned int lifetime)
 //   tmr(0)
 {}
 
-PrefixEntry::PrefixEntry(const ipv6_addr& pref, unsigned int prefixLength, 
+PrefixEntry::PrefixEntry(const ipv6_addr& pref, unsigned int prefixLength,
                          unsigned int lifetime)
   :_prefix(pref),
    _advValidLifetime(lifetime),
@@ -90,11 +90,11 @@ PrefixEntry::PrefixEntry(const ipv6_addr& pref, unsigned int prefixLength,
 #endif
 //   tmr(0)
 {
-  _prefix.setPrefixLength(prefixLength);  
+  _prefix.setPrefixLength(prefixLength);
 }
 
 PrefixEntry::PrefixEntry(const IPv6NeighbourDiscovery::ICMPv6NDOptPrefix& prefOpt)
-  :_prefix(prefOpt.prefix, prefOpt.prefixLen), 
+  :_prefix(prefOpt.prefix, prefOpt.prefixLen),
    _advValidLifetime(prefOpt.validLifetime),
    _realtime(false),
    _advOnLink(prefOpt.onLink),
@@ -110,7 +110,7 @@ PrefixEntry::PrefixEntry(const IPv6NeighbourDiscovery::ICMPv6NDOptPrefix& prefOp
  * @warning possible duplicate PrefixEntry and thus multiple deletions of timer
  * cause segfault at simulation exit.
 
- * 
+ *
  */
 
 PrefixEntry::~PrefixEntry()
@@ -121,7 +121,7 @@ PrefixEntry::~PrefixEntry()
   delete tmr;
 */
 }
-  
+
 /*
 ///Expiry func called to destroy the prefix entry when prefix valid lifetime
 ///expires
@@ -133,7 +133,7 @@ void PrefixEntry::prefixTimeout(PrefixExpiryTmr* otmr)
 #if defined TESTIPv6 && defined PREFIXTIMER
   cout<<tmr->msgOwner()->nodeName()<<" "<<*this<<" removed at "
       <<tmr->msgOwner()->simTime()<<endl;
-#endif          
+#endif
 
   //this deletes everything i.e. prefixEntry->prefixExpiryTmr
   tmr->msgOwner()->cds->removePrefixEntry(*this);
@@ -144,17 +144,17 @@ unsigned int PrefixEntry::advValidLifetime() const
 {
 //  if (_advValidLifetime == VALID_LIFETIME_INFINITY || tmr == 0)
     return _advValidLifetime;
-  
+
 //  return static_cast<unsigned int> (tmr->remainingTime());
 }
 
 ///Will reschedule the invalidation tmr if necessary
 void PrefixEntry::setAdvValidLifetime(unsigned int validLifetime)
-{ 
+{
   _advValidLifetime = validLifetime;
-/*  
+/*
   assert(tmr != 0);
-  
+
   if (tmr->isScheduled())
     tmr->cancel();
 
@@ -165,9 +165,9 @@ void PrefixEntry::setAdvValidLifetime(unsigned int validLifetime)
 
 
 NeighbourEntry::NeighbourEntry(const ipv6_addr& addr, size_t ifaceNo,
-                               const char* destLinkAddr, 
+                               const char* destLinkAddr,
                                ReachabilityState state)
-  :unicastAddr(addr), _LLaddress(destLinkAddr?destLinkAddr:""), 
+  :unicastAddr(addr), _LLaddress(destLinkAddr?destLinkAddr:""),
    interfaceNo(ifaceNo),  _isRouter(false), _state(state)
 {}
 
@@ -176,7 +176,7 @@ NeighbourEntry::NeighbourEntry(const ICMPv6NDMNgbrSol* ns)
   :unicastAddr(static_cast<IPv6Datagram*> (ns->encapsulatedMsg())->srcAddress()),
   _LLaddress(ns->srcLLAddr()),
    interfaceNo(static_cast<IPv6Datagram*> (ns->encapsulatedMsg())->inputPort()),
-  _isRouter(false), _state(STALE) 
+  _isRouter(false), _state(STALE)
 {}
 
 NeighbourEntry::NeighbourEntry(const ICMPv6NDMRedirect* redirect)
@@ -190,9 +190,9 @@ NeighbourEntry::NeighbourEntry(const ICMPv6NDMRedirect* redirect)
 bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
 {
   bool sendPending = false;
-  
+
   if (state() == INCOMPLETE && na->targetLLAddr() == "")
-  {   
+  {
     Dout(dc::addr_resln, "Ignoring NA as no LL address option included "<<*na);
     return false;
   }
@@ -200,19 +200,19 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
   if (state() == INCOMPLETE)
   {
     setLLAddr(na->targetLLAddr());
-  
+
     if (na->solicited())
       setState(REACHABLE);
     else
       setState(STALE);
 
     sendPending = true;
-    
+
     //Set the Router flag
   }
   else // state() != INCOMPLETE
   {
-    if (!na->override() && na->targetLLAddr() != "" && 
+    if (!na->override() && na->targetLLAddr() != "" &&
         na->targetLLAddr() != linkLayerAddr())
     {
       Dout(dc::addr_resln, " not updating NE any further as link layer address in"
@@ -222,8 +222,8 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
       else
         return false; //Ignore totally
       return false;
-    }    
-    else if (na->override() || 
+    }
+    else if (na->override() ||
              (!na->override() && na->targetLLAddr() == linkLayerAddr()) ||
              na->targetLLAddr() == "")
     {
@@ -233,16 +233,16 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
         updatedAddr = true;
         setLLAddr(na->targetLLAddr());
       }
-      
+
       if (na->solicited())
         setState(REACHABLE);
       else if (updatedAddr)
         setState(STALE);
-      
+
       //Check the isRouter flags like the case at the very beginning again
-    }     
+    }
   }
-  
+
   if (na->isRouter() && na->isRouter() != isRouter())
   {
     Dout(dc::notice, "Should really convert this whole object into a RouterEntry instead "<<*na);
@@ -258,7 +258,7 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
   //RouterEntry so all the pointers remain valid regardless of how often their
   //roles change. RouterEntry contains a pointer to NE.  DRL contains the RE
   //pointer whilst the and DE contains RE, Sounds like good idea. TODO
-  
+
   return sendPending;
 }
 
@@ -273,7 +273,7 @@ void NeighbourEntry::update(const ICMPv6NDMNgbrSol* ns)
 
 void NeighbourEntry::update(const ICMPv6NDMRedirect* redirect)
 {
-  if (redirect->targetLLAddr() != "" && 
+  if (redirect->targetLLAddr() != "" &&
       linkLayerAddr() != redirect->targetLLAddr())
   {
     setLLAddr(redirect->targetLLAddr());
@@ -321,11 +321,11 @@ RouterEntry::~RouterEntry()
 }
 
 unsigned int RouterEntry::invalidTime() const
-{ 
+{
 //  if (_invalidTime == VALID_LIFETIME_INFINITY || tmr == 0)
     return _invalidTime;
-  
-  //return _invalidTime; 
+
+  //return _invalidTime;
 //  assert(tmr->remainingTime() > 0);
 //
 
@@ -340,7 +340,7 @@ void RouterEntry::routerExpired(RouterExpiryTmr* otmr)
 #if defined TESTIPv6 && defined ROUTERTIMER
   cout<<tmr->msgOwner()->nodeName()<<" "<<*this<<" removed at "
       <<tmr->msgOwner()->simTime()<<endl;
-#endif 
+#endif
 
   //this deletes everything i.e. routerEntry->routerExpiryTmr
   tmr->msgOwner()->cds->removeRouterEntry(addr());
@@ -355,8 +355,8 @@ void RouterEntry::setInvalidTmr(unsigned int newLifetime)
   assert(tmr != 0);
   if (tmr == 0)
     return;
-  
-  if (tmr->isScheduled())  
+
+  if (tmr->isScheduled())
     tmr->cancel();
 
   if (newLifetime != VALID_LIFETIME_INFINITY)

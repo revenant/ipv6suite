@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file LinkLayerModule.h
-	@brief Header file for LinkLayerModule.h
+    @file LinkLayerModule.h
+    @brief Header file for LinkLayerModule.h
 
-	An 'abstract' class for all network interface classes
+    An 'abstract' class for all network interface classes
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef LINKLAYER_MODULE_H
@@ -45,9 +45,9 @@ class LinkLayerModule : public RoutingTableAccess
  public:
   Module_Class_Members(LinkLayerModule, RoutingTableAccess, 0);
   virtual ~LinkLayerModule();
-  virtual void initialize();  
+  virtual void initialize();
 
-  const char* getInterfaceName() const {return iface_name.c_str();}  
+  const char* getInterfaceName() const {return iface_name.c_str();}
   int getInterfaceType() const {return iface_type;}
 
  protected:
@@ -58,7 +58,7 @@ class LinkLayerModule : public RoutingTableAccess
 
   void setIface_name(int llProtocol);
 
-  ///counter for number of incoming packets 
+  ///counter for number of incoming packets
   long cntReceivedPackets;
 
 };

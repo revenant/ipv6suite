@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateSend.cc
-	@brief Header file for WirelessEtherStateSend
-    
+    @file WirelessEtherStateSend.cc
+    @brief Header file for WirelessEtherStateSend
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -49,7 +49,7 @@ WirelessEtherStateSend* WirelessEtherStateSend::instance()
 {
   if (_instance == 0)
     _instance = new WirelessEtherStateSend;
-  
+
   return _instance;
 }
 
@@ -68,12 +68,12 @@ std::auto_ptr<WESignalData> WirelessEtherStateSend::processData(WirelessEtherMod
 {
   if(((WirelessEtherBasicFrame *)(data->data()))->getFrameControl().subtype == ST_ACK)
   {
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " 
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
          << mod->fullPath() << ":" << "while sending, an ACK was received");
   }
   else
   {
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " 
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
          << mod->fullPath() << ": " << "while sending, received data from: "
          << ((WirelessEtherRTSFrame *)(data->data()))->getAddress2() );
   }
@@ -87,13 +87,13 @@ void WirelessEtherStateSend::endSendingData(WirelessEtherModule* mod)
   mod->sendEndOfFrame();
 
   // Check if there is anything in the buffer to wait for ack. Could
-  // have been cleared from initiating active scanning during 
+  // have been cleared from initiating active scanning during
   // authentication or association timeout. However, this may mean that
-  // it is able to send the end of frame, eventhought the channel has 
+  // it is able to send the end of frame, eventhought the channel has
   // been changed due to active scan restarting.
   if(mod->outputBuffer.empty())
     return;
-    
+
   // State is changed to Idle if it is a broadcast frame.
   if(mod->handleSendingBcastFrame())
     return;
@@ -107,25 +107,25 @@ void WirelessEtherStateSend::endSendingData(WirelessEtherModule* mod)
 
     a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
       (WIRELESS_SELF_AWAITACK, mod, static_cast<WirelessEtherStateAwaitACK*>
-       (mod->currentState()), &WirelessEtherStateAwaitACK::endAwaitACK, 
+       (mod->currentState()), &WirelessEtherStateAwaitACK::endAwaitACK,
        "endAwaitACK");
-        
+
     Loki::Field<0> (a->args) = mod;
-    
+
     mod->addTmrMessage(a);
     tmrMessage = a;
   }
-  
+
   // TODO: maybe the bandwidth for ACK transmission is different
   double ackTxTime = ACKLENGTH / BASE_SPEED;
   //tmrMessage->reschedule(mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/);
   tmrMessage->reschedule(mod->simTime() +  SIFS + ackTxTime /*+ SAP_DELAY*/);
 
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " 
-       << mod->fullPath() << ": " << "ends await ack at " 
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
+       << mod->fullPath() << ": " << "ends await ack at "
        << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/
        << " sec");
 
-  mod->changeState(WirelessEtherStateAwaitACK::instance());  
+  mod->changeState(WirelessEtherStateAwaitACK::instance());
 }
 

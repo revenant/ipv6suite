@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -97,8 +97,8 @@ namespace
 }
 
 namespace MobileIPv6
-{ 
-  typedef Loki::cTimerMessageCB<void, TYPELIST_2(std::vector<ipv6_addr>, 
+{
+  typedef Loki::cTimerMessageCB<void, TYPELIST_2(std::vector<ipv6_addr>,
                                                  IPv6Mobility*)> TIRetransTmr;
 
   class bu_entry;
@@ -110,7 +110,7 @@ namespace MobileIPv6
  * specific information
  *
  * Thes emtries form the home agents list for mobile nodes @see
- * MIPv6CDSMobileNode::mrl which is of type MIPv6RouterList.  
+ * MIPv6CDSMobileNode::mrl which is of type MIPv6RouterList.
  *
  * Since most of the information maintained by default routers list in ND is of
  * use and duplicated by home agents list.  It is better to combine the two.
@@ -119,7 +119,7 @@ namespace MobileIPv6
  * @todo 1. manage lifetime of global addr i.e. the corresponding prefix
  * specified in the prefix advertisement with R bit set.  2. Multiple global
  * addr
- * 
+ *
  */
   class MIPv6RouterEntry
   {
@@ -135,7 +135,7 @@ namespace MobileIPv6
 
     ///Return global address of router
     const ipv6_addr& addr() const { return prefix().prefix; }
-    
+
     /**
      * Returns the on link global prefix for this router with its full global
      * address intact i.e. exactly the same info as a prefix information option
@@ -151,22 +151,22 @@ namespace MobileIPv6
 
     /**
      * Set the global prefix for potential use to form the coa
-     * 
+     *
      */
 
     void setPrefix(const ipv6_prefix& pref) { _prefix = pref; }
-    
+
     ///@name Home Agent properties
     //@{
 
     ///Returns true if prefix also contains HA addr (we have no use for global
     ///addr of plain routers?) and RtrAdv had ha bit set
     bool isHomeAgent() const { return _isHA; }
-    
+
     ///preference is valid for HA's only
     const int& preference() const { return _preference; }
     void setPreference(int pref) { _preference = pref; }
-    
+
     ///Seperate lifetime for HA can differ from router's lifetime
     void setLifetime(unsigned int lifetime);
     unsigned int lifetime() const;
@@ -174,7 +174,7 @@ namespace MobileIPv6
 
     ///Add's this prefix if not linked with this router entry
     void addOnLinkPrefix(IPv6NeighbourDiscovery::PrefixEntry* pe);
-    
+
     /**
      * This will create a router->prefixes relationship so we can track which
      * prefixes belong to which router and remove them accordingly
@@ -182,11 +182,11 @@ namespace MobileIPv6
      * Delete these onlink prefixes when default router changes as we move from
      * one subnet to another.  This was not required in IPv6 because we were
      * always on same link but now on link prefixes will change and old ones
-     * should not be in prefix list anymore.  
+     * should not be in prefix list anymore.
      */
     typedef std::list<ipv6_prefix> OnLinkPrefixList;
     typedef OnLinkPrefixList::iterator  OPLI;
-    
+
     OnLinkPrefixList prefixes;
 
 
@@ -210,8 +210,8 @@ namespace MobileIPv6
   class bu_entry
   {
   public:
-    
-    bu_entry(const ipv6_addr& dest, const ipv6_addr& hoa, const ipv6_addr& coa, 
+
+    bu_entry(const ipv6_addr& dest, const ipv6_addr& hoa, const ipv6_addr& coa,
              unsigned int olifetime, unsigned int seq, double lastTime, bool homeRegn
 #ifdef USE_HMIP
              , bool mapReg = false
@@ -234,14 +234,14 @@ namespace MobileIPv6
         setExpires(lifetime());
         hoti_cookie.high = rand();
         hoti_cookie.low = rand();
-        
+
         coti_cookie.high = rand();
         coti_cookie.low = rand();
       }
 
     std::ostream& operator<<(std::ostream& os) const;
 
-    /// IP address of the node to which a binding update was sent    
+    /// IP address of the node to which a binding update was sent
     const ipv6_addr& addr() const
       {
         return dest_addr;
@@ -249,9 +249,9 @@ namespace MobileIPv6
 
     /**
      * @brief home address for which that binding update was sent
-     * 
+     *
      * Can be either home address Sec. 10.7/10.9 or the MN's previous care of
-     * address Sec. 10.11 
+     * address Sec. 10.11
      *
      * Not really efficient as we store too many addresses especilly if they
      * only point to the primary home address
@@ -263,26 +263,26 @@ namespace MobileIPv6
         //  return IPv6_ADDR_UNSPECIFIED;
         return hoa;
       }
-    
+
     const ipv6_addr& careOfAddr() const
       {
         //  if (coaRouter.get() == 0)
         //  return IPv6_ADDR_UNSPECIFIED;
         return coa;
       }
-    
+
     void setCareOfAddr(const ipv6_addr& caddr)
       {
         coa = caddr;
       }
-    
+
     bool homeReg() const { return _homeReg; }
 
     /**
-     * @brief home address of binding.  
+     * @brief home address of binding.
      *
      * Usually points to the primaryHomAgent then the
-     * homeAddress is the 'home' home address. 
+     * homeAddress is the 'home' home address.
 
      * For bul entries of non-primary HA it points to the same HA from which the
      * previous care of addr is created thus it should only point to the
@@ -291,99 +291,99 @@ namespace MobileIPv6
      * from that HA's global prefix.  I think this can only point to HomeAgents
      * because routers cannot forward using the tunneling mechanism of HAs.
      *
-     * 
+     *
      */
 
     //boost::weak_ptr<MIPv6RouterEntry> hoaAgent;
-    
+
     /**
      * @brief care of address of binding
-     * 
+     *
      * Points to the HA or router from which the 'latest' care of address is
      * formed at the time a binding update was sent to this dest_addr
      */
 
     //boost::weak_ptr<MIPv6RouterEntry> coaRouter;
-    
+
   private:
     /// IP address of the node to which a binding update was sent
-	ipv6_addr dest_addr;
+    ipv6_addr dest_addr;
 
     ipv6_addr hoa;
     ipv6_addr coa;
 
     /// initial lifetime sent in update
-	unsigned int _lifetime;
+    unsigned int _lifetime;
 
     unsigned int _expires;
-    
+
   public:
     cOutVector* correspndRegDelay;
     simtime_t correspndRegInitTime;
-    
+
     void setSequence(unsigned int seq) { seq_no = seq; }
     unsigned int sequence() const { return seq_no; }
-    
+
     ///@name BUL lifetime
     //@{
 
     /// bu entry lifetime countdown.  Removal from BindingUpdateList once this
     /// reaches zero
-	unsigned int expires() const { return _expires; }
+    unsigned int expires() const { return _expires; }
     void setExpires(unsigned int exp);
-    
+
     /// initial lifetime sent in update
     unsigned int lifetime() const { return _lifetime; }
     void setLifetime(unsigned int life);
     //@}
 
     /**
-     * @name Retransmission timer 
+     * @name Retransmission timer
      *
      * Can use something like NDTimer timer for this
      *
-     * 
+     *
      */
     //@{
 
     /// time at which a binding update was last sent to this destination
-	double last_time_sent;
+    double last_time_sent;
 
     /**
      * @brief the state of any retransmissions needed for this binding update if Ack
-     * (A) bit was set in this binding update.  
-     * 
+     * (A) bit was set in this binding update.
+     *
      * This is taken care of by BURetranTimer in MIPv6MStateMobileNode thus the
      * number of BUs sent will be stored here.  0 means a BA was received, > 0
      * the no. of BUs sent to this node inc. retransmissions
      */
-	unsigned int state;
+    unsigned int state;
 
     //@}
 
   private:
-    
+
     ///maximum Sequence Number sent in previous binding update
     unsigned int seq_no;
-    
+
     bool _homeReg;
-    
+
   public:
-    
+
     /**
      * future BU should not be sent here.  Set flag when MN receives an ICMP
      * Parameter Problem code 2 when a BU sent.  See Sec 10.17
-     * 
+     *
      */
     bool problem;
-        
+
 #ifdef USE_HMIP
-    
+
     bool isMobilityAnchorPoint() const { return mapReg; }
-    
+
   private:
-    
-    bool mapReg;    
+
+    bool mapReg;
 #endif //USE_HMIP
 
     ///@name RR procedure members
@@ -391,7 +391,7 @@ namespace MobileIPv6
   public:
     bool isPerformingRR;
 
-    TIRetransTmr* hotiRetransTmr;    
+    TIRetransTmr* hotiRetransTmr;
     TIRetransTmr* cotiRetransTmr;
 
     double last_hoti_sent;
@@ -420,7 +420,7 @@ namespace MobileIPv6
           return home_token;
         else if ( ht == MIPv6MHT_CoT )
           return careof_token;
-        
+
         assert(false);
         return UNSPECIFIED_BIT_64;
       }
@@ -438,7 +438,7 @@ namespace MobileIPv6
         }
       }
 
-    double testInitTimeout(const MIPv6MobilityHeaderType& ht) 
+    double testInitTimeout(const MIPv6MobilityHeaderType& ht)
       {
         if ( ht == MIPv6MHT_HoTI )
           return hoti_timeout;
@@ -468,9 +468,9 @@ namespace MobileIPv6
       }
 
     void resetTITimeout(const MIPv6MobilityHeaderType& ht)
-      { 
+      {
         if ( ht == MIPv6MHT_HoT )
-          hoti_timeout = INITIAL_BINDACK_TIMEOUT; 
+          hoti_timeout = INITIAL_BINDACK_TIMEOUT;
         else if ( ht == MIPv6MHT_CoT )
           coti_timeout = INITIAL_BINDACK_TIMEOUT;
         else

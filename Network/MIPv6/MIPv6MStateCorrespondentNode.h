@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ namespace MobileIPv6
 
 /**
    @class MIPv6MStateCorrespondentNode
-   @brief Defines behaviour of MNs in IPv6Mobility module 	
+   @brief Defines behaviour of MNs in IPv6Mobility module
    @ingroup MobilityStates
 */
 
@@ -50,20 +50,20 @@ class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
  public:
   static MIPv6MStateCorrespondentNode* instance(void);
 
-  virtual void processMobilityMsg(IPv6Datagram* dgram, 
+  virtual void processMobilityMsg(IPv6Datagram* dgram,
                                   MIPv6MobilityHeaderBase*& mhb,
                                   IPv6Mobility* mod);
-  
+
  protected:
   virtual bool processBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod);
 
   void processTI(TIMsg* timsg, IPv6Datagram* dgram, IPv6Mobility* mod);
 
   // send binding missing
-  void sendBM(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, BM* bm, 
+  void sendBM(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, BM* bm,
               IPv6Mobility* mod);
 
-  static MIPv6MStateCorrespondentNode* _instance;  
+  static MIPv6MStateCorrespondentNode* _instance;
 };
 
 } // end namespace MobileIPv6

@@ -1,5 +1,4 @@
-// -*- C++ -*-
-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// -*- C++ -*-// Copyright (C) 2001 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +15,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherPScanReceiveMode.h
-	@brief Header file for WEPScanReceiveMode
-    
+    @file WirelessEtherPScanReceiveMode.h
+    @brief Header file for WEPScanReceiveMode
 
-	@author	Steve Woon
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -28,19 +27,19 @@
 #define __WIRELESS_ETHER_PSCAN_RECEIVE_MODE_H__
 
 #include "WirelessEtherReceiveMode.h"
-
 class WESignalData;
 class WirelessEtherModule;
 
 class WEPScanReceiveMode : public WEReceiveMode
 {
-	public:
-		virtual void handleBeacon(WirelessEtherModule* mod, WESignalData* signal);
-		static WEPScanReceiveMode* instance();
-	
-	protected:
-		static WEPScanReceiveMode* _instance;
-		WEPScanReceiveMode(void) {}
+    public:
+        virtual void handleBeacon(WirelessEtherModule* mod, WESignalData* signal);
+        static WEPScanReceiveMode* instance();
+
+    protected:
+        static WEPScanReceiveMode* _instance;
+        WEPScanReceiveMode(void) {}
 };
 
 #endif // __WIRELESS_ETHER_PSCAN_RECEIVE_MODE_H__
+

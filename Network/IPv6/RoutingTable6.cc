@@ -138,14 +138,14 @@ void RoutingTable6::initialize(int stage)
     rel = new ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> >
       (new Loki::cTimerMessageCB<void>
        (IPv6NeighbourDiscovery::Tmr_RouterLifetime, this, this,
-	&RoutingTable6::routerTimeout,
-	"RouterExpiryTmr"), true); 
-			       
-    pel = new ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> > 
+        &RoutingTable6::routerTimeout,
+        "RouterExpiryTmr"), true);
+
+    pel = new ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> >
       (new Loki::cTimerMessageCB<void>
        (IPv6NeighbourDiscovery::Tmr_PrefixLifetime, this, this,
-	&RoutingTable6::prefixTimeout,
-	"PrefixExpiryTmr"), true);
+        &RoutingTable6::prefixTimeout,
+        "PrefixExpiryTmr"), true);
 
   }
   else if(stage == 1)
@@ -272,17 +272,17 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
                              const IPv6Address& dest, bool destIsHost)
 {
   //Distinguish between two types of Routing entries
- 
+
   //normal next hop route
- 
+
   //Next Hop is a router ip address on same link as interface to forward
   //things with destination.  Destination can either be a network prefix
   //(prefix length < 128) or a host ipv6 address (prefix length = 128)
- 
+
   //Default route - special case of next hop route
   //Destination is the unspecified IPv6 address 0::0
- 
-  //neighbouring node route 
+
+  //neighbouring node route
   //Next Hop attribute is same as destination.  This is to speed up address
   //resolution which would otherwise need to be done on all ifaces in order to
   //find on which iface the destination exists on
@@ -294,8 +294,8 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
   //can a router so this was added for that purpose too (which means for a
   //host specifying one route with dest addr and isRouter set then that is a
   //default router) .
- 
-  
+
+
   if (destIsHost && nextHop == IPv6_ADDR_UNSPECIFIED || nextHop == dest)
   {
     if (dest.prefixLength() > 0 && dest.prefixLength() < IPv6_ADDR_LENGTH)
@@ -307,22 +307,22 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
     }
     //Create DE and NE
     cds->insertNeighbourEntry( new NeighbourEntry(dest, ifIndex));
- 
+
     Dout(dc::neighbour_disc|dc::routing, nodeName()<<" Neighbouring Host added ifIndex="
          <<ifIndex<<" dest="<<dest);
     return;
   }
- 
+
   if (!destIsHost)
     nextHop = dest;
- 
- 
+
+
   RouterEntry* re = 0;
   NeighbourEntry* ne = 0;
   //By definition Next Hop has to be router in order to forward packets to
   //dest. Destination can be a network prefix with "0"s for non prefix bits.
   bool createEntry = true;
- 
+
   //Check if routerEntry has already been created
   if ((ne = (cds->neighbour(nextHop)).lock().get()) != 0)
   {
@@ -351,7 +351,7 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
       cds->removeNeighbourEntry(ne->addr());
     }
   }
- 
+
   if (createEntry)
   {
     re = new RouterEntry(nextHop, ifIndex, "",
@@ -361,12 +361,12 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
     Dout(dc::router_disc|dc::routing, nodeName()<<" New router added addr="<<nextHop
          <<" ifIndex="<<ifIndex<<" with infinite lifetime");
   }
- 
+
   if (!(dest == IPv6_ADDR_UNSPECIFIED))
   {
- 
+
     (*cds)[dest].neighbour = cds->router(re->addr());
-       
+
     if (dest != nextHop && !( dest == IPv6_ADDR_UNSPECIFIED))
       Dout(dc::forwarding|dc::routing|dc::xml_addresses, nodeName()
            <<" Next hop for "<<dest <<" is "<<nextHop);
@@ -377,8 +377,8 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
     Dout(dc::router_disc|dc::routing, nodeName()<<" "<<re->addr()
          <<" is the default route "
          <<cds->router(re->addr()).lock()->addr());
- 
- 
+
+
     //Still problem of creating many router objects even though they have the
     //same value. Not only that the default route of 0.0.0.0 was added into
     //the DC this should not be required.
@@ -439,7 +439,7 @@ void RoutingTable6::insertRouterEntry(RouterEntry* re, bool setDefault)
   OPP_Global::ContextSwitcher switcher(this);
   assert(re);
   cds->insertRouterEntry(re, setDefault);
-/*  
+/*
   re->setTimer(
      new IPv6NeighbourDiscovery::RouterExpiryTmr(this, re,
                                                  simTime() + re->invalidTime()));
@@ -564,11 +564,11 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
       if (interfaces[i].addrAssigned(dest))
         return true;
 
-      if (odad() 
+      if (odad()
 #if defined USE_MOBILITY
-	  && mobilitySupport() && isMobileNode()// && awayFromHome()) 
+          && mobilitySupport() && isMobileNode()// && awayFromHome())
 #endif //defined USE_MOBILITY
-	 )
+         )
       {
         //Tentative addresses considered assigned while DAD is carried out
         if (interfaces[i].tentativeAddrAssigned(dest))
@@ -587,7 +587,7 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
     {
       if (multicastGroup[i] == dest)
       {
-	return true;	
+        return true;
       }
     }
   }
@@ -632,7 +632,7 @@ int RoutingTable6::interfaceNameToNo(const char *iface_name) const
   {
     if (interfaces[i].iface_name == iface_name)
       // the interface index corresponds to the port index
-	  return i-1;
+          return i-1;
   }
 
   return -1;
@@ -699,11 +699,11 @@ bool RoutingTable6::assignAddress(IPv6Address* addr, unsigned int if_idx)
   }
   ie.inetAddrs.add(addr);
 
-  
+
   //Don't know why it asserts when default ctor of IPv6Address puts lifetime of
   //inifinity. Investigate later. Meanwhile will have to leave out
   //rescheduleAddrConfTimer call because of min lifetime of 0
-  //assert(addr->storedLifetime() != 0);  
+  //assert(addr->storedLifetime() != 0);
   //if (addr->storedLifetime() > 0 && addr->storedLifetime() < VALID_LIFETIME_INFINITY)
   //  rescheduleAddrConfTimer(addr->storedLifetime());
   return true;
@@ -743,7 +743,7 @@ bool RoutingTable6::removeAddress(IPv6Address* addr, unsigned int ifIndex)
    @brief Remove assigned address
    @param addr address to remove
    @param ifIndex interface to remove from
-   
+
    Uses the other version of removeAddress to do its dirty work
  */
 bool RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
@@ -756,7 +756,7 @@ bool RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
     {
       Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "
            <<addr<<" removing");
- 
+
       removeAddress(ie.inetAddrs.get(addrIndex), ifIndex);
       return true;
     }
@@ -765,10 +765,10 @@ bool RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
 }
 
 /**
-   @brief Convenience function for checking if addr assigned 
+   @brief Convenience function for checking if addr assigned
    @param addr check if address is assigned on ifIndex
    @param ifIndex index of interface to check if address is assigned
-   
+
    @return true if addr is assigned at ifIndex false otherwise
 
  */
@@ -882,7 +882,7 @@ void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
   if (minUpdatedLifetime < addrExpiryTmr->remainingTime())
   {
     Dout(dc::address_timer|flush_cf, nodeName()<<" elapsedTime="<<addrExpiryTmr->elapsedTime()
-         
+
          <<" rescheduling as minUpdatedLifetime="<<minUpdatedLifetime<<" < "<<"remaningTime="
          <<addrExpiryTmr->remainingTime());
 
@@ -892,7 +892,7 @@ void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
     addrExpiryTmr->reschedule(simTime() + minUpdatedLifetime);
     return;
   }
-  
+
   //This case happens when routers continually update address prefixes so that
   //the timer must obviously be reset.
   unsigned int minValid = minValidLifetime();
@@ -900,7 +900,7 @@ void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
   {
     Dout(dc::address_timer|flush_cf, nodeName()<<" minValidLifetime="<<minValid<<"> remainingTime="
          << addrExpiryTmr->remainingTime()<<" Restarting timer");
-    
+
     assert(addrExpiryTmr->isScheduled());
     addrExpiryTmr->cancel();
     addrExpiryTmr->reschedule(simTime() + minValid);
@@ -923,11 +923,11 @@ void RoutingTable6::joinMulticastGroup(const ipv6_addr& addr)
   //Add value to destCache
   if (!addr.isMulticast())
   {
-    cerr<<" Why is multicast test failing in opt build "<<addr<<endl;    
+    cerr<<" Why is multicast test failing in opt build "<<addr<<endl;
   }
   assert(addr.isMulticast());
   multicastGroup.push_back(addr);
- 
+
 }
 
 void RoutingTable6::leaveMulticastGroup(const ipv6_addr& addr)
@@ -967,8 +967,8 @@ void RoutingTable6::leaveMulticastGroup(const ipv6_addr& addr)
 }
 
 void  RoutingTable6::setForwardPackets(bool forward)
-{ 
-  IPForward = true; 
+{
+  IPForward = true;
 }
 // ------------- RoutingTable6 Tests -------------- //
 
@@ -998,9 +998,9 @@ public:
   void setUp();
   void tearDown();
   void testLookupAddress();
-    
+
 private:
-  
+
   RoutingTable6* rt;
 
   // Unused ctor and assignment op.

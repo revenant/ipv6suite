@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherModule.h
-	@brief Header file for WirelessEtherModule
+    @file WirelessEtherModule.h
+    @brief Header file for WirelessEtherModule
 
     Simple implementation of wireless Ethernet module
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __WIRELESSETHERMODULE__
@@ -117,7 +117,7 @@ class WirelessEtherModule : public LinkLayerModule
   friend class WirelessEtherStateReceive;
   friend class WirelessEtherStateSend;
   friend class WirelessEtherStateIdle;
-  
+
 public:
   Module_Class_Members(WirelessEtherModule, LinkLayerModule, 0);
 
@@ -136,11 +136,11 @@ public:
   //virtual void setLayer2Trigger(cTimerMessage* trig);
   virtual void setLayer2Trigger( cTimerMessage* trig, enum TrigVals v=LinkUP);
 
-  //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }  
-  cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }  
+  //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }
+  cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }
 
   void setLayer2DelayRecorder( L2DelayTmr*  recorder ) {l2DelayRecorder = recorder;}
-   L2DelayTmr* getLayer2DelayRecorder(void){ return l2DelayRecorder; }  
+   L2DelayTmr* getLayer2DelayRecorder(void){ return l2DelayRecorder; }
 
   void setLayer2LinkDownRecorder( L2DelayTmr*  recorder ) {l2LinkDownRecorder = recorder;}
   L2DelayTmr* getLayer2LinkDownRecorder(void){ return l2LinkDownRecorder; }
@@ -154,7 +154,7 @@ public:
   double getPower(void) { return txpower; } // mW
   double getThreshPower(void) { return threshpower; } //mW
   double getHOThreshPower(void) { return hothreshpower; } //mW
-	
+
   bool isAP() { return apMode; }
 
   virtual void idleNetworkInterface(void);
@@ -164,13 +164,13 @@ public:
   const unsigned int* macAddress(void);
   std::string macAddressString(void);
 
-	std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
+    std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
   std::list<WESignalData*> outputBuffer;
   WESignalData* inputFrame;
 
   // list to store signal strength readings
   AveragingList *signalStrength;
-  
+
   // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
   virtual int outputQueueInGate() { return findGate("ipOutputQueueIn"); }
 
@@ -245,15 +245,15 @@ public:
   double wirelessRange() const
   {
     if (!_wirelessRange)
-    {  
+    {
       _wirelessRange = pow((double)10, (double)((-threshpower+(10*log10(txpower))-40)/(10*pLExp)));
     }
     return _wirelessRange;
   }
 
   void incNoOfRxFrames(void) { noOfRxFrames++; }
-  
-  void decNoOfRxFrames(void) 
+
+  void decNoOfRxFrames(void)
   {
     // noOfRxFrames is already 0, means that module has only received
     // the end of a frame (half of frame), in which case set inputFrame = 0
@@ -261,30 +261,30 @@ public:
     if(noOfRxFrames)
       noOfRxFrames--;
     else
-      inputFrame=0; 
+      inputFrame=0;
   }
 
   void resetNoOfRxFrames(void) { noOfRxFrames = 0; }
-  
+
   int getNoOfRxFrames(void) const { return noOfRxFrames; }
 
   void makeOfflineBufferAvailable(void);
 
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover) 
-	double calculateHOValue(double rxpower, double ap_avail_bw, double bw_req);
-#endif // L2FUZZYHO 
+#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
+    double calculateHOValue(double rxpower, double ap_avail_bw, double bw_req);
+#endif // L2FUZZYHO
 
 protected:
-  
+
   void baseInit(int stage);
-  
+
   class TimeAverageReading
-	{
-		public:
-			double sampleTotal;
-			double sampleTime;
-			double average;
-	};
+    {
+        public:
+            double sampleTotal;
+            double sampleTime;
+            double average;
+    };
 
   // ----------
   // general attributes
@@ -303,7 +303,7 @@ protected:
   double probeEnergyTimeout; // parsed from XML
   double probeResponseTimeout; // parsed from XML
   double authenticationTimeout; // parsed from XML
-  double associationTimeout; // parsed from XML  
+  double associationTimeout; // parsed from XML
   unsigned int maxRetry; // parsed from XML
   bool fastActScan; // parsed from XML
   bool scanShortCirc; // parsed from XML
@@ -323,7 +323,7 @@ protected:
 
   int noOfRxFrames; //used for collision detection
   std::string frameSource; // name of module its receiving a frame from
-  
+
   // ---------
   // specific implementation wise attributes
   // ---------
@@ -341,9 +341,9 @@ protected:
   typedef struct destInfo
   {
     WirelessEtherModule* mod; // module to send to
-    int index;                // node interface index 
-    int channel;              
-    double rxPower;       
+    int index;                // node interface index
+    int channel;
+    double rxPower;
   }
   DestInfo;
 
@@ -424,7 +424,7 @@ protected:
 
   mutable double _wirelessRange;
 
-private:  
+private:
 
   cOutVector* l2HODelay;
   simtime_t linkdownTime;
@@ -437,8 +437,8 @@ private:
     MACAddress address;
     int channel;
     double rxpower; // received power from AP
-    double hOValue;	// value to resolve handover decisions
-  	bool associated;
+    double hOValue;    // value to resolve handover decisions
+      bool associated;
 
     // parameters to help HO decision (not part of standard)
     double estAvailBW;
@@ -458,14 +458,14 @@ private:
     bool valid;
     APInfo target;
   } handoverTarget;
-  
+
   ReceiveMode receiveMode;
 
   // temporaroy access point list during the scan process
   AccessPointList tempAPList;
 
   bool *channelToScan;
-  
+
   // generate probe request
   WESignalData* generateProbeReq(void);
 
@@ -495,4 +495,4 @@ private:
 typedef std::list<WESignalData*>::iterator WIT;
 typedef std::list<cTimerMessage*>::iterator TIT;
 
-#endif // 
+#endif //

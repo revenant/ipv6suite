@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityHandler.cc,v 1.2 2005/02/10 01:15:48 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityHandler.cc,v 1.3 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -18,10 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-	@file MobilityHandler.cc
-	@brief Header file for MobilityHandler
+    @file MobilityHandler.cc
+    @brief Header file for MobilityHandler
 
-	Responsibilities:
+    Responsibilities:
         - mobility handling
 
   Initially implemented in PHYWirelessModule (now obsolete and

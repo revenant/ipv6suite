@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessAccessPoint.h
-	@brief Header file for WirelessAccessPoint
-	
+    @file WirelessAccessPoint.h
+    @brief Header file for WirelessAccessPoint
+
     simple implementation of wireless access point module
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #ifndef __WIRELESSACCESSPOINT__
@@ -36,21 +36,21 @@
 class WirelessEtherInterface
 {
   public:
-  
+
   // Needed to use ExpiryEntryList
   double expiryTime(void) const { return expire; }
   MACAddress identifier(void) { return address; }
-  
-  MACAddress address;  
-  
+
+  MACAddress address;
+
   ReceiveMode receiveMode;
 
-	// consecutive failed transmission (dropped frames)
-	int consecFailedTrans;
-  
-  // this is updated 
+    // consecutive failed transmission (dropped frames)
+    int consecFailedTrans;
+
+  // this is updated
   double expire;
-  
+
   // enumerations can be found in WirelessEtherFrameBody.msg
   ReasonCode reasonCode;
 
@@ -65,7 +65,7 @@ bool operator!=(const WirelessEtherInterface& lhs,
                 const WirelessEtherInterface& rhs);
 
 bool operator<(const WirelessEtherInterface& lhs,
-							 const WirelessEtherInterface& rhs);
+                             const WirelessEtherInterface& rhs);
 
 class WESignalData;
 class WirelessEtherBridge;
@@ -82,49 +82,49 @@ class WirelessAccessPoint : public WirelessEtherModule
   friend class WirelessEtherBridge;
   friend class WirelessEtherStateIdle;
   friend class WirelessEtherStateAwaitACK;
-  
+
 public:
   Module_Class_Members(WirelessAccessPoint, WirelessEtherModule, 0);
-  
+
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish(void);
   virtual int  numInitStages() const  {return 2;}
-  
+
   virtual void idleNetworkInterface(void);
-  
+
   // frames from bridge module
   virtual void receiveData(std::auto_ptr<cMessage> msg);
   virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
-  
+
   WirelessEtherInterface findIfaceByMAC(MACAddress mac);
   void updateConsecutiveFailedCount();
   double getEstAvailBW(void) { return estAvailBW; }
-  
-      
-  
+
+
+
 private:
   void addIface(MACAddress mac, ReceiveMode receiveMode);
   void setIfaceStatus(MACAddress mac, StatusCode);
   void sendBeacon(void);
-  
+
 private:
   ExpiryEntryList<WirelessEtherInterface> *ifaces;
-  
+
   int consecFailedTransLimit; //consecutive failed tranmission limit b4 entry is removed
   double beaconPeriod;
   double authWaitEntryTimeout;
   double authEntryTimeout;
   double assEntryTimeout;
-  WirelessEtherBridge* bridge;  
-  
+  WirelessEtherBridge* bridge;
+
   // Storing values for statistics
   virtual void updateStats(void);
   TimeAverageReading usedBW; // average stored in bytes/sec
   double estAvailBW; //Mbit/sec
 
   cOutVector *estAvailBWVec;
-    
+
 };
 
 #endif // __WIRELESSACCESSPOINT__

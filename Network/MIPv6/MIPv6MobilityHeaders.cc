@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6MobilityHeaders.cc
-	@brief MIPv6 Mobility Headers
+    @brief MIPv6 Mobility Headers
     @see draft-ietf-mobileip-ipv6-16.txt, section 5.1.2 to 5.1.8
-	@author Eric Wu
-	@date 4/4/2002
+    @author Eric Wu
+    @date 4/4/2002
 
     @todo Implement info functions (define info in terms of writeContents so
     that operator<< can use that too)
@@ -45,7 +45,7 @@ bool operator!=(const bit_64& lhs, const bit_64& rhs)
 {
   return !(lhs.high == rhs.high && lhs.low == rhs.low);
 }
-  
+
 const bit_64 UNSPECIFIED_BIT_64 = {0 ,0};
 
 // Binding Request
@@ -69,11 +69,11 @@ MIPv6MHBindingRequest& MIPv6MHBindingRequest::
 operator=(const MIPv6MHBindingRequest& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHBindingRequest::addMPar(MIPv6MHParameterBase* param)
@@ -111,12 +111,12 @@ MIPv6MHTestInit& MIPv6MHTestInit::
 operator=(const MIPv6MHTestInit& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
     cookie = rhs.cookie;
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHTestInit::addMPar(MIPv6MHParameterBase* param)
@@ -157,14 +157,14 @@ MIPv6MHTest& MIPv6MHTest::
 operator=(const MIPv6MHTest& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
     _hni = rhs.homeNI();
     cookie = rhs.cookie;
     token = rhs.token;
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHTest::addMPar(MIPv6MHParameterBase* param)
@@ -178,9 +178,9 @@ void MIPv6MHTest::info(char* buf)
 
 // Binding Update
 
-MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg, 
+MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg,
                                            bool saonly, bool dad,
-                                           unsigned int seq, 
+                                           unsigned int seq,
                                            unsigned int expires,
                                            const ipv6_addr& ha
 #ifdef USE_HMIP
@@ -210,7 +210,7 @@ MIPv6MHBindingUpdate& MIPv6MHBindingUpdate::
 operator=(const MIPv6MHBindingUpdate& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
     _ack = rhs.ack();
     _homereg = rhs.homereg();
@@ -224,8 +224,8 @@ operator=(const MIPv6MHBindingUpdate& rhs)
 #endif //USE_HMIP
     _senderMod = rhs._senderMod;
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHBindingUpdate::addMPar(MIPv6MHParameterBase* param)
@@ -244,7 +244,7 @@ void MIPv6MHBindingUpdate::info(char* buf)
 
 MIPv6MHBindingAcknowledgement::
 MIPv6MHBindingAcknowledgement(const BAStatus status,
-                              const unsigned int seq, 
+                              const unsigned int seq,
                               const unsigned int expires,
                               const unsigned int refresh)
   : MIPv6MobilityHeaderBase(MIPv6MHT_BA, 14),
@@ -268,15 +268,15 @@ MIPv6MHBindingAcknowledgement& MIPv6MHBindingAcknowledgement::
 operator=(const MIPv6MHBindingAcknowledgement& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
     _status = rhs._status;
     _seq = rhs.sequence();
     _expires = rhs.lifetime();
     _refresh = rhs.refresh();
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHBindingAcknowledgement::addMPar(MIPv6MHParameterBase* param)
@@ -311,12 +311,12 @@ MIPv6MHBindingMissing& MIPv6MHBindingMissing::
 operator=(const MIPv6MHBindingMissing& rhs)
 {
   if (this != &rhs)
-  {    
+  {
     MIPv6MobilityHeaderBase::operator=(rhs);
     _ha = rhs.ha();
   }
-  
-  return *this;   
+
+  return *this;
 }
 
 bool MIPv6MHBindingMissing::addMPar(MIPv6MHParameterBase* param)
@@ -327,5 +327,5 @@ bool MIPv6MHBindingMissing::addMPar(MIPv6MHParameterBase* param)
 
 void MIPv6MHBindingMissing::info(char* buf)
 {}
- 
+
 } // end namespace MobileIPv6

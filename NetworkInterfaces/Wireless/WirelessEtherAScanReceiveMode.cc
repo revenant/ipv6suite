@@ -18,8 +18,8 @@
 /*
   @file WirelessEtherAScanReceiveMode.cc
   @brief Source file for WEAScanReceiveMode
-    
-  @author	Steve Woon
+
+  @author    Steve Woon
   Eric Wu
 */
 
@@ -48,26 +48,26 @@ WEAScanReceiveMode* WEAScanReceiveMode::instance()
 {
   if (_instance == 0)
     _instance = new WEAScanReceiveMode;
-  
+
   return _instance;
 }
 
 void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
 {
   WirelessEtherManagementFrame* probeResponse =
-  	static_cast<WirelessEtherManagementFrame*>(signal->data());
-	
+      static_cast<WirelessEtherManagementFrame*>(signal->data());
+
   if (probeResponse->getAddress1() == MACAddress(mod->macAddressString().c_str()))
   {
-  	ProbeResponseFrameBody* probeResponseBody =
+      ProbeResponseFrameBody* probeResponseBody =
       static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
-	
+
     assert(probeResponseBody);
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover) 
+#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
     double avail_bw = (probeResponseBody->getHandoverParameters()).estAvailBW;
     double value = mod->calculateHOValue(signal->power(),avail_bw,mod->bWRequirements);
-    
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
          << mod->fullPath() << "\n"
          << " ----------------------------------------------- \n"
          << " Probe Response received by: " << mod->macAddressString() << "\n"
@@ -78,8 +78,8 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
          << " bw req: "<< mod->bWRequirements << "\n"
          << " hoValue: " << value << "\n"
          << " ----------------------------------------------- \n");
-#else 
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " 
+#else
+    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
          << mod->fullPath() << "\n"
          << " ----------------------------------------------- \n"
          << " Probe Response received by: " << mod->macAddressString() << "\n"
@@ -88,24 +88,24 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
          << " channel: " << probeResponseBody->getDSChannel() << "\n"
          << " rxpower: " << signal->power() << "\n"
          << " ----------------------------------------------- \n");
-#endif // L2FUZZYHO 
+#endif // L2FUZZYHO
     for ( size_t i = 0; i < probeResponseBody->getSupportedRatesArraySize(); i++ )
       Dout(dc::wireless_ethernet|flush_cf,
            " Supported Rates: \n "
-           << " [" << i << "] \t rate: " 
+           << " [" << i << "] \t rate: "
            << probeResponseBody->getSupportedRates(i).rate << " \n"
-           << " \t supported?" << probeResponseBody->getSupportedRates(i).supported 
-           << "\n");    
+           << " \t supported?" << probeResponseBody->getSupportedRates(i).supported
+           << "\n");
 
-  	WirelessEtherModule::APInfo apInfo = 
-      { 
-  		probeResponse->getAddress2(),
-    	probeResponseBody->getDSChannel(),
-    	signal->power(),
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover) 
-			value,
+      WirelessEtherModule::APInfo apInfo =
+      {
+          probeResponse->getAddress2(),
+        probeResponseBody->getDSChannel(),
+        signal->power(),
+#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
+            value,
 #else
-			0,
+            0,
 #endif // L2FUZZYHO
         false,
         (probeResponseBody->getHandoverParameters()).estAvailBW,
@@ -113,7 +113,7 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
         (probeResponseBody->getHandoverParameters()).avgBackoffTime,
         (probeResponseBody->getHandoverParameters()).avgWaitTime
       };
-  	mod->insertToAPList(apInfo);
+      mod->insertToAPList(apInfo);
 
     // send ACK
     WirelessEtherBasicFrame* ack = mod->

@@ -16,11 +16,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherAssociationReceiveMode.h
-	@brief Header file for WEAssociationReceiveMode
-    
+    @file WirelessEtherAssociationReceiveMode.h
+    @brief Header file for WEAssociationReceiveMode
 
-	@author	Steve Woon
+
+    @author    Steve Woon
           Eric Wu
 */
 
@@ -34,18 +34,18 @@ class WirelessEtherModule;
 
 class WEAssociationReceiveMode : public WEReceiveMode
 {
-	public:
-		virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleDeAuthentication(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleAssociationResponse(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleReAssociationResponse(WirelessEtherModule* mod, WESignalData* signal);
-		virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
-		
-		static WEAssociationReceiveMode* instance();
+    public:
+        virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleDeAuthentication(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleAssociationResponse(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleReAssociationResponse(WirelessEtherModule* mod, WESignalData* signal);
+        virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
 
-	protected:
-		static WEAssociationReceiveMode* _instance;
-		WEAssociationReceiveMode(void) {}
+        static WEAssociationReceiveMode* instance();
+
+    protected:
+        static WEAssociationReceiveMode* _instance;
+        WEAssociationReceiveMode(void) {}
 };
 
 #endif // __WIRELESS_ETHER_ASSOCIATION_RECEIVE_MODE_H__

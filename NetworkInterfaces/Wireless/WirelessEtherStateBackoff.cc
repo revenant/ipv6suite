@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateBackoff.cc
-	@brief Header file for WirelessEtherStateBackoff
-    
+    @file WirelessEtherStateBackoff.cc
+    @brief Header file for WirelessEtherStateBackoff
+
     Super class of wireless Ethernet State
 
-	@author Greg Daley
+    @author Greg Daley
             Eric Wu
 */
 
@@ -50,7 +50,7 @@ WirelessEtherStateBackoff* WirelessEtherStateBackoff::instance()
 {
   if (_instance == 0)
     _instance = new WirelessEtherStateBackoff;
-  
+
   return _instance;
 }
 
@@ -131,7 +131,7 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
 
   double d = (double)data->data()->length()*8;
   simtime_t transmTime = d / BASE_SPEED;
-  
+
 
   // GD Hack: assume not (toDS=1, FromDS=1).
 
@@ -148,11 +148,11 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << data->data()->getAddress1() 
+       << " sending a frame to : " << data->data()->getAddress1()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }
-   
+
   OPP_Global::ContextSwitcher switchContext(mod);
 
   cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_SENDDATA);
@@ -163,16 +163,16 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
 
     a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
       (TRANSMIT_SENDDATA, mod, static_cast<WirelessEtherStateSend*>
-       (mod->currentState()), &WirelessEtherStateSend::endSendingData, 
+       (mod->currentState()), &WirelessEtherStateSend::endSendingData,
        "endSendingData");
-        
+
     Loki::Field<0> (a->args) = mod;
-    
+
     mod->addTmrMessage(a);
     tmrMessage = a;
   }
 
   mod->backoffTime = 0;
-  
+
   tmrMessage->reschedule(mod->simTime() +  transmTime);
 }

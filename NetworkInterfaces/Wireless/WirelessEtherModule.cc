@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherModule.cc
-	@brief Definition file for WirelessEtherModule
+    @file WirelessEtherModule.cc
+    @brief Definition file for WirelessEtherModule
 
-	simple implementation of wireless Ethernet module
+    simple implementation of wireless Ethernet module
 
-	@author Eric Wu
+    @author Eric Wu
 */
 
 #include "sys.h"
@@ -266,7 +266,7 @@ void WirelessEtherModule::initialize(int stage)
          << " TXPOWER: " << txpower << "mW\n"
          << " THRESHOLDPOWER: " << threshpower << "dBm\n"
          << " HOTHRESHOLDPOWER: " << hothreshpower << "dBm\n"
-         <<	" PROBEENERGY_TIMEOUT: " << probeEnergyTimeout << "\n"
+         <<    " PROBEENERGY_TIMEOUT: " << probeEnergyTimeout << "\n"
          << " PROBERESPONSE_TIMEOUT: " << probeResponseTimeout << "\n"
          << " AUTHENTICATION_TIMEOUT: " << authenticationTimeout << " (TU)\n"
          << " ASSOCIATION_TIMEOUT: " << associationTimeout << " (TU)\n"
@@ -346,25 +346,25 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   frame->encapsulate(dupMsg);
   frame->setName(dupMsg->name());
 
- 	// relying on internal buffer, therefore need to get data from external
-	// outputQueue into it quickly.
-	idleNetworkInterface();
+  // relying on internal buffer, therefore need to get data from external
+  // outputQueue into it quickly.
+  idleNetworkInterface();
 
- 	if(associateAP.associated)
-	{
-  	WESignalData* a = new WESignalData(frame);
-    a->setName(frame->name());
-  	outputBuffer.push_back(a);
-  	delete frame;
+  if(associateAP.associated)
+    {
+      WESignalData* a = new WESignalData(frame);
+      a->setName(frame->name());
+      outputBuffer.push_back(a);
+      delete frame;
 
-  	if ( _currentState == WirelessEtherStateIdle::instance())
-    	static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
-	}
-	else
-		// Note that since no association with an AP exists in DataReceiveMode,
-    // there will be no address for the AP destination. Hence, this should
-    // be filled in before sending.  It should be added in address1.
-		offlineOutputBuffer.push_back(frame);
+      if ( _currentState == WirelessEtherStateIdle::instance())
+        static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
+      }
+    else
+      // Note that since no association with an AP exists in DataReceiveMode,
+      // there will be no address for the AP destination. Hence, this should
+      // be filled in before sending.  It should be added in address1.
+      offlineOutputBuffer.push_back(frame);
 }
 
 void WirelessEtherModule::handleMessage(cMessage* msg)
@@ -568,7 +568,7 @@ void WirelessEtherModule::sendEndOfFrame()
 
 void WirelessEtherModule::idleNetworkInterface(void)
 {
-	cMessage *nwiIdleMsg = new cMessage();
+  cMessage *nwiIdleMsg = new cMessage();
   nwiIdleMsg->setKind(NWI_IDLE);
   send(nwiIdleMsg, outputQueueOutGate());
 }
@@ -1421,12 +1421,12 @@ createFrame(FrameType frameType, SubType subType,
 
       frameControl.protocolVer = 0;
       frameControl.type = FT_DATA;
-      frameControl.subtype = ST_DATA;	//since of data type
+      frameControl.subtype = ST_DATA;    //since of data type
 
       if(apMode == true)
       {
-      	frameControl.toDS = false;
-      	frameControl.fromDS = true;
+        frameControl.toDS = false;
+        frameControl.fromDS = true;
         static_cast<WirelessEtherDataFrame*>(frame)->setAddress1(destination);
         static_cast<WirelessEtherDataFrame*>(frame)->setAddress2(address);
         static_cast<WirelessEtherDataFrame*>(frame)->setAddress3(source);
@@ -1621,7 +1621,7 @@ void WirelessEtherModule::insertToAPList(APInfo newEntry)
       if ( (it->address == newEntry.address)&&(it->channel == newEntry.channel) )
       {
         it->rxpower = newEntry.rxpower;
-				it->hOValue = newEntry.hOValue;
+        it->hOValue = newEntry.hOValue;
         return;
       }
     }
@@ -1679,19 +1679,19 @@ void WirelessEtherModule::updateStats(void)
 #if L2FUZZYHO // (Layer 2 fuzzy logic handover)
 double WirelessEtherModule::calculateHOValue(double rxpower, double ap_avail_bw, double bw_req)
 {
-	double n_rxpower, n_ap_avail_bw, n_bw_req;
-	double value;
-	hodec fuzSys;
+    double n_rxpower, n_ap_avail_bw, n_bw_req;
+    double value;
+    hodec fuzSys;
 
-	n_rxpower = (rxpower - hothreshpower)/(-10 - hothreshpower); //assuming -10 is highest power in dB
-	n_ap_avail_bw = (ap_avail_bw/11); //assuming max avail bw is 11Mb/s
-	n_bw_req = bw_req;
+    n_rxpower = (rxpower - hothreshpower)/(-10 - hothreshpower); //assuming -10 is highest power in dB
+    n_ap_avail_bw = (ap_avail_bw/11); //assuming max avail bw is 11Mb/s
+    n_bw_req = bw_req;
 
-	if(n_rxpower < 0)
-		n_rxpower = 0;
-	fuzSys.inference(n_bw_req,n_rxpower,n_ap_avail_bw,&value);
+    if(n_rxpower < 0)
+        n_rxpower = 0;
+    fuzSys.inference(n_bw_req,n_rxpower,n_ap_avail_bw,&value);
 
-	return value;
+    return value;
 }
 #endif // L2FUZZYHO
 

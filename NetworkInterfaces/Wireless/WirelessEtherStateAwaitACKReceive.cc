@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateAwaitACKReceive.cc
-	@brief Header file for WirelessEtherStateAwaitACKReceive
-    
+    @file WirelessEtherStateAwaitACKReceive.cc
+    @brief Header file for WirelessEtherStateAwaitACKReceive
+
     Super class of wireless Ethernet State
 
-	@author Steve Woon
+    @author Steve Woon
 */
 
 #include "sys.h"
@@ -46,7 +46,7 @@ WirelessEtherStateAwaitACKReceive* WirelessEtherStateAwaitACKReceive::instance()
 {
   if (_instance == 0)
     _instance = new WirelessEtherStateAwaitACKReceive;
-  
+
   return _instance;
 }
 
@@ -58,7 +58,7 @@ std::auto_ptr<cMessage> WirelessEtherStateAwaitACKReceive::processSignal(Wireles
 std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
 {
   mod->decNoOfRxFrames();
-  
+
   // If there is no input Frame, means collision has occured
   if ( mod->inputFrame )
   {
@@ -80,7 +80,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
       else
       {
         Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": frame received is not an ACK");
-      
+
         cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
         // Stop the ACK timeout and start retransmission now
         if ( awaitAckTmr->isScheduled())
@@ -96,7 +96,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": (idle non matching) collision detected in ACK");
 
       cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
-    
+
       // Stop the ACK timeout
       if ( awaitAckTmr->isScheduled())
       {
@@ -109,9 +109,9 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
   else
   {
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": collision detected in ACK");
-      
+
     cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
-    
+
     // Stop the ACK timeout
     if ( awaitAckTmr->isScheduled())
     {

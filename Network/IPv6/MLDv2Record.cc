@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Record.cc,v 1.1 2005/02/09 06:15:58 andras Exp $ 
-// Copyright (C) 2001, 2002 CTIE, Monash University 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Record.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
+// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,8 +45,8 @@
 #include "cTimerMessageCB.h"
 #include "IPv6CDS.h"
 
-//#define	DEBUG_MSG
- 
+//#define    DEBUG_MSG
+
 // MLDv2Recored.cc
 MLDv2Record::MLDv2Record()
 {
@@ -58,7 +58,7 @@ short int MLDv2Record::NMAR()
 {
   return(_NMAR);
 }
- 
+
 MARecord_t* MLDv2Record::MAR()
 {
   return(_MAR);
@@ -93,7 +93,7 @@ MARecord_t* MLDv2Record::searchMAR(ipv6_addr MA)
 bool MLDv2Record::addMA(ipv6_addr MA, char type)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
-  
+
   if(ptrMAR==NULL)
   { // there is no such record before, create a new one.
     MARecord_t* tempMAR = new MARecord_t;
@@ -150,7 +150,9 @@ bool MLDv2Record::delMA(ipv6_addr MA)
         return(false);
       }
       else if(ptrMAR->Next->MA==MA)
-      {	// 2: Normal Hit
+      {
+        // 2: Normal Hit
+
         tempMAR = ptrMAR->Next;
         ptrMAR->Next = tempMAR->Next;
         destroySAL(tempMAR,IS_IN);
@@ -177,7 +179,7 @@ bool MLDv2Record::delMA(ipv6_addr MA)
 bool MLDv2Record::setMAtype(ipv6_addr MA, char type)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
-  
+
   if(ptrMAR==NULL)
   { // no such record
 //    cout << "[MLDv2]setMAtype(" << ipv6_addr_toString(MA) << "), no match!" << endl;
@@ -210,7 +212,7 @@ void MLDv2Record::destroyMAL()
 SARecord_t* MLDv2Record::searchSA(ipv6_addr MA, ipv6_addr SA, char type)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
-  
+
   if(ptrMAR==NULL)
   { // no such record
     return(NULL);
@@ -243,7 +245,7 @@ SARecord_t* MLDv2Record::searchSA(ipv6_addr MA, ipv6_addr SA, char type)
 bool MLDv2Record::addSA(ipv6_addr MA, ipv6_addr SA, char type)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
-  
+
   if(ptrMAR==NULL)
   { // no such record
 #ifdef DEBUG_MSG
@@ -254,7 +256,7 @@ bool MLDv2Record::addSA(ipv6_addr MA, ipv6_addr SA, char type)
   else
   {
     SARecord_t* ptrSA=searchSA(MA,SA,type);
-    
+
     if(ptrSA==NULL)
     { // there is no such record before, create a new one.
       SARecord_t* tempSA = new SARecord_t;
@@ -300,7 +302,7 @@ bool MLDv2Record::addSA(ipv6_addr MA, ipv6_addr SA, char type)
 bool MLDv2Record::delSA(ipv6_addr MA, ipv6_addr SA, char type)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
-  
+
   if(ptrMAR==NULL)
   { // no such record
 #ifdef DEBUG_MSG
@@ -312,7 +314,7 @@ bool MLDv2Record::delSA(ipv6_addr MA, ipv6_addr SA, char type)
   {
     SARecord_t* tempSA=NULL;
     SARecord_t* ptrSA=NULL;
-    
+
     if(type==IS_IN)
       ptrSA = ptrMAR->inSAL;
     else if(type==IS_EX)
@@ -364,7 +366,9 @@ bool MLDv2Record::delSA(ipv6_addr MA, ipv6_addr SA, char type)
           return(false);
         }
         else if(ptrSA->Next->SA==SA)
-        {	// 2: Normal Hit
+        {
+          // 2: Normal Hit
+
           tempSA = ptrSA->Next;
           ptrSA->Next = tempSA->Next;
           delete tempSA;
@@ -440,9 +444,9 @@ void MLDv2Record::dumpMAL()
 
   while(ptrMAR)
   {
-    cout << "Multicast Address:" << ptrMAR->MA << endl;		// Multicast Address
-    cout << "Number of inSource:" << ptrMAR->inNS << endl;		// Number of Sources
-    cout << "Number of exSource:" << ptrMAR->exNS << endl;		// Number of Sources
+    cout << "Multicast Address:" << ptrMAR->MA << endl;        // Multicast Address
+    cout << "Number of inSource:" << ptrMAR->inNS << endl;        // Number of Sources
+    cout << "Number of exSource:" << ptrMAR->exNS << endl;        // Number of Sources
     ptrMAR = ptrMAR->Next;
   }
   cout << "[MLDv2]dumpMAL()===>over" << endl;
@@ -459,12 +463,12 @@ void MLDv2Record::dumpMAR(ipv6_addr MA)
   }
   else
   {
-    cout << "type:" << ptrMAR->type << endl;			// Record Type
-    cout << "AuxDataLen:" << ptrMAR->AuxDataLen << endl;		// Auxiliary Data Length.
-    cout << "Number of Source:" << ptrMAR->NS << endl;		// Number of Sources
-    cout << "Multicast Address:" << ptrMAR->MA << endl;		// Multicast Address
-    cout << "Source Address List:" << ptrMAR->inSAL << endl;	// Source Address List
-    cout << "Auxiliary:" << ptrMAR->Auxiliary << endl;		// Implementations of MLDv2 MUST NOT include any auxiliary data (i.e., MUST set the Aux DATA LEN field to zero) in any transmitted Multicast Address Record, and MUST ignore any such data present in any received Multicast Address Record.
+    cout << "type:" << ptrMAR->type << endl;            // Record Type
+    cout << "AuxDataLen:" << ptrMAR->AuxDataLen << endl;        // Auxiliary Data Length.
+    cout << "Number of Source:" << ptrMAR->NS << endl;        // Number of Sources
+    cout << "Multicast Address:" << ptrMAR->MA << endl;        // Multicast Address
+    cout << "Source Address List:" << ptrMAR->inSAL << endl;    // Source Address List
+    cout << "Auxiliary:" << ptrMAR->Auxiliary << endl;        // Implementations of MLDv2 MUST NOT include any auxiliary data (i.e., MUST set the Aux DATA LEN field to zero) in any transmitted Multicast Address Record, and MUST ignore any such data present in any received Multicast Address Record.
     cout << "FilterTimer:" << ptrMAR->FilterTimer << endl;
     cout << "Next:" << ptrMAR->Next << endl;
   }
@@ -474,23 +478,23 @@ void MLDv2Record::dumpSAL(ipv6_addr MA)
 {
   MARecord_t* ptrMAR=searchMAR(MA);
   SARecord_t* ptrSAR=ptrMAR->inSAL;
-  
+
   cout << "===== [MLDv2]dumpSAL() =====" << endl;
-  cout << "MA:" << ipv6_addr_toString(MA) << endl;		// Source Address
+  cout << "MA:" << ipv6_addr_toString(MA) << endl;        // Source Address
   cout << "inSAL=>" << endl;
-  
+
   while(ptrSAR)
   {
-    cout << "SA:" << ipv6_addr_toString(ptrSAR->SA) << endl;		// Source Address
+    cout << "SA:" << ipv6_addr_toString(ptrSAR->SA) << endl;        // Source Address
     ptrSAR = ptrSAR->Next;
   }
-  
+
   ptrSAR=ptrMAR->exSAL;
   cout << "exSAL=>" << endl;
-  
+
   while(ptrSAR)
   {
-    cout << "SA:" << ipv6_addr_toString(ptrSAR->SA) << endl;		// Source Address
+    cout << "SA:" << ipv6_addr_toString(ptrSAR->SA) << endl;        // Source Address
     ptrSAR = ptrSAR->Next;
   }
 }
@@ -498,7 +502,7 @@ void MLDv2Record::dumpSAL(ipv6_addr MA)
 void MLDv2Record::dumpSAR(ipv6_addr MA, ipv6_addr SA, char type)
 {
   SARecord_t* ptrSAR=searchSA(MA,SA,type);
-  
+
   cout << "===== [MLDv2]dumpSAR(" << ipv6_addr_toString(MA) << ipv6_addr_toString(SA) << ","") =====" << endl;
   if(ptrSAR==NULL)
   {
@@ -506,7 +510,7 @@ void MLDv2Record::dumpSAR(ipv6_addr MA, ipv6_addr SA, char type)
   }
   else
   {
-    cout << "Source Address:" << ptrSAR->SA << endl;		// Source Address
+    cout << "Source Address:" << ptrSAR->SA << endl;        // Source Address
     cout << "SourceTimer:" << ptrSAR->SourceTimer << endl;
     cout << "Next:" << ptrSAR->Next << endl;
   }
@@ -525,7 +529,7 @@ int MLDv2Record::sizeofMAR(MARecord_t* ptrMAR, char type)
     ptrMAR->inSize = 20+ptrMAR->AuxDataLen+(ptrMAR->inNS*sizeof(ipv6_addr));
     ptrMAR->exSize = 20+ptrMAR->AuxDataLen+(ptrMAR->exNS*sizeof(ipv6_addr));
   }
-  
+
   if(ptrMAR->type==IS_IN)
     return ptrMAR->inSize;
   else if(ptrMAR->type==IS_EX)
@@ -536,7 +540,7 @@ int MLDv2Record::sizeofMAL()
 {
   MARecord_t* ptrMAR=_MAR;
   int SumSize=0;
-  
+
   while(ptrMAR)
   {
     if(ptrMAR->type==IS_IN)
@@ -556,6 +560,6 @@ int MLDv2Record::sizeofMAL()
     }
     ptrMAR = ptrMAR->Next;
   }
-  
+
   return SumSize;
 }

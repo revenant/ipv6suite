@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.2 2005/02/10 05:43:47 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/LocalDeliver6Core.cc,v 1.3 2005/02/10 06:26:20 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -22,20 +22,20 @@
    @brief Implementation for Simple Module LocalDeliverCore
 
    Responsibilities:
-		strip off IP header
+        strip off IP header
         Process Destination Options
         Forward to IPv6Encapsulation module if decapsulated payload is another datagram.
-		buffer fragments for ip_fragmenttime
-		wait until all fragments of one fragment number are received
-		discard without notification if not all fragments arrive in
-		ip_fragmenttime
-		Defragment once all fragments have arrived
-		send Transport packet up to the transport layer
-		send ICMP packet to ICMP module
-		send IGMP group management packet to Multicast module
+        buffer fragments for ip_fragmenttime
+        wait until all fragments of one fragment number are received
+        discard without notification if not all fragments arrive in
+        ip_fragmenttime
+        Defragment once all fragments have arrived
+        send Transport packet up to the transport layer
+        send ICMP packet to ICMP module
+        send IGMP group management packet to Multicast module
    Notation:
-		TCP-Packets --> transportOut[0]
-		UDP-Packets --> transportOut[1]
+        TCP-Packets --> transportOut[0]
+        UDP-Packets --> transportOut[1]
    Based on LocalDeliverCore by Jochen Reber
    @author Johnny Lai
 
@@ -322,7 +322,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
 
 //end processHeader
 
-	//Give ICMP the direct packet as it will need all the gory details
+    //Give ICMP the direct packet as it will need all the gory details
     if (datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
     {
       send(datagram, "ICMPOut");
@@ -348,7 +348,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
 }
 
 /*  ----------------------------------------------------------
-		Private functions
+        Private functions
     ----------------------------------------------------------  */
 
 IPv6InterfacePacket *LocalDeliver6Core::setInterfacePacket
@@ -368,7 +368,7 @@ IPv6InterfacePacket *LocalDeliver6Core::setInterfacePacket
 }
 
 /*  ----------------------------------------------------------
-		Private functions: Fragmentation Buffer management
+        Private functions: Fragmentation Buffer management
     ----------------------------------------------------------  */
 
 // erase those fragments from the buffer that have timed out
@@ -410,17 +410,17 @@ void LocalDeliver6Core::insertInFragmentBuf(IPv6Datagram *d)
   }
   } // end for
 
-	// if no free place found, increase Buffersize to append entry
-	if (i == fragmentBufSize)
+    // if no free place found, increase Buffersize to append entry
+    if (i == fragmentBufSize)
     fragmentBufSize++;
 
-	e = &fragmentBuf[i];
-	e->isFree = false;
-	e->fragmentId = d->fragmentId();
-	e->fragmentOffset = d->fragmentOffset();
-	e->moreFragments = d->moreFragments();
-	e->length = d->totalLength() - d->headerLength();
-	e->timeout= simTime() + fragmentTimeoutTime;
+    e = &fragmentBuf[i];
+    e->isFree = false;
+    e->fragmentId = d->fragmentId();
+    e->fragmentOffset = d->fragmentOffset();
+    e->moreFragments = d->moreFragments();
+    e->length = d->totalLength() - d->headerLength();
+    e->timeout= simTime() + fragmentTimeoutTime;
 */
 }
 

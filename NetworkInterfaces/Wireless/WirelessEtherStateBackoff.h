@@ -16,12 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
-	@file WirelessEtherStateBackoff.h
-	@brief Header file for WirelessEtherStateBackoff
-    
+    @file WirelessEtherStateBackoff.h
+    @brief Header file for WirelessEtherStateBackoff
+
     Super class of wireless Ethernet State
 
-	@author Eric Wu
+    @author Eric Wu
             Steve Woon
             Greg Daley
 */
@@ -48,14 +48,14 @@ class WESignalData;
 class WirelessEtherStateBackoff : public WirelessEtherState
 {
   friend class WirelessEtherStateIdle;
-  
+
 public:
   static WirelessEtherStateBackoff* instance();
-  
+
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:
-  WirelessEtherStateBackoff(void) {} 
+  WirelessEtherStateBackoff(void) {}
 
   virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
   virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);

@@ -129,6 +129,8 @@ void IPv6OutputCore::endService(cMessage* msg)
 
   bool directionOut = true;
   IPv6Utils::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
+
+  send(datagram, "queueOut");
 }
 
 void IPv6OutputCore::finish()

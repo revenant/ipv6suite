@@ -56,13 +56,6 @@ module IPv6Processing
         prerouting_delay : numeric,
         routing_delay : numeric const,
 
-        // hook names
-        preRoutingHookName : string,
-        routingHookName : string,
-        localDeliverHookName : string,
-        ipSendHookName : string,
-        ipOutputHookName : string,
-
         // other parameters
         multicastTimeToLive : numeric,
         numOfPorts : numeric,

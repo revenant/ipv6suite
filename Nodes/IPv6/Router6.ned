@@ -53,13 +53,6 @@ module Router6
         //routing_delay = 1 us,
         //inputqueue_delay = 0,
 
-                // hook names
-                preRoutingHookName = "NF_IP_PRE_ROUTING",
-                routingHookName = "NF_IP_FORWARD",
-                localDeliverHookName = "NF_IP_LOCAL_IN",
-                ipSendHookName = "NF_IP_LOCAL_OUT",
-                ipOutputHookName = "NF_IP_POST_ROUTING",
-
                 // other network parameters
                 //                routingFile = routingFile,
                 IPForward = true,
@@ -77,7 +70,7 @@ module Router6
                 dequeueHookName = "L2_DequeueHook",
                 enqueue_delay = 0,
                 dequeue_delay = 0;
-            display: "p=120,212;i=prot3";
+            display: "p=120,212,r;i=prot3";
         phyLayer: PHYLayer;
             gatesizes:
                 in[sizeof(in)],

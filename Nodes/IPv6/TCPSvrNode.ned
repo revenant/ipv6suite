@@ -68,13 +68,6 @@ module TCPSvrNode
                 routing_delay = 1 us,
                 inputqueue_delay = 0,
 
-                // hook names
-                preRoutingHookName = "NF_IP_PRE_ROUTING",
-                routingHookName = "NF_IP_FORWARD",
-                localDeliverHookName = "NF_IP_LOCAL_IN",
-                ipSendHookName = "NF_IP_LOCAL_OUT",
-                ipOutputHookName = "NF_IP_POST_ROUTING",
-
                 // other network parameters
                 //                routingFile = routingFile,
                 IPForward = ancestor IPForward,

@@ -43,13 +43,6 @@ module NetworkLayer6
         routing_delay : numeric,
         inputqueue_delay : numeric,
 
-        // hook Names
-        preRoutingHookName : string,
-        routingHookName : string,
-        localDeliverHookName : string,
-        ipSendHookName : string,
-        ipOutputHookName : string,
-
         // other network parameters
         //# routingFile : string,
         IPForward : bool,
@@ -78,13 +71,6 @@ module NetworkLayer6
                 localdeliver_delay = localdeliver_delay,
                 prerouting_delay = prerouting_delay,
                 routing_delay = routing_delay,
-
-                // hook names
-                preRoutingHookName = preRoutingHookName,
-                routingHookName = routingHookName,
-                localDeliverHookName = localDeliverHookName,
-                ipSendHookName = ipSendHookName,
-                ipOutputHookName = ipOutputHookName,
 
                 // other parameters
                 // IPForward = IPForward,

@@ -67,32 +67,32 @@ module MIPv6NetworkSimulMove
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=135,160;i=switch1_s;b=32,32";
+            display: "p=135,160;i=switch1_s";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,158;i=switch1_s;b=32,32";
+            display: "p=306,158;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=300,340;i=switch1_s;b=32,11";
+            display: "p=300,340;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=142,338;i=switch1_s;b=32,11";
+            display: "p=142,338;i=switch1_s";
         router2: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=248,292;i=router;b=32,32";
+            display: "p=248,292;i=router";
         ha2: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=92,296;i=router;b=32,32";
+            display: "p=92,296;i=router";
         ewu: UDPNode;
             parameters:
                 IPForward = false;

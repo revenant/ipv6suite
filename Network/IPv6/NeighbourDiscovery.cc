@@ -109,8 +109,10 @@ void NeighbourDiscovery::handleMessage(cMessage* theMsg)
 
 void NeighbourDiscovery::finish()
 {
+  // XXX cleanup stuff must be moved to dtor!
   delete nd;
   nd = 0;
+
   recordScalar("Icmp6OutRtrSol", ctrIcmp6OutRtrSol);
   recordScalar("Icmp6OutRtrAdv", ctrIcmp6OutRtrAdv);
   recordScalar("Icmp6OutRedirect", ctrIcmp6OutRedirect);

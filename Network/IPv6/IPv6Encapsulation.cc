@@ -358,6 +358,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
 
 void IPv6Encapsulation::finish()
 {
+  // cleanup stuff must be moved to dtor! --AV
   delete mipv6CheckTunnelCB;
   mipv6CheckTunnelCB = 0;
 }

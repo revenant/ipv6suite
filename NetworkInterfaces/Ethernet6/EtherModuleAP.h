@@ -44,9 +44,9 @@ class EtherModuleAP : public EtherModule
 
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
-  virtual void finish(void);
+  virtual void finish();
 
-  virtual int numInitStages(void) const { return 2; }
+  virtual int numInitStages() const { return 2; }
 
   // frames from bridge module
   virtual bool receiveData(std::auto_ptr<cMessage> msg);

@@ -344,6 +344,7 @@ void ICMPv6Core::finish()
 
     stat->recordScalar("ping stream eed");
 
+    // XXX cleanup stuff must be moved to dtor! --AV
     delete stat;
     stat = 0;
   }

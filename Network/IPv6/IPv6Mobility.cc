@@ -155,6 +155,10 @@ void IPv6Mobility::initialize(int stage)
 
 void IPv6Mobility::finish()
 {
+  // XXX cleanup stuff must be moved to dtor!
+  // finish() is NOT for cleanup -- that must be done in destructor, and
+  // additionally, ptrs must be NULL'ed in constructor so that it won't crash
+  // if initialize() hasn't run because of an error during startup! --AV
 #ifdef USE_MOBILITY
   if (periodTmr && !periodTmr->isScheduled())
     delete periodTmr;

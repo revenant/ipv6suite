@@ -569,8 +569,10 @@ void MLD::sendDone(const ipv6_addr& addr)
 
 void MLD::finish()
 {
+  // XXX cleanup stuff must be moved to dtor!
   delete LStable;
   LStable = 0;
+
   recordScalar("MLDReport", reportCounter);
   recordScalar("MASQuery", masqueryCounter);
   recordScalar("GenQuery on LinkA", genqueryCounter);

@@ -57,6 +57,7 @@ class EtherModule: public LinkLayerModule
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
+  virtual ~EtherModule();
 
   virtual int numInitStages(void) const { return 2; }
 

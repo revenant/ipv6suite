@@ -707,6 +707,10 @@ void map_delete(ForwardIterator first, ForwardIterator last)
 
 void AddressResolution::finish()
 {
+  // XXX cleanup stuff must be moved to dtor!
+  // finish() is NOT for cleanup -- that must be done in destructor, and
+  // additionally, ptrs must be NULL'ed in constructor so that it won't crash
+  // if initialize() hasn't run because of an error during startup! --AV
   map_delete(ppq.begin(), ppq.end());
   for (NDARTI it = tmrs.begin(); it != tmrs.end(); it++)
   {

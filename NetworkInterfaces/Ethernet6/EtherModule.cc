@@ -135,16 +135,21 @@ void EtherModule::reset(void)
 
 void EtherModule::finish()
 {
+}
+
+EtherModule::~EtherModule()
+{
   for(FIT it = outputBuffer.begin(); it != outputBuffer.end(); it++)
     delete (*it);
   outputBuffer.clear();
 
   for(TIT it = tmrs.begin(); it != tmrs.end(); it++)
-    delete (*it);
+    if (!it->isScheduled())
+      delete (*it);
   tmrs.clear();
 
   if (inputFrame)
-    delete inputFrame;
+    delete inputFrame; // XXX will crash if initialize hasn't run for some reason
 }
 
 bool EtherModule::sendFrame(cMessage *msg, int gateid)

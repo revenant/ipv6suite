@@ -99,7 +99,7 @@ void EtherModuleAP::handleMessage(cMessage* msg)
   EtherModule::handleMessage(msg);
 }
 
-void EtherModuleAP::finish(void)
+void EtherModuleAP::finish()
 {}
 
 bool EtherModuleAP::receiveData(std::auto_ptr<cMessage> msg)

@@ -22,9 +22,11 @@
 
 #include <algorithm>
 #include "RoutingTable.h"
+#include "InterfaceTable.h"
 #include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 #include "FlatNetworkConfigurator.h"
+#include "IPv4InterfaceData.h"
 
 
 Define_Module(FlatNetworkConfigurator);
@@ -68,15 +70,15 @@ void FlatNetworkConfigurator::initialize(int stage)
 
         // find interface table and assign address to all (non-loopback) interfaces
         cModule *mod = topo.node(i)->module();
-        RoutingTable *rt = IPAddressResolver().routingTableOf(mod);
+        InterfaceTable *ift = IPAddressResolver().interfaceTableOf(mod);
 
-        for (int k=0; k<rt->numInterfaces(); k++)
+        for (int k=0; k<ift->numInterfaces(); k++)
         {
-            IPv4InterfaceEntry *e = rt->interfaceAt(k);
-            if (!e->isLoopback())
+            InterfaceEntry *ie = ift->interfaceAt(k);
+            if (!ie->isLoopback())
             {
-                e->setInetAddress(IPAddress(addr));
-                e->setNetmask(IPAddress("255.255.255.255")); // full address must match for local delivery
+                ie->ipv4()->setInetAddress(IPAddress(addr));
+                ie->ipv4()->setNetmask(IPAddress("255.255.255.255")); // full address must match for local delivery
             }
         }
     }
@@ -92,14 +94,15 @@ void FlatNetworkConfigurator::initialize(int stage)
         if (std::find(nonIPTypes.begin(), nonIPTypes.end(), topo.node(i)->module()->className())!=nonIPTypes.end())
             continue;
 
+        InterfaceTable *ift = IPAddressResolver().interfaceTableOf(node->module());
         RoutingTable *rt = IPAddressResolver().routingTableOf(node->module());
 
         // count non-loopback interfaces
         int numIntf = 0;
-        IPv4InterfaceEntry *interf = NULL;
-        for (int k=0; k<rt->numInterfaces(); k++)
-            if (!rt->interfaceAt(k)->isLoopback())
-                {interf = rt->interfaceAt(k); numIntf++;}
+        InterfaceEntry *ie = NULL;
+        for (int k=0; k<ift->numInterfaces(); k++)
+            if (!ift->interfaceAt(k)->isLoopback())
+                {ie = ift->interfaceAt(k); numIntf++;}
 
         usesDefaultRoute[i] = (numIntf==1);
         if (numIntf!=1)
@@ -112,8 +115,8 @@ void FlatNetworkConfigurator::initialize(int stage)
         RoutingEntry *e = new RoutingEntry();
         e->host = IPAddress();
         e->netmask = IPAddress();
-        e->interfaceName = interf->name();
-        e->interfacePtr = interf;
+        e->interfaceName = ie->name();
+        e->interfacePtr = ie;
         e->type = RoutingEntry::REMOTE;
         e->source = RoutingEntry::MANUAL;
         //e->metric() = 1;
@@ -156,14 +159,15 @@ void FlatNetworkConfigurator::initialize(int stage)
             ev << " towards " << destModName << "=" << IPAddress(destAddr) << " outputPort=" << outputPort << endl;
 
             // add route
+            InterfaceTable *ift = IPAddressResolver().interfaceTableOf(atNode->module());
             RoutingTable *rt = IPAddressResolver().routingTableOf(atNode->module());
-            IPv4InterfaceEntry *interf = rt->interfaceByPortNo(outputPort);
+            InterfaceEntry *ie = ift->interfaceByPortNo(outputPort);
 
             RoutingEntry *e = new RoutingEntry();
             e->host = IPAddress(destAddr);
             e->netmask = IPAddress(255,255,255,255); // full match needed
-            e->interfaceName = interf->name();
-            e->interfacePtr = interf;
+            e->interfaceName = ie->name();
+            e->interfacePtr = ie;
             e->type = RoutingEntry::DIRECT;
             e->source = RoutingEntry::MANUAL;
             //e->metric() = 1;

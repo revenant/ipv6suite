@@ -45,8 +45,8 @@ std::string IPv4InterfaceData::info() const
 {
     std::stringstream out;
     out << "addr:" << inetAddress() << "  mask:" << netmask();
-    out << "  MTU:" << mtu() << "  Metric:" << metric();
-    out << " Groups:";
+    out << "  Metric:" << metric();
+    out << "  Groups:";
     if (!multicastGroups().empty())
     {
         for (int j=0; j<multicastGroups().size(); j++)
@@ -61,7 +61,7 @@ std::string IPv4InterfaceData::detailedInfo() const
     std::stringstream out;
     out << "inet addr:" << inetAddress() << "\tMask: " << netmask() << "\n";
 
-    out << "MTU: " << mtu() << " \tMetric: " << metric() << "\n";
+    out << "Metric: " << metric() << "\n";
 
     out << "Groups:";
     for (int j=0; j<multicastGroups().size(); j++)

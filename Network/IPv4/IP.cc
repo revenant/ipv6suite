@@ -25,6 +25,7 @@
 #include "IPDatagram.h"
 #include "IPControlInfo_m.h"
 #include "ICMPMessage_m.h"
+#include "IPv4InterfaceData.h"
 
 Define_Module(IP);
 
@@ -32,6 +33,9 @@ Define_Module(IP);
 void IP::initialize()
 {
     QueueBase::initialize();
+
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 
     defaultTimeToLive = par("timeToLive");
     defaultMCTimeToLive = par("multicastTimeToLive");
@@ -120,7 +124,6 @@ void IP::routePacket(IPDatagram *datagram)
     ev << "Packet destination address is: " << destAddress << ", ";
 
     // multicast check
-    RoutingTable *rt = routingTableAccess.get();
     if (destAddress.isMulticast())
     {
         ev << "sending to multicast\n";
@@ -163,7 +166,7 @@ void IP::routePacket(IPDatagram *datagram)
 
     // set datagram source address if not yet set
     if (datagram->srcAddress().isNull())
-        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
+        datagram->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
     // default: send datagram to fragmentation
     ev << "output port is " << outputPort << "\n";
@@ -178,7 +181,6 @@ void IP::routePacket(IPDatagram *datagram)
 void IP::handleMulticastPacket(IPDatagram *datagram)
 {
     // FIXME multicast-->tunneling link (present in original IPSuite) missing from here
-    RoutingTable *rt = routingTableAccess.get();
 
     // DVMRP: process datagram only if sent locally or arrived on the shortest
     // route (provided routing table already contains srcAddr); otherwise
@@ -232,7 +234,7 @@ void IP::handleMulticastPacket(IPDatagram *datagram)
 
                 // set datagram source address if not yet set
                 if (datagramCopy->srcAddress().isNull())
-                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
+                    datagramCopy->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
                 // send
                 fragmentAndSend(datagramCopy, outputPort);
@@ -297,8 +299,7 @@ cMessage *IP::decapsulateIP(IPDatagram *datagram)
 
 void IP::fragmentAndSend(IPDatagram *datagram, int outputPort)
 {
-    RoutingTable *rt = routingTableAccess.get();
-    int mtu = rt->interfaceByPortNo(outputPort)->mtu();
+    int mtu = ift->interfaceByPortNo(outputPort)->mtu();
 
     // check if datagram does not require fragmentation
     if (datagram->length()/8 <= mtu)
@@ -357,8 +358,7 @@ void IP::fragmentAndSend(IPDatagram *datagram, int outputPort)
 IPDatagram *IP::encapsulate(cMessage *transportPacket)
 {
     // if no interface exists, do not send datagram
-    RoutingTable *rt = routingTableAccess.get();
-    if (rt->numInterfaces() == 0)
+    if (ift->numInterfaces() == 0)
     {
         ev << "No interfaces exist, dropping packet\n";
         delete transportPacket;

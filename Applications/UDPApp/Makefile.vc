@@ -131,6 +131,4 @@ UDPApp.obj: UDPApp.cc \
   ../../Network/IPv4/IPControlInfo_m.h \
   ../../Network/IPv4/IPAddress.h \
   ../../Network/IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/RoutingTable.h \
-  ../../Network/Generic/InterfaceTable.h
+  ../../Base/INETDefs.h

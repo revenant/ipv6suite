@@ -18,6 +18,9 @@
 
 
 #include "IPAddressResolver.h"
+#include "InterfaceTable.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTable.h"
 
 IPAddress IPAddressResolver::resolve(const char *str)
 {
@@ -37,35 +40,35 @@ IPAddress IPAddressResolver::resolve(const char *str)
 
 IPAddress IPAddressResolver::addressOf(cModule *host)
 {
-    RoutingTable *rt = routingTableOf(host);
-    return getAddressFrom(rt);
+    InterfaceTable *ift = interfaceTableOf(host);
+    return getAddressFrom(ift);
 }
 
-IPAddress IPAddressResolver::getAddressFrom(RoutingTable *rt)
+IPAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift)
 {
     // browse interfaces: for the purposes of this function, all of them should
     // share the same IP address
     IPAddress addr;
-    if (rt->numInterfaces()==0)
-        opp_error("IPAddressResolver: routing table `%s' has no interface registered "
-                  "(yet? try in a later init stage!)", rt->fullPath().c_str());
+    if (ift->numInterfaces()==0)
+        opp_error("IPAddressResolver: interface table `%s' has no interface registered "
+                  "(yet? try in a later init stage!)", ift->fullPath().c_str());
 
-    for (int i=0; i<rt->numInterfaces(); i++)
+    for (int i=0; i<ift->numInterfaces(); i++)
     {
-        IPv4InterfaceEntry *e = rt->interfaceAt(i);
-        if (!e->inetAddress().isNull() && !e->isLoopback())
+        InterfaceEntry *ie = ift->interfaceAt(i);
+        if (!ie->ipv4()->inetAddress().isNull() && !ie->isLoopback())
         {
-            if (!addr.isNull() && e->inetAddress()!=addr)
+            if (!addr.isNull() && ie->ipv4()->inetAddress()!=addr)
                 opp_error("IPAddressResolver: IP address is ambiguous: different "
                           "interfaces in `%s' have different IP addresses",
-                          rt->fullPath().c_str());
-            addr = e->inetAddress();
+                          ift->fullPath().c_str());
+            addr = ie->ipv4()->inetAddress();
         }
     }
 
     if (addr.isNull())
         opp_error("IPAddressResolver: no interface in `%s' has an IP address "
-                  "assigned (yet? try in a later init stage!)", rt->fullPath().c_str());
+                  "assigned (yet? try in a later init stage!)", ift->fullPath().c_str());
 
     return addr;
 }
@@ -73,13 +76,26 @@ IPAddress IPAddressResolver::getAddressFrom(RoutingTable *rt)
 RoutingTable *IPAddressResolver::routingTableOf(cModule *host)
 {
     // find RoutingTable
-    cModule *rtmod = host->submodule("routingTable");
-    if (!rtmod)
-        rtmod = host->moduleByRelativePath("networkLayer.routingTable");
-    if (!rtmod)
+    cModule *mod = host->submodule("routingTable");
+    if (!mod)
+        mod = host->moduleByRelativePath("networkLayer.routingTable");
+    if (!mod)
         opp_error("IPAddressResolver: RoutingTable not found as `routingTable' or "
                   "`networkLayer.routingTable' within host/router module `%s'",
                   host->fullPath().c_str());
-    return check_and_cast<RoutingTable *>(rtmod);
+    return check_and_cast<RoutingTable *>(mod);
+}
+
+InterfaceTable *IPAddressResolver::interfaceTableOf(cModule *host)
+{
+    // find InterfaceTable
+    cModule *mod = host->submodule("interfaceTable");
+    if (!mod)
+        mod = host->moduleByRelativePath("networkLayer.interfaceTable");
+    if (!mod)
+        opp_error("IPAddressResolver: InterfaceTable not found as `interfaceTable' or "
+                  "`networkLayer.interfaceTable' within host/router module `%s'",
+                  host->fullPath().c_str());
+    return check_and_cast<InterfaceTable *>(mod);
 }
 

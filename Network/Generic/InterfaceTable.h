@@ -23,6 +23,11 @@
 #include <omnetpp.h>
 #include "INETDefs.h"
 
+// Forward declarations. Do NOT #include the corresponding header files
+// since that would create dependence on IPv4 and IPv6 stuff!
+class IPv4InterfaceData;
+class IPv6InterfaceData;
+
 /**
  * Interface entry for the interface table in InterfaceTable.
  *
@@ -40,6 +45,11 @@ class InterfaceEntry : public cPolymorphic
     bool _pointToPoint;  //< interface is point-to-point link
     bool _loopback;      //< interface is loopback interface
     double _datarate;    //< data rate in bit/s
+
+    IPv4InterfaceData *_ipv4data;   //< IPv4-specific interface info (IP address, etc)
+    IPv6InterfaceData *_ipv6data;   //< IPv6-specific interface info (IPv6 addresses, etc)
+    cPolymorphic *_protocol3data;   //< extension point: data for a 3rd network-layer protocol
+    cPolymorphic *_protocol4data;   //< extension point: data for a 4th network-layer protocol
 
   private:
     // copying not supported: following are private and also left undefined
@@ -71,13 +81,23 @@ class InterfaceEntry : public cPolymorphic
     void setPointToPoint(bool b) {_pointToPoint = b;}
     void setLoopback(bool b)     {_loopback = b;}
     void setDatarate(double d)   {_datarate = d;}
+
+    IPv4InterfaceData *ipv4()    {return _ipv4data;}
+    IPv6InterfaceData *ipv6()    {return _ipv6data;}
+    cPolymorphic *protocol3()    {return _protocol3data;}
+    cPolymorphic *protocol4()    {return _protocol4data;}
+
+    void setIPv4Data(IPv4InterfaceData *p)  {_ipv4data = p;}
+    void setIPv6Data(IPv6InterfaceData *p)  {_ipv6data = p;}
+    void setProtocol3Data(cPolymorphic *p)  {_protocol3data = p;}
+    void setProtocol4Data(cPolymorphic *p)  {_protocol4data = p;}
 };
 
 
 /**
  * Represents the interface table. This object has one instance per host
  * or router. It has methods to manage the interface table,
- * so one can access functionality similar to the "route" and "ifconfig" commands.
+ * so one can access functionality similar to the "ifconfig" command.
  *
  * See the NED documentation for general overview.
  *
@@ -86,7 +106,11 @@ class InterfaceEntry : public cPolymorphic
  * updating the interface table.
  *
  * Interfaces are dynamically registered: at the start of the simulation,
- * every L2 module adds its own interface entry to the table.
+ * every L2 module adds its own InterfaceEntry to the table; after that,
+ * IPv4's RoutingTable and IPv6's RoutingTable6 (an possibly, further
+ * L3 protocols) add protocol-specific data on each InterfaceEntry
+ * (see IPv4InterfaceData, IPv6InterfaceData, and InterfaceEntry::setIPv4Data(),
+ * InterfaceEntry::setIPv6Data())
  *
  * Interfaces are represented by InterfaceEntry objects.
  *

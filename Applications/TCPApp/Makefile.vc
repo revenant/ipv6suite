@@ -175,9 +175,7 @@ TCPGenericCliAppBase.obj: TCPGenericCliAppBase.cc \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/RoutingTable.h \
-  ../../Network/Generic/InterfaceTable.h
+  ../../Base/INETDefs.h
 TCPGenericSrvApp.obj: TCPGenericSrvApp.cc \
   TCPGenericSrvApp.h \
   ../../Transport/TCP/TCPSocket.h \
@@ -200,9 +198,7 @@ TCPSessionApp.obj: TCPSessionApp.cc \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/IPv4/IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Network/IPv4/RoutingTable.h \
-  ../../Network/Generic/InterfaceTable.h
+  ../../Base/INETDefs.h
 TCPSinkApp.obj: TCPSinkApp.cc \
   TCPSinkApp.h \
   ../../Transport/TCP/TCPSocket.h \

@@ -24,8 +24,10 @@
 #define __IPADDRESSRESOLVER_H
 
 #include <omnetpp.h>
-#include "RoutingTable.h"
 #include "IPAddress.h"
+
+class RoutingTable;
+class InterfaceTable;
 
 /**
  * Utility class for finding IP address of a host/router.
@@ -58,11 +60,11 @@ class IPAddressResolver
     IPAddress addressOf(cModule *host);
 
     /**
-     * Returns the IP address of the given host or router, given its RoutingTable
+     * Returns the IP address of the given host or router, given its InterfaceTable
      * module. If different interfaces have different IP addresses, the function
      * throws an error.
      */
-    IPAddress getAddressFrom(RoutingTable *rt);
+    IPAddress getAddressFrom(InterfaceTable *ift);
 
     /**
      * The function tries to look up the RoutingTable module as submodule
@@ -70,6 +72,13 @@ class IPAddressResolver
      * the host/router module. Throws an error if not found.
      */
     RoutingTable *routingTableOf(cModule *host);
+
+    /**
+     * The function tries to look up the InterfaceTable module as submodule
+     * <tt>"interfaceTable"</tt> or <tt>"networkLayer.interfaceTable"</tt> within
+     * the host/router module. Throws an error if not found.
+     */
+    InterfaceTable *interfaceTableOf(cModule *host);
     //@}
 };
 

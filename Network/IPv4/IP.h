@@ -20,6 +20,7 @@
 #define __IP_H__
 
 #include "QueueBase.h"
+#include "InterfaceTableAccess.h"
 #include "RoutingTableAccess.h"
 #include "RoutingTable.h"
 #include "ICMPAccess.h"
@@ -39,7 +40,8 @@ const int ICMP_FRAGMENTATION_ERROR_CODE = 4;
 class IP : public QueueBase
 {
   protected:
-    RoutingTableAccess routingTableAccess;
+    RoutingTable *rt;
+    InterfaceTable *ift;
     ICMPAccess icmpAccess;
 
     // config

@@ -94,49 +94,40 @@ int MobileEntity::connectWith(Entity* otherEntity, bool isOutgoing)
 void MobileEntity::drawWirelessRange()
 {
   cModule *nodemod = findNetNodeModule(_mod);
-  std::string dispStr = nodemod->displayString().getString();
-  if (dispStr.find("r=") == std::string::npos)
+  //Does not work for all modules either as some do not even have layer 3
+  //unsigned int numOfPorts = OPP_Global::findModuleByType(OPP_Global::findNetNodeModule(_mod), "RoutingTable6")->par("numOfPorts");
+
+  //unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("wlin");
+  // gateSize() is an omnetpp version 3.0 function
+  unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("wlin")->size();
+  if (numOfPorts <= 0)
   {
-    //Does not work for all modules either as some do not even have layer 3
-    //unsigned int numOfPorts = OPP_Global::findModuleByType(OPP_Global::findNetNodeModule(_mod), "RoutingTable6")->par("numOfPorts");
+    cerr << "gateSize of nonexistant gate array " <<numOfPorts<<endl;
+    //For MobileNodes
+    //numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("in");
+    numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("in")->size();
+  }
 
-    //unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("wlin");
-    // gateSize() is an omnetpp version 3.0 function
-    unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("wlin")->size();
-    if (numOfPorts <= 0)
+  // label interface name according to the link layer
+  for(size_t i = 0; i < numOfPorts; i ++)
+  {
+    cModule* mod = OPP_Global::findModuleByType(_mod, "LinkLayer6");
+
+    LinkLayerModule* llmodule = 0;
+    mod = mod->parentModule()->submodule("linkLayers", i);
+
+    if (mod)
     {
-      cerr << "gateSize of nonexistant gate array " <<numOfPorts<<endl;
-      //For MobileNodes
-      //numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("in");
-      numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("in")->size();
-    }
+      llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
+      if (llmodule->getInterfaceType() != PR_WETHERNET)
+        continue;
 
-    // label interface name according to the link layer
-    for(size_t i = 0; i < numOfPorts; i ++)
-    {
-      cModule* mod = OPP_Global::findModuleByType(_mod, "LinkLayer6");
+      WirelessEtherModule* wem = check_and_cast<WirelessEtherModule*>(llmodule);
 
-      LinkLayerModule* llmodule = 0;
-      mod = mod->parentModule()->submodule("linkLayers", i);
-
-      if(mod)
-      {
-        llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
-        if (llmodule->getInterfaceType() != PR_WETHERNET)
-          continue;
-
-        WirelessEtherModule* wem =
-          check_and_cast<WirelessEtherModule*>(llmodule);
-
-        assert(wem);
-
-        std::stringstream os(dispStr);
-        os << ";r=" << wem->wirelessRange() << ",,blue";
-        dispStr = os.str();
-      }
+      nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
+      nodemod->displayString().setTagArg("r",2,"blue");
     }
   }
-  nodemod->displayString().parse(dispStr.c_str());
 }
 
 bool MobileEntity::moving(void)

@@ -73,30 +73,20 @@ int Entity::distance(Entity* entity)
   return (int)(hypotenuse);
 }
 
-// XXX FIXME wrong: should be changed to displayString().setTagArg()!!!!!!!!!!!!!!!!!!!!!!!!!!! --AV
 void Entity::drawWirelessRange()
 {
   cModule *nodemod = findNetNodeModule(_mod);
-//  std::string dispStr = nodemod->displayString().getString();
-//  if (dispStr.find("r=") == std::string::npos)
-//  {
-      cModule* mod = OPP_Global::findModuleByName(_mod, "wirelessAccessPoint");
-      if(mod)
-      {
-        LinkLayerModule* llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
-        assert(llmodule->getInterfaceType() == PR_WETHERNET);
+  cModule* mod = OPP_Global::findModuleByName(_mod, "wirelessAccessPoint");
+  if(mod)
+  {
+    LinkLayerModule* llmodule = (LinkLayerModule*)(mod->submodule("networkInterface"));
+    assert(llmodule->getInterfaceType() == PR_WETHERNET);
 
-        WirelessEtherModule* wem =
-          check_and_cast<WirelessEtherModule*>(llmodule);
-        assert(wem);
+    WirelessEtherModule* wem = check_and_cast<WirelessEtherModule*>(llmodule);
 
-        nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
-        nodemod->displayString().setTagArg("r",2,"red");
-//XXX see comment above!   dispStr += OPP_Global::ltostr(wem->wirelessRange());
-//        dispStr += ",,red";
-      }
-//  }
-//  nodemod->displayString().parse(dispStr.c_str());
+    nodemod->displayString().setTagArg("r",0,OPP_Global::ltostr(wem->wirelessRange()).c_str());
+    nodemod->displayString().setTagArg("r",2,"red");
+  }
 }
 
 void Entity::getDispPosition(int& x, int& y)

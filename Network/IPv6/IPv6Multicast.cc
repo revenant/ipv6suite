@@ -57,56 +57,28 @@
 
 Define_Module( IPv6Multicast );
 
-/*  ----------------------------------------------------------
-        Public Functions
-    ----------------------------------------------------------  */
 
 void IPv6Multicast::initialize()
 {
+    QueueBase::initialize();
     rt = RoutingTable6Access().get();
-    delay = par("procDelay");
+
     fc = check_and_cast<IPv6Forward*> (
       OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
     assert(fc != 0);
+
     ctrIP6InMcastPkts = 0;
-    waitTmr = new cMessage("IPv6MulticastWait");
-    msg = 0;
 }
 
-void IPv6Multicast::handleMessage(cMessage* theMsg)
+void IPv6Multicast::endService(cMessage* msg)
 {
-  if (!theMsg->isSelfMessage())
-  {
-    if (waitTmr->isScheduled())
-    {
-      cerr<<fullPath()<<" "<<simTime()<<" received new packet "
-          <<(*check_and_cast<IPv6Datagram *>(msg))
-          <<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime();
-      delete theMsg;
-      return;
-    } else if (!waitTmr->isScheduled() && 0 == msg)
-    {
-      msg = theMsg;
-      scheduleAt(delay + simTime(), waitTmr);
-      return;
-    }
-      assert(false);
-    return;
-  }
-
   // otherwise deliver/forward datagram with Multicast address
   bool ifaceSpecified = false;
   IPv6Datagram *datagram = check_and_cast<IPv6Datagram *>(msg);
-  assert(msg);
-  assert(datagram);
   IPv6Address destAddress(datagram->destAddress());
   assert(destAddress.isMulticast());
 
   // check for local delivery already done at IPv6Forward
-
-  // Check already completed in IPv6Forward
-  /* forward datagram only if IPv6Forward is true
-     or sent locally */
 
   //According to Linux code it appears that multicast addresses also have
   //destination entries.  At least to identify which dev(iface) to send
@@ -115,6 +87,7 @@ void IPv6Multicast::handleMessage(cMessage* theMsg)
   //address or packet is to be forwarded then dumbly output on every
   //iface.  Need real IGMP to be implemented in ICMP to do real
   //multicasting instead of broadcast.
+
   if (datagram->srcAddress() != IPv6_ADDR_UNSPECIFIED &&
       datagram->inputPort() != -1)
   {
@@ -194,3 +167,5 @@ string IPv6Multicast::multicastLLAddr(const ipv6_addr& addr)
   assert(false);
   return "";
 }
+
+

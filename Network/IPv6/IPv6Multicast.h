@@ -41,13 +41,9 @@
 #ifndef IPv6MULTICAST_H
 #define IPv6MULTICAST_H
 
-#ifndef ROUTINGTABLE6ACCESS_H
-#include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
-#ifndef STRING
-#define STRING
 #include <string>
-#endif //STRING
+#include "QueueBase.h"
+#include "RoutingTable6Access.h"
 
 class IPv6Datagram;
 class IPv6Forward;
@@ -58,26 +54,23 @@ struct ipv6_addr;
  * @brief Handle sending and forwarding of multicast packets
  */
 
-class IPv6Multicast : public cSimpleModule
+class IPv6Multicast : public QueueBase
 {
 
 public:
-  Module_Class_Members(IPv6Multicast, cSimpleModule, 0);
+  Module_Class_Members(IPv6Multicast, QueueBase, 0);
 
   virtual void initialize();
-  virtual void handleMessage(cMessage*);
+  virtual void endService(cMessage*);
   virtual void finish();
 
   static std::string multicastLLAddr(const ipv6_addr& addr);
+
 private:
   void dupAndSendPacket(const IPv6Datagram* datagram, size_t ifIndex);
 
   RoutingTable6 *rt;
-
-  simtime_t delay;
   IPv6Forward* fc;
-  cMessage* waitTmr;
-  cMessage* msg;
 
   unsigned int ctrIP6InMcastPkts;
 };

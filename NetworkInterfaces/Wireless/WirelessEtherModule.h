@@ -47,7 +47,7 @@
 #include <omnetpp.h>
 #include <list>
 
-#include "Messages.h"
+#include "LLInterfacePkt.h"
 #include "LinkLayerModule.h"
 #include "wirelessethernet.h"
 #include "MACAddress.h"

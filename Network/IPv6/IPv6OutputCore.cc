@@ -56,6 +56,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "NDEntry.h"
+#include "LLInterfacePkt.h"
 
 using namespace std;
 using boost::polymorphic_downcast;

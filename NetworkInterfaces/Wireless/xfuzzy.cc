@@ -1,4 +1,5 @@
-#include <string.h>#include "xfuzzy.h"
+#include <string.h>
+#include "xfuzzy.h"
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //       Membership function of an input variable       //

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/ethernet.h,v 1.2 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/ethernet.h,v 1.3 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -26,6 +26,7 @@
 
 */
 
+// XXX FIXME TBD create separate file for Wireless!!!! not to be mixed together... --AV
 #ifndef __ETH_MISC_H
 #define __ETH_MISC_H
 

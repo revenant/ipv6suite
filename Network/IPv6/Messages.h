@@ -23,13 +23,6 @@ struct AddrResInfo
   string linkLayerAddr;
 };
 
-struct LLInterfaceInfo
-{
-  // XXX was IPv6Datagram* dgram, but Link Layer doesn't need it to be IPv6
-  cMessage *dgram;
-  string destLLAddr;
-};
-
 struct GenericUDPInfo
 {
   string data;
@@ -41,7 +34,6 @@ struct VideoStreamInfo : public GenericUDPInfo
   simtime_t expireTime;
 };
 
-typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 typedef cTypedMessage<AddrResInfo> AddrResMsg;
 
 #endif //__MESSAGE_H__

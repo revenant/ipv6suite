@@ -41,6 +41,7 @@
 #include "ICMPv6Message.h"
 #include "IPv6InterfaceData.h"
 #include "Messages.h"
+#include "LLInterfacePkt.h"
 
 typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 

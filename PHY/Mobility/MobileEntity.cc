@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.3 2005/02/14 01:20:38 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.4 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
@@ -396,9 +396,9 @@ void MobileEntity::drawWirelessRange(std::string& dispStr)
 
         assert(wem);
 
-        dispStr += ";r=";
-        dispStr += boost::lexical_cast<std::string>(wem->wirelessRange());
-        dispStr += ",,blue";
+        std::stringstream os(dispStr);
+        os << ";r=" << wem->wirelessRange() << ",,blue";
+        dispStr = os.str();
       }
     }
   }

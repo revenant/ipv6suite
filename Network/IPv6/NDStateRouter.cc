@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateRouter.cc,v 1.3 2005/02/11 12:23:46 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateRouter.cc,v 1.4 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -45,6 +45,7 @@
 #include "ipv6_addr.h"
 #include "cTimerMessage.h"
 #include "IPv6CDS.h"
+#include "LLInterfacePkt.h"
 
 #ifdef USE_HMIP
 #include "HMIPv6ICMPv6NDMessage.h"

@@ -19,10 +19,12 @@
     @author    Steve Woon          Eric Wu
 */
 
-#include <sys.h> // Dout#include "debug.h" // Dout
 
+#include <sys.h> // Dout
+#include "debug.h" // Dout
 
-#include "WirelessEtherPScanReceiveMode.h"#include "WirelessEtherState.h"
+#include "WirelessEtherPScanReceiveMode.h"
+#include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal.h"
 #include "WirelessEtherFrame_m.h"

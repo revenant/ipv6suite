@@ -49,6 +49,7 @@
 #include "ethernet.h"
 #include "cTTimerMessageCB.h"
 #include "EtherFrame.h"
+#include "LLInterfacePkt.h"
 
 
 

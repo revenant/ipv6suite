@@ -27,6 +27,8 @@
 #include "debug.h"
 
 #include <cmath>
+#include <sstream>
+#include <string>
 #include "opp_utils.h"  // for int/double <==> string conversions
 #include <boost/cast.hpp>
 
@@ -34,7 +36,7 @@
 #include "WorldProcessor.h"
 #include "opp_utils.h"
 #include "LinkLayerModule.h"
-#include "WirelessEtherModule.h"
+#include "WirelessEtherModule.h"   //XXX FIXME remove dependency!!!
 
 
 using namespace::OPP_Global;
@@ -125,8 +127,8 @@ void Entity::setDispPosition(int x, int y)
   // update Tk/Tcl environment
   if(disParser.existsTag("p"))
   {
-    stringstream ss_x;
-    stringstream ss_y;
+    std::stringstream ss_x;
+    std::stringstream ss_y;
 
     ss_x << x;
     ss_y << y;
@@ -134,9 +136,9 @@ void Entity::setDispPosition(int x, int y)
     // TODO: some problem with the DisplayStringParser.. so mannually
     // remove the unwanted characters just for now
 
-    string tempDispStr(findNetNodeModule(_mod)->displayString());
-    string oldX(disParser.getTagArg("p", 0));
-    string oldY(disParser.getTagArg("p", 1));
+    std::string tempDispStr(findNetNodeModule(_mod)->displayString());
+    std::string oldX(disParser.getTagArg("p", 0));
+    std::string oldY(disParser.getTagArg("p", 1));
 
     int oldXStrPos = tempDispStr.find(oldX);
 

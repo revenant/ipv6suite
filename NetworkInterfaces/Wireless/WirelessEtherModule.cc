@@ -1258,10 +1258,8 @@ void WirelessEtherModule::printSelfMsg(const cMessage* msg)
 
 void WirelessEtherModule::sendToUpperLayer(WirelessEtherBasicFrame* frame)
 {
-  IPDatagram* ipdatagram =
-    boost::polymorphic_downcast<IPDatagram *> (frame->decapsulate());
-
-  send(ipdatagram, inputQueueOutGate());
+  cMessage *dgram = frame->decapsulate();
+  send(dgram, inputQueueOutGate());
 }
 
 // Sends monitored frame to upper layer un-modified
@@ -1481,7 +1479,7 @@ createFrame(FrameType frameType, SubType subType,
       assert(false);
       break;
   }
-  frame->setProtocol(PR_WETHERNET);
+  //XXX frame->setProtocol(PR_WETHERNET);
 
   return frame;
 }
@@ -1610,7 +1608,7 @@ void WirelessEtherModule::initialiseChannelToScan(void)
   }
 
   // Mark unwanted channels based on XML input
-  StringTokenizer tokenizer(chanNotToScan,"-");
+  StringTokenizer tokenizer(chanNotToScan.c_str(),"-");
   const char *token;
   while ((token = tokenizer.nextToken())!=NULL)
      channelToScan[atoi(token)]=false;

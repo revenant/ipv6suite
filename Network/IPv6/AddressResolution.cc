@@ -43,6 +43,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "IPv6OutputCore.h"
+#include "LLInterfacePkt.h"
 
 using std::string;
 using IPv6NeighbourDiscovery::NDHOPLIMIT;

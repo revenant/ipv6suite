@@ -49,6 +49,8 @@
 //#include "IPv6Datagram.h"
 #endif
 
+#include "LLInterfacePkt.h"
+
 using boost::polymorphic_downcast;
 
 Define_Module_Like( IPv6PPPInterface, NetworkInterface );

@@ -38,6 +38,7 @@
 #include "Messages.h"
 #include "MACAddress.h"
 #include "PPP6Frame.h"
+#include "LLInterfacePkt.h"
 
 Define_Module_Like(IPv6PPPAPInterface, NetworkInterface);
 

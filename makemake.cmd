@@ -57,12 +57,14 @@ cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv6
 cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv6 -I..\..\Transport\UDP6
 
-cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util
-cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util
+:#FIXME remove dep on NetworkInterfaces!!! and on ..\..\Util\adHocSim\h!!!
+cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\World -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless  -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Util\adHocSim\h
+cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6
 
 cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv4  -I..\..\Network\IPv6
 cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I..\PHY\Mobility
-cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r
+:#FIXME move cc files to Ethernet6 directory!!!
+cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\Util -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\IPv6 -I..\..\Network\IPv4
 ----
 
 

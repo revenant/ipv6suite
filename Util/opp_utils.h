@@ -36,6 +36,8 @@
 #endif  //BOOST_WEAK_PTR_HPP_INCLUDED
 */
 
+#include <string>
+
 /* XXX --AV
 #ifndef BOOST_CAST_HPP
 #include <boost/cast.hpp>

@@ -129,7 +129,7 @@ Ping6App.obj: Ping6App.cc \
   ../../Util/boost/cast.hpp \
   Ping6App.h \
   ../../Network/ICMPv6/Ping6Iface.h \
-  ../../Network/IPv6/IPv6InterfaceData.h \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.h \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Util/opp_utils.h \
   ../../Network/IPv6/RoutingTable6.h \
@@ -296,7 +296,7 @@ Ping6App.obj: Ping6App.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../Network/IPv6/IPv6InterfacePacket.h \
-  ../../Network/IPv6/IPv6InterfaceData.cc \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.cc \
   ../../Network/IPv6/IPInterfacePacket.h \
   ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/weak_ptr.hpp \

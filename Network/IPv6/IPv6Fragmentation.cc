@@ -54,6 +54,7 @@ Define_Module( IPv6Fragmentation );
 void IPv6Fragmentation::initialize()
 {
   QueueBase::initialize();
+  ift = InterfaceTableAccess().get();
   rt = RoutingTable6Access().get();
 
   numOfPorts = par("numOfPorts");

@@ -43,11 +43,12 @@
 
 #include <string>
 #include "QueueBase.h"
-#include "RoutingTable6Access.h"
 
 class IPv6Datagram;
 class IPv6Forward;
 struct ipv6_addr;
+class RoutingTable6;
+class InterfaceTable;
 
 /**
  * @class IPv6Multicast
@@ -69,6 +70,7 @@ public:
 private:
   void dupAndSendPacket(const IPv6Datagram* datagram, size_t ifIndex);
 
+  InterfaceTable *ift;
   RoutingTable6 *rt;
   IPv6Forward* fc;
 

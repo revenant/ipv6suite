@@ -56,9 +56,6 @@
 #include <boost/shared_ptr.hpp>
 #endif //BOOST_SHARED_PTR_HPP
 
-#ifndef ROUTINGTABLE6ACCESS_H
-#include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
 #ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPv6_ADDR_H
@@ -68,6 +65,10 @@
 #ifndef IPV6ADDRESS_H
 #include "IPv6Address.h"
 #endif //IPV6ADDRESS_H
+
+
+class RoutingTable6;
+class InterfaceTable;
 
 
 /**
@@ -187,7 +188,9 @@ public:
   //@}
 
 private:
+  InterfaceTable *ift;
   RoutingTable6 *rt;
+
   simtime_t delay;
   ///traffic class (-1 for copied, 0 for default and others preconfigured)
   int trafficClass;

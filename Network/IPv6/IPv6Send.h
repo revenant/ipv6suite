@@ -41,10 +41,11 @@
 #define IPv6SEND_H
 
 #include "QueueBase.h"
-#include "RoutingTable6Access.h"
 
 class IPv6InterfacePacket;
 class IPv6Datagram;
+class RoutingTable6;
+class InterfaceTable;
 
 /**
  * @class IPv6Send
@@ -66,6 +67,7 @@ public:
 private:
   IPv6Datagram *encapsulatePacket(IPv6InterfacePacket *interfaceMsg);
 
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   int defaultTimeToLive;

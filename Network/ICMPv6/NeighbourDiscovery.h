@@ -1,10 +1,10 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2004 Johnny Lai 
+// Copyright (C) 2001, 2004 Johnny Lai
 // Monash University, Melbourne, Australia
 
 /**
    @file NeighbourDiscovery.h
-   @brief Definition of simple module NeighbourDiscovery.  
+   @brief Definition of simple module NeighbourDiscovery.
 
    By default all nodes start up with default values as specified in
    RFC2461 for host/router parameters. Only when a node's IPForward
@@ -23,6 +23,7 @@
 
 class ICMPv6Message;
 class RoutingTable6;
+class InterfaceTable;
 class Interface6Entry;
 
 //Forward declarations
@@ -36,10 +37,10 @@ namespace IPv6NeighbourDiscovery
   extern const int Tmr_AddrConfLifetime;
   extern const int Tmr_RouterLifetime;
   extern const int Tmr_PrefixLifetime;
-  
+
   class NDState;
   class NDStateHost;
-  class NDStateRouter;  
+  class NDStateRouter;
 };
 
 namespace MobileIPv6
@@ -84,11 +85,11 @@ class NeighbourDiscovery: public cSimpleModule
   friend class XMLConfiguration::XMLOmnetParser;
 
   Module_Class_Members(NeighbourDiscovery, cSimpleModule, 0);
-  
+
   virtual void initialize(int stageNo);
-  virtual void finish();  
+  virtual void finish();
   virtual void handleMessage(cMessage* msg);
-  virtual int numInitStages() const; 
+  virtual int numInitStages() const;
   IPv6NeighbourDiscovery::NDState* getRouterState();
 
 #ifdef USE_MOBILITY
@@ -107,8 +108,9 @@ public:
 #endif // USE_MOBILITY
 
  private:
-  RoutingTable6* rt;
-  IPv6NeighbourDiscovery::NDState* nd;  
+  InterfaceTable *ift;
+  RoutingTable6 *rt;
+  IPv6NeighbourDiscovery::NDState* nd;
   unsigned int ctrIcmp6OutRtrSol;
   unsigned int ctrIcmp6OutRtrAdv;
   unsigned int ctrIcmp6OutRedirect;

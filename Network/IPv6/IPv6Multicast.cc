@@ -62,6 +62,7 @@ Define_Module( IPv6Multicast );
 void IPv6Multicast::initialize()
 {
     QueueBase::initialize();
+    ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
     fc = check_and_cast<IPv6Forward*> (

@@ -12,28 +12,18 @@
 #if !defined __ADDRESSRESOLUTION_H
 #define __ADDRESSRESOLUTION_H
 
-#ifndef MAP
-#define MAP
 #include <map>
-#endif //MAP
-#ifndef LIST
-#define LIST
 #include <list>
-#endif //LIST
 
-#ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
-#endif //IPv6_ADDR_H
-#ifndef ROUTINGTABLE6ACCESS_H
-#include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
-#ifndef NDSTATES_H
 #include "NDStates.h"
-#endif //NDSTATES_H
 
 
 class IPv6Datagram;
 class IPv6Forward;
+class RoutingTable6;
+class InterfaceTable;
+
 
 namespace IPv6NeighbourDiscovery
 {
@@ -75,6 +65,7 @@ class AddressResolution : public cSimpleModule
   void resendNS();
   void timedOutNS();
 
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   ///Pending Packet Queue for packets awaiting addr res

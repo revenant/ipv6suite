@@ -32,6 +32,7 @@
 extern const int TRANSMIT_PING;
 
 class RoutingTable6;
+class InterfaceTable;
 
 class Ping6App: public cSimpleModule
 {
@@ -42,7 +43,8 @@ class Ping6App: public cSimpleModule
   virtual void finish();
  private:
 
-  RoutingTable6* rt;
+  InterfaceTable *ift;
+  RoutingTable6 *rt;
 
   ///@name Ned Parameters
   //@{

@@ -43,11 +43,12 @@
 #include <boost/shared_ptr.hpp>
 #include <functional>
 
-#include "RoutingTable6Access.h"
 #include "ipv6_addr.h"
 #include "IPv6Datagram.h"
 #include "QueueBase.h"
 
+class RoutingTable6;
+class InterfaceTable;
 
 //The last route is always the dest
 typedef vector<ipv6_addr> _SrcRoute;
@@ -117,6 +118,7 @@ public:
   bool routingInfoDisplay;
 
 private:
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   unsigned int ctrIP6InAddrErrors;

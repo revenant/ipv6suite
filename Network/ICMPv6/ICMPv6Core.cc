@@ -56,6 +56,7 @@ Define_Module( ICMPv6Core );
 void ICMPv6Core::initialize()
 {
   QueueBase::initialize();
+  ift = InterfaceTableAccess().get();
   rt = RoutingTable6Access().get();
 
   icmpRecordStats = par("icmpRecordRequests");

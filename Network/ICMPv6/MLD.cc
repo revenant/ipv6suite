@@ -61,7 +61,9 @@ void MLD::initialize()
 {
   srand((unsigned)time(NULL)); //XXXX ????????????????
 
+  ift = InterfaceTableAccess().get();
   rt = RoutingTable6Access().get();
+
   reportCounter = 0;
   masqueryCounter = 0;
   genqueryCounter = 0;

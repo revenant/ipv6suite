@@ -71,6 +71,7 @@ void NeighbourDiscovery::initialize(int stageNo)
     rsSentTime = 0;
 #endif // USE_MOBILITY
 
+    ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
     ctrIcmp6OutRtrSol = 0;

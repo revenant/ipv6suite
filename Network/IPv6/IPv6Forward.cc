@@ -93,7 +93,9 @@ void IPv6Forward::initialize(int stage)
   if (stage == 0)
   {
     QueueBase::initialize();
+    ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
+
     ctrIP6InAddrErrors = 0;
     ctrIP6OutNoRoutes = 0;
 

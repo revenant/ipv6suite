@@ -37,8 +37,9 @@ class MLDMessage;
 class MLDv2Message;
 class MLDv2Record;
 class IPv6Address;
-class RoutingTable6;
 class cTimerMessage;
+class RoutingTable6;
+class InterfaceTable;
 
 template< class Result, class T, class Arg>
 class cTTimerMessageA;
@@ -113,6 +114,7 @@ public:
   void SendBlock();
   void SendAllBlock();
 private:
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   void sendMASQuery(const ipv6_addr& addr);

@@ -160,7 +160,7 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   IPv6PPPInterface.h \
   PPP6Frame.h \
   ../../Util/opp_utils.h \
-  ../../Network/IPv6/IPv6InterfaceData.h \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.h \
   ../LL6ControlInfo_m.h \
   ../LinkLayerModule.h \
   ../../Util/boost/weak_ptr.hpp \
@@ -185,7 +185,7 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
   ../../Network/IPv6/IPv6InterfacePacket.h \
-  ../../Network/IPv6/IPv6InterfaceData.cc \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.cc \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/ipv6_addr.h \
   ../../Network/IPv6/IPInterfacePacket.h \

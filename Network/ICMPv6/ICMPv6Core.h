@@ -32,6 +32,7 @@
 class ICMPv6Message;
 class IPv6Datagram;
 class RoutingTable6;
+class InterfaceTable;
 class IPv6Forward;
 
 
@@ -90,8 +91,9 @@ private:
   unsigned short nextEstSeqNo;
   simtime_t lastReceiveTime;
 
-  RoutingTable6* rt;
-  IPv6Forward* fc;
+  InterfaceTable *ift;
+  RoutingTable6 *rt;
+  IPv6Forward *fc;
 
   unsigned int ctrIcmp6OutEchoReplies;
   unsigned int ctrIcmp6InMsgs;

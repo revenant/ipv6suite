@@ -552,8 +552,6 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../Loki/TypeManip.h \
   ../Loki/Threads.h \
   ../Loki/Singleton.h \
-  ../../Network/IPv6/RoutingTable6Access.h \
-  ../../Base/ModuleAccess.h \
   ../../Network/IPv6/IPv6Datagram.h \
   ../../Base/QueueBase.h \
   ../../Network/IPv4/IPProtocolId_m.h \

@@ -49,7 +49,7 @@
 
 
 class RoutingTable6;
-class cModule;
+class InterfaceTable;
 class IPv6Datagram;
 struct ipv6_addr;
 class cTimerMessage;
@@ -186,7 +186,10 @@ namespace IPv6NeighbourDiscovery
     void TriggerCallback(cTimerMessage* tmr);
   protected:
     std::vector<InterfaceStatus> ifStats;
-    RoutingTable6* rt;
+
+    InterfaceTable *ift;
+    RoutingTable6 *rt;
+
     bool stateEntered;
 
     cModule* addrResln;

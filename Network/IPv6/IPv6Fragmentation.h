@@ -34,14 +34,12 @@
 #ifndef IPFRAGMENTATION_H
 #define IPFRAGMENTATION_H
 
-#ifndef ROUTINGTABLE6ACCESS_H
-#include "RoutingTable6Access.h"
-#endif //ROUTINGTABLE6ACCESS_H
-
 #include "QueueBase.h"
 
 class ICMPv6Message;
 class IPv6Datagram;
+class RoutingTable6;
+class InterfaceTable;
 
 /**
  * @class IPv6Fragmentation
@@ -65,6 +63,7 @@ private:
   void sendErrorMessage(ICMPv6Message* err);
   void sendOutput(IPv6Datagram* msg );
 
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   int numOfPorts;

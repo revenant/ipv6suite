@@ -32,21 +32,14 @@
 #ifndef IPV6MOBILITY_H
 #define IPV6MOBILITY_H
 
-#ifndef ROUTING_TABLE6_ACCESS_H
-#include "RoutingTable6Access.h"
-#endif //ROUTING_TABLE6_ACCESS_H
-
-#ifndef CONFIG_H
+#include <iostream>
+#include <omnetpp.h>
 #include "config.h"
-#endif
 
 #ifdef USE_MOBILITY
 struct ipv6_addr;
 #endif
 
-#ifndef IOSTREAM
-#include <iostream>
-#endif //IOSTREAM
 
 namespace MobileIPv6
 {
@@ -69,6 +62,8 @@ namespace MobileIPv6
 }
 
 class cTimerMessage;
+class RoutingTable6;
+class InterfaceTable;
 
 /**
  * @class IPv6Mobility
@@ -206,6 +201,7 @@ private:
   IPv6Mobility& operator=(IPv6Mobility& src);
 
 private:
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   MobileIPv6::MIPv6MobilityState* _MobilityState;

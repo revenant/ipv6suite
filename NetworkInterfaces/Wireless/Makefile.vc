@@ -1025,7 +1025,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/StringTokenizer.h \
   ../../Util/cTTimerMessageCB.h \
   ../../Network/IPv6/IPv6Datagram.h \
-  ../../Network/IPv6/IPv6InterfaceData.h \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.h \
   ../../Util/opp_utils.h \
   ../../World/WorldProcessor.h \
   ../../Mobility/MobileEntity.h \
@@ -1223,7 +1223,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../Network/IPv6/IPv6InterfacePacket.h \
-  ../../Network/IPv6/IPv6InterfaceData.cc \
+  ../../Network/IPv6/IPv6InterfacePacketWithData.cc \
   ../../Network/IPv6/IPInterfacePacket.h \
   ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/weak_ptr.hpp \

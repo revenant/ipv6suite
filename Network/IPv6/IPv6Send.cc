@@ -57,6 +57,7 @@ Define_Module( IPv6Send );
 void IPv6Send::initialize()
 {
   QueueBase::initialize();
+  ift = InterfaceTableAccess().get();
   rt = RoutingTable6Access().get();
 
   defaultMCTimeToLive = par("multicastTimeToLive");

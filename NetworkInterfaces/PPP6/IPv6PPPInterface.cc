@@ -35,7 +35,7 @@
 
 #include "PPP6Frame.h"
 #include "opp_utils.h"
-#include "IPv6InterfaceData.h"
+#include "IPv6InterfacePacketWithData.h"
 
 #ifdef TESTIPv6
 #undef NDEBUG

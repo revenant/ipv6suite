@@ -15,15 +15,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-#include "QueueBase.h"
-#include "RoutingTable6Access.h"
-
 #ifndef IPv6OUTPUTCORE_H
 #define IPv6OUTPUTCORE_H
 
+#include "QueueBase.h"
+
 class IPv6Datagram;
 class IPv6Forward;
+class RoutingTable6;
+class InterfaceTable;
 
 /**
  * Queues up outgoing IPv6 datagrams, and assigns MAC addresses to them.
@@ -43,6 +43,7 @@ public:
 private:
   void processArrivingMessage(IPv6Datagram* msg);
 
+  InterfaceTable *ift;
   RoutingTable6 *rt;
 
   unsigned int ctrIP6OutForwDatagrams;

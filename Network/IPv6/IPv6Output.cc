@@ -64,7 +64,7 @@ Define_Module (IPv6Output);
 void IPv6Output::initialize()
 {
     QueueBase::initialize();
-
+    ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
     ctrIP6OutForwDatagrams = 0;

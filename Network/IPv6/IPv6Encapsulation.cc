@@ -74,7 +74,9 @@ void IPv6Encapsulation::initialize(int stageNo)
 {
   if (stageNo == 0)
   {
+    ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
+
     mipv6CheckTunnelCB = 0;
     delay = par("procDelay");
 

@@ -1,5 +1,5 @@
 :rem *** ADOPT THE NEXT TWO LINES ACCORDING TO YOUR OMNET++ INSTALLATION ***
-call ..\omnetpp\vcvars32.bat
+call ..\omnetpp\setenv-vc71.bat
 set MAKEMAKE=cmd /c d:\home\omnetpp\bin\opp_nmakemake
 
 : #--------------------------------------
@@ -9,6 +9,7 @@ set OPTS=-f -N -b %root% -c %root%\inetconfig.vc
 
 set ALL_INET_INCLUDES=-I%root%/Network/IPv4 -I%root%/Network/IPv4d -I%root%/Network/AutoRouting -I%root%/Transport/TCP -I%root%/Transport/UDP -I%root%/NetworkInterfaces -I%root%/NetworkInterfaces/_802 -I%root%/NetworkInterfaces/ARP -I%root%/NetworkInterfaces/Ethernet -I%root%/NetworkInterfaces/PPP -I%root%/Applications/Generic -I%root%/Applications/Ethernet -I%root%/Applications/TCPApp -I%root%/Applications/UDPApp -I%root%/Applications/PingApp -I%root%/Base -I%root%/Util -I%root%/Nodes/INET
 set ALL_MPLS_INET_INCLUDES=%ALL_INET_INCLUDES% -I%root%/Network/MPLS -I%root%/Network/LDP -I%root%/Network/RSVP_TE -I%root%/Network/Scenario -I%root%/Nodes/MPLS
+set ALL_IPv6_INCLUDES=%ALL_INET_INCLUDES% -I%root%/Network/IPv6
 
 :set ALL_MODEL_OPTS=%OPTS% -w %ALL_MPLS_INET_INCLUDES%
 set ALL_MODEL_OPTS=%OPTS% -n
@@ -29,6 +30,37 @@ cd %root%\PHY && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Util && %MAKEMAKE% %OPTS% -n -r
+
+:---------------
+cd %root%\Network\IPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Network\IPv6\Generic && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Network\IPv6\MIPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Network\IPv6\HMIPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Network\IPv6\Routing && %MAKEMAKE% %OPTS% -n -r
+
+cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Util\adHocSim && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Util\adHocSim\h && %MAKEMAKE% %OPTS% -n -r
+
+cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r
+
+cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r
+
+cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r
+cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r
+
+cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\World && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r
+----
+
+
+
 
 cd %root%\Applications\Generic && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
 cd %root%\Applications\Ethernet && %MAKEMAKE% %OPTS% -n -r -I..\..\NetworkInterfaces\Ethernet -I..\..\NetworkInterfaces\_802 -I..\..\Base -I..\..\Util
@@ -79,6 +111,24 @@ cd %root%\Examples\MPLS\TestTE3 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
 cd %root%\Examples\MPLS\TestTE4 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
 cd %root%\Examples\MPLS\TestTE5 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
 cd %root%\Examples\MPLS\TestTE6 && %MAKEMAKE% %ALL_MODEL_OPTS% -I..\Tester
+
+
+:-----------------
+cd %root%\Examples\IPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\EthNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\HMIPv6Network && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\LargeTestNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\MelbourneNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\MIPv6Network && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\PingNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\TestNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\TunnelNet && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\UMLNet && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\WirelessEtherNetwork && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\WirelessEtherNetwork2 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\WirelessEtherNetworkDual && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\WirelessTest && %MAKEMAKE% %OPTS% -n -r
+:-----------------
 
 cd %root%\Tests\MPLS && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Tests\MPLS\LDP1 && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INET_INCLUDES%

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/wirelessethernet.cc,v 1.2 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //

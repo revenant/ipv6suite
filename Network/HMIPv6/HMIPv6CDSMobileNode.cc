@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6CDSMobileNode.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   HMIPv6CDSMobileNode.cc
  * @author Johnny Lai
  * @date   08 Sep 2002
- * 
+ *
  * @brief  Implementation of HMIPv6CDSMobileNode class
  *
- * 
+ *
  */
 
 
@@ -38,7 +38,7 @@ using MobileIPv6::bu_entry;
 
 namespace HierarchicalMIPv6
 {
- 
+
 HMIPv6CDSMobileNode::HMIPv6CDSMobileNode(size_t interfaceCount)
   :MIPv6CDSMobileNode(interfaceCount), mapAddr(IPv6_ADDR_UNSPECIFIED),
    rcoa(IPv6_ADDR_UNSPECIFIED)
@@ -48,16 +48,16 @@ HMIPv6CDSMobileNode::HMIPv6CDSMobileNode(size_t interfaceCount)
 
 HMIPv6CDSMobileNode::~HMIPv6CDSMobileNode()
 {}
- 
+
 const ipv6_addr& HMIPv6CDSMobileNode::localCareOfAddr() const
 {
-  if (isMAPValid()) 
+  if (isMAPValid())
   {
     bu_entry* bule = findBU(currentMap().addr());
     if (bule)
       return bule->careOfAddr();
   }
-  
+
   return IPv6_ADDR_UNSPECIFIED;
 }
 

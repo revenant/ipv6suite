@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6CDSHomeAgent.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   MIPv6CDSHomeAgent.cc
  * @author Johnny Lai
  * @date   05 May 2002
- * 
+ *
  * @brief Implementation of MIPv6CDSHomeAgent
  * @todo Implement HomeAgent CDS interface functions and complete the interface
- * 
+ *
  */
 
 
@@ -37,7 +37,7 @@ namespace MobileIPv6
     //Home Agents maintain separate lists for each interface
     halists.resize(interfaceCount);
   }
-  
+
   MIPv6CDSHomeAgent::~MIPv6CDSHomeAgent()
   {
     halists.clear();
@@ -50,7 +50,7 @@ namespace MobileIPv6
       return it->second;
     return boost::weak_ptr<ha_entry>();
   }
-  
+
   void MIPv6CDSHomeAgent::insertHomeAgent(ha_entry* ha)
   {
     boost::shared_ptr<ha_entry> bha(ha);
@@ -58,10 +58,10 @@ namespace MobileIPv6
     assert(ha->ifIndex() < halists.size());
     halists[ha->ifIndex()].push_back(bha);
   }
-  
+
   /**
    * @pre ha has to exist inside the home agent list
-   * 
+   *
    */
   void MIPv6CDSHomeAgent::removeHomeAgent(boost::weak_ptr<ha_entry> ha)
   {

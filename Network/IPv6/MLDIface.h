@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDIface.h,v 1.1 2005/02/11 10:59:59 andras Exp $
 //
 // Copyright Copyright (C) 2001 Johnny Lai
 // Monash University, Melbourne, Australia

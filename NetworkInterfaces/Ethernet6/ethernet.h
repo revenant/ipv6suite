@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/ethernet.h,v 1.3 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001 CTIE, Monash University
 //
@@ -16,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
 /**
     @file ethernet.h

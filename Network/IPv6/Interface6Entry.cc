@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/Interface6Entry.cc,v 1.1 2005/02/09 06:15:57 andras Exp $ 
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+//
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
  *  @author  Johnny Lai
  *
  *  @date    02/03/2002
- *  
+ *
  */
 
 
@@ -69,9 +69,9 @@ const double MIN_MIPV6_MIN_RTR_ADV_INT = 0.03;
 // --------------------------------------------------
 
 Interface6Entry::Interface6Entry(const char* int_name)
-  :iface_name(int_name?int_name:""), 
+  :iface_name(int_name?int_name:""),
    //loopback(false),
-   mtu(IPv6_MIN_MTU), 
+   mtu(IPv6_MIN_MTU),
    curHopLimit(DEFAULT_ADVCURHOPLIMIT),
    retransTimer(RETRANS_TIMER),
    baseReachableTime(REACHABLE_TIME),
@@ -88,14 +88,14 @@ Interface6Entry::Interface6Entry(const char* int_name)
   reachableTime();
 
   _interfaceID[0] = 0;
-  _interfaceID[1] = 0;  
+  _interfaceID[1] = 0;
 }
 
 bool Interface6Entry::addrAssigned(const ipv6_addr& addr) const
 {
   for (size_t i = 0; i < inetAddrs.size(); i++)
   {
-    //Holes will exist when we call this from removeAddress so ignore 
+    //Holes will exist when we call this from removeAddress so ignore
     //assert(inetAddrs.exist(i));
     if (inetAddrs.exist(i) && inetAddrs[i] == addr)
       return true;
@@ -125,27 +125,27 @@ const char* Interface6Entry::encap(void)
   else if(iface_name.find("lo")!=string::npos)
     return "Local Loopback";
   else
-    return "";  
+    return "";
 }
 
 double Interface6Entry::reachableTime(void)
 {
   if(_prevBaseReachableTime == baseReachableTime)
     return _reachableTime;
-  
+
   _reachableTime = OPP_UNIFORM(baseReachableTime*MIN_RANDOM_FACTOR,
                            baseReachableTime*MAX_RANDOM_FACTOR);
 
   _prevBaseReachableTime = baseReachableTime;
 
-  return _reachableTime;  
+  return _reachableTime;
 }
 
 /**
    Elapse all valid/preferredLifetimes of assigned addresses. Addrs with
    infinite lifetime are left alone.
 
-   @todo remove IPv6Address::updated and IPv6Address::updatedLifetime 
+   @todo remove IPv6Address::updated and IPv6Address::updatedLifetime
    if rescheduleAddrConfTimer correct
 */
 void Interface6Entry::elapseLifetimes(unsigned int seconds)
@@ -165,7 +165,7 @@ void Interface6Entry::elapseLifetimes(unsigned int seconds)
       continue;
     }
 
-    
+
     //Cater for truncation of seconds during conversion from double to unsigned int and
     //as a consequence rollover for (storedLifetime which is an unsigned int)
     if (inetAddrs[i].storedLifetime() < seconds)
@@ -185,7 +185,7 @@ void Interface6Entry::elapseLifetimes(unsigned int seconds)
       inetAddrs[i].setPreferredLifetime(0);
     else
       inetAddrs[i].setPreferredLifetime(inetAddrs[i].preferredLifetime() - seconds);
-    
+
   }
 }
 
@@ -197,7 +197,7 @@ unsigned int Interface6Entry::minValidLifetime()
 
   //1 as link local addr does not expire
   for (size_t i = 1; i < inetAddrs.size(); i++)
-  {    
+  {
     lifetime = inetAddrs[i].storedLifetime();
 
     assert(lifetime > 0);
@@ -255,9 +255,9 @@ void Interface6Entry::print(bool IPForward)
   // print out each IPv6 address attached to the interace
   for(int i=0; i<inetAddrs.items(); i++)
   {
-    PRINTF("\t inet6 addr: %s Scope:%s \n", 
+    PRINTF("\t inet6 addr: %s Scope:%s \n",
            inetAddrs[i].address().c_str(),
-           inetAddrs[i].scope_str());  
+           inetAddrs[i].scope_str());
   }
 
   // Current information about the interface
@@ -277,7 +277,7 @@ void Interface6Entry::print(bool IPForward)
 
 #ifdef USE_MOBILITY
   PRINTF("==============  MIPv6 Host Variables  ====================================== \n");
-  
+
   PRINTF("Deprecated: MinRtrSolInterval:\t\t %d seconds\n", mipv6Var.minRtrSolInterval);
   PRINTF("Deprecated: MaxInterval: \t\t %d seconds\n", mipv6Var.maxInterval);
   PRINTF("MaxConsecutiveMissedRtrAdv: \t\t %d misses\n",
@@ -289,10 +289,10 @@ void Interface6Entry::print(bool IPForward)
 
   if(IPForward)
   {
-    
+
     PRINTF("==============  Router Configuration Variables  ============================ \n");
     PRINTF("AdvSendAdvertisements: \t %d \n", rtrVar.advSendAds);
-    PRINTF("MaxRtrAdvInterval: \t %f sec\n", rtrVar.maxRtrAdvInt);  
+    PRINTF("MaxRtrAdvInterval: \t %f sec\n", rtrVar.maxRtrAdvInt);
     PRINTF("MinRtrAdvInterval: \t %f sec\n", rtrVar.minRtrAdvInt);
     PRINTF("AdvManagedFlag: \t %d \n", rtrVar.advManaged);
     PRINTF("AdvOtherConfigFlag: \t %d \n", rtrVar.advOther);
@@ -321,6 +321,6 @@ void Interface6Entry::print(bool IPForward)
       }
     }
     PRINTF("============================================================================ \n");
-    
-  }  
+
+  }
 }

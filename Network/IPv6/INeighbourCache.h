@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/INeighbourCache.h,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002, 2003 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@
 
 namespace IPv6NeighbourDiscovery
 {
-  
+
 /**
    @class INeighbourCache
    @brief Interface for Conceptual Data Structure NeighbourCache
@@ -68,13 +68,13 @@ protected:
 
   /// Insert a newly created entry into NC
   boost::weak_ptr<NeighbourEntry> insertNeighbourEntry(NeighbourEntry* entry);
-  
+
   /// Remove Neighbour entry  (neighbour must exist)
   void removeNeighbourEntry(const ipv6_addr& addr);
 
   /// Returns true if neighbour found and removed false otherwise
   bool findNeighbourAndRemoveEntry(const ipv6_addr& addr);
- 
+
   //@}
 
 private:
@@ -93,7 +93,7 @@ private:
   /**
      keyed on ipv6_addr of neighbour.
      Neighbour can be either RouterEntry or NeighbourEntry.
-     
+
      Had to add a separate neighbour cache to ensure that neighbour gets deleted
      once (and only once) and also with the destEntries altered to hold
      weak_ptrs they observe that the shared_ptr has been deleted (without
@@ -102,7 +102,7 @@ private:
    */
   NeighbourCache neighbourCache;
 };
- 
+
 } //namespace IPv6NeighbourDiscovery
 
 #endif /* INEIGHBOURCACHE_H */

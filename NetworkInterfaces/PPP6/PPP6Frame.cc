@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/PPP6/PPP6Frame.cc,v 1.2 2005/02/12 07:35:12 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //

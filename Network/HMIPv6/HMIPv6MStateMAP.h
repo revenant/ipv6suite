@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6MStateMAP.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ class IPv6Mobility;
 class IPv6Datagram;
 
 namespace MobileIPv6
-{  
+{
   class MIPv6MHBindingUpdate;
 }
 
@@ -55,9 +55,9 @@ class HMIPv6MStateMAP: public MobileIPv6::MIPv6MStateHomeAgent
  public:
 
   static HMIPv6MStateMAP* instance();
-  
+
   virtual ~HMIPv6MStateMAP();
-  
+
 protected:
 
   virtual bool processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu,
@@ -68,11 +68,11 @@ protected:
   //@name constructors, destructors and operators
   //@{
    HMIPv6MStateMAP();
-  
+
   //@}
 
  private:
-  
+
 };
 
 } //namespace HierarchicalMIPv6

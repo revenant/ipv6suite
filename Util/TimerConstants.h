@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/TimerConstants.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -24,7 +24,7 @@
  * @author Johnny Lai
  * @date 07 Jun 2004
  *
- * @brief Declaration of constants used in timers 
+ * @brief Declaration of constants used in timers
  *
  */
 
@@ -38,12 +38,12 @@
  * to overcome the message owner problem i.e. you cannot get another module to
  * send a message when that module is not active (in its activity or
  * handleMessage loop)
- * 
+ *
  */
 extern const double SELF_SCHEDULE_DELAY;
 
 /**
- * Delay used for handleMessage to simulate activity's version of wait(0). 
+ * Delay used for handleMessage to simulate activity's version of wait(0).
  * Required otherwise simulation time will not advance.
  */
 extern const double ZERO_WAIT_DELAY;

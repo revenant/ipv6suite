@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/RoutingTable6.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
@@ -20,9 +19,9 @@
 //
 //   file: RoutingTable6
 //   Purpose: keep the table of all routing and
-//	      nterface information
+//        nterface information
 //   comment: has no gates;
-//	      requires function calls to do anything
+//        requires function calls to do anything
 //
 //   author: Johnny Lai
 //   Based on RoutingTable by Jochen Reber
@@ -33,5 +32,5 @@
 simple RoutingTable6
     parameters:
         IPv6routingFile : string,
-	numOfPorts : numeric;
+    numOfPorts : numeric;
 endsimple

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/RIP/RoutingProtocolRIP.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2003 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -49,13 +49,13 @@ class RoutingProtocolRIP: public cSimpleModule
 {
  public:
   friend class RoutingProtocolRIPTest;
-  
+
   Module_Class_Members(RoutingProtocolRIP, cSimpleModule, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
   int numInitStages() const;
-  
+
   virtual void initialize(int stageNo);
 
   virtual void finish();
@@ -64,9 +64,9 @@ class RoutingProtocolRIP: public cSimpleModule
   //@}
 
  protected:
-  
+
  private:
-  
+
 };
 
 namespace RoutingProtocol

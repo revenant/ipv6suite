@@ -1,6 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/EtherStateWaitBackoff.cc,v 1.2 2005/02/10 05:59:32 andras Exp $
-//
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia

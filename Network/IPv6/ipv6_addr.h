@@ -1,5 +1,5 @@
 //  -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/ipv6_addr.h,v 1.2 2005/02/09 08:04:27 andras Exp $
+//
 // Monash University, Melbourne, Australia
 
 /**

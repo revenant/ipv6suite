@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/Attic/WirelessEtherSignal.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -43,13 +42,13 @@ WESignal& WESignal::operator=(const WESignal& p)
 {
   EtherSignal::operator=(p);
   PHYWirelessSignal::operator=(p);
-  
+
   setSourceName(p.sourceName());
 
   return *this;
 }
 
-// Note that a copy of frame is made. Otherwise, multiple modules may delete 
+// Note that a copy of frame is made. Otherwise, multiple modules may delete
 // the same frame and cause memory access problems. However, the programmer needs to
 // be extra careful when writing code to prevent memory leaks.
 WESignalData::WESignalData(WirelessEtherBasicFrame* frame, int c, double p)
@@ -65,7 +64,7 @@ WESignalData::WESignalData(WirelessEtherBasicFrame* frame, int c, double p)
         setName(frame->encapsulatedMsg()->className());
     }
   }
-      
+
   setKind(static_cast<int>(WIRELESS_EST_Data));
   setLength(frame->length()*8); // convert into bits
 }

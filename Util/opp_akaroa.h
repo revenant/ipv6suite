@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/opp_akaroa.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2003 Johnny Lai
 //
 // This file is part of IPv6Suite

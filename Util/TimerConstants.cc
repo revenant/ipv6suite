@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Attic/TimerConstants.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -23,15 +23,15 @@
  * @file   TimerConstants.cc
  * @author Johnny Lai
  * @date   07 Jun 2004
- * 
+ *
  * @brief Stores a constant used to overcome the restriction of message sending
  * from different module
  *
- * 
+ *
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"    
+#include "sys.h"
 #include "debug.h"
 
 #include "TimerConstants.h"

@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/INeighbourCache.cc,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   INeighbourCache.cc
  * @author Johnny Lai
  * @date   18 Apr 2002
- * 
- * @brief Implementation of INeighbourCache 
+ *
+ * @brief Implementation of INeighbourCache
  * @todo
- * 
+ *
  */
 
 
@@ -31,11 +31,11 @@
 
 namespace IPv6NeighbourDiscovery
 {
-  
+
 /**
  * @param entry Insert a newly constructed NeighbourEntry or RouterEntry into
  * the NeighbourCache
- * 
+ *
  * Will also insert create the corresponding DestinationEntry for this
  * NeighbourEntry.
  *
@@ -45,14 +45,14 @@ namespace IPv6NeighbourDiscovery
 boost::weak_ptr<NeighbourEntry> INeighbourCache::insertNeighbourEntry(NeighbourEntry* entry)
 {
   assert(entry != 0);
-  
+
   //Create new or find existing entry
   boost::weak_ptr<NeighbourEntry> ptr = neighbourCache[entry->addr()];
 #ifdef NDCDSDEBUG
   if (ptr.get() != 0)
     cout << "Replacing an existing NeighbourEntry in NC with addr="
          <<entry->addr() << " replaced ptr="<<ptr.get()<<" new ptr="<<entry<<'\n';
-  
+
 #endif //NDCDSDEBUG
 
   //Insert neighbour entry here
@@ -66,7 +66,7 @@ void INeighbourCache::removeNeighbourEntry(const ipv6_addr& addr)
 {
   assert(neighbourCache.erase(addr) == 1);
 }
- 
+
 bool INeighbourCache::findNeighbourAndRemoveEntry(const ipv6_addr& addr)
 {
   return neighbourCache.erase(addr) == 1;

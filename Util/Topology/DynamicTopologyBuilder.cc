@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/DynamicTopologyBuilder.cc,v 1.2 2005/02/10 07:06:45 andras Exp $
+//
 // Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or

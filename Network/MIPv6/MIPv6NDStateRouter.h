@@ -1,7 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6NDStateRouter.h,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,7 +40,7 @@ namespace MobileIPv6
 
 /**
  * @class MIPv6NDStateRouter
- * 
+ *
  * @brief Router processing of MIPv6 specific ICMPv6 messages
  */
 
@@ -50,15 +49,15 @@ class MIPv6NDStateRouter : public NDStateRouter
  public:
   MIPv6NDStateRouter(NeighbourDiscovery* mod);
   virtual ~MIPv6NDStateRouter(void);
-    
+
   virtual std::auto_ptr<ICMPv6Message> processMessage(
     std::auto_ptr<ICMPv6Message> msg );
 
   virtual void print(){};
-  
+
  protected:
   virtual ICMPv6NDMRtrAd* createRA(const Interface6Entry::RouterVariables& rtr, size_t ifidx);
-}; 
+};
 
 } // end namesapce MobileIPv6
 

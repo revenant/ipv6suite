@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IRouterList.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2003 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@
 
 namespace IPv6NeighbourDiscovery
 {
-  
+
 /**
  * @class IRouterList
  * @brief Interface for Conceptual Data Structure RouterList
@@ -50,7 +50,7 @@ class IRouterList: public boost::noncopyable
 {
   friend std::ostream& operator<<(std::ostream& os,
                                   const IPv6NeighbourDiscovery::IRouterList& rl);
-  
+
 public:
 
   //@name constructors, destructors and operators
@@ -66,7 +66,7 @@ public:
   /// returns default router entry with interface index given
   //migrate to Routing?
   boost::weak_ptr<RouterEntry> defaultRouter(void);
-  
+
   /// Make re the default next hop (re is already in DRL)
   void setDefaultRouter(boost::weak_ptr<RouterEntry> re);
 
@@ -75,12 +75,12 @@ public:
 
   /// delete router entry from the list
   void removeRouterEntry(const ipv6_addr& addr);
-  
+
   ///Return a router Object or 0 if not found
   boost::weak_ptr<RouterEntry> router(const ipv6_addr& addr);
 
   size_t routerCount() const { return routers.size(); }
-  
+
   //@}
 
 protected:
@@ -106,7 +106,7 @@ protected:
                            const IPv6NeighbourDiscovery::IRouterList& rl);
   std::ostream& operator<<(std::ostream& os,
                            const IPv6NeighbourDiscovery::IRouterList::DefaultRouterList::value_type& bre);
- 
+
 } //namespace IPv6NeighbourDiscovery
 
 

@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IRouterList.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   IRouterList.cc
  * @author Johnny Lai
  * @date   18 Apr 2002
- * 
+ *
  * @brief  Implementation of IRouterList class
  * @todo
- * 
+ *
  */
 
 
@@ -52,23 +52,23 @@ std::ostream& operator<<(std::ostream & os, const IPv6NeighbourDiscovery::IRoute
 
 IRouterList::IRouterList()
 {}
-  
+
 
 IRouterList::~IRouterList()
 {}
-  
+
 ///Would iterating through routers be faster or looking through DC
 boost::weak_ptr<RouterEntry> IRouterList::router(const ipv6_addr& addr)
 {
   for (DRLI it = routers.begin(); it != routers.end(); it++)
     if ((*it)->addr() == addr)
       return *it;
-  
+
   return boost::weak_ptr<RouterEntry>();
 }
 
 /**
-   Add router to Default Router List and place into DC   
+   Add router to Default Router List and place into DC
  */
  boost::weak_ptr<RouterEntry> IRouterList::insertRouterEntry(RouterEntry* re, bool setDefault)
 {
@@ -89,22 +89,22 @@ boost::weak_ptr<RouterEntry> IRouterList::router(const ipv6_addr& addr)
  */
 void IRouterList::removeRouterEntry(const ipv6_addr& addr)
 {
-  for (DRLI it = routers.begin(); it != routers.end(); it++)  
+  for (DRLI it = routers.begin(); it != routers.end(); it++)
     if ((*it)->addr() == addr)
     {
       //As the DRL contains the only shared_ptr by erasing it the contained
       //RouterEntry is deleted and all weak_ptr observers have the RouterEntry
       //ptr set to 0. (or so in theory)
 //         DestinationEntry* de = 0;
-//         DCI it2;        
+//         DCI it2;
 //         for (it2 = beginDC(), de = nextDC(it2); de != 0; de = nextDC(it2))
 //           if (de->neighbour == (*it))
 //             de->neighbour = 0;
-        
+
 //         delete *it;
-        routers.erase(it);  
-        break;        
-    }  
+        routers.erase(it);
+        break;
+    }
 }
 
 
@@ -123,7 +123,7 @@ void IRouterList::removeRouterEntry(const ipv6_addr& addr)
 boost::weak_ptr<RouterEntry> IRouterList::defaultRouter(void)
 {
   boost::weak_ptr<RouterEntry> re;
-  
+
   for (DRLI it = routers.begin(); it != routers.end(); it++)
   {
 /*
@@ -137,7 +137,7 @@ boost::weak_ptr<RouterEntry> IRouterList::defaultRouter(void)
 */
     re = *it;
     break;
-  }  
+  }
 
   //If all the routers are not reachable then just return the default one
   //and addr res will begin
@@ -149,7 +149,7 @@ boost::weak_ptr<RouterEntry> IRouterList::defaultRouter(void)
 
 /**
  * Default Router is always first in the list
- * 
+ *
  */
 
 void IRouterList::setDefaultRouter(boost::weak_ptr<RouterEntry> re)
@@ -159,7 +159,7 @@ void IRouterList::setDefaultRouter(boost::weak_ptr<RouterEntry> re)
   for (it = routers.begin(); it != routers.end(); it++)
     if ((*it).get() == re.lock().get())
       bre = *it;
-  
+
   assert(bre.get() != 0);
   routers.remove(bre);
   routers.push_front(bre);

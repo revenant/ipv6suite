@@ -1,4 +1,3 @@
-//$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Mobility.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2001 Monash University, Australia
 //

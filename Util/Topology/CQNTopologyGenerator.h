@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/CQNTopologyGenerator.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -55,8 +55,8 @@ struct vertex_map_hostname_t
 ///@typedef for Parallel Close Queuing Network
 typedef boost::adjacency_list<
   boost::listS, boost::vecS, boost::bidirectionalS,
-//Required for Graphviz property writers                  
-  boost::property<boost::vertex_attribute_t, boost::GraphvizAttrList, 
+//Required for Graphviz property writers
+  boost::property<boost::vertex_attribute_t, boost::GraphvizAttrList,
                   boost::property<vertex_map_hostname_t, std::string> > ,
   boost::no_property
   > CQNTopology;
@@ -72,7 +72,7 @@ const static char* type2 = "queue";
 
 /**
  * @struct CQNTopologyGenerator<GraphX>
- * 
+ *
  * @brief Generates CQN Topology
  *
  * Using BGL to produce topology
@@ -86,7 +86,7 @@ template<class Graph> struct CQNTopologyGenerator
    * @class property_label_writer<Graph>
    * @brief Write out the node name as a label in graphviz dot format
    *
-   * node name is obtained from "router" + vertex id 
+   * node name is obtained from "router" + vertex id
    */
 
   template < class GraphX2, class Tag = boost::vertex_index_t>
@@ -96,10 +96,10 @@ template<class Graph> struct CQNTopologyGenerator
       graph(_graph), pm(get(tag, graph)), switchCount(switchCount){}
     template <class VertexOrEdge>
     void operator()(std::ostream& out, const VertexOrEdge& v) const {
-      
+
       out << "[label=\""<<(get(pm,v)<switchCount?type1:type2)<< get(pm, v)<<"\"]"; //name[v] << "\"]";
     }
-    
+
     template <class VertexOrEdge>
     void operator()(const VertexOrEdge& v) const
       {
@@ -107,7 +107,7 @@ template<class Graph> struct CQNTopologyGenerator
         s<<(get(pm,v)<switchCount?type1:type2)<<(get(pm,v)<switchCount?get(pm,v):get(pm,v)-switchCount);
         set_vertex_label(s.str(), v, graph);
       }
-  
+
   private:
     Tag tag;
     GraphX2& graph;
@@ -120,7 +120,7 @@ template<class Graph> struct CQNTopologyGenerator
  * @class property_hostname_writer
 
  * @brief partition the CQN queues and switches to work on one host for each
- * tandem queue 
+ * tandem queue
 
  * @todo get rid of type vertex_map_hostname_t by using vertex_attribute see the graphviz label attribute used for nodenames to moduletype mapping
  */
@@ -133,12 +133,12 @@ template<class Graph> struct CQNTopologyGenerator
     template <class VertexOrEdge>
     void operator()(const VertexOrEdge& v) const
       {
-        static const char* hostnames[8] = 
+        static const char* hostnames[8] =
           {
             //"tangles0", "tangles1", "tangles2", "tangles3", "tangles4", "tangles5", "tangles6", "tangles7"
             "host0", "host1", "host2", "host3", "host4", "host5", "host6", "host7"
           };
-        
+
         std::stringstream s;
         s<<(v<switchCount?hostnames[v]:hostnames[(v-switchCount)/tandemCount]);
         //set_vertex_label(s.str(), v, graph, "hostname");
@@ -151,8 +151,8 @@ template<class Graph> struct CQNTopologyGenerator
     PropertyMap pm;
     unsigned int switchCount, tandemCount;
   };
-  
-  
+
+
 
   template<typename GraphX> struct doOnceOnly
   {
@@ -168,9 +168,9 @@ template<class Graph> struct CQNTopologyGenerator
 //         vertex_attr["shape"] = "circle";
 
         boost::write_graphviz(parent.os, parent.g, CQNTopologyGenerator<GraphX>::property_label_writer<Graph>(parent.g, parent.switchCount));
-        
+
       }
-  
+
     CQNTopologyGenerator<GraphX>& parent;
   };
 
@@ -181,14 +181,14 @@ template<class Graph> struct CQNTopologyGenerator
   void operator()()
     {
       assert(num_vertices(g) == switchCount + serversInTandem*switchCount);
-      
+
 //      int nodeTypes = 2;
-      
-      std::vector<unsigned int> switchs(switchCount), 
+
+      std::vector<unsigned int> switchs(switchCount),
         servers(serversInTandem*switchCount);
       Vertex src;
       vertex_iter i, end;
-      
+
       //Assign indices to the respective node types first to ease topology
       //generation
       unsigned int switchIndex=0, serverIndex=0;
@@ -196,7 +196,7 @@ template<class Graph> struct CQNTopologyGenerator
       {
         src = *i;
         if (src < switchCount)
-        {  
+        {
           switchs[switchIndex] = src;
           switchIndex++;
         }
@@ -206,7 +206,7 @@ template<class Graph> struct CQNTopologyGenerator
           serverIndex++;
         }
       }
-      
+
       for (unsigned int i = 0; i < switchCount; i++)
       {
         for (unsigned int j = 0; j < switchCount; j++)
@@ -214,21 +214,21 @@ template<class Graph> struct CQNTopologyGenerator
           add_edge(switchs[i], servers[serversInTandem*j], g);
         }
       }
-      
+
       for (unsigned int i = 0; i < switchCount; i++)
         for (unsigned int j = 0; j < serversInTandem-1; j++)
         {
           add_edge(servers[i*serversInTandem + j], servers[i*serversInTandem + j +1], g);
         }
-      
-      
+
+
       for (unsigned int i = 1; i <= switchCount; i++)
       {
         add_edge(servers[i*serversInTandem-1], switchs[i-1], g);
       }
-      
+
     }
-  
+
   void labelGraph()
     {
       vertex_iter vi, vend;
@@ -236,17 +236,17 @@ template<class Graph> struct CQNTopologyGenerator
       std::for_each(vi, vend, property_label_writer<Graph>(g, switchCount));
       std::for_each(vi, vend, property_hostname_writer<Graph>(g, switchCount, serversInTandem));
     }
-  
+
   Graph& g;
   boost::shared_ptr<doOnceOnly<Graph> > doOnce;
   std::ostream& os;
 
-  unsigned int switchCount, serversInTandem; 
+  unsigned int switchCount, serversInTandem;
 
 };
 
 template <class Vertex, class Graph>
-const std::string& 
+const std::string&
 //vertex_label(const Vertex& u, const Graph& g, const std::string& label="label");
 vertex_label(const Vertex& u, const Graph& g, const std::string& label);
 
@@ -259,10 +259,10 @@ void print (CQNTopology& g)
   PropertyMap pm(get(tag, g));
   for(boost::tie(i,end) = boost::vertices(g); i != end; ++i) {
     std::cout << vertex_label(*i, g) << " --> ";
-    for (boost::tie(ei,edge_end) = boost::out_edges(*i, g); 
+    for (boost::tie(ei,edge_end) = boost::out_edges(*i, g);
          ei != edge_end; ++ei)
       std::cout << vertex_label(boost::target(*ei, g), g) << " on "<<get(pm,boost::target(*ei, g))<<" ; ";
-    
+
     std::cout << std::endl;
   }
 }

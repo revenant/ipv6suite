@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.h,v 1.3 2005/02/14 01:20:38 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //

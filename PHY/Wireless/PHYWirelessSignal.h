@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Wireless/Attic/PHYWirelessSignal.h,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -34,13 +33,13 @@
 class PHYWirelessSignal
 {
 public:
-  // c = channel 
+  // c = channel
   // p = power level (in mW)
   PHYWirelessSignal(int c = INVALID_CHANNEL, double p = INVALID_POWER);
   PHYWirelessSignal(const PHYWirelessSignal& p);
 
   // assignment operator
-  PHYWirelessSignal& operator=(const PHYWirelessSignal& p);    
+  PHYWirelessSignal& operator=(const PHYWirelessSignal& p);
 
   virtual int channel() const { return ch; }
   virtual double power() const { return pwr; }

@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/Router6.ned,v 1.2 2005/02/16 01:21:03 andras Exp $
 //
 // Copyright (C) 2002, 2004 Eric Wu
 //

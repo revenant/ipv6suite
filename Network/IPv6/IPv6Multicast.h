@@ -1,8 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Multicast.h,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -56,19 +55,19 @@ struct ipv6_addr;
 
 /**
  * @class IPv6Multicast
- * @brief Handle sending and forwarding of multicast packets 
+ * @brief Handle sending and forwarding of multicast packets
  */
 
 class IPv6Multicast: public RoutingTable6Access
 {
-  
+
 public:
-  Module_Class_Members(IPv6Multicast, RoutingTable6Access, 0); 
+  Module_Class_Members(IPv6Multicast, RoutingTable6Access, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage*);
   virtual void finish();
-  
+
   static std::string multicastLLAddr(const ipv6_addr& addr);
 private:
   void dupAndSendPacket(const IPv6Datagram* datagram, size_t ifIndex);

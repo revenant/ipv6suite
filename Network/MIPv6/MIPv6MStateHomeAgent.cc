@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6MStateHomeAgent.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -185,7 +185,7 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
 
 //  }
 
-    
+
   return true;
 }
 
@@ -207,11 +207,11 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
   //if bce not exists then do DAD on it and only after DAD successful then we
   //send back a BA. That will be tricky indeed
   //boost::weak_ptr<bc_entry> bce = mob->mipv6cds->findBinding(bu->ha());
-  //if (!bce.get()) 
-  //do dad and then send self message for when dad successful 
+  //if (!bce.get())
+  //do dad and then send self message for when dad successful
   //callback will sendBA and rest of this fn then multicast NA to all nodes addr on home link
 
-  //Test that lifetime of bce is less than bu expires.  
+  //Test that lifetime of bce is less than bu expires.
   //Test also prefix from which hoa is derived is not shorter than expires.
   boost::weak_ptr<bc_entry> bce = mob->mipv6cds->findBinding(bu->ha());
   ipv6_addr oldcoa = IPv6_ADDR_UNSPECIFIED;
@@ -219,7 +219,7 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
   {
     oldcoa = bce.lock()->care_of_addr;
   }
-  
+
   MIPv6MobilityState::registerBCE(dgram, bu, mob);
 
   bce = mob->mipv6cds->findBinding(bu->ha());
@@ -238,10 +238,10 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
 
   assert(dgram->inputPort() >= 0);
 
-  
+
 
   //Find HA addr (this is wrong as we could get wrong HA addr if HA serves as
-  //diff HA on each iface and since HA addr is global can come on any iface anyway) 
+  //diff HA on each iface and since HA addr is global can come on any iface anyway)
   //ipv6_addr gaddr = globalAddr(static_cast<unsigned int>(dgram->inputPort()), mob);
 
   /// This contains the real HA addr (Can this be anything else besides HA or
@@ -315,7 +315,7 @@ bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu,  unsigned int ifIndex, IPv6Mobi
   //home bindings expired already?
   assert(bce.lock().get() != 0);
 
-  
+
   if (!mob->mipv6cds->tunMod)
     mob->mipv6cds->tunMod = polymorphic_downcast<IPv6Encapsulation*>
       (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
@@ -344,7 +344,7 @@ ipv6_addr MIPv6MStateHomeAgent::globalAddr(unsigned int ifIndex,  IPv6Mobility* 
   for (unsigned int addrIndex = 0;  addrIndex < ie.inetAddrs.size(); addrIndex++)
   {
     if (ie.inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Global ||
-        ie.inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Site 
+        ie.inetAddrs[addrIndex].scope() ==  ipv6_addr::Scope_Site
         )
     {
       return ie.inetAddrs[addrIndex];

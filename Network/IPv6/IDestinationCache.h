@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IDestinationCache.h,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -118,15 +118,15 @@ public:
   /**
    * @brief Update existing destination entries with neighbour of addr by
    * breaking that link and using ngbr as the next hop neighbour instead.
-   * 
+   *
    * @param addr address of the next hop neighbour search key
    * @param ngbr address of the new next hop neighbour to use intead of addr
    * @return number of destinatioin entires updated
    */
 
   int updateDestEntryByNeighbour(const ipv6_addr& addr, const ipv6_addr& ngbr);
-  
-  
+
+
 //In the end I reverted to doing this.  I tried the template method but then
 //realised that the two templated versions do not derive from one another so
 //can't use the same pointer to address two different kinds.  I could have made
@@ -137,7 +137,7 @@ public:
 //sharing the bc in here.  but if I did that then there would be possibility of
 //two lookups instead of always just one lookup. So in light of all those
 //concerns the lesser of two evils was introduced.
-#ifndef USE_MOBILITY  
+#ifndef USE_MOBILITY
   typedef std::map<IPv6Address, DestinationEntry > DestinationCache;
 #else
   typedef std::map<IPv6Address, MobileIPv6::MIPv6DestinationEntry> DestinationCache;
@@ -155,15 +155,15 @@ protected:
   bool findDestEntry(const ipv6_addr& addr, DCI& it)
   {
     it = destCache.find(IPv6Address(addr));
-    return it!=destCache.end();      
+    return it!=destCache.end();
   }
- 
+
 #ifdef CXX
 protected:
 #endif //CXX
   DCI beginDC() { return destCache.begin(); }
 
-  ///Returns the DestinationEntry at it and moves it forward by one. 
+  ///Returns the DestinationEntry at it and moves it forward by one.
   ///Returns 0 when reaching the end.
   ///Make sure iterator obtained originally with beginDC.
   DestinationEntry* nextDC(DCI& it);
@@ -177,7 +177,7 @@ protected:
         destCache.erase(it);
         return true;
       }
-      
+
       return false;
     }
 
@@ -191,7 +191,7 @@ protected:
   //bool DestEntryType
 };
 
-#ifndef USE_MOBILITY  
+#ifndef USE_MOBILITY
 std::ostream& operator<<
   (std::ostream& os, const pair<IPv6Address, DestinationEntry> & p);
 #else

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/Ping6Iface.h,v 1.1 2005/02/10 04:07:06 andras Exp $
 //
 // Copyright Copyright (C) 2001 Johnny Lai
 // Monash University, Melbourne, Australia
@@ -39,17 +38,17 @@ struct echo_int_info
     {
       return _length;
     }
-  
+
   void setLength(unsigned int len)
     {
       _length = len;
     }
-  
+
   short id;
   unsigned long seqNo;
   char* custom_data;
   int _length;
   unsigned char hopLimit;
-  double sendingTime;  
+  double sendingTime;
 };
 

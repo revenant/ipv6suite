@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/MACAddress6.cc,v 1.1 2005/02/16 00:41:32 andras Exp $
+//
 // Monash University, Melbourne, Australia
 
 /**

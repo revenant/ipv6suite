@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.7 2005/02/11 12:23:46 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //

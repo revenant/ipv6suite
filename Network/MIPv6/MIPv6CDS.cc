@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6CDS.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,13 +20,13 @@
  * @file   MIPv6CDS.cc
  * @author Johnny Lai
  * @date   19 Apr 2002
- * 
- * @brief 
- * 
- * @todo Implement mainly Binding Cache interface which is common to both 
+ *
+ * @brief
+ *
+ * @todo Implement mainly Binding Cache interface which is common to both
  * HomeAgents and Mobile Nodes however there may be differences so that reuse is
  * inappropriate
- * 
+ *
  */
 
 
@@ -44,7 +44,7 @@ namespace MobileIPv6
   {
     home_token.high = rand();
     home_token.low = rand();
-        
+
     careof_token.high = rand();
     careof_token.low = rand();
   }
@@ -67,14 +67,14 @@ namespace MobileIPv6
       return it->second;
     return  boost::weak_ptr<bc_entry>();
   }
-  
+
   boost::weak_ptr<bc_entry> MIPv6CDS::insertBinding(bc_entry* entry)
   {
     boost::shared_ptr<bc_entry>& bce = bc[entry->home_addr];
     bce.reset(entry);
     return bce;
   }
-  
+
   bool MIPv6CDS::removeBinding(const ipv6_addr& homeAddr)
   {
     BCI it;
@@ -83,7 +83,7 @@ namespace MobileIPv6
       bc.erase(it);
       return true;
     }
-    
+
     return false;
   }
 
@@ -91,8 +91,8 @@ namespace MobileIPv6
   {
     return makeCallback(this, &MIPv6CDS::expireLifetimes);
   }
-  
-  
+
+
   void MIPv6CDS::expireLifetimes(cTimerMessage* tmr)
   {
     //Decrement every BC entry and remove entry if decrement > remaining lifetime
@@ -111,10 +111,10 @@ namespace MobileIPv6
         it++;
         bc.erase(temp);
       }
-      
+
     }
   }
-  
+
   bool MIPv6CDS::findBinding(const ipv6_addr& homeAddr, BCI& it)
   {
     it = bc.find(homeAddr);

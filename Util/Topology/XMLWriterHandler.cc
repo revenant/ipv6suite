@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/XMLWriterHandler.cc,v 1.1 2005/02/09 06:15:59 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
@@ -20,10 +20,10 @@
  * @file   XMLWriterHandler.cc
  * @author Johnny Lai
  * @date   11 Dec 2002
- * 
- * @brief  Implementation of class XMLWriterHandler 
  *
- * 
+ * @brief  Implementation of class XMLWriterHandler
+ *
+ *
  */
 
 
@@ -48,7 +48,7 @@ XMLWriterHandler::~XMLWriterHandler()
 void XMLWriterHandler::on_start_document(void)
 {
 //  const std::string encoding("iso-8859-1");
-//   if (encoding != tree.set_encoding(encoding)) 
+//   if (encoding != tree.set_encoding(encoding))
 //   {
 //     cerr<<" Problem encountered in setting XML docuemnt to encoding "<<encoding;
 //   }
@@ -61,12 +61,12 @@ void XMLWriterHandler::on_start_document(void)
 
   xmlpp::Element* root = dynamic_cast<xmlpp::Element*>(tree.set_root_node("netconf"));
   assert(root);
-  
+
   root->add_attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
   root->add_attribute("xsi:noNamespaceSchemaLocation", "../../Scripts/netconf.xsd");
   root->add_attribute("debugChannel", "debug.log:notice");
   root->add_attribute("topologyFile", dotfile);
-  
+
   root->add_content("\n");
 
   //handler->characters("<!DOCTYPE netconf SYSTEM \"../../Scripts/netconf2.dtd\">");
@@ -96,7 +96,7 @@ struct add_attribute
   add_attribute(Element* elem)
     :elem(elem)
     {}
-  
+
   void operator()(const xmlpp::Element::AttributeMap::value_type& prop)
     {
       elem->add_attribute(prop.second->get_name(),prop.second->get_value());
@@ -109,11 +109,11 @@ void XMLWriterHandler::on_start_element(const std::string &n, const xmlpp::Eleme
 {
   Element* elem = dynamic_cast<Element*>((*elements.begin())->add_child(n));
   assert(elem);
-  
+
   (*elements.begin())->add_content("\n");
-  
+
   std::for_each(pm.begin(), pm.end(), add_attribute(elem));
-  
+
   elements.push_front(elem);
 }
 

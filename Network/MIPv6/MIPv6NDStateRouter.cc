@@ -1,7 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6NDStateRouter.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -71,7 +70,7 @@ ICMPv6NDMRtrAd* MIPv6NDStateRouter
                                                        ,rtrVar.advHomeAgent
 #endif
                                                        );
-  
+
 #ifdef USE_MOBILITY
   // New Advertisement Interval option included in RA
   rtrAd->setAdvInterval(

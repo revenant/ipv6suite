@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/CMake/Attic/cmOPPWrapNedcCommand.cc,v 1.1 2005/02/09 06:15:57 andras Exp $
+//
 // Copyright (C) 2003 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
  * @file   cmOPPWrapNedcCommand.cc
  * @author Johnny Lai
  * @date   26 Jun 2003
- * 
+ *
 
  * @brief Conversion from my corresponding cmake patch into a seperate CMake
  * plugin.
  *
  * Should save lots of time from having to rebuild the whole CMake.
- * 
+ *
  */
 
 
@@ -44,13 +44,13 @@ typedef struct
   std::vector<void*> m_GeneratedSourcesClasses;
 //  std::vector<cmSourceFile> m_GeneratedHeadersClasses;
   /**
-   * List of Ned files that provide the source 
-   * generating _n.cc 
+   * List of Ned files that provide the source
+   * generating _n.cc
    */
   std::vector<std::string> m_WrapNedModule;
   std::string m_Target;
   std::string m_NedIncludeVar;
-  //Parsed definition list into standard includes 
+  //Parsed definition list into standard includes
   std::string m_includes;
   std::string m_MacroName;
   const char* m_NewNameSuffix;
@@ -61,11 +61,11 @@ typedef struct
 
 extern "C" {
 
-  static  const char* GetTerseDocumentation() 
+  static  const char* GetTerseDocumentation()
   {
     return "Create OMNeT++ Nedc Wrapper.";
   }
-  
+
   /**
    * More documentation.
    */
@@ -98,7 +98,7 @@ extern "C" {
       info->CAPI->SetError(info, help.c_str());
       return false;
     }
-  
+
     // Now check and see if the value has been stored in the cache
     // already, if so use that value and don't look for the program
     if (!info->CAPI->IsOn(mf, cdata->m_MacroName.c_str()))
@@ -117,7 +117,7 @@ extern "C" {
       //add. This means dynamic ned on only for new installations (otherwise
       //leave it off) and if its on it'll stay on
     }
-  
+
     // what is the current source dir
     std::string cdir = info->CAPI->GetCurrentDirectory(mf);
 
@@ -129,8 +129,8 @@ extern "C" {
     const char* NedcIncludeVar_value = info->CAPI->GetDefinition(mf, cdata->m_NedIncludeVar.c_str());
     if (NedcIncludeVar_value != 0)
       cdata->m_includes = NedcIncludeVar_value;
-  
-  
+
+
     if (cdata->m_includes.empty())
     {
       std::string message = cdata->m_MacroName + " called with empty NedIncludeVar list " + cdata->m_NedIncludeVar;
@@ -147,7 +147,7 @@ extern "C" {
         else
           break;
       }
-  
+
       cdata->m_includes.insert(0, "-I", 2);
 
     }
@@ -167,18 +167,18 @@ extern "C" {
     // m_Makefile->ExpandSourceListArguments(args,newArgs, 2);
     info->CAPI->ExpandSourceListArguments(mf, argc, const_cast<const char**>(argv), &newArgc, &newArgv, 2);
 
-    // get the list of NED files from which .cxx will be generated 
+    // get the list of NED files from which .cxx will be generated
     std::string outputDirectory = info->CAPI->GetCurrentOutputDirectory(mf);
 
-  
+
     const char * GENERATED_NEDC_FILES_value=
-      info->CAPI->GetDefinition(mf, "GENERATED_NEDC_FILES"); 
+      info->CAPI->GetDefinition(mf, "GENERATED_NEDC_FILES");
     std::string nedsrcs("");
     if (GENERATED_NEDC_FILES_value!=0)
     {
       nedsrcs=nedsrcs+GENERATED_NEDC_FILES_value;
     }
-    // for(std::vector<std::string>::iterator i = (newArgs.begin() + 2); 
+    // for(std::vector<std::string>::iterator i = (newArgs.begin() + 2);
 //       i != newArgs.end(); i++)
     for ( int i = 2; i < newArgc; i++)
     {
@@ -192,10 +192,10 @@ extern "C" {
 
         const bool headerFileOnly = true;
 
-//       source_file.SetName((srcName+m_NewNameSuffix).c_str(), 
+//       source_file.SetName((srcName+m_NewNameSuffix).c_str(),
 //                   outputDirectory.c_str(), "cc",!headerFileOnly);
         info->CAPI->SourceFileSetName2(source_file,
-                                       (srcName + cdata->m_NewNameSuffix).c_str(), 
+                                       (srcName + cdata->m_NewNameSuffix).c_str(),
                                        outputDirectory.c_str(), "cc",!headerFileOnly);
         std::string origname = cdir + "/" + newArgv[i];
         std::string cxxname = info->CAPI->SourceFileGetFullPath(source_file);
@@ -204,7 +204,7 @@ extern "C" {
         //source_file.GetDepends().push_back(origname);
         info->CAPI->SourceFileAddDepend(source_file, origname.c_str());
         cdata->m_GeneratedSourcesClasses.push_back(source_file);
-        nedsrcs=nedsrcs + ";" + std::string(info->CAPI->SourceFileGetSourceName(source_file)) + ".cc";     
+        nedsrcs=nedsrcs + ";" + std::string(info->CAPI->SourceFileGetSourceName(source_file)) + ".cc";
       }
       else if (cdata->dynamicNed)
       {
@@ -213,9 +213,9 @@ extern "C" {
         nedsrcs="";
       }
     }
-  
+
     info->CAPI->AddDefinition(mf, "GENERATED_NEDC_FILES", nedsrcs.c_str());
-  
+
     return true;
 
 
@@ -242,7 +242,7 @@ extern "C" {
 
       std::string cxxres = outputDirectory;
       cxxres += "/";
-      cxxres += info->CAPI->SourceFileGetSourceName(cdata->m_GeneratedSourcesClasses[classNum]) + 
+      cxxres += info->CAPI->SourceFileGetSourceName(cdata->m_GeneratedSourcesClasses[classNum]) +
         std::string(".cc");
 //    "." + cdata->m_GeneratedSourcesClasses[classNum].GetSourceExtension();
 
@@ -251,8 +251,8 @@ extern "C" {
       //Need to add -Inedcindcluds
       if (!cdata->m_includes.empty())
       {
-     
-        for (size_t j = 0, k = 0;;)       
+
+        for (size_t j = 0, k = 0;;)
           if ((k = cdata->m_includes.find_first_of(' ', j)) < cdata->m_includes.size())
           {
             //Don't want to include the actual ' ' character
@@ -265,13 +265,13 @@ extern "C" {
             break;
           }
       }
-    
+
       cxxargs.push_back("-h"); //Generate output cc file in current dir
       cxxargs.push_back(cdata->m_WrapNedModule[classNum]);// name of the Ned module file
 
       std::vector<std::string> depends;
       depends.push_back(cdata->m_ProgramName);
-    
+
       std::vector<std::string> outputs;
       outputs.push_back( cxxres );
 
@@ -281,9 +281,9 @@ extern "C" {
 
       // Add command for generating the .cc files
 //     m_Makefile->AddCustomCommand(m_WrapNedModule[classNum].c_str(),
-//                                  m_ProgramName.c_str(), cxxargs, depends, 
+//                                  m_ProgramName.c_str(), cxxargs, depends,
 //                                  outputs, m_Target.c_str() );
-      char** cxxargsv = new char*[cxxargs.size()];  
+      char** cxxargsv = new char*[cxxargs.size()];
       for (unsigned int i = 0; i < cxxargs.size(); i++)
       {
         cxxargsv[i] = new char[cxxargs[i].size()+1];
@@ -304,15 +304,15 @@ extern "C" {
         memcpy(outputsv[i], outputs[i].c_str(), outputs[i].size());
         outputsv[i][outputs[i].size()] = 0;
       }
-      
-      info->CAPI->AddCustomCommand(mf, cdata->m_WrapNedModule[classNum].c_str(), 
-//      info->CAPI->AddCustomCommandToTarget(mf, cdata->m_Target.c_str(), 
-                                   cdata->m_ProgramName.c_str(), cxxargs.size(), 
+
+      info->CAPI->AddCustomCommand(mf, cdata->m_WrapNedModule[classNum].c_str(),
+//      info->CAPI->AddCustomCommandToTarget(mf, cdata->m_Target.c_str(),
+                                   cdata->m_ProgramName.c_str(), cxxargs.size(),
                                    const_cast<const char**>(cxxargsv), depends.size(),
                                    const_cast<const char**>(dependsv), outputs.size(),
                                    const_cast<const char**>(outputsv), cdata->m_Target.c_str());
 //                                   const_cast<const char**>(cxxargsv), CM_PRE_BUILD);
-    
+
       for (unsigned int i = 0; i < cxxargs.size(); i++)
         delete [] cxxargsv[i];
       delete [] cxxargsv;
@@ -336,8 +336,8 @@ extern "C" {
       // cmSourceFile* sf = m_Makefile->AddSource(m_GeneratedSourcesClasses[classNum]);
       void* sf = info->CAPI->AddSource(mf, cdata->m_GeneratedSourcesClasses[classNum]);
 //     target->GetSourceFiles().push_back( sf );
-     
-    
+
+
     }
 
   }
@@ -358,6 +358,6 @@ extern "C" {
     info->GetFullDocumentation = GetFullDocumentation;
     info->m_Inherited = 1;
     info->Name = "OPP_WRAP_NEDC";
-  
+
   }
 }

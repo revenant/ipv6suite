@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/BriteGraph.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
@@ -44,14 +44,14 @@
  * detailed description
  */
 
-namespace boost 
+namespace boost
 {
 
-  struct graph_traits< ::Graph > 
+  struct graph_traits< ::Graph >
   {
     typedef int vertex_descriptor;
     typedef int edge_descriptor;
-    
+
     typedef directed_tag directed_category;
     typedef allow_parallel_edge_tag edge_parallel_category;
     typedef int vertices_size_type;
@@ -65,20 +65,20 @@ namespace boost
     //edges
     return g.edge(e)->GetSrc()->GetId();
   }
-  
+
   typename graph_traits< graph_traits<Graph>::vertex_descriptor
   target(typename graph_traits<Graph>::edge_descriptor e, const Graph& g)
   {
     return g.edge(e)->GetDst()->GetId();
   }
-  
+
 };
 
 namespace boost {
   struct out_edge_iterator_policies
   {
     static void increment(int& e)
-    { 
+    {
       Node* from = g.edge(e)->GetSrc();
       //Implement outEdge by iterating through Node->incEdges and returning the
       //one following this one.
@@ -86,13 +86,13 @@ namespace boost {
     }
 
     static void decrement(int& e)
-    { 
+    {
       Node* from = g.edge(e)->GetSrc();
       //Implement outEdge by iterating backwards through Node->incEdges and
       //returning the one following this one.
-      e = from->prevOutEdge(e);  
+      e = from->prevOutEdge(e);
     }
-    
+
 
     template <class Reference>
     static Reference dereference(type<Reference>, const int& e)
@@ -121,9 +121,9 @@ public:
   //@}
 
 protected:
-  
+
 private:
-  
+
 };
 
 

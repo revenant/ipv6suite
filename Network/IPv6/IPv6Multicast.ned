@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Multicast.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -25,7 +24,7 @@
 //  - duplicate datagram if it is sent to more than one output port
 //  - map multicast address on output port, use multicast routing table
 //  - send copy to  local deliver, if NetworkCardAddr.[] is part of multicast address
-//  - if entry in multicast routing table requires tunneling, send to Tunneling module 
+//  - if entry in multicast routing table requires tunneling, send to Tunneling module
 //  - otherwise send to Fragmentation module
 //  - receive IGMP message from LocalDeliver
 //  - update multicast routing table
@@ -34,10 +33,10 @@
 // Based on IPMulticast by Jochen Reber
 //
 simple IPv6Multicast
-	parameters:
-		procdelay: numeric const;
-	gates:
-		in: localIn, routingIn, ProcessorManagerIn;
-		out: localOut, fragmentationOut, tunnelOut;
+    parameters:
+        procdelay: numeric const;
+    gates:
+        in: localIn, routingIn, ProcessorManagerIn;
+        out: localOut, fragmentationOut, tunnelOut;
 endsimple
 

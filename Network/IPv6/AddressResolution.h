@@ -1,12 +1,11 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/AddressResolution.h,v 1.1 2005/02/09 06:15:57 andras Exp $
 //
-// Copyright (C) 2001 Johnny Lai 
+// Copyright (C) 2001 Johnny Lai
 // Monash University, Melbourne, Australia
 
 /**
    @file AddressResolution.h
-   
+
    @brief Perform Address resolution Store datagrams pending addr res
 */
 
@@ -52,13 +51,13 @@ typedef NDARTimers::iterator NDARTI;
  */
 class AddressResolution:public RoutingTable6Access
 {
-  
+
  public:
   Module_Class_Members(AddressResolution, RoutingTable6Access, 0);
-  virtual void initialize();  
+  virtual void initialize();
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
-  
+
  private:
   ///Sec 7.2.5
   void processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* ngbrAdv);
@@ -67,14 +66,14 @@ class AddressResolution:public RoutingTable6Access
   ///Sec. 7.2.2
   void initiateNgbrSol(IPv6NeighbourDiscovery::NDARTimer* tmr);
   void sendNgbrSol(IPv6NeighbourDiscovery::NDARTimer* tmr);
-  void failedAddrRes(IPv6NeighbourDiscovery::NDARTimer* tmr);  
+  void failedAddrRes(IPv6NeighbourDiscovery::NDARTimer* tmr);
   ///Sec. 7.2.4 Perhaps do that here?
   void sendNgbrAd();
-  
-  
-  
+
+
+
   void resendNS();
-  void timedOutNS();  
+  void timedOutNS();
 
   ///Pending Packet Queue for packets awaiting addr res
   PendingPacketQ ppq;

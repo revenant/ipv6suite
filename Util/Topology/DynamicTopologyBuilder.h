@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/DynamicTopologyBuilder.h,v 1.1 2005/02/09 06:15:59 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ class DynamicTopologyBuilder: public cSimpleModule
 {
 public:
   Module_Class_Members(DynamicTopologyBuilder, cSimpleModule, 0);
-  
+
   //@name constructors, destructors and operators
   //@{
   // DynamicTopologyBuilder();
@@ -61,9 +61,9 @@ public:
   void finish();
   //@}
 protected:
-  
+
 private:
-  
+
 };
 
 Define_Module(DynamicTopologyBuilder);

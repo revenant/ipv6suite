@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/libcwdsetup.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
  * @author Johnny Lai
  * @date 29 Jan 2003
  *
- * @brief function for configuring the libcwd debug channels 
+ * @brief function for configuring the libcwd debug channels
  * Conditionally compile with -DCWDEBUG at the gcc command line to enable
  */
 
@@ -46,15 +46,15 @@
 
 namespace libcwdsetup
 {
-  
+
 #ifdef CWDEBUG
 
   /**
-   * @name l_debugSettings       
+   * @name l_debugSettings
    * @param channels is a string composed of channel names separated by
    * colons. The very first channel name serves as the filename to log
    * debug output to.
-   * 
+   *
    * Each channel name will be examined to see if a corresponding libcwd debug
    * channel exists.  Consequently that debug channel is turned on.
    *

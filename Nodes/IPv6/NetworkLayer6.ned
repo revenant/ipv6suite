@@ -1,6 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/NetworkLayer6.ned,v 1.2 2005/02/16 01:34:38 andras Exp $
-//
-//
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityHandler.cc,v 1.4 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //

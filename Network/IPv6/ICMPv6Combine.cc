@@ -1,6 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Combine.cc,v 1.1 2005/02/09 06:15:57 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +17,8 @@
 
 /**
    @file ICMPv6Combine.cc
-   @brief Combine ICMPv6Core and NeighbourDiscovery 
-     -ICMP output messages into one gate   
+   @brief Combine ICMPv6Core and NeighbourDiscovery
+     -ICMP output messages into one gate
      -errors and notifications into one gate
    @date 26.09.01
 */
@@ -59,7 +58,7 @@ void ICMPv6Combine::handleMessage(cMessage* msg)
       send(msg, "errorOut");
       break;
     }
-    
+
     ev << "Unknown incoming gate "<<msg->arrivalGate()->name();
     break;
 

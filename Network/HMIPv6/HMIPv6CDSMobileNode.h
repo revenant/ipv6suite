@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6CDSMobileNode.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,14 +44,14 @@
 #endif //CASSERT
 
 namespace HierarchicalMIPv6
-{  
+{
 
 /**
  * @class HMIPv6CDSMobileNode
  *
  * @brief Contains operations for MAP entries necessary for HMIPv6 MNs.
  *
- * 
+ *
  */
 
 class HMIPv6CDSMobileNode: public MobileIPv6::MIPv6CDSMobileNode
@@ -59,7 +59,7 @@ class HMIPv6CDSMobileNode: public MobileIPv6::MIPv6CDSMobileNode
 public:
   typedef std::map<ipv6_addr, HMIPv6MAPEntry> Maps;
   typedef Maps::iterator MapsIt;
-  
+
   //@name constructors, destructors and operators
   //@{
   HMIPv6CDSMobileNode(size_t interfaceCount);
@@ -71,12 +71,12 @@ public:
     {
       return maps;
     }
-  
+
   Maps& mapEntries()
     {
       return maps;
     }
-  
+
   ///Is the current map valid
   bool isMAPValid() const
     {
@@ -88,7 +88,7 @@ public:
 
   ///Required func as BU to pHA is not done until BA from MAP received
   void setRemoteCareOfAddr(const ipv6_addr& orcoa) { rcoa = orcoa; }
-  
+
   HMIPv6MAPEntry& currentMap()
     {
       assert(maps.count(mapAddr));
@@ -104,7 +104,7 @@ public:
 
   /**
    * @par addr address of MAP assumed to be in the list of MAPS already
-   * 
+   *
    */
 
   bool setCurrentMap(const ipv6_addr& addr)
@@ -120,17 +120,17 @@ public:
     {
       mapAddr = IPv6_ADDR_UNSPECIFIED;
     }
-  
+
 protected:
-  
+
 private:
   Maps maps;
-  
+
   ipv6_addr mapAddr;
   ///Home address registered at prospective MAP
   mutable ipv6_addr rcoa;
 };
-  
+
 } //namespace HierarchicalMIPv6
 
 #endif /* HMIPV6CDSMOBILENODE_H */

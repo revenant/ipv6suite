@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Message.cc,v 1.1 2005/02/09 06:15:58 andras Exp $ 
-// Copyright (C) 2001, 2002 CTIE, Monash University 
+//
+// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -84,22 +84,22 @@ const bool MLDv2Message::S() const
   else
     return false;
 }
-  
+
 const char MLDv2Message::QRV() const
 {
   return (0x7&_opt[16]);
 }
-  
+
 const char MLDv2Message::QQIC() const
 { return _opt[17]; }
-  
+
 const short int MLDv2Message::NS() const
-{ 
+{
   short int rtNS;
   memcpy(&rtNS,&_opt[18],sizeof(short int));
   return rtNS;
 }
-  
+
 void MLDv2Message::setMA(ipv6_addr _info)
 {
   memcpy(&_opt[0],&_info.extreme,sizeof(unsigned int));

@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPrefixList.h,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,17 +74,17 @@ public:
       PLI it;
       if ((it = prefixList.find(prefix)) == prefixList.end())
         return 0;
-      return &it->second.first;      
+      return &it->second.first;
     }
-  
+
   /// Remove pref from list.  Pref can be one obtained here or a created one
   bool removePrefixEntry(const PrefixEntry& pref)
-    {      
+    {
       //Returns no. of elements erased should be one exactly
       if (prefixList.erase(pref.prefix()) == 1)
         return true;
       assert(false);
-      return false;      
+      return false;
     }
 
   bool removePrefixEntry(const ipv6_prefix& pref)
@@ -93,11 +93,11 @@ public:
         return true;
       return false;
     }
-  
+
   /// Returns a vector of pointers to PrefixEntries for a particular iface
   LinkPrefixes getPrefixesByIndex(size_t ifIndex);
-  
-  /// Returns 
+
+  /// Returns
   //PrefixEntry* findPrefix(const ipv6_addr& prefix, size_t prefixLength,
   //                        PrefixEntry& returnPrefEntry, size_t& ifIndex);
 
@@ -106,16 +106,16 @@ public:
 
 protected:
 
-  ///Associate the prefix with interface link on which it belongs  
+  ///Associate the prefix with interface link on which it belongs
   void insertPrefixEntry(const PrefixEntry& pe, size_t ifIndex);
 
 private:
-  
+
   /**
    * This map of a pair looks bad.  Because well we haven't really needed to
    * modify the interface anyway.  Should have made ifIndex a member of
    * PrefixEntry
-   * 
+   *
    */
 
   typedef std::map<IPv6Address, std::pair<PrefixEntry, size_t> > PrefixList;
@@ -124,7 +124,7 @@ private:
   /**
      @var prefixList
      Keyed on ipv6_prefix
-     
+
      purpose: This is implementation-wise for looking up the longest
      match of the prefix list that is stored in the interface
   */

@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6CDS.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,16 +57,16 @@ struct ipv6_addr;
 class IPv6Encapsulation;
 
 namespace MobileIPv6
-{ 
+{
   struct bc_entry;
 
   /**
    * @class MIPv6CDS
    * @brief Mobile IPv6 Conceptual Data Structures
-   * 
+   *
    * Defined in Sec 4.7 of MIPv6 Draft 16
    */
-  
+
   class MIPv6CDS: public boost::noncopyable
   {
   public:
@@ -84,18 +84,18 @@ namespace MobileIPv6
 
     ///Remove the binding associated with homeAddr
     bool removeBinding(const ipv6_addr& homeAddr);
-    
+
     ///Locate binding cache entry by it's home addres
     boost::weak_ptr<bc_entry> findBinding(const ipv6_addr& homeAddr);
 
     ///Locate binding cache entry by it's care-of addres
     boost::weak_ptr<bc_entry> findBindingByCoA(const ipv6_addr& careofAddr);
-    
+
     ///Replaces the existing binding entry or creates a new association
     boost::weak_ptr<bc_entry> insertBinding(bc_entry* entry);
-    
+
     ///Used to create/destroy tunnels for mobility bindings
-    IPv6Encapsulation* tunMod;  
+    IPv6Encapsulation* tunMod;
 
     const bit_64& token(MIPv6MobilityHeaderType& ht)
       {
@@ -109,7 +109,7 @@ namespace MobileIPv6
   protected:
     ///Decrement by elapsed time in tmr for all entities with managed lifetimes
     void expireLifetimes(cTimerMessage* tmr);
-    
+
     typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
     typedef BindingCache::iterator  BCI;
 
@@ -124,9 +124,9 @@ namespace MobileIPv6
     bit_64 home_token;
     bit_64 careof_token;
   private:
-  
+
   };
- 
+
 } //namespace MobileIPv6
 
 #endif /* MIPV6CDS_H */

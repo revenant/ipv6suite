@@ -1,5 +1,5 @@
 // -*- Ned -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Nodes/IPv6/UDPNode.ned,v 1.2 2005/02/16 01:21:03 andras Exp $
+//
 // Copyright (C) 2002, 2004 Johnny Lai
 //
 // This file is part of IPv6Suite

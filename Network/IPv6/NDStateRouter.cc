@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateRouter.cc,v 1.4 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //

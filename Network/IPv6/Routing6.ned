@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/Routing6.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -22,7 +21,7 @@
 // Simple Module: RoutingAlgorithm
 // Simple Module: RoutingProtocol
 // ------
-// Responsibilities: 
+// Responsibilities:
 // Routing Algorithms and Protocols running on a particular interface.
 // author: Johnny Lai
 // -------------------------------------------------
@@ -39,35 +38,35 @@ endsimple
 
 module RAArray
     parameters:
-	RoutingAlgorithmType: string;
+    RoutingAlgorithmType: string;
     submodules:
-       	//Forwarding of packets
-        algorithm: RoutingAlgorithmType like RoutingAlgorithm; 
-	    parameters:
+        //Forwarding of packets
+        algorithm: RoutingAlgorithmType like RoutingAlgorithm;
+        parameters:
             display: "p=131,186;b=40,24,rect";
-	connections nocheck: 
+    connections nocheck:
 endmodule
 
 module RPArray
     parameters:
-	RoutingProtocolType: string;
+    RoutingProtocolType: string;
     submodules:
-	protocol: RoutingProtocolType like RoutingProtocol;
-	    parameters:
+    protocol: RoutingProtocolType like RoutingProtocol;
+        parameters:
             display: "p=133,102;b=40,24,rect";
-	connections nocheck:
+    connections nocheck:
 endmodule
 
-module Routing6 
-    parameters: 
-	RACount: numeric,
-	RPCount: numeric;
-    gates: 
+module Routing6
+    parameters:
+    RACount: numeric,
+    RPCount: numeric;
+    gates:
 
-    submodules: 
+    submodules:
         ra: RAArray[RACount];
-	rp: RPArray[RPCount];
-    connections: 
+    rp: RPArray[RPCount];
+    connections:
 
     display: "p=10,10;b=260,235,rect";
-endmodule 
+endmodule

@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/TopologyGenerator.h,v 1.1 2005/02/09 06:15:59 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -61,19 +61,19 @@ public:
   ~TopologyGenerator();
 
   //@}
-  
+
   ///Generate a simple binary tree hierachy of routers
   template <class Graph>
   void generateGraph(Graph&, std::ostream& os);
-  
+
   template <class GraphvizType, class Graph>
   void generateGraphFromGraphviz(Graph&, const char* dotfileName);
-  
+
   template <class Graph>
   void outputXML(Graph& g, XMLWriterHandler*);
-  
+
 protected:
-  
+
 private:
   std::size_t nodeCount;
 };

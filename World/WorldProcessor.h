@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.h,v 1.3 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2002, 2003 CTIE, Monash University
 //

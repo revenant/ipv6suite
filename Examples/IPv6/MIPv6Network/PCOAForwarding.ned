@@ -1,5 +1,5 @@
 // -*- Ned -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Examples/IPv6/MIPv6Network/Attic/PCOAForwarding.ned,v 1.1 2005/02/09 06:15:57 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -23,117 +23,117 @@
 // @file   HMIPv6Simple.ned
 // @author Johnny Lai
 // @date   22 Nov 2003
-// 
-// @brief  
-// 
+//
+// @brief
+//
 
 
-import  
-    "Router6", 
-    "UDPNode", 
-    "WorldProcessor", 
-    "WirelessAccessPoint", 
+import
+    "Router6",
+    "UDPNode",
+    "WorldProcessor",
+    "WirelessAccessPoint",
     "WirelessMobileNode",
     "Cables";
-                          
-                          
-                          
-                          
-                          
-                          
- 
-channel pcoafForwardingInternetCable 
-//    delay 5e-2; 
-//    delay 1e-1;   
-    delay 5e-1;
-    datarate 10e9; 
-endchannel 
 
-channel pcoafForwardingIntranetCable 
+
+
+
+
+
+
+channel pcoafForwardingInternetCable
+//    delay 5e-2;
+//    delay 1e-1;
+    delay 5e-1;
+    datarate 10e9;
+endchannel
+
+channel pcoafForwardingIntranetCable
     delay 1.5e-6; // propagation delay for 30 meter link
-    datarate 100000000; 
-endchannel 
+    datarate 100000000;
+endchannel
 
 module PCOAForwarding
-    submodules: 
-        worldProcessor: WorldProcessor; 
+    submodules:
+        worldProcessor: WorldProcessor;
             display: "p=672,31;i=bwgen_s;b=17,17";
-        client1: MobileNode; 
-            parameters: 
-                IPForward = false; 
-	    gatesizes: 
-	        wlin[1],
-	        wlout[1];
+        client1: MobileNode;
+            parameters:
+                IPForward = false;
+        gatesizes:
+            wlin[1],
+            wlout[1];
             display: "b=1,1;p=32,334;i=laptop3";
-        server: UDPNode; 
-            parameters: 
-                IPForward = false; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        server: UDPNode;
+            parameters:
+                IPForward = false;
+            gatesizes:
+                in[1],
+                out[1];
             display: "b=38,32;p=407,41;i=pc";
-        router: Router6; 
-            gatesizes: 
-                in[6], 
-                out[6]; 
+        router: Router6;
+            gatesizes:
+                in[6],
+                out[6];
             display: "p=216,128;i=router;b=32,32";
-        ap1: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        ap1: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
             display: "p=250,286;i=switch1_s;b=32,11";
-        ap2: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        ap2: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
             display: "p=400,286;i=switch1_s;b=32,11";
-        ap3: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        ap3: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
             display: "p=550,286;i=switch1_s;b=32,11";
-        ap4: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        ap4: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
             display: "p=700,286;i=switch1_s;b=32,11";
-        ha: Router6; 
-            gatesizes: 
-                in[2], 
-                out[2]; 
+        ha: Router6;
+            gatesizes:
+                in[2],
+                out[2];
             display: "p=72,56;i=router;b=32,32";
-        hap: AccessPoint; 
-            gatesizes: 
-                in[1], 
-                out[1]; 
+        hap: AccessPoint;
+            gatesizes:
+                in[1],
+                out[1];
             display: "p=100,286;i=switch1_s;b=32,11";
-    connections nocheck: 
-        router.in[0] <-- intranetCable <-- ap1.out[0]; 
-        router.out[0] --> intranetCable --> ap1.in[0]; 
-                                                       
-        ap2.out[0] --> intranetCable --> router.in[1]; 
-        ap2.in[0] <-- intranetCable <-- router.out[1]; 
-                                                       
-        ap3.out[0] --> intranetCable --> router.in[2]; 
-        ap3.in[0] <-- intranetCable <-- router.out[2]; 
-                                                       
-        ap4.out[0] --> intranetCable --> router.in[3]; 
-        ap4.in[0] <-- intranetCable <-- router.out[3]; 
-                                                       
-                                                       
-                                                       
-        router.out[4] --> pcoafForwardingInternetCable --> server.in[0]; 
-        router.in[4] <-- pcoafForwardingInternetCable <-- server.out[0]; 
+    connections nocheck:
+        router.in[0] <-- intranetCable <-- ap1.out[0];
+        router.out[0] --> intranetCable --> ap1.in[0];
 
-        router.out[5] --> pcoafForwardingInternetCable --> ha.in[0]; 
-        router.in[5] <-- pcoafForwardingInternetCable <-- ha.out[0]; 
-                                                      
-        hap.out[0] --> pcoafForwardingIntranetCable --> ha.in[1]; 
-        hap.in[0] <-- pcoafForwardingIntranetCable <-- ha.out[1]; 
-                                                   
+        ap2.out[0] --> intranetCable --> router.in[1];
+        ap2.in[0] <-- intranetCable <-- router.out[1];
+
+        ap3.out[0] --> intranetCable --> router.in[2];
+        ap3.in[0] <-- intranetCable <-- router.out[2];
+
+        ap4.out[0] --> intranetCable --> router.in[3];
+        ap4.in[0] <-- intranetCable <-- router.out[3];
+
+
+
+        router.out[4] --> pcoafForwardingInternetCable --> server.in[0];
+        router.in[4] <-- pcoafForwardingInternetCable <-- server.out[0];
+
+        router.out[5] --> pcoafForwardingInternetCable --> ha.in[0];
+        router.in[5] <-- pcoafForwardingInternetCable <-- ha.out[0];
+
+        hap.out[0] --> pcoafForwardingIntranetCable --> ha.in[1];
+        hap.in[0] <-- pcoafForwardingIntranetCable <-- ha.out[1];
+
     display: "p=2,10;b=763,411";
-endmodule 
+endmodule
 
-network pcoaForwardingNet : PCOAForwarding 
-endnetwork 
+network pcoaForwardingNet : PCOAForwarding
+endnetwork
 

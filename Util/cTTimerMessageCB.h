@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/cTTimerMessageCB.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@
  *
  * @brief Abstract base class for the callback mechanism.  Defines a functor
  * accepting a cTimerMessage as an argument.
- * 
+ *
  * This is not as flexible as we would like i.e you still need to have other
  * TFunctor bases for different function signatures.
  */
@@ -64,7 +64,7 @@ public:
 };
 
 template<class Arg>
-TFunctorBaseA<Arg>::~TFunctorBaseA() 
+TFunctorBaseA<Arg>::~TFunctorBaseA()
 {}
 
 /**
@@ -84,24 +84,24 @@ public:
     {}
 
   ~cTTimerMessageCBA()
-    { 
+    {
       if (functorDelete)
-        delete _functor; 
-      if (ownArg) 
+        delete _functor;
+      if (ownArg)
         delete _arg;
     }
 
   ///Don't delete this unless policy of deleteArg is set to false
   Arg* arg() { return _arg; }
-  
+
   /**
    * Use the global function makeCallback to create the correct concrete class.
-   * 
+   *
    */
-  void setFunctor(TFunctorBaseA<Arg>* callback) 
-    { 
-      if (functorDelete) 
-        delete _functor; 
+  void setFunctor(TFunctorBaseA<Arg>* callback)
+    {
+      if (functorDelete)
+        delete _functor;
       _functor = callback;
     }
 
@@ -110,7 +110,7 @@ public:
   virtual void callFunc() { res = (*_functor)(_arg); }
 
   const Result& result() { return res; };
-  
+
 private:
   TFunctorBaseA<Arg>* _functor;
   Arg* _arg;
@@ -139,27 +139,27 @@ public:
     :cTimerMessage(message_id, module, name), _functor(cb), _arg(arg), ownArg(deleteArg), functorDelete(deleteFunctor)
     {}
   ~cTTimerMessageCBA()
-    { 
+    {
       if (functorDelete)
-        delete _functor; 
-      if (ownArg) 
+        delete _functor;
+      if (ownArg)
         delete _arg;
     }
 
   ///Don't delete this unless policy of deleteArg is set to false
   Arg* arg() { return _arg; }
 
-  virtual void callFunc() { (*_functor)(_arg); }  
+  virtual void callFunc() { (*_functor)(_arg); }
 
   /**
    * Use the global function makeCallback to create the correct concrete class.
-   * 
+   *
    */
-  void setFunctor(TFunctorBaseA<Arg>* callback) 
-    { 
-      if (functorDelete) 
-        delete _functor; 
-      _functor = callback; 
+  void setFunctor(TFunctorBaseA<Arg>* callback)
+    {
+      if (functorDelete)
+        delete _functor;
+      _functor = callback;
     }
 
   const TFunctorBaseA<Arg>* functor() { return _functor; }
@@ -170,7 +170,7 @@ public:
         delete _arg;
       _arg = arg;
     }
-  
+
 private:
   TFunctorBaseA<Arg>* _functor;
   Arg* _arg;
@@ -193,29 +193,29 @@ class cTTimerMessageCBA<cTimerMessage, void>:public cTimerMessage
 {
 public:
   cTTimerMessageCBA(const int& message_id, cSimpleModule* module,
-                    TFunctorBaseA<cTimerMessage>* cb, 
+                    TFunctorBaseA<cTimerMessage>* cb,
                     const char* name = NULL, bool deleteFunctor = true)
 
-    :cTimerMessage(message_id, module, name), _functor(cb), 
+    :cTimerMessage(message_id, module, name), _functor(cb),
      functorDelete(deleteFunctor)
     {}
   ~cTTimerMessageCBA()
-    { 
+    {
       if (functorDelete)
-        delete _functor; 
+        delete _functor;
     }
 
-  virtual void callFunc() { (*_functor)(this); }  
+  virtual void callFunc() { (*_functor)(this); }
 
   /**
    * Use the global function makeCallback to create the correct concrete class.
-   * 
+   *
    */
-  void setFunctor(TFunctorBaseA<cTimerMessage>* callback) 
-    { 
-      if (functorDelete) 
-        delete _functor; 
-      _functor = callback; 
+  void setFunctor(TFunctorBaseA<cTimerMessage>* callback)
+    {
+      if (functorDelete)
+        delete _functor;
+      _functor = callback;
     }
 
   const TFunctorBaseA<cTimerMessage>* functor() { return _functor; }
@@ -244,19 +244,19 @@ template <>
 class cTTimerMessageCBA<void, void>: public cTimerMessage
 {
 public:
-  
+
   cTTimerMessageCBA(const int& message_id, cSimpleModule* module,
                    TFunctorBaseA<void>* f = 0, const char* name = NULL)
     :cTimerMessage(message_id, module, name), _functor(f)
     {}
 
   virtual void callFunc() { (*_functor)(0); }
-  
+
   ~cTTimerMessageCBA() { delete _functor; }
 
   /**
    * Use the global function makeCallback to create the correct concrete class.
-   * 
+   *
    */
   void setFunctor(TFunctorBaseA<void>* callback) { delete _functor; _functor = callback; }
 
@@ -278,8 +278,8 @@ template<class T, class Arg, class Result>
 class TFunctorA:public TFunctorBaseA<Arg>
 {
 public:
-  
-  Result* res;  
+
+  Result* res;
 };
 
 /**
@@ -303,7 +303,7 @@ public:
       const TFunctorA& rhsvoid = static_cast<const TFunctorA&>(rhs);
       return mfptr == rhsvoid.mfptr && functor == rhsvoid.functor;
     }
-  
+
 private:
   T* functor;
   void (T::*mfptr)(Arg*);
@@ -329,7 +329,7 @@ public:
   TFunctorA(T* obj, void (T::*fpt)(void))
     :functor(obj), mfptr(fpt)
     {}
-  
+
   virtual void operator()(void* msg)
     {
       (*functor.*mfptr)();
@@ -358,7 +358,7 @@ public:
   FunctorA(F fptr)
     :fptr(fptr)
     {}
-  
+
   virtual void operator()(Arg* msg)
     {
       res = (*fptr)(msg);
@@ -388,7 +388,7 @@ class FunctorA<Arg, void>:public TFunctorBaseA<Arg>
   FunctorA(F fptr)
     :fptr(fptr)
     {}
-  
+
   virtual void operator()(Arg* msg)
     {
       (*fptr)(msg);
@@ -400,13 +400,13 @@ class FunctorA<Arg, void>:public TFunctorBaseA<Arg>
       return fptr == rhsvoid.fptr;
     }
  private:
-  
+
   F fptr;
 };
 
 /**
  * @brief convenience function for cTTimerMessageCBA<Arg, void>
- * 
+ *
  */
 
 template<class T, class Arg>
@@ -417,7 +417,7 @@ TFunctorA<T, Arg, void>* makeCallback(T* const obj, void (T::*mfptr)(Arg*))
 
 /**
  * @brief convenience function for cTTimerMessageCBA<void, void>
- * 
+ *
  */
 
 template<class T>

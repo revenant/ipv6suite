@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileEntity.cc,v 1.4 2005/02/15 02:25:40 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //

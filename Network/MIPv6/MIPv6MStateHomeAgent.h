@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6MStateHomeAgent.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002, 2003 CTIE, Monash University 
+//
+// Copyright (C) 2002, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ namespace MobileIPv6
 {
 
 class MIPv6MStateHomeAgent : public MIPv6MobilityState
-{ 
+{
  public:
   static MIPv6MobilityState* instance(void);
 
@@ -60,14 +60,14 @@ class MIPv6MStateHomeAgent : public MIPv6MobilityState
 
   virtual bool deregisterBCE(BU* bu, unsigned int ifIndex, IPv6Mobility* mob);
 
-  static MIPv6MStateHomeAgent* _instance;  
+  static MIPv6MStateHomeAgent* _instance;
 
   ///Returns global address on certain interface used as HA's address
   ipv6_addr globalAddr(unsigned int ifIndex,  IPv6Mobility* mod) const;
-  
+
   MIPv6MStateHomeAgent(void);
 };
-  
+
 } // end namespace MobileIPv6
 
 #endif // __MIPV6MSTATEHOMEAGENT_H__

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomPattern.cc,v 1.3 2005/02/10 06:26:21 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Applications/VideoStream/Attic/UDPVideoStream.h,v 1.1 2005/02/09 06:15:57 andras Exp $
+//
 // Copyright (C) 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -28,7 +28,7 @@
  *
  * @test see UDPVideoStreamTest
  *
- * @todo Remove template text 
+ * @todo Remove template text
  */
 
 #ifndef UDPVIDEOSTREAM_H
@@ -55,7 +55,7 @@ class UDPVideoStream: public UDPApplication
 {
 public:
   friend class UDPVideoStreamTest;
-  
+
   Module_Class_Members(UDPVideoStream, UDPApplication, 0);
 
   ///@name Overidden cSimpleModule functions
@@ -71,7 +71,7 @@ protected:
 
   void requestStream();
   void receiveStream(cMessage* msg);
-  
+
 private:
   cOutVector eed;
 

@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6NDStateRouter.h,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ namespace HierarchicalMIPv6
  * @class HMIPv6NDStateRouter
  * @brief Advertise own MAP options and collect MAP options from
  * higher up in MAP hierarchy for forwarding purposes.
- * 
+ *
  */
 
 class HMIPv6NDStateRouter: public MobileIPv6::MIPv6NDStateRouter

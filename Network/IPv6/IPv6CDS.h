@@ -1,6 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6CDS.h,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -51,8 +51,8 @@ class IPv6CDSTest;
 #endif //USE_CPPUNIT
 
 namespace IPv6NeighbourDiscovery
-{  
-  
+{
+
 /**
  * @class IPv6CDS
  * @brief Container for IPv6 Conceptual Data structures
@@ -70,16 +70,16 @@ class IPv6CDS: public IRouterList, public IPrefixList, public INeighbourCache,
 #endif //USE_CPPUNIT
 
 public:
-  
+
   /// Insert a newly created entry into NC and its associated Destination entry
   void insertNeighbourEntry(NeighbourEntry* entry);
-  
+
   /// Remove Neighbour entry and its associated Destination entry
   void removeNeighbourEntry(const ipv6_addr& addr);
 
   /// Remove Destination entry and the Neighbour Entry if destination is a neighbour
   void removeDestinationEntry(const ipv6_addr& addr);
-  
+
   ///Associate the prefix with interface link on which it belongs
   PrefixEntry* insertPrefixEntry(const PrefixEntry& pe, size_t ifIndex);
 
@@ -88,7 +88,7 @@ public:
 
   ///Return a router Object or 0 if not found
   boost::weak_ptr<RouterEntry> router(const ipv6_addr& addr);
-  
+
   simtime_t latestRAReceived(void);
 
 public:

@@ -1,7 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStates.h,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +36,7 @@
 #ifndef MEMORY
 #define MEMORY
 //auto_ptr
-#include <memory> 
+#include <memory>
 #endif //MEMORY
 
 class ICMPv6Message;
@@ -47,18 +46,18 @@ class IPv6Datagram;
 class IPv6Address;
 class Interface6Entry;
 
-namespace IPv6NeighbourDiscovery 
+namespace IPv6NeighbourDiscovery
 {
   class NDState;
-  
+
 /**
    @class NDState
-   @brief Neighbour Discovery base class for State Pattern 
-   
+   @brief Neighbour Discovery base class for State Pattern
+
    Provide the same interface to encapsulate different behaviour
    dependent on whether a node is a host or router.
 */
-  
+
   class NDState
   {
   public:
@@ -68,29 +67,29 @@ namespace IPv6NeighbourDiscovery
     NDState* changeState();
     virtual ~NDState(){};
     virtual void print(){};
-    
+
   protected:
 
     NDState(NeighbourDiscovery* mod);
-    
-    virtual void enterState() = 0;  
+
+    virtual void enterState() = 0;
     virtual void leaveState() = 0;
     ///Factory Method: subclasses determine what next state is
 //Define this later on if necessary
-//    virtual NDState* createNextState() = 0; 
-    NeighbourDiscovery* nd;    
-    NDState* nextState;  
-    
+//    virtual NDState* createNextState() = 0;
+    NeighbourDiscovery* nd;
+    NDState* nextState;
+
   private:
-    //Can't copy    
+    //Can't copy
     NDState(const NDState&);
-    void operator=(const NDState&);    
+    void operator=(const NDState&);
   };
 
   typedef IPv6NeighbourDiscovery::ICMPv6NDMRtrAd RA;
   typedef IPv6NeighbourDiscovery::ICMPv6NDMRtrSol RS;
   typedef IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd NA;
-  typedef IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol NS;  
+  typedef IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol NS;
   typedef IPv6NeighbourDiscovery::ICMPv6NDMRedirect Redirect;
 
 }

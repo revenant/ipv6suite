@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/World/WorldProcessor.cc,v 1.4 2005/02/16 00:41:32 andras Exp $
 //
 // Copyright (C) 2002 CTIE, Monash University
 //

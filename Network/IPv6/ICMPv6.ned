@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6.ned,v 1.2 2005/02/16 06:23:48 andras Exp $
 //
 // Copyright (C) 2001 Monash University, Australia
 //

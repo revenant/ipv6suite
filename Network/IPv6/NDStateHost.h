@@ -1,7 +1,6 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/NDStateHost.h,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,50 +57,50 @@ class cTimerMessage;
 template<class Arg>
 class TFunctorBaseA;
 
-template<class Arg, class Result> 
+template<class Arg, class Result>
 class cTTimerMessageCBA;
 
 namespace IPv6NeighbourDiscovery
 {
   extern const short MAX_RTR_SOLICITATIONS;
-  extern const double RTR_SOLICITATION_INTERVAL;  
+  extern const double RTR_SOLICITATION_INTERVAL;
   extern const double MAX_RTR_SOLICITATION_DELAY;
-  
+
   struct InterfaceStatus
   {
     InterfaceStatus()
       :manualLinkLocal(false), initStarted(false)
-      {}    
+      {}
     ~InterfaceStatus()
       {}
     /// link local addr manually assigned - requires DAD for all addr conf
     bool manualLinkLocal;
     /// autoconf initialisation started for iface
     bool initStarted;
-    
+
   };
 
   class NDTimer;
-  
+
   /**
      @class NDStateHost
-     
+
      @brief Implements functionality specific for a host
-  */  
+  */
   class NDStateHost: public NDState
   {
   public:
-    
+
     NDStateHost(NeighbourDiscovery* mod);
     virtual ~NDStateHost();
-    
+
     virtual std::auto_ptr<ICMPv6Message> processMessage(std::auto_ptr<ICMPv6Message> msg);
 
     //1st stage of autoconf
     void nodeInitialise();
 
     virtual void print(){};
-    
+
   protected:
     virtual void enterState();
     virtual void leaveState();
@@ -109,10 +108,10 @@ namespace IPv6NeighbourDiscovery
     ///Second stage of interface initialisation (usually Addr Conf)
     virtual void initialiseInterface(size_t ifIndex);
     virtual void disableInterface(size_t ifIndex);
-   
+
     void processNgbrAd(std::auto_ptr<NA> msg);
     void processNgbrSol(std::auto_ptr<NS> msg);
-    
+
     ///Hosts simple checks Sec. 6.1.2
     virtual bool valRtrAd(RA* ad);
 
@@ -122,7 +121,7 @@ namespace IPv6NeighbourDiscovery
     static bool valNgbrAd(NA* ad);
     ///Sec. 8.1
     static bool valRedirect(Redirect* re);
-    
+
     bool linkLocalAddrAssigned(size_t ifIndex) const;
 
     /// To check if the interface has been initialized with at least one global
@@ -139,7 +138,7 @@ namespace IPv6NeighbourDiscovery
     virtual std::auto_ptr<RA> processRtrAd(std::auto_ptr<RA> msg);
     ///Sec 8.3
     void processRedirect(std::auto_ptr<Redirect> msg);
-    
+
     ///@name Duplicate Address Detection
     //@{
 
@@ -151,18 +150,18 @@ namespace IPv6NeighbourDiscovery
     void dupAddrDetOtherAddr(size_t ifIndex);
 
     ///Conduct DAD based on information in timer and retry
-    void dupAddrDetection(NDTimer* tmr);   
+    void dupAddrDetection(NDTimer* tmr);
 
     /// Called when no response was received
     void dupAddrDetSuccess(NDTimer* tmr);
-    
+
     /// Invoked to test whether received Neighbour solicitations and
     /// advertisements' target address is a tentative address of this node and
     /// process them accordingly Sec. 5.4.3-5 inclusive of RFC 2462.
     bool checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram* recDgram);
-    
+
     //@}
-    
+
     //Returns the linkLocalAddr of the corresponding ifIndex
     IPv6Address* linkLocalAddr(size_t ifIndex);
 
@@ -187,15 +186,15 @@ namespace IPv6NeighbourDiscovery
     void TriggerCallback(cTimerMessage* tmr);
   protected:
     std::vector<InterfaceStatus> ifStats;
-    RoutingTable6* rt;    
+    RoutingTable6* rt;
     bool stateEntered;
 
-    cModule* addrResln;    
+    cModule* addrResln;
     static size_t addrResGate;
     bool* rtrSolicited;
     bool managedFlag;
     bool otherFlag;
-        
+
     //How to identify the response of a timed sol
     //use the source address, msg type to match.  Shouldn't be
     //that many outstanding timeout mesgs

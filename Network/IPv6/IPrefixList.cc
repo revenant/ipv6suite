@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPrefixList.cc,v 1.1 2005/02/09 06:15:57 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
  * @file   IPrefixList.cc
  * @author Johnny Lai
  * @date   18 Apr 2002
- * 
- * @brief Implementation of IPrefixList 
- * 
+ *
+ * @brief Implementation of IPrefixList
+ *
  */
 
 #include "sys.h"
@@ -37,19 +37,19 @@ IPrefixList::IPrefixList()
 {}
 
 IPrefixList::~IPrefixList()
-{}  
-  
+{}
+
 /// Returns a vector of pointers to PrefixEntries for a particular iface
 LinkPrefixes IPrefixList::getPrefixesByIndex(size_t ifIndex)
 {
-  LinkPrefixes linkPrefixes;  
-  
-  PLI it;  
+  LinkPrefixes linkPrefixes;
+
+  PLI it;
   for(it = prefixList.begin(); it != prefixList.end(); it++)
-    if(it->second.second == ifIndex)      
+    if(it->second.second == ifIndex)
       linkPrefixes.push_back(&(it->second.first));
 
-  return linkPrefixes;  
+  return linkPrefixes;
 
 }
 
@@ -58,7 +58,7 @@ LinkPrefixes IPrefixList::getPrefixesByIndex(size_t ifIndex)
  *
  * Employs a longest prefix match i.e. the prefix with the longests lengths are
  * first compared to see if the dest matches.
- * 
+ *
  * @arg dest is the address to check
  * @arg ifindex returns the interface on which the address is on-link
  * @return true if destination is on-link
@@ -70,16 +70,16 @@ bool IPrefixList::lookupAddress(const ipv6_addr& dest, unsigned int& ifIndex)
   for(PLI it = prefixList.begin(); it != prefixList.end(); it++)
     if (it->first.isNetwork(dest))  //matches like lookup
     {
-      ifIndex = it->second.second;      
+      ifIndex = it->second.second;
       Dout(dc::debug|dc::forwarding, "Longest Onlink Prefix Match for "<< dest<<" returned prefix="
            <<it->first<<" and outgoing ifIndex="<<ifIndex);
       return true;
     }
-  
+
   return false;
 }
 
-void IPrefixList::insertPrefixEntry(const PrefixEntry& pe, size_t ifIndex)  
+void IPrefixList::insertPrefixEntry(const PrefixEntry& pe, size_t ifIndex)
 {
   prefixList[pe.prefix()] = make_pair(pe, ifIndex);
 }
@@ -106,18 +106,18 @@ public:
 
   PrefixListTest()
     {}
-  
+
   void testPrefixListOrder();
   void setUp();
   void tearDown();
-  
+
 private:
 
   // Unused copy ctor and assignment op.
   PrefixListTest(const PrefixListTest&);
   PrefixListTest& operator=(const PrefixListTest&);
   IPrefixList* pl;
-  
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( PrefixListTest );
@@ -131,11 +131,11 @@ void PrefixListTest::testPrefixListOrder()
   PrefixEntry p2;
   p2.setPrefix("3271:2222:3312:4444:6433:0:0:0/50");
   pl->insertPrefixEntry(p2, 2);
-  
+
   PrefixEntry p3;
   p3.setPrefix("3271:2222:3312:4444:6433:3343:0:0/96");
   pl->insertPrefixEntry(p3, 3);
-  
+
   PrefixEntry p4;
   p4.setPrefix("3271:1111:3312:4444:6433:3343:0:0/96");
   pl->insertPrefixEntry(p4, 4);

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/XMLWriterHandler.h,v 1.1 2005/02/09 06:15:59 andras Exp $
+//
 // Copyright (C) 2002 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
  * @author Johnny Lai
  * @date 11 Dec 2002
  *
- * @brief libxml++ SAX Handler to output XML 
+ * @brief libxml++ SAX Handler to output XML
  *
  */
 
@@ -58,7 +58,7 @@ private:
   std::list<xmlpp::Node* > elements;
   std::string filename;
   std::string dotfile;
-  
+
   // Unused ctor and assignment op.
   XMLWriterHandler(const XMLWriterHandler&);
   XMLWriterHandler& operator=(const XMLWriterHandler&);

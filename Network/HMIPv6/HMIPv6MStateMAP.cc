@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6MStateMAP.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
  * @file   HMIPv6MStateMAP.cc
  * @author Johnny Lai
  * @date   05 Sep 2002
- * 
+ *
  * @brief Implementation of HMIPv6MStateMAP class
  *
  * Probably reuses exactly HA superclass for Basic mode but Extended mode would
@@ -38,7 +38,7 @@ namespace HierarchicalMIPv6
   {
     if (_instance == 0)
       _instance = new HMIPv6MStateMAP;
-    
+
     return _instance;
   }
 
@@ -49,7 +49,7 @@ namespace HierarchicalMIPv6
   {
     //MobileIPv6::MIPv6MStateHomeAgent::MIPv6MStateHomeAgent();
   }
- 
+
   bool HMIPv6MStateMAP::processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu,
                                   IPv6Mobility* mod)
   {

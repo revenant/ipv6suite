@@ -1,5 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/MLDv2Record.cc,v 1.2 2005/02/10 06:26:20 andras Exp $
-// Copyright (C) 2001, 2002 CTIE, Monash University
+//// Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -151,8 +150,7 @@ bool MLDv2Record::delMA(ipv6_addr MA)
       }
       else if(ptrMAR->Next->MA==MA)
       {
-        // 2: Normal Hit
-
+       // 2: Normal Hit
         tempMAR = ptrMAR->Next;
         ptrMAR->Next = tempMAR->Next;
         destroySAL(tempMAR,IS_IN);
@@ -367,8 +365,7 @@ bool MLDv2Record::delSA(ipv6_addr MA, ipv6_addr SA, char type)
         }
         else if(ptrSA->Next->SA==SA)
         {
-          // 2: Normal Hit
-
+         // 2: Normal Hit
           tempSA = ptrSA->Next;
           ptrSA->Next = tempSA->Next;
           delete tempSA;

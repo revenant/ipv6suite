@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/MIPv6/MIPv6Timers.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
  * @file   MIPv6Timers.cc
  * @author Johnny Lai
  * @date   06 Jun 2002
- * 
+ *
  * @brief  Implementation of timers used in MIPv6Mobility module
  *
- * 
+ *
  */
 
 
@@ -42,13 +42,13 @@ MIPv6PeriodicCB::MIPv6PeriodicCB(IPv6Mobility* mob,
 {
   rescheduleDelay(interval);
 }
-    
+
 void MIPv6PeriodicCB::callFunc()
-{ 
+{
   cTTimerMessageCBA<cTimerMessage, void>::callFunc();
   ///chain another call for next period
   rescheduleDelay(interval);
 }
- 
+
 }
 

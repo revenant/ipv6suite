@@ -1,5 +1,5 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/HMIPv6/HMIPv6NDStateRouter.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
-// Copyright (C) 2002 CTIE, Monash University 
+//
+// Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
  * @file   HMIPv6NDStateRouter.cc
  * @author Johnny Lai
  * @date   05 Sep 2002
- * 
+ *
  * @brief  Implementation of HMIPv6NDStateRouter class
- * 
+ *
  */
 
 
@@ -35,7 +35,7 @@ namespace HierarchicalMIPv6
   HMIPv6NDStateRouter::HMIPv6NDStateRouter(NeighbourDiscovery* mod)
     :MIPv6NDStateRouter(mod)
   {}
-  
+
 
   HMIPv6NDStateRouter::~HMIPv6NDStateRouter()
   {}
@@ -56,7 +56,7 @@ namespace HierarchicalMIPv6
         cout << "MN operation: MN MAY use its RCoA as source address of its outgoing packets "<< endl;
     }
 
-    if ( reverseTunnel )  
+    if ( reverseTunnel )
       cout << "Reverse tunnelling outbound traffic to map: "<< endl;
 
     cout << "===================  MAP Option Information  ===============================" <<endl;
@@ -73,7 +73,7 @@ namespace HierarchicalMIPv6
 /*
   HMIPv6ICMPv6NDOptMAP* HMIPv6NDStateRouter::getMAPbyInterface(size_t iface_Idx)
   {
-    
+
     return 0;
   }
 */
@@ -81,7 +81,7 @@ namespace HierarchicalMIPv6
   ICMPv6NDMRtrAd* HMIPv6NDStateRouter
   ::createRA(const Interface6Entry::RouterVariables& rtrVar, size_t ifidx)
   {
-    ICMPv6NDMRtrAd* rtrAd = 
+    ICMPv6NDMRtrAd* rtrAd =
       MobileIPv6::MIPv6NDStateRouter::createRA(rtrVar, ifidx);
 
     if (rt->isMAP())
@@ -89,7 +89,7 @@ namespace HierarchicalMIPv6
       for (MAPIt mapIt = mapOptions.begin(); mapIt != mapOptions.end(); mapIt++)
       {
         bool r, m;
-        
+
         if ( mode == modeBasic )
         {
           r = true;
@@ -116,5 +116,5 @@ namespace HierarchicalMIPv6
 
     return rtrAd;
   }
-  
+
 } //namespace HierarchicalMIPv6

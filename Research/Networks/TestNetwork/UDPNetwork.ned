@@ -1,5 +1,5 @@
 // -*- Ned -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Research/Networks/TestNetwork/UDPNetwork.ned,v 1.1 2005/02/09 06:15:57 andras Exp $
+//
 // Copyright (C) 2004 Johnny Lai
 //
 // This file is part of IPv6Suite
@@ -23,28 +23,28 @@
 // @file   UDPNetwork.ned
 // @author Johnny Lai
 // @date   26 May 2004
-// 
-// @brief Test AbstractUDPNode which has new UDP interface 
-// 
+//
+// @brief Test AbstractUDPNode which has new UDP interface
+//
 import  "WorldProcessor",
-	"UDPNode";
+    "UDPNode";
 
 module UDPNetwork
     submodules:
         worldProcessor: WorldProcessor;
-	    display: "p=100,184;i=bwgen_s;b=17,17";
+        display: "p=100,184;i=bwgen_s;b=17,17";
         client1: UDPNode;
-	    parameters:
-	    gatesizes:
-	        in[1],
-		out[1];
+        parameters:
+        gatesizes:
+            in[1],
+        out[1];
         client2: UDPNode;
-	    gatesizes:
-		in[1],
-		out[1];
+        gatesizes:
+        in[1],
+        out[1];
     connections nocheck:
         client1.out[0] --> client2.in[0];
-	client1.in[0] <-- client2.out[0];
+    client1.in[0] <-- client2.out[0];
 endmodule
 
 network udpNet : UDPNetwork

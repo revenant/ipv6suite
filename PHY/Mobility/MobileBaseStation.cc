@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobileBaseStation.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //

@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Encapsulation.ned,v 1.1 2005/02/09 06:15:58 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
@@ -24,14 +23,14 @@
 //# FIXME more detailed doc!
 //
 simple IPv6Encapsulation
-	parameters:
-		procdelay: numeric const;
-	gates:
-		//in: multicastIn; //unconnected
-		in: encapsulateRoutingIn;
-		in: decapsulateLocalDeliverIn;
-		in: mobilityIn;
-		out: encapsulatedSendOut;
-		out: decapsulatedPreRoutingOut;
+    parameters:
+        procdelay: numeric const;
+    gates:
+        //in: multicastIn; //unconnected
+        in: encapsulateRoutingIn;
+        in: decapsulateLocalDeliverIn;
+        in: mobilityIn;
+        out: encapsulatedSendOut;
+        out: decapsulatedPreRoutingOut;
 endsimple
 

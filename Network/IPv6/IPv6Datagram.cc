@@ -155,6 +155,9 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
 
   IPv6Datagram_Base::operator=(rhs);
 
+  payload_length = rhs.payload_length;
+  next_header = rhs.next_header;
+
   // XXX done by IPv6Datagram_Base: header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;

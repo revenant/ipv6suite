@@ -44,7 +44,8 @@ class AddressResolution : public cSimpleModule
 
  public:
   Module_Class_Members(AddressResolution, cSimpleModule, 0);
-  virtual void initialize();
+  virtual int numInitStages() const {return 2;}
+  virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
 

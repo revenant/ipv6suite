@@ -66,49 +66,55 @@ Define_Module( AddressResolution );
 
 size_t AddressResolution::outputUnicastGate = UINT_MAX;
 
-void AddressResolution::initialize()
+void AddressResolution::initialize(int stage)
 {
-  ift = InterfaceTableAccess().get();
-  rt = RoutingTable6Access().get();
-
-  //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
-  //another class with exactly same name?
-  fc = check_and_cast<::IPv6Forward*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
-  assert(fc != 0);
-
-  ctrIcmp6OutNgbrAdv = 0;
-  ctrIcmp6OutNgbrSol = 0;
-
-  if (ift->numInterfaceGates()==0)
+  if (stage==1)
   {
-    outputUnicastGate = -1;
-    outputMod = NULL; //XXX is that enough? --AV
-    return;
-  }
-  outputMod = new cModule*[ift->numInterfaceGates()];
-  //nd->icmp->proc
-  cModule* procMod = parentModule();
-  assert(procMod);
-  //ned gen sources don't have header files for incl.
-  //assert(check_and_cast<IPv6Processing*>(procMod));
-  for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
-  {
-    outputMod[i] = procMod->submodule("output", i);
-    assert(outputMod[i]);
-    assert(check_and_cast<IPv6Output*>(outputMod[i]));
-    if (!outputMod[i])
-      DoutFatal(dc::core|error_cf, "Cannot find IPv6OutputCore module");
-  }
+    // we have to postpone initialization to stage 1, because interfaces
+    // get registered in stage 0 and we need them.
 
-  // Initialise this magic number once only as its constant during runtime and
-  // should be same for modules of same type
-  if (outputMod[0] != 0 && outputUnicastGate == UINT_MAX)
-  {
-    outputUnicastGate = outputMod[0]->findGate("neighbourDiscoveryDirectIn");
-    assert(outputUnicastGate != UINT_MAX);
-    if (UINT_MAX == outputUnicastGate)
-      DoutFatal(dc::core|error_cf, "Cannot find gate");
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTable6Access().get();
+
+    //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
+    //another class with exactly same name?
+    fc = check_and_cast<::IPv6Forward*> (
+      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
+    assert(fc != 0);
+
+    ctrIcmp6OutNgbrAdv = 0;
+    ctrIcmp6OutNgbrSol = 0;
+
+    if (ift->numInterfaceGates()==0)
+    {
+      outputUnicastGate = -1;
+      outputMod = NULL; //XXX is that enough? --AV
+      return;
+    }
+    outputMod = new cModule*[ift->numInterfaceGates()];
+    //nd->icmp->proc
+    cModule* procMod = parentModule();
+    assert(procMod);
+    //ned gen sources don't have header files for incl.
+    //assert(check_and_cast<IPv6Processing*>(procMod));
+    for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
+    {
+      outputMod[i] = procMod->submodule("output", i);
+      assert(outputMod[i]);
+      assert(check_and_cast<IPv6Output*>(outputMod[i]));
+      if (!outputMod[i])
+        DoutFatal(dc::core|error_cf, "Cannot find IPv6OutputCore module");
+    }
+
+    // Initialise this magic number once only as its constant during runtime and
+    // should be same for modules of same type
+    if (outputMod[0] != 0 && outputUnicastGate == UINT_MAX)
+    {
+      outputUnicastGate = outputMod[0]->findGate("neighbourDiscoveryDirectIn");
+      assert(outputUnicastGate != UINT_MAX);
+      if (UINT_MAX == outputUnicastGate)
+        DoutFatal(dc::core|error_cf, "Cannot find gate");
+    }
   }
 }
 

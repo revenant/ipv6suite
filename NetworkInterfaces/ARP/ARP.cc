@@ -465,9 +465,9 @@ void ARP::updateARPCache(ARPCacheEntry *entry, const MACAddress& macAddress)
     }
 }
 
-InterfaceEntry *ARP::registerInterface(double datarate)
+IPv4InterfaceEntry *ARP::registerInterface(double datarate)
 {
-    InterfaceEntry *e = new InterfaceEntry();
+    IPv4InterfaceEntry *e = new IPv4InterfaceEntry();
 
     // interface name: NetworkInterface module's name without special characters ([])
     // --> Emin : Parent module name is used since EtherMAC belongs to EthernetInterface.

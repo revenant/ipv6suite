@@ -159,7 +159,7 @@ char *RoutingTableParser::createFilteredFile (char *file,
 void RoutingTableParser::parseInterfaces(char *ifconfigFile)
 {
     int charpointer = 0;
-    InterfaceEntry *e;
+    IPv4InterfaceEntry *e;
 
     // parsing of entries in interface definition
     while(ifconfigFile[charpointer] != '\0')
@@ -167,7 +167,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // name entry
         if (streq(ifconfigFile + charpointer, "name:")) {
             // find existing interface with this name
-            char *name = parseInterfaceEntry(ifconfigFile, "name:", charpointer,
+            char *name = parseIPv4InterfaceEntry(ifconfigFile, "name:", charpointer,
                                              new char[MAX_ENTRY_STRING_SIZE]);
             e = rt->interfaceByName(name);
             if (!e)
@@ -179,7 +179,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // encap entry
         if (streq(ifconfigFile + charpointer, "encap:")) {
             // ignore encap
-            parseInterfaceEntry(ifconfigFile, "encap:", charpointer,
+            parseIPv4InterfaceEntry(ifconfigFile, "encap:", charpointer,
                                 new char[MAX_ENTRY_STRING_SIZE]);
             continue;
         }
@@ -187,14 +187,14 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // HWaddr entry
         if (streq(ifconfigFile + charpointer, "HWaddr:")) {
             // ignore hwAddr
-            parseInterfaceEntry(ifconfigFile, "HWaddr:", charpointer,
+            parseIPv4InterfaceEntry(ifconfigFile, "HWaddr:", charpointer,
                                 new char[MAX_ENTRY_STRING_SIZE]);
             continue;
         }
 
         // inet_addr entry
         if (streq(ifconfigFile + charpointer, "inet_addr:")) {
-            e->inetAddr = IPAddress(parseInterfaceEntry(ifconfigFile, "inet_addr:", charpointer,
+            e->inetAddr = IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "inet_addr:", charpointer,
                                     new char[MAX_ENTRY_STRING_SIZE]));  // FIXME mem leak
             continue;
         }
@@ -202,21 +202,21 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // Broadcast address entry
         if (streq(ifconfigFile + charpointer, "Bcast:")) {
             // ignore Bcast
-            parseInterfaceEntry(ifconfigFile, "Bcast:", charpointer,
+            parseIPv4InterfaceEntry(ifconfigFile, "Bcast:", charpointer,
                                 new char[MAX_ENTRY_STRING_SIZE]);  // FIXME mem leak
             continue;
         }
 
         // Mask entry
         if (streq(ifconfigFile + charpointer, "Mask:")) {
-            e->mask = IPAddress(parseInterfaceEntry(ifconfigFile, "Mask:", charpointer,
+            e->mask = IPAddress(parseIPv4InterfaceEntry(ifconfigFile, "Mask:", charpointer,
                                 new char[MAX_ENTRY_STRING_SIZE]));  // FIXME mem leak
             continue;
         }
 
         // Multicast groups entry
         if (streq(ifconfigFile + charpointer, "Groups:")) {
-            char *grStr = parseInterfaceEntry(ifconfigFile, "Groups:",
+            char *grStr = parseIPv4InterfaceEntry(ifconfigFile, "Groups:",
                                               charpointer,
                                               new char[MAX_GROUP_STRING_SIZE]);
             //PRINTF("\nMulticast gr str: %s\n", grStr);
@@ -227,7 +227,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // MTU entry
         if (streq(ifconfigFile + charpointer, "MTU:")) {
             e->mtu = atoi(
-                parseInterfaceEntry(ifconfigFile, "MTU:", charpointer,
+                parseIPv4InterfaceEntry(ifconfigFile, "MTU:", charpointer,
                                     new char[MAX_ENTRY_STRING_SIZE])); // FIXME mem leak
             continue;
         }
@@ -235,7 +235,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
         // Metric entry
         if (streq(ifconfigFile + charpointer, "Metric:")) {
             e->metric = atoi(
-                parseInterfaceEntry(ifconfigFile, "Metric:", charpointer,
+                parseIPv4InterfaceEntry(ifconfigFile, "Metric:", charpointer,
                                     new char[MAX_ENTRY_STRING_SIZE]));
             continue;
         }
@@ -270,7 +270,7 @@ void RoutingTableParser::parseInterfaces(char *ifconfigFile)
 }
 
 
-char *RoutingTableParser::parseInterfaceEntry (char *ifconfigFile,
+char *RoutingTableParser::parseIPv4InterfaceEntry (char *ifconfigFile,
                                                const char *tokenStr,
                                                int &charpointer,
                                                char* destStr)
@@ -289,7 +289,7 @@ char *RoutingTableParser::parseInterfaceEntry (char *ifconfigFile,
 
 
 void RoutingTableParser::parseMulticastGroups (char *groupStr,
-                                              InterfaceEntry *itf)
+                                              IPv4InterfaceEntry *itf)
 {
     int i, j, groupNo;
 

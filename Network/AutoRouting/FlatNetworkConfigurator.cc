@@ -72,7 +72,7 @@ void FlatNetworkConfigurator::initialize(int stage)
 
         for (int k=0; k<rt->numInterfaces(); k++)
         {
-            InterfaceEntry *e = rt->interfaceById(k);
+            IPv4InterfaceEntry *e = rt->interfaceById(k);
             if (!e->loopback)
             {
                 e->inetAddr = IPAddress(addr);
@@ -96,7 +96,7 @@ void FlatNetworkConfigurator::initialize(int stage)
 
         // count non-loopback interfaces
         int numIntf = 0;
-        InterfaceEntry *interf = NULL;
+        IPv4InterfaceEntry *interf = NULL;
         for (int k=0; k<rt->numInterfaces(); k++)
             if (!rt->interfaceById(k)->loopback)
                 {interf = rt->interfaceById(k); numIntf++;}
@@ -157,7 +157,7 @@ void FlatNetworkConfigurator::initialize(int stage)
 
             // add route
             RoutingTable *rt = IPAddressResolver().routingTableOf(atNode->module());
-            InterfaceEntry *interf = rt->interfaceByPortNo(outputPort);
+            IPv4InterfaceEntry *interf = rt->interfaceByPortNo(outputPort);
 
             RoutingEntry *e = new RoutingEntry();
             e->host = IPAddress(destAddr);

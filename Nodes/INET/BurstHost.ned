@@ -19,10 +19,11 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
+    "RoutingTable",
     "NetworkLayer",
     "IPTrafficGenerator",
-    "PPPInterface",
-    "RoutingTable";
+    "PPPInterface";
 
 
 
@@ -40,22 +41,24 @@ module BurstHost
         out: out[];
     submodules:
         blackboard: Blackboard;
-            display: "p=75,69;i=block/blackboard";
+            display: "p=83,66;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=83,136;i=block/table";
         routingTable: RoutingTable;
             parameters:
                 IPForward = IPForward,
                 routerId = "",
                 routingFile = routingFile;
-            display: "p=75,139;i=block/table";
+            display: "p=83,206;i=block/table";
         trafGen: trafGenType like IPTrafficGenerator;
-            display: "i=block/app;p=164,62";
+            display: "i=block/app;p=198,86";
         networkLayer: NetworkLayer;
             gatesizes:
                 physIn[1],
                 physOut[1];
-            display: "p=164,149;i=block/fork;q=queue";
+            display: "p=198,173;i=block/fork;q=queue";
         ppp: PPPInterface[1];
-            display: "p=164,238,row,90;q=queue;i=block/ifcard";
+            display: "p=198,262,row,90;q=queue;i=block/ifcard";
     connections nocheck:
         // transport connections
         networkLayer.UDPOut --> trafGen.from_ip;

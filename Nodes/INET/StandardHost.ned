@@ -20,6 +20,8 @@
 
 import
     "Blackboard",
+    "InterfaceTable",
+    "RoutingTable",
     "TCPApp.ned",
     "TCPMain.ned",
     "UDPProcessing",
@@ -49,13 +51,15 @@ module StandardHost
         out: ethOut[];
     submodules:
         blackboard: Blackboard;
-            display: "p=60,75;i=block/blackboard";
+            display: "p=60,70;i=block/blackboard";
+        interfaceTable: InterfaceTable;
+            display: "p=60,150;i=block/table";
         routingTable: RoutingTable;
             parameters:
                 IPForward = IPForward,
                 routerId = "",
                 routingFile = routingFile;
-            display: "p=60,150;i=block/table";
+            display: "p=60,230;i=block/table";
         tcpApp: tcpAppType[numTcpApps] like TCPApp;
             display: "p=163,67;i=block/app";
         tcp: TCPMain;

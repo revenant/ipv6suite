@@ -129,8 +129,8 @@ void RSVPAppl::processRSVP_PATH(RSVPPathMsg *pMessage)
     Unicast_Route_Query(receiverIP, &outInf);
 
     // Convert to name
-    InterfaceEntry *outInfP = rt->interfaceByAddress(IPAddress(outInf));
-    InterfaceEntry *inInfP = rt->interfaceByAddress(IPAddress(inInf));
+    IPv4InterfaceEntry *outInfP = rt->interfaceByAddress(IPAddress(outInf));
+    IPv4InterfaceEntry *inInfP = rt->interfaceByAddress(IPAddress(inInf));
     if (!outInfP) error("no interface with outInf address %s",IPAddress(outInf).str().c_str());
     if (!inInfP) error("no interface with inInf address %s",IPAddress(inInf).str().c_str());
 

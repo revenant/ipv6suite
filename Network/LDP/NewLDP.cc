@@ -264,7 +264,7 @@ void NewLDP::processRequestFromMPLSSwitch(cMessage *msg)
     int gateIndex = msg->par("gateIndex");
     delete msg;
 
-    InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
+    IPv4InterfaceEntry *ientry = rt->interfaceByPortNo(gateIndex);
     string fromInterface = ientry->name;
 
     ev << "Request from MPLS for FEC=" << fecId << "  dest=" << fecInt <<
@@ -405,7 +405,7 @@ IPAddress NewLDP::findPeerAddrFromInterface(string interfaceName)
 
     int i = 0;
     int k = 0;
-    InterfaceEntry *interfacep = rt->interfaceByName(interfaceName.c_str());
+    IPv4InterfaceEntry *interfacep = rt->interfaceByName(interfaceName.c_str());
 
     RoutingEntry *anEntry;
 

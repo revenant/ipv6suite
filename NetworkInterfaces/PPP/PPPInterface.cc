@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <omnetpp.h>
-#include "RoutingTable.h"
-#include "RoutingTableAccess.h"
+#include "InterfaceTable.h"
+#include "InterfaceTableAccess.h"
 #include "PPPInterface.h"
 
 
@@ -109,25 +109,17 @@ InterfaceEntry *PPPInterface::registerInterface(double datarate)
     int outputPort = gate("netwIn")->sourceGate()->index();
     e->outputPort = outputPort;
 
-    // we don't know IP address and netmask, it'll probably come from routing table file
-
     // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
     // 4000 (on some point-to-point links), 4470 (Cisco routers default, FDDI compatible)
     e->mtu = 4470;
-
-    // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    e->metric = connected ? (int)ceil(2e9/datarate) : 100; // use OSPF cost as default
 
     // capabilities
     e->multicast = true;
     e->pointToPoint = true;
 
-    // multicast groups
-    //FIXME
-
     // add
-    RoutingTableAccess routingTableAccess;
-    routingTableAccess.get()->addInterface(e);
+    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
+    interfaceTable->addInterface(e);
 
     return e;
 }
@@ -243,9 +235,11 @@ void PPPInterface::updateDisplayString()
         else if (datarate>=1e3) sprintf(drate,"%gK", datarate/1e3);
         else sprintf(drate,"%gbps", datarate);
 
+/* TBD FIXME find solution for displaying IP address without dependence on IPv6 or IPv6
         IPAddress addr = interfaceEntry->inetAddr;
-
         sprintf(buf, "%s / %s\nrcv:%ld snt:%ld", addr.isNull()?"-":addr.str().c_str(), drate, numRcvdOK, numSent);
+*/
+        sprintf(buf, "%s\nrcv:%ld snt:%ld", drate, numRcvdOK, numSent);
 
         if (numBitErr>0 || numDropped>0)
             sprintf(buf+strlen(buf), "\nerr:%ld drop:%ld", numBitErr, numDropped);

@@ -83,7 +83,7 @@ class ARP : public cSimpleModule
 
     RoutingTableAccess routingTableAccess; // for Proxy ARP
 
-    InterfaceEntry *interfaceEntry;
+    IPv4InterfaceEntry *interfaceEntry;
 
   public:
     Module_Class_Members(ARP,cSimpleModule,0);
@@ -94,7 +94,7 @@ class ARP : public cSimpleModule
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
-    InterfaceEntry *registerInterface(double datarate);
+    IPv4InterfaceEntry *registerInterface(double datarate);
 
     void processInboundPacket(cMessage *msg);
     void processOutboundPacket(cMessage *msg);

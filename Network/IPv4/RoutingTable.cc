@@ -34,38 +34,31 @@
 
 
 
-InterfaceEntry::InterfaceEntry()
+IPv4InterfaceEntry::IPv4InterfaceEntry()
 {
-    id = -1;
-    outputPort = -1;
+    baseIfData = NULL;
 
     static const IPAddress allOnes("255.255.255.255");
     mask = allOnes;
 
-    mtu = 0;
     metric = 0;
 
-    broadcast = false;
-    multicast = false;
-    pointToPoint= false;
-    loopback = false;
-
-    // add default mouticast groups!
+    // TBD add default multicast groups!
     multicastGroupCtr = 0;
     multicastGroup = NULL;
 }
 
-std::string InterfaceEntry::info() const
+std::string IPv4InterfaceEntry::info() const
 {
     std::stringstream out;
-    out << (!name.empty() ? name.c_str() : "*");
-    out << "  outputPort:" << outputPort;
+    out << (!baseIfData->name.empty() ? name.c_str() : "*");
+    out << "  outputPort:" << baseIfData->outputPort;
     out << "  addr:" << inetAddr << "  mask:" << mask;
-    out << "  MTU:" << mtu << "  Metric:" << metric;
+    out << "  MTU:" << baseIfData->mtu << "  Metric:" << metric;
     return out.str();
 }
 
-std::string InterfaceEntry::detailedInfo() const
+std::string IPv4InterfaceEntry::detailedInfo() const
 {
     std::stringstream out;
     out << "name:" << (!name.empty() ? name.c_str() : "*")
@@ -131,7 +124,7 @@ std::ostream& operator<<(std::ostream& os, const RoutingEntry& e)
     return os;
 };
 
-std::ostream& operator<<(std::ostream& os, const InterfaceEntry& e)
+std::ostream& operator<<(std::ostream& os, const IPv4InterfaceEntry& e)
 {
     os << e.info();
     return os;
@@ -150,7 +143,7 @@ void RoutingTable::initialize(int stage)
 
     // At this point, all L2 modules have registered themselves (added their
     // interface entries). Add one extra interface, the loopback here.
-    InterfaceEntry *lo0 = addLocalLoopback();
+    IPv4InterfaceEntry *lo0 = addLocalLoopback();
 
     // read routing table file (and interface configuration)
     RoutingTableParser parser(this);
@@ -229,14 +222,14 @@ void RoutingTable::printRoutingTable()
 
 //---
 
-InterfaceEntry *RoutingTable::interfaceById(int id)
+IPv4InterfaceEntry *RoutingTable::interfaceById(int id)
 {
     if (id<0 || id>=(int)interfaces.size())
         opp_error("interfaceById(): nonexistent interface %d", id);
     return interfaces[id];
 }
 
-void RoutingTable::addInterface(InterfaceEntry *entry)
+void RoutingTable::addInterface(IPv4InterfaceEntry *entry)
 {
     // check name and outputPort are unique
     if (interfaceByName(entry->name.c_str())!=NULL)
@@ -249,7 +242,7 @@ void RoutingTable::addInterface(InterfaceEntry *entry)
     interfaces.push_back(entry);
 }
 
-void RoutingTable::deleteInterface(InterfaceEntry *entry)
+void RoutingTable::deleteInterface(IPv4InterfaceEntry *entry)
 {
     // check if any route table entries refer to this interface
     for (int k=0; k<numRoutingEntries(); k++)
@@ -268,7 +261,7 @@ void RoutingTable::deleteInterface(InterfaceEntry *entry)
         (*i)->id = i-interfaces.begin();
 }
 
-InterfaceEntry *RoutingTable::interfaceByPortNo(int portNo)
+IPv4InterfaceEntry *RoutingTable::interfaceByPortNo(int portNo)
 {
     // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
@@ -277,7 +270,7 @@ InterfaceEntry *RoutingTable::interfaceByPortNo(int portNo)
     return NULL;
 }
 
-InterfaceEntry *RoutingTable::interfaceByName(const char *name)
+IPv4InterfaceEntry *RoutingTable::interfaceByName(const char *name)
 {
     Enter_Method("interfaceByName(%s)=?", name);
     if (!name)
@@ -288,7 +281,7 @@ InterfaceEntry *RoutingTable::interfaceByName(const char *name)
     return NULL;
 }
 
-InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
+IPv4InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
 {
     // This used to check the network part of the interface IP address.
     // No clue what it was good for, but screwed up routing for me. --Andras
@@ -301,9 +294,9 @@ InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
     return NULL;
 }
 
-InterfaceEntry *RoutingTable::addLocalLoopback()
+IPv4InterfaceEntry *RoutingTable::addLocalLoopback()
 {
-    InterfaceEntry *loopbackInterface = new InterfaceEntry();
+    IPv4InterfaceEntry *loopbackInterface = new IPv4InterfaceEntry();
 
     loopbackInterface->name = "lo0";
 

@@ -72,13 +72,13 @@ class RoutingTableParser
     // write them into the routing table.
     void parseRouting(char *routeFile);
 
-    char *parseInterfaceEntry (char *ifconfigFile,
+    char *parseIPv4InterfaceEntry (char *ifconfigFile,
                                const char *tokenStr,
                                int &charpointer,
                                char* destStr);
 
     // Convert string separated by ':' into dynamic string array.
-    void parseMulticastGroups (char *groupStr, InterfaceEntry*);
+    void parseMulticastGroups (char *groupStr, IPv4InterfaceEntry*);
 
     // Return 1 if beginning of str1 and str2 is equal up to str2-len,
     // otherwise 0.

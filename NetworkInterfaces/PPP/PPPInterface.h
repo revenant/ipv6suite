@@ -24,6 +24,8 @@
 #include "PPPFrame_m.h"
 
 
+class InterfaceEntry;
+
 /**
  * PPP implementation. Derived from the p-to-p OMNeT++ sample simulation.
  */
@@ -39,7 +41,7 @@ class PPPInterface : public cSimpleModule
     cQueue queue;
     cMessage *endTransmissionEvent;
 
-    InterfaceEntry *interfaceEntry;  // points into RoutingTable
+    InterfaceEntry *interfaceEntry;  // points into InterfaceTable
     double datarate;  // only cached for the display string
 
     // statistics

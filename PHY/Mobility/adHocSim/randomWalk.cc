@@ -2,7 +2,7 @@
 //Copyright (c) 2003, Nicola Concer
 //All rights reserved.
 
-#include "h/randomWalk.h"
+#include "randomWalk.h"
 #include <omnetpp.h>
 
 //Define_Module_Like(RandomWalk,Mobility);

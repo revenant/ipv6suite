@@ -33,7 +33,7 @@ LIBS=
 #------------------------------------------------------------------------------
 
 
-!include "../../inetconfig.vc"
+!include "../../../inetconfig.vc"
 
 # User interface libs
 CMDENV_LIBS=envir.lib cmdenv.lib
@@ -64,8 +64,8 @@ OBJS= randomDirection.obj randomWalk.obj randomWP.obj restrictedRandWalk.obj
 GENERATEDHEADERS= 
 
 # subdirectories to recurse into
-SUBDIRS= h
-SUBDIR_TARGETS=  h_dir
+SUBDIRS= 
+SUBDIR_TARGETS= 
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -78,9 +78,6 @@ $(OBJS) : $(GENERATEDHEADERS)
 # 	purify $(CXX) $(LDFLAGS) $(OBJS) $(EXTRA_OBJS) $(EXT_DIR_OBJS) $(LIBS) -L$(OMNETPP_LIB_DIR) $(KERNEL_LIBS) $(USERIF_LIBS) $(SYS_LIBS_PURE) -o $(TARGET).pure
 
 subdirs: $(SUBDIR_TARGETS)
-
-h_dir:
-	cd h && cd && nmake /nologo /f Makefile.vc
 
 randomDirection.obj: randomDirection.cc
 	$(CXX) -c $(COPTS) /Tp randomDirection.cc

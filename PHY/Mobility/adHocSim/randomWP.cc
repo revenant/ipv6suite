@@ -1,5 +1,5 @@
 
-#include "h/randomWP.h"
+#include "randomWP.h"
 #include <omnetpp.h>
 
 //Define_Module_Like(RandomWP,Mobility);

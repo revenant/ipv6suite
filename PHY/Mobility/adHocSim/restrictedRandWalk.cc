@@ -1,5 +1,5 @@
 
-#include "h/restrictedRandWalk.h"
+#include "restrictedRandWalk.h"
 
 
 Define_Module_Like(RestrictedRandWalk,Mobility);

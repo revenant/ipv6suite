@@ -214,14 +214,15 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
 */
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   EtherFrame6* frame = new EtherFrame6(msg->name());
-  frame->setSrcAddress(MACAddress6(ctrlInfo->getDestLLAddr()));
+  frame->setSrcAddress(MACAddress6(macAddressString().c_str()));
+  frame->setDestAddress(MACAddress6(ctrlInfo->getDestLLAddr()));
   delete ctrlInfo;
   frame->setProtocol(PR_ETHERNET);
   frame->encapsulate(msg.release());
 
   EtherSignalData* sigData = new EtherSignalData(frame->name());
-  sigData->setSrcModPathName(fullPath().c_str());
   sigData->encapsulate(frame);
+  sigData->setSrcModPathName(fullPath().c_str());
   sigData->setLength(sigData->length() * 8); // convert into bits
 
   outputBuffer.push_back(sigData);

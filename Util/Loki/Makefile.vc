@@ -112,4 +112,7 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+SmallObj.obj: SmallObj.cc \
+  SmallObj.h \
+  Threads.h \
+  Singleton.h

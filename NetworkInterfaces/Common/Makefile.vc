@@ -120,4 +120,7 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+InterfaceTable.obj: InterfaceTable.cc \
+  ../../Util/stlwatch.h \
+  InterfaceTable.h \
+  ../../Base/INETDefs.h

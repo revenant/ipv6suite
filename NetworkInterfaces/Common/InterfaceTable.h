@@ -31,7 +31,6 @@
 class InterfaceEntry : public cPolymorphic
 {
   public:
-    int id;             //< identifies the interface (not the same as outputPort!)
     std::string name;   //< interface name (must be unique)
     int outputPort;     //< output gate index (-1 if unused, e.g. loopback interface)
     int mtu;            //< Maximum Transmission Unit (e.g. 1500 on Ethernet)
@@ -92,30 +91,23 @@ class InterfaceTable: public cSimpleModule
      */
     void handleMessage(cMessage *);
 
-    /** @name Debug/utility */
-    //@{
-    void printIfconfig();
-    void printInterfaceTable();
-    //@}
-
     /**
-     * Adds an interface, and sets and returns its Id.
+     * Adds an interface.
      *
-     * Note: Interface deletion is not supported, but one can mark them
+     * Note: Interface deletion is not supported, but one can mark one
      * as "down".
      */
-    int addInterface(InterfaceEntry *entry);
+    void addInterface(InterfaceEntry *entry);
 
     /**
-     * Returns the number of interfaces. Interface ids are in range
-     * 0..numInterfaces()-1.
+     * Returns the number of interfaces.
      */
     int numInterfaces()  {return interfaces.size();}
 
     /**
-     * Returns the InterfaceEntry specified by its id (0..numInterfaces-1).
+     * Returns the InterfaceEntry specified by an index 0..numInterfaces-1.
      */
-    InterfaceEntry *interfaceById(int id);
+    InterfaceEntry *interfaceAt(int pos);
 
     /**
      * Returns an interface given by its port number (gate index).

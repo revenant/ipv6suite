@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.3 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.cc,v 1.4 2005/02/11 10:46:37 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -42,19 +42,19 @@ const int CRC = 32;
 const int POSTAMBLE = 8;
 
 // constructors
-EtherFrame::EtherFrame(const char* name): cPacket(name)
+EtherFrame::EtherFrame(const char* name): cMessage(name)
 {}
 
 EtherFrame::EtherFrame(const EtherFrame& p)
 {
     setName( p.name() );
     operator=(p);
-¦}
+}
 
 // assignment operator
 EtherFrame& EtherFrame::operator=(const EtherFrame& p)
 {
-    cPacket::operator=(p);
+    cMessage::operator=(p);
     // _protocol = p._protocol;
     _srcAddr = p._srcAddr;
     _destAddr = p._destAddr;
@@ -216,12 +216,13 @@ int EtherFrame::pack_mac_addr(const char *straddr, unsigned char *pack) const
     assumes that networkPacket->length() is
     length of transport packet in bits
     adds to it the Ethernet header length in bits */
+/* XXX seems like this is not strictly necessary --AV
 void EtherFrame::encapsulate(cPacket* networkPacket)
 {
     cPacket::encapsulate(networkPacket);
     setName(networkPacket->name());
 }
-
+*/
 int EtherFrame::headerByteLength() const
 {
   int headerlen = (PREAMBLE +
@@ -233,10 +234,12 @@ int EtherFrame::headerByteLength() const
   return headerlen;
 }
 
+/* XXX no need -- removed to reduce clutter.  --AV
 cPacket* EtherFrame::decapsulate()
 {
   return (cPacket *)(cPacket::decapsulate());
 }
+*/
 
 void EtherFrame::setSrcAddress( const  MACAddress& src)
 {

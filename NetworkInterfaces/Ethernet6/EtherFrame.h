@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.3 2005/02/10 05:59:32 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.4 2005/02/11 10:46:37 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -51,7 +51,7 @@ extern const int POSTAMBLE;
         flag (0x7e), control (0x03), RC (biterror)
 */
 
-class EtherFrame: public cPacket
+class EtherFrame: public cMessage
 {
 public:
   // constructors
@@ -83,9 +83,11 @@ public:
   // the packet is in octets
 //  const int packetLength(void);
 
+/* XXX seems like this is not strictly necessary --AV
   // encapsulation/decapsulation of the IP datagram
-  virtual void encapsulate(cPacket *);
+* virtual void encapsulate(cPacket *);
   cPacket* decapsulate();
+*/
 
   #if defined __CN_PAYLOAD_H
   //send packets in network order;

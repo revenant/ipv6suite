@@ -34,9 +34,9 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
     return;
   }
 
-  EtherFrame* frame = 
+  EtherFrame* frame =
     boost::polymorphic_downcast<EtherFrame*>(msg);
-  assert(frame);  
+  assert(frame);
 
   int chkOutputPort = outputPortByAddress(frame->destAddrString());
 
@@ -46,7 +46,7 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
 
     cMessage* internalNotifier = new cMessage;
     internalNotifier->setKind(MK_PACKET);
-    internalNotifier->encapsulate(signal);    
+    internalNotifier->encapsulate(signal);
 
     // redirect the frame to the current network that the mobile station
     // locates
@@ -75,11 +75,11 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
     return;
   }
 
-  cPacket* dataPkt = frame->decapsulate();
+  cMessage *dataPkt = frame->decapsulate();
 
   if (dataPkt->kind() == MAC_BRIDGE_REGISTER )
   {
-    const char* msAddr = static_cast<cPar*>(dataPkt->parList().get(0))->stringValue();   
+    const char* msAddr = static_cast<cPar*>(dataPkt->parList().get(0))->stringValue();
 
     // update the database
     updateDB(msAddr, msg->arrivalGate()->index());
@@ -110,7 +110,7 @@ void EtherRelayUnit::updateDB(const char* address, int outputPort)
     entry->address = std::string(address);
     entry->outputPort = outputPort;
     entry->expireTime = simTime() + entryTimeout;
-    
+
     bool isFirstEntry = (filteringDB.size() ? false : true);
     if ( isFirstEntry )
     {
@@ -119,7 +119,7 @@ void EtherRelayUnit::updateDB(const char* address, int outputPort)
     }
 
     filteringDB.push_back(entry);
-  }  
+  }
 }
 
 int EtherRelayUnit::outputPortByAddress(const char* address)

@@ -94,7 +94,7 @@ struct SequenceControl
 //
 // Format of smallest Wireless Ethernet frame (ACK and CTS)
 //
-message WirelessEtherBasicFrame extends cPacket
+message WirelessEtherBasicFrame
 {
     fields:
         FrameControl frameControl;

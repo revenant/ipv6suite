@@ -176,7 +176,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
       delete assResponse;
 
 #ifdef EWU_MACBRIDGE
-      cPacket* dataPkt = new cPacket;
+      cMessage * dataPkt = new cMessage;
       dataPkt->setKind(MAC_BRIDGE_REGISTER);
 
       cPar* msAddressPar = new cPar;

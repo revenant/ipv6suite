@@ -212,7 +212,7 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
   delete recPkt->data().dgram;
 
   frame->setProtocol(PR_ETHERNET);
-  frame->encapsulate(static_cast<cPacket*>(dupMsg));
+  frame->encapsulate(dupMsg);
   frame->setName(dupMsg->name());
 
   EtherSignalData* sigData = new EtherSignalData(frame);

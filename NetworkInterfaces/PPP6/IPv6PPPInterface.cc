@@ -176,7 +176,7 @@ PPPFrame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
   outFrame->destAddr = recPkt->data().destLLAddr;
   Debug( assert(polymorphic_downcast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
 
-  cPacket* dupMsg = recPkt->data().dgram->dup();
+  cMessage *dupMsg = recPkt->data().dgram->dup();
   dupMsg->setLength(dupMsg->length() * 8); // convert from bytes to bits
   outFrame->encapsulate(dupMsg);
   outFrame->setName(dupMsg->name());
@@ -221,7 +221,7 @@ void IPv6PPPInterface::activity()
 
       cMessage* dupMsg = recPkt->data().dgram->dup();
 
-      outFrame->encapsulate(static_cast<cPacket*>(dupMsg));
+      outFrame->encapsulate(dupMsg);
       outFrame->setName(dupMsg->name());
       delete recPkt->data().dgram;
       delete recPkt;

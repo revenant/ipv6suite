@@ -53,17 +53,10 @@
 
 #ifdef USE_MOBILITY
 #include "MIPv6CDSMobileNode.h"
-#include "WirelessEtherModule.h"
 #endif //USE_MOBILITY
 #include "WorldProcessor.h"
 #include "XML/XMLOmnetParser.h"
-
-// XXX TBD try to eliminate these dependencies
-#include "LinkLayerModule.h"
-#include "EtherModule.h"
-#include "IPv6PPPAPInterface.h"
-
-
+ 
 
 #ifdef _MSC_VER
 #define strcasecmp  stricmp

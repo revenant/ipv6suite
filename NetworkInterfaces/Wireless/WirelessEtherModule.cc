@@ -1371,7 +1371,7 @@ void WirelessEtherModule::sendGQtoUpperLayer()
   GQmsg->setQQIC(125);
   GQmsg->setNS(0);
 
-  IPv6Datagram* dgram = new IPv6Datagram;
+  IPv6Datagram* dgram = new IPv6Datagram;  // well, THIS should GO! --AV
 
   dgram->encapsulate(GQmsg);
   dgram->setPayloadLength(GQmsg->length());

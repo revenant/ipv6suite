@@ -37,7 +37,7 @@
 
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -63,7 +63,7 @@ WEReceiveMode* WEReceiveMode::instance()
 
 void WEReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
 {
-  WirelessEtherBasicFrame* frame = signal->data();
+  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
   assert(frame);
 
   FrameControl frameControl = frame->getFrameControl();
@@ -121,10 +121,10 @@ void WEReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
 void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
 {
   WESignalData* signal = *(mod->outputBuffer.begin());
-  assert(signal->data());
+  assert(signal->encapsulatedMsg());
 
   WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (signal->data());
+    (signal->encapsulatedMsg());
   assert(frame);
 
   // Update statistics if data frame transmitted.
@@ -166,7 +166,7 @@ void WEReceiveMode::sendAck(WirelessEtherModule* mod,
     a = tmr;
   }
 
-  double d = (double)ack->data()->length()*8;
+  double d = (double)ack->encapsulatedMsg()->length()*8;
   simtime_t transmTime = d / BASE_SPEED;
 
   delete ack;

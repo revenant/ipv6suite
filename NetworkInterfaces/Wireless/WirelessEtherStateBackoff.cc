@@ -35,7 +35,7 @@
 #include "cTimerMessageCB.h"
 
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 #include "WirelessEtherStateBackoffReceive.h"
@@ -79,7 +79,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());
   assert(outData); // check if the frame is ok
-  if( ((outData->data()->getFrameControl().subtype == ST_PROBEREQUEST)||(outData->data()->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+  if( ((FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBEREQUEST)||(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
   {
     if ( SIFS < a->elapsedTime() )
     {
@@ -108,7 +108,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   a->cancel();
 
   assert(!mod->inputFrame);
-  mod->inputFrame = data.get()->dup();
+  mod->inputFrame = (WESignalData*) data.get()->dup(); //XXX eliminate dup()
 
   mod->waitStartTime = mod->simTime();
 
@@ -129,18 +129,18 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth
   // is 1Mbps
 
-  double d = (double)data->data()->length()*8;
+  double d = (double)FIXME_FIXME_FIXME_DATA_DATA->length()*8;
   simtime_t transmTime = d / BASE_SPEED;
 
 
   // GD Hack: assume not (toDS=1, FromDS=1).
 
-  short st = data->data()->getFrameControl().subtype;
+  short st = FIXME_FIXME_FIXME_DATA_DATA->getFrameControl().subtype;
   if(!(( st == ST_CTS) || (  st == ST_ACK )))  {
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << data->data()->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->data()))->getAddress2()
+       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->data()))->getAddress2()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }
@@ -148,21 +148,21 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << data->data()->getAddress1()
+       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }
 
   OPP_Global::ContextSwitcher switchContext(mod);
 
-  cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_SENDDATA);
+  cTimerMessage* tmrMessage = mod->getTmrMessage(WE_TRANSMIT_SENDDATA);
 
   if (!tmrMessage)
   {
     Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* a;
 
     a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-      (TRANSMIT_SENDDATA, mod, static_cast<WirelessEtherStateSend*>
+      (WE_TRANSMIT_SENDDATA, mod, static_cast<WirelessEtherStateSend*>
        (mod->currentState()), &WirelessEtherStateSend::endSendingData,
        "endSendingData");
 

@@ -500,7 +500,9 @@ AddressResolution.obj: AddressResolution.cc \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
   ./NDEntry.h \
-  ./IPv6Address.h
+  ./IPv6Address.h \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h
 Constants.obj: Constants.cc \
   Constants.h
 ErrorHandling6.obj: ErrorHandling6.cc \
@@ -2624,6 +2626,8 @@ Interface6Entry.obj: Interface6Entry.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp
+IPInterfacePacket_m.obj: IPInterfacePacket_m.cc \
+  IPInterfacePacket_m.h
 IPrefixList.obj: IPrefixList.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -5153,7 +5157,6 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   IPv6Datagram.h \
   Messages.h \
   IPv6Multicast.h \
-  ../../Util/cTTimerMessageCB.h \
   RoutingTable6.h \
   IPv6ForwardCore.h \
   ../../Util/opp_utils.h \
@@ -5161,7 +5164,9 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   NDEntry.h \
   ../../NetworkInterfaces/LL6ControlInfo_m.h \
   IPv6Utils.h \
+  ../../Base/QueueBase.h \
   RoutingTable6Access.h \
+  ../../Base/AbstractQueue.h \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
@@ -5324,8 +5329,13 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../../Util/cTypedMessage.h \
+  Interface6Entry.h \
+  ../../Util/ExpiryEntryList.h \
+  ../../config.h \
+  ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
-  ../../Util/TimerConstants.h \
+  ../../Util/Loki/Functor.h \
+  ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
@@ -5335,12 +5345,6 @@ IPv6OutputCore.obj: IPv6OutputCore.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  Interface6Entry.h \
-  ../../Util/ExpiryEntryList.h \
-  ../../config.h \
-  ../../Util/cTimerMessageCB.h \
-  ../../Util/Loki/Functor.h \
-  ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \
@@ -7304,7 +7308,8 @@ NDStateHost.obj: NDStateHost.cc \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
   ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
-  ../../NetworkInterfaces/Ethernet6/ethernet.h
+  ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h
 NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -7535,7 +7540,9 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
+  ../../Base/QueueBase.h \
   RoutingTable6Access.h \
+  ../../Base/AbstractQueue.h \
   ../../Base/ModuleAccess.h
 NDStates.obj: NDStates.cc \
   NDStates.h \
@@ -8653,6 +8660,8 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
   ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
-  ../../NetworkInterfaces/Ethernet6/ethernet.h \
+  ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ../../PHY/Mobility/Entity.h \
+  ../../NetworkInterfaces/Ethernet6/ethernet.h \
   ../../NetworkInterfaces/PPP6/IPv6PPPInterface.h

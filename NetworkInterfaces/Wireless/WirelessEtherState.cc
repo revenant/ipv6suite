@@ -35,7 +35,7 @@
 
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -71,22 +71,15 @@ std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule* m
     return msg;
 
   // debug
-  printMsg(mod, signal->type());
+  printMsg(mod, signal);
   ///////
 
-  switch(signal->type())
-  {
-    case WIRELESS_EST_Data:
+  if (dynamic_cast<WESignalData*>(signal))
       msg.reset((processData(mod, auto_downcast<WESignalData> (msg))).release());
-      break;
-    case WIRELESS_EST_Idle:
+  else if (dynamic_cast<WESignalIdle*>(signal))
       msg.reset((processIdle(mod, auto_downcast<WESignalIdle> (msg))).release());
-      break;
-
-    default:
+  else
       assert(false);
-      break;
-  }
   return msg;
 }
 
@@ -101,22 +94,9 @@ std::auto_ptr<WESignalData> WirelessEtherState::processData(WirelessEtherModule*
 }
 
 // debug message
-void WirelessEtherState::printMsg(WirelessEtherModule* mod, const EtherSignalType type)
+void WirelessEtherState::printMsg(WirelessEtherModule* mod, WESignal* signal)
 {
-  std::string s;
-
-  switch(type)
-  {
-    case WIRELESS_EST_Data:
-      s = "WIRELESS_DATA";
-      break;
-    case WIRELESS_EST_Idle:
-      s = "WIRELESS_IDLE";
-      break;
-    default:
-      assert(false);
-      break;
-  }
+  std::string s = signal->className();
 
   if ( mod->currentState() == WirelessEtherStateIdle::instance())
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_IDLE state");

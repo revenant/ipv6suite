@@ -35,7 +35,7 @@
 #include "WirelessEtherStateAwaitACK.h"
 #include "WirelessEtherStateAwaitACKReceive.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 #include "WirelessEtherStateBackoff.h"
@@ -76,9 +76,9 @@ std::auto_ptr<WESignalData> WirelessEtherStateAwaitACK::processData(WirelessEthe
   // make sure the inputFrame is empty to store new frame
   assert(!mod->inputFrame);
 
-  // has to duplicate the data because the auto_ptr will delete the
+  // XXX has to duplicate the data because the auto_ptr will delete the
   // instance afterwards
-  mod->inputFrame = data.get()->dup();
+  mod->inputFrame = check_and_cast<WESignalData*>(data.get()->dup());
 
   // entering receive state and waiting to finish receiving the ACK frame
   mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
@@ -99,10 +99,10 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   }
 
   WESignalData* signal = *(mod->outputBuffer.begin());
-  assert(signal->data());
+  assert(signal->encapsulatedMsg());
 
   WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (signal->data());
+    (signal->encapsulatedMsg());
   assert(frame);
 
   // Statistic collection
@@ -163,7 +163,8 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   assert(outData); // check if the frame is ok
 
   // To support fast Active scanning, where you use the smallest contention window and SIFS wait time
-  if( ((outData->data()->getFrameControl().subtype == ST_PROBEREQUEST)||(outData->data()->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+  WirelessEtherBasicFrame *outDataEncapFrame = check_and_cast<WirelessEtherBasicFrame*>(outData->encapsulatedMsg());
+  if( ((outDataEncapFrame->getFrameControl().subtype == ST_PROBEREQUEST)||(outDataEncapFrame->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
   {
     mod->backoffTime = (int)intuniform(0, CW_MIN) * SLOTTIME + SIFS;
   }
@@ -173,14 +174,14 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     mod->backoffTime = (int)intuniform(0, cw) * SLOTTIME + DIFS;
   }
 
-  if(outData->data()->getFrameControl().subtype == ST_DATA)
+  if(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_DATA)
   {
     mod->totalBackoffTime.sampleTotal += mod->backoffTime;
   }
 
   mod->changeState(WirelessEtherStateBackoff::instance());
   // set retry flag of the sending frame to true
-  outData->data()->getFrameControl().retry = true;
+  FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().retry = true;
 
   // We go to Backoff state instead of Backoff because we know that
   // there is nothing in the medium as all MS's cease sending the

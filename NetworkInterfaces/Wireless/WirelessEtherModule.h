@@ -65,7 +65,6 @@ class WEAssociationReceiveMode;
 class WEDataReceiveMode;
 class WEMonitorReceiveMode;
 
-class PHYWirelessSignal;
 class WirelessEtherState;
 class WESignal;
 class WESignalData;
@@ -414,7 +413,7 @@ protected:
   WirelessEtherBasicFrame* createFrame(FrameType frameType,
                                        SubType subType,
                                        MACAddress6 source,
-                                       MACAddress6 destination = MACAddress6(ETH_BROADCAST_ADDRESS));
+                                       MACAddress6 destination = MACAddress6(WE_BROADCAST_ADDRESS));
 
   //create Frame body
   virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);

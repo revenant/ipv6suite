@@ -79,7 +79,7 @@ void IPv6PPPAPInterface::handleMessage(cMessage* msg)
   if (lowInterfaceId() == 0 && highInterfaceId() == 0)
   {
     // needed for AP bridge
-    if ( std::string(msg->name()) == "WIRELESS_AP_NOTIFY_MAC")
+    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC")
     {
       MACAddress6 addrObj;
       addrObj.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());

@@ -3011,7 +3011,8 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
   ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../../Util/AveragingList.h \
-  ../../NetworkInterfaces/Ethernet6/ethernet.h \
+  ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ./MIPv6CDSMobileNode.h \
   ../HMIPv6/HMIPv6Entry.h \
   ./MIPv6CDS.h \

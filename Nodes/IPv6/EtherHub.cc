@@ -6,7 +6,7 @@
 #include <boost/cast.hpp>
 #include "EtherHub.h"
 #include "ethernet.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "IPv6Datagram.h"
 
 const int DISTANCE = 100;
@@ -86,6 +86,6 @@ void Repeater::repeatFrame(EtherSignalData* recFrame,int orig_gate_id)
   for (int i=to_net_gate_id; i< to_net_gate_id + gate("to_net")->size();i++)
   {
     if (i != nosend_gate_id)
-      send(recFrame->dup(), i);
+      send((cMessage *)recFrame->dup(), i);
   }
 }

@@ -54,7 +54,7 @@ public:
   // handled by both
   virtual void handleData(WirelessEtherModule* mod, WESignalData* signal) {}
   virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal) {}
-    virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal) {}
+  virtual void handleAuthentication(WirelessEtherModule* mod, WESignalData* signal) {}
 
   static WEReceiveMode* instance();
 

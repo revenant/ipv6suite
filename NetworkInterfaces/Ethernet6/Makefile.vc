@@ -524,7 +524,8 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Wireless/WEthernet.h
+  ../Wireless/WEthernet.h \
+  ../Wireless/WirelessEtherSignal_m.h
 EtherModuleBridge.obj: EtherModuleBridge.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \

@@ -34,7 +34,7 @@
 #include "WirelessEtherStateReceive.h"
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherStateIdle.h"
 
 WirelessEtherStateReceive* WirelessEtherStateReceive::_instance = 0;

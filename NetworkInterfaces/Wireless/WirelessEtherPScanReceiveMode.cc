@@ -26,7 +26,7 @@
 #include "WirelessEtherPScanReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -51,7 +51,7 @@ WEPScanReceiveMode* WEPScanReceiveMode::instance()
 void WEPScanReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* signal)
 {
     WirelessEtherManagementFrame* beacon =
-         static_cast<WirelessEtherManagementFrame*>(signal->data());
+         static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
     if(mod->isFrameForMe(static_cast<WirelessEtherBasicFrame*>(beacon)))
     {

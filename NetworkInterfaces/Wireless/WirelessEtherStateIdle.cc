@@ -34,7 +34,7 @@
 #include "WirelessEtherStateIdle.h"
 #include "WirelessEtherModule.h"
 #include "WirelessAccessPoint.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -102,9 +102,9 @@ std::auto_ptr<WESignalData> WirelessEtherStateIdle::processData(WirelessEtherMod
   // make sure the inputFrame is empty to store new frame
   assert(!mod->inputFrame);
 
-  // has to duplicate the data because the auto_ptr will delete the
+  // XXX has to duplicate the data because the auto_ptr will delete the
   // instance afterwards
-  mod->inputFrame = data.get()->dup();
+  mod->inputFrame = data.dup();
 
   mod->waitStartTime = mod->simTime();
 
@@ -127,7 +127,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
             WESignalData* a = *(mod->outputBuffer.begin());
 
             WirelessEtherBasicFrame* outputFrame =
-              static_cast<WirelessEtherBasicFrame*>(a->data());
+              dynamic_cast<WirelessEtherBasicFrame*>(a->encapsulatedMsg());
 
             FrameControl frameControl = outputFrame->getFrameControl();
 
@@ -140,7 +140,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
                 WirelessEtherInterface dest = ap->findIfaceByMAC(outputFrame->getAddress1());
 
                 // Remove if its a unicast address not in the list of associated MS
-                if(    (outputFrame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS)) ||
+                if(    (outputFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS)) ||
                         (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
                 {
                     ap->usedBW.sampleTotal += outputFrame->length();
@@ -181,7 +181,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
     //check if output frame is a probe req/resp and fast active scan is enabled
     WESignalData* outData = *(mod->outputBuffer.begin());
     assert(outData); // check if the frame is ok
-    if( ((outData->data()->getFrameControl().subtype == ST_PROBEREQUEST)||(outData->data()->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+    if( ((FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBEREQUEST)||(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
     {
       numSlots = intuniform(0,CW_MIN);
       mod->backoffTime = numSlots * SLOTTIME + SIFS;
@@ -193,7 +193,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
       mod->backoffTime = numSlots * SLOTTIME + DIFS;
     }
 
-    if(outData->data()->getFrameControl().subtype == ST_DATA)
+    if(FIXME_FIXME_FIXME_OUTDATA_DATA->getFrameControl().subtype == ST_DATA)
     {
       mod->totalBackoffTime.sampleTotal += mod->backoffTime;
     }

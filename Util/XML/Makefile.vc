@@ -566,7 +566,8 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
   ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../AveragingList.h \
-  ../../NetworkInterfaces/Ethernet6/ethernet.h \
+  ../../NetworkInterfaces/Wireless/WEthernet.h \
+  ../../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ../../PHY/Mobility/MobilityHandler.h \
   ../../PHY/Mobility/Entity.h \
   ../../Network/IPv6/ICMPv6NDOptionBase.h \

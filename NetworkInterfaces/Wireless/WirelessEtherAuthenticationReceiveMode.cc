@@ -30,7 +30,7 @@
 #include "WirelessEtherAuthenticationReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -58,7 +58,7 @@ WEAuthenticationReceiveMode* WEAuthenticationReceiveMode::instance()
 void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* authentication =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -78,21 +78,21 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
            << " Status Code: " << aFrameBody->getStatusCode() << "\n"
            << " ----------------------------------------------- \n");
 
-      // send ACK to confirm the transmission has been sucessful
-      WirelessEtherBasicFrame* ack = mod->
-        createFrame(FT_CONTROL, ST_ACK,
-                    MACAddress6(mod->macAddressString().c_str()),
-                    authentication->getAddress2());
-      WESignalData* ackSignal = new WESignalData(ack);
-      sendAck(mod, ackSignal);
-      delete ack;
-      changeState = false;
-
       mod->associateAP.address = authentication->getAddress2();
       mod->associateAP.channel = signal->channel();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = false;
       mod->_currentReceiveMode = WEAssociationReceiveMode::instance();
+
+      // send ACK to confirm the transmission has been sucessful
+      WirelessEtherBasicFrame* ack = mod->
+        createFrame(FT_CONTROL, ST_ACK,
+                    MACAddress6(mod->macAddressString().c_str()),
+                    authentication->getAddress2());
+      WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
+      sendAck(mod, ackSignal);
+      //delete ack;
+      changeState = false;
 
       // TODO: need to check status code
       //send association request frame
@@ -102,9 +102,9 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
                     authentication->getAddress2());
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
       assRequest->encapsulate(assRequestFrameBody);
-      WESignalData* requestSignal = new WESignalData(assRequest);
+      WESignalData* requestSignal = encapsulateIntoWESignalData(assRequest);
       mod->outputBuffer.push_back(requestSignal);
-      delete assRequest;
+      //delete assRequest;
 
       // Stop the authentication timeout timer
       cTimerMessage* authTmr = mod->getTmrMessage(TMR_AUTHTIMEOUT);
@@ -131,7 +131,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
 void WEAuthenticationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherBasicFrame* ack =
-      static_cast<WirelessEtherBasicFrame*>(signal->data());
+      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
 
   if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {

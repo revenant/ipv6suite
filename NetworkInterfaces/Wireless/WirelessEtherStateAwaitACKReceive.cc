@@ -33,7 +33,7 @@
 #include "WirelessEtherStateAwaitACKReceive.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherStateAwaitACK.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 #include "WirelessEtherStateBackoff.h"
@@ -65,7 +65,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
     if(mod->frameSource == idle->sourceName())
     {
       WirelessEtherBasicFrame* frame =
-        static_cast<WirelessEtherBasicFrame*>(mod->inputFrame->data());
+        dynamic_cast<WirelessEtherBasicFrame*>(mod->inputFrame->encapsulatedMsg());
 
       if ( frame->getFrameControl().subtype == ST_ACK )
       {

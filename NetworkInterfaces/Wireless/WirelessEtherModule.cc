@@ -57,13 +57,12 @@
 #include "WorldProcessor.h"
 #include "MobileEntity.h"
 #include "MobilityHandler.h"
-#include "PHYWirelessSignal.h"
 
 #include "wirelessethernet.h"
 
 #include "WirelessAccessPoint.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 
 #include "WirelessEtherStateIdle.h"
 #include "WirelessEtherStateSend.h"
@@ -366,10 +365,10 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
 
   if(associateAP.associated)
     {
-      WESignalData* a = new WESignalData(frame);
+      WESignalData* a = encapsulateIntoWESignalData(frame);
       a->setName(frame->name());
       outputBuffer.push_back(a);
-      delete frame;
+      //delete frame;
 
       if ( _currentState == WirelessEtherStateIdle::instance())
         static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
@@ -442,7 +441,7 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
 
   // Go up two levels to obtain just the unique module name
   std::string modName = parentModule()->parentModule()->fullPath();
-  msg->setSourceName(modName);
+  msg->setSourceName(modName.c_str());
 
   double r1,r2,r3,r4;
   int chanSep;
@@ -525,7 +524,7 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
           idleDest.push_back(dInfo);
 
           // Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Sending SOF to: " << interface->fullPath() << " on index: "<< i);
-          sendDirect(msg->dup(), propDelay, interface, "wlin", i);
+          sendDirect((cMessage*)msg->dup(), propDelay, interface, "wlin", i);
         }
       }
     }
@@ -539,7 +538,7 @@ void WirelessEtherModule::sendEndOfFrame()
 
   // Go up two levels to obtain just the unique module name
   std::string modName = parentModule()->parentModule()->fullPath();
-  idle->setSourceName(modName);
+  idle->setSourceName(modName.c_str());
 
   //Check if modules need the end of the frame
   if(!idleDest.empty())
@@ -572,7 +571,7 @@ void WirelessEtherModule::sendEndOfFrame()
 
         //Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " Sending EOF to: " << interface->fullPath() << " on index: "<< (*it)->index);
 
-        sendDirect(idle->dup(), propDelay, interface, "wlin", (*it)->index);
+        sendDirect((cMessage*)idle->dup(), propDelay, interface, "wlin", (*it)->index);
       }
     }
     idleDest.clear();
@@ -609,14 +608,14 @@ bool WirelessEtherModule::handleSendingBcastFrame(void)
 {
   assert(!outputBuffer.empty());
   WESignalData* signal = *(outputBuffer.begin());
-  assert(signal->data());
+  assert(signal->encapsulatedMsg());
 
   WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (signal->data());
+    (signal->encapsulatedMsg());
 
   assert(frame);
 
-  if (frame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS))
+  if (frame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS))
   {
     if (frame->getFrameControl().subtype == ST_PROBEREQUEST)
     {
@@ -733,7 +732,7 @@ void WirelessEtherModule::startMonitorMode(void)
   {
     if ( (*it)->isScheduled())
     {
-      if(((*it)->kind() == TRANSMIT_SENDDATA)||((*it)->kind() == WIRELESS_SELF_ENDSENDACK))
+      if(((*it)->kind() == WE_TRANSMIT_SENDDATA)||((*it)->kind() == WIRELESS_SELF_ENDSENDACK))
         nextSchedTime = (*it)->arrivalTime();
       else
         (*it)->cancel();
@@ -789,7 +788,7 @@ void WirelessEtherModule::restartScanning(void)
   {
     if ( (*it)->isScheduled())
     {
-      if(((*it)->kind() == TRANSMIT_SENDDATA)||((*it)->kind() == WIRELESS_SELF_ENDSENDACK))
+      if(((*it)->kind() == WE_TRANSMIT_SENDDATA)||((*it)->kind() == WIRELESS_SELF_ENDSENDACK))
         nextSchedTime = (*it)->arrivalTime();
       else
         (*it)->cancel();
@@ -836,7 +835,7 @@ void WirelessEtherModule::reset(void)
 bool WirelessEtherModule::isFrameForMe(WirelessEtherBasicFrame* chkFrame)
 {
   return ( chkFrame->getAddress1() == address ||
-           chkFrame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS));
+           chkFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS));
 }
 
 // Find the AP with the highest signal strength
@@ -995,10 +994,10 @@ void WirelessEtherModule::probeChannel(void)
                      associateAP.address);
         FrameBody* authFrameBody = createFrameBody(authentication);
         authentication->encapsulate(authFrameBody);
-        WESignalData* authSignal = new WESignalData(authentication);
+        WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
         authSignal->setChannel(channel);
         outputBuffer.push_back(authSignal);
-        delete authentication;
+        //delete authentication;
 
         // Start the authentication timeout timer
         cTimerMessage* tmr = getTmrMessage(TMR_AUTHTIMEOUT);
@@ -1141,10 +1140,10 @@ void WirelessEtherModule::passiveChannelScan(void)
                      associateAP.address);
         FrameBody* authFrameBody = createFrameBody(authentication);
         authentication->encapsulate(authFrameBody);
-        WESignalData* authSignal = new WESignalData(authentication);
+        WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
         authSignal->setChannel(channel);
         outputBuffer.push_back(authSignal);
-        delete authentication;
+        //delete authentication;
 
         // Start the authentication timeout timer
         cTimerMessage* tmr = getTmrMessage(TMR_AUTHTIMEOUT);
@@ -1234,8 +1233,8 @@ void WirelessEtherModule::printSelfMsg(const cMessage* msg)
 
   string message;
 
-  if(messageID == TRANSMIT_SENDDATA)
-    message = "TRANSMIT_SENDDATA ( " + string(msg->name()) + string(" )");
+  if(messageID == WE_TRANSMIT_SENDDATA)
+    message = "WE_TRANSMIT_SENDDATA ( " + string(msg->name()) + string(" )");
   else if(messageID == TMR_PRBENERGYSCAN)
     message = "TMR_PRBENERGYSCAN ( " + string(msg->name()) + string(" )");
   else if(messageID == TMR_PRBRESPSCAN)
@@ -1277,7 +1276,7 @@ void WirelessEtherModule::sendMonitorFrameToUpperLayer(WESignalData* sig)
 {
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " " << fullPath() << "Sending monitor frame to upper layer.");
 
-  send(sig->dup(), inputQueueOutGate());
+  send((cMessage*)sig->dup(), inputQueueOutGate());
 }
 
 #if MLDV2
@@ -1313,14 +1312,14 @@ WESignalData* WirelessEtherModule::generateProbeReq(void)
 {
   WirelessEtherBasicFrame* probeFrame =
     createFrame(FT_MANAGEMENT, ST_PROBEREQUEST, address,
-                MACAddress6(ETH_BROADCAST_ADDRESS));
+                MACAddress6(WE_BROADCAST_ADDRESS));
   FrameBody* probeFrameBody = createFrameBody(probeFrame);
 
   probeFrame->encapsulate(probeFrameBody);
 
-  WESignalData* probeSignal = new WESignalData(probeFrame);
+  WESignalData* probeSignal = encapsulateIntoWESignalData(probeFrame);
   probeSignal->setChannel(channel);
-  delete probeFrame;
+  //delete probeFrame;
 
   return probeSignal;
 }
@@ -1360,9 +1359,9 @@ createFrame(FrameType frameType, SubType subType,
           static_cast<WirelessEtherBasicFrame*>(frame)->
             setDurationID(durationID);
 
-          assert(inputFrame->data());
+          assert(inputFrame->encapsulatedMsg());
           static_cast<WirelessEtherBasicFrame*>(frame)->
-            setAddress1(static_cast<WirelessEtherRTSFrame*>(inputFrame->data())->getAddress2());
+            setAddress1(static_cast<WirelessEtherRTSFrame*>(inputFrame->encapsulatedMsg())->getAddress2());
 
           frame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 + FL_FCS);
           break;
@@ -1401,7 +1400,7 @@ createFrame(FrameType frameType, SubType subType,
       // need to determine ACK + SIFS time check for multicast not
       // just broadcast as well; note also that having no moreFrag
       // support, eliminates other potential values for duration
-      (destination == MACAddress6(ETH_BROADCAST_ADDRESS)) ?
+      (destination == MACAddress6(WE_BROADCAST_ADDRESS)) ?
         durationID.bit14to0 = 0 :
         durationID.bit14to0 = (unsigned)((ACKLENGTH/BASE_SPEED)+SIFS)*1000; //add ACK
 
@@ -1469,7 +1468,7 @@ createFrame(FrameType frameType, SubType subType,
       // must check for multicast not just broadcast
       // note also that having no moreFrag support, eliminates other
       // potential values for duration
-      (destination == MACAddress6(ETH_BROADCAST_ADDRESS)) ?
+      (destination == MACAddress6(WE_BROADCAST_ADDRESS)) ?
         durationID.bit14to0 = 0 :
         durationID.bit14to0 = (unsigned)((ACKLENGTH/BASE_SPEED)+SIFS)*1000; //add ACK
 
@@ -1599,7 +1598,7 @@ void WirelessEtherModule::decodeFrame(WESignalData* signal)
 
 bool WirelessEtherModule::isProbeReq(WESignalData* signal)
 {
-  WirelessEtherBasicFrame* frame = (signal->data());
+  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
 
   if ( frame->getFrameControl().subtype == ST_PROBEREQUEST )
     return true;
@@ -1670,7 +1669,7 @@ void WirelessEtherModule::makeOfflineBufferAvailable(void)
     // address.
     frame->setAddress1(associateAP.address);
 
-    WESignalData* a = new WESignalData(frame);
+    WESignalData* a = encapsulateIntoWESignalData((cMessage*)frame->dup());
     outputBuffer.push_back(a);
     offlineOutputBuffer.pop_front();
   }

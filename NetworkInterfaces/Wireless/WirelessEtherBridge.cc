@@ -40,11 +40,12 @@
 #include "opp_utils.h"
 
 #include "EtherFrame6.h"           // XXX ??? --AV
+#include "EtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "LinkLayerModule.h"
 #include "EtherModuleAP.h"
 #include "WirelessAccessPoint.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "IPv6PPPAPInterface.h"   // XXX ??? --AV
 #include "PPP6Frame.h"             // XXX ??? --AV
 
@@ -63,7 +64,7 @@ void WirelessEtherBridge::initialize(int stage)
   }
   else if (stage == 1)
   {
-    cMessage* macNotifier = new cMessage("WIRELESS_AP_NOTIFY_MAC");
+    cMessage* macNotifier = new cMessage("WE_AP_NOTIFY_MAC");
     macNotifier->setKind(MK_PACKET);
     cPar* mac = new cPar("MAC_ADDRESS");
     mac->setStringValue(address.stringValue());
@@ -129,13 +130,13 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
 
         LinkLayerModule* destMod = findMacByAddress(frame->destAddrString());
 
-        if (destMod || std::string(frame->destAddrString()) == ETH_BROADCAST_ADDRESS)
+        if (destMod || std::string(frame->destAddrString()) == WE_BROADCAST_ADDRESS)
         {
           // send to wireless access point
           cMessage* destMessage = translateFrame(frame, PR_WETHERNET);
           send(destMessage, "apOut");
 
-          if ( destMod && std::string(frame->destAddrString()) != ETH_BROADCAST_ADDRESS )
+          if ( destMod && std::string(frame->destAddrString()) != WE_BROADCAST_ADDRESS )
             macMod->addMacEntry(std::string(frame->srcAddrString()));
         }
       }
@@ -150,13 +151,13 @@ void WirelessEtherBridge::handleMessage(cMessage* msg)
         PPP6Frame* frame = check_and_cast<PPP6Frame*>(msg);
         LinkLayerModule* destMod = findMacByAddress(frame->destAddr);
 
-        if (destMod || frame->destAddr == ETH_BROADCAST_ADDRESS)
+        if (destMod || frame->destAddr == WE_BROADCAST_ADDRESS)
         {
           // send to wireless access point
           cMessage* destMessage = translateFrame(frame, PR_WETHERNET);
           send(destMessage, "apOut");
 
-//          if ( destMod && frame->destAddr != ETH_BROADCAST_ADDRESS )
+//          if ( destMod && frame->destAddr != WE_BROADCAST_ADDRESS )
 //            macMod->addMacEntry(frame->srcAddr);
         }
 
@@ -253,16 +254,12 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
           destFrame->setProtocol(PR_ETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
+          destFrame->encapsulate(data);
+          destFrame->setName(data->name());
 
-          cPacket* dupData = static_cast<cPacket*>(data->dup());
-
-          destFrame->encapsulate(dupData);
-          destFrame->setName(dupData->name());
-
-          delete data;
-
-          signal = new EtherSignalData(destFrame);
-          signal->setName(destFrame->name());
+          signal = new EtherSignalData(destFrame->name());
+          signal->encapsulate(destFrame);
+          signal->setLength(signal->length() * 8); // convert into bits
 
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << fullPath() << " \n"
@@ -325,14 +322,10 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
           //XXX destFrame->setProtocol(PR_WETHERNET);
 
           cMessage* data = srcFrame->decapsulate();
-          cPacket* dupData = static_cast<cPacket*>(data->dup());
-          destFrame->encapsulate(dupData);
-          destFrame->setName(dupData->name());
+          destFrame->encapsulate(data);
+          destFrame->setName(data->name());
 
-          delete data;
-
-          signal = new WESignalData(destFrame);
-          signal->setName(destFrame->name());
+          signal = encapsulateIntoWESignalData(destFrame);
 
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << fullPath() << " \n"
@@ -343,7 +336,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
                << " Address3 (SRC): " <<destFrame->getAddress3() <<"\n"
                << " ---------------------------------------------------- \n");
 
-          delete destFrame;
+          //delete destFrame;
         }
         break;
 
@@ -380,8 +373,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
           destFrame->encapsulate(static_cast<cPacket*>(data->dup()));
           delete data;
 
-          signal = new WESignalData(destFrame);
-          signal->setName(destFrame->name());
+          signal = encapsulateIntoWESignalData(destFrame);
 
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << fullPath() << " \n"
@@ -392,7 +384,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
                << " No Address3 (SRC) as PPP : "
                << " ---------------------------------------------------- \n");
 
-          delete destFrame;
+          //delete destFrame;
         }
         break;
         default:

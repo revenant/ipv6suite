@@ -34,7 +34,7 @@
 
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateIdle.h"
 #include "WirelessEtherAScanReceiveMode.h"

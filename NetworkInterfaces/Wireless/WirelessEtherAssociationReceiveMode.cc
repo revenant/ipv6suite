@@ -29,7 +29,7 @@
 #include "WirelessEtherAssociationReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -60,7 +60,7 @@ WEAssociationReceiveMode* WEAssociationReceiveMode::instance()
 void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* authentication =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -92,9 +92,9 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
         createFrame(FT_CONTROL, ST_ACK,
                     MACAddress6(mod->macAddressString().c_str()),
                     authentication->getAddress2());
-      WESignalData* ackSignal = new WESignalData(ack);
+      WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
       sendAck(mod, ackSignal);
-      delete ack;
+      //delete ack;
       changeState = false;
 
       //send association request frame
@@ -105,9 +105,9 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
 
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
       assRequest->encapsulate(assRequestFrameBody);
-      WESignalData* requestSignal = new WESignalData(assRequest);
+      WESignalData* requestSignal = encapsulateIntoWESignalData(assRequest);
       mod->outputBuffer.push_back(requestSignal);
-      delete assRequest;
+      //delete assRequest;
 
       // Stop the authentication timeout timer
       cTimerMessage* authTmr = mod->getTmrMessage(TMR_AUTHTIMEOUT);
@@ -133,7 +133,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
 void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* deAuthentication =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(deAuthentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -155,9 +155,9 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, 
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(mod->macAddressString().c_str()),
                   deAuthentication->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-       delete ack;
+    // delete ack;
     changeState = false;
 
     if(mod->associateAP.address == deAuthentication->getAddress3())
@@ -178,7 +178,7 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule* mod, 
 void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* associationResponse =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(associationResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -207,9 +207,9 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(mod->macAddressString().c_str()),
                   associationResponse->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-    delete ack;
+    //delete ack;
     changeState = false;
 
     if(mod->associateAP.address == associationResponse->getAddress2())
@@ -265,7 +265,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
 void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* reAssociationResponse =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(reAssociationResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -294,9 +294,9 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(mod->macAddressString().c_str()),
                   reAssociationResponse->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-       delete ack;
+    //delete ack;
     changeState = false;
 
     if(mod->associateAP.address == reAssociationResponse->getAddress2())
@@ -324,7 +324,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
 void WEAssociationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
 {
   WirelessEtherBasicFrame* ack =
-      static_cast<WirelessEtherBasicFrame*>(signal->data());
+      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
 
   if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {

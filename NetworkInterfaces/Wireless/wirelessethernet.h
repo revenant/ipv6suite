@@ -28,7 +28,7 @@
 #ifndef __WIRELESS_ETH_MISC_H
 #define __WIRELESS_ETH_MISC_H
 
-#include "ethernet.h"
+#include "WEthernet.h"
 
 // constants
 

@@ -35,7 +35,7 @@
 #endif //BOOST_CAST_HPP
 
 #include <omnetpp.h>
-#include "ethernet.h"
+#include "WEthernet.h"
 #include "WirelessEtherStateReceive.h"
 
 class WirelessEtherModule;

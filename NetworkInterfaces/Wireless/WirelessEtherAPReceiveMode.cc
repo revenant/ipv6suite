@@ -32,7 +32,7 @@
 #include "WirelessEtherAPReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -59,11 +59,11 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
   WirelessAccessPoint* apMod = static_cast<WirelessAccessPoint*>(mod);
 
   WirelessEtherManagementFrame* authentication =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if(apMod->isFrameForMe(static_cast<WirelessEtherBasicFrame*>(authentication)))
   {
-      AuthenticationFrameBody* aFrameBody =
+    AuthenticationFrameBody* aFrameBody =
       static_cast<AuthenticationFrameBody*>(authentication->decapsulate());
 
     // Check if its an authentication request for "open system"
@@ -84,9 +84,9 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
         createFrame(FT_CONTROL, ST_ACK,
                     MACAddress6(apMod->macAddressString().c_str()),
                     authentication->getAddress2());
-      WESignalData* ackSignal = new WESignalData(ack);
+      WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
       sendAck(apMod, ackSignal);
-      delete ack;
+      //delete ack;
       changeState = false;
 
       apMod->addIface(authentication->getAddress2(), RM_AUTHRSP_ACKWAIT);
@@ -105,9 +105,9 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
 
       FrameBody* authFrameBody = apMod->createFrameBody(auth);
       auth->encapsulate(authFrameBody);
-      WESignalData* responseSignal = new WESignalData(auth);
+      WESignalData* responseSignal = encapsulateIntoWESignalData(auth);
       apMod->outputBuffer.push_back(responseSignal);
-      delete auth;
+      //delete auth;
     }
       delete aFrameBody;
   }
@@ -116,7 +116,7 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
 void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* associationRequest =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   AssociationRequestFrameBody* aRFrameBody =
     static_cast<AssociationRequestFrameBody*>
@@ -146,9 +146,9 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(mod->macAddressString().c_str()),
                   associationRequest->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-    delete ack;
+    //delete ack;
     changeState = false;
 
     WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(associationRequest->getAddress2()));
@@ -172,19 +172,19 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
                     associationRequest->getAddress2());
       FrameBody* assResponseFrameBody = mod->createFrameBody(assResponse);
       assResponse->encapsulate(assResponseFrameBody);
-      responseSignal = new WESignalData(assResponse);
-      delete assResponse;
+      responseSignal = encapsulateIntoWESignalData(assResponse);
+      //delete assResponse;
 
 #ifdef EWU_MACBRIDGE
       cMessage * dataPkt = new cMessage;
-      dataPkt->setKind(MAC_BRIDGE_REGISTER);
+      dataPkt->setKind(WE_MAC_BRIDGE_REGISTER);
 
       cPar* msAddressPar = new cPar;
       msAddressPar->setStringValue(associationRequest->getAddress2().stringValue());
       dataPkt->addPar(msAddressPar);
 
       WirelessEtherBasicFrame* sendFrame = mod->
-         createFrame(FT_DATA, ST_DATA, mod->macAddressString().c_str(), ETH_BROADCAST_ADDRESS);
+         createFrame(FT_DATA, ST_DATA, mod->macAddressString().c_str(), WE_BROADCAST_ADDRESS);
       sendFrame->encapsulate(dataPkt);
       mod->send(sendFrame, mod->inputQueueOutGate());
 #endif // EWU_MAC_BRIDGE
@@ -202,8 +202,8 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
                     associationRequest->getAddress2());
       FrameBody* deAuthFrameBody = mod->createFrameBody(deAuthentication);
       deAuthentication->encapsulate(deAuthFrameBody);
-      responseSignal = new WESignalData(deAuthentication);
-      delete deAuthentication;
+      responseSignal = encapsulateIntoWESignalData(deAuthentication);
+      //delete deAuthentication;
     }
     mod->outputBuffer.push_back(responseSignal);
   }
@@ -213,7 +213,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
 void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* reAssociationRequest =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   ReAssociationRequestFrameBody* rARFrameBody =
     static_cast<ReAssociationRequestFrameBody*>(reAssociationRequest->decapsulate());
@@ -244,9 +244,9 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(mod->macAddressString().c_str()),
                   reAssociationRequest->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-    delete ack;
+    //delete ack;
     changeState = false;
 
     WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(reAssociationRequest->getAddress2()));
@@ -269,8 +269,8 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
                     reAssociationRequest->getAddress2());
       FrameBody* reAssResponseFrameBody = mod->createFrameBody(reAssResponse);
       reAssResponse->encapsulate(reAssResponseFrameBody);
-      responseSignal = new WESignalData(reAssResponse);
-      delete reAssResponse;
+      WESignalData *responseSignal = encapsulateIntoWESignalData(reAssResponse);
+      //delete reAssResponse;
     }
     else // send deauthentication
     {
@@ -284,8 +284,8 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
                     reAssociationRequest->getAddress2());
       FrameBody* deAuthFrameBody = mod->createFrameBody(deAuthentication);
       deAuthentication->encapsulate(deAuthFrameBody);
-      responseSignal = new WESignalData(deAuthentication);
-      delete deAuthentication;
+      responseSignal = encapsulateIntoWESignalData(deAuthentication);
+      //delete deAuthentication;
     }
     mod->outputBuffer.push_back(responseSignal);
   }
@@ -295,7 +295,7 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
 void WEAPReceiveMode::handleProbeRequest(WirelessAccessPoint* mod, WESignalData* signal)
 {
   WirelessEtherManagementFrame* probeRequest =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   ProbeRequestFrameBody* pRFrameBody =
     static_cast<ProbeRequestFrameBody*>(probeRequest->decapsulate());
@@ -333,9 +333,9 @@ void WEAPReceiveMode::handleProbeRequest(WirelessAccessPoint* mod, WESignalData*
                        MACAddress6(probeRequest->getAddress2()));
     FrameBody* responseFrameBody = mod->createFrameBody(probeResponse);
     probeResponse->encapsulate(responseFrameBody);
-    WESignalData* responseSignal = new WESignalData(probeResponse);
+    WESignalData* responseSignal = encapsulateIntoWESignalData(probeResponse);
     mod->outputBuffer.push_back(responseSignal);
-    delete probeResponse;
+    //delete probeResponse;
 
     //static_cast<WirelessEtherStateReceive*>(mod->currentState())->
     //  changeNextState(mod);
@@ -349,7 +349,7 @@ void WEAPReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
   WirelessAccessPoint* apMod = static_cast<WirelessAccessPoint*>(mod);
 
   WirelessEtherBasicFrame* ack =
-      static_cast<WirelessEtherBasicFrame*>(signal->data());
+      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
 
 
    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
@@ -365,7 +365,7 @@ void WEAPReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
 
     mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
     WirelessEtherBasicFrame* outf =
-      static_cast<WirelessEtherBasicFrame*>((*(apMod->outputBuffer.begin()))->data());
+      static_cast<WirelessEtherBasicFrame*>((*(apMod->outputBuffer.begin()))->encapsulatedMsg());
 
 
     WirelessEtherInterface iface = apMod->findIfaceByMAC(MACAddress6(outf->getAddress1()));
@@ -418,7 +418,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
   WirelessAccessPoint* apMod = static_cast<WirelessAccessPoint*>(mod);
 
   WirelessEtherDataFrame* data =
-      static_cast<WirelessEtherDataFrame*>(signal->data());
+      static_cast<WirelessEtherDataFrame*>(signal->encapsulatedMsg());
 
   // Check that data frame is for this ap and the source is another ap
   if(
@@ -450,10 +450,10 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
       createFrame(FT_CONTROL, ST_ACK,
                   MACAddress6(apMod->macAddressString().c_str()),
                   data->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(apMod, ackSignal);
     changeState = false;
-    delete ack;
+    //delete ack;
 
     // check if SA is associated and redirect data to actual DA
     WirelessEtherInterface chkIface =
@@ -474,9 +474,9 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
                     data->getAddress2());
       FrameBody* deAuthFrameBody = mod->createFrameBody(deAuthentication);
       deAuthentication->encapsulate(deAuthFrameBody);
-      WESignalData* deAuthSignal = new WESignalData(deAuthentication);
+      WESignalData* deAuthSignal = encapsulateIntoWESignalData(deAuthentication);
       apMod->outputBuffer.push_back(deAuthSignal);
-      delete deAuthentication;
+      //delete deAuthentication;
     }
     // check if MS is associated
     else if((chkIface.receiveMode == RM_ASSOCIATION)||(chkIface.receiveMode == RM_ASSRSP_ACKWAIT))
@@ -488,9 +488,9 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
                     data->getAddress2());
       FrameBody* disAssFrameBody = mod->createFrameBody(disAssociation);
       disAssociation->encapsulate(disAssFrameBody);
-      WESignalData* disAssSignal = new WESignalData(disAssociation);
+      WESignalData* disAssSignal = encapsulateIntoWESignalData(disAssociation);
       apMod->outputBuffer.push_back(disAssSignal);
-      delete disAssociation;
+      //delete disAssociation;
     }
     // MS is permitted to send class 3 frames
     else
@@ -513,12 +513,11 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
          << "\n ----------------------------------------------- \n");
 
       // forward packet to both wired and wireless LAN if the destination is a broadcast address
-      if ( sendFrame->getAddress1() == MACAddress6(ETH_BROADCAST_ADDRESS))
+      if ( sendFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS))
       {
-        // sendFrame is used by the bridge, so cant delete it.
+          // sendFrame is used by the bridge, so cant delete it.
           apMod->send(sendFrame, apMod->inputQueueOutGate());
-          WESignalData* sendFrameSignal = new WESignalData(
-          static_cast<WirelessEtherBasicFrame*>(sendFrame));
+          WESignalData* sendFrameSignal = encapsulateIntoWESignalData((cMessage*)sendFrame->dup());
           apMod->outputBuffer.push_back(sendFrameSignal);
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
              << apMod->fullPath() << "\n"
@@ -550,15 +549,14 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
           // renew timeout value for destination, since it is
           // receiving data
                     apMod->addIface(data->getAddress3(), RM_DATA);
-          WESignalData* sendFrameSignal = new WESignalData(sendFrame);
+          WESignalData* sendFrameSignal = encapsulateIntoWESignalData(sendFrame);
           apMod->outputBuffer.push_back(sendFrameSignal);
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << apMod->fullPath() << "\n"
                << " ----------------------------------------------- \n"
                << " Packet forwarded to the MAC: " << sendFrame->getAddress1() << " \n"
                << " ----------------------------------------------- \n");
-            // since sendFrame will not be used in this case, get rid of it.
-          delete sendFrame;
+          //delete sendFrame;
         }
       }
     }

@@ -85,7 +85,7 @@ void EtherModuleAP::handleMessage(cMessage* msg)
   if ((MAC_address)_myAddr == MAC_ADDRESS_UNSPECIFIED_STRUCT)
   {
     // needed for AP bridge
-    if ( std::string(msg->name()) == "WIRELESS_AP_NOTIFY_MAC")
+    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC")
     {
       _myAddr.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
 

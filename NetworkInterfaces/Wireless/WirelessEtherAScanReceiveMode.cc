@@ -30,7 +30,7 @@
 #include "WirelessEtherAScanReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -55,7 +55,7 @@ WEAScanReceiveMode* WEAScanReceiveMode::instance()
 void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
 {
   WirelessEtherManagementFrame* probeResponse =
-      static_cast<WirelessEtherManagementFrame*>(signal->data());
+      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
 
   if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
   {
@@ -119,9 +119,9 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
     WirelessEtherBasicFrame* ack = mod->
       createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
                   probeResponse->getAddress2());
-    WESignalData* ackSignal = new WESignalData(ack);
+    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
     sendAck(mod, ackSignal);
-    delete ack;
+    //delete ack;
     //GD:   Can we do early return here??
     //Enough APs?? Signal Strength, SSID
     //Prematch criteria??

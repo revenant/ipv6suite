@@ -43,7 +43,7 @@
 #include "opp_utils.h"
 #include "wirelessethernet.h"
 #include "MobilityHandler.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherStateIdle.h"
 #include "MACAddress6.h"
 #include "WirelessEtherAPReceiveMode.h"
@@ -138,7 +138,7 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 {
   if ((MAC_address)address == MAC_ADDRESS_UNSPECIFIED_STRUCT)
   {
-    if ( std::string(msg->name()) == "WIRELESS_AP_NOTIFY_MAC" )
+    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC" )
     {
       address.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
 
@@ -192,13 +192,12 @@ void WirelessAccessPoint::sendBeacon(void)
 
   WirelessEtherBasicFrame* beacon =
         createFrame(FT_MANAGEMENT, ST_BEACON, address,
-                    MACAddress6(ETH_BROADCAST_ADDRESS));
+                    MACAddress6(WE_BROADCAST_ADDRESS));
   FrameBody* beaconFrameBody = createFrameBody(beacon);
   beacon->encapsulate(beaconFrameBody);
-  WESignalData* beaconSignal = new WESignalData(beacon);
+  WESignalData* beaconSignal = encapsulateIntoWESignalData(beacon);
   beaconSignal->setChannel(channel);
   outputBuffer.push_back(beaconSignal);
-  delete beacon;
 
   // schedule the next beacon message
   double nextSchedTime = simTime() + beaconPeriod;
@@ -508,7 +507,7 @@ void WirelessAccessPoint::updateConsecutiveFailedCount()
     // Access frame in the front of buffer
     WESignalData* a = *(outputBuffer.begin());
     WirelessEtherBasicFrame* outputFrame =
-      static_cast<WirelessEtherBasicFrame*>(a->data());
+      static_cast<WirelessEtherBasicFrame*>(a->encapsulatedMsg());
     FrameControl frameControl = outputFrame->getFrameControl();
 
     // Only consider data frames

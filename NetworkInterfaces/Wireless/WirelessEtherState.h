@@ -35,10 +35,11 @@
 #endif //BOOST_CAST_HPP
 
 #include <omnetpp.h>
-#include "ethernet.h"
+#include "WEthernet.h"
 
 class WirelessEtherModule;
 
+class WESignal;
 class WESignalIdle;
 class WESignalData;
 
@@ -55,7 +56,7 @@ protected:
 
 private:
   // debug message
-  void printMsg(WirelessEtherModule* mod, const EtherSignalType type);
+  void printMsg(WirelessEtherModule* mod, WESignal* signal);
 };
 
 template<class Target, class  Source> std::auto_ptr<Target>

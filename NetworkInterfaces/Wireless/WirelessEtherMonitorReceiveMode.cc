@@ -30,7 +30,7 @@
 #include "WirelessEtherMonitorReceiveMode.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
-#include "WirelessEtherSignal.h"
+#include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"
 #include "WirelessEtherFrameBody_m.h"
 
@@ -54,10 +54,9 @@ WEMonitorReceiveMode* WEMonitorReceiveMode::instance()
 
 void WEMonitorReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
 {
-    // need to print or store contents of Frame.
+  // need to print or store contents of Frame.
   // pass frame up to higher layer
-  WirelessEtherBasicFrame* frame = signal->data();
-  assert(frame);
+  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
 
   FrameControl frameControl = frame->getFrameControl();
 
@@ -69,3 +68,4 @@ void WEMonitorReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* s
   static_cast<WirelessEtherStateReceive*>(mod->currentState())->
     changeNextState(mod);
 }
+

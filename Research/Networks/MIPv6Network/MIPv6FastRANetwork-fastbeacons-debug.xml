@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug1.log:MobileMove::notice:custom:Ping6:Statistic:MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
   hierarchicalMIPv6Support="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
-    <interface name="wlan0" HostDupAddrDetectTransmits="0">      
+    <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.1" />
       </WirelessEtherInfo>
@@ -53,51 +53,51 @@
       <AdvPrefixList>
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
       </AdvPrefixList>
-    </interface> 
-    <interface name="eth1" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07" 
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07"
     MIPv6MinRtrAdvInterval="0.03">
       <inetAddr>3018:FFFF:0:1:606:98ff:fe24:52f5</inetAddr>
       <AdvPrefixList>
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:1:606:98ff:fe24:52f5/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="eth2" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07" 
+    <interface name="eth2" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07"
     MIPv6MinRtrAdvInterval="0.03">
       <inetAddr>3018:FFFF:0:2:8087:eff:fe1a:7281</inetAddr>
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:2:8087:eff:fe1a:7281/64</AdvPrefix>
 	</AdvPrefixList>
     </interface>
-    <interface name="eth3" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07" 
+    <interface name="eth3" AdvSendAdvertisements="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07"
     MIPv6MinRtrAdvInterval="0.03">
       <inetAddr>3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e</inetAddr>
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e/64</AdvPrefix>
 	</AdvPrefixList>
     </interface>
-    <interface name="eth4" AdvSendAdvertisements="on"> 
+    <interface name="eth4" AdvSendAdvertisements="on">
       <inetAddr>3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f</inetAddr>
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on">3011:BBBB:3333:6666:5f6a:a9ff:fe2c:df2f/64</AdvPrefix>
 	</AdvPrefixList>
     </interface>
     <route>
-      <routeEntry 
+      <routeEntry
        routeIface="eth0"
 	routeDestination="3018:FFFF:0:0:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth1"
 	routeDestination="3018:FFFF:0:1:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth2"
 	routeDestination="3018:FFFF:0:2:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth3"
 	routeDestination="3018:FFFF:0:3:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth4"
-	routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>    
-    </route> 
+	routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>
+    </route>
   </local>
 
   <misc>

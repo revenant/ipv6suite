@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug.log:rcfile:MobileMove::notice:custom:Ping6:Statistic">
 <!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->

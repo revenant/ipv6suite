@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug.log:notice:debug:Routing:AddrResln">
   <global gAdvSendAdvertisements="on" gMaxRtrAdvInterval="1700"
@@ -14,11 +14,11 @@
     <interface name="ppp0">
       <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
       <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
-    </interface> 
+    </interface>
     <route>
       <routeEntry
 	routeIface="ppp0"
-        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeDestination="0:0:0:0:0:0:0:0/0"
         routeNextHop="fe80:0:0:0:260:97ff:0:5/128"/>
       <!-- Does not have an effect perhaps only routers read routes? -->
       <routeEntry
@@ -29,27 +29,27 @@
   </local>
   <local node="client2">
     <interface>
-      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>      
-    </interface>  
+      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>
+    </interface>
   </local>
   <local node="client3">
     <interface name="ppp0">
-      <inetAddr >fe80:0:0:0:260:97ff:0:3/64</inetAddr>      
-    </interface>  
+      <inetAddr >fe80:0:0:0:260:97ff:0:3/64</inetAddr>
+    </interface>
   </local>
   <local node="server4">
     <interface>
-      <inetAddr >fe80:0:0:0:260:97ff:0:88/64</inetAddr>      
-    </interface>  
+      <inetAddr >fe80:0:0:0:260:97ff:0:88/64</inetAddr>
+    </interface>
     <interface name="ppp1">
-      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr> 
-      <inetAddr >fec0:0:0:ABCD:260:97ff:0:4/64</inetAddr>     
-    </interface>  
+      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr>
+      <inetAddr >fec0:0:0:ABCD:260:97ff:0:4/64</inetAddr>
+    </interface>
   </local>
   <local node="router">
     <interface>
       <inetAddr >fe80:0:0:0:260:97ff:0:5/64</inetAddr>
-    </interface> 
+    </interface>
     <interface>
       <AdvPrefixList>
 	<AdvPrefix AdvValidLifetime="888888" AdvOnLinkFlag="off"

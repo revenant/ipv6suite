@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
 <!--Ping6:Statistic:HMIPv6:custom:MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
@@ -7,7 +7,7 @@
   hierarchicalMIPv6Support="on" routeOptimisation="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either (applies to xerces-c interface) -->
-    <interface name="wlan0" HostDupAddrDetectTransmits="1">      
+    <interface name="wlan0" HostDupAddrDetectTransmits="1">
       <WirelessEtherInfo>
         <WEInfo WETxPower="1.5" />
       </WirelessEtherInfo>
@@ -72,7 +72,7 @@
       on advertised global router addr rather than what is assigned on the
       iface(what our mip6 impln does) but is that standards conforming?
 
-        <inetAddr>3018:EEEE:0:1:7920:1fff:fe22:1122</inetAddr> 
+        <inetAddr>3018:EEEE:0:1:7920:1fff:fe22:1122</inetAddr>
 
       Workaround: Advertise eth0 address and treat its prefix as on-link here
 -->
@@ -88,9 +88,9 @@
       <routeEntry routeIface="ppp0" routeDestination="0/0"
 	routeNextHop="3018:AAAA:0:1:4609:52ff:fe8b:a252"/>
       <routeEntry routeIface="eth0" routeDestination="3018:EEEE:0:0:0:0:0:0/64"/>
-    </route> 
+    </route>
   </local>
-<!-- routing table configuration for AR 
+<!-- routing table configuration for AR
   Note: Does not require any hmip or mip support to forward map options. By default all
   routers will forward received map options on all ifaces that are advertising.
   -->
@@ -100,7 +100,7 @@
       <AdvPrefixList>
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
       </AdvPrefixList>
-    </interface> 
+    </interface>
     <interface name="eth1" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
       <inetAddr>3018:FFFF:0:1:606:98ff:fe24:52f5</inetAddr>
       <AdvPrefixList>
@@ -124,23 +124,23 @@
       <inetAddr>3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f</inetAddr>
     </interface>
     <route>
-      <routeEntry 
+      <routeEntry
        routeIface="eth0"
 	routeDestination="3018:FFFF:0:0:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth1"
 	routeDestination="3018:FFFF:0:1:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth2"
 	routeDestination="3018:FFFF:0:2:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="eth3"
 	routeDestination="3018:FFFF:0:3:0:0:0:0/64"/>
-      <routeEntry 
+      <routeEntry
        routeIface="ppp0" routeNextHop="3018:AAAA:0:2:0450:90ff:fe5d:f971"
-	routeDestination="0/0"/>    
-     
-    </route> 
+	routeDestination="0/0"/>
+
+    </route>
   </local>
 <!-- routing table configuration for MAP -->
  <local node="map" routePackets="on" mobileIPv6Support="on"
@@ -157,7 +157,7 @@ mapReverseTunnel="on">
       <inetAddr>3018:AAAA:0:1:4609:52ff:fe8b:a252</inetAddr>
     </interface>
     <interface name="ppp2" AdvSendAdvertisements="on" AdvHomeAgent="on">
-      <inetAddr>3018:AAAA:0:2:0450:90ff:fe5d:f971</inetAddr>    
+      <inetAddr>3018:AAAA:0:2:0450:90ff:fe5d:f971</inetAddr>
       <AdvMAPList>
         <AdvMAPEntry>3018:AAAA:0:2:0450:90ff:fe5d:f971</AdvMAPEntry>
       </AdvMAPList>
@@ -167,11 +167,11 @@ mapReverseTunnel="on">
       <routeEntry
 	routeIface="ppp0" routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>
       <!-- Goes to primary HA -->
-      <routeEntry 
+      <routeEntry
 	routeIface="ppp1" routeDestination="3018:EEEE:0:0:0:0:0:0/32"
 	routeNextHop="3018:EEEE:0:0:89d6:9cff:fe7e:83d2"/>
       <!-- Goes to 4th if of AR -->
-      <routeEntry routeIface="ppp2" routeDestination="0/0" 
+      <routeEntry routeIface="ppp2" routeDestination="0/0"
 	routeNextHop="3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f"/>
     </route>
 

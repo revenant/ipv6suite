@@ -36,8 +36,8 @@
 
 
 class IPv6Datagram;
-class LLInterfaceInfo;
-template<typename T> class  cTypedMessage;
+struct LLInterfaceInfo;
+template<typename T> class cTypedMessage;
 typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 class IPv6ForwardCore;
 

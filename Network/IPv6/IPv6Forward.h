@@ -149,7 +149,7 @@ private:
   ///Preconfigured source routes.  Only 1 preconfigured source route per
   ///destination. New ones to same destination will replace existing ones
   ///without warning.
-  SrcRoutes routes;
+  SrcRoutes routes; // XXX move to RoutingTable! --AV
 
   ///Wait call is emulated with this timer
   cMessage* waitTmr;

@@ -342,7 +342,6 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   XMLCommon.h \
   ../../Network/IPv6/RoutingTable6.h \
   ../../Network/IPv6/IPv6Encapsulation.h \
-  ../../Network/IPv6/IPv6ForwardCore.h \
   ../../Network/IPv6/IPv6CDS.h \
   ../../NetworkInterfaces/Ethernet6/MACAddress6.h \
   ../../NetworkInterfaces/Wireless/WirelessEtherModule.h \
@@ -553,8 +552,6 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../Loki/Singleton.h \
   ../../Network/IPv6/RoutingTable6Access.h \
   ../../Base/ModuleAccess.h \
-  ../../Network/IPv6/IPv6Datagram.h \
-  ../../Network/IPv4/IPProtocolId_m.h \
   ../../Network/IPv6/IRouterList.h \
   ../../Network/IPv6/IPrefixList.h \
   ../../Network/IPv6/INeighbourCache.h \
@@ -579,5 +576,7 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../../Network/IPv6/ICMPv6NDMessageBase.h \
   ../../Network/IPv6/ICMPv6Message.h \
   ../../Network/IPv6/ICMPv6NDMessageBase.cc \
+  ../../Network/IPv6/IPv6Datagram.h \
   ../../Network/IPv6/Constants.h \
-  ../../Network/IPv6/ICMPv6NDOptions.h
+  ../../Network/IPv6/ICMPv6NDOptions.h \
+  ../../Network/IPv4/IPProtocolId_m.h

@@ -771,7 +771,6 @@ MIPv6CDSMobileNode.obj: MIPv6CDSMobileNode.cc \
   ../IPv6/NDEntry.h \
   ../../Util/TimerConstants.h
 MIPv6DestOptMessages.obj: MIPv6DestOptMessages.cc \
-  ../IPv6/LocalDeliver6Core.h \
   MIPv6DestOptMessages.h \
   ../IPv6/HdrExtDestProc.h \
   ../IPv6/ipv6_addr.h \

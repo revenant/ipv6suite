@@ -269,7 +269,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
                << " ---------------------------------------------------- \n");
 
           ///@warning Dodgy WESignalData dups frames in ctor
-          delete destFrame;
+          //delete destFrame;
         }
         break;
         case PR_PPP:

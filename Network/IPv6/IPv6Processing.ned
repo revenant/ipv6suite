@@ -18,9 +18,9 @@
 
 
 import
-    "PreRouting6",
+    "IPv6PreRouting",
     "IPv6Forward",
-    "LocalDeliver6",
+    "IPv6LocalDeliver",
     "IPv6Multicast",
     "ICMPv6",
     "IPv6Send",
@@ -29,8 +29,7 @@ import
     "IPv6Output",
     "IPv6Mobility",
     "RoutingTable6",
-    "AddressResolution",
-    "Routing6";
+    "AddressResolution";
 
 
 //

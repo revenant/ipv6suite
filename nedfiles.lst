@@ -85,14 +85,13 @@ Network/IPv6/ICMPv6.ned
 Network/IPv6/IPv6Encapsulation.ned
 Network/IPv6/IPv6Forward.ned
 Network/IPv6/IPv6Fragmentation.ned
+Network/IPv6/IPv6LocalDeliver.ned
 Network/IPv6/IPv6Mobility.ned
 Network/IPv6/IPv6Multicast.ned
 Network/IPv6/IPv6Output.ned
+Network/IPv6/IPv6PreRouting.ned
 Network/IPv6/IPv6Processing.ned
 Network/IPv6/IPv6Send.ned
-Network/IPv6/LocalDeliver6.ned
-Network/IPv6/PreRouting6.ned
-Network/IPv6/Routing6.ned
 Network/IPv6/RoutingTable6.ned
 Network/LDP/NewLDP.ned
 Network/MPLS/LIBTable.ned

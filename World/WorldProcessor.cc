@@ -329,7 +329,8 @@ Entity* WorldProcessor::findEntityByModule(cModule* module)
 
 void WorldProcessor::updateStats(void)
 {
-  double balanceIndex =0, loadSum=0, loadSquaredSum=0, n=0, usedBW;
+/* XXX put this back sometime! --AV
+double balanceIndex =0, loadSum=0, loadSquaredSum=0, n=0, usedBW;
 
   for (size_t i = 0; i < modList.size(); i++)
   {
@@ -356,6 +357,7 @@ void WorldProcessor::updateStats(void)
   //Allow sim to quit if nothing of interest is happening.
   if (!simulation.msgQueue.empty())
     scheduleAt(simTime()+1, updateStatsNotifier);
+*/
 }
 
 #endif //USE_MOBILITY

@@ -43,8 +43,8 @@
 
 #include "RoutingTable6.h"
 #include "opp_utils.h"
-#include "IPv6Encapsulation.h"
-#include "IPv6ForwardCore.h"
+#include "IPv6Encapsulation.h" // XXX WHY????? --AV
+#include "IPv6Forward.h" // XXX WHY????? --AV
 #include "IPv6CDS.h"
 #include "MACAddress6.h"
 
@@ -318,8 +318,8 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
 void XMLOmnetParser::sourceRoute(RoutingTable6* rt)
 {
   using namespace OPP_Global;
-  IPv6ForwardCore* forwardMod = check_and_cast<IPv6ForwardCore*>
-    (findModuleByTypeDepthFirst(rt, "IPv6ForwardCore"));
+  IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
+    (findModuleByTypeDepthFirst(rt, "IPv6Forward"));
   //Even though downcast detects incorrect downcasts it still allows casting 0
   //down to anything
   assert(forwardMod != 0);

@@ -65,10 +65,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= AddressResolution.obj Constants.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingAlgorithmStatic.obj RoutingTable6.obj RoutingTable6Access.obj
+OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6ForwardCore.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6Mobility.obj IPv6Multicast.obj IPv6OutputCore.obj IPv6SendCore.obj IRouterList.obj LocalDeliver6Core.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj PreRouting6Core.obj RoutingAlgorithmStatic.obj RoutingTable6.obj RoutingTable6Access.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= 
+GENERATEDHEADERS= IPInterfacePacket_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -92,6 +92,12 @@ $(EXT_DIR_TSTAMPS):
 	@exit /b 1
 
 subdirs: $(SUBDIR_TARGETS)
+
+IPInterfacePacket_m.obj: IPInterfacePacket_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp IPInterfacePacket_m.cc
+
+IPInterfacePacket_m.cc IPInterfacePacket_m.h: IPInterfacePacket.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPInterfacePacket.msg
 
 AddressResolution.obj: AddressResolution.cc
 	$(CXX) -c $(COPTS) /Tp AddressResolution.cc

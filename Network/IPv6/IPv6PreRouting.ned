@@ -20,7 +20,7 @@
 //
 simple IPv6PreRouting
     parameters:
-        procdelay : numeric const;
+        procDelay : numeric const;
     gates:
         in: inputQueueIn;
         in: localDeliverIn;

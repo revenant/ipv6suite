@@ -113,7 +113,7 @@ void IPv6Forward::initialize(int stage)
     routingInfoDisplay = par("routingInfoDisplay");
 #ifdef USE_MOBILITY
     tunMod = check_and_cast<IPv6Encapsulation*>
-      (OPP_Global::findModuleByName(this, "tunneling")); // XXX why pointers to other modules? why???? --AV
+      (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
     assert(tunMod != 0);
 #endif //USE_MOBILITY
   }
@@ -122,7 +122,7 @@ void IPv6Forward::initialize(int stage)
   else if (stage == numInitStages() - 1 && rt->isRouter())
   {
     //Get the nd pointer to ndstaterouter/host pointer
-    cModule* procMod = parentModule();  // XXX why pointers to other modules? why???? --AV
+    cModule* procMod = parentModule();  // XXX try to get rid of pointers to other modules --AV
     cModule* icmp = procMod->submodule("ICMP");
     assert(icmp);
     cModule* ndMod = icmp->submodule("nd");

@@ -67,7 +67,7 @@ void IPv6Multicast::initialize()
     rt = RoutingTable6Access().get();
     delay = par("procdelay");
     fc = check_and_cast<IPv6Forward*> (
-      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX why pointers to other modules? why???? --AV
+      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
     assert(fc != 0);
     ctrIP6InMcastPkts = 0;
     waitTmr = new cMessage("IPv6MulticastWait");

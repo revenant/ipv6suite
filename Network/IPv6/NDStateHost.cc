@@ -100,7 +100,7 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   if (nextState != 0)
     return;
 
-  addrResln = OPP_Global::findModuleByName(nd, "addrResln"); // XXX why pointers to other modules? why???? --AV
+  addrResln = OPP_Global::findModuleByName(nd, "addrResln"); // XXX try to get rid of pointers to other modules --AV
   assert(addrResln != 0);
   if (!addrResln)
     DoutFatal(dc::core|error_cf, "Cannot find Address Resolution module");

@@ -70,7 +70,7 @@ void ICMPv6Core::initialize()
 
   rt = RoutingTable6Access().get();
   fc = check_and_cast<IPv6Forward*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX why pointers to other modules? why???? --AV
+    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
   assert(fc != 0);
   ctrIcmp6OutEchoReplies = 0;
   ctrIcmp6InMsgs = 0;

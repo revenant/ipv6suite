@@ -49,15 +49,12 @@ Define_Module( IPv6PreRouting );
 
 void IPv6PreRouting::initialize()
 {
-    delay = par("procdelay");
-    hasHook = (findGate("netfilterOut") != -1);
-    ctrIP6InReceive = 0;
-    waitTmr = new cMessage("PreRouting6CoreWait");
-    curPacket = 0;
+    QueueBase::initialize();
 
-    cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX why pointers to other modules? why???? --AV
+    ctrIP6InReceive = 0;
+
+    cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX try to get rid of pointers to other modules --AV
     forwardMod = check_and_cast<IPv6Forward*>(forward);
-    assert(forwardMod != 0);
 }
 
 /**
@@ -66,75 +63,20 @@ void IPv6PreRouting::initialize()
    first 2 bits of Option Type (IPv6 Spec RFC)
 
    Destination options are handled by IPv6LocalDeliver
-
  */
-void IPv6PreRouting::handleMessage(cMessage* msg)
+void IPv6PreRouting::endService(cMessage* msg)
 {
+  IPv6Datagram *datagram = check_and_cast<IPv6Datagram *>(msg);
+  ctrIP6InReceive++;
 
-  if (!msg->isSelfMessage())
-  {
-    IPv6Datagram *datagram = check_and_cast<IPv6Datagram *>(msg);
-    assert(datagram != 0);
+  bool directionOut = false;
+  IPv6Utils::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
 
-    ctrIP6InReceive++;
-
-    bool directionOut = false;
-    IPv6Utils::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, OPP_Global::nodeName(this), directionOut);
-
-    if (!waitTmr->isScheduled() && curPacket == 0 )
-    {
-      scheduleAt(delay+simTime(), waitTmr);
-      curPacket = datagram;
-      return;
-    }
-    else if (waitTmr->isScheduled())
-    {
-      Dout(dc::custom, fullPath()<<" "<<simTime()<<" received new packet "<<*datagram
-           <<" when previous packet was scheduled at waitTmr="<<waitTmr->arrivalTime());
-      waitQueue.insert(msg);
-      return;
-    }
-    assert(false);
-  }
-
-
-/*
-    //No header checksums for IPv6 only ICMPv6
-    // check for header biterror
-    //        if (datagram->hasBitError())
-    //        {
-    //     probability of bit error in header =
-    //    size of header / size of total message
-    relativeHeaderLength =
-      datagram->headerLength() / datagram->totalLength();
-    if (dblrand() <= relativeHeaderLength)
-    {
-      sendErrorMessage(datagram, ICMP_PARAMETER_PROBLEM, 0);
-      continue;
-    }
-  }
-*/
-
-  assert(curPacket);
-
-  send(curPacket, "routingOut");
-
-  if (waitQueue.empty())
-    curPacket = 0;
-  else
-  {
-    curPacket = check_and_cast<cMessage*>(waitQueue.pop());
-    scheduleAt(delay + simTime(), waitTmr);
-  }
-
+  send(datagram, "routingOut");
 }
 
 
 void IPv6PreRouting::finish()
 {
   recordScalar("IP6InReceive", ctrIP6InReceive);
-  delete waitTmr;
-  waitTmr = 0;
-  delete curPacket;
-  curPacket = 0;
 }

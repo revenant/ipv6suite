@@ -71,7 +71,7 @@ module IPv6Processing
     submodules:
         preRouting: IPv6PreRouting;
             parameters:
-                procdelay = prerouting_delay;
+                procDelay = prerouting_delay;
             display: "p=59,125;i=prot3";
         forwarding: IPv6Forward;
             parameters:

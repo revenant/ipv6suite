@@ -26,35 +26,25 @@
 #ifndef PREROUTING6CORE_H
 #define PREROUTING6CORE_H
 
-#ifndef __OMNETPP_H
 #include <omnetpp.h>
-#endif //__OMNETPP_H
+#include "QueueBase.h"
 
 class IPv6Forward;
 
 /**
-   @class IPv6PreRouting
-   @brief IPv6 implementation of PreRouting.  Unit Tests actually run here
+ * IPv6 implementation of PreRouting.
  */
-class IPv6PreRouting : public cSimpleModule
+class IPv6PreRouting : public QueueBase
 {
 public:
-  Module_Class_Members(IPv6PreRouting, cSimpleModule, 0);
+  Module_Class_Members(IPv6PreRouting, QueueBase, 0);
 
   virtual void initialize();
   virtual void finish();
-  virtual void handleMessage(cMessage* theMsg);
+  virtual void endService(cMessage *msg);
 private:
-  simtime_t delay;
-  bool hasHook;
   unsigned int ctrIP6InReceive;
-  cMessage* waitTmr;
-  cMessage* curPacket;
-  ///Arriving packets are placed in queue first if another packet is awaiting
-  ///processing
-  cQueue waitQueue;
   ::IPv6Forward* forwardMod;
-
 };
 
 #endif //PREROUTING6CORE_H

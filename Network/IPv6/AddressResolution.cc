@@ -70,7 +70,7 @@ void AddressResolution::initialize()
   //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
   //another class with exactly same name?
   fc = check_and_cast<::IPv6Forward*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX why pointers to other modules? why???? --AV
+    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
   assert(fc != 0);
 
   ctrIcmp6OutNgbrAdv = 0;

@@ -52,7 +52,7 @@
 #include "IPv6Datagram.h"
 #include "RoutingTable6.h"
 #include "cTypedMessage.h"
-#include "Messages.h"
+#include "AddrResInfo_m.h"
 #include "IPv6Forward.h"
 #include "opp_utils.h"
 
@@ -171,12 +171,13 @@ inline void IPv6Multicast::dupAndSendPacket(const IPv6Datagram* datagram, size_t
     }
   }
 
-  AddrResInfo info = {datagramCopy, datagramCopy->destAddress(),
-                      ifIndex,
-                      multicastLLAddr(datagramCopy->destAddress())};
-  AddrResMsg* addrResMsg = new AddrResMsg(info);
+  AddrResInfo *info = new AddrResInfo;
+  info->setNextHop(datagramCopy->destAddress());
+  info->setIfIndex(ifIndex);
+  info->setLinkLayerAddr(multicastLLAddr(datagramCopy->destAddress()).c_str());
+  datagramCopy->setControlInfo(info);
 
-  send(addrResMsg, "fragmentationOut");
+  send(datagramCopy, "fragmentationOut");
 }
 
 /**

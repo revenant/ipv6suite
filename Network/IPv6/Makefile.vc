@@ -71,10 +71,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPInterfacePacket_m.obj AddressResolution.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj IRouterList.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj RoutingTable6.obj
+OBJS= AddrResInfo_m.obj IPInterfacePacket_m.obj AddressResolution.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ICMPv6Combine.obj ICMPv6Core.obj ICMPv6Message.obj ICMPv6NDMessage.obj ICMPv6NDMessageBase.obj IDestinationCache.obj INeighbourCache.obj Interface6Entry.obj IPrefixList.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacket.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj IRouterList.obj MLD.obj MLDMessage.obj MLDv2Message.obj MLDv2Record.obj NDEntry.obj NDStateHost.obj NDStateRouter.obj NDStates.obj NDTimers.obj NeighbourDiscovery.obj RoutingTable6.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= IPInterfacePacket_m.h
+GENERATEDHEADERS= AddrResInfo_m.h IPInterfacePacket_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -98,6 +98,12 @@ $(EXT_DIR_TSTAMPS):
 	@exit /b 1
 
 subdirs: $(SUBDIR_TARGETS)
+
+AddrResInfo_m.obj: AddrResInfo_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp AddrResInfo_m.cc
+
+AddrResInfo_m.cc AddrResInfo_m.h: AddrResInfo.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) AddrResInfo.msg
 
 IPInterfacePacket_m.obj: IPInterfacePacket_m.cc
 	$(CXX) -c $(NEDCOPTS) /Tp IPInterfacePacket_m.cc
@@ -283,7 +289,6 @@ AddressResolution.obj: AddressResolution.cc \
   RoutingTable6.h \
   IPv6Forward.h \
   ../../Util/cTimerMessage.h \
-  Messages.h \
   NDTimers.h \
   ../../Util/opp_utils.h \
   IPv6CDS.h \
@@ -485,6 +490,8 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
@@ -493,7 +500,6 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
@@ -503,9 +509,7 @@ AddressResolution.obj: AddressResolution.cc \
   IDestinationCache.h \
   ../MIPv6/MIPv6Entry.h \
   ./NDEntry.h \
-  ./IPv6Address.h \
-  ../../Base/QueueBase.h \
-  ../../Base/AbstractQueue.h
+  ./IPv6Address.h
 Constants.obj: Constants.cc \
   Constants.h
 ErrorHandling6.obj: ErrorHandling6.cc \
@@ -1560,7 +1564,9 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   RoutingTable6Access.h \
-  ../../Base/ModuleAccess.h
+  ../../Base/QueueBase.h \
+  ../../Base/ModuleAccess.h \
+  ../../Base/AbstractQueue.h
 ICMPv6Message.obj: ICMPv6Message.cc \
   ICMPv6Message.h \
   IPv6Datagram.h \
@@ -3761,7 +3767,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ICMPv6Message.h \
   ../../Util/opp_utils.h \
   NDEntry.h \
-  Messages.h \
   HdrExtRteProc.h \
   Interface6Entry.h \
   IPv6CDS.h \
@@ -3871,6 +3876,7 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../../Util/boost/shared_ptr.hpp \
   RoutingTable6Access.h \
   ipv6_addr.h \
+  ../../Base/QueueBase.h \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -3947,6 +3953,7 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../../Util/boost/mpl/aux_/type_wrapper.hpp \
   ../../Util/boost/mpl/aux_/yes_no.hpp \
   ../../Util/boost/mpl/aux_/config/msvc_typename.hpp \
+  ../../Base/AbstractQueue.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
@@ -3972,7 +3979,6 @@ IPv6Forward.obj: IPv6Forward.cc \
   ../IPv4/IPProtocolId_m.h \
   ../../Util/boost/weak_ptr.hpp \
   IPv6Address.h \
-  ../../Util/cTypedMessage.h \
   HdrExtProc.h \
   IRouterList.h \
   IPrefixList.h \
@@ -4015,7 +4021,6 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   IPv6Datagram.h \
   ICMPv6Message.h \
   IPv6InterfaceData.h \
-  Messages.h \
   ../../NetworkInterfaces/LL6ControlInfo_m.h \
   RoutingTable6Access.h \
   ../../Base/ModuleAccess.h \
@@ -4220,8 +4225,7 @@ IPv6Fragmentation.obj: IPv6Fragmentation.cc \
   IPv6InterfacePacket.h \
   IPv6InterfaceData.cc \
   IPInterfacePacket.h \
-  IPInterfacePacket_m.h \
-  ../../Util/cTypedMessage.h
+  IPInterfacePacket_m.h
 IPv6Headers.obj: IPv6Headers.cc \
   IPv6Headers.h \
   ipv6_addr.h \
@@ -4397,6 +4401,8 @@ IPv6InputQueue.obj: IPv6InputQueue.cc \
   ../../Util/boost/config/suffix.hpp \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h \
   IPv6Headers.h \
   ipv6_addr.h \
   ../IPv4/IPProtocolId_m.h \
@@ -5301,7 +5307,6 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   IPv6Datagram.h \
   RoutingTable6.h \
   ../../Util/cTypedMessage.h \
-  Messages.h \
   IPv6Forward.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
@@ -5501,14 +5506,15 @@ IPv6Multicast.obj: IPv6Multicast.cc \
   ../../Util/Loki/NullType.h \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h
+  ../../Util/Loki/Singleton.h \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h
 IPv6Output.obj: IPv6Output.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   ICMPv6Message.h \
   IPv6Output.h \
   IPv6Datagram.h \
-  Messages.h \
   IPv6Multicast.h \
   RoutingTable6.h \
   IPv6Forward.h \
@@ -5681,7 +5687,6 @@ IPv6Output.obj: IPv6Output.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Util/cTypedMessage.h \
   Interface6Entry.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
@@ -5955,7 +5960,9 @@ IPv6Send.obj: IPv6Send.cc \
   ../../Util/boost/config/suffix.hpp \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
+  ../../Base/QueueBase.h \
   RoutingTable6Access.h \
+  ../../Base/AbstractQueue.h \
   ../../Base/ModuleAccess.h \
   IPv6Headers.h \
   ipv6_addr.h \
@@ -8610,7 +8617,6 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/opp_utils.h \
   ../../Util/cTypedMessage.h \
-  Messages.h \
   ../../Util/cTimerMessage.h \
   NDTimers.h \
   NDEntry.h \
@@ -8821,6 +8827,8 @@ RoutingTable6.obj: RoutingTable6.cc \
   ../IPv4/IPProtocolId_m.h \
   RoutingTable6Access.h \
   ../../Base/ModuleAccess.h \
+  ../../Base/QueueBase.h \
+  ../../Base/AbstractQueue.h \
   IRouterList.h \
   IPrefixList.h \
   INeighbourCache.h \

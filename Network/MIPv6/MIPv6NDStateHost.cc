@@ -36,6 +36,7 @@
 #include "IPv6CDS.h"
 
 #include "NDTimers.h"
+#include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
 #include "MIPv6Entry.h"
 #include "MIPv6ICMPv6NDMessage.h"
@@ -239,10 +240,10 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   {
     InterfaceEntry *ie = ift->interfaceByPortNo(i);
 
-    if (ie->linkMod->className() == std::string("WirelessEtherModule"))
+    if (ie->ipv6()->linkMod->className() == std::string("WirelessEtherModule"))
     {
       WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie->linkMod);
+        static_cast<WirelessEtherModule*>(ie->ipv6()->linkMod);
 
       assert(wlanMod != 0);
 
@@ -355,7 +356,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
       RS* rs = new RS;
 
       if (!ie->ipv6()->inetAddrs.empty())
-        rs->setSrcLLAddr(ie->LLAddr());
+        rs->setSrcLLAddr(ie->ipv6()->LLAddr());
 
       tmr->dgram->encapsulate(rs);
 
@@ -1183,7 +1184,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   oldRtr->re.lock()->setState(IPv6NeighbourDiscovery::NeighbourEntry::INCOMPLETE);
 
   unsigned int oldIfIndex = oldRtr->re.lock()->ifIndex();
-  Interface6Entry *oie = ift->interfaceByPortNo(oldIfIndex);
+  InterfaceEntry *oie = ift->interfaceByPortNo(oldIfIndex);
   //Remove old on link prefixes from On Link prefix list
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {
@@ -1191,14 +1192,14 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
     //site local except for the autoconfigured address at position 0
     if (!home_addr_scope_check((*it).prefix))
     {
-      IPv6Address addr = oie->matchPrefix((*it).prefix, (*it).length);
+      IPv6Address addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length);
       if (addr != IPv6_ADDR_UNSPECIFIED)
       {
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
       }
-      else if (oie->matchPrefix((*it).prefix, (*it).length), true)
+      else if (oie->ipv6()->matchPrefix((*it).prefix, (*it).length), true)
       {
         //Must be tentative addrs
         DoutFatal(dc::core|error_cf, "Unimplemented func for removing tentative addr when node moves "

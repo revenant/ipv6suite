@@ -287,7 +287,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
         return;
       }
 
-    NS* ns = new NS(tmr->targetAddr, ie->LLAddr());
+    NS* ns = new NS(tmr->targetAddr, ie->ipv6()->LLAddr());
 
     tmr->dgram->encapsulate(ns);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -503,7 +503,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
     //Always send LL regardless of whether solication was unicast or multicast
     //In future if solication is not multicast can omit the lladdr and set
     //override to false
-    NA* na = new NA(ngbrSol->targetAddr(), ie->LLAddr(), rt->isRouter(),
+    NA* na = new NA(ngbrSol->targetAddr(), ie->ipv6()->LLAddr(), rt->isRouter(),
                     !dupDetectSource, override);
 
     response->encapsulate(na);

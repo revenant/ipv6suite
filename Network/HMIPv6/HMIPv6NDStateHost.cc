@@ -37,6 +37,7 @@
 #include "HMIPv6ICMPv6NDMessage.h"
 #include "HMIPv6Entry.h"
 #include "HMIPv6CDSMobileNode.h"
+#include "InterfaceTable.h"
 #include "RoutingTable6.h"
 #include "IPv6CDS.h"
 #include "MIPv6MStateMobileNode.h"
@@ -504,10 +505,10 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
   ipv6_addr rcoa = me.addr();
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
-  assert(ie->interfaceIDLength() == EUI64_LENGTH);
+  assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
 
-  rcoa.normal = ie->interfaceID()[0];
-  rcoa.low = ie->interfaceID()[1];
+  rcoa.normal = ie->ipv6()->interfaceID()[0];
+  rcoa.low = ie->ipv6()->interfaceID()[1];
   return rcoa;
 }
 

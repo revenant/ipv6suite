@@ -38,6 +38,7 @@
 #include "NeighbourDiscovery.h"
 #include "ICMPv6Message.h"
 #include "ICMPv6NDMessage.h"
+#include "InterfaceTable.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
@@ -288,7 +289,7 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
 {
   IPv6Datagram* dgram = createDatagram(tmr->ifIndex, IPv6Address(ALL_NODES_LINK_ADDRESS));
 
-  const InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
   const IPv6InterfaceData::RouterVariables& rtrVar = ie->ipv6()->rtrVar;
 
   //Calculate new delay
@@ -638,7 +639,7 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
 
   NeighbourEntry* ne, *redirNE = 0;
   size_t ifIndex = dgram->inputPort();
-  const InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
   if ((ne = rt->cds->neighbour(dgram->srcAddress()).lock().get()) != 0 &&
       ne->ifIndex() == ifIndex)
@@ -726,7 +727,7 @@ IPv6Datagram* NDStateRouter
 
   ICMPv6NDMRtrAd* rtrAd = createRA(rtrVar, ifIndex);
 
-  rtrAd->setSrcLLAddr(ie->LLAddr());
+  rtrAd->setSrcLLAddr(ie->ipv6()->LLAddr());
 
   //Source is link local addr (It is always the first address to be assigned)
   IPv6Datagram* dgram = new IPv6Datagram(ie->ipv6()->inetAddrs[0], destAddr);

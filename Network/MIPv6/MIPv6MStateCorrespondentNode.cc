@@ -38,6 +38,8 @@
 #include "MIPv6DestOptMessages.h"
 #include "MIPv6CDS.h"
 #include "RoutingTable6.h" //setHopLimit
+#include "InterfaceTable.h"
+#include "IPv6InterfaceData.h"
 
 namespace MobileIPv6
 {
@@ -195,7 +197,7 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv
   // TODO: not implement the token for now
   TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mod->mipv6cds->token(replyType));
   IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
-  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->curHopLimit);
+  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 
   Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mod->simTime() << "sec, " << mod->nodeName()<<" sending " << testMsg->className() << " src= " << dgram->destAddress() <<" to "<<dgram->srcAddress());
@@ -209,7 +211,7 @@ void MIPv6MStateCorrespondentNode::sendBM(const ipv6_addr& srcAddr,
 {
   IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, bm);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->curHopLimit);
+  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   // TODO: include routing header
 
   mod->send(reply, "routingOut");

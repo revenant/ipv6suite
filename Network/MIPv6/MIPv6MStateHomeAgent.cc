@@ -40,6 +40,8 @@
 #include "MIPv6DestOptMessages.h"
 #include "MIPv6CDS.h"
 #include "RoutingTable6.h"
+#include "InterfaceTable.h"
+#include "IPv6InterfaceData.h"
 #include "HdrExtDestProc.h"
 #include "IPv6Encapsulation.h" //for tunneling of intercepted packets to HA
 #include "opp_utils.h"

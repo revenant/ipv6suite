@@ -35,6 +35,7 @@
 #include <functional>
 
 #include "MIPv6MNEntry.h"
+#include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
@@ -128,9 +129,9 @@ namespace MobileIPv6
     IPv6Address coaObj(pref);
     coaObj.truncate();
     ipv6_addr coa = coaObj;
-    assert(ie->interfaceIDLength() == EUI64_LENGTH);
-    coa.normal = ie->interfaceID()[0];
-    coa.low = ie->interfaceID()[1];
+    assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
+    coa.normal = ie->ipv6()->interfaceID()[0];
+    coa.low = ie->ipv6()->interfaceID()[1];
     return coa;
   }
 

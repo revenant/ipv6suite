@@ -87,7 +87,7 @@ Applications_dir NetworkInterfaces_dir : Network_dir
 
 # add dependencies across directories
 Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir : Util_dir Base_dir
-Nodes_dir : Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir
+Nodes_dir : Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir World_dir
 Examples_dir Tests_dir : Nodes_dir
 Examples_dir : Tests_dir  # this is not important, can be removed
 

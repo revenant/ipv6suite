@@ -8,8 +8,8 @@ set root=%~dp0
 set OPTS=-f -N -b %root% -c %root%\inetconfig.vc
 
 set ALL_INET_INCLUDES=-I%root%/Network/IPv4 -I%root%/Network/IPv4d -I%root%/Network/AutoRouting -I%root%/Transport/TCP -I%root%/Transport/UDP -I%root%/NetworkInterfaces -I%root%/NetworkInterfaces/_802 -I%root%/NetworkInterfaces/ARP -I%root%/NetworkInterfaces/Ethernet -I%root%/NetworkInterfaces/PPP -I%root%/Applications/Generic -I%root%/Applications/Ethernet -I%root%/Applications/TCPApp -I%root%/Applications/UDPApp -I%root%/Applications/PingApp -I%root%/Base -I%root%/Util -I%root%/Nodes/INET
-set ALL_MPLS_INET_INCLUDES=%ALL_INET_INCLUDES% -I%root%/Network/MPLS -I%root%/Network/LDP -I%root%/Network/RSVP_TE -I%root%/Network/Scenario -I%root%/Nodes/MPLS
-set ALL_IPv6_INCLUDES=%ALL_INET_INCLUDES% -I%root%/Network/IPv6
+set ALL_MPLS_INCLUDES=-I%root%/Network/MPLS -I%root%/Network/LDP -I%root%/Network/RSVP_TE -I%root%/Network/Scenario -I%root%/Nodes/MPLS
+set ALL_IPv6_INCLUDES=-I%root%/Applications/Ping6 -I%root%/Applications/VideoStream -I%root%/Transport/UDP6 -I%root%/Network/IPv6 -I%root%/Network/MIPv6 -I%root%/Network/HMIPv6 -I%root%/World -I%root%/PHY/Mobility -I%root%/PHY/Wireless -I%root%/NetworkInterfaces/Ethernet6 -I%root%/NetworkInterfaces/PPP6 -I%root%/NetworkInterfaces/Wireless
 
 :set ALL_MODEL_OPTS=%OPTS% -w %ALL_MPLS_INET_INCLUDES%
 set ALL_MODEL_OPTS=%OPTS% -n
@@ -31,6 +31,8 @@ cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
 :#FIXME Util should not depend on PHY\Mobility!
 cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -I. -I..\PHY\Mobility -I..\World -I..\Base
+cd %root%\Util\Loki && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r
 
 :#---------------
 :#FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!
@@ -62,7 +64,8 @@ cd %root%\PHY\Mobility && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\W
 cd %root%\PHY\Wireless && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6
 
 cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I..\.. -I..\..\Util -I..\..\Network\IPv4  -I..\..\Network\IPv6
-cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I..\PHY\Mobility
+:#FIXME should not depend on all L2 stuff!
+cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I.. -I..\Util -I..\PHY\Mobility -I..\Network\IPv4  -I..\Network\IPv6 -I..\NetworkInterfaces -I..\NetworkInterfaces\Wireless -I..\NetworkInterfaces\Ethernet6
 :#FIXME move cc files to Ethernet6 directory!!!
 cd %root%\Nodes\IPv6 && %MAKEMAKE% %OPTS% -n -r -I..\..\Util -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\IPv6 -I..\..\Network\IPv4
 ----
@@ -94,7 +97,7 @@ cd %root%\Transport\UDP && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\
 cd %root%\Transport\RTP && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
 cd %root%\Transport\TCP && %MAKEMAKE% %OPTS% -n -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
 
-cd %root%\Examples\bin && %MAKEMAKE% %OPTS% -w -o INET %ALL_MPLS_INET_INCLUDES%
+cd %root%\Examples\bin && %MAKEMAKE% %OPTS% -w -o INET %ALL_INET_INCLUDES% %ALL_MPLS_INCLUDES% %ALL_IPv6_INCLUDES%
 
 cd %root%\Examples\Ethernet && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\INET && %MAKEMAKE% %OPTS% -n -r
@@ -135,8 +138,8 @@ cd %root%\Examples\IPv6\WirelessTest && %MAKEMAKE% %OPTS% -n -r
 :#-----------------
 
 cd %root%\Tests\MPLS && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Tests\MPLS\LDP1 && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INET_INCLUDES%
-cd %root%\Tests\NewTCP && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INET_INCLUDES%
+cd %root%\Tests\MPLS\LDP1 && %MAKEMAKE% %OPTS% -w %ALL_MPLS_INCLUDES% %ALL_INET_INCLUDES%
+cd %root%\Tests\NewTCP && %MAKEMAKE% %OPTS% -w %ALL_INET_INCLUDES%
 
 :#--------------------------------------
 

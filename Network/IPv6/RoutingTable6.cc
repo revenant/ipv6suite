@@ -106,7 +106,7 @@ void RoutingTable6::initialize(int stage)
 /*XXX
     interfaces.resize(numOfIfaces + 1);
 */
-/*XXX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! configure loopback!!
+/*XXX get configured below, in configureLoopbackForIPv6()
     // add in loopback InterfaceEntry
     InterfaceEntry *loopback_iface = new InterfaceEntry();
     //loopback_iface.loopback = true;

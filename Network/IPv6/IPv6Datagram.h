@@ -120,15 +120,15 @@ public:
 
 
   /**
-	Search for a header of type specified in next_hdr and return
+    Search for a header of type specified in next_hdr and return
     the header.  Returns the very first one.  To search the next one
     use getNextHeader
 
-	@arg next_hdr The protocol block type you are looking for either
-	an IPv6 extension header.  The upper layer
-	protocol identifier is obtained from transportProtocol().
+    @arg next_hdr The protocol block type you are looking for either
+    an IPv6 extension header.  The upper layer
+    protocol identifier is obtained from transportProtocol().
 
-	@returns The extension header if found or 0
+    @returns The extension header if found or 0
   */
   HdrExtProc* findHeader(const IPv6ExtHeader& next_hdr) const;
 
@@ -161,6 +161,17 @@ public:
   struct network_payload *networkOrder() const;
 #endif /* __CN_PAYLOAD_H*/
 ///@}
+
+  /**
+     @name Input and output interfaces (control information,
+     not part of the IPv6 header)
+  */
+  //@{
+  int outputPort() { return outputPortNo; }
+  void setOutputPort(int p) { outputPortNo = p; }
+  int inputPort() { return inputPortNo; }
+  void setInputPort(int p) { inputPortNo = p; }
+  //@}
 
   /**
      @name IPv6 Header Attributes
@@ -264,6 +275,9 @@ public:
   //@}
 
 private:
+  int outputPortNo;
+  int inputPortNo;
+
   ipv6_hdr header;
   typedef std::list<HdrExtProc*> ExtHdrs;
   typedef ExtHdrs::iterator EHI;

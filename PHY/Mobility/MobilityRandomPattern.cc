@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomPattern.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomPattern.cc,v 1.2 2005/02/10 01:15:48 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -24,8 +24,8 @@
 	Responsibilities:
         - mobility handling
 
-  Initially implemented in PHYWirelessModule (now obsolete and 
-  evolved into PHYSimple), but taken out since it makes more sense 
+  Initially implemented in PHYWirelessModule (now obsolete and
+  evolved into PHYSimple), but taken out since it makes more sense
   as a seperate entity rather than part of the physical layer
 
   @author Eric Wu
@@ -65,11 +65,11 @@ void MobilityRandomPattern::initialize(int stage)
       ySize = rp->maxY;
       pauseTime = rp->pauseTime;
     }
-    
+
     // If the RandomPattern has already been created, we don't need to
     // parse the info to it anymore.
     wproc->parseRandomPatternInfo(this);
-    
+
     if (rp->refCount == 1)
     {
       rp->moveInterval =  moveInterval;
@@ -81,23 +81,17 @@ void MobilityRandomPattern::initialize(int stage)
       rp->maxX = xSize;
       rp->maxY = ySize;
       rp->pauseTime = pauseTime;
-      
+
       isRandomPatternParsed = true;
     }
-    
+
 //    double time = randomPattern->randomWaypoint(x, y);
     double time = 5; // dodgey! but we stick for now; we do this because we want to make sure that mn estbalishes connection with its ha
-    
+
     selfMovingNotifier = new cMessage;
     selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
-	selfMovingNotifier->addPar("x") = 0;
-	selfMovingNotifier->addPar("y") = 0;
-
-#if defined OPP_VERSION && OPP_VERSION >= 3
-    take(selfMovingNotifier);
-#else
-    selfMovingNotifier->setOwner(this);
-#endif
+    selfMovingNotifier->addPar("x") = 0;
+    selfMovingNotifier->addPar("y") = 0;
     scheduleAt(simTime() + time, selfMovingNotifier);
   }
 }
@@ -107,18 +101,18 @@ void MobilityRandomPattern::handleMessage(cMessage* msg)
   int x = msg->par("x");
   int y = msg->par("y");
 
-  mobileEntity->setPosition(x + xOffset,  
+  mobileEntity->setPosition(x + xOffset,
                             y + yOffset);
 
   // update the display string of the net node module
   mobileEntity->setDispPosition(mobileEntity->position().x,
                                   mobileEntity->position().y);
-  
+
   double time = RandomPattern::instance()->wayPoint(x, y);
 
   delete msg;
 
-  selfMovingNotifier = new cMessage;
+  selfMovingNotifier = new cMessage("move");
   selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
   selfMovingNotifier->addPar("x") = x;
   selfMovingNotifier->addPar("y") = y;

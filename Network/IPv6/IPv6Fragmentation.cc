@@ -19,7 +19,7 @@
    @file IPv6Fragmentation.cc
    @brief Implementation for IPv6Fragmentation
 
-   Responsibilities: 
+   Responsibilities:
    receive valid IP datagram from Routing or Multicast
    Fragment datagram if size > MTU [output port] && src_addr == node_addr
    send fragments to IPOutput[output port]
@@ -52,14 +52,14 @@ Define_Module( IPv6Fragmentation );
 
 void IPv6Fragmentation::initialize()
 {
-  RoutingTable6Access::initialize();  
+  RoutingTable6Access::initialize();
   numOfPorts = par("numOfPorts");
   delay = par("procdelay");
   ctrIP6InTooBig = 0;
   ctrIP6FragCreates = 0;
   ctrIP6FragFails = 0;
   ctrIP6FragOKs = 0;
-  
+
   curPacket = 0;
   waitTmr = new cMessage("IPv6FragmentationWait");
   waitQueue.setName("fragmentWaitQ");
@@ -97,15 +97,15 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
     {
       curPacket = newAddrResMsg;
       AddrResInfo& info = curPacket->data();
-      datagram = info.dgram;    
+      datagram = info.dgram;
       Interface6Entry& ie = rt->getInterfaceByIndex(info.ifIndex);
       mtu = ie.mtu;
 
       assert(mtu >= IPv6_MIN_MTU); //All IPv6 links must conform
-  
-    
+
+
       if (datagram->inputPort() == -1 && datagram->hopLimit() == 0)
-      {  
+      {
         if (!rt->isRouter())
           datagram->setHopLimit(ie.curHopLimit);
         else
@@ -118,7 +118,7 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
     assert(false);
     return;
   }
-    
+
   AddrResMsg* addrResMsg = curPacket;
   assert(addrResMsg);
   datagram = addrResMsg->data().dgram;
@@ -144,32 +144,32 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
   }
 
   //Source fragmentation only in IPv6
-  if (datagram->inputPort() != -1 || 
+  if (datagram->inputPort() != -1 ||
       //Do not fragment ICMP
       datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
-  {			
+  {
     //ICMP packets do come through here however they should be limited
     //in size during creation time. Either that or we drop them
     assert(datagram->transportProtocol() != IP_PROT_IPv6_ICMP);
-    ICMPv6Message* err = new ICMPv6Message(ICMPv6_PACKET_TOO_BIG);      
+    ICMPv6Message* err = new ICMPv6Message(ICMPv6_PACKET_TOO_BIG);
     err->encapsulate(datagram->dup());
     err->setName("ICMPv6_ERROR:PACKET_TOO_BIG");
-    err->setOptInfo(mtu);      
+    err->setOptInfo(mtu);
     sendErrorMessage(err);
     if (datagram->inputPort() != -1) //Tried to forward a big packet
       ctrIP6InTooBig++;
     delete datagram;
     delete addrResMsg;
     addrResMsg = 0;
-    return;		      
+    return;
   }
-		
-    
+
+
   HdrExtFragProc* fragProc = datagram->acquireFragInterface();
   assert(fragProc != 0);
   if (!fragProc)
     ctrIP6FragFails++;
-    
+
   unsigned int noOfFragments = 0;
   IPv6Datagram** fragment = fragProc->fragmentPacket(datagram, mtu, noOfFragments);
   for (size_t i=0; i<noOfFragments; i++)
@@ -183,8 +183,8 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
     ctrIP6FragCreates++;
     sendOutput(duplicate);
   }
-  delete [] fragment;    
-  delete addrResMsg;    
+  delete [] fragment;
+  delete addrResMsg;
   delete datagram;
   addrResMsg = 0;
   ctrIP6FragOKs++;
@@ -192,20 +192,20 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
     /*
 		headerLength = datagram->headerLength();
 		payload = datagram->totalLength() - headerLength;
-		
-		noOfFragments= 
+
+		noOfFragments=
 			int(ceil((float(payload)/mtu) /
 			(1-float(headerLength)/mtu) ) );
-            
+
 		ev << "No of Fragments: " << noOfFragments << "\n";
-		
+
 
            // if "don't Fragment"-bit is set, throw
-			datagram away and send ICMP error message 
+			datagram away and send ICMP error message
 		if (datagram->dontFragment() && noOfFragments > 1)
 		{
-			sendErrorMessage (datagram, 
-				ICMP_DESTINATION_UNREACHABLE, 
+			sendErrorMessage (datagram,
+				ICMP_DESTINATION_UNREACHABLE,
 				ICMP_FRAGMENTATION_ERROR_CODE);
 			continue;
 		}
@@ -213,32 +213,32 @@ void IPv6Fragmentation::handleMessage(cMessage* msg)
 		for (i=0; i<noOfFragments; i++)
 		{
 
-			IPv6Datagram *fragment; 
+			IPv6Datagram *fragment;
 			fragment = datagram->dup();
-			
-                // total_length equal to mtu, except for 
+
+                // total_length equal to mtu, except for
 				last fragment
 
                 // "more Fragments"-bit is unchanged
 				in the last fragment, otherwise
-				true 
+				true
 			if (i != noOfFragments-1)
 			{
-				
+
 				fragment->setMoreFragments (true);
 				fragment->setTotalLength(mtu);
 			} else
 			{
                     // size of last fragment
-				fragment->setTotalLength 
-					(datagram->totalLength() - 
-					 (noOfFragments-1) * 
+				fragment->setTotalLength
+					(datagram->totalLength() -
+					 (noOfFragments-1) *
 					 (mtu - datagram->headerLength()));
 			}
 			fragment->setFragmentOffset(
 					i*(mtu - datagram->headerLength()) );
 
-	
+
 			wait(delay);
 			sendDatagramToOutput(fragment);
 		} // end for to noOfFragments
@@ -254,7 +254,7 @@ void IPv6Fragmentation::finish()
   recordScalar("IP6FragCreates", ctrIP6FragCreates);
   recordScalar("IP6FragFails", ctrIP6FragFails);
   recordScalar("IP6FragOKs", ctrIP6FragOKs);
-  
+
 }
 
 
@@ -276,25 +276,23 @@ void IPv6Fragmentation::sendOutput(AddrResMsg* msg )
   {
     ev << "Error in IPv6Fragmentation: "
        << "illegal output port: " << outputPort << "\n";
-    
+
     delete msg->data().dgram;
-    delete msg;    
-    return;    
+    delete msg;
+    return;
   }
-  LLInterfaceInfo info = { msg->data().dgram, msg->data().linkLayerAddr };  
+  LLInterfaceInfo info = { msg->data().dgram, msg->data().linkLayerAddr };
   LLInterfacePkt* ifpkt = new LLInterfacePkt(info);
   ifpkt->setName(info.dgram->name());
-#if defined OPP_VERSION && OPP_VERSION >= 3
-  //This needs to be done in llpkt itself as take is a protected function,
+
+  // XXX This needs to be done in llpkt itself as take is a protected function,
   //except that's a template class.  We do not know the type of the template
   //parameter can contain members that are cobjects. Guess cTypedMessage needs
   //refactoring too
 
   //ifpkt->take(info.dgram);
-#else
-  info.dgram->setOwner(ifpkt);
-#endif
-  delete msg;  
+
+  delete msg;
   send(ifpkt, "outputOut", outputPort);
 }
 

@@ -145,11 +145,7 @@ void AddressResolution::handleMessage(cMessage* msg)
     IPv6Datagram* dgram = addrResMsg->data().dgram;
 
     //dgram->owner()->drop(dgram);
-#if defined OPP_VERSION && OPP_VERSION >= 3
     take(dgram);
-#else
-    dgram->setOwner(this);
-#endif
 
     assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED &&
            addrResMsg->data().nextHop != IPv6_ADDR_UNSPECIFIED);
@@ -190,7 +186,7 @@ void AddressResolution::handleMessage(cMessage* msg)
         (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->defaultRouter();
         ngbr = rt->cds->defaultRouter();
       }
-      else 
+      else
       {
         //Can we resolve on another router besides the default and if so how to handle?
         assert(!rt->cds->router(tmr->targetAddr).lock());
@@ -205,7 +201,7 @@ void AddressResolution::handleMessage(cMessage* msg)
       ngbr = rt->cds->router(tmr->targetAddr);
 
     if (!ngbr.lock())
-    {			
+    {
       //Create DE & NE and put to incomplete
       rt->cds->insertNeighbourEntry(new NeighbourEntry(tmr->targetAddr, tmr->ifIndex));
       ngbr = rt->cds->neighbour(tmr->targetAddr);
@@ -263,12 +259,12 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
 {
   Interface6Entry& ie = rt->getInterfaceByIndex(tmr->ifIndex);
   unsigned int ifIndex = tmr->ifIndex;
-  if (rt->odad() && tmr->dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED 
+  if (rt->odad() && tmr->dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED
       && ie.tentativeAddrAssigned(tmr->dgram->srcAddress()))
     Dout(dc::addr_resln|dc::warning|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
          <<" ODAD who sent a packet for addr res with a tentative srcAddr of "
          <<tmr->dgram->srcAddress());
-  
+
 
   if (tmr->msg == 0)
   {
@@ -378,7 +374,7 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
 
 
     //remove the DC entry so that subsequent transmissions reinitiate the
-    //nexthop determination 
+    //nexthop determination
     rt->cds->removeDestEntryByNeighbour(nextHop);
 
     //Send the packets in map and remove entries from queue
@@ -476,7 +472,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
          <<ngbrSol->targetAddr()<<" with no matching address assigned");
     return;
   }
-  
+
     Debug(response->setName("addrRes2"));
     response->setHopLimit(NDHOPLIMIT);
 
@@ -525,7 +521,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
       sendDirect(new LLInterfacePkt(info), 0,
                               outputMod[ifIndex], outputUnicastGate);
       //Using direct sending for unicast ND messages just like FAST RA
-      
+
 /*
       AddrResInfo info = {response, response->destAddress(), ifIndex,
                           ngbrSol->srcLLAddr()};
@@ -603,7 +599,7 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
               Interface6Entry& ie = rt->getInterfaceByIndex(ifIndex);
               if (ie.tentativeAddrAssigned(p->second->srcAddress()))
                 Dout(dc::warning|dc::addr_resln|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
-                     <<" ODAD we're not supposed to do AddrResln on packet" 
+                     <<" ODAD we're not supposed to do AddrResln on packet"
                      <<" that would have been sent from tentative addr even though we do"
                      <<" addrResln using different srcAddr?");
             }
@@ -616,16 +612,12 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
 
           AddrResMsg* addrResMsg = new AddrResMsg(info);
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
-	  //This needs to be done in llpkt itself as take is a protected function,
-	  //except that's a template class.  We do not know the type of the template
-	  //parameter can contain members that are cobjects. Guess cTypedMessage needs
-	  //refactoring too
+          // XXX This needs to be done in llpkt itself as take is a protected function,
+          //except that's a template class.  We do not know the type of the template
+          //parameter can contain members that are cobjects. Guess cTypedMessage needs
+          //refactoring too
 
-	  //addrResMsg->take(info.dgram);
-#else
-          info.dgram->setOwner(addrResMsg); //deprecated
-#endif
+          //addrResMsg->take(info.dgram);
 
           send(addrResMsg, "fragmentationOut");
         }
@@ -723,7 +715,7 @@ void AddressResolution::finish()
 
   delete [] outputMod;
   outputMod = 0;
-  
+
   recordScalar("Icmp6OutNgbrAdv", ctrIcmp6OutNgbrAdv);
   recordScalar("Icmp6OutNgbrSol", ctrIcmp6OutNgbrSol);
 

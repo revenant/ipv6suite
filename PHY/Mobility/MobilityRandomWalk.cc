@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomWalk.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/PHY/Mobility/Attic/MobilityRandomWalk.cc,v 1.2 2005/02/10 01:15:48 andras Exp $
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
 //
@@ -24,8 +24,8 @@
 	Responsibilities:
         - mobility handling
 
-  Initially implemented in PHYWirelessModule (now obsolete and 
-  evolved into PHYSimple), but taken out since it makes more sense 
+  Initially implemented in PHYWirelessModule (now obsolete and
+  evolved into PHYSimple), but taken out since it makes more sense
   as a seperate entity rather than part of the physical layer
 
   @author Eric Wu, Steve Woon
@@ -61,22 +61,16 @@ void MobilityRandomWalk::initialize(int stage)
     randomWalk->maxX = maxX;
     randomWalk->minY = minY;
     randomWalk->maxY = maxY;
-    
+
     int x = mobileEntity->position().x;
     int y = mobileEntity->position().y;
 
     double time = randomWalk->randomWalk(x, y);
 
-    selfMovingNotifier = new cMessage;
+    selfMovingNotifier = new cMessage("move");
     selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
-	selfMovingNotifier->addPar("x") = x;
-	selfMovingNotifier->addPar("y") = y;
-
-#if defined OPP_VERSION && OPP_VERSION >= 3
-    take(selfMovingNotifier);
-#else
-    selfMovingNotifier->setOwner(this);
-#endif
+    selfMovingNotifier->addPar("x") = x;
+    selfMovingNotifier->addPar("y") = y;
     scheduleAt(simTime() + time, selfMovingNotifier);
   }
 }

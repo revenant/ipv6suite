@@ -1,6 +1,6 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/IPv6SendCore.cc,v 1.2 2005/02/10 01:15:48 andras Exp $
 //
-// Copyright (C) 2001, 2003 CTIE, Monash University 
+// Copyright (C) 2001, 2003 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
 // This program is free software; you can redistribute it and/or
@@ -21,8 +21,8 @@
     @file IPv6SendCore.cc
     @brief Implementation for IPSendCore
     ------
-	Responsibilities: 
-	receive IPInterfacePacket from Transport layer or ICMP 
+	Responsibilities:
+	receive IPInterfacePacket from Transport layer or ICMP
 	or Tunneling (IP tunneled datagram)
 	encapsulate in IP datagram
 	set version
@@ -62,7 +62,7 @@ Define_Module( IPv6SendCore );
 void IPv6SendCore::initialize()
 {
   RoutingTable6Access::initialize();
-  
+
   delay = par("procdelay");
   defaultMCTimeToLive = par("multicastTimeToLive");
   hasHook = (findGate("netfilterOut") != -1);
@@ -91,9 +91,9 @@ void IPv6SendCore::handleMessage(cMessage* msg)
       assert(interfaceMsg != 0);
 
       assert(interfaceMsg->destAddress() != IPv6_ADDR_UNSPECIFIED);
-    
+
       sendDatagram(interfaceMsg);
-      
+
       scheduleAt(delay + simTime(), waitTmr);
       return;
     }
@@ -102,7 +102,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
     return;
   }
 
-  
+
   IPv6Datagram* dgram = curPacket;
   if (ifaceReady)
     assert(dgram);
@@ -111,12 +111,12 @@ void IPv6SendCore::handleMessage(cMessage* msg)
 
   // send new datagram
   send(dgram, "routingOut");
-  
+
   if (waitQueue.empty())
     curPacket = 0;
   else
   {
-    IPv6InterfacePacket *interfaceMsg = 
+    IPv6InterfacePacket *interfaceMsg =
       boost::polymorphic_downcast<IPv6InterfacePacket*>(waitQueue.pop());
     sendDatagram(interfaceMsg);
     scheduleAt(delay + simTime(), waitTmr);
@@ -124,7 +124,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
 
 }
 
-///@}		
+///@}
 /*  ----------------------------------------------------------
         Private Functions
     ----------------------------------------------------------  */
@@ -135,27 +135,23 @@ void IPv6SendCore::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
     std::auto_ptr<IPv6Datagram> datagram(new IPv6Datagram());
 
     datagram->encapsulate(interfaceMsg->decapsulate());
-    
+
     datagram->setName(interfaceMsg->name());
-    
+
     assert(!interfaceMsg->isSelfMessage());
-    
-    // set source and destination address	
+
+    // set source and destination address
     datagram->setDestAddress(interfaceMsg->destAddr());
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
-    //This needs to be done in llpkt itself as take is a protected function,
+    // XXX This needs to be done in llpkt itself as take is a protected function,
     //except that's a template class.  We do not know the type of the template
     //parameter can contain members that are cobjects. Guess cTypedMessage needs
     //refactoring too
 
     //datagram->take(datagram->encapsulatedMsg());
-#else
-    datagram->encapsulatedMsg()->setOwner(datagram.get());
-#endif
-	
+
 	// if no interface exists, do not send datagram
-    if (rt->interfaceCount() == 0 || 
+    if (rt->interfaceCount() == 0 ||
         rt->getInterfaceByIndex(0).inetAddrs.size() == 0)
     {
       cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
@@ -178,34 +174,34 @@ Debug(
         {
           found = true;
           break;
-        } 
+        }
 //           else
 //             cerr<<rt->interfaceCount()<<" "<<ie.inetAddrs.size()<<" "
-//                 <<interfaceMsg->srcAddr()<<" "<<(ipv6_addr)ie.inetAddrs[i]<<endl;      
+//                 <<interfaceMsg->srcAddr()<<" "<<(ipv6_addr)ie.inetAddrs[i]<<endl;
       }
-      
+
       if (!found)
         Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddress());
 //      assert(found);
       );
 
       datagram->setSrcAddress(interfaceMsg->srcAddr());
-	} 
-    else 
-    { 
+	}
+    else
+    {
       //Let RoutingCore determine src addr
 	}
 
 	datagram->setTransportProtocol ( static_cast<IPProtocolFieldId> (interfaceMsg->protocol()));
 	datagram->setInputPort(-1);
-	
+
     if (interfaceMsg->timeToLive() > 0)
       datagram->setHopLimit(interfaceMsg->timeToLive());
 
     //TODO check dest Path MTU here
     ctrIP6OutRequests++;
 
-/*    
+/*
 	// pass Datagram through netfilter if it exists
 	if (hasHook)
 	{
@@ -214,7 +210,7 @@ Debug(
 		if (dfmsg->kind() == DISCARD_PACKET)
 		{
 			delete dfmsg;
-			
+
 			return;
 		}
 		datagram.reset(static_cast<IPv6Datagram*>(dfmsg));

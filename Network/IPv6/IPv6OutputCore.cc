@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
 // This program is free software; you can redistribute it and/or
@@ -20,12 +20,12 @@
 	@file IPv6OutputCore.cc
 	@brief Implementation for IPOutput core module
 
-	Responsibilities: 
+	Responsibilities:
 	receive complete datagram from IPFragmentation
-	hop counter check 
+	hop counter check
 	-> throw away and notify ICMP if ttl==0
 	otherwise  send it on to output queue
-	
+
     @author Johnny Lai
     based on IPOutputCore by Jochen Reber
 */
@@ -41,7 +41,7 @@
 
 #include <boost/cast.hpp>
 #include <omnetpp.h>
-#include <iomanip> 
+#include <iomanip>
 #include <string>
 
 #include "hook_types.h"
@@ -70,7 +70,7 @@ Define_Module ( IPv6OutputCore );
 void IPv6OutputCore::initialize()
 {
   RoutingTable6Access::initialize();
-	
+
 	delay = par("procdelay");
     if (delay == 0)
       delay = ZERO_WAIT_DELAY;
@@ -80,7 +80,7 @@ void IPv6OutputCore::initialize()
     curPacket = 0;
     waitTmr = new cMessage("IPv6OutputCoreWait");
     waitQueue.setName("IPv6OutputWaitQ");
-    
+
     //Can't really see from proc module
     std::string display(parentModule()->displayString());
     display += ";q=IPv6OutputWaitQ";
@@ -104,7 +104,7 @@ void IPv6OutputCore::handleMessage(cMessage* msg)
   if (!msg->isSelfMessage())
   {
 
-/*      
+/*
     // pass Datagram through netfilter if it exists
     if (hasHook)
     {
@@ -114,7 +114,7 @@ void IPv6OutputCore::handleMessage(cMessage* msg)
       {
         delete dfmsg;
         delete llpkt;
-          
+
         continue;
       }
       datagram = polymorphic_downcast<IPv6Datagram *>(dfmsg);
@@ -145,18 +145,14 @@ void IPv6OutputCore::handleMessage(cMessage* msg)
   assert(curPacket);
   llpkt = curPacket;
   // TODO: TEMPARORY FIX FOR ENQUEUE
-  llpkt->setKind(llpkt->data().dgram->kind());        
+  llpkt->setKind(llpkt->data().dgram->kind());
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
-  //This needs to be done in llpkt itself as take is a protected function,
+  // XXX This needs to be done in llpkt itself as take is a protected function,
   //except that's a template class.  We do not know the type of the template
   //parameter can contain members that are cobjects. Guess cTypedMessage needs
   //refactoring too
 
   //llpkt->take(llpkt->data().dgram);
-#else
-  llpkt->data().dgram->setOwner(llpkt);
-#endif
 
   send(llpkt, "queueOut");
 
@@ -192,13 +188,13 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     llpkt = new LLInterfacePkt(info);
     llpkt->setName(info.dgram->name());
   }
-  else if (addrReslnIn == msg->arrivalGate()->name() || 
+  else if (addrReslnIn == msg->arrivalGate()->name() ||
            neighbourDiscoveryIn == msg->arrivalGate()->name())
   {
     //Perhaps these should be sent to the multicast module with ifIdx and
     //let multicast handle how to talk to link layer instead of replicating
     //that here too.
-        
+
     //Receive the IPv6Datagram directly as don't know what the target
     //LL addr is and want to specify which iface to send on
 
@@ -206,15 +202,15 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     assert(datagram != 0);
 
 
-#ifdef CWDEBUG    
+#ifdef CWDEBUG
     ICMPv6Message* icmpMsg = polymorphic_downcast<ICMPv6Message*> (datagram->encapsulatedMsg());
     assert(icmpMsg != 0);
-        
+
     assert(icmpMsg->type() >= 0 && icmpMsg->type() < 138);
-    //Dout( dc::debug, "type is "<<(int)icmpMsg->type());   
+    //Dout( dc::debug, "type is "<<(int)icmpMsg->type());
 #endif //CWDEBUG
 
-    LLInterfaceInfo info = { datagram, 
+    LLInterfaceInfo info = { datagram,
                              IPv6Multicast::multicastLLAddr(datagram->destAddress())};
 
     llpkt = new LLInterfacePkt(info);
@@ -222,7 +218,7 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
   }
   else
   {
-        
+
     llpkt = polymorphic_downcast<LLInterfacePkt*> (msg);
     assert(llpkt);
     datagram = polymorphic_downcast<IPv6Datagram*> (llpkt->data().dgram);
@@ -237,16 +233,16 @@ LLInterfacePkt* IPv6OutputCore::processArrivingMessage(cMessage* msg)
     llpkt->data().dgram = datagram;
 
   }
-      
+
   if (datagram->inputPort() != -1)
     ctrIP6OutForwDatagrams++;
-    
+
   if (datagram->destAddress().isMulticast())
     ctrIP6OutMcastPkts++;
 
   bool directionOut = true;
   OPP_Global::printRoutingInfo(forwardMod->routingInfoDisplay, datagram, rt->nodeName(), directionOut);
-  
+
   return llpkt;
 }
 
@@ -255,23 +251,23 @@ void IPv6OutputCore::activity()
 {
   static const string addrReslnIn("addrReslnIn");
   static const string neighbourDiscoveryIn("neighbourDiscoveryIn");
-  
+
     cMessage *dfmsg = 0;
     IPv6Datagram* datagram = 0;
     LLInterfacePkt* llpkt = 0;
     cMessage* msg = 0;
-    
+
     while(true)
     {
       msg = receive();
-      
-      if (addrReslnIn == msg->arrivalGate()->name() || 
+
+      if (addrReslnIn == msg->arrivalGate()->name() ||
           neighbourDiscoveryIn == msg->arrivalGate()->name())
       {
         //Perhaps these should be sent to the multicast module with ifIdx and
         //let multicast handle how to talk to link layer instead of replicating
         //that here too.
-        
+
         //Receive the IPv6Datagram directly as don't know what the target
         //LL addr is and want to specify which iface to send on
 
@@ -279,12 +275,12 @@ void IPv6OutputCore::activity()
 #ifdef TESTIPv6
         ICMPv6Message* icmpMsg = polymorphic_downcast<ICMPv6Message*> (datagram->encapsulatedMsg());
         assert(icmpMsg != 0);
-        
+
         assert(icmpMsg->type() >= 0 && icmpMsg->type() < 138);
-        //Dout( dc::debug, "type is "<<(int)icmpMsg->type());        
+        //Dout( dc::debug, "type is "<<(int)icmpMsg->type());
 #endif //TESTIPv6
 
-        LLInterfaceInfo info = { datagram, 
+        LLInterfaceInfo info = { datagram,
                                  IPv6Multicast::multicastLLAddr(datagram->destAddress())};
 
         llpkt = new LLInterfacePkt(info);
@@ -292,7 +288,7 @@ void IPv6OutputCore::activity()
       }
       else
       {
-        
+
         llpkt = polymorphic_downcast<LLInterfacePkt*> (msg);
         datagram = polymorphic_downcast<IPv6Datagram*> (llpkt->data().dgram);
 
@@ -306,13 +302,13 @@ void IPv6OutputCore::activity()
         llpkt->data().dgram = datagram;
 
       }
-      
+
       if (datagram->inputPort() != -1)
         ctrIP6OutForwDatagrams++;
-    
+
       if (datagram->destAddress().isMulticast())
         ctrIP6OutMcastPkts++;
-      
+
       // pass Datagram through netfilter if it exists
       if (hasHook)
       {
@@ -322,20 +318,20 @@ void IPv6OutputCore::activity()
         {
           delete dfmsg;
           delete llpkt;
-          
+
           continue;
         }
         datagram = polymorphic_downcast<IPv6Datagram *>(dfmsg);
       }
-      
+
       wait(delay);
 
       // TODO: TEMPARORY FIX FOR ENQUEUE
-      llpkt->setKind(datagram->kind());        
+      llpkt->setKind(datagram->kind());
       //llpkt->data().dgram->setOwner(llpkt);
       send(llpkt, "queueOut");
 
-      
+
 
 	}
 }

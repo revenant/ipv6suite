@@ -25,8 +25,8 @@ struct AddrResInfo
 
 struct LLInterfaceInfo
 {
-  IPDatagram* dgram;
-  string destLLAddr;  
+  IPv6Datagram* dgram;
+  string destLLAddr;
 };
 
 struct GenericUDPInfo

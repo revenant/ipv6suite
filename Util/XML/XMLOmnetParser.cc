@@ -520,15 +520,15 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
   Interface6Entry::RouterVariables& rtrVar = ie.rtrVar;
 
   rtrVar.advSendAds = getNodeProperties(nif, "AdvSendAdvertisements") == XML_ON;
-  rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MaxRtrAdvInterval"));
-  rtrVar.minRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MinRtrAdvInterval"));
+  rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MaxRtrAdvInterval").c_str());
+  rtrVar.minRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MinRtrAdvInterval").c_str());
 
 #ifdef USE_MOBILITY
   rtrVar.advHomeAgent = getNodeProperties(nif, "AdvHomeAgent") == XML_ON;
   if (rt->mipv6Support)
   {
-    rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MIPv6MaxRtrAdvInterval"));
-    rtrVar.minRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MIPv6MinRtrAdvInterval"));
+    rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MIPv6MaxRtrAdvInterval").c_str());
+    rtrVar.minRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MIPv6MinRtrAdvInterval").c_str());
     if (rt->isRouter())
       Dout(dc::notice, rt->nodeName()<<":"<<iface_index<<" minRtrAdv="
            <<rtrVar.minRtrAdvInt
@@ -536,7 +536,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
   }
 
   Interface6Entry::mipv6Variables& mipVar = ie.mipv6Var;
-  mipVar.maxConsecutiveMissedRtrAdv = OPP_Global::atoul(getNodeProperties(nif, "MaxConsecMissRtrAdv"));
+  mipVar.maxConsecutiveMissedRtrAdv = OPP_Global::atoul(getNodeProperties(nif, "MaxConsecMissRtrAdv").c_str());
 
 #endif // USE_MOBILITY
 #if FASTRA
@@ -544,7 +544,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
   try
   {
 */
-    rtrVar.maxFastRAS = OPP_Global::atoul(getNodeProperties(nif, "MaxFastRAS"));
+    rtrVar.maxFastRAS = OPP_Global::atoul(getNodeProperties(nif, "MaxFastRAS").c_str());
 /* XXX let exception pass through as with other entries --AV
   }
   catch(boost::bad_lexical_cast& e)
@@ -560,22 +560,22 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
 
   rtrVar.advManaged = getNodeProperties(nif, "AdvManagedFlag") == XML_ON;
   rtrVar.advOther = getNodeProperties(nif, "AdvOtherConfigFlag") == XML_ON;
-  rtrVar.advLinkMTU =  OPP_Global::atoul(getNodeProperties(nif, "AdvLinkMTU"));
-  rtrVar.advReachableTime =  OPP_Global::atoul(getNodeProperties(nif, "AdvReachableTime"));
-  rtrVar.advRetransTmr =  OPP_Global::atoul(getNodeProperties(nif, "AdvRetransTimer"));
-  rtrVar.advCurHopLimit =  OPP_Global::atoul(getNodeProperties(nif, "AdvCurHopLimit"));
+  rtrVar.advLinkMTU =  OPP_Global::atoul(getNodeProperties(nif, "AdvLinkMTU").c_str());
+  rtrVar.advReachableTime =  OPP_Global::atoul(getNodeProperties(nif, "AdvReachableTime").c_str());
+  rtrVar.advRetransTmr =  OPP_Global::atoul(getNodeProperties(nif, "AdvRetransTimer").c_str());
+  rtrVar.advCurHopLimit =  OPP_Global::atoul(getNodeProperties(nif, "AdvCurHopLimit").c_str());
   //This is a hexadecimal number and as such is not covered by typical
   //stringstream smarts in conversion so lexical_cast won't work. Converted t
   //o decimal in schema now.
-  rtrVar.advDefaultLifetime =  OPP_Global::atoul(getNodeProperties(nif, "AdvDefaultLifetime"));
-  ie.mtu =  OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU"));
-  ie.curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit"));
-  ie.baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime"));
-  ie.retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer"));
+  rtrVar.advDefaultLifetime =  OPP_Global::atoul(getNodeProperties(nif, "AdvDefaultLifetime").c_str());
+  ie.mtu =  OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str());
+  ie.curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
+  ie.baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
+  ie.retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
 #if FASTRS
-  ie.maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay"));
+  ie.maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());
 #endif // FASTRS
-  ie.dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits"));
+  ie.dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits").c_str());
 
   ///Only some older XML files did not name their interfaces guess it is not
   ///really necessary as we do things in order anyway.
@@ -598,9 +598,9 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
         assert(false);
       cXMLElement* npr = *startPr;
       PrefixEntry& pe = ie.rtrVar.advPrefixList[j];
-      pe._advValidLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvValidLifetime"));
+      pe._advValidLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvValidLifetime").c_str());
       pe._advOnLink =  getNodeProperties(npr, "AdvOnLinkFlag") == XML_ON;
-      pe._advPrefLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvPreferredLifetime"));
+      pe._advPrefLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvPreferredLifetime").c_str());
       pe._advAutoFlag = getNodeProperties(npr, "AdvAutonomousFlag") == XML_ON;
 #ifdef USE_MOBILITY
       // Router Address Flag - for mobility support
@@ -677,23 +677,23 @@ void XMLOmnetParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
 void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info)
 {
   wlanMod->ssid = getNodeProperties(info, "WEssid");
-  const_cast<double&>(wlanMod->pLExp) = OPP_Global::atod(getNodeProperties(info, "WEPathLossExponent"));
+  const_cast<double&>(wlanMod->pLExp) = OPP_Global::atod(getNodeProperties(info, "WEPathLossExponent").c_str());
 
-  const_cast<double&>(wlanMod->pLStdDev) = OPP_Global::atod(getNodeProperties(info, "WEPathLossStdDev"));
-  const_cast<double&>(wlanMod->txpower) = OPP_Global::atod(getNodeProperties(info, "WETxPower"));
-  const_cast<double&>(wlanMod->threshpower) = OPP_Global::atod(getNodeProperties(info, "WEThresholdPower"));
-  const_cast<double&>(wlanMod->hothreshpower) = OPP_Global::atod(getNodeProperties(info, "WEHOThresholdPower"));
-  const_cast<double&>(wlanMod->probeEnergyTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeEnergyTimeout"));
-  const_cast<double&>(wlanMod->probeResponseTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeResponseTimeout"));
-  const_cast<double&>(wlanMod->authenticationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAuthenticationTimeout"));
-  const_cast<double&>(wlanMod->associationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAssociationTimeout"));
-  const_cast<unsigned int&>(wlanMod->maxRetry) = OPP_Global::atoul(getNodeProperties(info, "WERetry"));
+  const_cast<double&>(wlanMod->pLStdDev) = OPP_Global::atod(getNodeProperties(info, "WEPathLossStdDev").c_str());
+  const_cast<double&>(wlanMod->txpower) = OPP_Global::atod(getNodeProperties(info, "WETxPower").c_str());
+  const_cast<double&>(wlanMod->threshpower) = OPP_Global::atod(getNodeProperties(info, "WEThresholdPower").c_str());
+  const_cast<double&>(wlanMod->hothreshpower) = OPP_Global::atod(getNodeProperties(info, "WEHOThresholdPower").c_str());
+  const_cast<double&>(wlanMod->probeEnergyTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeEnergyTimeout").c_str());
+  const_cast<double&>(wlanMod->probeResponseTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeResponseTimeout").c_str());
+  const_cast<double&>(wlanMod->authenticationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAuthenticationTimeout").c_str());
+  const_cast<double&>(wlanMod->associationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAssociationTimeout").c_str());
+  const_cast<unsigned int&>(wlanMod->maxRetry) = OPP_Global::atoul(getNodeProperties(info, "WERetry").c_str());
   wlanMod->fastActScan = getNodeProperties(info, "WEFastActiveScan") == XML_ON;
   wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON;
   wlanMod->crossTalk = getNodeProperties(info, "WECrossTalk") == XML_ON;
   wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON;
   wlanMod->chanNotToScan = getNodeProperties(info, "WEChannelsNotToScan");
-  const_cast<unsigned int&>(wlanMod->sSMaxSample) = OPP_Global::atoul(getNodeProperties(info, "WESignalStrengthMaxSample"));
+  const_cast<unsigned int&>(wlanMod->sSMaxSample) = OPP_Global::atoul(getNodeProperties(info, "WESignalStrengthMaxSample").c_str());
 
   std::string addr = getNodeProperties(info, "WEAddress");
 
@@ -711,10 +711,10 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
         wlanMod->address.set(macAddr);
     }
   }
-    const_cast<double&>(wlanMod->bWRequirements) = OPP_Global::atod(getNodeProperties(info, "WEBandwidthRequirements"));
+    const_cast<double&>(wlanMod->bWRequirements) = OPP_Global::atod(getNodeProperties(info, "WEBandwidthRequirements").c_str());
     wlanMod->statsVec = getNodeProperties(info, "WERecordStatisticVector") == XML_ON;
     wlanMod->activeScan = getNodeProperties(info, "WEActiveScan") == XML_ON;
-    const_cast<double&>(wlanMod->channelScanTime) = OPP_Global::atod(getNodeProperties(info, "WEChannelScanTime"));
+    const_cast<double&>(wlanMod->channelScanTime) = OPP_Global::atod(getNodeProperties(info, "WEChannelScanTime").c_str());
  // TODO: parse supported rate
 
 }
@@ -746,15 +746,15 @@ void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
     return;
   }
 
-  me->setStartMovingTime(OPP_Global::atoul(getNodeProperties(nmovenode, "startTime")));
+  me->setStartMovingTime(OPP_Global::atoul(getNodeProperties(nmovenode, "startTime").c_str()));
 
   cXMLElementList moves = nmovenode->getChildrenByTagName("move");
   for (NodeIt it = moves.begin(); it != moves.end(); it++)
   {
     cXMLElement* nmove = *it;
-    me->addMove(OPP_Global::atoul(getNodeProperties(nmove, "moveToX")),
-                OPP_Global::atoul(getNodeProperties(nmove, "moveToY")),
-                OPP_Global::atod(getNodeProperties(nmove, "moveSpeed"))
+    me->addMove(OPP_Global::atoul(getNodeProperties(nmove, "moveToX").c_str()),
+                OPP_Global::atoul(getNodeProperties(nmove, "moveToY").c_str()),
+                OPP_Global::atod(getNodeProperties(nmove, "moveSpeed").c_str())
                 );
   }
 }
@@ -772,15 +772,15 @@ void XMLOmnetParser::parseRandomWPInfo(MobilityRandomWP* mod)
     return;
   }
 
-  mod->minX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinX"));
-  mod->maxX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMaxX"));
-  mod->minY = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinY"));
-  mod->maxY = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMaxY"));
-  mod->moveInterval = OPP_Global::atod(getNodeProperties(nmovenode, "RWMoveInterval"));
-  mod->minSpeed = OPP_Global::atod(getNodeProperties(nmovenode, "RWMinSpeed"));
-  mod->maxSpeed = OPP_Global::atod(getNodeProperties(nmovenode, "RWMaxSpeed"));
-  mod->pauseTime = OPP_Global::atod(getNodeProperties(nmovenode, "RWPauseTime"));
-  mod->distance = OPP_Global::atoul(getNodeProperties(nmovenode, "RWDistance"));
+  mod->minX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinX").c_str());
+  mod->maxX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMaxX").c_str());
+  mod->minY = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinY").c_str());
+  mod->maxY = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMaxY").c_str());
+  mod->moveInterval = OPP_Global::atod(getNodeProperties(nmovenode, "RWMoveInterval").c_str());
+  mod->minSpeed = OPP_Global::atod(getNodeProperties(nmovenode, "RWMinSpeed").c_str());
+  mod->maxSpeed = OPP_Global::atod(getNodeProperties(nmovenode, "RWMaxSpeed").c_str());
+  mod->pauseTime = OPP_Global::atod(getNodeProperties(nmovenode, "RWPauseTime").c_str());
+  mod->distance = OPP_Global::atoul(getNodeProperties(nmovenode, "RWDistance").c_str());
 }
 
 void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
@@ -795,13 +795,13 @@ void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
 
   if ( !mod->isRandomPatternParsed )
   {
-    mod->xSize = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPXSize"));
-    mod->ySize = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPYSize"));
-    mod->moveInterval = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPMoveInterval"));
-    mod->minSpeed = OPP_Global::atod(getNodeProperties(nrandompattern, "RPMinSpeed"));
-    mod->maxSpeed = OPP_Global::atod(getNodeProperties(nrandompattern, "RPMaxSpeed"));
-    mod->distance = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPDistance"));
-    mod->pauseTime = OPP_Global::atod(getNodeProperties(nrandompattern, "RPPauseTime"));
+    mod->xSize = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPXSize").c_str());
+    mod->ySize = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPYSize").c_str());
+    mod->moveInterval = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPMoveInterval").c_str());
+    mod->minSpeed = OPP_Global::atod(getNodeProperties(nrandompattern, "RPMinSpeed").c_str());
+    mod->maxSpeed = OPP_Global::atod(getNodeProperties(nrandompattern, "RPMaxSpeed").c_str());
+    mod->distance = OPP_Global::atoul(getNodeProperties(nrandompattern, "RPDistance").c_str());
+    mod->pauseTime = OPP_Global::atod(getNodeProperties(nrandompattern, "RPPauseTime").c_str());
   }
 
   cXMLElement* nmovenode = nrandompattern->getFirstChildWithAttribute("RPNode", "RPNodeName", nodeName);
@@ -812,8 +812,8 @@ void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
     return;
   }
 
-  mod->xOffset = OPP_Global::atoul(getNodeProperties(nmovenode, "RPXOffset"));
-  mod->yOffset = OPP_Global::atoul(getNodeProperties(nmovenode, "RPYOffset"));
+  mod->xOffset = OPP_Global::atoul(getNodeProperties(nmovenode, "RPXOffset").c_str());
+  mod->yOffset = OPP_Global::atoul(getNodeProperties(nmovenode, "RPYOffset").c_str());
 }
 
 #ifdef USE_HMIP
@@ -886,9 +886,9 @@ void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
     for (NodeIt it = nmaps.begin(); it != nmaps.end(); it++)
     {
       cXMLElement* nmap = *it;
-      unsigned int dist = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPDist"));
-      unsigned int pref = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPPref"));
-      unsigned int expires = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPValidLifetime"));
+      unsigned int dist = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPDist").c_str());
+      unsigned int pref = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPPref").c_str());
+      unsigned int expires = OPP_Global::atoul(getNodeProperties(nmap, "AdvMAPValidLifetime").c_str());
       ipv6_addr map_addr = c_ipv6_addr(stripWhitespace(nmap->getNodeValue()));
       HierarchicalMIPv6::HMIPv6ICMPv6NDOptMAP mapOpt(dist, pref, expires, map_addr);
       mapOpt.iface_idx = i;
@@ -1018,8 +1018,8 @@ void XMLOmnetParserTest::testOmnetParser()
 
   //  cXMLElement* nprefix = *((*it).find("AdvPrefix")); //*it;
   CPPUNIT_ASSERT(stripWhitespace(nprefix->getNodeValue()) == string("FEC0:0:0:ABCD:0:0:0:0/64"));
-  CPPUNIT_ASSERT(888888 == OPP_Global::atoul(p->getNodeProperties(nprefix, "AdvValidLifetime")));
-  CPPUNIT_ASSERT(88888 == OPP_Global::atoul(p->getNodeProperties(nprefix, "AdvPreferredLifetime")));
+  CPPUNIT_ASSERT(888888 == OPP_Global::atoul(p->getNodeProperties(nprefix, "AdvValidLifetime")).c_str());
+  CPPUNIT_ASSERT(88888 == OPP_Global::atoul(p->getNodeProperties(nprefix, "AdvPreferredLifetime")).c_str());
 }
 
 #endif //defined USE_CPPUNIT

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Applications/Ping6/Attic/Ping6Iface.h,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/Ping6Iface.h,v 1.1 2005/02/10 04:07:06 andras Exp $
 //
 // Copyright Copyright (C) 2001 Johnny Lai
 // Monash University, Melbourne, Australia

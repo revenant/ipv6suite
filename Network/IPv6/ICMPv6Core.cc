@@ -59,7 +59,7 @@ Define_Module( ICMPv6Core );
 
 void ICMPv6Core::initialize()
 {
-  
+
   delay = par("procdelay");
   icmpRecordStats = par("icmpRecordRequests");
   replyToICMPRequests = par("replyToICMPRequests");
@@ -100,8 +100,8 @@ void ICMPv6Core::initialize()
   std::string display(parentModule()->displayString());
   display += ";q=ICMPv6WaitQ";
   parentModule()->setDisplayString(display.c_str());
-  
-  //so display at self    
+
+  //so display at self
   display = displayString();
   display += ";q=ICMPv6WaitQ";
   setDisplayString(display.c_str());
@@ -172,7 +172,7 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
     curMessage = boost::polymorphic_downcast<cMessage*>(waitQueue.pop());
     scheduleAt(delay + simTime(), waitTmr);
   }
-  
+
   //checksum testing
   cGate *arrivalGate = msg->arrivalGate();
 
@@ -201,7 +201,7 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
   // request from application
   if (!strcmp(arrivalGate->name(), "pingIn"))
   {
-        
+
     // packing informational request from app layer and
     // tx across the network
     sendEchoRequest(msg);
@@ -217,7 +217,7 @@ void ICMPv6Core::handleMessage(cMessage* theMsg)
   cout<<"Sending Echo request at "<<simTime()<<" "<<hex<<app_req<<endl;
   assert(app_req->destAddress() != IPv6_ADDR_UNSPECIFIED);
 
-      
+
   // packing informational request from app layer and
   // tx across the network
   sendEchoRequest(msg);
@@ -287,7 +287,7 @@ void ICMPv6Core::activity()
       {
         ctrIcmp6InMsgs++;
         processError(msg);
-        
+
         continue;
       }
 
@@ -296,18 +296,18 @@ void ICMPv6Core::activity()
       {
         ctrIcmp6InMsgs++;
         processICMPv6Message(boost::polymorphic_downcast<IPv6Datagram*>(msg));
-        
+
         continue;
       }
 
       // request from application
       if (!strcmp(arrivalGate->name(), "pingIn"))
       {
-        
+
         // packing informational request from app layer and
         // tx across the network
         sendEchoRequest(msg);
-        
+
         continue;
       }
     }
@@ -317,11 +317,11 @@ void ICMPv6Core::activity()
       cout<<"Sending Echo request at "<<simTime()<<" "<<hex<<app_req<<endl;
       assert(app_req->destAddress() != IPv6_ADDR_UNSPECIFIED);
 
-      
+
       // packing informational request from app layer and
       // tx across the network
       sendEchoRequest(msg);
-      
+
       continue;
     }
 #endif //TESTIPv6PING
@@ -343,11 +343,8 @@ void ICMPv6Core::finish()
     cout <<"--------------------------------------------------------" <<endl;
     cout.precision(orig_prec);
 
-#if !defined OPP_VERSION || OPP_VERSION < 3
-    recordStats("ping stream eed", stat);
-#else
     stat->recordScalar("ping stream eed");
-#endif
+
     delete stat;
     stat = 0;
   }
@@ -505,7 +502,7 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
     case ICMPv6_MLD_QUERY: case ICMPv6_MLD_REPORT: case ICMPv6_MLD_DONE: case ICMPv6_MLDv2_REPORT:
 //      cerr<<"MLD message of type "<<icmpmsg->type()<<endl;
       dgram->encapsulate(icmpmsg);
-      dgram->setName(icmpmsg->name());      
+      dgram->setName(icmpmsg->name());
       send(dgram, MLDGATE);
       dgram=0;
       break;
@@ -520,8 +517,8 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
         break;
 
   default:
-    ev << "*** ICMPv6: no type found! "
-       << (int)icmpmsg->type() << "\n";
+    error("wrong ICMP type %d", (int)icmpmsg->type());
+/* XXX changed to error --Andras
     Dout(dc::warning|flush_cf,"*** ICMPv6: type not found! "
          << (int)icmpmsg->type());
     if (icmpmsg->isErrorMessage())
@@ -529,6 +526,7 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
       errorOut(icmpmsg);
     else //Discard
       delete(icmpmsg);
+*/
   }
   delete dgram;
 }
@@ -567,7 +565,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
         handoverLatency->record(simTime() - lastReceiveTime);
       }
     }
-    
+
     if (echo_req.seqNo < nextEstSeqNo)
     {
       Dout(dc::statistic|flush_cf, rt->nodeName()<<" "<<simTime()<<" out of order ping echo_request"

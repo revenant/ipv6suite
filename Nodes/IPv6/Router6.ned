@@ -65,11 +65,7 @@ module Router6
             display: "p=116,148;i=fork";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
-                nwi_delay = 0,
-                enqueueHookName = "L2_EnqueueHook",
-                dequeueHookName = "L2_DequeueHook",
-                enqueue_delay = 0,
-                dequeue_delay = 0;
+                nwi_delay = 0;
             display: "p=120,212,r;i=prot3";
         phyLayer: PHYLayer;
             gatesizes:

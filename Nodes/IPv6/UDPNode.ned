@@ -77,11 +77,7 @@ module UDPNode
             display: "p=164,212;i=prot2";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
-                nwi_delay = 0,
-                enqueueHookName = "L2_EnqueueHook",
-                dequeueHookName = "L2_DequeueHook",
-                enqueue_delay = 0,
-                dequeue_delay = 0;
+                nwi_delay = 0;
             display: "p=168,292;i=prot3";
         udpLayer: UDPProcessing6;
             gatesizes:

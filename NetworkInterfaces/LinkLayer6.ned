@@ -38,12 +38,6 @@ module LinkLayer6
     parameters:
         // processing delay
         nwi_delay : numeric const,
-        enqueue_delay : numeric,
-        dequeue_delay : numeric,
-
-        // hook Names
-        enqueueHookName : string,
-        dequeueHookName : string,
 
         // Link Layer network name
         NWIName : string;

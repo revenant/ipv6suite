@@ -54,20 +54,12 @@ module AccessPoint
     submodules:
         ds: LinkLayer6[sizeof(in)];
             parameters:
-                nwi_delay = 0,
-                enqueueHookName = "L2_EnqueueHook",
-                dequeueHookName = "L2_DequeueHook",
-                enqueue_delay = 0,
-                dequeue_delay = 0;
+                nwi_delay = 0;
             display: "p=136,124;i=card2";
         wirelessAccessPoint: LinkLayer6;
             parameters:
                 NWIName = "WirelessAccessPoint",
-                nwi_delay = 0,
-                enqueueHookName = "L2_EnqueueHook",
-                dequeueHookName = "L2_DequeueHook",
-                enqueue_delay = 0,
-                dequeue_delay = 0;
+                nwi_delay = 0;
             display: "p=144,268;i=card2";
         bridge: WirelessEtherBridge;
             gatesizes:

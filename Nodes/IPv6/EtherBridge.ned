@@ -34,11 +34,7 @@ module EtherBridge
         ethernet: LinkLayer6[sizeof(in)];
             parameters:
                 NWIName = "EtherModuleBridge",
-                nwi_delay = 0,
-                enqueueHookName = "L2_EnqueueHook",
-                dequeueHookName = "L2_DequeueHook",
-                enqueue_delay = 0,
-                dequeue_delay = 0;
+                nwi_delay = 0;
             display: "p=136,124;i=card2";
         relayUnit: EtherRelayUnit;
             parameters:

@@ -33,7 +33,7 @@ LIBS=
 #------------------------------------------------------------------------------
 
 
-!include "../../../inetconfig.vc"
+!include "../../inetconfig.vc"
 
 # User interface libs
 CMDENV_LIBS=envir.lib cmdenv.lib
@@ -121,16 +121,4 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-randomDirection.obj: randomDirection.cc \
-  randomDirection.h \
-  costants.h
-randomWalk.obj: randomWalk.cc \
-  randomWalk.h \
-  randomWP.h \
-  costants.h
-randomWP.obj: randomWP.cc \
-  randomWP.h \
-  costants.h
-restrictedRandWalk.obj: restrictedRandWalk.cc \
-  restrictedRandWalk.h \
-  costants.h
+

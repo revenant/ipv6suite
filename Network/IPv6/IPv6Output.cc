@@ -69,9 +69,6 @@ void IPv6Output::initialize()
     ctrIP6OutForwDatagrams = 0;
     ctrIP6OutMcastPkts = 0;
 
-    parentModule()->displayString().setTagArg("q",0,"queue");
-    displayString().setTagArg("q",0,"queue");
-
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX try to get rid of pointers to other modules --AV
     forwardMod = check_and_cast<IPv6Forward*>(forward);
 }

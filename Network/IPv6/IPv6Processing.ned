@@ -76,7 +76,7 @@ module IPv6Processing
         forwarding: IPv6Forward;
             parameters:
                 procDelay = routing_delay;
-            display: "p=146,217;i=bwgen";
+            display: "p=146,217;i=bwgen;q=queue";
         localDeliver: IPv6LocalDeliver;
             parameters:
                 procDelay = localdeliver_delay,
@@ -104,18 +104,18 @@ module IPv6Processing
                 numOfTransportProt = numOfTransportProt;
             gatesizes:
                 transportIn[numOfTransportProt];
-            display: "p=439,59;i=prot1";
+            display: "p=439,59;i=prot1;q=queue";
         fragmentation: IPv6Fragmentation;
             parameters:
                 procDelay = fragmentation_delay,
                 numOfPorts = numOfPorts;
             gatesizes:
                 outputOut[numOfPorts];
-            display: "p=428,195;i=bwxconn";
+            display: "p=428,195;i=bwxconn;q=queue";
         output: IPv6Output[numOfPorts];
             parameters:
                 procDelay = ipoutput_delay;
-            display: "p=302,282,r;i=prot2";
+            display: "p=302,282,r;i=prot2;q=queue";
         routingTable6: RoutingTable6;
             parameters:
                 IPv6routingFile = ancestor IPv6routingFile,

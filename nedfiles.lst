@@ -62,7 +62,7 @@ Base/Sink.ned
 
 
 
-
+Mobility/MobilityManager.ned
 Network/AutoRouting/FlatNetworkConfigurator.ned
 Network/IPv4/ICMP.ned
 Network/IPv4/IGMP.ned
@@ -140,9 +140,8 @@ Nodes/IPv6/WirelessAccessPoint.ned
 Nodes/IPv6/WirelessMobileNode.ned
 Nodes/MPLS/LDP_LSR.ned
 Nodes/MPLS/RSVP_LSR.ned
-PHY/Mobility/MobilityManager.ned
-PHY/Wireless/PhysicalLayer.ned
-PHY/Wireless/PHYSimple.ned
+PHY/PhysicalLayer.ned
+PHY/PHYSimple.ned
 
 
 

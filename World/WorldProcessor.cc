@@ -179,7 +179,7 @@ Entity* WorldProcessor::registerEntity(string name,
 
     default:
       cerr << "Unknown wireless type... " << endl;
-      exit(1);
+      abort_ipv6suite();
       break;
   }
   entity->entityName = name;  //XXX why not let caller do this? --AV

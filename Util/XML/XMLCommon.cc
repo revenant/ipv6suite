@@ -139,7 +139,7 @@ void checkValidData(InterfaceTable *ift, RoutingTable6* rt)
     }
 
     if(isError)
-      exit(0);
+      abort_ipv6suite();
 
 }
 

@@ -35,6 +35,7 @@
 #include <iostream>
 #include <omnetpp.h>
 #include "config.h"
+#include "opp_utils.h" //abort_ipv6suite
 
 #ifdef USE_MOBILITY
 struct ipv6_addr;
@@ -117,7 +118,7 @@ public:
       if (!_routeOptimise && rr)
       {
         std::cerr<<"Error: "<<fullPath()<<" Return Routability Procedure is on while Route Optimisation is off"<<endl;
-        exit(1);
+        abort_ipv6suite();
       }
       _returnRoutability = rr;
     }
@@ -128,7 +129,7 @@ public:
       if (!_returnRoutability && isEBU)
       {
         std::cerr<<"Error: "<<fullPath()<<" Early BU is true while Route Optimisation is off"<<endl;
-        exit(1);
+        abort_ipv6suite();
       }
       _isEBU = isEBU;
     }
@@ -139,7 +140,7 @@ public:
       if (!_returnRoutability && ds)
       {
         std::cerr<<"Error: "<<fullPath()<<" Direct Signaling is true while Route Optimisation is off"<<endl;
-        exit(1);
+        abort_ipv6suite();
       }
       _directSignaling = ds;
     }

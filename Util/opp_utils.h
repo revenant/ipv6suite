@@ -41,6 +41,17 @@
 #endif //BOOST_CAST_HPP
 */
 
+// XXX dirty debugging hack, to be thrown out when cerr<< stuff
+// gets properly done with exceptions --AV
+inline void abort_ipv6suite()
+{
+#ifdef _WIN32
+  __asm int 3;
+#else
+  exit(1);
+#endif
+}
+
 class cModule;
 class IPv6Datagram;
 namespace XMLConfiguration
@@ -54,6 +65,7 @@ namespace OPP_Global
   /**
      @class ContextSwitcher
      @brief Switch running module context
+     XXX EVIL -- causes obscurity, to be eliminated!!!!! --AV
   */
 
   class ContextSwitcher
@@ -166,25 +178,6 @@ namespace OPP_Global
   ///Returns the omnet++ parser for use by other classes to parse their own attributes
   XMLConfiguration::XMLOmnetParser* getParser();
 }
-
-/**
-   @brief Macro to protect expressions like gate("out")->toGate()->toGate() from
-   crashing if something in between returns NULL.
-
-   @author Andras Varga
-
-   The above expression should be changed to
-   CHK(CHK(gate("out"))->toGate())->toGate() which is uglier but doesn't crash,
-   just stops with a nice error message if something goes wrong.
-*/
-#define CHK(x) __checknull((x), #x, __FILE__, __LINE__)                 \
-  template <class T>                                                    \
-  T *__checknull(T *p, const char *expr, const char *file, int line)    \
-  {                                                                     \
-    if (!p)                                                             \
-      opp_error("Expression %s returned NULL at %s:%d",expr,file,line); \
-    return p;                                                           \
-  }
 
 #endif
 

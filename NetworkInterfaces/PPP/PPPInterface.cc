@@ -105,8 +105,10 @@ InterfaceEntry *PPPInterface::registerInterface(double datarate)
     e->setName(interfaceName);
     delete [] interfaceName;
 
+    e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
     // port: index of gate where our "netwIn" is connected (in IP)
-    int outputPort = gate("netwIn")->sourceGate()->index();
+    int outputPort = gate("netwIn")->fromGate()->index();
     e->setOutputPort(outputPort);
 
     // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
@@ -118,8 +120,8 @@ InterfaceEntry *PPPInterface::registerInterface(double datarate)
     e->setPointToPoint(true);
 
     // add
-    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
-    interfaceTable->addInterface(e);
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    ift->addInterface(e);
 
     return e;
 }

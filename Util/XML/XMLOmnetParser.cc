@@ -97,7 +97,7 @@ void XMLOmnetParser::parseFile(const char* filename)
   if(!filename || '\0' == filename[0])
   {
     cerr << "Empty name for XML input file"<<endl;
-    exit(1);
+    abort_ipv6suite();
   }
   _filename = filename;
   root = ev.getXMLDocument(filename);
@@ -195,7 +195,7 @@ void XMLOmnetParser::staticRoutingTable(InterfaceTable *ift, RoutingTable6 *rt)
       cerr <<  "Node: "<< rt->nodeName()
            <<" -- Need to specify a destination address in static routing entry"
            <<endl;
-      exit(1);
+      abort_ipv6suite();
     }
 
     InterfaceEntry *ie = ift->interfaceByName(iface.c_str());
@@ -204,7 +204,7 @@ void XMLOmnetParser::staticRoutingTable(InterfaceTable *ift, RoutingTable6 *rt)
       cerr << "Node: "<< rt->nodeName()
            <<" Route has incorrect interface identifier in static routing table... "
            <<"(" << iface << ")" << endl;
-      exit(1);
+      abort_ipv6suite();
     }
     int ifaceIdx = ie->outputPort();
     IPv6Address nextHopAddr(nextHop.c_str());
@@ -473,7 +473,7 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   else
   {
     cerr << "HMIP Support cannot be activated without mobility support.\n";
-    exit(1);
+    abort_ipv6suite();
   }
 
   if (rt->mobilitySupport() && version() >= 3)
@@ -487,7 +487,7 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
       else
       {
         cerr << "MAP support cannot be activated without HomeAgent support.\n";
-        exit(1);
+        abort_ipv6suite();
       }
     }
     else
@@ -845,7 +845,7 @@ void XMLOmnetParser::parseMAPInfo(InterfaceTable *ift, RoutingTable6 *rt)
     if (!hmipRtr->mode == HierarchicalMIPv6::HMIPv6NDStateRouter::modeBasic)
     {
       cerr << " Flag I MUST NOT be set if the R flag is not set -- section 4, hmipv6" << endl;
-      exit(1);
+      abort_ipv6suite();
     }
     hmipRtr->mnMAYSetRoCAAsSource = true;
   }
@@ -857,7 +857,7 @@ void XMLOmnetParser::parseMAPInfo(InterfaceTable *ift, RoutingTable6 *rt)
     if (hmipRtr->mode == HierarchicalMIPv6::HMIPv6NDStateRouter::modeExtended)
     {
       cerr << " Flag P MUST NOT be set if the M flag is set -- section 4, hmipv6" << endl;
-      exit(1);
+      abort_ipv6suite();
     }
     hmipRtr->mnMUSTSetRoCAAsSource = true;
   }

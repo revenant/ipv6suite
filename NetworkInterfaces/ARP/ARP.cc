@@ -487,8 +487,10 @@ InterfaceEntry *ARP::registerInterface(double datarate)
     e->setName(interfaceName);
     delete [] interfaceName;
 
+    e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
     // port: index of gate where parent module's "netwIn" is connected (in IP)
-    int outputPort = parentModule()->gate("netwIn")->sourceGate()->index();
+    int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
     e->setOutputPort(outputPort);
 
     // we don't know IP address and netmask, it'll probably come from routing table file
@@ -504,8 +506,8 @@ InterfaceEntry *ARP::registerInterface(double datarate)
     // TBD
 
     // add
-    InterfaceTable *interfaceTable = InterfaceTableAccess().get();
-    interfaceTable->addInterface(e);
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    ift->addInterface(e);
 
     return e;
 }

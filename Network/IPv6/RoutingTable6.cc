@@ -113,7 +113,7 @@ void RoutingTable6::initialize(int stage)
 /*XXX
     interfaces.resize(numOfIfaces + 1);
 */
-/*XXX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! configure loopback!! + add ipv6data for every if!
+/*XXX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! configure loopback!!
     // add in loopback InterfaceEntry
     InterfaceEntry *loopback_iface = new InterfaceEntry();
     //loopback_iface.loopback = true;
@@ -129,8 +129,8 @@ void RoutingTable6::initialize(int stage)
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
     // XXX try
     // XXX {
-      //parse this network node's parameters and load them into this.
-      wp->xmlConfig()->parseNetworkEntity(ift, this);
+    //parse this network node's parameters and load them into this.
+    wp->xmlConfig()->parseNetworkEntity(ift, this);
     // XXX }
     // XXX catch(boost::bad_lexical_cast& e)
     // XXX {

@@ -77,6 +77,9 @@ public:
   IPv6InterfaceData();
   virtual ~IPv6InterfaceData() {}
 
+  std::string info() const;  //displayed in Tkenv
+  std::string detailedInfo() const;  //displayed in Tkenv
+
   ////Let the compiler generate these we want memberwise copy of members.
   ///There are no pointers so this is safe.
   //IPv6InterfaceData(const IPv6InterfaceData& obj);
@@ -176,7 +179,6 @@ public:
   int dupAddrDetectTrans;
 
   ///Convenience handle to the link layer module
-  LinkLayerModule* linkMod; // XXX OUT!!! --AV
 #ifdef USE_MOBILITY
   struct mipv6Variables
   {

@@ -240,10 +240,10 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   {
     InterfaceEntry *ie = ift->interfaceByPortNo(i);
 
-    if (ie->ipv6()->linkMod->className() == std::string("WirelessEtherModule"))
+    if (ie->_linkMod->className() == std::string("WirelessEtherModule"))
     {
       WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie->ipv6()->linkMod);
+        static_cast<WirelessEtherModule*>(ie->_linkMod);
 
       assert(wlanMod != 0);
 

@@ -42,7 +42,7 @@
 #include "ICMPv6NDMessage.h"
 #include "RoutingTable6.h"
 #include "IPv6InterfaceData.h"
-#include "InterfaceTable.h"
+#include "InterfaceTableAccess.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
 //XXX #include "nwiface.h"
@@ -102,6 +102,8 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   if (nextState != 0)
     return;
 
+  ift = InterfaceTableAccess().get();
+
   addrResln = OPP_Global::findModuleByName(nd, "addrResln"); // XXX try to get rid of pointers to other modules --AV
   assert(addrResln != 0);
   if (!addrResln)
@@ -135,10 +137,10 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   {
     InterfaceEntry *ie = ift->interfaceByPortNo(i);
 
-    if (ie->ipv6()->linkMod->className() == std::string("WirelessEtherModule"))
+    if (ie->_linkMod->className() == std::string("WirelessEtherModule"))
     {
       WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie->ipv6()->linkMod);
+        static_cast<WirelessEtherModule*>(ie->_linkMod);
 
       assert(wlanMod != 0);
 

@@ -51,12 +51,12 @@ cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r -I../.. -I.. -I../../Mobility -I..
 cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r
 
 :#FIXME remove -IWireless from Eth!!!!! --AV
-cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I../Wireless -I../../PHY -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../World
+cd %root%\NetworkInterfaces\Ethernet6 && %MAKEMAKE% %OPTS% -n -r -I../Wireless -I../../PHY -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Base
 :#FIXME remove -IEthernet6 from PPP6!!!!! (dep on MACAddress) --AV
-cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I../Ethernet6 -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../World -I../../PHY
+cd %root%\NetworkInterfaces\PPP6 && %MAKEMAKE% %OPTS% -n -r -I../Ethernet6 -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../PHY -I../../Base
 :#FIXME sure we need -IMobility here? --AV
 :#FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface ???!!!!
-cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I../PPP6 -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../World -I../../Mobility -I../../PHY
+cd %root%\NetworkInterfaces\Wireless && %MAKEMAKE% %OPTS% -n -r -I../PPP6 -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Mobility -I../../PHY -I../../Base
 
 cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6

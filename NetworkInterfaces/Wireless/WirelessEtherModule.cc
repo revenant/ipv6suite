@@ -93,6 +93,8 @@
 #endif // L2FUZZYHO
 
 #include "XML/XMLOmnetParser.h"
+#include "InterfaceTableAccess.h"
+
 
 Define_Module_Like( WirelessEtherModule, NetworkInterface6);
 
@@ -150,7 +152,9 @@ void WirelessEtherModule::baseInit(int stage)
     wproc->xmlConfig()->parseWirelessEtherInfo(this);
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
-  
+
+    registerInterface();
+
     errorPercentageStat = new cStdDev("errorPercentageStat");
     backoffTimeStat = new cStdDev("backoffTimeStat");
     waitTimeStat = new cStdDev("waitTimeStat");
@@ -305,13 +309,52 @@ void WirelessEtherModule::finish()
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " totalDisconnectedTime = " << totalDisconnectedTime);
   }
-  
+
  // XXX cleanup stuff must be moved to dtor!
   // finish() is NOT for cleanup -- that must be done in destructor, and
   // additionally, ptrs must be NULL'ed in constructor so that it won't crash
   // if initialize() hasn't run because of an error during startup! --AV
   delete [] channelToScan;
   delete signalStrength;
+}
+
+InterfaceEntry *WirelessEtherModule::registerInterface()
+{
+  InterfaceEntry *e = new InterfaceEntry();
+
+/*
+  // interface name: NetworkInterface module's name without special characters ([])
+  char *interfaceName = new char[strlen(parentModule()->fullName())+1];
+  char *d=interfaceName;
+  for (const char *s=parentModule()->fullName(); *s; s++)
+    if (isalnum(*s))
+      *d++ = *s;
+  *d = '\0';
+
+  e->setName(interfaceName);
+  delete [] interfaceName;
+*/
+  std::string tmp = std::string("weth")+OPP_Global::ltostr(parentModule()->index());
+  e->setName(tmp.c_str()); // XXX HACK -- change back to above code!
+
+  e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
+  // port: index of gate where parent module's "netwIn" is connected (in IP)
+  int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
+  e->setOutputPort(outputPort);
+
+  // MTU is 1500 on Ethernet
+  e->setMtu(1500);
+
+  // capabilities
+  e->setMulticast(true);
+  e->setPointToPoint(false);
+
+  // add
+  InterfaceTable *ift = InterfaceTableAccess().get();
+  ift->addInterface(e);
+
+  return e;
 }
 
 // Function to handle external signals

@@ -46,7 +46,7 @@
 #include "cTTimerMessageCB.h"
 #include "EtherFrame6.h"
 #include "LL6ControlInfo_m.h"
-
+#include "InterfaceTableAccess.h"
 
 
 #include "opp_utils.h"
@@ -82,6 +82,8 @@ void EtherModule::initialize(int stage)
 
     inGate = findGate("physIn");
     outGate = findGate("physOut");
+
+    registerInterface();
   }
   else if (stage == 1)
   {
@@ -109,6 +111,46 @@ void EtherModule::handleMessage(cMessage* msg)
     printSelfMsg(msg->kind());
     static_cast<cTimerMessage*>(msg)->callFunc();
   }
+}
+
+InterfaceEntry *EtherModule::registerInterface()
+{
+  InterfaceEntry *e = new InterfaceEntry();
+
+/*
+  // interface name: NetworkInterface module's name without special characters ([])
+  char *interfaceName = new char[strlen(parentModule()->fullName())+1];
+  char *d=interfaceName;
+  for (const char *s=parentModule()->fullName(); *s; s++)
+      if (isalnum(*s))
+          *d++ = *s;
+  *d = '\0';
+
+  e->setName(interfaceName);
+  delete [] interfaceName;
+*/
+  std::string tmp = std::string("eth")+OPP_Global::ltostr(parentModule()->index());
+  e->setName(tmp.c_str()); // XXX HACK -- change back to above code!
+
+  e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
+  // port: index of gate where parent module's "netwIn" is connected (in IP)
+  int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
+  e->setOutputPort(outputPort);
+printf("DBG: %s '%s' gate: %s\n", fullPath().c_str(), e->name(), parentModule()->gate("netwIn")->fromGate()->fullPath().c_str());
+
+  // MTU is 1500 on Ethernet
+  e->setMtu(1500);
+
+  // capabilities
+  e->setMulticast(true);
+  e->setPointToPoint(false);
+
+  // add
+  InterfaceTable *ift = InterfaceTableAccess().get();
+  ift->addInterface(e);
+
+  return e;
 }
 
 void EtherModule::reset(void)

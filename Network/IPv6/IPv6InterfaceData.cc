@@ -77,7 +77,6 @@ IPv6InterfaceData::IPv6InterfaceData() :
    maxRtrSolDelay(MAX_RTR_SOLICITATION_DELAY),
 #endif // FASTRS
    dupAddrDetectTrans(DEFAULT_DUPADDRDETECTTRANSMITS),
-   linkMod(0),
    _prevBaseReachableTime(0)
 {
   // set rechableTime
@@ -85,6 +84,39 @@ IPv6InterfaceData::IPv6InterfaceData() :
 
   _interfaceID[0] = 0;
   _interfaceID[1] = 0;
+}
+
+std::string IPv6InterfaceData::info() const
+{
+  std::ostringstream os;
+  os << "IPv6:{";
+  if (inetAddrs.size() == 0)
+  {
+    os << "addrs:none";
+  }
+  else
+  {
+    os << "addrs:";
+    for(unsigned int i=0; i<inetAddrs.size(); i++)
+      os << (i?",":"") << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str();
+  }
+  if (tentativeAddrs.size() == 0)
+  {
+    os << " tentativeAddrs:none";
+  }
+  else
+  {
+    os << " tentativeaddrs:";
+    for(unsigned int i=0; i<inetAddrs.size(); i++)
+      os << (i?",":"") << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str();
+  }
+  os << "}";
+  return os.str();
+}
+
+std::string IPv6InterfaceData::detailedInfo() const
+{
+  return info(); // XXX this could be improved: multi-line text, etc
 }
 
 void IPv6InterfaceData::removeAddrFromArray(IPv6Addresses& addrs, const IPv6Address& addr)

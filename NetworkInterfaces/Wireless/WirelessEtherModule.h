@@ -31,14 +31,8 @@
 
 #include <memory> //auto_ptr
 
-#ifndef BOOST_CAST_HPP
 #include <boost/cast.hpp>
-#endif //BOOST_CAST_HPP
-
-#ifndef BOOST_SHARED_PTR_HPP
 #include <boost/shared_ptr.hpp>
-#endif //BOOST_SHARED_PTR_HPP
-
 #include <string>
 #include <vector> // for supported rates
 
@@ -73,6 +67,7 @@ class WirelessEtherFrame;
 class WirelessAccessPoint;
 class MobilityHandler;
 class WorldProcessor;
+class InterfaceEntry;
 
 
 // support rates of the wireless network interface
@@ -123,6 +118,9 @@ public:
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
   virtual int numInitStages(void) const { return 2; }
+
+  // adds interface entry into InterfaceTable
+  InterfaceEntry *registerInterface();
 
   void receiveSignal(std::auto_ptr<cMessage> msg);
 

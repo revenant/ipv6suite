@@ -31,11 +31,10 @@
 
 #include "IPv6PPPInterface.h"
 #include <string>
-
-
 #include "PPP6Frame.h"
 #include "opp_utils.h"
 #include "IPv6InterfacePacketWithData.h"
+#include "InterfaceTableAccess.h"
 
 #ifdef TESTIPv6
 #undef NDEBUG
@@ -57,6 +56,8 @@ void IPv6PPPInterface::initialize()
   interfaceID[0] = OPP_Global::generateInterfaceId();
   interfaceID[1] = OPP_Global::generateInterfaceId();
 
+  registerInterface();
+
   waitTmr = new cMessage("IPv6PPPInterfaceWait");
   curMessage = 0;
 }
@@ -69,6 +70,46 @@ unsigned int IPv6PPPInterface::lowInterfaceId()
 unsigned int IPv6PPPInterface::highInterfaceId()
 {
   return interfaceID[0];
+}
+
+InterfaceEntry *IPv6PPPInterface::registerInterface()
+{
+  InterfaceEntry *e = new InterfaceEntry();
+
+/*
+  // interface name: NetworkInterface module's name without special characters ([])
+  char *interfaceName = new char[strlen(parentModule()->fullName())+1];
+  char *d=interfaceName;
+  for (const char *s=parentModule()->fullName(); *s; s++)
+      if (isalnum(*s))
+          *d++ = *s;
+  *d = '\0';
+
+  e->setName(interfaceName);
+  delete [] interfaceName;
+*/
+  std::string tmp = std::string("ppp")+OPP_Global::ltostr(parentModule()->index());
+  e->setName(tmp.c_str()); // XXX HACK -- change back to above code!
+
+  // port: index of gate where our "netwIn" is connected (in IP)
+  int outputPort = gate("netwIn")->fromGate()->index();
+  e->setOutputPort(outputPort);
+
+  e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
+  // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
+  // 4000 (on some point-to-point links), 4470 (Cisco routers default, FDDI compatible)
+  e->setMtu(4470);
+
+  // capabilities
+  e->setMulticast(true);
+  e->setPointToPoint(true);
+
+  // add
+  InterfaceTable *ift = InterfaceTableAccess().get();
+  ift->addInterface(e);
+
+  return e;
 }
 
 /*

@@ -49,7 +49,11 @@ class EtherState;
 class EtherSignal;
 class EtherSignalData;
 class EtherFrame6;
+class InterfaceEntry;
 
+/**
+ * FIXME documentation!
+ */
 class EtherModule: public LinkLayerModule
 {
  public:
@@ -60,6 +64,9 @@ class EtherModule: public LinkLayerModule
   virtual ~EtherModule();
 
   virtual int numInitStages(void) const { return 2; }
+
+  // adds interface entry into InterfaceTable
+  InterfaceEntry *registerInterface();
 
   // send packet to network
   virtual bool sendFrame(cMessage *msg, int gateid);

@@ -32,6 +32,7 @@
 #include "LinkLayerModule.h"
 
 class PPP6Frame;
+class InterfaceEntry;
 
 /**
    @class IPv6PPPInterface
@@ -47,6 +48,9 @@ public:
   virtual void initialize();
   //XXX virtual void activity();  not used, to be removed ? --AV
   virtual void handleMessage(cMessage* theMsg);
+
+  // adds interface entry into InterfaceTable
+  InterfaceEntry *registerInterface();
 
   unsigned int lowInterfaceId();
   unsigned int highInterfaceId();

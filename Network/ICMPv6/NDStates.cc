@@ -60,7 +60,7 @@ NDState* NDState::startND(NeighbourDiscovery* mod)
   if (mod->rt == 0)
   {
     cerr << "Cannot find IPv6 RoutingTable module"<<__FILE__<<":"<<__LINE__<<endl;
-    exit(1);
+    abort_ipv6suite();
   }
 
 #if defined USE_MOBILITY

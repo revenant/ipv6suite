@@ -33,7 +33,7 @@ LIBS=
 #------------------------------------------------------------------------------
 
 
-!include "../../../inetconfig.vc"
+!include "../../inetconfig.vc"
 
 # User interface libs
 CMDENV_LIBS=envir.lib cmdenv.lib

@@ -1,4 +1,3 @@
-// -*- C++ -*-
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -17,27 +16,49 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/*
-    @file PHYWirelessSignal.cc
-    @brief Wireless control signal ("Non-cMessage" class)
-    @author Eric Wu
-*/
 
-#include "PHYWirelessSignal.h"
+//XXX enum EtherSignalType
+//{
+//  EST_None = 0;
+//  EST_Data = 1;
+//  EST_Idle = 2;
+//  EST_Jam = 3;
+//  EST_JamEnd = 4;
 
-PHYWirelessSignal::PHYWirelessSignal(int c, double p)
-  : ch(c), pwr(p)
-{}
+//  WIRELESS_EST_None = 5;
+//  WIRELESS_EST_Idle = 6;
+//  WIRELESS_EST_Data = 7;
+//};
 
-PHYWirelessSignal::PHYWirelessSignal(const PHYWirelessSignal& p)
+
+//
+// Ethernet control signal (also for simulation wise)
+// @author Eric Wu
+//
+message EtherSignal
 {
-  operator=(p);
-}
+  fields:
+    string srcModPathName;
+};
 
-PHYWirelessSignal& PHYWirelessSignal::operator=(const PHYWirelessSignal& p)
+message EtherSignalData extends EtherSignal
 {
-    ch = p.ch;
-    pwr = p.pwr;
+  fields:
+};
 
-    return *this;
-}
+message EtherSignalJam extends EtherSignal
+{
+  fields:
+};
+
+message EtherSignalJamEnd extends EtherSignal
+{
+  fields:
+};
+
+message EtherSignalIdle extends EtherSignal
+{
+  fields:
+};
+
+

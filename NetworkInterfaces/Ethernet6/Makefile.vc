@@ -64,10 +64,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= EtherBridge.obj EtherFrame6.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress6.obj
+OBJS= EtherSignal_m.obj EtherBridge.obj EtherFrame6.obj EtherModule.obj EtherModuleAP.obj EtherModuleBridge.obj ethernet.obj EtherSignal.obj EtherState.obj EtherStateIdle.obj EtherStateReceive.obj EtherStateReceiveWaitBackoff.obj EtherStateSend.obj EtherStateWait.obj EtherStateWaitBackoff.obj EtherStateWaitBackoffJam.obj EtherStateWaitJam.obj MACAddress6.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= 
+GENERATEDHEADERS= EtherSignal_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -91,6 +91,12 @@ $(EXT_DIR_TSTAMPS):
 	@exit /b 1
 
 subdirs: $(SUBDIR_TARGETS)
+
+EtherSignal_m.obj: EtherSignal_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp EtherSignal_m.cc
+
+EtherSignal_m.cc EtherSignal_m.h: EtherSignal.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) EtherSignal.msg
 
 EtherBridge.obj: EtherBridge.cc
 	$(CXX) -c $(COPTS) /Tp EtherBridge.cc
@@ -177,7 +183,7 @@ EtherBridge.obj: EtherBridge.cc \
   ../../Util/boost/cast.hpp \
   EtherBridge.h \
   ethernet.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherFrame6.h \
   MACAddress6.h \
   ../../Util/boost/config.hpp \
@@ -223,7 +229,7 @@ EtherModule.obj: EtherModule.cc \
   EtherStateWaitBackoffJam.h \
   EtherStateWaitJam.h \
   EtherStateReceiveWaitBackoff.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   ethernet.h \
   ../../Util/cTTimerMessageCB.h \
   EtherFrame6.h \
@@ -419,7 +425,7 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/opp_utils.h \
   ethernet.h \
   ../../PHY/Wireless/PHYSimple.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherFrame6.h \
   EtherStateIdle.h \
   MACAddress6.h \
@@ -517,7 +523,8 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/Loki/NullType.h \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h
+  ../../Util/Loki/Singleton.h \
+  ../Wireless/WEthernet.h
 EtherModuleBridge.obj: EtherModuleBridge.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -595,9 +602,8 @@ EtherModuleBridge.obj: EtherModuleBridge.cc \
 ethernet.obj: ethernet.cc \
   ethernet.h
 EtherSignal.obj: EtherSignal.cc \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherFrame6.h \
-  ethernet.h \
   MACAddress6.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/config.hpp \
@@ -610,13 +616,15 @@ EtherSignal.obj: EtherSignal.cc \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/non_type.hpp
+EtherSignal_m.obj: EtherSignal_m.cc \
+  EtherSignal_m.h
 EtherState.obj: EtherState.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherState.h \
   ../../Util/cTTimerMessageCB.h \
   EtherModule.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherFrame6.h \
   EtherStateIdle.h \
   EtherStateSend.h \
@@ -703,7 +711,7 @@ EtherStateIdle.obj: EtherStateIdle.cc \
   EtherFrame6.h \
   ethernet.h \
   EtherModule.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherStateSend.h \
   EtherStateReceive.h \
   EtherStateWaitJam.h \
@@ -792,7 +800,7 @@ EtherStateReceive.obj: EtherStateReceive.cc \
   EtherStateReceive.h \
   ethernet.h \
   EtherModule.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherStateSend.h \
   EtherStateIdle.h \
   EtherFrame6.h \
@@ -873,7 +881,7 @@ EtherStateReceiveWaitBackoff.obj: EtherStateReceiveWaitBackoff.cc \
   ../../Util/debug.h \
   ethernet.h \
   EtherStateReceiveWaitBackoff.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   ../../Util/cTimerMessageCB.h \
   EtherModule.h \
   EtherStateSend.h \
@@ -964,7 +972,7 @@ EtherStateSend.obj: EtherStateSend.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateSend.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherModule.h \
   EtherStateIdle.h \
   ../../Util/cTimerMessageCB.h \
@@ -1057,7 +1065,7 @@ EtherStateWait.obj: EtherStateWait.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWait.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherStateWaitBackoffJam.h \
   EtherStateReceiveWaitBackoff.h \
   EtherStateWaitBackoff.h \
@@ -1135,7 +1143,7 @@ EtherStateWaitBackoff.obj: EtherStateWaitBackoff.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWaitBackoff.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherModule.h \
   EtherStateIdle.h \
   EtherStateReceiveWaitBackoff.h \
@@ -1225,7 +1233,7 @@ EtherStateWaitBackoffJam.obj: EtherStateWaitBackoffJam.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   EtherStateWaitBackoffJam.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherStateWaitBackoff.h \
   EtherStateSend.h \
   EtherModule.h \
@@ -1307,7 +1315,7 @@ EtherStateWaitJam.obj: EtherStateWaitJam.cc \
   ../../Util/debug.h \
   EtherModule.h \
   EtherStateWaitJam.h \
-  EtherSignal.h \
+  EtherSignal_m.h \
   EtherStateIdle.h \
   ../../Util/boost/cast.hpp \
   ../LinkLayerModule.h \

@@ -22,9 +22,10 @@
     @brief Ethernet control signal (also for simulation wise)
     @author Eric Wu
 */
+/*
 
 #include <cassert>
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 
 EtherSignal::EtherSignal(EtherSignalType type)
@@ -49,7 +50,7 @@ EtherSignal& EtherSignal::operator=(const EtherSignal& p)
 EtherSignalData::EtherSignalData(EtherFrame6* frame)
   : EtherSignal(EST_Data), _frame(frame->dup())  // XXX FIXME why dup?????????????????? --AV
                                                  // and why member, why not encapsulate????????? --AV
-												 // and if member, why no take() and drop()??? 
+												 // and if member, why no take() and drop()???
 {
   setName("FRAME");
   setKind(static_cast<int>(EST_Data));
@@ -139,3 +140,4 @@ EtherSignalIdle& EtherSignalIdle::operator=(const EtherSignalIdle& p)
     setName(p.name());
     return *this;
 }
+*/

@@ -26,22 +26,8 @@
 
 */
 
-// XXX FIXME TBD create separate file for Wireless!!!! not to be mixed together... --AV
 #ifndef __ETH_MISC_H
 #define __ETH_MISC_H
-
-enum EtherSignalType
-{
-  EST_None = 0,
-  EST_Data = 1,
-  EST_Idle = 2,
-  EST_Jam = 3,
-  EST_JamEnd = 4,
-
-  WIRELESS_EST_None = 5,
-  WIRELESS_EST_Idle = 6,
-  WIRELESS_EST_Data = 7
-};
 
 // timer message ID
 extern const int TRANSMIT_SENDDATA;

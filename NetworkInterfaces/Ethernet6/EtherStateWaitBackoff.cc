@@ -30,7 +30,7 @@
 #include "debug.h" // Dout
 
 #include "EtherStateWaitBackoff.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateIdle.h"
 #include "EtherStateReceiveWaitBackoff.h"
@@ -72,7 +72,7 @@ std::auto_ptr<EtherSignalData> EtherStateWaitBackoff::processData(EtherModule* m
   mod->incNumOfRxIdle(data->getSrcModPathName());
 
   assert(!mod->inputFrame);
-  mod->inputFrame = data.get()->dup();
+  mod->inputFrame = static_cast<EtherSignalData *>(data.get()->dup());
 
   cTimerMessage* tmrBackoff = mod->getTmrMessage(SELF_BACKOFF);
   assert(tmrBackoff && tmrBackoff->isScheduled());

@@ -41,6 +41,7 @@
 
 class EtherModule;
 
+class EtherSignal;
 class EtherSignalData;
 class EtherSignalJam;
 class EtherSignalJamEnd;
@@ -66,7 +67,7 @@ protected:
 
 private:
   // debug message
-  void printMsg(EtherModule* mod, const EtherSignalType type);
+  void printMsg(EtherModule* mod, EtherSignal *ethSignal);
 };
 
 template<class Target, class  Source> std::auto_ptr<Target>

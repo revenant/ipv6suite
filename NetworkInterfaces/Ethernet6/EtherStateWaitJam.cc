@@ -31,7 +31,7 @@
 
 #include "EtherModule.h"
 #include "EtherStateWaitJam.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherStateIdle.h"
 
 // Ethernet State WaitJam

@@ -45,7 +45,7 @@
 #include "EtherStateWaitBackoffJam.h"
 #include "EtherStateWaitJam.h"
 #include "EtherStateReceiveWaitBackoff.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "ethernet.h"
 #include "cTTimerMessageCB.h"
 #include "EtherFrame6.h"
@@ -219,13 +219,12 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
   frame->setProtocol(PR_ETHERNET);
   frame->encapsulate(msg.release());
 
-  EtherSignalData* sigData = new EtherSignalData(frame);
-  sigData->setName(frame->name());
-  sigData->setSrcModPathName(fullPath());
+  EtherSignalData* sigData = new EtherSignalData(frame->name());
+  sigData->setSrcModPathName(fullPath().c_str());
+  sigData->encapsulate(frame);
+  sigData->setLength(sigData->length() * 8); // convert into bits
 
   outputBuffer.push_back(sigData);
-
-  delete frame; // XXX WHY'S THIS?? WE JUST CREATED "frame"! --AV
 
   if ( _currentState == EtherStateIdle::instance())
   {

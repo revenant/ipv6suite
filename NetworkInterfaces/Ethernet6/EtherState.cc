@@ -36,7 +36,7 @@
 #include "cTTimerMessageCB.h"
 
 #include "EtherModule.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 #include "EtherStateIdle.h"
 #include "EtherStateSend.h"
@@ -60,30 +60,20 @@ std::auto_ptr<cMessage> EtherState::processSignal(EtherModule* mod, std::auto_pt
   EtherSignal* signal = check_and_cast<EtherSignal*>(msg.get());
 
   // debug
-  printMsg(mod, signal->type());
+  printMsg(mod, signal);
   ///////
 
-  switch(signal->type())
+  if (dynamic_cast<EtherSignalData*>(signal))
+     msg = processData(mod, auto_downcast<EtherSignalData>(msg));
+  else if (dynamic_cast<EtherSignalIdle*>(signal))
+     msg = processIdle(mod, auto_downcast<EtherSignalIdle> (msg));
+  else if (dynamic_cast<EtherSignalJam*>(signal))
+     msg = processJam(mod, auto_downcast<EtherSignalJam> (msg));
+  else if (dynamic_cast<EtherSignalJamEnd*>(signal))
+     msg = processJamEnd(mod, auto_downcast<EtherSignalJamEnd> (msg));
+  else
+     opp_error("unknown EtherSignal (%s)%s", signal->className(), signal->name());
 
-  {
-    case EST_Data:
-      msg.reset((processData(mod, auto_downcast<EtherSignalData> (msg))).release());
-      break;
-    case EST_Idle:
-      msg.reset((processIdle(mod, auto_downcast<EtherSignalIdle> (msg))).release());
-      break;
-
-    case EST_Jam:
-      msg.reset((processJam(mod, auto_downcast<EtherSignalJam> (msg))).release());
-      break;
-
-    case EST_JamEnd:
-      msg.reset((processJamEnd(mod, auto_downcast<EtherSignalJamEnd> (msg))).release());
-      break;
-    default:
-      assert(false);
-      break;
-  }
   return msg;
 }
 
@@ -120,30 +110,9 @@ void EtherState::convertSelfBackoff(EtherModule* mod, const int fromMsgID, const
 }
 */
 
-void EtherState::printMsg(EtherModule* mod, const EtherSignalType type)
+void EtherState::printMsg(EtherModule* mod, EtherSignal *ethSignal)
 {
-  string s;
-
-  switch(type)
-  {
-    case EST_Data:
-      s = "DATA";
-      break;
-    case EST_Idle:
-      s = "IDLE";
-      break;
-
-    case EST_Jam:
-      s = "JAM";
-      break;
-
-    case EST_JamEnd:
-      s = "JAMEND";
-      break;
-    default:
-      assert(false);
-      break;
-  }
+  string s = ethSignal->className();
 
   if ( mod->currentState() == EtherStateIdle::instance())
     Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in IDLE state");

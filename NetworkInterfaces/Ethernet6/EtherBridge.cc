@@ -8,7 +8,7 @@
 
 #include "EtherBridge.h"
 #include "ethernet.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 #include "MACAddress6.h"
 
@@ -34,15 +34,15 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
     return;
   }
 
-  EtherFrame6* frame =
-    check_and_cast<EtherFrame6*>(msg);
-  assert(frame);
+  EtherFrame6* frame = check_and_cast<EtherFrame6*>(msg);
 
   int chkOutputPort = outputPortByAddress(frame->destAddrString());
 
   if ( chkOutputPort != -1 )
   {
-    EtherSignalData* signal = new EtherSignalData(frame->dup());
+    EtherSignalData* signal = new EtherSignalData(frame->name());
+    signal->encapsulate(frame);
+    signal->setLength(signal->length() * 8); // convert into bits
 
     cMessage* internalNotifier = new cMessage;
     internalNotifier->setKind(MK_PACKET);
@@ -63,7 +63,9 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
     {
       if ( chkOutputPort != i )
       {
-        EtherSignalData* signal = new EtherSignalData(frame->dup());
+        EtherSignalData* signal = new EtherSignalData(frame->name());
+        signal->encapsulate((cMessage*)frame->dup());
+        signal->setLength(signal->length() * 8); // convert into bits
 
         cMessage* internalNotifier = new cMessage;
         internalNotifier->setKind(MK_PACKET);
@@ -72,12 +74,14 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
         send(internalNotifier, gate("ethOut", i));
       }
     }
+    delete frame;
     return;
   }
 
   cMessage *dataPkt = frame->decapsulate();
+  delete frame;
 
-  if (dataPkt->kind() == MAC_BRIDGE_REGISTER )
+  if (dataPkt->kind() == MAC_BRIDGE_REGISTER)
   {
     const char* msAddr = static_cast<cPar*>(dataPkt->parList().get(0))->stringValue();
 
@@ -86,7 +90,6 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
   }
   delete dataPkt;
 
-  delete frame;
 }
 
 void EtherRelayUnit::updateDB(const char* address, int outputPort)

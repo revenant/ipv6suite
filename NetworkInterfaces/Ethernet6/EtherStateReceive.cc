@@ -32,7 +32,7 @@
 #include "EtherStateReceive.h"
 #include "ethernet.h"
 #include "EtherModule.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherStateSend.h"
 #include "EtherStateIdle.h"
 #include "EtherFrame6.h"
@@ -113,7 +113,7 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceive::processIdle(EtherModule* mod, 
     return idle;
   }
 
-  EtherFrame6* recFrame = mod->inputFrame->data();
+  EtherFrame6* recFrame = check_and_cast<EtherFrame6*>(mod->inputFrame->decapsulate());
 
   // send to upper layer
   mod->sendData(recFrame);

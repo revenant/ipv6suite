@@ -61,7 +61,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= PHYSimple.obj PHYWirelessSignal.obj
+OBJS= PHYSimple.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -91,9 +91,6 @@ subdirs: $(SUBDIR_TARGETS)
 
 PHYSimple.obj: PHYSimple.cc
 	$(CXX) -c $(COPTS) /Tp PHYSimple.cc
-
-PHYWirelessSignal.obj: PHYWirelessSignal.cc
-	$(CXX) -c $(COPTS) /Tp PHYWirelessSignal.cc
 
 
 #doc: neddoc doxy
@@ -149,7 +146,3 @@ PHYSimple.obj: PHYSimple.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp
-PHYWirelessSignal.obj: PHYWirelessSignal.cc \
-  PHYWirelessSignal.h \
-  ../../NetworkInterfaces/Wireless/wirelessethernet.h \
-  ../../NetworkInterfaces/Ethernet6/ethernet.h

@@ -33,7 +33,7 @@
 #include <memory>
 
 #include "EtherStateSend.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateIdle.h"
 #include "cTimerMessageCB.h"
@@ -67,7 +67,7 @@ void EtherStateSend::endSendingData(EtherModule* mod)
   assert(mod->outputBuffer.size());
 
   EtherSignalIdle* idle = new EtherSignalIdle;
-  idle->setSrcModPathName(mod->fullPath());
+  idle->setSrcModPathName(mod->fullPath().c_str());
   mod->sendFrame(idle, mod->outPHYGate());
 
   if(!mod->isMediumBusy())
@@ -145,7 +145,7 @@ void EtherStateSend::endSendingJam(EtherModule* mod, cTimerMessage* msg)
   assert(msg);
 
   EtherSignalJamEnd* jamEnd = new EtherSignalJamEnd;
-  jamEnd->setSrcModPathName(mod->fullPath());
+  jamEnd->setSrcModPathName(mod->fullPath().c_str());
   mod->sendFrame(jamEnd, mod->outPHYGate());
 
   if(mod->isMediumBusy())
@@ -191,7 +191,7 @@ void EtherStateSend::sendJam(EtherModule* mod)
   simtime_t transmTime = d / BANDWIDTH;
 
   EtherSignalJam* jam = new EtherSignalJam;
-  jam->setSrcModPathName(mod->fullPath());
+  jam->setSrcModPathName(mod->fullPath().c_str());
   mod->sendFrame(jam, mod->outPHYGate());
 
   cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_JAM);

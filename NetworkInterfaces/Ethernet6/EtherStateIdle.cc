@@ -34,7 +34,7 @@
 #include "EtherFrame6.h"
 #include "ethernet.h"
 #include "EtherModule.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherStateSend.h"
 #include "EtherStateReceive.h"
 #include "EtherStateWaitJam.h"
@@ -71,9 +71,9 @@ void EtherStateIdle::chkOutputBuffer(EtherModule* mod)
 
     Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << ": start sending DATA... ");
 
-    mod->sendFrame(data->dup(), mod->outPHYGate());
+    mod->sendFrame((cMessage *)data->dup(), mod->outPHYGate());
 
-    double d = (double)data->data()->length()*8;
+    double d = (double)data->encapsulatedMsg()->length()*8;
     d = (d > MIN_FRAMESIZE ? d : MIN_FRAMESIZE );
 
     simtime_t transmTime = d / BANDWIDTH;
@@ -127,7 +127,7 @@ std::auto_ptr<EtherSignalData> EtherStateIdle::processData(EtherModule* mod, std
 
   // has to duplicate the data because the auto_ptr will delete the
   // instance afterwards
-  mod->inputFrame = data.get()->dup();
+  mod->inputFrame = (EtherSignalData*)data.get()->dup();
 
   // entering receive state and waiting to finish receiving the frame
   mod->changeState(EtherStateReceive::instance());

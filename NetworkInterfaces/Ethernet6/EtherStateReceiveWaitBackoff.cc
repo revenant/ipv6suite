@@ -31,7 +31,7 @@
 
 #include "ethernet.h"
 #include "EtherStateReceiveWaitBackoff.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "cTimerMessageCB.h"
 #include "EtherModule.h"
 #include "EtherStateSend.h"
@@ -109,7 +109,7 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceiveWaitBackoff::processIdle(EtherMo
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << mod->fullPath() << " @ EtherStateReceiveWaitBackoff, BackoffRemainingTime = " << mod->backoffRemainingTime);
 
   assert(mod->inputFrame);
-  EtherFrame6* recFrame = mod->inputFrame->data();
+  EtherFrame6* recFrame = check_and_cast<EtherFrame6*>(mod->inputFrame->decapsulate());
 
   // send to upper layer
   mod->sendData(recFrame);

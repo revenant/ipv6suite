@@ -35,7 +35,7 @@
 #include "opp_utils.h"
 #include "ethernet.h"
 #include "PHYSimple.h"
-#include "EtherSignal.h"
+#include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 #include "EtherStateIdle.h"
 
@@ -109,7 +109,7 @@ bool EtherModuleAP::receiveData(std::auto_ptr<cMessage> msg)
     check_and_cast<EtherSignalData *>(msg.get()->decapsulate());
   assert(frame);
 
-  frame->setSrcModPathName(fullPath());
+  frame->setSrcModPathName(fullPath().c_str());
 
   outputBuffer.push_back(frame);
 

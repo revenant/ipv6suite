@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherSignal.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -44,10 +44,10 @@ public:
   // assignment operator
   EtherSignal& operator=(const EtherSignal& p);
   virtual EtherSignal *dup() const { return new EtherSignal(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "EtherSignal"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 
   void setSrcModPathName(std::string n) { srcModPathName = n; }
@@ -74,10 +74,10 @@ class EtherSignalData : public EtherSignal
   // assignment operator
   EtherSignalData& operator=(const EtherSignalData& p);
   virtual EtherSignalData *dup() const { return new EtherSignalData(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "EtherSignalData"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 
   EtherFrame* data();
@@ -98,7 +98,7 @@ class EtherSignalJam : public EtherSignal
 
   // info functions
   virtual const char *className() const { return "EtherSignalJam"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 };
 
@@ -111,10 +111,10 @@ class EtherSignalJamEnd : public EtherSignal
   // assignment operator
   EtherSignalJamEnd& operator=(const EtherSignalJamEnd& p);
   virtual EtherSignalJamEnd *dup() const { return new EtherSignalJamEnd(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "EtherSignalJamEnd"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 };
 
@@ -127,10 +127,10 @@ class EtherSignalIdle : public EtherSignal
   // assignment operator
   EtherSignalIdle& operator=(const EtherSignalIdle& p);
   virtual EtherSignalIdle *dup() const { return new EtherSignalIdle(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "EtherSignalIdle"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 };
 

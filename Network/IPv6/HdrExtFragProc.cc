@@ -1,6 +1,6 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.cc,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 /**
    @file HdrExtFragProc.cc
    @brief interface for the HdrExtFragProc class
-      
+
    Processing of ipv6_frag_hdr, fragmentation/reassembly
    @author Johnny Lai
 */
@@ -48,7 +48,7 @@ HdrExtFragProc::HdrExtFragProc(const HdrExtFragProc& src)
    frag_id(HdrExtFragProc::frag_counter)
 {
   //setName(src.name());
-  operator=(src);  
+  operator=(src);
 }
 
 HdrExtFragProc::~HdrExtFragProc()
@@ -61,11 +61,11 @@ HdrExtFragProc&  HdrExtFragProc::operator=(const HdrExtFragProc& rhs)
 {
   if (this != &rhs)
   {
-    //assign(rhs);  
+    //assign(rhs);
     frag_id = rhs.frag_id;
   }
-  
-  return *this;  
+
+  return *this;
 }
 
 bool HdrExtFragProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
@@ -74,17 +74,17 @@ bool HdrExtFragProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
   return false;
 }
 
-// void  HdrExtFragProc::info(char *buf)
+// std::string  HdrExtFragProc::info()
 // {
-//   int bufPos = strlen(buf);  
+//   int bufPos = strlen(buf);
 //   sprintf(&buf[bufPos], " FragHdr id=%d, off=%d, len=%d, more=%d",
-//           fragmentId(), fragmentOffset(), length(), moreFragments()?1:0);  
+//           fragmentId(), fragmentOffset(), length(), moreFragments()?1:0);
 // }
 
 bool HdrExtFragProc::moreFragments() const
-{ 
+{
   return frag_hdr.frag_off & IPv6_FRAG_MASK?true:false;
-  return false; 
+  return false;
 }
 
 /**
@@ -96,18 +96,18 @@ bool HdrExtFragProc::moreFragments() const
 bool HdrExtFragProc::assemblePacket(const int& nfrags, IPv6Datagram* frags,
                                     IPv6Datagram*& defragPdu)
 {
-  return false;  
+  return false;
 }
 
 /**
-	Fragment this packet.  
+	Fragment this packet.
 	@path_mtu specifies the MTU to fragment for
 	@nfrags count of fragments returned
 	@returns the fragment array sorted by frag_off with count in nfrags
 */
 //TODO This function is not correct
 IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
-                                              const size_t& path_mtu, 
+                                              const size_t& path_mtu,
                                               size_t& nfrags) const
 {
   //Use the current frag_id
@@ -115,12 +115,12 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   //Search for Unfragmentable part i.e. iff Routing Header else iff Hop-by-Hop Options.
   size_t unfrag_len = IPv6_HEADER_LENGTH;
   int pos = -1;
-  
+
   unfrag_len += cumul_len(*pdu) + length();
 
 #ifdef DEBUG
   //Compare with direct computation of the ext_hdrs
-  
+
 #endif
 
   //Then calculate the fragmentable length
@@ -129,25 +129,25 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   unsigned int frag_pdu_len = 0;
   int offset = 0;
   int remainder = 0;
-  
+
   for (int i = 1;; i++)
     {
       nfrags = 8*i;
-      offset = frag_len/nfrags;      
+      offset = frag_len/nfrags;
       frag_pdu_len = unfrag_len + length() + offset;
       if (frag_pdu_len <= path_mtu)
 	{
-	  remainder = frag_len%nfrags;	  
+	  remainder = frag_len%nfrags;
 	}
     }
-  
+
   //Create a new pdu (the first one which will be duplicated)
   IPv6Datagram* first_frag = new IPv6Datagram();
   first_frag->header = pdu->header;
 
   //Iterate through all wrappers upto pos and get them to dup the raw
-  //ext_hdr struct and add these to first_frag's ext_hdrs.  
-  
+  //ext_hdr struct and add these to first_frag's ext_hdrs.
+
   //  Change the unfraggable part's next header value to point to frag_hdr (44)
 
   HdrExtProc* proc = 0;
@@ -159,9 +159,9 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
     }
   else
     {
-      pdu->header.next_header = NEXTHDR_FRAGMENT;      
+      pdu->header.next_header = NEXTHDR_FRAGMENT;
       pos = 0;
-      
+
     }
 
   //Append the fragment header taking note of changing the offset
@@ -169,7 +169,7 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   //Copy the rest of the ext_hdrs directly from pdu also making note
   //of the original ext_hdr's next_header value and setting it to
   //frag_hdr's next_header to that.
-  
+
   //Replicate this arrangement to the other fragments along with
   //copying the actual upper layer packet chunk by chunk. (don't know
   //if cPacket has this func.
@@ -177,8 +177,8 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   frags[0] = first_frag;
   for (size_t i = 1; i < nfrags; i++)
     frags[i] = first_frag->dup();
-  
-  
+
+
   // Append a frag header with the chosen frag_id and the correct
   // offset from beginning of fraggable part and then append the
   // fragment itself finally.
@@ -187,7 +187,7 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
 
 
   //After frag increment global counter
-  frag_counter++; 
+  frag_counter++;
 
   return frags;
 }

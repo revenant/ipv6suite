@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/Attic/WirelessEtherSignal.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Wireless/Attic/WirelessEtherSignal.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -46,10 +46,10 @@ class WESignal : public EtherSignal, PHYWirelessSignal
   // assignment operator
   WESignal& operator=(const WESignal& p);
   virtual WESignal *dup() const { return new WESignal(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "WESignal"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 
   virtual int channel() const { return PHYWirelessSignal::channel(); }
@@ -74,27 +74,27 @@ class WESignalIdle : public WESignal
   // assignment operator
   WESignalIdle& operator=(const WESignalIdle& p);
   virtual WESignalIdle *dup() const { return new WESignalIdle(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "WESignalIdle"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 };
 
 class WESignalData : public WESignal
 {
  public:
-  WESignalData(WirelessEtherBasicFrame* frame = 0, int c = -1, double p = -1); 
+  WESignalData(WirelessEtherBasicFrame* frame = 0, int c = -1, double p = -1);
   WESignalData(const WESignalData &p);
   ~WESignalData();
 
   // assignment operator
   WESignalData& operator=(const WESignalData& p);
   virtual WESignalData *dup() const { return new WESignalData(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "WESignalData"; }
-  virtual void info(char *buf) {}
+  virtual std::string info() {return std::string();}
   virtual void writeContents(std::ostream& os) {}
 
   WirelessEtherBasicFrame* data();

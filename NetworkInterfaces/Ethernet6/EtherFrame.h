@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.1 2005/02/09 06:15:58 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/EtherFrame.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
 // Eric Wu
 // Copyright (C) 2001 Monash University, Melbourne, Australia
@@ -48,7 +48,7 @@ extern const int POSTAMBLE;
 	field simulated:
 		protocol
 	constant fields not simulated:
-		flag (0x7e), control (0x03), RC (biterror)    
+		flag (0x7e), control (0x03), RC (biterror)
 */
 
 class EtherFrame: public cPacket
@@ -61,19 +61,19 @@ public:
   // assignment operator
   virtual EtherFrame& operator=(const EtherFrame& p);
   virtual EtherFrame *dup() const { return new EtherFrame(*this); }
-    
+
   // info functions
   virtual const char *className() const { return "EtherFrame"; }
-  virtual void info(char *buf);
+  virtual std::string info();
   virtual void writeContents(std::ostream& os);
   const char  *dumpContents(void);
 
   // set functions
-  void setSrcAddress(const MACAddress& src);  
+  void setSrcAddress(const MACAddress& src);
   void setDestAddress( const  MACAddress& dest);
   void setDataLength(int dataLen);
 
-  // get functions  
+  // get functions
   const MACAddress& srcAddress(void) const;
   const MACAddress& destAddress(void) const;
   const char *destAddrString(void) const;
@@ -88,7 +88,7 @@ public:
   cPacket* decapsulate();
 
   #if defined __CN_PAYLOAD_H
-  //send packets in network order; 
+  //send packets in network order;
   struct network_payload *networkOrder(void) const ;
   #endif //defined __CN_PAYLOAD_H
 
@@ -96,7 +96,7 @@ private:
   MACAddress _srcAddr;
   MACAddress _destAddr;
   int pack_mac_addr(const char *straddr, unsigned char *pack) const;
-//  int _dataLen;  
+//  int _dataLen;
 
   // header length functions
   int headerByteLength() const;

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.h,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtRteProc.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ class IPv6Datagram;
 class HdrExtRte
 {
 public:
-  
+
   explicit HdrExtRte(unsigned char rt_type = IPv6_TYPE0_RT_HDR);
 
   explicit HdrExtRte(const HdrExtRte& src);
@@ -50,39 +50,39 @@ public:
     }
 
   /*v*/ bool operator==(const HdrExtRte& rhs);
-  
+
   /*v*/ HdrExtRte& operator=(const HdrExtRte& rhs);
 
   /*v*/ std::ostream& operator<<(std::ostream& os);
-  
+
   /*v*/ HdrExtRte* dup() const
     {
       return new HdrExtRte(*this);
     }
-  
+
 //  /**
 //        @Overridden cObject functions
 //      */
 //     //@{
 //   virtual cObject* dup() const { return new HdrExtRte(*this); }
 //   virtual const char *className() const { return "HdrExtRte"; }
-//   virtual void info(char *buf);
+//   virtual std::string info();
 //   virtual void writeContents(ostream& os);
 //   //@}
 
-  /** 
+  /**
       @name Overridden HdrExtProc functions
   */
   ///@{
   ///processed at every dest in routing header
-  virtual bool processHeader(cSimpleModule* mod, 
-                             IPv6Datagram* pdu, 
+  virtual bool processHeader(cSimpleModule* mod,
+                             IPv6Datagram* pdu,
                              int cumul_len);
   ///@}
 
   //Returns the ith address based starting at 1
   const ipv6_addr& address(size_t index);
-  
+
   void addAddress(const ipv6_addr& addr);
 
   /// Returns Type 0 routing value of IPV6_TYPE0_RT_HDR
@@ -90,21 +90,21 @@ public:
   {
     assert(rt0_hdr->routing_type == IPv6_TYPE0_RT_HDR ||
            rt0_hdr->routing_type == IPv6_TYPE2_RT_HDR);
-    
+
     return rt0_hdr->routing_type;
   }
 
   void setRoutingType(unsigned char type)
   {
     rt0_hdr->routing_type = type;
-    
+
   }
 
   size_t length(void)
   {
     return (n_addr()*IPv6_ADDRESS_LEN + IPv6_RT_HDR_LEN);
   }
-  
+
   unsigned char segmentsLeft() const
   {
     return rt0_hdr->segments_left;
@@ -123,13 +123,13 @@ public:
     {
       return hdrExtLen()/2;
     }
-  
+
 protected:
 
-  void setSegmentsLeft(int segments) 
+  void setSegmentsLeft(int segments)
   {
     assert(0 < segments && segments < 256);
-    
+
     rt0_hdr->segments_left = segments;
   }
   void setHdrExtLen(int octetUnits)
@@ -152,11 +152,11 @@ namespace MobileIPv6
  * correspondent nodes(CN) and Mobile Node(MN).  This is much more efficient
  * than tunneling via Home Agent(HA).
  */
-  
+
 class MIPv6RteOpt: public HdrExtRte
 {
 public:
-  
+
   explicit MIPv6RteOpt(const ipv6_addr& home_addr = IPv6_ADDR_UNSPECIFIED)
     :HdrExtRte(IPv6_TYPE2_RT_HDR)
     {
@@ -167,8 +167,8 @@ public:
 
   virtual ~MIPv6RteOpt()
     {}
-  
-  virtual bool processHeader(cSimpleModule* mod, IPv6Datagram* pdu, 
+
+  virtual bool processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
                              int cumul_len);
 };
 
@@ -181,26 +181,26 @@ public:
 
 class HdrExtRteProc : public HdrExtProc
 {
-public:  
-  
+public:
+
   explicit HdrExtRteProc(void);
 
   explicit HdrExtRteProc(const HdrExtRteProc& src);
 
   ~HdrExtRteProc(void);
 
-  bool operator==(const HdrExtRteProc& rhs);  
+  bool operator==(const HdrExtRteProc& rhs);
 
   HdrExtRteProc& operator=(const HdrExtRteProc& rhs);
 
   virtual std::ostream& operator<<(std::ostream& os);
-  
+
   virtual HdrExtRteProc* dup() const
     {
       return new HdrExtRteProc(*this);
     }
 
-  /** 
+  /**
       @name Overridden HdrExtProc functions
   */
   ///@{
@@ -213,7 +213,7 @@ public:
   bool isSegmentsLeft(void);
 
   // return a routing header; the default routing header returned is type 0
-  HdrExtRte* routingHeader(unsigned char rt_type = IPv6_TYPE0_RT_HDR);  
+  HdrExtRte* routingHeader(unsigned char rt_type = IPv6_TYPE0_RT_HDR);
 
   virtual size_t length() const;
 
@@ -225,4 +225,4 @@ private:
   ipv6_ext_rt_hdr& rt_hdr;
 };
 
-  
+

@@ -148,7 +148,7 @@ public:
 ///@{
   virtual IPv6Datagram* dup() const { return new IPv6Datagram(*this); }
   virtual const char *className() const { return "IPv6Datagram"; }
-  virtual void info(char *buf);
+  virtual std::string info();
   virtual void writeContents(ostream& os);
 ///@}
 

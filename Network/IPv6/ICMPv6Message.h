@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.1 2005/02/09 06:15:57 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/Attic/ICMPv6Message.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ static const int ICMPv6_MAX_CODE = 255;
 /**
    ICMPv6 allowable message types
  */
-enum ICMPv6Type 
+enum ICMPv6Type
 {
   ICMPv6_UNSPECIFIED = 0,
   ICMPv6_DESTINATION_UNREACHABLE = 1,
@@ -66,7 +66,7 @@ enum ICMPv6Type
   ICMPv6_MLDv2_REPORT = 143
 };
 
-enum // const int ICMPv6DEST_UN[] = 
+enum // const int ICMPv6DEST_UN[] =
 {
   NO_ROUTE_TO_DEST = 0,
   ADDRESS_UNREACHABLE = 3
@@ -87,7 +87,7 @@ enum //static const int ICMPv6_TIME_EX[] =
 
 static const int ICMPv6_PARARM_PROB[] =
 {
-  0, //erroneous header field 
+  0, //erroneous header field
   1, //unrecognized Next Header type
   2 //unrecognized IPv6 option encountered
 };
@@ -100,20 +100,20 @@ class IPv6Datagram;
    @class ICMPv6Message
 
    @brief ICMPv6 message class for ICMP error messages
-   
+
    Destination Unreachable, Packet too big, time exceeded and
    parameter problem error messages.  Base class for Informational
    Echo and Neighbour Disc ICMP Messages.
 
    kind() is synonymous with the type field of the ICMP mesage
-   
-   The offending PDU that caused this ICMP message to be issued will 
+
+   The offending PDU that caused this ICMP message to be issued will
    be stored and accessed using encapsulate/decapsulate respectively.
 */
 class ICMPv6Message: public cPacket
 {
 public:
-  
+
 ///@name constructors, destructors and operators
 ///@{
   ICMPv6Message(const ICMPv6Type otype, const ICMPv6Code ocode = 0,
@@ -122,7 +122,7 @@ public:
   virtual ~ICMPv6Message();
   bool operator==(const ICMPv6Message& rhs) const;
 
-  ICMPv6Message& operator=(const ICMPv6Message & );  
+  ICMPv6Message& operator=(const ICMPv6Message & );
 ///@}
 
 
@@ -130,17 +130,17 @@ public:
 ///@{
   virtual ICMPv6Message* dup() const
     { return new ICMPv6Message(*this); }
-  virtual const char* className() const 
+  virtual const char* className() const
     { return "ICMPv6Message"; }
 
-  virtual void info(char *buf);
+  virtual std::string info();
 ///@}
 
-///@name Redefined cMessage functions 
+///@name Redefined cMessage functions
 ///@{
   ///ICMP Error messages contain the offending datagram
   ///Use cPacket::encapsulate() to encapsulate any cMessage
-  void encapsulate(IPv6Datagram* errorPdu);  
+  void encapsulate(IPv6Datagram* errorPdu);
   ///Use cPacket::decapsulate() if you want a cPacket back instead
   IPv6Datagram *decapsulate();
   ///Use cPacket::encapsulatedMsg() if you want a cPacket back instead
@@ -175,24 +175,24 @@ public:
       assert( cs <= 0xffff);
       _checksum = cs;
     }
-  
-  int checksum() const 
+
+  int checksum() const
     { return _checksum; }
-  
+
   const ICMPv6Type& type() const
     { return _type; }
 
   const ICMPv6Code& code() const
     { return _code; }
-  
+
   unsigned int optInfo() const
     { return _opt_info; }
-  
-  void setOptInfo(unsigned int info) 
-    { _opt_info = info; }      
-///@}  
+
+  void setOptInfo(unsigned int info)
+    { _opt_info = info; }
+///@}
 private:
-  
+
   ICMPv6Type _type;
   ICMPv6Code _code;
   ///16 bit checksum
@@ -200,7 +200,7 @@ private:
 
       ///Usually reserved but some ICMP messages delimit this field
       ///further for use (next 4 octets after checksum)
-  unsigned int _opt_info;  
+  unsigned int _opt_info;
 
 };
 
@@ -219,11 +219,11 @@ public:
   ICMPv6Echo(const ICMPv6Echo& src );
   ICMPv6Echo& operator=(const ICMPv6Echo& rhs);
 ///@}
-      
+
 /// @name Overridden cObject functions
 ///@{
-  virtual void info(char *buf);
-  virtual ICMPv6Echo *dup() const 
+  virtual std::string info();
+  virtual ICMPv6Echo *dup() const
     { return new ICMPv6Echo(*this); }
   virtual const char* className() const
     { return "ICMPv6Echo"; }
@@ -235,16 +235,16 @@ public:
   int identifier() const
     { return optInfo()>>16; }
 
-  ///sequence number incremented regardless of ping timeouts  
+  ///sequence number incremented regardless of ping timeouts
   void setSeqNo(int seq)
     {
       assert(seq <= 0xffff);
-      setOptInfo((optInfo()&0xffff0000)|seq);      
-    }  
+      setOptInfo((optInfo()&0xffff0000)|seq);
+    }
 
   void setIdentifier(int id)
-    { 
-      assert(id <= 0xffff);      
+    {
+      assert(id <= 0xffff);
       setOptInfo((optInfo()&0xffff)|(id<<16));
     }
 

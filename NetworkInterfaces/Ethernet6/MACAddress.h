@@ -1,5 +1,5 @@
 //  -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.h,v 1.2 2005/02/09 08:04:27 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/NetworkInterfaces/Ethernet6/Attic/MACAddress.h,v 1.3 2005/02/10 05:27:42 andras Exp $
 // Monash University, Melbourne, Australia
 
 /**
@@ -65,7 +65,7 @@ class MACAddress : public cObject, boost::equality_comparable<MACAddress>
   //@{
   virtual const char* className() const { return "MACAdress"; }
   virtual cObject *dup() const { return new MACAddress(*this); }
-  virtual void info(char *buf);
+  virtual std::string info();
   virtual void writeContents(std::ostream& os);
   //@}
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.h,v 1.1 2005/02/09 06:15:57 andras Exp $ 
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/HdrExtFragProc.h,v 1.2 2005/02/10 05:27:42 andras Exp $
 //
-// Copyright (C) 2001 CTIE, Monash University 
+// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 /**
    @file HdrExtFragProc.h
    @brief interface for the HdrExtFragProc class
-      
+
    Processing of ipv6_frag_hdr, fragmentation/reassembly
    @author Johnny Lai
 */
@@ -44,20 +44,20 @@ class IPv6Datagram;
 /**
  * @class HdrExtFragProc
  * @brief Processing of Fragmentation Extension header
- * 
+ *
  * Unimplemented
  */
 
 class HdrExtFragProc: public HdrExtProc
 {
-public:  
+public:
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-	
+
   explicit HdrExtFragProc();
-  
+
   explicit HdrExtFragProc(const HdrExtFragProc& src);
 
   virtual ~HdrExtFragProc();
@@ -69,16 +69,16 @@ public:
     {
       return new HdrExtFragProc(*this);
     }
-  
+
   virtual bool processHeader(cSimpleModule* mod, IPv6Datagram* pdu);
-  
+
   /**
      @Overridden cObject functions
   */
   //@{
 //   virtual cObject* dup() const { return new HdrExtFragProc(*this); }
 //   virtual const char *className() const { return "HdrExtFragProc"; }
-//   virtual void info(char *buf);
+//   virtual std::string info();
 //   virtual void writeContents(ostream& os);
   //@}
 
@@ -91,17 +91,17 @@ public:
      @note This destroys whatever packet was in here previously.
   */
   bool assemblePacket(const int& nfrags, IPv6Datagram* frags,
-                      IPv6Datagram*& defragPdu); 
+                      IPv6Datagram*& defragPdu);
 
   /**
-     Fragment this packet.  
+     Fragment this packet.
      @arg path_mtu specifies the MTU to fragment for
      @arg nfrags count of fragments returned
      @return the fragment array sorted by frag_off with count in nfrags
   */
-  IPv6Datagram** fragmentPacket(IPv6Datagram* pdu, const size_t& path_mtu, 
+  IPv6Datagram** fragmentPacket(IPv6Datagram* pdu, const size_t& path_mtu,
                                 size_t& nfrags) const;
-	
+
   unsigned int fragmentId() const
     {
       return frag_hdr.frag_id;
@@ -110,35 +110,35 @@ public:
   int fragmentOffset() const
     {
       assert(frag_hdr.frag_off > 0);
-      return frag_hdr.frag_off>>3; //Only the top 13 bits 
+      return frag_hdr.frag_off>>3; //Only the top 13 bits
     }
 
   /**
      The next datagram disassembled will use this frag_id
-     Note: You can not change the fragment id of a packet 
+     Note: You can not change the fragment id of a packet
      after it has been fragmented
   */
   void setFragmentId(unsigned int frag_id)
     {
       this->frag_id = frag_id;
-    }	
+    }
 
   /*
 	bool dontFragment() { return dont_fragment; }
 	void setDontFragment(bool dontFragment)
     { dont_fragment = dontFragment; }
   */
-	
+
   //Don't need this as this class will take care of all frag details
 //	void setFragmentOffset(int offset);
-		
+
   /**
      Test if fragments are outstanding for this packet id.
      @returns true if fragments are outstanding
      false if this is the last fragment or unfragmented packet
   */
   bool moreFragments() const;
-	
+
   /*
 	bool lastFragment()
 	{
@@ -157,7 +157,7 @@ protected:
   ipv6_ext_frag_hdr& frag_hdr;
 
   /**
-     The fragment ID to used when this packet is fragmented. 
+     The fragment ID to used when this packet is fragmented.
   */
   unsigned int frag_id;
 };

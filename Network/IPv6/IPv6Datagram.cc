@@ -1,4 +1,4 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.3 2005/02/10 03:54:16 andras Exp $
+// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6Datagram.cc,v 1.5 2005/02/10 05:29:29 andras Exp $
 //
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
@@ -26,8 +26,6 @@
 
 
 #include <omnetpp.h>
-#include <protocol.h> //Omnetpp
-#include <cpacket.h>
 
 #include <cassert>
 #include <sstream>
@@ -202,21 +200,18 @@ HdrExtProc* IPv6Datagram::getNextHeader(const HdrExtProc* fromHdrExt) const
   return 0;
 }
 
-void IPv6Datagram::info(char *buf)
+std::string IPv6Datagram::info()
 {
-  cPacket::info( buf );
-#if defined TESTIPv6
-
   ostringstream os;
-  os << buf << "Source="<<header.src_addr
-     <<" Dest=" << header.dest_addr;
+  os << "Source=" << header.src_addr
+     << " Dest=" << header.dest_addr;
 
   //For some reason the buf is filled with escape characters after this point
   //However the stdoutput from os is fine.
   //int ev_limit = os.str().size();
 
-  os <<" len="<<length()<<" HL=" <<dec<<hopLimit()
-     <<" prot="<<dec<<transportProtocol();
+  os << " len="<<length()<<" HL=" <<dec<<hopLimit()
+     << " prot="<<dec<<transportProtocol();
 
   //Can't use this as they're all pointers
   //std::copy(ext_hdrs.begin(), ext_hdrs.end(), ostream_iterator<HdrExtProc*>(os));
@@ -224,24 +219,13 @@ void IPv6Datagram::info(char *buf)
   for (it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     (*it)->operator<<(os);
 
+#if defined TESTIPv6
 #ifdef EXTRA_VERBOSE
   cerr << os.str()<<endl;
 #endif //VERBOSE
-  //Magic buffer size from tkapp.cc TOmnetTkApp::messageSent
-
-  //void TOmnetTkApp::puts(const char *str) another func that has buf of only
-  //128 and so the problem continues.
-  //cout << dec<< " string size "<<os.str().size() <<'\n';
-
-  //Leave the trailing zero as string does not use \0 for length
-  //so we need to manually add it
-  //os<<ends;
-
-  //os.str().copy(buf, ev_limit-1);//os.str().size() <= 127 ? os.str().size():127);
-  //buf[ev_limit] = '\0';
-
-  ev<<os.str().c_str();
+  ev<<os.str();
 #endif //TESTIPv6
+  return os.str();
 }
 
 // output function for datagram
@@ -253,7 +237,7 @@ void IPv6Datagram::writeContents( ostream& os )
 		<< "Byte len: " << totalLength()
 		<< "Ext header len:" << extensionLength()
 	        << "\nTransport Prot: " << (int)transportProtocol()
-        << "TTL: " << timeToLive()<<"\n";
+                << "\n";
 //Should use writeTo of ext_hdr and info of contained objects?
 //    ext_hdrs.writeContents(os);
 

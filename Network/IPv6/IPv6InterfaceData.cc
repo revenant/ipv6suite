@@ -36,21 +36,23 @@ IPv6InterfaceData<DataType>& IPv6InterfaceData<DataType>::operator=(const IPv6In
 }
 
 template<class DataType>
-void IPv6InterfaceData<DataType>::info(char *buf)
-{}
+std::string IPv6InterfaceData<DataType>::info()
+{
+  return std::string;
+}
 
 template<class DataType>
 inline void IPv6InterfaceData<DataType>::insertData(const DataType& data)
 {
   //setLength(sizeof(data));
   setLength(data.length());
-  _data = data;      
+  _data = data;
 }
 
 template<class DataType>
 inline DataType& IPv6InterfaceData<DataType>::data() const
 {
-  return _data; 
+  return _data;
 }
 
 template<class DataType>

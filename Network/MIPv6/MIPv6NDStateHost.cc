@@ -356,7 +356,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
       RS* rs = new RS;
 
       if (!ie->ipv6()->inetAddrs.empty())
-        rs->setSrcLLAddr(ie->ipv6()->LLAddr());
+        rs->setSrcLLAddr(ie->llAddrStr());
 
       tmr->dgram->encapsulate(rs);
 
@@ -841,7 +841,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     Dout(dc::mipv6|dc::mip_missed_adv|dc::mobile_move, rt->nodeName()<<" "<<setprecision(6)
          <<nd->simTime()<<" exceeded MaxConsecMissedRtrAdv of "
         <<(mipv6cdsMN->currentRouter()?
-           ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->mipv6Var.maxConsecutiveMissedRtrAdv
+           ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv
            :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
 
     //Can also do NUD to current Rtr to confirm unreachability (once that's

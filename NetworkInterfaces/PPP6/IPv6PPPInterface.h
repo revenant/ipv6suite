@@ -49,7 +49,7 @@ public:
   // adds interface entry into InterfaceTable
   InterfaceEntry *registerInterface();
 
-/* XXX  ie->ifToken() is used instead --AV
+/* XXX  ie->interfaceToken() is used instead --AV
 * unsigned int lowInterfaceId();
 * unsigned int highInterfaceId();
 */
@@ -59,7 +59,7 @@ protected:
   virtual void sendToUpperLayer(PPP6Frame* frame);
 
 protected:
-/* XXX  ie->ifToken() is used instead --AV
+/* XXX  ie->interfaceToken() is used instead --AV
 * unsigned int interfaceID[2];
 */
   cMessage* waitTmr;

@@ -72,12 +72,14 @@ bool operator==(const ipv6_addr& lhs, const IPv6Address& rhs)
 IPv6Address operator+(const IPv6Address& lhs, const IPv6Address& rhs)
 {
   IPv6Address combine;
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, __FUNCTION__<<" Called from "
        <<location_ct((char*)__builtin_return_address(0) +
                      libcwd::builtin_return_address_offset));
 //  Dout(dc::ipv6addrdealloc, " Storage is "<< combine.storage());
 #endif  //__INTEL_COMPILER
+*/
   unsigned int combine_int_addr[TOTAL_NUMBER_OF_32BIT_SEGMENT];
 
   for(int i=0; i<TOTAL_NUMBER_OF_32BIT_SEGMENT; i++)
@@ -106,11 +108,13 @@ IPv6Address::IPv6Address(unsigned int* addr_seg, int prefix_len)
 
 
 {
+/*XXX
 #if !defined __INTEL_COMPILER
   Dout(dc::ipv6addrdealloc, "Called from " <<
        location_ct((char*)__builtin_return_address(0) + libcwd::builtin_return_address_offset));
   Dout(dc::ipv6addrdealloc, "ctor(int*, int, char*) "<<(void*)this);
 #endif  //__INTEL_COMPILER
+*/
   if (addr_seg)
     setAddress(addr_seg);
 }
@@ -236,7 +240,7 @@ IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
   m_scope = obj.m_scope;
   m_storedLifetime = obj.m_storedLifetime;
   m_preferredLifetime = obj.m_preferredLifetime;
-  
+
   //not sure if this should be copied
   _updated = _updated;
 

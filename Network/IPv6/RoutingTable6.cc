@@ -56,7 +56,7 @@
 #endif //USE_MOBILITY
 #include "WorldProcessor.h"
 #include "XML/XMLOmnetParser.h"
- 
+
 
 #ifdef _MSC_VER
 #define strcasecmp  stricmp
@@ -455,8 +455,8 @@ void RoutingTable6::print()
     if (!ift->interfaceByPortNo(i)->isLoopback())
     {
       Dout(dc::xml_addresses, ift->interfaceByPortNo(i)); //XXX print(IPForward);
-      Dout(dc::xml_addresses, "HWAddr "<<nodeName()<<":"<<i-1<<" "
-           <<ift->interfaceByPortNo(i)->LLAddr());
+      Dout(dc::xml_addresses, "HWAddr "<<nodeName()<<":"<<i<<" "
+           <<ift->interfaceByPortNo(i)->llAddrStr());
     }
   }
   PRINTF("==============  Node Level Configuration Variables  ======================== \n");

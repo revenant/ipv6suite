@@ -245,12 +245,8 @@ Entity.obj: Entity.cc \
   ../config.h \
   ../NetworkInterfaces/Wireless/wirelessethernet.h \
   ../NetworkInterfaces/Ethernet6/MACAddress6.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
-  ../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../Util/AveragingList.h \
   ../NetworkInterfaces/Wireless/WEthernet.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ../Util/boost/operators.hpp \
   ../Util/boost/iterator.hpp
 MobileBaseStation.obj: MobileBaseStation.cc \
@@ -373,12 +369,8 @@ MobileEntity.obj: MobileEntity.cc \
   ../config.h \
   ../NetworkInterfaces/Wireless/wirelessethernet.h \
   ../NetworkInterfaces/Ethernet6/MACAddress6.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
-  ../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../Util/AveragingList.h \
   ../NetworkInterfaces/Wireless/WEthernet.h \
-  ../NetworkInterfaces/Wireless/WirelessEtherSignal_m.h \
   ../Util/boost/operators.hpp \
   ../Util/boost/iterator.hpp
 MobilityHandler.obj: MobilityHandler.cc \

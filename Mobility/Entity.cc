@@ -91,7 +91,7 @@ void Entity::drawWirelessRange()
         assert(wem);
 
         dispStr += ";r=";
-//XXX see comment above!   dispStr += boost::lexical_cast<std::string>(wem->wirelessRange());
+//XXX see comment above!   dispStr += OPP_Global::ltostr(wem->wirelessRange());
         dispStr += ",,red";
       }
   }

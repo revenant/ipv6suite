@@ -63,7 +63,7 @@ void IPv6PPPInterface::initialize()
   curMessage = 0;
 }
 
-//XXX replaced by ie->ifToken()
+//XXX replaced by ie->interfaceToken()
 //unsigned int IPv6PPPInterface::lowInterfaceId()
 //{
 //  return interfaceID[1];
@@ -101,7 +101,7 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
 
   // generate a link-layer address to be used as interface token for IPv6
   InterfaceToken token(0, simulation.getUniqueNumber(), 64);
-  e->setIfToken(token);
+  e->setInterfaceToken(token);
 
   // and convert it to a string, for llAddrStr
   char buf[32];

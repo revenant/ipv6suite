@@ -151,14 +151,12 @@ MPLSModule.obj: MPLSModule.cc \
   ../IPv4/IPDatagram.h \
   LIBTableAccess.h \
   ConstType.h \
-  ../IPv4/IPDatagram_m.h \
-  ../IPv4/IPAddress.h \
-  ../IPv4/IPProtocolId_m.h \
-  ../../Base/INETDefs.h \
   ../../Base/ModuleAccess.h \
   LIBtable.h \
   ../Generic/InterfaceTable.h \
+  ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
+  ../IPv4/IPAddress.h \
   ../IPv4/RoutingTable.h
 MPLSPacket.obj: MPLSPacket.cc \
   MPLSPacket.h

@@ -48,6 +48,7 @@ extern "C"
 #endif //__CN_PAYLOAD_H
 
 
+Register_Class(IPv6Datagram);
 
 static const ipv6_hdr IPV6_INITIAL_HDR =
 {
@@ -149,10 +150,7 @@ const IPv6Datagram& IPv6Datagram::operator=(const IPv6Datagram& rhs)
   if (&rhs == this)
     return *this;
 
-  cMessage::operator=(rhs);
-
-  outputPortNo = rhs.outputPortNo;
-  inputPortNo = rhs.inputPortNo;
+  IPv6Datagram_Base::operator=(rhs);
 
   header = rhs.header;
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)

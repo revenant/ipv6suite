@@ -346,11 +346,12 @@ InterfaceEntry *WirelessEtherModule::registerInterface()
 /*XXX TBD adopt this code
   // generate a link-layer address to be used as interface token for IPv6
   InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
-  e->setIfToken(token);
+  e->setInterfaceToken(token);
 
   // MAC address as string
   e->setLLAddrStr(_myAddr.stringValue());
 */
+printf("setting interfacetoken and lladdrstr not implemented in Wireless yet, don't expect this stuff to work yet!!!\n");
 
   // MTU is 1500 on Ethernet
   e->setMtu(1500);

@@ -46,6 +46,7 @@
 #endif //IPv6_ADDR_H
 
 #include "IPProtocolId_m.h"
+#include "IPv6Datagram_m.h"
 
 /**
    Forward declarations
@@ -75,8 +76,8 @@ class HdrExtProc;
    we can deal with them and deallocate them when finished.
 */
 
-// XXX was public IPDatagram --AV
-class IPv6Datagram: public cMessage, boost::equality_comparable<IPv6Datagram>
+// XXX was public IPDatagram, then public cMessage --AV
+class IPv6Datagram : public IPv6Datagram_Base, boost::equality_comparable<IPv6Datagram>
 {
 public:
   friend class HdrExtRteProc;
@@ -161,17 +162,6 @@ public:
   struct network_payload *networkOrder() const;
 #endif /* __CN_PAYLOAD_H*/
 ///@}
-
-  /**
-     @name Input and output interfaces (control information,
-     not part of the IPv6 header)
-  */
-  //@{
-  int outputPort() { return outputPortNo; }
-  void setOutputPort(int p) { outputPortNo = p; }
-  int inputPort() { return inputPortNo; }
-  void setInputPort(int p) { inputPortNo = p; }
-  //@}
 
   /**
      @name IPv6 Header Attributes
@@ -276,9 +266,6 @@ public:
   //@}
 
 private:
-  int outputPortNo;
-  int inputPortNo;
-
   ipv6_hdr header;
   typedef std::list<HdrExtProc*> ExtHdrs;
   typedef ExtHdrs::iterator EHI;

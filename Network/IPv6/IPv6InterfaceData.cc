@@ -81,9 +81,6 @@ IPv6InterfaceData::IPv6InterfaceData() :
 {
   // set rechableTime
   reachableTime();
-
-  _interfaceID[0] = 0;
-  _interfaceID[1] = 0;
 }
 
 std::string IPv6InterfaceData::info() const

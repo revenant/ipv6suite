@@ -89,7 +89,7 @@ void WorldProcessor::initialize(int stage)
     {
       parser = new XMLConfiguration::XMLOmnetParser();
       parser->parseFile(filename);
-      Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
+      //XXX Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
     }
 
 #ifdef USE_MOBILITY

@@ -125,13 +125,10 @@ namespace MobileIPv6
   {
     assert(re.lock().get() != 0);
     const ipv6_prefix& pref = re.lock().get()->prefix();
-    assert(pref.length <= EUI64_LENGTH);
+    assert(pref.length <= ie->interfaceToken().length());
     IPv6Address coaObj(pref);
     coaObj.truncate();
-    ipv6_addr coa = coaObj;
-    assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
-    coa.normal = ie->ipv6()->interfaceID()[0];
-    coa.low = ie->ipv6()->interfaceID()[1];
+    ipv6_addr coa = ipv6_addr_fromInterfaceToken(coaObj, ie->interfaceToken());
     return coa;
   }
 

@@ -144,7 +144,7 @@ void WirelessEtherStateReceive::sendAck(WirelessEtherModule* mod,
   assert(!a->isScheduled());
   a->reschedule(mod->simTime() + transmTime);
 
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime()
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12)<< mod->simTime()
        << " sec, " << mod->fullPath() << ": Start Sending ACK");
 }
 
@@ -154,7 +154,7 @@ void WirelessEtherStateReceive::endSendingAck(WirelessEtherModule* mod)
 
   mod->idleNetworkInterface();
 
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << setprecision(12)<< mod->simTime()
+  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12)<< mod->simTime()
        << " sec, " << mod->fullPath() << ": End Sending ACK");
 
   // Check that all frames are fully received before changing states

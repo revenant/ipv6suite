@@ -727,7 +727,7 @@ IPv6Datagram* NDStateRouter
 
   ICMPv6NDMRtrAd* rtrAd = createRA(rtrVar, ifIndex);
 
-  rtrAd->setSrcLLAddr(ie->ipv6()->LLAddr());
+  rtrAd->setSrcLLAddr(ie->llAddrStr());
 
   //Source is link local addr (It is always the first address to be assigned)
   IPv6Datagram* dgram = new IPv6Datagram(ie->ipv6()->inetAddrs[0], destAddr);
@@ -777,7 +777,7 @@ std::auto_ptr<RA> NDStateRouter::processRtrAd(std::auto_ptr<RA> old_rtrAdv)
   HierarchicalMIPv6::MAPOptions mapOpts = old_rtrAdv->mapOptions();
 
   Debug(
-    IPv6Datagram* dgram = old_rtrAdv->encapsulatedMsg();
+    IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(old_rtrAdv->encapsulatedMsg());
     assert(dgram);
     unsigned int ifIndex = dgram->inputPort();
     // Dout(dc::debug, rt->nodeName()<<":"<<ifIndex<<" "<<nd->simTime()

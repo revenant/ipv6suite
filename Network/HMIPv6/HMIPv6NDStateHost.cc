@@ -502,13 +502,8 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
 {
   assert(me.addr() != IPv6_ADDR_UNSPECIFIED);
 
-  ipv6_addr rcoa = me.addr();
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-
-  assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
-
-  rcoa.normal = ie->ipv6()->interfaceID()[0];
-  rcoa.low = ie->ipv6()->interfaceID()[1];
+  ipv6_addr rcoa = ipv6_addr_fromInterfaceToken(me.addr(), ie->interfaceToken());
   return rcoa;
 }
 

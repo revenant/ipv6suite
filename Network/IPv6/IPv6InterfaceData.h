@@ -102,29 +102,6 @@ public:
   bool addrAssigned(const ipv6_addr& addr) const;
   bool tentativeAddrAssigned(const ipv6_addr& addr) const;
 
-  const string& LLAddr() const { return llAddr; }
-  void setLLAddr(const string& linkAddr) { llAddr = linkAddr; }
-
-  // the interfaceID consists of 2 32-bit numbers, it is obtained from
-  // the Link Layer Address
-  const unsigned int* interfaceID(void) const
-    {
-      return _interfaceID;
-    }
-
-  ///Number of bits in InterfaceID fixed at 64 currently
-  ///Used by Neighbour Discovery
-  size_t interfaceIDLength() const
-    {
-      return 64;
-    }
-
-  void setInterfaceID(unsigned int* iface_id)
-    {
-      _interfaceID[0] = iface_id[0];
-      _interfaceID[1] = iface_id[1];
-    }
-
   ///Elapse all valid/preferredLifetimes of assigned addresses
   void elapseLifetimes(unsigned int seconds);
 
@@ -266,3 +243,4 @@ private:
 };
 
 #endif //INTERFACE6ENTRY_H
+

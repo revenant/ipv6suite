@@ -140,7 +140,7 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 {
   if ((MAC_address)address == MAC_ADDRESS_UNSPECIFIED_STRUCT)
   {
-    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC" )
+    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC" ) // XXX what's this?? -AV
     {
       address.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
 
@@ -564,8 +564,8 @@ void WirelessAccessPoint::updateStats(void)
   WirelessEtherModule::updateStats();
 
   usedBWStat->collect((usedBW.average*8)/(1024*1024));
-  
+
   usedBW.sampleTotal = 0;
 
-  
+
 }

@@ -137,7 +137,6 @@ UDPApplication.obj: UDPApplication.cc \
   ../../Util/debug.h \
   ../../Util/boost/cast.hpp \
   UDPApplication.h \
-  UDPMessages_m.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -148,14 +147,11 @@ UDPApplication.obj: UDPApplication.cc \
   ../../Util/boost/config/suffix.hpp \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp
-UDPMessages_m.obj: UDPMessages_m.cc \
-  UDPMessages_m.h
 UDPProcessing6.obj: UDPProcessing6.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   ../../Util/boost/cast.hpp \
   UDPProcessing6.h \
-  UDPMessages_m.h \
   ../../Network/IPv6/IPv6InterfacePacket.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
@@ -168,7 +164,6 @@ UDPProcessing6.obj: UDPProcessing6.cc \
   ../../Util/boost/config/suffix.hpp \
   ../../Util/boost/config/posix_features.hpp \
   ../../Util/boost/non_type.hpp \
-  ../../Network/IPv4/IPProtocolId_m.h \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/ipv6_addr.h \
   ../../Network/IPv6/IPInterfacePacket.h \
@@ -321,7 +316,6 @@ UDPProcessing6.obj: UDPProcessing6.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \

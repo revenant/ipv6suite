@@ -207,10 +207,10 @@ void IPv6Forward::endService(cMessage* theMsg)
     NeighbourEntry* ne = it->second.neighbour.lock().get();
     Dout(dc::debug|dc::encapsulation|dc::forwarding|flush_cf, rt->nodeName()
          <<" possible tunnel index="<<(ne?
-                                       boost::lexical_cast<std::string>(ne->ifIndex()):
+                                       OPP_Global::ltostr(ne->ifIndex()):
                                        "No neighbour")
          <<(ne?
-            std::string(" state=") + boost::lexical_cast<std::string>(ne->state()):
+            std::string(" state=") + OPP_Global::ltostr(ne->state()):
             "")
          <<" dgram="<<*datagram);
 
@@ -456,9 +456,9 @@ void IPv6Forward::endService(cMessage* theMsg)
       datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
 //#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
       Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-           <<check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+           <<static_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
            ->homeAddr()<<" src addr="<<
-           check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+           static_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
            ->careOfAddr()<<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
@@ -568,19 +568,23 @@ void IPv6Forward::endService(cMessage* theMsg)
     }
     else
     {
-      if (boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+      if (dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
           ->currentRouter().get() == 0)
+      {
         //FMIP just set to PCoA here and hope for the best right.
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
              <<" No suitable src address available on foreign network as no "
              <<"routers recorded so far to form coa");
+      }
       else
+      {
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
              <<" No suitable src address available on foreign network as "
              <<"ncoa in dad "<<
-             check_and_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+             dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
              ->careOfAddr(false)
              );
+      }
       datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }
 
@@ -915,27 +919,30 @@ bool IPv6Forward::processReceived(IPv6Datagram& datagram)
     Debug(
 
       if (!rt->isRouter())
-      Dout(dc::debug, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as this is a host");
-
+      {
+        Dout(dc::debug, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as this is a host");
+      }
       else if (datagram.hopLimit() >= 255)
-    {
-      // TODO: The datagram could be a proxy NS sent by mobile node
-      // and the router could be CN's HA. Should we send proxy NA?
-      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as it is a ND packet");
-    }
+      {
+        // TODO: The datagram could be a proxy NS sent by mobile node
+        // and the router could be CN's HA. Should we send proxy NA?
+        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as it is a ND packet");
+      }
       else if (ipv6_addr_scope(datagram.srcAddress()) == ipv6_addr::Scope_Link ||
-
                ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Link)
-      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()
+      {
+        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()
            <<" Packet discarded because the addresses src="<<datagram.srcAddress()<<" dest="
            <<datagram.destAddress()<< " have link local scope "<< dec <<datagram.hopLimit());
-
+      }
       else if (!rt->routeSitePackets() &&
                (ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Site ||
                 ipv6_addr_scope(datagram.srcAddress())  == ipv6_addr::Scope_Site))
-      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded because the addresses have site scope and forward site packets is "<<(rt->routeSitePackets()?"true":"false"));
+      {
+        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded because the addresses have site scope and forward site packets is "<<(rt->routeSitePackets()?"true":"false"));
+      }
 
-      );
+    ); // end Debug()
 
     return false;
   }

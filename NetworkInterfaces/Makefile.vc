@@ -170,5 +170,3 @@ LinkLayerModule.obj: LinkLayerModule.cc \
   ../Util/boost/detail/lwm_nop.hpp \
   ../Util/boost/limits.hpp \
   ../Util/boost/detail/select_type.hpp
-LL6ControlInfo_m.obj: LL6ControlInfo_m.cc \
-  LL6ControlInfo_m.h

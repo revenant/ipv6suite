@@ -309,7 +309,7 @@ unsigned short ICMPv6Message::networkCheckSum(unsigned char*icmpmsg,
  */
 bool ICMPv6Message::operator==(const ICMPv6Message& rhs) const
 {
-  if (*this == rhs)
+  if (this == &rhs)
     return true;
 
   return (_type == rhs._type) && (_code == rhs._code) && (_checksum == rhs._checksum)

@@ -299,10 +299,11 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
   if (linkLocal == IPv6_ADDR_UNSPECIFIED)
   {
     IPv6Address lhs;
-    IPv6Address rhs;
-
+    //XXX IPv6Address rhs;
     lhs.setAddress(LINK_LOCAL_PREFIX);
+    linkLocal = ipv6_addr_fromInterfaceToken(lhs, ie->interfaceToken());
 
+/* XXX
     unsigned int interfaceID[4] = {0,0,0,0};
 
     assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
@@ -312,6 +313,7 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
     rhs.setAddress(interfaceID);
 
     linkLocal = IPv6Address(lhs+rhs);
+*/
     //Determine scope
     linkLocal.scope();
 
@@ -413,7 +415,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     if (ie->ipv6()->dupAddrDetectTrans < 1)
     {
       Dout(dc::ipv6|dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
-           <<" skipped DupAddrDet "<<*(tmr->tentativeAddr)<< " assigned on "<<nd->simTime());
+           <<" skipped DupAddrDet "<< tmr->tentativeAddr << " assigned on "<<nd->simTime());
 
       //Don't do dup addr detect so just assign addr
       dupAddrDetSuccess(tmr);
@@ -471,7 +473,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
   {
 
     Dout(dc::neighbour_disc|continued_cf, rt->nodeName()<<":"<<tmr->ifIndex
-         <<" Tentative addr:"<<*tmr->tentativeAddr);
+         <<" Tentative addr:"<<tmr->tentativeAddr);
     Dout(dc::finish, nd->simTime() <<" DupAddrDet sends: "<<  tmr->counter
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(4) << tmr->timeout
          <<" initial delay:"<<delay);
@@ -493,7 +495,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
   {
 
     Dout(dc::ipv6|dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
-         <<" tentative addr: "<<*(tmr->tentativeAddr)<<" assigned on "<<nd->simTime());
+         <<" tentative addr: "<<tmr->tentativeAddr<<" assigned on "<<nd->simTime());
 
 
     dupAddrDetSuccess(tmr);
@@ -591,7 +593,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
 
     if (!ie->ipv6()->inetAddrs.empty()
         || (rt->odad() && !ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress())))
-      rs->setSrcLLAddr(ie->ipv6()->LLAddr());
+      rs->setSrcLLAddr(ie->llAddrStr());
 
     tmr->dgram->encapsulate(rs);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -650,7 +652,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
   dgram->setHopLimit(NDHOPLIMIT);
   bool solicited = false;
   bool override = true;
-  NA* na = new NA(src, ie->ipv6()->LLAddr(), rt->isRouter(), solicited, override);
+  NA* na = new NA(src, ie->llAddrStr(), rt->isRouter(), solicited, override);
   dgram->encapsulate(na);
   dgram->setName(na->name());
   dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -1022,7 +1024,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
   assert(storedLifetime != 0);
   //Create a new address and add it to tentative if link local address was
   //an addr conf addr from unique Interface ID
-  if (prefix_len + ie->ipv6()->interfaceIDLength() == IPv6_ADDR_LENGTH )
+  if (prefix_len + ie->interfaceToken().length() == IPv6_ADDR_LENGTH )
   {
     //Can't autoconf other addresses till link local done (implementation
     //requires that link local be first address assigned not part of spec).
@@ -1031,11 +1033,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
       //received an unsolicated rtr adv or other nodes solicited this adv
       return false;
 
-    ipv6_addr newAddr = prefix;
-    //Assumption
-    assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
-    newAddr.normal = ie->ipv6()->interfaceID()[0];
-    newAddr.low = ie->ipv6()->interfaceID()[1];
+    ipv6_addr newAddr = ipv6_addr_fromInterfaceToken(prefix, ie->interfaceToken());
 
     IPv6Address addrObj(newAddr);
     addrObj.setPrefixLength(prefix_len);
@@ -1067,7 +1065,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
       {
         //Skip DAD if auto conf link local interfaceID passed
         Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
-             <<*addrObj
+             <<addrObj
              //<<ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1]
              <<" assigned (autoconf) from prefixOpt="
              <<prefix<<"/"<<dec<<(int)prefix_len<<" at "

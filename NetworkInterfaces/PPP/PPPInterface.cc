@@ -113,12 +113,12 @@ InterfaceEntry *PPPInterface::registerInterface(double datarate)
 
     // generate a link-layer address to be used as interface token for IPv6
     InterfaceToken token(0, simulation.getUniqueNumber(), 64);
-    e->setIfToken(token);
+    e->setInterfaceToken(token);
 
     // and convert it to a string, for llAddrStr
     char buf[32];
     sprintf(buf, "%8.8lx:%8.8lx", token.normal(), token.low());
-    e->setLLAddrStr(buf);
+    e->setLLAddrStr(buf);  //XXX doesn't e->setLLAddrStr("unspec-ppp") suffice? --AV
 
     // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
     // 4000 (on some point-to-point links), 4470 (Cisco routers default, FDDI compatible)

@@ -141,7 +141,7 @@ printf("DBG: %s as '%s' on %d\n", fullPath().c_str(), e->name(), outputPort);
 
   // generate a link-layer address to be used as interface token for IPv6
   InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
-  e->setIfToken(token);
+  e->setInterfaceToken(token);
 
   // MAC address as string
   e->setLLAddrStr(_myAddr.stringValue());
@@ -242,7 +242,7 @@ bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passin
   delete frame;
 
   Dout(dc::debug|flush_cf, OPP_Global::nodeName(this) << "Ethernet HostMacAddr= "
-       << macAddressString() << "  FrameDestAddr= " << strFrameDestAddr);
+       << _myAddr.stringValue() << "  FrameDestAddr= " << strFrameDestAddr);
 
   return true;
 }

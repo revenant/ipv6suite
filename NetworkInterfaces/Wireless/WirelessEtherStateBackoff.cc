@@ -150,7 +150,7 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << mod->fullPath() << " \n"
        << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->data()))->getAddress2()
+       << " sending a frame to : " << FIXME_FIXME_FIXME_DATA_DATA->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->encapsulatedMsg()))->getAddress2()
        << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
        << "\n ---------------------------------------------------- \n");
   }

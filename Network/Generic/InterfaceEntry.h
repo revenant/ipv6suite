@@ -44,9 +44,9 @@ class InterfaceToken
     InterfaceToken(uint32 low, uint32 normal, int len)  {_normal=normal; _low=low; _len=len;}
     InterfaceToken(const InterfaceToken& t)  {operator=(t);}
     void operator=(const InterfaceToken& t)  {_normal=t._normal; _low=t._low; _len=t._len;}
-    int length() {return _len;}
-    uint32 low() {return _low;}
-    uint32 normal() {return _normal;}
+    int length() const {return _len;}
+    uint32 low() const {return _low;}
+    uint32 normal() const {return _normal;}
 };
 
 /**
@@ -95,7 +95,7 @@ class InterfaceEntry : public cPolymorphic
     bool isLoopback() const        {return _loopback;}
     double datarate() const        {return _datarate;}
     const char *llAddrStr() const  {return _llAddrStr.c_str();}
-    const InterfaceToken& ifToken() const {return _token;}
+    const InterfaceToken& interfaceToken() const {return _token;}
 
     cModule *_linkMod;  // XXX FIXME should be eliminated!!!!
 
@@ -109,7 +109,7 @@ class InterfaceEntry : public cPolymorphic
     void setLoopback(bool b)     {_loopback = b;}
     void setDatarate(double d)   {_datarate = d;}
     void setLLAddrStr(const char *s) {_llAddrStr = s;}
-    void setIfToken(const InterfaceToken& token) {_token=token;}
+    void setInterfaceToken(const InterfaceToken& token) {_token=token;}
 
     IPv4InterfaceData *ipv4()    {return _ipv4data;}
     IPv6InterfaceData *ipv6()    {return _ipv6data;}

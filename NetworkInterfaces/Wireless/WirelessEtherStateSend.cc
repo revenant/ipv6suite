@@ -75,7 +75,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateSend::processData(WirelessEtherMod
   {
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
          << mod->fullPath() << ": " << "while sending, received data from: "
-         << ((WirelessEtherRTSFrame *)(data->data()))->getAddress2() );
+         << ((WirelessEtherRTSFrame *)(data->encapsulatedMsg()))->getAddress2() );
   }
   mod->incNoOfRxFrames();
   return data;

@@ -82,6 +82,7 @@ extern const ipv6_addr IPv6_ADDR_SLA_MASK;
 //defined in NDEntry.cc
 extern const unsigned int VALID_LIFETIME_INFINITY ;
 
+class InterfaceToken;
 
 /**
  * @struct ipv6_addr
@@ -159,6 +160,7 @@ ipv6_addr operator>>(const ipv6_addr&, unsigned int shift);
 ipv6_addr operator<<(const ipv6_addr&, unsigned int shift);
 ipv6_addr operator+(const ipv6_addr& lhs, const ipv6_addr& rhs);
 
+ipv6_addr ipv6_addr_fromInterfaceToken(const ipv6_addr& prefix, const InterfaceToken& token);
 
 ostream& operator<<( ostream& os, const ipv6_addr& src_addr);
 

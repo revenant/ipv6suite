@@ -100,7 +100,7 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
   // when source address given in Interface Message, use it
   if (interfaceMsg->srcAddress() != IPv6_ADDR_UNSPECIFIED)
   {
-Debug(
+//XXX Debug(
     //Test if source address actually exists
     bool found = false;
     for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
@@ -115,7 +115,7 @@ Debug(
 
     if (!found)
       Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddress());
-); // end Debug
+//XXX); // end Debug
 
     datagram->setSrcAddress(interfaceMsg->srcAddr());
   }

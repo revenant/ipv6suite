@@ -41,16 +41,22 @@
 #define AllocTag2(p, desc)
 #define AllocTag_dynamic_description(p, x)
 #define AllocTag(p, x)
-#define Debug(x)
-#if !defined Dout
-#define Dout(a, b)
-#endif //Dout
+
+#ifdef NDEBUG
+# define Debug(x)
+# define Dout(a, b)
+#else
+// use OMNeT++'s "ev" output
+# define Debug(x)  x
+# define Dout(a, b)  ev << #a << ": " << b << "\n"
+#endif 
+
 #define DoutFatal(a, b) LibcwDoutFatal(::std, , a, b)
 #define ForAllDebugChannels(STATEMENT)
 #define ForAllDebugObjects(STATEMENT)
 #define LibcwDebug(dc_namespace, x)
 #define LibcwDout(a, b, c, d)
-#define LibcwDoutFatal(a, b, c, d) do { ::std::cerr << d << ::std::endl; ::std::exit(254); } while(1)
+#define LibcwDoutFatal(a, b, c, d) do { ::std::cerr << d << ::std::endl; /*::std::exit(254);*/for(;;); } while(1)
 #define NEW(x) new x
 #define CWDEBUG_ALLOC 0
 #define CWDEBUG_MAGIC 0

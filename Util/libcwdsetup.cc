@@ -143,7 +143,7 @@ namespace libcwdsetup
       }
 
       if (insertPid)
-        filename.insert(pos, "-" + boost::lexical_cast<std::string>(getpid()));
+        filename.insert(pos, "-" + OPP_Global::ltostr(getpid()));
 
       cout<<"debug output is placed into file "<<filename<<endl;
       g_debugFile.open(filename.c_str());

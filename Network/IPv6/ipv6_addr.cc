@@ -17,7 +17,7 @@
 #include "debug.h"
 
 #include "ipv6_addr.h"
-
+#include "InterfaceEntry.h" // for InterfaceToken
 #include <cassert>
 #include <sstream>
 #include <iostream>
@@ -347,6 +347,15 @@ string longToBinary(unsigned long long no)
     assert(ss.str().size() == IPv6_ADDR_LENGTH/2+3);
   }
 //@}
+
+ipv6_addr ipv6_addr_fromInterfaceToken(const ipv6_addr& prefix, const InterfaceToken& token)
+{
+  assert(token.length() == 64);
+  ipv6_addr addr = prefix;
+  addr.normal = token.normal();
+  addr.low = token.low();
+  return addr;
+}
 
 /**
  * Return the number of bits that match in addr1 and addr2

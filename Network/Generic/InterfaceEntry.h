@@ -66,8 +66,8 @@ class InterfaceEntry : public cPolymorphic
     bool _pointToPoint;    //< interface is point-to-point link
     bool _loopback;        //< interface is loopback interface
     double _datarate;      //< data rate in bit/s
+    std::string _llAddrStr;//< link layer address (MAC address) as string
     InterfaceToken _token; //< for IPv6 stateless autoconfig (RFC 1971)
-    std::string _macAddrStr; //< MAC address as string
 
     IPv4InterfaceData *_ipv4data;   //< IPv4-specific interface info (IP address, etc)
     IPv6InterfaceData *_ipv6data;   //< IPv6-specific interface info (IPv6 addresses, etc)
@@ -94,6 +94,7 @@ class InterfaceEntry : public cPolymorphic
     bool isPointToPoint() const    {return _pointToPoint;}
     bool isLoopback() const        {return _loopback;}
     double datarate() const        {return _datarate;}
+    const char *llAddrStr() const  {return _llAddrStr.c_str();}
     const InterfaceToken& ifToken() const {return _token;}
 
     cModule *_linkMod;  // XXX FIXME should be eliminated!!!!
@@ -107,6 +108,7 @@ class InterfaceEntry : public cPolymorphic
     void setPointToPoint(bool b) {_pointToPoint = b;}
     void setLoopback(bool b)     {_loopback = b;}
     void setDatarate(double d)   {_datarate = d;}
+    void setLLAddrStr(const char *s) {_llAddrStr = s;}
     void setIfToken(const InterfaceToken& token) {_token=token;}
 
     IPv4InterfaceData *ipv4()    {return _ipv4data;}

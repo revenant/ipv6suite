@@ -60,7 +60,8 @@ void IPv6PPPAPInterface::initialize(int stage)
   }
   else if (stage == 1)
   {
-    interfaceID[0] = interfaceID[1] = 0;
+    // XXX what the heck is this??? --AV
+    //interfaceID[0] = interfaceID[1] = 0;
 
     //AP bridge apecific setup
     cMessage* protocolNotifier = new cMessage("PROTOCOL_NOTIFIER");
@@ -75,21 +76,23 @@ void IPv6PPPAPInterface::finish()
 
 void IPv6PPPAPInterface::handleMessage(cMessage* msg)
 {
-  if (lowInterfaceId() == 0 && highInterfaceId() == 0)
-  {
-    // needed for AP bridge
-    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC")
-    {
-      MACAddress6 addrObj;
-      addrObj.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
-      MAC_address addr = static_cast<MAC_address>(addrObj);
-      interfaceID[0] = addr.high;
-      interfaceID[1] = addr.low;
-    }
-
-    delete msg;
-    return;
-  }
+/* XXX FIXME TBD !!!!!!!!!!! what the heck is going on here????? --AV
+*  if (lowInterfaceId() == 0 && highInterfaceId() == 0)
+*  {
+*    // needed for AP bridge
+*    if ( std::string(msg->name()) == "WE_AP_NOTIFY_MAC")
+*    {
+*      MACAddress6 addrObj;
+*      addrObj.set(static_cast<cPar*>(msg->parList().get(0))->stringValue());
+*      MAC_address addr = static_cast<MAC_address>(addrObj);
+*      interfaceID[0] = addr.high;
+*      interfaceID[1] = addr.low;
+*    }
+*
+*    delete msg;
+*    return;
+*  }
+*/
   IPv6PPPInterface::handleMessage(msg);
 }
 

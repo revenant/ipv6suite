@@ -53,8 +53,9 @@ void IPv6PPPInterface::initialize()
   setIface_name(PR_PPP);
   iface_type = PR_PPP;
 
-  interfaceID[0] = OPP_Global::generateInterfaceId();
-  interfaceID[1] = OPP_Global::generateInterfaceId();
+  // XXX went into registerInterface()
+  //interfaceID[0] = OPP_Global::generateInterfaceId();
+  //interfaceID[1] = OPP_Global::generateInterfaceId();
 
   registerInterface();
 
@@ -62,15 +63,16 @@ void IPv6PPPInterface::initialize()
   curMessage = 0;
 }
 
-unsigned int IPv6PPPInterface::lowInterfaceId()
-{
-  return interfaceID[1];
-}
-
-unsigned int IPv6PPPInterface::highInterfaceId()
-{
-  return interfaceID[0];
-}
+//XXX replaced by ie->ifToken()
+//unsigned int IPv6PPPInterface::lowInterfaceId()
+//{
+//  return interfaceID[1];
+//}
+//
+//unsigned int IPv6PPPInterface::highInterfaceId()
+//{
+//  return interfaceID[0];
+//}
 
 InterfaceEntry *IPv6PPPInterface::registerInterface()
 {
@@ -96,6 +98,15 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
   e->setOutputPort(outputPort);
 
   e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
+
+  // generate a link-layer address to be used as interface token for IPv6
+  InterfaceToken token(0, simulation.getUniqueNumber(), 64);
+  e->setIfToken(token);
+
+  // and convert it to a string, for llAddrStr
+  char buf[32];
+  sprintf(buf, "%8.8lx:%8.8lx", token.normal(), token.low());
+  e->setLLAddrStr(buf);
 
   // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
   // 4000 (on some point-to-point links), 4470 (Cisco routers default, FDDI compatible)

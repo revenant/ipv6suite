@@ -298,7 +298,7 @@ void WirelessEtherModule::initialize(int stage)
 
 void WirelessEtherModule::finish()
 {
-   cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
+  cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
   //if not dual layer node then print the handover time
   if(!linkLayer->gate("extSignalOut")->isConnected())
   {
@@ -342,6 +342,15 @@ InterfaceEntry *WirelessEtherModule::registerInterface()
   // port: index of gate where parent module's "netwIn" is connected (in IP)
   int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
   e->setOutputPort(outputPort);
+
+/*XXX TBD adopt this code
+  // generate a link-layer address to be used as interface token for IPv6
+  InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
+  e->setIfToken(token);
+
+  // MAC address as string
+  e->setLLAddrStr(_myAddr.stringValue());
+*/
 
   // MTU is 1500 on Ethernet
   e->setMtu(1500);

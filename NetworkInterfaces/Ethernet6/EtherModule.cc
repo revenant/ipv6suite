@@ -137,7 +137,14 @@ InterfaceEntry *EtherModule::registerInterface()
   // port: index of gate where parent module's "netwIn" is connected (in IP)
   int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
   e->setOutputPort(outputPort);
-printf("DBG: %s '%s' gate: %s\n", fullPath().c_str(), e->name(), parentModule()->gate("netwIn")->fromGate()->fullPath().c_str());
+printf("DBG: %s as '%s' on %d\n", fullPath().c_str(), e->name(), outputPort);
+
+  // generate a link-layer address to be used as interface token for IPv6
+  InterfaceToken token(_myAddr.intValue()[0], _myAddr.intValue()[0], 64);
+  e->setIfToken(token);
+
+  // MAC address as string
+  e->setLLAddrStr(_myAddr.stringValue());
 
   // MTU is 1500 on Ethernet
   e->setMtu(1500);
@@ -221,7 +228,7 @@ bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passin
   // addresses ranged from 33:00:00:00:00:00 to 33:FF:FF:FF:FF:FF
   // specifically for IPv6 Neighbour Dicovery, we may have to
   // investigate on that...
-  if (strFrameDestAddr == macAddressString() ||
+  if (strFrameDestAddr == _myAddr.stringValue() ||  // XXX why string comparison...
       strFrameDestAddr == ETH_BROADCAST_ADDRESS)
   {
     cMessage* packet = frame->decapsulate();
@@ -249,7 +256,7 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg) //XXX this is actuall
 */
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   EtherFrame6* frame = new EtherFrame6(msg->name());
-  frame->setSrcAddress(MACAddress6(macAddressString().c_str()));
+  frame->setSrcAddress(MACAddress6(_myAddr.stringValue()));
   frame->setDestAddress(MACAddress6(ctrlInfo->getDestLLAddr()));
   delete ctrlInfo;
   frame->setProtocol(PR_ETHERNET);
@@ -337,15 +344,16 @@ void EtherModule::changeState(EtherState* state)
   _currentState = state;
 }
 
-const unsigned int* EtherModule::macAddress(void)
-{
-  return _myAddr.intValue();
-}
-
-std::string EtherModule::macAddressString(void)
-{
-  return _myAddr.stringValue();
-}
+//XXX no need for this --AV
+//const unsigned int* EtherModule::macAddress(void)
+//{
+//  return _myAddr.intValue();
+//}
+//
+//std::string EtherModule::macAddressString(void)
+//{
+//  return _myAddr.stringValue();
+//}
 
 void EtherModule::cancelAllTmrMessages(void)
 {

@@ -41,6 +41,7 @@
 // XXX TBD eliminate this constant from everywhere!
 #define NWI_IDLE    13
 
+// XXX this whole base class should be eliminated!!! --AV
 class LinkLayerModule : public cSimpleModule
 {
  public:

@@ -86,8 +86,9 @@ class EtherModule: public LinkLayerModule
 
   long procDelay(void) { return procdelay; }
 
-  const unsigned int* macAddress(void);
-  std::string macAddressString(void);
+//XXX no need to expose this
+//  const unsigned int* macAddress(void);
+//  std::string macAddressString(void);
 
   std::list<EtherSignalData*> outputBuffer;
   EtherSignalData* inputFrame; // one frame slot buffer

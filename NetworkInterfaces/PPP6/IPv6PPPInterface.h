@@ -35,15 +35,12 @@ class PPP6Frame;
 class InterfaceEntry;
 
 /**
-   @class IPv6PPPInterface
-   @brief Handle translation of Network to physical addresses
-
+ * PPP interface
  */
 class IPv6PPPInterface: public LinkLayerModule
 {
 public:
   Module_Class_Members(IPv6PPPInterface, LinkLayerModule, 0);
-                       //ACTIVITY_STACK_SIZE);
 
   virtual void initialize();
   //XXX virtual void activity();  not used, to be removed ? --AV
@@ -52,16 +49,19 @@ public:
   // adds interface entry into InterfaceTable
   InterfaceEntry *registerInterface();
 
-  unsigned int lowInterfaceId();
-  unsigned int highInterfaceId();
+/* XXX  ie->ifToken() is used instead --AV
+* unsigned int lowInterfaceId();
+* unsigned int highInterfaceId();
+*/
 
 protected:
   virtual PPP6Frame* receiveFromUpperLayer(cMessage* msg) const;
   virtual void sendToUpperLayer(PPP6Frame* frame);
 
 protected:
-  unsigned int interfaceID[2];
-
+/* XXX  ie->ifToken() is used instead --AV
+* unsigned int interfaceID[2];
+*/
   cMessage* waitTmr;
   cMessage* curMessage;
 };

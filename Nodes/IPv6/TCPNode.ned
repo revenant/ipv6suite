@@ -55,7 +55,7 @@ module TCPNode
                 local_addr = local_addr,
                 server_addr = server_addr;
             display: "p=84,69;b=40,24,rect";
-        errorHandling: ErrorHandling;
+        errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:

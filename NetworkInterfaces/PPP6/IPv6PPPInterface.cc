@@ -36,7 +36,7 @@
 #include "PPP6Frame.h"
 #include "opp_utils.h"
 #include "IPv6InterfaceData.h"
-#include "Messages.h"
+//#include "Messages.h"
 //#include "IPDatagram.h"
 //#ifdef CWDEBUG
 //#include "IPv6Datagram.h"
@@ -48,7 +48,7 @@
 //#include "IPv6Datagram.h"
 #endif
 
-#include "LLInterfacePkt.h"
+#include "LL6ControlInfo_m.h"
 
 
 Define_Module_Like( IPv6PPPInterface, NetworkInterface6);
@@ -170,25 +170,32 @@ PPP6Frame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
   // encapsulate IP datagram in PPP frame
   PPP6Frame* outFrame = new PPP6Frame();
 
+  /* XXX replaced LLInterfacePkt with control info, below --AV
   LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg);
+  */
 
   //Hack dest LL addr required when we use PPP in access point otherwise packets
   //don't know which MN to go to. If we used broadcast then all MN would process
   //packet at upper layers which is not efficient and is not realistic.
+/*
   outFrame->destAddr = recPkt->data().destLLAddr;
   Debug( assert(check_and_cast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
+*/
 
 /* XXX next two lines replaced with one --AV
   cMessage *dupMsg = recPkt->data().dgram->dup();
   delete recPkt->data().dgram;
 */
-  cMessage *dupMsg = recPkt->data().dgram;
+  //cMessage *dupMsg = recPkt->data().dgram;
+  LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
+  outFrame->destAddr = ctrlInfo->getDestLLAddr();
+  delete ctrlInfo;
 
-  dupMsg->setLength(dupMsg->length() * 8); // convert from bytes to bits   XXX ??? --AV
-  outFrame->encapsulate(dupMsg);
-  outFrame->setProtocol(PPP_PROT_IP); //XXX wrong! value from InterfacePkt? --AV
-  outFrame->setName(dupMsg->name());
-  delete recPkt;
+  msg->setLength(msg->length() * 8); // convert from bytes to bits   XXX ??? --AV
+  outFrame->encapsulate(msg);
+  outFrame->setProtocol(PPP_PROT_IP); //XXX why hardcode? value from ctrl info? --AV
+  outFrame->setName(msg->name());
+  //XXX delete recPkt;
   return outFrame;
   //wait(delay);
 }

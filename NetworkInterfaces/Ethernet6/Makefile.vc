@@ -227,7 +227,7 @@ EtherModule.obj: EtherModule.cc \
   ethernet.h \
   ../../Util/cTTimerMessageCB.h \
   EtherFrame6.h \
-  ../LLInterfacePkt.h \
+  ../LL6ControlInfo_m.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -503,7 +503,6 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../Wireless/WirelessEtherModule.h \
   ../../config.h \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../Wireless/wirelessethernet.h \
   ../Wireless/WirelessEtherFrame_m.h \
   ../Wireless/WirelessEtherFrameBody_m.h \
@@ -518,8 +517,7 @@ EtherModuleAP.obj: EtherModuleAP.cc \
   ../../Util/Loki/NullType.h \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
-  ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h
+  ../../Util/Loki/Singleton.h
 EtherModuleBridge.obj: EtherModuleBridge.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \

@@ -25,9 +25,6 @@
  *
  */
 
-//XXX temporarily disabled because I don't have xmlwrapp --AV
-//#if 0
-
 //These two headers have to come first if libcwd macros are in use
 #include "sys.h"
 #include "debug.h"
@@ -38,15 +35,13 @@
 #include <climits>
 #include <functional>
 #include <algorithm>
+#include <boost/cast.hpp>
 #include "opp_utils.h"  // for int/double <==> string conversions
 #include <sstream> //stringstream
-#include <boost/cast.hpp>
 
-//#include "nwiface.h"
 #include "opp_utils.h"
 #include "cTypedMessage.h"
 #include "Messages.h"
-//#include "IPv6XMLManager.h"
 #include "cTimerMessage.h"
 #include "NDTimers.h"
 #include "NDEntry.h"
@@ -112,6 +107,7 @@ void RoutingTable6::initialize(int stage)
                        interfaces.max_size());
 
     numOfIfaces = par("numOfPorts").longValue();
+    displayIfconfig = par("displayIfconfig").boolValue();
 
      // add in loopback InterfaceEntry
     Interface6Entry loopback_iface;
@@ -119,7 +115,6 @@ void RoutingTable6::initialize(int stage)
     loopback_iface.iface_name = "lo";
 
     IPv6Address loopback_adr(LOOPBACK_ADDRESS);
-    AllocTag(loopback_adr, "Allocated from "<< __FILE__ << ":" << __LINE__ );
 
     loopback_iface.inetAddrs.push_back(loopback_adr);
     interfaces.push_back(loopback_iface);
@@ -244,7 +239,8 @@ void RoutingTable6::initialize(int stage)
     //parseNetworkEntity completed here at same time.
     wp->staticRoutingTable(this);
     // test function
-    print();
+    if (displayIfconfig)
+      print();
   } //end stage 1
   else if( stage == 2 )
   {
@@ -260,7 +256,7 @@ void RoutingTable6::handleMessage(cMessage* msg)
 {
   if (msg->isSelfMessage())
   {
-    (check_and_cast<cTimerMessage *> (msg) )->callFunc();
+    check_and_cast<cTimerMessage *> (msg)->callFunc();
   }
   else
     assert(false);
@@ -693,8 +689,7 @@ const char* RoutingTable6::nodeName() const
 
 
 /**
-   @brief assign a tentative addr
-   Params: addr must be the same addr pointer retrieved from tentativeAddrs
+   @brief assign a possibly tentative addr
 */
 bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 {
@@ -705,7 +700,8 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 
   Interface6Entry& ie = getInterfaceByIndex(if_idx);
   assert(!ie.addrAssigned(addr));
-  ie.removeTentativeAddress(addr);
+  if (ie.tentativeAddrAssigned(addr))
+    ie.removeTentativeAddress(addr);
   ie.inetAddrs.push_back(addr);
 
 
@@ -723,9 +719,6 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
    @param addr object has be one that is bound at ifIndex
    @param ifIndex index of the interface
 
-   @warning Make sure removeHoles is called on the respective iface. This could
-   be done in here however as more than 1 address may be removed at the same
-   time it may be better to collect them all and do it once.
 */
 void RoutingTable6::removeAddress(const IPv6Address& addr, unsigned int ifIndex)
 {
@@ -785,7 +778,7 @@ void RoutingTable6::invalidateAddresses()
       if (ie.inetAddrs[addrIndex].storedLifetime() == 0)
       {
         Dout(dc::address_timer|flush_cf|dc::ipv6, nodeName()<<":"<<ifIndex<<" "
-             <<*(ie.inetAddrs.get(addrIndex))<<" removed");
+             <<ie.inetAddrs[addrIndex]<<" removed");
 
         removeAddress(ie.inetAddrs[addrIndex], ifIndex);
         addrRemovedFromIface = true;
@@ -1061,5 +1054,3 @@ void RoutingTableTest::testLookupAddress()
   CPPUNIT_ASSERT(string("ppp201") == ie.iface_name);
 }
 #endif //USE_CPPUNIT
-
-//#endif //0

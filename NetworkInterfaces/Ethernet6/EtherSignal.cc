@@ -47,7 +47,9 @@ EtherSignal& EtherSignal::operator=(const EtherSignal& p)
 }
 
 EtherSignalData::EtherSignalData(EtherFrame6* frame)
-  : EtherSignal(EST_Data), _frame(frame->dup())
+  : EtherSignal(EST_Data), _frame(frame->dup())  // XXX FIXME why dup?????????????????? --AV
+                                                 // and why member, why not encapsulate????????? --AV
+												 // and if member, why no take() and drop()??? 
 {
   setName("FRAME");
   setKind(static_cast<int>(EST_Data));
@@ -62,7 +64,7 @@ EtherSignalData::EtherSignalData(const EtherSignalData& p)
 EtherSignalData::~EtherSignalData()
 {
   assert(_frame);
-  delete _frame;
+  delete _frame;   //XXX crash on exit!!!
 }
 
 EtherSignalData& EtherSignalData::operator=(const EtherSignalData& p)

@@ -334,9 +334,9 @@ void WorldProcessor::updateStats(void)
   for (size_t i = 0; i < modList.size(); i++)
   {
     //Get the interface's link layer
-    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule();
-    cModule* phylayer = interface->gate("wlin")->toGate()->ownerModule();
-    cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule();
+    cModule* interface = modList[i]->containerModule()->parentModule()->parentModule(); // XXX Ugh!! hardcoded model structure! --AV
+    cModule* phylayer = interface->gate("wlin")->toGate()->ownerModule(); // XXX if not connected ==> crash! --AV
+    cModule* linkLayer =  phylayer->gate("linkOut")->toGate()->ownerModule(); // XXX if not connected ==> crash! --AV
 
     if(linkLayer != NULL)
     {

@@ -36,9 +36,9 @@
 
 
 class IPv6Datagram;
-struct LLInterfaceInfo;
-template<typename T> class cTypedMessage;
-typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
+//XXX struct LLInterfaceInfo;
+//XXX template<typename T> class cTypedMessage;
+//XXX typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 class IPv6ForwardCore;
 
 /**
@@ -46,6 +46,7 @@ class IPv6ForwardCore;
  * @brief All datagrams pass through here before going down to layer two
  */
 
+//XXX FIXME TBD rewrite with QueueBase!!!!! --AV
 class IPv6OutputCore: public RoutingTable6Access
 {
 public:
@@ -56,16 +57,22 @@ public:
   virtual void finish();
 
 private:
-  LLInterfacePkt* processArrivingMessage(cMessage* msg);
+  // XXX as far as I could tell, here we expect an IPv6Datagram, and
+  // fill out the link layer address for it. Packets arriving on gate XXX TBD
+  // already have it assigned.
+
+  //XXX LLInterfacePkt* processArrivingMessage(cMessage* msg);
+  void processArrivingMessage(IPv6Datagram* msg);
 
   simtime_t delay;
-  bool hasHook;
+  //bool hasHook;
   unsigned int ctrIP6OutForwDatagrams;
   unsigned int ctrIP6OutMcastPkts;
-  LLInterfacePkt* curPacket;
+  //XXX LLInterfacePkt* curPacket;
+  IPv6Datagram *curPacket;
   cMessage* waitTmr;
   cQueue waitQueue;
-  ::IPv6ForwardCore* forwardMod;
+  ::IPv6ForwardCore* forwardMod; // XXX why's this needed? why not connection? --AV
 };
 
 #endif

@@ -43,7 +43,7 @@
 #include "ipv6_addr.h"
 #include "cTimerMessage.h"
 #include "IPv6CDS.h"
-#include "LLInterfacePkt.h"
+#include "LL6ControlInfo_m.h"
 
 #ifdef USE_HMIP
 #include "HMIPv6ICMPv6NDMessage.h"
@@ -54,7 +54,6 @@
 #include "opp_akaroa.h"
 
 #include "IPv6OutputCore.h"
-#include "Messages.h" // LLInterfaceInfo
 
 
 
@@ -108,7 +107,13 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
   MIN_DELAY_BETWEEN_RAS = 3.0;
 #endif //USE_MOBILITY
 
-///Stuff for unicast sending
+  ///Stuff for unicast sending
+  if (rt->interfaceCount()==0)
+  {
+    outputMod = NULL; //XXX is that enough? --AV
+    outputUnicastGate = -1;
+    return;
+  }
   outputMod = new cModule*[rt->interfaceCount()];
   //nd->icmp->proc
   cModule* procMod = nd->parentModule()->parentModule();
@@ -455,11 +460,19 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
             {
               //TODO send to addrResln instead so they can resolve address if
               //source did not include source link-layer addr opt.
+/* XXX code changed to use LL6ControlInfo --AV
               IPv6Datagram* advDgram = createDatagram(tmr->ifIndex, dgram->srcAddress());
               LLInterfaceInfo info = {advDgram, rtrSol->srcLLAddr()};
               //cGate *inputgate instead of mod and gatename/id
               nd->sendDirect( new LLInterfacePkt(info), 0,
                               outputMod[tmr->ifIndex], outputUnicastGate);
+*/
+              IPv6Datagram* advDgram = createDatagram(tmr->ifIndex, dgram->srcAddress());
+              LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+              ctrlInfo->setDestLLAddr(rtrSol->srcLLAddr());
+              advDgram->setControlInfo(ctrlInfo);
+              nd->sendDirect(advDgram, 0, outputMod[tmr->ifIndex], outputUnicastGate); // XXX why sendDirect? -AV
+
               ie.rtrVar.fastRACounter++;
               Dout(dc::router_disc|dc::debug, rt->nodeName()<<":"<<tmr->ifIndex
                    <<" "<<nd->simTime()<<" fast ra sent counter="<<ie.rtrVar.fastRACounter
@@ -668,9 +681,17 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
           return;
         }
 
+/* XXX code change to use control info --AV
         LLInterfaceInfo info = {redirect, ne->linkLayerAddr()};
         nd->sendDirect( new LLInterfacePkt(info), 0,
                         outputMod[ifIndex], outputUnicastGate);
+*/
+        // XXX TBD factor out next 4 lines into separate sendXXXX() function
+        LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+        ctrlInfo->setDestLLAddr(ne->linkLayerAddr().c_str());
+        redirect->setControlInfo(ctrlInfo);
+        nd->sendDirect(redirect, 0, outputMod[ifIndex], outputUnicastGate); // XXX why sendDirect? -AV
+
         Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<ifIndex
              <<" "<<nd->simTime()<<" Redirect sent to "<<dgram->srcAddress()
              <<" for "<<dgram->destAddress());

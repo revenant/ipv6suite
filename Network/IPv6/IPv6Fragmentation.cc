@@ -41,9 +41,8 @@
 #include "ICMPv6Message.h"
 #include "IPv6InterfaceData.h"
 #include "Messages.h"
-#include "LLInterfacePkt.h"
+#include "LL6ControlInfo_m.h"
 
-typedef cTypedMessage<LLInterfaceInfo> LLInterfacePkt;
 
 Define_Module( IPv6Fragmentation );
 
@@ -274,18 +273,14 @@ void IPv6Fragmentation::sendOutput(AddrResMsg* msg )
   int outputPort = msg->data().ifIndex;
 
   if (!(outputPort < numOfPorts))
-  {
     error("illegal output port %d", outputPort);
 
-/* XXX --AV
-    delete msg->data().dgram;
-    delete msg;
-    return;
-*/
-  }
+/*XXX changed to LL6ControlInfo code below --AV
   LLInterfaceInfo info = { msg->data().dgram, msg->data().linkLayerAddr };
   LLInterfacePkt* ifpkt = new LLInterfacePkt(info);
   ifpkt->setName(info.dgram->name());
+  IPv6Datagram *datagram = msg->data().dgram;
+  delete msg;
 
   // XXX This needs to be done in llpkt itself as take is a protected function,
   //except that's a template class.  We do not know the type of the template
@@ -296,5 +291,12 @@ void IPv6Fragmentation::sendOutput(AddrResMsg* msg )
 
   delete msg;
   send(ifpkt, "outputOut", outputPort);
+*/
+  IPv6Datagram *datagram = msg->data().dgram;
+  LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+  ctrlInfo->setDestLLAddr(msg->data().linkLayerAddr.c_str());
+  datagram->setControlInfo(ctrlInfo);
+  delete msg;
+  send(datagram, "outputOut", outputPort);
 }
 

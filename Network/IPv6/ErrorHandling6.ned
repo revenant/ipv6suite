@@ -1,6 +1,6 @@
 //
+//
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,23 +16,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
 //
-//   file: RoutingTable6
-//   Purpose: keep the table of all routing and
-//        nterface information
-//   comment: has no gates;
-//        requires function calls to do anything
+// Handles error notifications that arrive from other protocol modules.
 //
-//   author: Johnny Lai
-//   Based on RoutingTable by Jochen Reber
-
-
-
-
-simple RoutingTable6
-    parameters:
-	//Turn on ifconfig like output at initialise for this node?
-	displayIfconfig : bool,
-        IPv6routingFile : string,
-    numOfPorts : numeric;
+// Errors arrive in messages; this implementation just prints a report
+// and discards the message.
+//
+simple ErrorHandling6
+    gates:
+        in: in;
 endsimple
+

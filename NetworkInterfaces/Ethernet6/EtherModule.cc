@@ -49,7 +49,7 @@
 #include "ethernet.h"
 #include "cTTimerMessageCB.h"
 #include "EtherFrame6.h"
-#include "LLInterfacePkt.h"
+#include "LL6ControlInfo_m.h"
 
 
 
@@ -194,6 +194,7 @@ bool EtherModule::sendData(EtherFrame6* frame)
 bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
 {
   // Something to send onto network
+/* XXX code below changed to use control info --AV
   LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg.get());
   assert(recPkt != 0);
 
@@ -204,18 +205,19 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
   destAddress.set(recPkt->data().destLLAddr.c_str());
   frame->setDestAddress(destAddress);
 
-/* XXX this code was changed to line below  --AV
   cMessage* dupMsg = recPkt->data().dgram->dup();
 
   //when recPkt is deleted data is deleted but LLInterfaceInfo is a struct so dgram is not
   delete recPkt->data().dgram;
-*/
   cMessage* dupMsg = recPkt->data().dgram;
   recPkt->data().dgram = NULL;
-
+*/
+  LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
+  EtherFrame6* frame = new EtherFrame6(msg->name());
+  frame->setSrcAddress(MACAddress6(ctrlInfo->getDestLLAddr()));
+  delete ctrlInfo;
   frame->setProtocol(PR_ETHERNET);
-  frame->encapsulate(dupMsg);
-  frame->setName(dupMsg->name());
+  frame->encapsulate(msg.release());
 
   EtherSignalData* sigData = new EtherSignalData(frame);
   sigData->setName(frame->name());
@@ -223,7 +225,7 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg)
 
   outputBuffer.push_back(sigData);
 
-  delete frame;
+  delete frame; // XXX WHY'S THIS?? WE JUST CREATED "frame"! --AV
 
   if ( _currentState == EtherStateIdle::instance())
   {

@@ -13,7 +13,6 @@
 #endif //CTYPEDMESSAGE_H
 
 class IPv6Datagram;
-class IPDatagram;
 
 struct AddrResInfo
 {
@@ -23,17 +22,20 @@ struct AddrResInfo
   string linkLayerAddr;
 };
 
+/* XXX never used --AV
 struct GenericUDPInfo
 {
   string data;
   simtime_t timeStamp;
 };
-
 struct VideoStreamInfo : public GenericUDPInfo
 {
   simtime_t expireTime;
 };
+*/
+
 
 typedef cTypedMessage<AddrResInfo> AddrResMsg;
 
 #endif //__MESSAGE_H__
+

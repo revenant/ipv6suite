@@ -58,10 +58,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= LinkLayerModule.obj
+OBJS= LL6ControlInfo_m.obj LinkLayerModule.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= 
+GENERATEDHEADERS= LL6ControlInfo_m.h
 
 # subdirectories to recurse into
 SUBDIRS= _802 ARP Ethernet Ethernet6 PPP PPP6 Wireless
@@ -106,6 +106,12 @@ PPP6_dir:
 
 Wireless_dir:
 	cd Wireless && cd && nmake /nologo /f Makefile.vc
+
+LL6ControlInfo_m.obj: LL6ControlInfo_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp LL6ControlInfo_m.cc
+
+LL6ControlInfo_m.cc LL6ControlInfo_m.h: LL6ControlInfo.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) LL6ControlInfo.msg
 
 LinkLayerModule.obj: LinkLayerModule.cc
 	$(CXX) -c $(COPTS) /Tp LinkLayerModule.cc
@@ -164,3 +170,5 @@ LinkLayerModule.obj: LinkLayerModule.cc \
   ../Util/boost/detail/lwm_nop.hpp \
   ../Util/boost/limits.hpp \
   ../Util/boost/detail/select_type.hpp
+LL6ControlInfo_m.obj: LL6ControlInfo_m.cc \
+  LL6ControlInfo_m.h

@@ -94,25 +94,24 @@ void Interface6Entry::removeAddrFromArray(IPv6Addresses& addrs, const IPv6Addres
   //Weak test to see if addr indeed belongs in this interface.  Should compare
   //the actual pointers
   IPv6Addresses::iterator it = std::find(addrs.begin(),addrs.end(),addr);
-  assert (it!=addrs.end());
-  *it = addrs.back();
-  addrs.pop_back();
+  // assert (it!=addrs.end());
+  if (it != addrs.end())
+  {
+    *it = addrs.back();
+    addrs.pop_back();
+  }
 }
 
 bool Interface6Entry::addrAssigned(const ipv6_addr& addr) const
 {
-  for (size_t i = 0; i < inetAddrs.size(); i++)
-    if (inetAddrs[i] == addr)
-      return true;
-  return false;
+  IPv6Addresses::const_iterator it = std::find(inetAddrs.begin(),inetAddrs.end(),addr);
+  return it!=inetAddrs.end();
 }
 
 bool Interface6Entry::tentativeAddrAssigned(const ipv6_addr& addr) const
 {
-  for (size_t i = 0; i < tentativeAddrs.size(); i++)
-    if (tentativeAddrs[i] == addr)
-      return true;
-  return false;
+  IPv6Addresses::const_iterator it = std::find(tentativeAddrs.begin(),tentativeAddrs.end(),addr);
+  return it!=tentativeAddrs.end();
 }
 
 const char* Interface6Entry::encap(void)
@@ -251,7 +250,7 @@ void Interface6Entry::print(bool IPForward)
          llAddr.c_str());
 
   // print out each IPv6 address attached to the interace
-  for(int i=0; i<inetAddrs.size(); i++)
+  for(unsigned int i=0; i<inetAddrs.size(); i++)
   {
     PRINTF("\t inet6 addr: %s Scope:%s \n",
            inetAddrs[i].address().c_str(),

@@ -42,7 +42,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "IPv6OutputCore.h"
-#include "LLInterfacePkt.h"
+#include "LL6ControlInfo_m.h"
 
 using std::string;
 using IPv6NeighbourDiscovery::NDHOPLIMIT;
@@ -76,6 +76,12 @@ void AddressResolution::initialize()
   ctrIcmp6OutNgbrAdv = 0;
   ctrIcmp6OutNgbrSol = 0;
 
+  if (rt->interfaceCount()==0)
+  {
+    outputUnicastGate = -1;
+    outputMod = NULL; //XXX is that enough? --AV
+    return;
+  }
   outputMod = new cModule*[rt->interfaceCount()];
   //nd->icmp->proc
   cModule* procMod = parentModule();
@@ -85,6 +91,7 @@ void AddressResolution::initialize()
   for (unsigned int i = 0; i < rt->interfaceCount(); i++)
   {
     outputMod[i] = procMod->submodule("output", i);
+	assert(outputMod[i]);
     outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
     assert(check_and_cast<IPv6OutputCore*>(outputMod[i]));
@@ -518,9 +525,16 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
       //Addr res can not use unicast.  These are most likely NUD messages
       assert(!ngbrSol->targetAddr().isMulticast());
 
+/* XXX changed to use control info --AV
       LLInterfaceInfo info = {response, ngbrSol->srcLLAddr()};
       sendDirect(new LLInterfacePkt(info), 0,
                               outputMod[ifIndex], outputUnicastGate);
+*/
+      LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+      ctrlInfo->setDestLLAddr(ngbrSol->srcLLAddr().c_str());
+      response->setControlInfo(ctrlInfo);
+      sendDirect(response, 0, outputMod[ifIndex], outputUnicastGate); // XXX why sendDirect? -AV
+
       //Using direct sending for unicast ND messages just like FAST RA
 
 /*

@@ -232,9 +232,14 @@ std::ostream& operator<<(std::ostream& os, const IPv6Address& obj)
 IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
 {
   m_prefix_length = obj.m_prefix_length;
-/*  m_prefix = obj.m_prefix;*/
   m_addr = obj.m_addr;
   m_scope = obj.m_scope;
+  m_storedLifetime = obj.m_storedLifetime;
+  m_preferredLifetime = obj.m_preferredLifetime;
+  
+  //not sure if this should be copied
+  _updated = _updated;
+
   return *this;
 };
 

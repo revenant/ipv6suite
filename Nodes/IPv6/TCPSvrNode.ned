@@ -52,7 +52,7 @@ module TCPSvrNode
                 local_addr = local_addr,
                 server_addr = 0;
             display: "p=84,69;b=40,24,rect";
-        errorHandling: ErrorHandling;
+        errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:

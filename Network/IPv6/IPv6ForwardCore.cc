@@ -50,7 +50,6 @@
 #include "ICMPv6Message.h"
 #include "opp_utils.h"
 #include "NDEntry.h"
-#include "cTypedMessage.h"
 #include "Messages.h"
 #include "HdrExtRteProc.h"
 #include "Interface6Entry.h"

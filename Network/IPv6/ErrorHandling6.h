@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,24 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
 //
-//   file: RoutingTable6
-//   Purpose: keep the table of all routing and
-//        nterface information
-//   comment: has no gates;
-//        requires function calls to do anything
-//
-//   author: Johnny Lai
-//   Based on RoutingTable by Jochen Reber
 
 
+#ifndef __ErrorHandling6_H__
+#define __ErrorHandling6_H__
 
+#include <omnetpp.h>
 
-simple RoutingTable6
-    parameters:
-	//Turn on ifconfig like output at initialise for this node?
-	displayIfconfig : bool,
-        IPv6routingFile : string,
-    numOfPorts : numeric;
-endsimple
+/**
+ * Error Handling: print out received error
+ */
+class ErrorHandling6: public cSimpleModule
+{
+  public:
+    Module_Class_Members(ErrorHandling6, cSimpleModule, 0);
+    virtual void initialize();
+    virtual void handleMessage(cMessage *msg);
+};
+
+#endif
+

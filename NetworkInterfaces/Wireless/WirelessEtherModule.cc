@@ -82,6 +82,8 @@
 #include "WirelessEtherAssociationReceiveMode.h"
 #include "WirelessEtherDataReceiveMode.h"
 
+#include "LL6ControlInfo_m.h"
+
 #include "AveragingList.h"
 
 #if MLDV2
@@ -338,21 +340,25 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   //if (_currentReceiveMode != WEDataReceiveMode::instance())
   //  return;
 
+/*XXX changed to use control info --AV
   LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>
     (msg.get());
   assert(recPkt != 0);
-
+*/
+  LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   WirelessEtherBasicFrame* frame = createFrame
-    (FT_DATA, ST_DATA, address, MACAddress6(recPkt->data().destLLAddr.c_str()));
+    (FT_DATA, ST_DATA, address, MACAddress6(ctrlInfo->getDestLLAddr()));
+  delete ctrlInfo;
 
 /*XXX replaced with 1 line below --AV
   cMessage* dupMsg = recPkt->data().dgram->dup();
   delete recPkt->data().dgram;
 */
-  cMessage* dupMsg = recPkt->data().dgram;
+  //XXX cMessage* dupMsg = recPkt->data().dgram;
   //XXX frame->setProtocol(PR_WETHERNET);
-  frame->encapsulate(dupMsg);
-  frame->setName(dupMsg->name());
+  frame->encapsulate(msg.get());
+  frame->setName(msg->name());
+  msg.release();   // XXX maybe get rid of auto_ptr here? --AV
 
   // relying on internal buffer, therefore need to get data from external
   // outputQueue into it quickly.
@@ -657,7 +663,10 @@ void WirelessEtherModule::scanNextChannel(void)
 
 void WirelessEtherModule::sendSuccessSignal(void)
 {
-  cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
+  // XXX change these notifications to use the Blackboard --AV
+  if (gate("extSignalOut")==NULL || gate("extSignalOut")->toGate()==NULL)
+    return;
+  cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule(); //XXX crashed if there was no extSignalOut[0] gate or it was not connected --AV
 
   // Check if linklayer external signalling channel is connected
   if(linkLayer->gate("extSignalOut")->isConnected())
@@ -737,15 +746,18 @@ void WirelessEtherModule::restartScanning(void)
 {
   if(associateAP.associated)
   {
-    cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
-
-    // Check if linklayer external signalling channel is connected
-    if(linkLayer->gate("extSignalOut")->isConnected())
+    if (gate("extSignalOut")!=NULL && gate("extSignalOut")->toGate()!=NULL)
     {
-      WirelessExternalSignalConnectionStatus* extSig = new WirelessExternalSignalConnectionStatus;
-      extSig->setType(ST_CONNECTION_STATUS);
-      extSig->setState(S_DISCONNECTED);
-      send(extSig, "extSignalOut", 0);
+      cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
+
+      // Check if linklayer external signalling channel is connected
+      if(linkLayer->gate("extSignalOut")->isConnected())
+      {
+        WirelessExternalSignalConnectionStatus* extSig = new WirelessExternalSignalConnectionStatus;
+        extSig->setType(ST_CONNECTION_STATUS);
+        extSig->setState(S_DISCONNECTED);
+        send(extSig, "extSignalOut", 0);
+      }
     }
   }
 

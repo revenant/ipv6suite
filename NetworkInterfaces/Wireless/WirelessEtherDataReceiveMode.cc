@@ -28,7 +28,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "csimul.h"
+#include <omnetpp.h>
 
 #include "WirelessEtherDataReceiveMode.h"
 #include "cTTimerMessageCB.h"

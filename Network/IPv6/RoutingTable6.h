@@ -331,6 +331,7 @@ public:
 
   unsigned int ctrIcmp6OutMsgs;
 
+  bool displayIfconfig;
 private:
 
   ///Elapse all valid/preferredLifetimes of assigned addresses

@@ -37,7 +37,7 @@ module Router6
         out: out[];
 
     submodules:
-        errorHandling: ErrorHandling;
+        errorHandling: ErrorHandling6;
             display: "p=163,86;i=sink";
         networkLayer: NetworkLayer6;
             parameters:

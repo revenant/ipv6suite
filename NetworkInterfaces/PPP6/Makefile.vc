@@ -307,33 +307,32 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   IPv6PPPInterface.h \
-  ../../Util/boost/cast.hpp \
   PPP6Frame.h \
   ../../Util/opp_utils.h \
   ../../Network/IPv6/IPv6InterfaceData.h \
-  ../../Network/IPv6/Messages.h \
-  ../LLInterfacePkt.h \
+  ../LL6ControlInfo_m.h \
   ../LinkLayerModule.h \
-  ../../Util/boost/config.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/non_type.hpp \
   ../../Util/boost/weak_ptr.hpp \
+  ../../Util/boost/cast.hpp \
   ../../Util/boost/shared_ptr.hpp \
+  ../../Util/boost/config.hpp \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/checked_delete.hpp \
   ../../Util/boost/throw_exception.hpp \
   ../../Util/boost/detail/shared_count.hpp \
   ../../Util/boost/detail/workaround.hpp \
+  ../../Util/boost/config/select_compiler_config.hpp \
+  ../../Util/boost/config/select_stdlib_config.hpp \
+  ../../Util/boost/config/select_platform_config.hpp \
+  ../../Util/boost/config/suffix.hpp \
+  ../../Util/boost/config/posix_features.hpp \
+  ../../Util/boost/type.hpp \
+  ../../Util/boost/non_type.hpp \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../Network/IPv6/IPv6InterfacePacket.h \
   ../../Network/IPv6/IPv6InterfaceData.cc \
   ../../Network/IPv6/IPv6Headers.h \
@@ -487,7 +486,6 @@ IPv6PPPInterface.obj: IPv6PPPInterface.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../../Network/IPv6/IPInterfacePacket_m.h \
-  ../../Util/cTypedMessage.h
+  ../../Network/IPv6/IPInterfacePacket_m.h
 PPP6Frame.obj: PPP6Frame.cc \
   PPP6Frame.h

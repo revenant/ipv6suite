@@ -559,14 +559,12 @@ XMLOmnetParser.obj: XMLOmnetParser.cc \
   ../../Network/IPv6/INeighbourCache.h \
   ../../Network/IPv6/IDestinationCache.h \
   ../../Network/MIPv6/MIPv6Entry.h \
-  ../../NetworkInterfaces/LLInterfacePkt.h \
   ../../NetworkInterfaces/LinkLayerModule.h \
   ../../NetworkInterfaces/Wireless/wirelessethernet.h \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrame_m.h \
   ../../NetworkInterfaces/Wireless/WirelessEtherFrameBody_m.h \
   ../../NetworkInterfaces/Wireless/WirelessExternalSignal_m.h \
   ../AveragingList.h \
-  ../cTypedMessage.h \
   ../../NetworkInterfaces/Ethernet6/ethernet.h \
   ../../PHY/Mobility/MobilityHandler.h \
   ../../PHY/Mobility/Entity.h \

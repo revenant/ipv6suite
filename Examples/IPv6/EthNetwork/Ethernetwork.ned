@@ -50,7 +50,7 @@ module Ethernetwork //
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=122,122;i=comp";
+            display: "i=comp";
         ethernetHub: Hub;
             gatesizes:
                 in[numOfClients+1],

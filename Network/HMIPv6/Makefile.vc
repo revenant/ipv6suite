@@ -352,9 +352,6 @@ EHCDSMobileNode.obj: EHCDSMobileNode.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/boost/cast.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \
@@ -832,13 +829,10 @@ EHTimedAlgorithm.obj: EHTimedAlgorithm.cc \
   ../../Util/boost/type_traits/remove_volatile.hpp \
   ../IPv6/RoutingTable6Access.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
   ../../Util/boost/next_prior.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../MIPv6/MIPv6MobilityHeaders.h \
   ../../Util/cTimerMessageCB.h \
   ../MIPv6/MIPv6MessageBase.h \
@@ -1057,9 +1051,6 @@ HMIPv6CDSMobileNode.obj: HMIPv6CDSMobileNode.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/boost/cast.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \
@@ -1576,6 +1567,7 @@ HMIPv6MStateMAP.obj: HMIPv6MStateMAP.cc \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp
 HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
+  ../../Util/boost/cast.hpp \
   ../../Util/sys.h \
   ../../Util/debug.h \
   ../../config.h \
@@ -1590,6 +1582,16 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../IPv6/NeighbourDiscovery.h \
   ../IPv6/IPv6Encapsulation.h \
   ../../Util/opp_utils.h \
+  ../../Util/boost/config.hpp \
+  ../../Util/boost/type.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
+  ../../Util/boost/config/select_compiler_config.hpp \
+  ../../Util/boost/config/select_stdlib_config.hpp \
+  ../../Util/boost/config/select_platform_config.hpp \
+  ../../Util/boost/config/suffix.hpp \
+  ../../Util/boost/config/posix_features.hpp \
+  ../../Util/boost/non_type.hpp \
   ../MIPv6/MIPv6NDStateHost.h \
   ../../Util/boost/tuple/tuple.hpp \
   HMIPv6fwd.hpp \
@@ -1604,16 +1606,8 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../IPv6/ICMPv6NDOptionBase.h \
   ../IPv6/ICMPv6NDMessageBase.cc \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/config.hpp \
   ../../Util/boost/iterator.hpp \
   ../../Util/boost/detail/workaround.hpp \
-  ../../Util/boost/config/select_compiler_config.hpp \
-  ../../Util/boost/config/select_stdlib_config.hpp \
-  ../../Util/boost/config/select_platform_config.hpp \
-  ../../Util/boost/config/suffix.hpp \
-  ../../Util/boost/config/posix_features.hpp \
-  ../../Util/boost/type.hpp \
-  ../../Util/boost/non_type.hpp \
   ../IPv6/IPv6Datagram.h \
   ../IPv6/Constants.h \
   ../IPv6/ICMPv6NDOptions.h \
@@ -1808,9 +1802,6 @@ HMIPv6NDStateHost.obj: HMIPv6NDStateHost.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
-  ../../Util/boost/cast.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \
@@ -2024,7 +2015,6 @@ HMIPv6NDStateRouter.obj: HMIPv6NDStateRouter.cc \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -2032,8 +2022,6 @@ HMIPv6NDStateRouter.obj: HMIPv6NDStateRouter.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \

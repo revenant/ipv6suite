@@ -234,7 +234,6 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
@@ -318,7 +317,6 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/TimerConstants.h \
   ../Ethernet6/ethernet.h \
   ../../PHY/Mobility/Entity.h \
@@ -353,7 +351,6 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -412,8 +409,6 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Util/Loki/Typelist.h \
   ../../Util/Loki/EmptyType.h \
   ../../Util/Loki/SmallObj.h \
@@ -423,9 +418,11 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   WirelessEtherReceiveMode.h \
+  ../../Util/boost/cast.hpp \
   ../Ethernet6/ethernet.h \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../Util/boost/shared_ptr.hpp \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -437,7 +434,6 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -473,7 +469,6 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   ../../Util/boost/non_type.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -547,7 +542,6 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -587,7 +581,6 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -661,7 +654,6 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -701,7 +693,6 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -775,7 +766,6 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -799,7 +789,6 @@ WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   ../../Util/boost/cast.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   wirelessethernet.h \
   WirelessEtherFrameBody_m.h \
   WirelessExternalSignal_m.h \
@@ -882,7 +871,6 @@ WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../Ethernet6/ethernet.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
@@ -914,7 +902,6 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/TimerConstants.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -973,13 +960,13 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
+  ../../Util/boost/cast.hpp \
+  ../Ethernet6/ethernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
-  ../Ethernet6/ethernet.h \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1001,7 +988,6 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1066,13 +1052,13 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   WirelessEtherAuthenticationReceiveMode.h \
   WirelessEtherAssociationReceiveMode.h \
   WirelessEtherDataReceiveMode.h \
+  ../LL6ControlInfo_m.h \
   ../../Util/AveragingList.h \
   ../../Network/IPv6/MLDv2Message.h \
   ../../Util/XML/XMLOmnetParser.h \
   ../../Util/cTimerMessage.h \
   ../../Util/TimerConstants.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -1131,8 +1117,6 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../Network/IPv6/IPv6Headers.h \
   ../../Network/IPv6/ipv6_addr.h \
   ../../Util/boost/operators.hpp \
@@ -1248,6 +1232,7 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Network/IPv6/IPInterfacePacket_m.h \
   ../../Util/cTypedMessage.h \
   ../../Util/boost/weak_ptr.hpp \
+  ../../Util/boost/cast.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \
   ../../Util/boost/throw_exception.hpp \
@@ -1255,6 +1240,8 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../PHY/Mobility/Entity.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
@@ -1269,7 +1256,6 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/Loki/Singleton.h \
   ../Ethernet6/ethernet.h \
   ../../Util/ExpiryEntryList.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   ../Ethernet6/MACAddress6.h \
   WirelessEtherFrame_m.h \
@@ -1309,7 +1295,6 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1383,7 +1368,6 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1422,7 +1406,6 @@ WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1496,7 +1479,6 @@ WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1522,7 +1504,6 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/TimerConstants.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -1581,8 +1562,6 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../../Util/boost/limits.hpp \
-  ../../Util/boost/detail/select_type.hpp \
   ../../config.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
@@ -1596,9 +1575,11 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
+  ../../Util/boost/cast.hpp \
   ../Ethernet6/ethernet.h \
+  ../../Util/boost/limits.hpp \
+  ../../Util/boost/detail/select_type.hpp \
   ../../Util/boost/shared_ptr.hpp \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1610,7 +1591,6 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1652,7 +1632,6 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/cTimerMessage.h \
   ../../Util/TimerConstants.h \
   ../../Util/boost/utility.hpp \
-  ../../Util/boost/cast.hpp \
   ../../Util/boost/noncopyable.hpp \
   ../../Util/boost/utility/addressof.hpp \
   ../../Util/boost/utility/base_from_member.hpp \
@@ -1711,13 +1690,13 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/boost/mpl/aux_/template_arity_fwd.hpp \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
+  ../../Util/boost/cast.hpp \
+  ../Ethernet6/ethernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
-  ../Ethernet6/ethernet.h \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1739,7 +1718,6 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1773,7 +1751,6 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1847,7 +1824,6 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -1881,7 +1857,6 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -1955,7 +1930,6 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -2050,7 +2024,6 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   ../../Util/Loki/Singleton.h \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -2062,7 +2035,6 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -2095,7 +2067,6 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -2171,7 +2142,6 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -2205,7 +2175,6 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../../Util/boost/non_type.hpp \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -2219,7 +2188,6 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../../Util/ExpiryEntryList.h \
@@ -2309,7 +2277,6 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/cTimerMessageCB.h \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -2385,7 +2352,6 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \
@@ -2417,7 +2383,6 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/boost/non_type.hpp \
   ../../config.h \
   ../../Util/boost/shared_ptr.hpp \
-  ../LLInterfacePkt.h \
   ../LinkLayerModule.h \
   wirelessethernet.h \
   ../Ethernet6/MACAddress6.h \
@@ -2431,7 +2396,6 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../../Util/cTypedMessage.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../Ethernet6/EtherSignal.h \

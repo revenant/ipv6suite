@@ -51,7 +51,7 @@ module MobileNode
         in: wlin[];
         out: wlout[];
     submodules:
-        errorHandling: ErrorHandling;
+        errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;
             parameters:
@@ -80,6 +80,9 @@ module MobileNode
         linkLayers: LinkLayer6[sizeof(wlin)];
             parameters:
                 nwi_delay = 0;
+            gatesizes:
+                extSignalIn[sizeof(wlin)],
+                extSignalOut[sizeof(wlin)];
             display: "p=168,292;i=prot3";
 
         udpLayer: UDPProcessing6;

@@ -95,7 +95,7 @@ cd %root%\Transport\UDP && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\
 cd %root%\Transport\RTP && %MAKEMAKE% %OPTS% -n -r -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
 cd %root%\Transport\TCP && %MAKEMAKE% %OPTS% -n -I..\..\Network\IPv4 -I..\..\Base -I..\..\Util
 
-cd %root%\Examples\bin && %MAKEMAKE% %OPTS% -w -o INET %ALL_INET_INCLUDES% %ALL_MPLS_INCLUDES% %ALL_IPv6_INCLUDES%
+cd %root%\Examples\bin && %MAKEMAKE% %OPTS% -w -o INET %ALL_INET_INCLUDES% %ALL_IPv6_INCLUDES% %ALL_MPLS_INCLUDES%
 
 cd %root%\Examples\Ethernet && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\INET && %MAKEMAKE% %OPTS% -n -r

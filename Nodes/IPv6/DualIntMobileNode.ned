@@ -58,7 +58,7 @@ module DualIntMobileNode
     gates:
         in: wlin[];
     submodules:
-        errorHandling: ErrorHandling;
+        errorHandling: ErrorHandling6;
             display: "p=291,222;i=sink";
         networkLayer: NetworkLayer6;
             parameters:

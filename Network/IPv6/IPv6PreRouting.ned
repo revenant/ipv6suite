@@ -18,7 +18,7 @@
 //
 // XXX documentation to be filled in
 //
-simple PreRouting6
+simple IPv6PreRouting
     parameters:
         procdelay : numeric const;
     gates:

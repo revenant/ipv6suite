@@ -70,7 +70,7 @@ module IPv6Processing
         out: queueOut[];
         out: errorOut;
     submodules:
-        preRouting: PreRouting6;
+        preRouting: IPv6PreRouting;
             parameters:
                 procdelay = prerouting_delay;
             display: "p=59,125;i=prot3";
@@ -78,7 +78,7 @@ module IPv6Processing
             parameters:
                 procdelay = routing_delay;
             display: "p=146,217;i=bwgen";
-        localDeliver: LocalDeliver6;
+        localDeliver: IPv6LocalDeliver;
             parameters:
                 procdelay = localdeliver_delay,
                 numOfTransportProt = numOfTransportProt,

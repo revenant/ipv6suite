@@ -85,7 +85,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     return rtrAdv;
   }
 
-  IPv6Datagram* dgram = rtrAdv->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
 
   //!mipv6cdsMN->primaryHA() does not imply that we do not allow map reg when
   //there is no reg with ha yet. It simply means that we process map options
@@ -204,7 +204,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   //std::set_difference(mapEntries.begin(), mapEntries.end(), mapOpt.begin(), mapOpt.end(), back_inserter<> , compFunction);
 
 
-  IPv6Datagram* dgram = rtrAdv->encapsulatedMsg();
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
 
   const ipv6_addr& ll_addr = dgram->srcAddress();
   boost::shared_ptr<MIPv6RouterEntry> accessRouter = mipv6cdsMN->findRouter(ll_addr);

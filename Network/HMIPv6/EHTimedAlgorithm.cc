@@ -47,7 +47,7 @@ namespace EdgeHandover
 
 ///For non omnetpp csimplemodule derived classes
 EHTimedAlgorithm::EHTimedAlgorithm(NeighbourDiscovery* mod):
-  EHNDStateHost::EHNDStateHost(mod), interval(10)
+  EHNDStateHost(mod), interval(10)
 {
   //Read xml info on Timed algorithm params
 
@@ -64,7 +64,7 @@ EHTimedAlgorithm::~EHTimedAlgorithm()
 
    Currently doing every x seconds. Add boolean to do other way. May
    not ever bind with HA if we actually visit many MAPs before interval expires
-   (in this case will need to distinguish between between MAPs?) 
+   (in this case will need to distinguish between between MAPs?)
  */
 void EHTimedAlgorithm::mapAlgorithm()
 {

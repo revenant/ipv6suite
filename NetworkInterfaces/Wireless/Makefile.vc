@@ -66,10 +66,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= WirelessEtherFrame_m.obj WirelessEtherFrameBody_m.obj WirelessExternalSignal_m.obj hodec.obj WirelessAccessPoint.obj WirelessEtherAPReceiveMode.obj WirelessEtherAScanReceiveMode.obj WirelessEtherAssociationReceiveMode.obj WirelessEtherAuthenticationReceiveMode.obj WirelessEtherBridge.obj WirelessEtherDataReceiveMode.obj WirelessEtherModule.obj WirelessEtherMonitorReceiveMode.obj wirelessethernet.obj WirelessEtherPScanReceiveMode.obj WirelessEtherReceiveMode.obj WirelessEtherSignal.obj WirelessEtherState.obj WirelessEtherStateAwaitACK.obj WirelessEtherStateAwaitACKReceive.obj WirelessEtherStateBackoff.obj WirelessEtherStateBackoffReceive.obj WirelessEtherStateIdle.obj WirelessEtherStateReceive.obj WirelessEtherStateSend.obj xfuzzy.obj
+OBJS= WirelessEtherFrame_m.obj WirelessEtherFrameBody_m.obj WirelessEtherSignal_m.obj WirelessExternalSignal_m.obj hodec.obj WEthernet.obj WirelessAccessPoint.obj WirelessEtherAPReceiveMode.obj WirelessEtherAScanReceiveMode.obj WirelessEtherAssociationReceiveMode.obj WirelessEtherAuthenticationReceiveMode.obj WirelessEtherBridge.obj WirelessEtherDataReceiveMode.obj WirelessEtherModule.obj WirelessEtherMonitorReceiveMode.obj wirelessethernet.obj WirelessEtherPScanReceiveMode.obj WirelessEtherReceiveMode.obj WirelessEtherSignal.obj WirelessEtherState.obj WirelessEtherStateAwaitACK.obj WirelessEtherStateAwaitACKReceive.obj WirelessEtherStateBackoff.obj WirelessEtherStateBackoffReceive.obj WirelessEtherStateIdle.obj WirelessEtherStateReceive.obj WirelessEtherStateSend.obj xfuzzy.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= WirelessEtherFrame_m.h WirelessEtherFrameBody_m.h WirelessExternalSignal_m.h
+GENERATEDHEADERS= WirelessEtherFrame_m.h WirelessEtherFrameBody_m.h WirelessEtherSignal_m.h WirelessExternalSignal_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -106,6 +106,12 @@ WirelessEtherFrameBody_m.obj: WirelessEtherFrameBody_m.cc
 WirelessEtherFrameBody_m.cc WirelessEtherFrameBody_m.h: WirelessEtherFrameBody.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) WirelessEtherFrameBody.msg
 
+WirelessEtherSignal_m.obj: WirelessEtherSignal_m.cc
+	$(CXX) -c $(NEDCOPTS) /Tp WirelessEtherSignal_m.cc
+
+WirelessEtherSignal_m.cc WirelessEtherSignal_m.h: WirelessEtherSignal.msg
+	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) WirelessEtherSignal.msg
+
 WirelessExternalSignal_m.obj: WirelessExternalSignal_m.cc
 	$(CXX) -c $(NEDCOPTS) /Tp WirelessExternalSignal_m.cc
 
@@ -114,6 +120,9 @@ WirelessExternalSignal_m.cc WirelessExternalSignal_m.h: WirelessExternalSignal.m
 
 hodec.obj: hodec.cc
 	$(CXX) -c $(COPTS) /Tp hodec.cc
+
+WEthernet.obj: WEthernet.cc
+	$(CXX) -c $(COPTS) /Tp WEthernet.cc
 
 WirelessAccessPoint.obj: WirelessAccessPoint.cc
 	$(CXX) -c $(COPTS) /Tp WirelessAccessPoint.cc
@@ -214,6 +223,8 @@ re-makemake: makefiles
 hodec.obj: hodec.cc \
   xfuzzy.h \
   hodec.h
+WEthernet.obj: WEthernet.cc \
+  WEthernet.h
 WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -225,7 +236,6 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../World/WorldProcessor.h \
   ../../Util/opp_utils.h \
   ../../PHY/Mobility/MobilityHandler.h \
-  WirelessEtherSignal.h \
   WirelessEtherStateIdle.h \
   ../Ethernet6/MACAddress6.h \
   WirelessEtherAPReceiveMode.h \
@@ -318,11 +328,9 @@ WirelessAccessPoint.obj: WirelessAccessPoint.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/TimerConstants.h \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../PHY/Mobility/Entity.h \
   ../../Util/boost/weak_ptr.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   WirelessEtherState.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
@@ -336,7 +344,6 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   WirelessEtherAPReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -419,7 +426,7 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/Loki/Singleton.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
   ../../Util/boost/shared_ptr.hpp \
@@ -435,9 +442,7 @@ WirelessEtherAPReceiveMode.obj: WirelessEtherAPReceiveMode.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -445,7 +450,6 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   WirelessEtherAScanReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -456,7 +460,7 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -543,16 +547,13 @@ WirelessEtherAScanReceiveMode.obj: WirelessEtherAScanReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherAssociationReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -567,7 +568,7 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../../Util/cTTimerMessageCB.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -656,8 +657,6 @@ WirelessEtherAssociationReceiveMode.obj: WirelessEtherAssociationReceiveMode.cc 
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../../Util/TimerConstants.h
 WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMode.cc \
   ../../Util/sys.h \
@@ -666,7 +665,6 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   WirelessEtherAuthenticationReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -679,7 +677,7 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   WirelessEtherAScanReceiveMode.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -767,20 +765,18 @@ WirelessEtherAuthenticationReceiveMode.obj: WirelessEtherAuthenticationReceiveMo
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherBridge.h \
   ../../Util/opp_utils.h \
   ../Ethernet6/EtherFrame6.h \
+  ../Ethernet6/EtherSignal_m.h \
   WirelessEtherFrame_m.h \
   ../LinkLayerModule.h \
   ../Ethernet6/EtherModuleAP.h \
   WirelessAccessPoint.h \
-  WirelessEtherSignal.h \
   ../PPP6/IPv6PPPAPInterface.h \
   ../PPP6/PPP6Frame.h \
   WirelessEtherModule.h \
@@ -871,14 +867,13 @@ WirelessEtherBridge.obj: WirelessEtherBridge.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../../Util/boost/weak_ptr.hpp \
   ../Ethernet6/EtherModule.h \
+  ../Ethernet6/ethernet.h \
   ../../Util/ExpiryEntryList.h \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../PPP6/IPv6PPPInterface.h
 WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/sys.h \
@@ -887,7 +882,6 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/cTTimerMessageCB.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -961,7 +955,7 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
   ../../config.h \
@@ -989,9 +983,7 @@ WirelessEtherDataReceiveMode.obj: WirelessEtherDataReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherFrame_m.obj: WirelessEtherFrame_m.cc \
   WirelessEtherFrame_m.h \
   ../Ethernet6/MACAddress6.h \
@@ -1033,11 +1025,9 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../World/WorldProcessor.h \
   ../../PHY/Mobility/MobileEntity.h \
   ../../PHY/Mobility/MobilityHandler.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   wirelessethernet.h \
   WirelessAccessPoint.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherStateIdle.h \
   WirelessEtherStateSend.h \
   WirelessEtherStateBackoff.h \
@@ -1254,14 +1244,13 @@ WirelessEtherModule.obj: WirelessEtherModule.cc \
   ../../Util/Loki/TypeManip.h \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/ExpiryEntryList.h \
   ../LinkLayerModule.h \
   ../Ethernet6/MACAddress6.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessExternalSignal_m.h \
-  ../Ethernet6/EtherSignal.h \
   WirelessEtherState.h \
   ../../Network/IPv6/ICMPv6Message.h
 WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
@@ -1270,7 +1259,6 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   WirelessEtherMonitorReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -1281,7 +1269,7 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -1369,19 +1357,16 @@ WirelessEtherMonitorReceiveMode.obj: WirelessEtherMonitorReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 wirelessethernet.obj: wirelessethernet.cc \
   wirelessethernet.h \
-  ../Ethernet6/ethernet.h
+  WEthernet.h
 WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherPScanReceiveMode.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -1392,7 +1377,7 @@ WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
   ../../Util/boost/limits.hpp \
@@ -1480,9 +1465,7 @@ WirelessEtherPScanReceiveMode.obj: WirelessEtherPScanReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
@@ -1491,7 +1474,6 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   WirelessAccessPoint.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -1576,7 +1558,7 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
   ../../Util/boost/shared_ptr.hpp \
@@ -1592,15 +1574,10 @@ WirelessEtherReceiveMode.obj: WirelessEtherReceiveMode.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherSignal.obj: WirelessEtherSignal.cc \
   WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
-  ../Ethernet6/ethernet.h \
   ../Ethernet6/MACAddress6.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/config.hpp \
@@ -1619,7 +1596,6 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/cTTimerMessageCB.h \
   WirelessEtherState.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -1691,7 +1667,7 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/boost/mpl/aux_/config/overload_resolution.hpp \
   ../../Util/boost/utility_fwd.hpp \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   ../../Util/boost/limits.hpp \
   ../../Util/boost/detail/select_type.hpp \
   ../../config.h \
@@ -1719,16 +1695,13 @@ WirelessEtherState.obj: WirelessEtherState.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherStateAwaitACK.h \
   WirelessEtherStateAwaitACKReceive.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
@@ -1736,7 +1709,7 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   WirelessAccessPoint.h \
   ../../Util/opp_akaroa.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -1826,8 +1799,6 @@ WirelessEtherStateAwaitACK.obj: WirelessEtherStateAwaitACK.cc \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../../Util/ExpiryEntryList.h
 WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   ../../Util/sys.h \
@@ -1835,14 +1806,13 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   WirelessEtherStateAwaitACKReceive.h \
   WirelessEtherModule.h \
   WirelessEtherStateAwaitACK.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateIdle.h \
   WirelessAccessPoint.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -1932,8 +1902,6 @@ WirelessEtherStateAwaitACKReceive.obj: WirelessEtherStateAwaitACKReceive.cc \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../../Util/ExpiryEntryList.h
 WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   ../../Util/sys.h \
@@ -1941,14 +1909,13 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   WirelessEtherStateBackoff.h \
   ../../Util/cTimerMessageCB.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherStateSend.h \
   ../../Util/opp_utils.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -2037,8 +2004,6 @@ WirelessEtherStateBackoff.obj: WirelessEtherStateBackoff.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   WirelessEtherStateReceive.h \
   ../../Util/boost/weak_ptr.hpp
 WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
@@ -2046,12 +2011,11 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../../Util/debug.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherStateBackoff.h \
   WirelessEtherStateIdle.h \
   WirelessEtherAScanReceiveMode.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherStateReceive.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -2144,8 +2108,6 @@ WirelessEtherStateBackoffReceive.obj: WirelessEtherStateBackoffReceive.cc \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   WirelessEtherReceiveMode.h
 WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../../Util/sys.h \
@@ -2153,7 +2115,6 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   WirelessEtherStateIdle.h \
   WirelessEtherModule.h \
   WirelessAccessPoint.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateBackoff.h \
@@ -2161,7 +2122,7 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../../Util/cTimerMessageCB.h \
   ../../Util/opp_akaroa.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -2191,8 +2152,6 @@ WirelessEtherStateIdle.obj: WirelessEtherStateIdle.cc \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
   ../../Util/ExpiryEntryList.h \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -2259,10 +2218,9 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   WirelessEtherStateReceive.h \
   WirelessEtherStateBackoffReceive.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherStateIdle.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -2353,15 +2311,12 @@ WirelessEtherStateReceive.obj: WirelessEtherStateReceive.cc \
   ../../Util/Loki/Threads.h \
   ../../Util/Loki/Singleton.h \
   ../../Util/boost/operators.hpp \
-  ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h
+  ../../Util/boost/iterator.hpp
 WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   WirelessEtherStateSend.h \
   WirelessEtherModule.h \
-  WirelessEtherSignal.h \
   WirelessEtherFrame_m.h \
   WirelessEtherFrameBody_m.h \
   WirelessEtherStateIdle.h \
@@ -2369,7 +2324,7 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   WirelessEtherStateBackoff.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/boost/cast.hpp \
-  ../Ethernet6/ethernet.h \
+  WEthernet.h \
   WirelessEtherState.h \
   ../../Util/boost/config.hpp \
   ../../Util/boost/type.hpp \
@@ -2398,8 +2353,6 @@ WirelessEtherStateSend.obj: WirelessEtherStateSend.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Util/boost/operators.hpp \
   ../../Util/boost/iterator.hpp \
-  ../Ethernet6/EtherSignal.h \
-  ../../PHY/Wireless/PHYWirelessSignal.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \

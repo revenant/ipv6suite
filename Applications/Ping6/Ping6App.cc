@@ -36,7 +36,7 @@
 #include <iostream>
 
 #include "Ping6App.h"
-#include "Ping6InterfacePacket_m.h"
+#include "Ping6PayloadPacket_m.h"
 #include "IPv6Headers.h"
 #include "opp_utils.h"
 #include "RoutingTable6.h"
@@ -161,7 +161,7 @@ void Ping6App::sendPing(void)
 
   //Source Address should be filled in by Routing rules or by omnet.ini
   //paramter.  Dest has to be filled in.
-  Ping6InterfacePacket *app_req = new Ping6InterfacePacket();
+  Ping6PayloadPacket *app_req = new Ping6PayloadPacket();
   app_req->setData(echo_req);
   app_req->setSrcAddr(src);
   app_req->setDestAddr(dest);
@@ -190,14 +190,14 @@ void Ping6App::receivePing(cMessage* msg)
   {
     Dout(dc::notice, rt->nodeName()<<" "<<simTime()
          <<" ping packets arrived after deadline seq="
-         <<(check_and_cast<Ping6InterfacePacket* >(msg))->data().seqNo);
+         <<(check_and_cast<Ping6PayloadPacket* >(msg))->data().seqNo);
     return;
   }
 
-  Ping6InterfacePacket *app_reply = 0;
+  Ping6PayloadPacket *app_reply = 0;
   echo_int_info echo_resp;
 
-  app_reply = check_and_cast<Ping6InterfacePacket*>(msg);
+  app_reply = check_and_cast<Ping6PayloadPacket*>(msg);
   app_reply->setName("PING6_REPLY");
 
   echo_resp = app_reply->data();

@@ -33,7 +33,7 @@
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
 
-#include "Ping6InterfacePacket_m.h"
+#include "Ping6PayloadPacket_m.h"
 #include "opp_utils.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h" //required for counters only
@@ -348,7 +348,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   assert(request->encapsulatedMsg() != 0);
   ICMPv6Echo* req = check_and_cast<ICMPv6Echo*> (request->encapsulatedMsg());
   assert(req);
-  echo_int_info echo_req = check_and_cast<Ping6InterfacePacket*> (req->encapsulatedMsg())->data();
+  echo_int_info echo_req = check_and_cast<Ping6PayloadPacket*> (req->encapsulatedMsg())->data();
 
   if (icmpRecordStats)
   {
@@ -423,8 +423,8 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 {
 
   ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
-  Ping6InterfacePacket* app_req =
-    static_cast<Ping6InterfacePacket*> (echo_reply->decapsulate());
+  Ping6PayloadPacket* app_req =
+    static_cast<Ping6PayloadPacket*> (echo_reply->decapsulate());
 
 
   //As the whole ping request info was sent there is no need to reconstruct
@@ -449,8 +449,8 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 
 void ICMPv6Core::sendEchoRequest(cMessage *msg)
 {
-  Ping6InterfacePacket*  app_req =
-    static_cast< Ping6InterfacePacket* > (msg);
+  Ping6PayloadPacket*  app_req =
+    static_cast< Ping6PayloadPacket* > (msg);
   echo_int_info echo_req = app_req->data();
 
   ICMPv6Message *request = new ICMPv6Echo(echo_req.id, echo_req.seqNo, true);

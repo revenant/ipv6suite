@@ -26,7 +26,7 @@
  */
 
 //XXX temporarily disabled because I don't have xmlwrapp --AV
-#if 0
+//#if 0
 
 //These two headers have to come first if libcwd macros are in use
 #include "sys.h"
@@ -46,7 +46,7 @@
 #include "opp_utils.h"
 #include "cTypedMessage.h"
 #include "Messages.h"
-#include "IPv6XMLManager.h"
+//#include "IPv6XMLManager.h"
 #include "cTimerMessage.h"
 #include "NDTimers.h"
 #include "NDEntry.h"
@@ -63,7 +63,14 @@
 #endif //USE_MOBILITY
 #include "WorldProcessor.h"
 
+#include "LinkLayerModule.h"
+
+
 using boost::polymorphic_downcast;
+
+#ifdef _MSC_VER
+#define strcasecmp  stricmp
+#endif
 
 
 namespace
@@ -1084,4 +1091,4 @@ void RoutingTableTest::testLookupAddress()
 }
 #endif //USE_CPPUNIT
 
-#endif //0
+//#endif //0

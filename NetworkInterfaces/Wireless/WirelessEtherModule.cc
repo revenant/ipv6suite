@@ -345,9 +345,12 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
   WirelessEtherBasicFrame* frame = createFrame
     (FT_DATA, ST_DATA, address, MACAddress(recPkt->data().destLLAddr.c_str()));
 
+/*XXX replaced with 1 line below --AV
   cMessage* dupMsg = recPkt->data().dgram->dup();
   delete recPkt->data().dgram;
-  frame->setProtocol(PR_WETHERNET);
+*/
+  cMessage* dupMsg = recPkt->data().dgram;
+  //XXX frame->setProtocol(PR_WETHERNET);
   frame->encapsulate(dupMsg);
   frame->setName(dupMsg->name());
 
@@ -443,6 +446,7 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
   int minChan = (channel-4 < 1) ? 1 : channel-4;
 
   //Find modules which can receive the frame
+  // XXX this doesn't compile if USE_MOBILITY is undefined! --AV
   ModuleList mods = wproc->
   findWirelessEtherModulesByChannelRange(minChan, maxChan);
 

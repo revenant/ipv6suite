@@ -58,7 +58,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= DOMTreeErrorReporter.obj IPv6XMLManager.obj IPv6XMLParser.obj IPv6XMLWrapManager.obj XMLCommon.obj XMLOmnetParser.obj XMLParser.obj XMLWrapParser.obj
+OBJS= XMLCommon.obj XMLOmnetParser.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -79,29 +79,11 @@ $(OBJS) : $(GENERATEDHEADERS)
 
 subdirs: $(SUBDIR_TARGETS)
 
-DOMTreeErrorReporter.obj: DOMTreeErrorReporter.cc
-	$(CXX) -c $(COPTS) /Tp DOMTreeErrorReporter.cc
-
-IPv6XMLManager.obj: IPv6XMLManager.cc
-	$(CXX) -c $(COPTS) /Tp IPv6XMLManager.cc
-
-IPv6XMLParser.obj: IPv6XMLParser.cc
-	$(CXX) -c $(COPTS) /Tp IPv6XMLParser.cc
-
-IPv6XMLWrapManager.obj: IPv6XMLWrapManager.cc
-	$(CXX) -c $(COPTS) /Tp IPv6XMLWrapManager.cc
-
 XMLCommon.obj: XMLCommon.cc
 	$(CXX) -c $(COPTS) /Tp XMLCommon.cc
 
 XMLOmnetParser.obj: XMLOmnetParser.cc
 	$(CXX) -c $(COPTS) /Tp XMLOmnetParser.cc
-
-XMLParser.obj: XMLParser.cc
-	$(CXX) -c $(COPTS) /Tp XMLParser.cc
-
-XMLWrapParser.obj: XMLWrapParser.cc
-	$(CXX) -c $(COPTS) /Tp XMLWrapParser.cc
 
 
 #doc: neddoc doxy

@@ -22,9 +22,11 @@
 */
 
 
-#ifndef __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__#define __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__
+#ifndef __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__
+#define __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__
 
 #include "WirelessEtherReceiveMode.h"
+
 class WESignalData;class WirelessEtherModule;
 
 class WEMonitorReceiveMode : public WEReceiveMode

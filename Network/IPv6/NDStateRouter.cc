@@ -53,7 +53,7 @@
 #include "opp_utils.h"
 #include "opp_akaroa.h"
 
-#include "IPv6OutputCore.h"
+#include "IPv6Output.h"
 
 
 
@@ -125,7 +125,7 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
     outputMod[i] = procMod->submodule("output", i);
     outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
-    assert(check_and_cast<IPv6OutputCore*>(outputMod[i]));
+    assert(check_and_cast<IPv6Output*>(outputMod[i]));
     if (!outputMod[i])
       DoutFatal(dc::core|error_cf, "Cannot find outputCore module");
   }

@@ -32,52 +32,18 @@ import "NF_IP_POST_ROUTING";
 // @author Johnny Lai
 // based on IPOutputCore by Jochen Reber
 //
-simple IPv6OutputCore
+simple IPv6Output
     parameters:
         procDelay: numeric const;
-    gates:
-        in: fragmentationIn;
-    in: neighbourDiscoveryIn;
-    in: addrReslnIn;
-    in: mobilityIn;
-    //For unicast packets from ND module
-    in: neighbourDiscoveryDirectIn;
-        out: queueOut;
-    out: errorOut;
-endsimple
-
-//
-// IPv6 output module, with its main task being TTL check.
-//
-// Responsibilities:
-//  - receive complete datagram from IPFragmentation
-//  - throw away if ttl==0, otherwise, send to IP OutputQueue
-//
-// author: Jochen Reber
-//
-module IPv6Output
-    parameters:
-        procDelay : numeric const;
     gates:
         in: fragmentationIn;
         in: neighbourDiscoveryIn;
         in: addrReslnIn;
         in: mobilityIn;
+        //For unicast packets from ND module
+        in: neighbourDiscoveryDirectIn;
         out: queueOut;
         out: errorOut;
-    submodules:
-        core: IPv6OutputCore;
-          parameters:
-            procDelay = procDelay;
-            display: "p=154,169;b=40,24,rect";
-    connections nocheck:
-    mobilityIn --> core.mobilityIn;
-        fragmentationIn --> core.fragmentationIn;
-    neighbourDiscoveryIn --> core.neighbourDiscoveryIn;
-    addrReslnIn --> core.addrReslnIn;
-        core.queueOut --> queueOut;
-    core.errorOut --> errorOut;
-    display: "p=10,10;b=274,224,rect";
-endmodule
+endsimple
 
 

@@ -16,9 +16,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-import "NF_IP_FORWARD";
-
-
 //
 // Implementation of forwarding via table lookups
 //
@@ -40,77 +37,21 @@ import "NF_IP_FORWARD";
 simple IPv6ForwardCore
     parameters:
         procdelay : numeric const,
-        routingInfoDisplay: bool ;
+        routingInfoDisplay: bool;
     gates:
-    in: mobilityIn;
+        in: mobilityIn;
         in: preRoutingIn;
         in: sendIn;
-    in: tunnelExit;
-    in: localIn; //From routing header
-    in: ICMPIn;
-    in: MLDIn;
+        in: tunnelExit;
+        in: localIn; //From routing header
+        in: ICMPIn;
+        in: MLDIn;
         out: localOut;
         out: fragmentationOut;
         out: multicastOut;
         out: errorOut;
-    out: pendingQueueOut;
-    out: tunnelEntry;
+        out: pendingQueueOut;
+        out: tunnelEntry;
 endsimple
-
-//
-// IPv6 packet forwarding.
-//
-// Responsibilities:
-// - receive correct IP datagram
-// - if source routing option is on, use next source addr. as dest. addr.
-// - map IP address on output port, use static routing table
-// - if destination address is not in routing table, throw datagram away
-//   and notify ICMP
-// - process record route and timestamp options, if applicable
-// - send to localDeliver if dest. addr. = 127.0.0.1 or
-//   dest. addr. = NetworkCardAddr.[]
-// - send datagram with Multicast addr. to Multicast module
-// - otherwise, send to Fragmentation module
-//
-// author: Johnny Lai
-//
-module IPv6Forward
-    parameters:
-    procdelay : numeric const;
-    gates:
-        in: preRoutingIn;
-        in: sendIn;
-    in: tunnelExit;
-    in: localIn; //From routing header
-    in: mobilityIn;
-    in: ICMPIn;
-    in: MLDIn;
-        out: localOut;
-        out: fragmentationOut;
-        out: multicastOut;
-        out: errorOut;
-    out: pendingQueueOut;
-    out: tunnelEntry;
-    submodules:
-        core: IPv6ForwardCore;
-        parameters:
-        procdelay = procdelay;
-            display: "p=131,186;b=40,24,rect";
-    connections:
-        preRoutingIn --> core.preRoutingIn;
-        sendIn --> core.sendIn;
-    tunnelExit --> core.tunnelExit;
-    localIn --> core.localIn;
-    mobilityIn --> core.mobilityIn;
-        core.localOut --> localOut;
-        core.fragmentationOut --> fragmentationOut;
-        core.multicastOut --> multicastOut;
-        core.errorOut --> errorOut;
-    core.pendingQueueOut --> pendingQueueOut;
-    core.tunnelEntry --> tunnelEntry;
-    ICMPIn --> core.ICMPIn;
-    MLDIn --> core.MLDIn;
-    display: "p=10,10;b=260,235,rect";
-endmodule
 
 

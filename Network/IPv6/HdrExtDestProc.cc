@@ -27,7 +27,7 @@
 
 
 #include <boost/cast.hpp>
-#include "LocalDeliver6Core.h"
+#include "IPv6LocalDeliver.h"
 #include "HdrExtDestProc.h"
 
 
@@ -74,7 +74,7 @@ bool HdrExtDestProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
 {
   bool success = true;
 
-  LocalDeliver6Core* core = static_cast<LocalDeliver6Core*>(mod);
+  IPv6LocalDeliver* core = static_cast<IPv6LocalDeliver*>(mod);
 
   for ( size_t i = 0; i < destOpts.size(); i++ )
   {

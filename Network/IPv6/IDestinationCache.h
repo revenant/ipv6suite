@@ -69,7 +69,7 @@ namespace IPv6NeighbourDiscovery
 class IDestinationCache: public boost::noncopyable
 {
   friend class XMLConfiguration::IPv6XMLParser;
-  friend class IPv6ForwardCore;
+  friend class IPv6Forward;
 
 #ifdef USE_MOBILITY
   friend class MobileIPv6::MIPv6MobilityState;

@@ -50,7 +50,7 @@
 #endif //STRING
 
 class IPv6Datagram;
-class IPv6ForwardCore;
+class IPv6Forward;
 struct ipv6_addr;
 
 /**
@@ -75,7 +75,7 @@ private:
   RoutingTable6 *rt;
 
   simtime_t delay;
-  IPv6ForwardCore* fc;
+  IPv6Forward* fc;
   cMessage* waitTmr;
   cMessage* msg;
 

@@ -33,7 +33,7 @@
 
 
 class IPv6Datagram;
-class IPv6ForwardCore;
+class IPv6Forward;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -80,7 +80,7 @@ class AddressResolution : public cSimpleModule
   ///Pending Packet Queue for packets awaiting addr res
   PendingPacketQ ppq;
   NDARTimers tmrs;
-  IPv6ForwardCore* fc;
+  IPv6Forward* fc;
 
   unsigned int ctrIcmp6OutNgbrAdv;
   unsigned int ctrIcmp6OutNgbrSol;

@@ -16,7 +16,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file IPv6ForwardCore.cc
+    @file IPv6Forward.cc
     @brief Forwarding of packets based on next hop prescribed by RoutingTable6
 
     -Responsibilities:
@@ -44,7 +44,7 @@
 #include <boost/cast.hpp>
 #include <boost/functional.hpp>
 
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
 #include "ICMPv6Message.h"
@@ -84,13 +84,10 @@
 
 using boost::weak_ptr;
 
-Define_Module( IPv6ForwardCore );
+Define_Module( IPv6Forward );
 
-/*     ----------------------------------------------------------
-        Public Functions
-    ----------------------------------------------------------    */
 
-void IPv6ForwardCore::initialize(int stage)
+void IPv6Forward::initialize(int stage)
 {
   if (stage == 0)
   {
@@ -145,7 +142,7 @@ void IPv6ForwardCore::initialize(int stage)
    @class printRoutingInfo
 
    @brief display some information when routingInfoDisplay parameter is set for
-   the IPv6ForwardCore module.
+   the IPv6Forward module.
 */
 
 struct printRoutingInfo
@@ -153,7 +150,7 @@ struct printRoutingInfo
   printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name):display(routingInfoDisplay),datagram(dgram),name(name)
     {}
 
-  ///Display information only when IPv6ForwardCore::handleMessage() returns
+  ///Display information only when IPv6Forward::handleMessage() returns
   ~printRoutingInfo()
     {
       if (display)
@@ -175,7 +172,7 @@ struct printRoutingInfo
    @todo Multicast module will have to handle MIPv6 11.3.4 forwarding of multicast packets
 */
 
-void IPv6ForwardCore::handleMessage(cMessage* theMsg)
+void IPv6Forward::handleMessage(cMessage* theMsg)
 {
   if (!theMsg->isSelfMessage())
   {
@@ -697,16 +694,16 @@ void IPv6ForwardCore::handleMessage(cMessage* theMsg)
   datagram.release();
 }
 
-void IPv6ForwardCore::finish()
+void IPv6Forward::finish()
 {
   recordScalar("IP6InAddrErrors", ctrIP6InAddrErrors);
   recordScalar("IP6OutNoRoutes", ctrIP6OutNoRoutes);
 }
 
 
-std::ostream& operator<<(std::ostream & os,  IPv6ForwardCore& routeMod)
+std::ostream& operator<<(std::ostream & os,  IPv6Forward& routeMod)
 {
-  for (IPv6ForwardCore::SRI it = routeMod.routes.begin();
+  for (IPv6Forward::SRI it = routeMod.routes.begin();
        it != routeMod.routes.end(); it++)
   {
     os << "Source route to dest "<<it->first<<" via intermediate hop"<<endl;
@@ -719,7 +716,7 @@ std::ostream& operator<<(std::ostream & os,  IPv6ForwardCore& routeMod)
 
 ///Route is searched according to final dest (last address in SrcRoute).  The
 ///src address of packet is used to determine outgoing iface.
-void IPv6ForwardCore::addSrcRoute(const SrcRoute& route)
+void IPv6Forward::addSrcRoute(const SrcRoute& route)
 {
   routes[*route->rbegin()] = route;
 }
@@ -741,7 +738,7 @@ struct addAddress : public unary_function<ipv6_addr, void>
    which link this address could be on
 */
 
-int IPv6ForwardCore::conceptualSending(AddrResInfo& info)
+int IPv6Forward::conceptualSending(AddrResInfo& info)
 {
   // Conceptual Sending Algorithm
 
@@ -846,7 +843,7 @@ int IPv6ForwardCore::conceptualSending(AddrResInfo& info)
  *    iii) don't use deprecated addresses or Expired Addresses TODO
  */
 
-ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex)
+ipv6_addr IPv6Forward::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex)
 {
   ipv6_addr::SCOPE destScope = ipv6_addr_scope(dest);
 
@@ -931,7 +928,7 @@ ipv6_addr IPv6ForwardCore::determineSrcAddress(const ipv6_addr& dest, size_t ifI
   @brief Test for a preconfigured source route to a destination and insert an
   appropriate routing header
  */
-bool IPv6ForwardCore::insertSourceRoute(IPv6Datagram& datagram)
+bool IPv6Forward::insertSourceRoute(IPv6Datagram& datagram)
 {
   SRI srit = routes.find(datagram.destAddress());
   if (srit != routes.end() &&
@@ -957,7 +954,7 @@ bool IPv6ForwardCore::insertSourceRoute(IPv6Datagram& datagram)
   return false;
 }
 
-bool IPv6ForwardCore::processReceived(IPv6Datagram& datagram)
+bool IPv6Forward::processReceived(IPv6Datagram& datagram)
 {
   // delete datagram and continue when datagram arrives from Network
   // for another node
@@ -1024,7 +1021,7 @@ bool IPv6ForwardCore::processReceived(IPv6Datagram& datagram)
     ----------------------------------------------------------    */
 
 // send error message to ICMP Module
-void IPv6ForwardCore::sendErrorMessage(ICMPv6Message* err)
+void IPv6Forward::sendErrorMessage(ICMPv6Message* err)
 {
     send(err, "errorOut");
 }

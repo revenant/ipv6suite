@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-   @file LocalDeliver6Core.h
+   @file IPv6LocalDeliver.h
    @brief Receive IPv6 datagrams for local delivery
 
    Responsibilities:
@@ -74,14 +74,14 @@ class IPv6InterfacePacket;
 class IPv6Datagram;
 
 /**
- * @class LocalDeliver6Core
+ * @class IPv6LocalDeliver
  * @brief Simple module to handle local delivery of IPv6 Datagrams
  */
 
-class LocalDeliver6Core: public cSimpleModule
+class IPv6LocalDeliver: public cSimpleModule
 {
 public:
-  Module_Class_Members(LocalDeliver6Core, cSimpleModule, 0);
+  Module_Class_Members(IPv6LocalDeliver, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage* msg);

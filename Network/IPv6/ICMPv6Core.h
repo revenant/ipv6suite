@@ -45,7 +45,7 @@
 class ICMPv6Message;
 class IPv6Datagram;
 class RoutingTable6;
-class IPv6ForwardCore;
+class IPv6Forward;
 
 class ICMPv6Core : public cSimpleModule
 {
@@ -100,7 +100,7 @@ private:
   simtime_t lastReceiveTime;
 
   RoutingTable6* rt;
-  IPv6ForwardCore* fc;
+  IPv6Forward* fc;
   cMessage* curMessage;
   cMessage* waitTmr;
   ///Arriving packets are placed in queue first if another packet is awaiting

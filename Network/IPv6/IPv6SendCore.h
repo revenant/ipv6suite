@@ -17,8 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file IPv6SendCore.h
-    @brief IPv6SendCore simple module definition
+    @file IPv6Send.h
+    @brief IPv6Send simple module definition
 
     Responsibilities:
     receive IPInterfacePacket from Transport layer or ICMP
@@ -48,17 +48,17 @@ class IPv6InterfacePacket;
 class IPv6Datagram;
 
 /**
- * @class IPv6SendCore
+ * @class IPv6Send
  *
  * @brief Datagrams sent from upper layers arrive at the IP Layer here first to be
  * encapsulated by datagrams
  */
 
-class IPv6SendCore : public cSimpleModule
+class IPv6Send : public cSimpleModule
 {
 
 public:
-  Module_Class_Members(IPv6SendCore, cSimpleModule, 0);
+  Module_Class_Members(IPv6Send, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void handleMessage(cMessage*);

@@ -34,7 +34,7 @@
 #include <boost/cast.hpp>
 
 #include "IPv6Datagram.h"
-#include "LocalDeliver6Core.h"
+#include "IPv6LocalDeliver.h"
 #include "ICMPv6Message.h"
 #include "IPv6Headers.h"
 
@@ -145,8 +145,8 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
 
   std::auto_ptr<IPv6Datagram> pdu(thePdu);
 
-  //LocalDeliver6Core* core = check_and_cast<LocalDeliver6Core*>(mod);
-  LocalDeliver6Core* core = static_cast<LocalDeliver6Core*>(mod);
+  //LocalDeliver6Core* core = check_and_cast<IPv6LocalDeliver*>(mod);
+  IPv6LocalDeliver* core = static_cast<IPv6LocalDeliver*>(mod);
 
   assert(!pdu->destAddress().isMulticast());
 

@@ -28,7 +28,7 @@
 /**
    @brief print packet header contents on stdout
    @arg routingInfoDisplay Display dgram's headers when true. Should pass
-   routingInfoDisplay parameter from IPv6ForwardCore module.
+   routingInfoDisplay parameter from IPv6Forward module.
    @arg dgram datagram to retrieve information from
    @arg name name of network node
    @arg directionOut Hint on whether the dgram is egressing the node

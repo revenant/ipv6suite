@@ -69,13 +69,7 @@ void NeighbourDiscovery::initialize(int stageNo)
     rsSentTime = 0;
 #endif // USE_MOBILITY
 
-    rt = static_cast<RoutingTable6*> (OPP_Global::findModuleByName(this, "routingTable6"));
-    assert(rt != 0);
-    if (rt == 0)
-    {
-      cerr << "Cannot find IPv6 RoutingTable"<<endl;
-      exit(1);
-    }
+    rt = RoutingTable6Access().get();
 
     ctrIcmp6OutRtrSol = 0;
     ctrIcmp6OutRtrAdv = 0;

@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-   @file LocalDeliver6Core.cc
+   @file IPv6LocalDeliver.cc
    @brief Implementation for Simple Module LocalDeliverCore
 
    Responsibilities:
@@ -53,7 +53,7 @@
 #include <cassert>
 
 
-#include "LocalDeliver6Core.h"
+#include "IPv6LocalDeliver.h"
 #include "HdrExtFragProc.h"
 #include "HdrExtRteProc.h"
 #include "IPv6InterfacePacket.h"
@@ -62,7 +62,7 @@
 
 
 
-Define_Module( LocalDeliver6Core );
+Define_Module( IPv6LocalDeliver );
 
 /*  ----------------------------------------------------------
     Public Functions
@@ -70,7 +70,7 @@ Define_Module( LocalDeliver6Core );
 
 // initialisation: set fragmentTimeout
 // tbd: include fragmentTimeout in .ned files
-void LocalDeliver6Core::initialize()
+void IPv6LocalDeliver::initialize()
 {
 
   fragmentTimeoutTime = strToSimtime(par("fragmentTimeout"));
@@ -105,7 +105,7 @@ void LocalDeliver6Core::initialize()
   setDisplayString(display.c_str());
 }
 
-void LocalDeliver6Core::handleMessage(cMessage* theMsg)
+void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
 {
   // erase timed out fragments in fragmentation buffer
   // check every 1 second max
@@ -258,14 +258,14 @@ void LocalDeliver6Core::handleMessage(cMessage* theMsg)
   interfacePacket = 0;
 }
 
-void LocalDeliver6Core::finish()
+void IPv6LocalDeliver::finish()
 {
   recordScalar("IP6InUnknownProtos", ctrIP6InUnknownProtos);
   recordScalar("IP6InDeliver", ctrIP6InDeliver);
 
 }
 
-bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
+bool IPv6LocalDeliver::processDatagram(IPv6Datagram* datagram)
 {
 
     //Process Destination options
@@ -349,7 +349,7 @@ bool LocalDeliver6Core::processDatagram(IPv6Datagram* datagram)
         Private functions
     ----------------------------------------------------------  */
 
-IPv6InterfacePacket *LocalDeliver6Core::setInterfacePacket
+IPv6InterfacePacket *IPv6LocalDeliver::setInterfacePacket
 (IPv6Datagram *datagram)
 {
   IPv6InterfacePacket *interfacePacket = new IPv6InterfacePacket;
@@ -369,7 +369,7 @@ IPv6InterfacePacket *LocalDeliver6Core::setInterfacePacket
     ----------------------------------------------------------  */
 
 // erase those fragments from the buffer that have timed out
-void LocalDeliver6Core::eraseTimeoutFragmentsFromBuf()
+void IPv6LocalDeliver::eraseTimeoutFragmentsFromBuf()
 {
 /*
   int i;
@@ -393,7 +393,7 @@ void LocalDeliver6Core::eraseTimeoutFragmentsFromBuf()
 */
 }
 
-void LocalDeliver6Core::insertInFragmentBuf(IPv6Datagram *d)
+void IPv6LocalDeliver::insertInFragmentBuf(IPv6Datagram *d)
 {
 /*
   int i;
@@ -421,7 +421,7 @@ void LocalDeliver6Core::insertInFragmentBuf(IPv6Datagram *d)
 */
 }
 
-bool LocalDeliver6Core::datagramComplete(int fragmentId)
+bool IPv6LocalDeliver::datagramComplete(int fragmentId)
 {
 /*
   bool isComplete = false;
@@ -455,7 +455,7 @@ bool LocalDeliver6Core::datagramComplete(int fragmentId)
   return false;
 }
 
-int LocalDeliver6Core::getPayloadSizeFromBuf(int fragmentId)
+int IPv6LocalDeliver::getPayloadSizeFromBuf(int fragmentId)
 {
 /*
   int i;
@@ -475,7 +475,7 @@ int LocalDeliver6Core::getPayloadSizeFromBuf(int fragmentId)
   return 0;
 }
 
-void LocalDeliver6Core::removeFragmentFromBuf(int fragmentId)
+void IPv6LocalDeliver::removeFragmentFromBuf(int fragmentId)
 {
 /*
   int i;

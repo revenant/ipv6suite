@@ -53,7 +53,7 @@
 #include "RoutingTable6.h"
 #include "cTypedMessage.h"
 #include "Messages.h"
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 #include "opp_utils.h"
 
 Define_Module( IPv6Multicast );
@@ -66,8 +66,8 @@ void IPv6Multicast::initialize()
 {
     rt = RoutingTable6Access().get();
     delay = par("procdelay");
-    fc = check_and_cast<IPv6ForwardCore*> (
-      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
+    fc = check_and_cast<IPv6Forward*> (
+      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward"));
     assert(fc != 0);
     ctrIP6InMcastPkts = 0;
     waitTmr = new cMessage("IPv6MulticastWait");
@@ -103,9 +103,9 @@ void IPv6Multicast::handleMessage(cMessage* theMsg)
   IPv6Address destAddress(datagram->destAddress());
   assert(destAddress.isMulticast());
 
-  // check for local delivery already done at IPv6ForwardCore
+  // check for local delivery already done at IPv6Forward
 
-  // Check already completed in IPv6ForwardCore
+  // Check already completed in IPv6Forward
   /* forward datagram only if IPv6Forward is true
      or sent locally */
 

@@ -116,12 +116,12 @@ module IPv6Processing
         output: IPv6Output[numOfPorts];
             parameters:
                 procDelay = ipoutput_delay;
-            display: "p=302,282;i=prot2";
+            display: "p=302,282,r;i=prot2";
         routingTable6: RoutingTable6;
             parameters:
                 IPv6routingFile = ancestor IPv6routingFile,
                 numOfPorts = ancestor numOfPorts;
-            display: "p=478,288;i=box3";
+            display: "p=490,120;i=box3";
         addrResln: AddressResolution;
             parameters:
                 numOfPorts = ancestor numOfPorts;
@@ -134,11 +134,9 @@ module IPv6Processing
             display: "p=274,182;i=bwxcon_s";
         mobility: IPv6Mobility;
             display: "p=60,268;i=cogwheel";
-        routing6: Routing6;
-            display: "p=448,288;i=box3";
     connections nocheck:
         // PreRouting Input
-        queueIn --> preRouting.queueIn;
+        queueIn --> preRouting.inputQueueIn;
 
         // PreRouting Output
         preRouting.routingOut --> forwarding.preRoutingIn;
@@ -168,7 +166,7 @@ module IPv6Processing
         // Multicast output
         multicast.localOut --> localDeliver.multicastIn;
         multicast.fragmentationOut --> fragmentation.multicastIn;
-                                                                  //        multicast.tunnelOut --> tunneling.multicastIn;
+        // multicast.tunnelOut --> tunneling.multicastIn;
 
         // ICMP output, ping input
         ICMP.sendOut --> send.ICMPIn;

@@ -42,7 +42,7 @@
 #include "Ping6Iface.h"
 #include "opp_utils.h"
 #include "RoutingTable6.h" //required for counters only
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 
 #ifdef TESTIPv6
 #undef NDEBUG
@@ -68,10 +68,9 @@ void ICMPv6Core::initialize()
   if (icmpRecordStats)
     stat = new cStdDev("PingRequestReceived");
 
-  rt = check_and_cast<RoutingTable6*> (OPP_Global::findModuleByName(this, "routingTable6"));
-  assert(rt != 0);
-  fc = check_and_cast<IPv6ForwardCore*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
+  rt = RoutingTable6Access().get();
+  fc = check_and_cast<IPv6Forward*> (
+    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward"));
   assert(fc != 0);
   ctrIcmp6OutEchoReplies = 0;
   ctrIcmp6InMsgs = 0;

@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file IPv6SendCore.cc
+    @file IPv6Send.cc
     @brief Implementation for IPSendCore
     ------
     Responsibilities:
@@ -46,19 +46,19 @@
 #include <boost/cast.hpp>
 
 
-#include "IPv6SendCore.h"
+#include "IPv6Send.h"
 #include "IPv6Datagram.h"
 #include "IPv6InterfacePacket.h"
 #include "HdrExtRteProc.h"
 #include "RoutingTable6.h"
 
-Define_Module( IPv6SendCore );
+Define_Module( IPv6Send );
 
 /**
  @name Public Functions
 */
 ///@{
-void IPv6SendCore::initialize()
+void IPv6Send::initialize()
 {
   rt = RoutingTable6Access().get();
 
@@ -71,7 +71,7 @@ void IPv6SendCore::initialize()
   ifaceReady = false;
 }
 
-void IPv6SendCore::handleMessage(cMessage* msg)
+void IPv6Send::handleMessage(cMessage* msg)
 {
   if (!msg->isSelfMessage())
   {
@@ -128,7 +128,7 @@ void IPv6SendCore::handleMessage(cMessage* msg)
         Private Functions
     ----------------------------------------------------------  */
 
-void IPv6SendCore::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
+void IPv6Send::sendDatagram(IPv6InterfacePacket *theInterfaceMsg)
 {
     std::auto_ptr<IPv6InterfacePacket> interfaceMsg(theInterfaceMsg);
     std::auto_ptr<IPv6Datagram> datagram(new IPv6Datagram()); // XXX FIXME why auto_ptr if we release() at the end? --AV
@@ -221,7 +221,7 @@ Debug(
 
 }
 
-void IPv6SendCore::finish()
+void IPv6Send::finish()
 {
   recordScalar("IP6OutRequests", ctrIP6OutRequests);
 }

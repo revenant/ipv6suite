@@ -57,10 +57,9 @@ Define_Module( MLD );
 
 void MLD::initialize()
 {
-  srand((unsigned)time(NULL));
+  srand((unsigned)time(NULL)); //XXXX ????????????????
 
-  rt = static_cast<RoutingTable6*>(OPP_Global::findModuleByName(this,"routingTable6"));
-  assert(rt!=0);
+  rt = RoutingTable6Access().get();
   reportCounter = 0;
   masqueryCounter = 0;
   genqueryCounter = 0;

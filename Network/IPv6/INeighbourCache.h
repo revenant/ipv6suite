@@ -25,7 +25,7 @@
  */
 
 #ifndef INEIGHBOURCACHE_H
-#define INEIGHBOURCACHE_H 1
+#define INEIGHBOURCACHE_H
 
 #ifndef MAP
 #define MAP

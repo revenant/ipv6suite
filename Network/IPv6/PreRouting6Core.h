@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file PreRouting6Core.h
+    @file IPv6PreRouting.h
     @brief Header file for PreRouting Module
     @author Johnny Lai
     @date 27/08/01
@@ -30,16 +30,16 @@
 #include <omnetpp.h>
 #endif //__OMNETPP_H
 
-class IPv6ForwardCore;
+class IPv6Forward;
 
 /**
-   @class PreRouting6Core
+   @class IPv6PreRouting
    @brief IPv6 implementation of PreRouting.  Unit Tests actually run here
  */
-class PreRouting6Core: public cSimpleModule
+class IPv6PreRouting : public cSimpleModule
 {
 public:
-  Module_Class_Members(PreRouting6Core, cSimpleModule, 0);
+  Module_Class_Members(IPv6PreRouting, cSimpleModule, 0);
 
   virtual void initialize();
   virtual void finish();
@@ -53,7 +53,7 @@ private:
   ///Arriving packets are placed in queue first if another packet is awaiting
   ///processing
   cQueue waitQueue;
-  ::IPv6ForwardCore* forwardMod;
+  ::IPv6Forward* forwardMod;
 
 };
 

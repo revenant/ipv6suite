@@ -48,7 +48,7 @@
 #include "IPv6Datagram.h"
 #include "NeighbourDiscovery.h" //Tmr_AddrConf message_id
 #include "IPv6Encapsulation.h"
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 #include "IPv6CDS.h"
 #include "MLD.h"
 
@@ -544,8 +544,8 @@ void RoutingTable6::print()
 
   cout<<(*tunMod);
 
-  IPv6ForwardCore* forwardMod = check_and_cast<IPv6ForwardCore*>
-    (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
+  IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
+    (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward"));
   cout<<(*forwardMod);
 }
 

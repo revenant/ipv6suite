@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file IPv6ForwardCore.h
+    @file IPv6Forward.h
     @brief Implementation of IP packet forwarding via table lookups
 
     Responsibilities:
@@ -81,7 +81,7 @@ public:
 
 
 /**
- * @class IPv6ForwardCore
+ * @class IPv6Forward
  * @brief Process datagrams and determine where they go
  */
 class ICMPv6Message;
@@ -93,12 +93,12 @@ namespace IPv6NeighbourDiscovery
   class NDStateRouter; //for sending redirect
 };
 
-class IPv6ForwardCore : public cSimpleModule
+class IPv6Forward : public cSimpleModule
 {
   friend std::ostream& operator<<(std::ostream & os,
-                                  IPv6ForwardCore& routeMod);
+                                  IPv6Forward& routeMod);
 public:
-  Module_Class_Members(IPv6ForwardCore, cSimpleModule, 0);
+  Module_Class_Members(IPv6Forward, cSimpleModule, 0);
 
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* theMsg);
@@ -165,6 +165,6 @@ private:
 
 };
 
-std::ostream& operator<<(std::ostream & os, IPv6ForwardCore& routeMod);
+std::ostream& operator<<(std::ostream & os, IPv6Forward& routeMod);
 
 #endif

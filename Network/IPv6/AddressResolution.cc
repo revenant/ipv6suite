@@ -35,13 +35,13 @@
 #include "IPv6Datagram.h"
 #include "ICMPv6NDMessage.h"
 #include "RoutingTable6.h"
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 #include "cTimerMessage.h"
 #include "Messages.h"
 #include "NDTimers.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
-#include "IPv6OutputCore.h"
+#include "IPv6Output.h"
 #include "LL6ControlInfo_m.h"
 
 using std::string;
@@ -69,8 +69,8 @@ void AddressResolution::initialize()
   rt = RoutingTable6Access().get();
   //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
   //another class with exactly same name?
-  fc = check_and_cast<::IPv6ForwardCore*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6ForwardCore"));
+  fc = check_and_cast<::IPv6Forward*> (
+    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward"));
   assert(fc != 0);
 
   ctrIcmp6OutNgbrAdv = 0;
@@ -94,7 +94,7 @@ void AddressResolution::initialize()
 	assert(outputMod[i]);
     outputMod[i] = outputMod[i]->submodule("core");
     assert(outputMod[i]);
-    assert(check_and_cast<IPv6OutputCore*>(outputMod[i]));
+    assert(check_and_cast<IPv6Output*>(outputMod[i]));
     if (!outputMod[i])
       DoutFatal(dc::core|error_cf, "Cannot find outputCore module");
   }

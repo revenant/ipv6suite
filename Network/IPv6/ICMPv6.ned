@@ -22,13 +22,10 @@
 // Multicast Listener Discovery (TBD)
 //
 simple MLD
-//   parameters:
-//        Group,
-//        Source;
    gates:
         in: MLDIn;
-    in: ReportMessage;
-    in: DoneMessage;
+        in: ReportMessage;
+        in: DoneMessage;
         out:MLDOut;
 endsimple
 
@@ -45,9 +42,9 @@ simple ICMPv6Core
         IPForward : bool,
         procdelay : numeric const,
         numOfPorts : numeric,
-    icmpRecordRequests: bool,
-    icmpRecordStart: numeric,
-    replyToICMPRequests: bool;
+        icmpRecordRequests: bool,
+        icmpRecordStart: numeric,
+        replyToICMPRequests: bool;
     gates:
         in: preRoutingIn;
         in: routingIn;
@@ -61,7 +58,7 @@ simple ICMPv6Core
         out: sendOut;
         out: errorOut;
         out: NDiscOut;
-    out: MLDOut;
+        out: MLDOut;
 endsimple
 
 
@@ -148,7 +145,7 @@ module ICMPv6
             display: "p=64,49;b=40,24";
         combine: ICMPv6Combine;
             display: "p=149,247;b=40,24";
-    mld: MLD;
+        mld: MLD;
     connections nocheck:
         preRoutingIn --> icmpv6Core.preRoutingIn;
         routingIn --> icmpv6Core.routingIn;
@@ -168,8 +165,8 @@ module ICMPv6
         errorOut <-- combine.errorOut;
         sendOut <-- combine.sendOut;
 
-    mld.MLDIn<-- icmpv6Core.MLDOut;
-    mld.MLDOut-->mldOut;
+        mld.MLDIn<-- icmpv6Core.MLDOut;
+        mld.MLDOut-->mldOut;
 
         for i=0..numOfPorts-1 do
            nd.outputOut[i] --> outputOut[i];

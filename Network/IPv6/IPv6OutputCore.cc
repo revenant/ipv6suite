@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
-    @file IPv6OutputCore.cc
+    @file IPv6Output.cc
     @brief Implementation for IPOutput core module
 
     Responsibilities:
@@ -44,12 +44,12 @@
 #include <string>
 
 
-#include "IPv6OutputCore.h"
+#include "IPv6Output.h"
 #include "IPv6Datagram.h"
 #include "Messages.h"
 #include "IPv6Multicast.h" //multicastAddr()
 #include "RoutingTable6.h"
-#include "IPv6ForwardCore.h"
+#include "IPv6Forward.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "NDEntry.h"
@@ -59,9 +59,9 @@
 using namespace std;
 
 
-Define_Module (IPv6OutputCore);
+Define_Module (IPv6Output);
 
-void IPv6OutputCore::initialize()
+void IPv6Output::initialize()
 {
     QueueBase::initialize();
 
@@ -75,11 +75,11 @@ void IPv6OutputCore::initialize()
 
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
     assert(forward);
-    forwardMod = check_and_cast<IPv6ForwardCore*>(forward->submodule("core"));
+    forwardMod = check_and_cast<IPv6Forward*>(forward->submodule("core"));
     assert(forwardMod != 0);
 }
 
-void IPv6OutputCore::endService(cMessage* msg)
+void IPv6Output::endService(cMessage* msg)
 {
   IPv6Datagram *datagram = check_and_cast<IPv6Datagram*>(msg);
 
@@ -133,7 +133,7 @@ void IPv6OutputCore::endService(cMessage* msg)
   send(datagram, "queueOut");
 }
 
-void IPv6OutputCore::finish()
+void IPv6Output::finish()
 {
   recordScalar("IP6OutForwDatagrams", ctrIP6OutForwDatagrams);
   recordScalar("IP6OutMcastPkts", ctrIP6OutMcastPkts);

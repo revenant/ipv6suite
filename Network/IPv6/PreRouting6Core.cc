@@ -17,7 +17,7 @@
 
 
 /**
-    @file PreRouting6Core.cc
+    @file IPv6PreRouting.cc
     @brief Implementation of PreRouting
     -Responsibilities:
         receive IP datagram
@@ -30,24 +30,24 @@
 #include "sys.h"
 #include "debug.h"
 
-#include "PreRouting6Core.h"
+#include "IPv6PreRouting.h"
 
 #include <boost/cast.hpp>
 
 
 
 #include "IPv6Datagram.h"
-#include "IPv6ForwardCore.h" //routingInfoDisplay
+#include "IPv6Forward.h" //routingInfoDisplay
 #include "opp_utils.h"
 #include "IPv6Utils.h"
 
-Define_Module( PreRouting6Core );
+Define_Module( IPv6PreRouting );
 
 /*  ----------------------------------------------------------
         Public Functions
     ----------------------------------------------------------  */
 
-void PreRouting6Core::initialize()
+void IPv6PreRouting::initialize()
 {
     delay = par("procdelay");
     hasHook = (findGate("netfilterOut") != -1);
@@ -56,7 +56,7 @@ void PreRouting6Core::initialize()
     curPacket = 0;
 
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding");
-    forwardMod = check_and_cast<IPv6ForwardCore*>
+    forwardMod = check_and_cast<IPv6Forward*>
       (forward->submodule("core"));
     assert(forwardMod != 0);
 
@@ -67,10 +67,10 @@ void PreRouting6Core::initialize()
    see if we recognise them.  If we don't generate some error depending on
    first 2 bits of Option Type (IPv6 Spec RFC)
 
-   Destination options are handled by LocalDeliver6Core
+   Destination options are handled by IPv6LocalDeliver
 
  */
-void PreRouting6Core::handleMessage(cMessage* msg)
+void IPv6PreRouting::handleMessage(cMessage* msg)
 {
 
   if (!msg->isSelfMessage())
@@ -132,7 +132,7 @@ void PreRouting6Core::handleMessage(cMessage* msg)
 }
 
 
-void PreRouting6Core::finish()
+void IPv6PreRouting::finish()
 {
   recordScalar("IP6InReceive", ctrIP6InReceive);
   delete waitTmr;

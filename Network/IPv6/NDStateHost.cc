@@ -458,7 +458,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     tmr->msg = new HostTmrMsg(Tmr_DupAddrSolTimeout,
                               static_cast<NDStateHost*>(this),
-                              &NDStateHost::dupAddrDetection, tmr, true,
+                              &NDStateHost::dupAddrDetection, tmr, false /*FIXME causes memory leak!*/,
                               "DupAddrDet");
 
     timerMsgs.push_back(tmr->msg);

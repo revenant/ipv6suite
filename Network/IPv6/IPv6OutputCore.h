@@ -23,7 +23,7 @@
 #define IPv6OUTPUTCORE_H
 
 class IPv6Datagram;
-class IPv6ForwardCore;
+class IPv6Forward;
 
 /**
  * Queues up outgoing IPv6 datagrams, and assigns MAC addresses to them.
@@ -31,10 +31,10 @@ class IPv6ForwardCore;
  *
  * @author Johnny Lai
  */
-class IPv6OutputCore : public QueueBase
+class IPv6Output : public QueueBase
 {
 public:
-  Module_Class_Members(IPv6OutputCore, QueueBase, 0);
+  Module_Class_Members(IPv6Output, QueueBase, 0);
 
   virtual void initialize();
   virtual void endService(cMessage* msg);
@@ -47,7 +47,7 @@ private:
 
   unsigned int ctrIP6OutForwDatagrams;
   unsigned int ctrIP6OutMcastPkts;
-  ::IPv6ForwardCore* forwardMod; // XXX why's this needed? why not connection? --AV
+  ::IPv6Forward* forwardMod; // XXX why's this needed? why not connection? --AV
 };
 
 #endif

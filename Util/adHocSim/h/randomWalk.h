@@ -11,49 +11,48 @@
 
 class RandomWalk : public RandomWP //: public cSimpleModule
 {
-  friend class MobilityRandomWalk;
-  
-	//Macro that contains the costructor,destructor
-	//and other Omnett++ stuff
-//  Module_Class_Members(RandomWalk,MobilityHandler,0);
-  RandomWalk(void);
-  ~RandomWalk(void){}
+        friend class MobilityRandomWalk;
 
-  
-//	virtual void initialize();
-//	virtual void handleMessage(cMessage* );
-//	virtual void finish();
-	//
-	
+        //Macro that contains the costructor,destructor
+        //and other Omnett++ stuff
+        //  Module_Class_Members(RandomWalk,MobilityHandler,0);
+        RandomWalk(void);
+        ~RandomWalk(void){}
+
+
+//      virtual void initialize();
+//      virtual void handleMessage(cMessage* );
+//      virtual void finish();
+
    private:
-	//implement the mvement that sims a torus
-	bool torus(int&, int&);
+        //implement the mvement that sims a torus
+        bool torus(int&, int&);
 
-	// implement the rebound movement
-	bool rebound(int&, int&);
-    
-	//returns the time intervall
-	//to the next move
-	double randomWalk(int&, int&);
+        // implement the rebound movement
+        bool rebound(int&, int&);
 
-    bool moveKind;
+        //returns the time intervall
+        //to the next move
+        double randomWalk(int&, int&);
 
-//	cPar* pauseTime;
-//	cPar* moveKind;
-//	cPar* distance;
-//  cPar* moveInterval;
-//  cPar* minSpeed;
-//	cPar* maxSpeed;
+        bool moveKind;
 
-    //direction angle 
-	double alfa;
+//      cPar* pauseTime;
+//      cPar* moveKind;
+//      cPar* distance;
+//      cPar* moveInterval;
+//      cPar* minSpeed;
+//      cPar* maxSpeed;
 
-	double speed;
-	
-	//pointer of the physic module wich
-	//list of the neighbours
-	//store the actual <x,y> position
-//	Physic* physic;
+        //direction angle
+        double alfa;
+
+        double speed;
+
+        //pointer of the physic module wich
+        //list of the neighbours
+        //store the actual <x,y> position
+//      Physic* physic;
 };
-	
-#endif	
+
+#endif

@@ -99,7 +99,7 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule* mod, WESi
     if(mod->associateAP.address == associationResponse->getAddress2())
     {
       mod->associateAP.address = associationResponse->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = true;
       // already in data receive mode so dont need to switch to it
@@ -167,7 +167,7 @@ void WEDataReceiveMode::handleReAssociationResponse(WirelessEtherModule* mod, WE
     if(mod->associateAP.address == reAssociationResponse->getAddress3())
     {
       mod->associateAP.address = reAssociationResponse->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = true;
       // already in data receive mode so dont need to switch to it
@@ -308,7 +308,7 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
       changeState = false;
     }
 
-    mod->associateAP.channel = signal->channel();
+    mod->associateAP.channel = signal->channelNum();
     mod->associateAP.rxpower = signal->power();
 
     mod->signalStrength->updateAverage(signal->power());

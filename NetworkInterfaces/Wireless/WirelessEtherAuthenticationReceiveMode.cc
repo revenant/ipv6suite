@@ -79,7 +79,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod,
            << " ----------------------------------------------- \n");
 
       mod->associateAP.address = authentication->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = false;
       mod->_currentReceiveMode = WEAssociationReceiveMode::instance();

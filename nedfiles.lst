@@ -122,9 +122,9 @@ NetworkInterfaces/Ethernet/MACRelayUnitPP.ned
 NetworkInterfaces/Ethernet6/EtherModuleAP.ned
 NetworkInterfaces/Ethernet6/EtherRelayUnit.ned
 NetworkInterfaces/PPP/PPPInterface.ned
+NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 NetworkInterfaces/Wireless/WirelessEtherBridge.ned
 NetworkInterfaces/Wireless/WirelessEtherModule.ned
-NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 Nodes/INET/BurstHost.ned
 Nodes/INET/NetworkLayer.ned
 Nodes/INET/Router.ned

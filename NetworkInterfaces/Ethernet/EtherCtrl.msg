@@ -30,7 +30,7 @@ class noncobject MACAddress;
 //
 enum EtherMessageKind
 {
-    JAM_SIGNAL =   2000;   // jam signal on the Ethernet bus
+    JAM_SIGNAL =   2000;   // jam signal on the Ethernet bus (FIXME move it out of this enum)
 
     ETH_FRAME =    2001;   // Ethernet frame
     ETH_PAUSE =    2002;   // Ethernet PAUSE frame

@@ -204,7 +204,7 @@ void WirelessAccessPoint::sendBeacon(void)
   FrameBody* beaconFrameBody = createFrameBody(beacon);
   beacon->encapsulate(beaconFrameBody);
   WESignalData* beaconSignal = encapsulateIntoWESignalData(beacon);
-  beaconSignal->setChannel(channel);
+  beaconSignal->setChannelNum(channel);
   outputBuffer.push_back(beaconSignal);
 
   // schedule the next beacon message

@@ -26,7 +26,7 @@ message WESignal
   properties:
     omitGetVerb=true;
   fields:
-    int channel;
+    int channelNum;
     double power;
     string sourceName;
 };

@@ -67,7 +67,7 @@ std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule* m
 
   WESignal* signal = check_and_cast<WESignal*>(msg.get());
 
-  if (signal->channel() != mod->getChannel())
+  if (signal->channelNum() != mod->getChannel())
     return msg;
 
   // debug

@@ -46,8 +46,8 @@ void ARP::initialize(int stage)
 {
     if (stage==0)
     {
-        InterfaceTable *ift = InterfaceTableAccess().get();
-        RoutingTable *rt = RoutingTableAccess().get();
+        ift = InterfaceTableAccess().get();
+        rt = RoutingTableAccess().get();
 
         // register interface in 1st stage
         interfaceEntry = registerInterface(100000); // FIXME hardcoded 100 Mbps
@@ -502,11 +502,7 @@ InterfaceEntry *ARP::registerInterface(double datarate)
     e->setMulticast(true);
     e->setPointToPoint(false);
 
-    // multicast groups
-    // TBD
-
     // add
-    InterfaceTable *ift = InterfaceTableAccess().get();
     ift->addInterface(e);
 
     return e;

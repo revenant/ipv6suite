@@ -83,7 +83,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
            << " ----------------------------------------------- \n");
 
       mod->associateAP.address = authentication->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = false;
 
@@ -216,12 +216,12 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
 
     if(mod->associateAP.address == associationResponse->getAddress2())
     {
-      std::cout<<mod->simTime()<<" "<<mod->fullPath()<<" associated to: "<<associationResponse->getAddress2()<<" on chan: "<<signal->channel()<<" sig strength: "<< signal->power()<<std::endl;
+      std::cout<<mod->simTime()<<" "<<mod->fullPath()<<" associated to: "<<associationResponse->getAddress2()<<" on chan: "<<signal->channelNum()<<" sig strength: "<< signal->power()<<std::endl;
       Dout(dc::mobile_move, mod->simTime()<<" "<<OPP_Global::nodeName(mod)<<" associated to: "
-           <<associationResponse->getAddress2()<<" on chan: "<<signal->channel()
+           <<associationResponse->getAddress2()<<" on chan: "<<signal->channelNum()
            <<" sig strength: "<< signal->power());
       mod->associateAP.address = associationResponse->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = true;
       mod->_currentReceiveMode = WEDataReceiveMode::instance();
@@ -309,7 +309,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
     if(mod->associateAP.address == reAssociationResponse->getAddress2())
     {
       mod->associateAP.address = reAssociationResponse->getAddress2();
-      mod->associateAP.channel = signal->channel();
+      mod->associateAP.channel = signal->channelNum();
       mod->associateAP.rxpower = signal->power();
       mod->associateAP.associated = true;
       mod->_currentReceiveMode = WEDataReceiveMode::instance();

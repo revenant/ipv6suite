@@ -637,7 +637,7 @@ void WirelessEtherModule::sendFrame(WESignal* msg)
           )
         {
           msg->setPower(rxPower);
-          msg->setChannel(a->channel);
+          msg->setChannelNum(a->channel);
           // propagation delay
           double propDelay = distance / (3 * pow((double)10, (double)8));
           // Mark the module which need the end of the frame
@@ -688,7 +688,7 @@ void WirelessEtherModule::sendEndOfFrame()
 
         // set end of frame properties
         idle->setPower(rxPower);
-        idle->setChannel((*it)->mod->channel);
+        idle->setChannelNum((*it)->mod->channel);
 
         // propagation delay
         double propDelay = distance / (3 * pow((double)10, (double)8));
@@ -1121,7 +1121,7 @@ void WirelessEtherModule::probeChannel(void)
         FrameBody* authFrameBody = createFrameBody(authentication);
         authentication->encapsulate(authFrameBody);
         WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
-        authSignal->setChannel(channel);
+        authSignal->setChannelNum(channel);
         outputBuffer.push_back(authSignal);
         //delete authentication;
 
@@ -1267,7 +1267,7 @@ void WirelessEtherModule::passiveChannelScan(void)
         FrameBody* authFrameBody = createFrameBody(authentication);
         authentication->encapsulate(authFrameBody);
         WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
-        authSignal->setChannel(channel);
+        authSignal->setChannelNum(channel);
         outputBuffer.push_back(authSignal);
         //delete authentication;
 
@@ -1446,7 +1446,7 @@ WESignalData* WirelessEtherModule::generateProbeReq(void)
   probeFrame->encapsulate(probeFrameBody);
 
   WESignalData* probeSignal = encapsulateIntoWESignalData(probeFrame);
-  probeSignal->setChannel(channel);
+  probeSignal->setChannelNum(channel);
   //delete probeFrame;
 
   return probeSignal;

@@ -7,15 +7,20 @@
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
+<!-- XXX Wireless config moved to ini file -AV
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.1" />
       </WirelessEtherInfo>
+-->
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on">
+<!-- XXX no longer needed -AV
     <interface name="eth0">
     </interface>
+-->
   </local>
+<!-- XXX Wireless config moved to ini file -AV
   <local node="ap1">
     <interface name="wlanap">
       <WirelessEtherInfo>
@@ -44,6 +49,7 @@
       </WirelessEtherInfo>
     </interface>
   </local>
+-->
 
 <!-- routing table configuration -->
 

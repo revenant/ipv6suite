@@ -23,11 +23,10 @@
 
 //  Cleanup and rewrite: Andras Varga, 2004
 
-#include "RoutingTableAccess.h"
 #include "IPDatagram.h"
-#include "RoutingTable.h"
 #include "ICMPAccess.h"
 
+class InterfaceTable;
 
 /**
  * Fragment datagram if size is bigger than MTU of output port, then
@@ -37,7 +36,7 @@
 class IPFragmentation: public cSimpleModule
 {
   private:
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
     ICMPAccess icmpAccess;
     int numOfPorts;
 

@@ -22,10 +22,11 @@
 #include "MPLSPacket.h"
 #include "IPDatagram.h"
 #include "LIBTableAccess.h"
-#include "RoutingTableAccess.h"
-#include "RoutingTable.h"
 #include "ConstType.h"
 
+
+class InterfaceTable;
+class RoutingTable;
 
 #define DEST_CLASSIFIER         1
 #define SRC_AND_DEST_CLASSIFIER 2
@@ -59,7 +60,8 @@ class MPLSModule : public cSimpleModule
      };
 
    private:
-      RoutingTableAccess routingTableAccess;
+      InterfaceTable *ift;
+      RoutingTable *rt;
       LIBTableAccess libTableAccess;
 
       bool isIR;

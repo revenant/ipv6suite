@@ -23,9 +23,10 @@
 
 //  Cleanup and rewrite: Andras Varga, 2004
 
-#include "RoutingTableAccess.h"
 #include "IPDatagram.h"
 
+class RoutingTable;
+class InterfaceTable;
 
 /**
  * Receive datagram with multicast address, duplicate it if it is sent
@@ -36,7 +37,8 @@
 class IPMulticast : public cSimpleModule
 {
   private:
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
+    RoutingTable *rt;
 
   public:
     Module_Class_Members(IPMulticast, cSimpleModule, 0);

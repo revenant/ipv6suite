@@ -20,6 +20,9 @@
 #include "MPLSModule.h"
 #include "IPAddressResolver.h"
 #include "StringTokenizer.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTableAccess.h"
 
 Define_Module(RSVPAppl);
 
@@ -32,7 +35,10 @@ void RSVPAppl::initialize(int stage)
         return;
 
     // Get router IP Address
-    routerId = RoutingTableAccess().get()->getRouterId().getInt();
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    RoutingTable *rt = RoutingTableAccess().get();
+
+    routerId = rt->getRouterId().getInt();
     ASSERT(routerId!=0);
 
     isIR = par("isIR").boolValue();
@@ -117,7 +123,6 @@ void RSVPAppl::processRSVP_RTEAR(RSVPResvTear *msg)
 
 void RSVPAppl::processRSVP_PATH(RSVPPathMsg *pMessage)
 {
-    RoutingTable *rt = routingTableAccess.get();
     LIBTable *lt = libTableAccess.get();
 
     IPADDR receiverIP = pMessage->getDestAddress();
@@ -129,8 +134,8 @@ void RSVPAppl::processRSVP_PATH(RSVPPathMsg *pMessage)
     Unicast_Route_Query(receiverIP, &outInf);
 
     // Convert to name
-    IPv4InterfaceEntry *outInfP = rt->interfaceByAddress(IPAddress(outInf));
-    IPv4InterfaceEntry *inInfP = rt->interfaceByAddress(IPAddress(inInf));
+    InterfaceEntry *outInfP = rt->interfaceByAddress(IPAddress(outInf));
+    InterfaceEntry *inInfP = rt->interfaceByAddress(IPAddress(inInf));
     if (!outInfP) error("no interface with outInf address %s",IPAddress(outInf).str().c_str());
     if (!inInfP) error("no interface with inInf address %s",IPAddress(inInf).str().c_str());
 
@@ -156,7 +161,6 @@ void RSVPAppl::processRSVP_PATH(RSVPPathMsg *pMessage)
 
 void RSVPAppl::processRSVP_RESV(RSVPResvMsg *rMessage)
 {
-    RoutingTable *rt = routingTableAccess.get();
     LIBTable *lt = libTableAccess.get();
     MPLSModule *mplsMod = mplsAccess.get();
 
@@ -242,8 +246,8 @@ void RSVPAppl::processRSVP_RESV(RSVPResvMsg *rMessage)
                     // Install new label
                     int outInf = rMessage->getLIH();
                     int outInfIndex = rt->interfaceByAddress(IPAddress(outInf))->outputPort(); // FIXME ->outputPort(): is this OK? --AV
-                    const char *outInfName = (rt->interfaceByPortNo(outInfIndex))->name();
-                    const char *inInfName = (rt->interfaceByPortNo(aTunnel.inInfIndex))->name();
+                    const char *outInfName = (ift->interfaceByPortNo(outInfIndex))->name();
+                    const char *inInfName = (ift->interfaceByPortNo(aTunnel.inInfIndex))->name();
 
                     ev << "INSTALL new label \n";
                     ev << "src=" << IPAddress(aTunnel.Sender_Template.
@@ -796,11 +800,10 @@ void RSVPAppl::sendPathMessage(SessionObj_t * s, traffic_request_t * t, int lspI
 
 void RSVPAppl::Unicast_Route_Query(IPADDR da, int *outl)
 {
-    RoutingTable *rt = routingTableAccess.get();
     int foundIndex;
     // int j=0;
     foundIndex = rt->outputPortNo(IPAddress(da));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return outl???
+    (*outl) = ift->interfaceByPortNo(foundIndex)->ipv4()->inetAddress().getInt();   // FIXME why not return outl???
 
     return;
 
@@ -808,12 +811,10 @@ void RSVPAppl::Unicast_Route_Query(IPADDR da, int *outl)
 
 void RSVPAppl::Mcast_Route_Query(IPADDR sa, int iad, IPADDR da, int *outl)
 {
-    RoutingTable *rt = routingTableAccess.get();
-
     int foundIndex;
     // int j=0;
     foundIndex = rt->outputPortNo(IPAddress(da));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return outl???
+    (*outl) = ift->interfaceByPortNo(foundIndex)->ipv4()->inetAddress().getInt();   // FIXME why not return outl???
 
     return;
 }

@@ -31,7 +31,7 @@
 #include "IPv4InterfaceData.h"
 
 
-IPv4InterfaceEntry::IPv4InterfaceEntry(InterfaceEntry *e)
+IPv4InterfaceData::IPv4InterfaceData()
 {
     static const IPAddress allOnes("255.255.255.255");
     _netmask = allOnes;
@@ -41,7 +41,7 @@ IPv4InterfaceEntry::IPv4InterfaceEntry(InterfaceEntry *e)
     // TBD add default multicast groups!
 }
 
-std::string IPv4InterfaceEntry::info() const
+std::string IPv4InterfaceData::info() const
 {
     std::stringstream out;
     out << "addr:" << inetAddress() << "  mask:" << netmask();
@@ -56,7 +56,7 @@ std::string IPv4InterfaceEntry::info() const
     return out.str();
 }
 
-std::string IPv4InterfaceEntry::detailedInfo() const
+std::string IPv4InterfaceData::detailedInfo() const
 {
     std::stringstream out;
     out << "inet addr:" << inetAddress() << "\tMask: " << netmask() << "\n";

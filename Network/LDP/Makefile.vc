@@ -141,13 +141,14 @@ NewLDP.obj: NewLDP.cc \
   NewLDP.h \
   ../MPLS/LIBtable.h \
   ../MPLS/MPLSModule.h \
-  ../IPv4/RoutingTable.h \
+  ../Generic/InterfaceTableAccess.h \
+  ../IPv4/IPv4InterfaceData.h \
+  ../IPv4/RoutingTableAccess.h \
   ../../Transport/UDP/UDPControlInfo_m.h \
   ../../Util/stlwatch.h \
   LDPPacket_m.h \
   ../MPLS/MPLSAccess.h \
   ../MPLS/LIBTableAccess.h \
-  ../IPv4/RoutingTableAccess.h \
   ../../Transport/TCP/TCPSocketMap.h \
   ../IPv4/IPAddress.h \
   ../../Base/INETDefs.h \
@@ -158,4 +159,5 @@ NewLDP.obj: NewLDP.cc \
   ../IPv4/IPDatagram.h \
   ../IPv4/IPDatagram_m.h \
   ../IPv4/IPProtocolId_m.h \
-  ../Generic/InterfaceTable.h
+  ../Generic/InterfaceTable.h \
+  ../IPv4/RoutingTable.h

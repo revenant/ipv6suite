@@ -63,8 +63,8 @@ void ARP::initialize(int stage)
 
     // fill in myIPAddress and myMACAddress
     RoutingTable *rt = RoutingTableAccess().get();
-    IPv4InterfaceEntry *e4 = rt->interfaceByName(interfaceEntry->name());
-    myIPAddress = e4->inetAddress();
+    InterfaceEntry *e4 = ift->interfaceByName(interfaceEntry->name());
+    myIPAddress = e4->ipv4()->inetAddress();
     myMACAddress = ((EtherMAC *)parentModule()->submodule("mac"))->getMACAddress();
 
     // init statistics

@@ -24,9 +24,11 @@
 #include "LDPPacket_m.h"
 #include "MPLSAccess.h"
 #include "LIBTableAccess.h"
-#include "RoutingTableAccess.h"
 #include "TCPSocketMap.h"
 
+
+class InterfaceTable;
+class RoutingTable;
 
 /**
  * LDP (rfc 3036) protocol implementation.
@@ -71,7 +73,8 @@ class NewLDP: public cSimpleModule, public TCPSocket::CallbackInterface
     //
     // other variables:
     //
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
+    RoutingTable *rt;
     LIBTableAccess libTableAccess;
     MPLSAccess mplsAccess;
 

@@ -60,7 +60,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= ICMPMessage_m.obj IPControlInfo_m.obj IPDatagram_m.obj IPProtocolId_m.obj ICMP.obj IP.obj IPAddress.obj IPAddressResolver.obj IPFragBuf.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
+OBJS= ICMPMessage_m.obj IPControlInfo_m.obj IPDatagram_m.obj IPProtocolId_m.obj ICMP.obj IP.obj IPAddress.obj IPAddressResolver.obj IPFragBuf.obj IPv4InterfaceData.obj ProtocolMap.obj RoutingTable.obj RoutingTableParser.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= ICMPMessage_m.h IPControlInfo_m.h IPDatagram_m.h IPProtocolId_m.h
@@ -127,6 +127,9 @@ IPAddressResolver.obj: IPAddressResolver.cc
 IPFragBuf.obj: IPFragBuf.cc
 	$(CXX) -c $(COPTS) /Tp IPFragBuf.cc
 
+IPv4InterfaceData.obj: IPv4InterfaceData.cc
+	$(CXX) -c $(COPTS) /Tp IPv4InterfaceData.cc
+
 ProtocolMap.obj: ProtocolMap.cc
 	$(CXX) -c $(COPTS) /Tp ProtocolMap.cc
 
@@ -192,7 +195,9 @@ IP.obj: IP.cc \
   IPDatagram.h \
   IPControlInfo_m.h \
   ICMPMessage_m.h \
+  IPv4InterfaceData.h \
   ../../Base/QueueBase.h \
+  ../Generic/InterfaceTableAccess.h \
   RoutingTableAccess.h \
   RoutingTable.h \
   ICMPAccess.h \
@@ -200,9 +205,9 @@ IP.obj: IP.cc \
   ProtocolMap.h \
   ../../Base/AbstractQueue.h \
   ../../Base/ModuleAccess.h \
+  ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   IPAddress.h \
-  ../Generic/InterfaceTable.h \
   ICMP.h \
   ICMPMessage.h \
   IPDatagram_m.h \
@@ -212,10 +217,11 @@ IPAddress.obj: IPAddress.cc \
   ../../Base/INETDefs.h
 IPAddressResolver.obj: IPAddressResolver.cc \
   IPAddressResolver.h \
+  ../Generic/InterfaceTable.h \
+  IPv4InterfaceData.h \
   RoutingTable.h \
   IPAddress.h \
-  ../../Base/INETDefs.h \
-  ../Generic/InterfaceTable.h
+  ../../Base/INETDefs.h
 IPControlInfo_m.obj: IPControlInfo_m.cc \
   IPControlInfo_m.h \
   IPAddress.h \
@@ -242,12 +248,17 @@ IPFragBuf.obj: IPFragBuf.cc \
   ICMPMessage_m.h
 IPProtocolId_m.obj: IPProtocolId_m.cc \
   IPProtocolId_m.h
+IPv4InterfaceData.obj: IPv4InterfaceData.cc \
+  IPv4InterfaceData.h \
+  ../../Base/INETDefs.h \
+  IPAddress.h
 ProtocolMap.obj: ProtocolMap.cc \
   ProtocolMap.h
 RoutingTable.obj: RoutingTable.cc \
   ../../Util/stlwatch.h \
   RoutingTable.h \
   RoutingTableParser.h \
+  IPv4InterfaceData.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceTableAccess.h \
   ../../Base/INETDefs.h \
@@ -256,6 +267,7 @@ RoutingTable.obj: RoutingTable.cc \
 RoutingTableParser.obj: RoutingTableParser.cc \
   RoutingTableParser.h \
   ../../Util/StringTokenizer.h \
+  IPv4InterfaceData.h \
   RoutingTable.h \
   ../../Base/INETDefs.h \
   IPAddress.h \

@@ -25,6 +25,9 @@
 #include "OspfTe.h"
 #include "LIBTableAccess.h"
 
+class InterfaceTable;
+class RoutingTable;
+
 
 #define InLIST_SIZE        5
 #define TABLE_SIZE        10
@@ -159,7 +162,8 @@ private:
     };
 
 private:
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
+    RoutingTable *rt;
     LIBTableAccess libTableAccess;
 
     std::vector<PathStateBlock_t> PSBList;  //Path State Block

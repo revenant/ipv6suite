@@ -25,6 +25,9 @@
 #include "IPControlInfo_m.h"
 #include "IPRouting.h"
 #include "watch2.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTableAccess.h"
 
 
 Define_Module(IPRouting);
@@ -33,6 +36,9 @@ Define_Module(IPRouting);
 void IPRouting::initialize()
 {
     QueueWithQoS::initialize();
+
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    RoutingTable *rt = RoutingTableAccess().get();
 
     numMulticast = numLocalDeliver = numDropped = numUnroutable = numForwarded = 0;
 
@@ -56,7 +62,6 @@ void IPRouting::endService(cMessage *msg)
     ev << "Packet destination address is: " << destAddress << ", ";
 
     //  multicast check
-    RoutingTable *rt = routingTableAccess.get();
     if (destAddress.isMulticast())
     {
         ev << "sending to multicast\n";
@@ -96,7 +101,7 @@ void IPRouting::endService(cMessage *msg)
 
     // set datagram source address if not yet set
     if (datagram->srcAddress().isNull())
-        datagram->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
+        datagram->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
     // default: send datagram to fragmentation
     routingDecision->setOutputPort(outputPort);

@@ -12,11 +12,15 @@
 *
 *
 *********************************************************************/
+
 #include "RSVP.h"
 #include "IPAddress.h"
 #include "MPLSModule.h"
 #include "IPAddressResolver.h"
 #include "IPControlInfo_m.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTableAccess.h"
 
 Define_Module(RSVP);
 
@@ -109,7 +113,8 @@ void RSVP::initialize(int stage)
     if (stage!=4)
         return;
 
-    RoutingTable *rt = routingTableAccess.get();
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    RoutingTable *rt = RoutingTableAccess().get();
 
     // get routerId
     routerId = rt->getRouterId().getInt();
@@ -119,7 +124,7 @@ void RSVP::initialize(int stage)
     IsER = par("isER").boolValue();
 
     // initialize interface address list
-    NoOfLinks = rt->numInterfaces();
+    NoOfLinks = ift->numInterfaces();
 
     // fill in LocalAddress[] array, using TED (in stage>=4!)
     updateTED();
@@ -492,7 +497,6 @@ void RSVP::processResvMsg(RSVPResvMsg * rmsg)
        }
      */
 
-    RoutingTable *rt = routingTableAccess.get();
     LIBTable *lt = libTableAccess.get();
 
     ResvStateBlock_t *activeRSB;
@@ -925,8 +929,8 @@ void RSVP::processResvMsg(RSVPResvMsg * rmsg)
                             {
                                 int lsp_id = (*fdlist).Filter_Spec_Object.Lsp_Id;
 
-                                const char *outInfName = rt->interfaceByPortNo(outInfIndex)->name();
-                                const char *inInfName = rt->interfaceByPortNo(inInfIndex)->name();
+                                const char *outInfName = ift->interfaceByPortNo(outInfIndex)->name();
+                                const char *inInfName = ift->interfaceByPortNo(inInfIndex)->name();
 
                                 int inLabel = -2;
 
@@ -2104,8 +2108,6 @@ int RSVP::GetFwdFS(int oi, FlowSpecObj_t * fwdFS)
 
 void RSVP::Mcast_Route_Query(IPADDR srcAddr, int iad, IPADDR destAddr, int *outl)        // FIXME change to int& outl
 {
-    RoutingTable *rt = routingTableAccess.get();
-
     if (destAddr == routerId)
     {
         (*outl) = -1;
@@ -2116,7 +2118,7 @@ void RSVP::Mcast_Route_Query(IPADDR srcAddr, int iad, IPADDR destAddr, int *outl
     // int j=0;
 
     foundIndex = rt->outputPortNo(IPAddress(destAddr));
-    (*outl) = rt->interfaceByPortNo(foundIndex)->inetAddress().getInt();   // FIXME why not return???
+    (*outl) = ift->interfaceByPortNo(foundIndex)->ipv4()->inetAddress().getInt();   // FIXME why not return???
 
     return;
 }

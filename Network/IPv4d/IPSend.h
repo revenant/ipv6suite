@@ -23,10 +23,11 @@
 //  Cleanup and rewrite: Andras Varga, 2004
 
 
-#include "RoutingTableAccess.h"
 #include "IPControlInfo_m.h"
 #include "IPDatagram.h"
 
+class InterfaceTable;
+class RoutingTable;
 
 /**
  * Encapsulate packet in an IP datagram.
@@ -34,7 +35,8 @@
 class IPSend : public cSimpleModule
 {
   private:
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
+    RoutingTable *rt;
 
     int defaultTimeToLive;
     int defaultMCTimeToLive;

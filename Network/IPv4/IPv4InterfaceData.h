@@ -49,12 +49,12 @@ class IPv4InterfaceData : public cPolymorphic
 
   private:
     // copying not supported: following are private and also left undefined
-    IPv4InterfaceEntry(const IPv4InterfaceEntry& obj);
-    IPv4InterfaceEntry& operator=(const IPv4InterfaceEntry& obj);
+    IPv4InterfaceData(const IPv4InterfaceData& obj);
+    IPv4InterfaceData& operator=(const IPv4InterfaceData& obj);
 
   public:
-    IPv4InterfaceEntry();
-    virtual ~IPv4InterfaceEntry() {}
+    IPv4InterfaceData();
+    virtual ~IPv4InterfaceData() {}
     virtual std::string info() const;
     virtual std::string detailedInfo() const;
 

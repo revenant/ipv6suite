@@ -21,6 +21,7 @@
 
 #include "IPFragmentation.h"
 #include "IPControlInfo_m.h"
+#include "InterfaceTableAccess.h"
 
 
 Define_Module( IPFragmentation );
@@ -31,6 +32,7 @@ const int ICMP_FRAGMENTATION_ERROR_CODE = 4;
 
 void IPFragmentation::initialize()
 {
+    InterfaceTable *ift = InterfaceTableAccess().get();
     numOfPorts = gate("outputOut")->size();
 }
 
@@ -41,8 +43,7 @@ void IPFragmentation::handleMessage(cMessage *msg)
     IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision *>(msg->controlInfo());
     int outputPort = controlInfo->outputPort();
 
-    RoutingTable *rt = routingTableAccess.get();
-    int mtu = rt->interfaceByPortNo(outputPort)->mtu();
+    int mtu = ift->interfaceByPortNo(outputPort)->mtu();
 
     // check if datagram does not require fragmentation
     if (datagram->length()/8 <= mtu)

@@ -31,67 +31,10 @@
 #include "stlwatch.h"
 #include "RoutingTable.h"
 #include "RoutingTableParser.h"
+#include "IPv4InterfaceData.h"
 #include "InterfaceTable.h"
 #include "InterfaceTableAccess.h"
 
-
-
-IPv4InterfaceEntry::IPv4InterfaceEntry(InterfaceEntry *e)
-{
-    ifBase = e;
-
-    static const IPAddress allOnes("255.255.255.255");
-    _netmask = allOnes;
-
-    _metric = 0;
-
-    // TBD add default multicast groups!
-}
-
-std::string IPv4InterfaceEntry::info() const
-{
-    std::stringstream out;
-    out << (name()[0] ? name() : "*");
-    out << "  outputPort:" << outputPort();
-    out << "  addr:" << inetAddress() << "  mask:" << netmask();
-    out << "  MTU:" << mtu() << "  Metric:" << metric();
-    if (isDown()) out << "DOWN";
-    out << " Groups:";
-    if (!multicastGroups().empty())
-    {
-        for (int j=0; j<multicastGroups().size(); j++)
-            if (!multicastGroups()[j].isNull())
-                out << ":" << multicastGroups()[j];
-    }
-    return out.str();
-}
-
-std::string IPv4InterfaceEntry::detailedInfo() const
-{
-    std::stringstream out;
-    out << (name()[0] ? name() : "*");
-    out << "\toutputPort:" << outputPort() << "\n";
-    out << "inet addr:" << inetAddress() << "\tMask: " << netmask() << "\n";
-
-    out << "MTU: " << mtu() << " \tMetric: " << metric() << "\n";
-
-    out << "Groups:";
-    for (int j=0; j<multicastGroups().size(); j++)
-        if (!multicastGroups()[j].isNull())
-            out << "  " << multicastGroups()[j];
-    out << "\n";
-
-    if (isDown()) out << "DOWN ";
-    if (isBroadcast()) out << "BROADCAST ";
-    if (isMulticast()) out << "MULTICAST ";
-    if (isPointToPoint()) out << "POINTTOPOINT ";
-    if (isLoopback()) out << "LOOPBACK ";
-    out << "\n";
-
-    return out.str();
-}
-
-//================================================================
 
 RoutingEntry::RoutingEntry()
 {
@@ -133,7 +76,7 @@ std::ostream& operator<<(std::ostream& os, const RoutingEntry& e)
     return os;
 };
 
-std::ostream& operator<<(std::ostream& os, const IPv4InterfaceEntry& e)
+std::ostream& operator<<(std::ostream& os, const InterfaceEntry& e)
 {
     os << e.info();
     return os;
@@ -147,6 +90,8 @@ void RoutingTable::initialize(int stage)
     if (stage!=1)
         return;
 
+    ift = InterfaceTableAccess().get();
+
     IPForward = par("IPForward").boolValue();
     const char *filename = par("routingFile");
 
@@ -157,10 +102,10 @@ void RoutingTable::initialize(int stage)
         addPv4InterfaceEntryFor(interfaceTable->interfaceAt(i));
 
     // Add one extra interface, the loopback here.
-    IPv4InterfaceEntry *lo0 = addLocalLoopback();
+    InterfaceEntry *lo0 = addLocalLoopback();
 
     // read routing table file (and interface configuration)
-    RoutingTableParser parser(this);
+    RoutingTableParser parser(ift, this);
     if (*filename && parser.readRoutingTableFromFile(filename)==-1)
         error("Error reading routing table file %s", filename);
 
@@ -173,20 +118,22 @@ void RoutingTable::initialize(int stage)
     {
         // choose highest interface address as routerId
         routerId = IPAddress();
-        for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-            if (!(*i)->isLoopback() && (*i)->inetAddress().getInt() > routerId.getInt())
-                routerId = (*i)->inetAddress();
+        for (int i=0; i<ift->numInterfaces(); ++i)
+        {
+            InterfaceEntry *ie = ift->interfaceAt(i);
+            if (!ie->isLoopback() && ie->ipv4()->inetAddress().getInt() > routerId.getInt())
+                routerId = ie->ipv4()->inetAddress();
+        }
     }
     else
     {
         // use routerId both as routerId and loopback address
         routerId = IPAddress(routerIdStr);
 
-        lo0->setInetAddress(routerId);
-        lo0->setNetmask(IPAddress("255.255.255.255"));
+        lo0->ipv4()->setInetAddress(routerId);
+        lo0->ipv4()->setNetmask(IPAddress("255.255.255.255"));
     }
 
-    WATCH_PTRVECTOR(interfaces);
     WATCH_PTRVECTOR(routes);
     WATCH_PTRVECTOR(multicastRoutes);
     //WATCH(routerId);
@@ -215,14 +162,6 @@ void RoutingTable::handleMessage(cMessage *msg)
     opp_error("This module doesn't process messages");
 }
 
-void RoutingTable::printIfconfig()
-{
-    ev << "---- IF config ----\n";
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        ev << (*i)->detailedInfo() << "\n";
-    ev << "\n";
-}
-
 void RoutingTable::printRoutingTable()
 {
     ev << "-- Routing table --\n";
@@ -238,41 +177,15 @@ void RoutingTable::printRoutingTable()
 
 void RoutingTable::addPv4InterfaceEntryFor(InterfaceEntry *e)
 {
-    IPv4InterfaceEntry *e4 = new IPv4InterfaceEntry(e);
-    interfaces.push_back(e4);
+    IPv4InterfaceData *d = new IPv4InterfaceData();
+    e->setIPv4Data(d);
 
     // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    e4->setMetric((int)ceil(2e9/e->datarate())); // use OSPF cost as default
+    d->setMetric((int)ceil(2e9/e->datarate())); // use OSPF cost as default
 }
 
-IPv4InterfaceEntry *RoutingTable::interfaceAt(int id)
-{
-    if (id<0 || id>=(int)interfaces.size())
-        opp_error("interfaceAt(): nonexistent interface %d", id);
-    return interfaces[id];
-}
-
-IPv4InterfaceEntry *RoutingTable::interfaceByPortNo(int portNo)
-{
-    // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if ((*i)->outputPort()==portNo)
-            return *i;
-    return NULL;
-}
-
-IPv4InterfaceEntry *RoutingTable::interfaceByName(const char *name)
-{
-    Enter_Method("interfaceByName(%s)=?", name);
-    if (!name)
-        return NULL;
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if (!strcmp(name, (*i)->name()))
-            return *i;
-    return NULL;
-}
-
-IPv4InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
+/*
+InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
 {
     // This used to check the network part of the interface IP address.
     // No clue what it was good for, but screwed up routing for me. --Andras
@@ -280,13 +193,16 @@ IPv4InterfaceEntry *RoutingTable::interfaceByAddress(const IPAddress& addr)
     if (addr.isNull())
         return NULL;
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if ((*i)->inetAddress()==addr)
+        if ((*i)->ipv4()->inetAddress()==addr)
             return *i;
     return NULL;
 }
+*/
 
-IPv4InterfaceEntry *RoutingTable::addLocalLoopback()
+
+InterfaceEntry *RoutingTable::addLocalLoopback()
 {
+/*XXX!!!!! FIXME !!!!
     // add base info
     InterfaceEntry *loopbackIfBase = new InterfaceEntry();
 
@@ -299,7 +215,7 @@ IPv4InterfaceEntry *RoutingTable::addLocalLoopback()
     interfaceTable->addInterface(loopbackIfBase);
 
     // add IPv4 info
-    IPv4InterfaceEntry *loopbackInterface = new IPv4InterfaceEntry(loopbackIfBase);
+    InterfaceEntry *loopbackInterface = new InterfaceEntry(loopbackIfBase);
 
     // 127.0.0.1/8 by default -- we may reconfigure later it to be the routerId
     loopbackInterface->setInetAddress(IPAddress("127.0.0.1"));
@@ -310,6 +226,8 @@ IPv4InterfaceEntry *RoutingTable::addLocalLoopback()
     interfaces.push_back(loopbackInterface);
 
     return loopbackInterface;
+*/
+return NULL;
 }
 
 //---
@@ -319,9 +237,12 @@ bool RoutingTable::localDeliver(const IPAddress& dest)
     Enter_Method("localDeliver(%s) y/n", dest.str().c_str());
 
     // check if we have an interface with this address, obeying interface's netmask
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        if (IPAddress::maskedAddrAreEqual(dest, (*i)->inetAddress(), (*i)->netmask()))
+    for (int i=0; i<ift->numInterfaces(); i++)
+    {
+        InterfaceEntry *ie = ift->interfaceAt(i);
+        if (IPAddress::maskedAddrAreEqual(dest, ie->ipv4()->inetAddress(), ie->ipv4()->netmask()))
             return true;
+    }
     return false;
 }
 
@@ -329,10 +250,13 @@ bool RoutingTable::multicastLocalDeliver(const IPAddress& dest)
 {
     Enter_Method("multicastLocalDeliver(%s) y/n", dest.str().c_str());
 
-    for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
-        for (int j=0; j < (*i)->multicastGroups().size(); j++)
-            if (dest.equals((*i)->multicastGroups()[j]))
+    for (int i=0; i<ift->numInterfaces(); i++)
+    {
+        InterfaceEntry *ie = ift->interfaceAt(i);
+        for (int j=0; j < ie->ipv4()->multicastGroups().size(); j++)
+            if (dest.equals(ie->ipv4()->multicastGroups()[j]))
                 return true;
+    }
     return false;
 }
 
@@ -387,7 +311,7 @@ MulticastRoutes RoutingTable::multicastRoutesFor(const IPAddress& dest)
         if (IPAddress::maskedAddrAreEqual(dest, e->host, e->netmask))
         {
             MulticastRoute r;
-            r.interf = interfaceByName(e->interfaceName.c_str()); // Ughhhh
+            r.interf = ift->interfaceByName(e->interfaceName.c_str()); // Ughhhh
             r.gateway = e->gateway;
             res.push_back(r);
         }
@@ -435,7 +359,7 @@ void RoutingTable::addRoutingEntry(RoutingEntry *entry)
         error("addRoutingEntry(): to add a default route, set both host and netmask to zero");
 
     // fill in interface ptr from interface name
-    entry->interfacePtr = interfaceByName(entry->interfaceName.c_str());
+    entry->interfacePtr = ift->interfaceByName(entry->interfaceName.c_str());
     if (!entry->interfacePtr)
         error("addRoutingEntry(): interface `%s' doesn't exist", entry->interfaceName.c_str());
 

@@ -24,10 +24,10 @@
 //  Cleanup and rewrite: Andras Varga, 2004
 
 #include "QueueWithQoS.h"
-#include "RoutingTableAccess.h"
-#include "RoutingTable.h"
 #include "ICMPAccess.h"
 
+class RoutingTable;
+class InterfaceTable;
 
 /**
  * Use source routing or look into routing table, and send IP datagram
@@ -37,7 +37,8 @@
 class IPRouting : public QueueWithQoS
 {
   private:
-    RoutingTableAccess routingTableAccess;
+    InterfaceTable *ift;
+    RoutingTable *rt;
     ICMPAccess icmpAccess;
 
     // statistics

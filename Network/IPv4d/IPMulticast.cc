@@ -25,6 +25,9 @@
 
 #include "IPMulticast.h"
 #include "IPControlInfo_m.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTableAccess.h"
 
 Define_Module(IPMulticast);
 
@@ -32,12 +35,12 @@ Define_Module(IPMulticast);
 
 void IPMulticast::initialize()
 {
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    RoutingTable *rt = RoutingTableAccess().get();
 }
 
 void IPMulticast::handleMessage(cMessage *msg)
 {
-    RoutingTable *rt = routingTableAccess.get();
-
     IPDatagram *datagram = check_and_cast<IPDatagram *>(msg);
     IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision *>(msg->controlInfo());
     int inputPort = controlInfo->inputPort();
@@ -103,7 +106,7 @@ void IPMulticast::handleMessage(cMessage *msg)
 
                 // set datagram source address if not yet set
                 if (datagramCopy->srcAddress().isNull())
-                    datagramCopy->setSrcAddress(rt->interfaceByPortNo(outputPort)->inetAddress());
+                    datagramCopy->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
                 send(datagramCopy, "fragmentationOut");
             }

@@ -27,12 +27,19 @@
 #include "IPSend.h"
 #include "IPDatagram.h"
 #include "IPControlInfo_m.h"
+#include "InterfaceTableAccess.h"
+#include "IPv4InterfaceData.h"
+#include "RoutingTableAccess.h"
+
 
 Define_Module(IPSend);
 
 
 void IPSend::initialize()
 {
+    InterfaceTable *ift = InterfaceTableAccess().get();
+    RoutingTable *rt = RoutingTableAccess().get();
+
     defaultTimeToLive = par("timeToLive");
     defaultMCTimeToLive = par("multicastTimeToLive");
     curFragmentId = 0;
@@ -47,8 +54,7 @@ void IPSend::handleMessage(cMessage *msg)
 IPDatagram *IPSend::encapsulate(cMessage *transportPacket)
 {
     // if no interface exists, do not send datagram
-    RoutingTable *rt = routingTableAccess.get();
-    if (rt->numInterfaces() == 0)
+    if (ift->numInterfaces() == 0)
     {
         ev << "No interfaces exist, dropping packet\n";
         delete transportPacket;

@@ -38,67 +38,6 @@
 class RoutingTableParser;
 
 
-
-/**
- * Interface entry for the interface table in RoutingTable.
- *
- * @see RoutingTable
- */
-class IPv4InterfaceEntry : public cPolymorphic
-{
-  public:
-    typedef std::vector<IPAddress> IPAddressVector;
-
-  private:
-    InterfaceEntry *ifBase; //< pointer into InterfaceTable
-    IPAddress _inetAddr;    //< IP address of interface
-    IPAddress _netmask;     //< netmask
-    int _metric;            //< link "cost"; see e.g. MS KB article Q299540
-    IPAddressVector _multicastGroups; //< multicast groups
-
-  private:
-    // copying not supported: following are private and also left undefined
-    IPv4InterfaceEntry(const IPv4InterfaceEntry& obj);
-    IPv4InterfaceEntry& operator=(const IPv4InterfaceEntry& obj);
-
-  public:
-    IPv4InterfaceEntry(InterfaceEntry *e);
-    virtual ~IPv4InterfaceEntry() {}
-    virtual std::string info() const;
-    virtual std::string detailedInfo() const;
-
-    IPAddress inetAddress() const  {return _inetAddr;}
-    IPAddress netmask() const      {return _netmask;}
-    int metric() const             {return _metric;}
-    const IPAddressVector& multicastGroups() const {return _multicastGroups;}
-
-    const char *name() const       {return ifBase->name();}
-    int outputPort() const         {return ifBase->outputPort();}
-    int mtu() const                {return ifBase->mtu();}
-    bool isDown() const            {return ifBase->isDown();}
-    bool isBroadcast() const       {return ifBase->isBroadcast();}
-    bool isMulticast() const       {return ifBase->isMulticast();}
-    bool isPointToPoint() const    {return ifBase->isPointToPoint();}
-    bool isLoopback() const        {return ifBase->isLoopback();}
-    double datarate() const        {return ifBase->datarate();}
-
-    void setInetAddress(IPAddress a) {_inetAddr = a;}
-    void setNetmask(IPAddress m)     {_netmask = m;}
-    void setMetric(int m)            {_metric = m;}
-    IPAddressVector& multicastGroups() {return _multicastGroups;}
-
-    void setName(const char *s)    {ifBase->setName(s);}
-    void setOutputPort(int i)      {ifBase->setOutputPort(i);}
-    void setMtu(int m)             {ifBase->setMtu(m);}
-    void setDown(bool b)           {ifBase->setDown(b);}
-    void setBroadcast(bool b)      {ifBase->setBroadcast(b);}
-    void setMulticast(bool b)      {ifBase->setMulticast(b);}
-    void setPointToPoint(bool b)   {ifBase->setPointToPoint(b);}
-    void setLoopback(bool b)       {ifBase->setLoopback(b);}
-    void setDatarate(double d)     {ifBase->setDatarate(d);}
-};
-
-
 /**
  * Routing entry in RoutingTable.
  *
@@ -138,7 +77,7 @@ class RoutingEntry : public cPolymorphic
 
     /// Interface name and pointer
     opp_string interfaceName;
-    IPv4InterfaceEntry *interfacePtr;
+    InterfaceEntry *interfacePtr;
 
     /// Route type: Direct or Remote
     RouteType type;
@@ -170,7 +109,7 @@ class RoutingEntry : public cPolymorphic
 /** Returned as the result of multicast routing */
 struct MulticastRoute
 {
-    IPv4InterfaceEntry *interf;
+    InterfaceEntry *interf;
     IPAddress gateway;
 };
 typedef std::vector<MulticastRoute> MulticastRoutes;
@@ -196,26 +135,20 @@ typedef std::vector<MulticastRoute> MulticastRoutes;
  * be read and modified during simulation, typically by routing protocol
  * implementations (e.g. OSPF).
  *
- * Interfaces are represented by IPv4InterfaceEntry objects, and entries in the
- * route table by RoutingEntry objects. Both can be polymorphic: if an
- * interface or a routing protocol needs to store additional data, it can
- * simply subclass from IPv4InterfaceEntry or RoutingEntry, and add the derived
- * object to the table.
+ * Entries in the route table are represented by RoutingEntry objects.
+ * RoutingEntry objects can be polymorphic: if a routing protocol needs
+ * to store additional data, it can simply subclass from RoutingEntry,
+ * and add the derived object to the table.
  *
  * Uses RoutingTableParser to read routing files (.irt, .mrt).
  *
  *
- * @see IPv4InterfaceEntry, RoutingEntry
+ * @see InterfaceEntry, IPv4InterfaceData, RoutingEntry
  */
 class RoutingTable: public cSimpleModule
 {
   private:
-
-    //
-    // Interfaces:
-    //
-    typedef std::vector<IPv4InterfaceEntry *> InterfaceVector;
-    InterfaceVector interfaces;
+    InterfaceTable *ift; // cached pointer
 
     IPAddress routerId;
     bool IPForward;
@@ -229,7 +162,7 @@ class RoutingTable: public cSimpleModule
 
   protected:
     // Add the entry of the local loopback interface
-    IPv4InterfaceEntry *addLocalLoopback();
+    InterfaceEntry *addLocalLoopback();
 
     // check if a route table entry corresponds to the following parameters
     bool routingEntryMatches(RoutingEntry *entry,
@@ -267,32 +200,9 @@ class RoutingTable: public cSimpleModule
     void addPv4InterfaceEntryFor(InterfaceEntry *e);
 
     /**
-     * Returns the number of interfaces. Interface ids are in range
-     * 0..numInterfaces()-1.
-     */
-    int numInterfaces()  {return interfaces.size();}
-
-    /**
-     * Returns the IPv4InterfaceEntry specified by its index 0..numInterfaces-1.
-     */
-    IPv4InterfaceEntry *interfaceAt(int id);
-
-    /**
-     * Returns an interface given by its port number (gate index).
-     * Returns NULL if not found (e.g. the loopback interface has no
-     * port number).
-     */
-    IPv4InterfaceEntry *interfaceByPortNo(int portNo);
-
-    /**
-     * Returns an interface given by its name. Returns NULL if not found.
-     */
-    IPv4InterfaceEntry *interfaceByName(const char *name);
-
-    /**
      * Returns an interface given by its address. Returns NULL if not found.
      */
-    IPv4InterfaceEntry *interfaceByAddress(const IPAddress& address);
+    InterfaceEntry *interfaceByAddress(const IPAddress& address);
     //@}
 
     /**

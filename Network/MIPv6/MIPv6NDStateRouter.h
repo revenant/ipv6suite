@@ -56,7 +56,7 @@ class MIPv6NDStateRouter : public NDStateRouter
   virtual void print(){};
 
  protected:
-  virtual ICMPv6NDMRtrAd* createRA(const Interface6Entry::RouterVariables& rtr, size_t ifidx);
+  virtual ICMPv6NDMRtrAd* createRA(const IPv6InterfaceData::RouterVariables& rtr, size_t ifidx);
 };
 
 } // end namesapce MobileIPv6

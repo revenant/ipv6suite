@@ -43,7 +43,7 @@
 #endif //IPV6ADDRESS_H
 
 
-class Interface6Entry;
+class InterfaceEntry;
 class IPv6Mobility;
 
 
@@ -257,7 +257,7 @@ namespace MobileIPv6
      */
 
     ipv6_addr formCareOfAddress(boost::weak_ptr<MIPv6RouterEntry> re,
-                                Interface6Entry* ie) const;
+                                InterfaceEntry *ie) const;
 
     ///Returns the preferred lifetime management function to be called at every
     ///period

@@ -79,7 +79,7 @@ namespace HierarchicalMIPv6
 */
 
   ICMPv6NDMRtrAd* HMIPv6NDStateRouter
-  ::createRA(const Interface6Entry::RouterVariables& rtrVar, size_t ifidx)
+  ::createRA(const IPv6InterfaceData::RouterVariables& rtrVar, size_t ifidx)
   {
     ICMPv6NDMRtrAd* rtrAd =
       MobileIPv6::MIPv6NDStateRouter::createRA(rtrVar, ifidx);

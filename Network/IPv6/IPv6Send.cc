@@ -50,6 +50,7 @@
 #include "IPv6InterfacePacket.h"
 #include "HdrExtRteProc.h"
 #include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 
 Define_Module( IPv6Send );
@@ -77,8 +78,8 @@ void IPv6Send::endService(cMessage* msg)
 IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
 {
   // if no interface exists, do not send datagram
-  if (rt->interfaceCount() == 0 ||
-      rt->getInterfaceByIndex(0)->inetAddrs.size() == 0)
+  if (ift->numInterfaceGates() == 0 ||
+      ift->interfaceByPortNo(0)->ipv6()->inetAddrs.size() == 0)
   {
     cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
     Dout(dc::warning, rt->nodeName()<<" 1st Interface is not ready yet");
@@ -102,10 +103,10 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
 Debug(
     //Test if source address actually exists
     bool found = false;
-    for (size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)
+    for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
     {
-      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
-      if (ie->addrAssigned(c_ipv6_addr(interfaceMsg->srcAddr())))
+      InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+      if (ie->ipv6()->addrAssigned(c_ipv6_addr(interfaceMsg->srcAddr())))
       {
         found = true;
         break;

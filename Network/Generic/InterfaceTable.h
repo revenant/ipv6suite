@@ -156,7 +156,13 @@ class InterfaceTable: public cSimpleModule
     InterfaceEntry *interfaceAt(int pos);
 
     /**
-     * Returns an interface given by its port number (gate index).
+     * Returns the maximum gate index plus one.
+     */
+    int numInterfaceGates();
+
+    /**
+     * Returns an interface given by its port number (gate index, 
+     * 0..numInterfaceGates()-1).
      * Returns NULL if not found.
      */
     InterfaceEntry *interfaceByPortNo(int portNo);

@@ -35,7 +35,7 @@
 #include <functional>
 
 #include "MIPv6MNEntry.h"
-#include "Interface6Entry.h"
+#include "IPv6InterfaceData.h"
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
 
@@ -120,7 +120,7 @@ namespace MobileIPv6
   }
 
   ipv6_addr MIPv6CDSMobileNode::formCareOfAddress(
-    boost::weak_ptr<MIPv6RouterEntry> re, Interface6Entry* ie) const
+    boost::weak_ptr<MIPv6RouterEntry> re, InterfaceEntry *ie) const
   {
     assert(re.lock().get() != 0);
     const ipv6_prefix& pref = re.lock().get()->prefix();

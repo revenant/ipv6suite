@@ -35,6 +35,7 @@
 
 #include "IPv6Fragmentation.h"
 #include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "Constants.h"
 #include "HdrExtFragProc.h"
@@ -74,8 +75,8 @@ void IPv6Fragmentation::endService(cMessage* msg)
 {
   IPv6Datagram*  datagram = check_and_cast<IPv6Datagram*> (msg);
   AddrResInfo *info = check_and_cast<AddrResInfo*>(datagram->controlInfo());
-  Interface6Entry* ie = rt->getInterfaceByIndex(info->ifIndex());
-  mtu = ie->mtu;
+  InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
+  mtu = ie->mtu();
 
   assert(mtu >= IPv6_MIN_MTU); //All IPv6 links must conform
 
@@ -83,7 +84,7 @@ void IPv6Fragmentation::endService(cMessage* msg)
   if (datagram->inputPort() == -1 && datagram->hopLimit() == 0)
   {
     if (!rt->isRouter())
-      datagram->setHopLimit(ie->curHopLimit);
+      datagram->setHopLimit(ie->ipv6()->curHopLimit);
     else
       datagram->setHopLimit(DEFAULT_ROUTER_HOPLIMIT);
   }

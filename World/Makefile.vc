@@ -324,7 +324,7 @@ WorldProcessor.obj: WorldProcessor.cc \
   ../Util/Loki/Threads.h \
   ../Util/Loki/Singleton.h \
   ../Network/IPv6/ipv6_addr.h \
-  ../Network/IPv6/Interface6Entry.h \
+  ../Network/IPv6/IPv6InterfaceData.h \
   ../Util/ExpiryEntryList.h \
   ../Util/boost/operators.hpp \
   ../Util/boost/array.hpp \

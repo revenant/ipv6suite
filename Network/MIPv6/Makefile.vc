@@ -563,7 +563,7 @@ MIPv6CDSMobileNode.obj: MIPv6CDSMobileNode.cc \
   ../../Util/debug.h \
   MIPv6CDSMobileNode.h \
   MIPv6MNEntry.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/cTTimerMessageCB.h \
   MIPv6Timers.h \
   MIPv6CDS.h \
@@ -2013,7 +2013,7 @@ MIPv6MobilityState.obj: MIPv6MobilityState.cc \
   ../IPv4/IPProtocolId_m.h \
   ../IPv6/HdrExtProc.h \
   ../IPv6/IPInterfacePacket_m.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../ICMPv6/NDEntry.h \
   ../IPv6/IPv6Address.h \
@@ -2247,7 +2247,7 @@ MIPv6MStateCorrespondentNode.obj: MIPv6MStateCorrespondentNode.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
@@ -2462,7 +2462,7 @@ MIPv6MStateHomeAgent.obj: MIPv6MStateHomeAgent.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/cTimerMessage.h \
@@ -2709,7 +2709,7 @@ MIPv6MStateMobileNode.obj: MIPv6MStateMobileNode.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../ICMPv6/NDEntry.h \
   ../IPv6/HdrExtDestProc.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ./MIPv6CDSMobileNode.h \
   ../HMIPv6/HMIPv6Entry.h \
@@ -2752,7 +2752,7 @@ MIPv6NDStateHost.obj: MIPv6NDStateHost.cc \
   ../ICMPv6/NeighbourDiscovery.h \
   ../IPv6/IPv6CDS.h \
   ../ICMPv6/NDTimers.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   MIPv6Entry.h \
   MIPv6ICMPv6NDMessage.h \
   MIPv6CDSMobileNode.h \
@@ -3028,7 +3028,7 @@ MIPv6NDStateRouter.obj: MIPv6NDStateRouter.cc \
   ../IPv6/IPv6CDS.h \
   ../ICMPv6/NDStateRouter.h \
   ../ICMPv6/NDStateHost.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../HMIPv6/HMIPv6ICMPv6NDMessage.h \
   ../ICMPv6/NDStates.h \
   ../../config.h \

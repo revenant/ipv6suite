@@ -275,7 +275,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   ///Form LCOA
   //This lcoa registration with MAP should be done by HMIP handover.
   //We leave processBA to do pHA binding of hoa and rcoa
-  Interface6Entry* ie = rt->getInterfaceByIndex(accessRouter->re.lock()->ifIndex());
+  InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
 
   ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
   typedef Loki::cTimerMessageCB<void, TYPELIST_1(ArgMapHandover)> cbSendMapBU;
@@ -307,15 +307,15 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   bool assigned = false;
   if (rt->odad())
   {
-    assert(ie->addrAssigned(lcoa)||ie->tentativeAddrAssigned(lcoa));
-    if (ie->addrAssigned(lcoa) || ie->tentativeAddrAssigned(lcoa))
+    assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
+    if (ie->ipv6()->addrAssigned(lcoa) || ie->ipv6()->tentativeAddrAssigned(lcoa))
     {
 //        Dout(dc::hmip, rt->nodeName()<<" rcoa="<<rcoa
 //             <<" ODAD assigned from MAPOption "<<bestMap<<" at "<<nd->simTime());
       assigned = true;
     }
   }
-  else if (ie->addrAssigned(lcoa))
+  else if (ie->ipv6()->addrAssigned(lcoa))
   {
     assigned = true;
   }
@@ -455,8 +455,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     //We should have a binding to it still I think unless we went into a no map
     //zone for a long time or very short binding lifetime with MAP
     assert(oldBULE);
-    Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
-    assert(ie->addrAssigned(oldRcoa));
+    InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+    assert(ie->ipv6()->addrAssigned(oldRcoa));
 
     Dout(dc::hmip, rt->nodeName()<<" forwarding from MAP="
          <<curMapCopy.addr()<<" to MAP="<<bestMap.addr()<<" oldrcoa="
@@ -502,7 +502,7 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
   assert(me.addr() != IPv6_ADDR_UNSPECIFIED);
 
   ipv6_addr rcoa = me.addr();
-  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
   assert(ie->interfaceIDLength() == EUI64_LENGTH);
 
@@ -570,12 +570,12 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 
   //Make sure coa is already assigned i.e. we've seen the rtrAdv from newRtr
   //and processed it in Superclass::processRtrAd.
-  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
   if (rt->odad())
-    assert(ie->addrAssigned(lcoa)||ie->tentativeAddrAssigned(lcoa));
+    assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
   else
-    assert(ie->addrAssigned(lcoa));
+    assert(ie->ipv6()->addrAssigned(lcoa));
 
   ipv6_addr oldcoa = hmipv6cdsMN.localCareOfAddr();
   assert(oldcoa != mipv6cdsMN->homeAddr());

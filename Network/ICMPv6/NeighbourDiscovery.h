@@ -24,7 +24,7 @@
 class ICMPv6Message;
 class RoutingTable6;
 class InterfaceTable;
-class Interface6Entry;
+class IPv6InterfaceData;
 
 //Forward declarations
 namespace IPv6NeighbourDiscovery

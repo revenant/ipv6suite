@@ -36,7 +36,7 @@
 #include "IPv6CDS.h"
 
 #include "NDTimers.h"
-#include "Interface6Entry.h"
+#include "IPv6InterfaceData.h"
 #include "MIPv6Entry.h"
 #include "MIPv6ICMPv6NDMessage.h"
 #include "MIPv6CDSMobileNode.h"
@@ -235,9 +235,9 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
     (MIPv6MStateMobileNode::instance());
   assert(mstateMN != 0);
 
-  for (unsigned int i = 0; i < rt->interfaceCount(); i++)
+  for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
   {
-    Interface6Entry* ie = rt->getInterfaceByIndex(i);
+    InterfaceEntry *ie = ift->interfaceByPortNo(i);
 
     if (ie->linkMod->className() == std::string("WirelessEtherModule"))
     {
@@ -330,10 +330,10 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
   else
   {
     //Use new exponential backoff if not at home
-    Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+    InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
 
     if (tmr->counter < tmr->max_sends - 1)
-      tmr->timeout = ie->mipv6Var.minRtrSolInterval;
+      tmr->timeout = ie->ipv6()->mipv6Var.minRtrSolInterval;
     else
       tmr->timeout = tmr->timeout*2;
 
@@ -345,16 +345,16 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
     if (tmr->dgram == 0)
     {
       //Don't do initial delay
-      Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+      InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
       tmr->dgram = new IPv6Datagram(
-        ie->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->inetAddrs[0],
+        ie->ipv6()->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->ipv6()->inetAddrs[0],
         IPv6Address(ALL_ROUTERS_LINK_ADDRESS));
 
       tmr->dgram->setHopLimit(NDHOPLIMIT);
 
       RS* rs = new RS;
 
-      if (!ie->inetAddrs.empty())
+      if (!ie->ipv6()->inetAddrs.empty())
         rs->setSrcLLAddr(ie->LLAddr());
 
       tmr->dgram->encapsulate(rs);
@@ -365,7 +365,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
 
     }
 
-    if (tmr->timeout > ie->mipv6Var.maxInterval)
+    if (tmr->timeout > ie->ipv6()->mipv6Var.maxInterval)
     {
       //Give up sending of Rtr solicitations
       Dout(dc::mipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
@@ -378,7 +378,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
 
     Dout(dc::ipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
          <<" MIPv6 RtrSol "<<" timeout:"<< setprecision(4)
-         << tmr->timeout<<" max:"<<ie->mipv6Var.maxInterval);
+         << tmr->timeout<<" max:"<<ie->ipv6()->mipv6Var.maxInterval);
     nd->send(tmr->dgram->dup(), "outputOut", tmr->ifIndex);
 
     ///Schedule a timeout
@@ -563,7 +563,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     mipv6cdsMN->_homeAddr = mipv6cdsMN->primaryHA()->prefix();
     mipv6cdsMN->_homeAddr.prefix =
       mipv6cdsMN->formCareOfAddress(mipv6cdsMN->primaryHA(),
-                                    rt->getInterfaceByIndex(ifIndex));
+                                    ift->interfaceByPortNo(ifIndex));
 
     Dout(dc::mipv6|dc::mobile_move, rt->nodeName()<<" Primary HA registered. Addr="<<bha->addr());
   }
@@ -629,9 +629,9 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     double newInterval = interval/1000.0;
     if (missedTmr == 0 && mipv6cdsMN->currentRouter() == bha)
     {
-      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+      InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
       missedTmr =
-        new RtrAdvMissedTmr(newInterval, ie->mipv6Var.maxConsecutiveMissedRtrAdv,
+        new RtrAdvMissedTmr(newInterval, ie->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv,
                             makeCallback(this,
                                          &MIPv6NDStateHost::movementDetectedCallback),
                             nd, rt->nodeName());
@@ -807,7 +807,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   if (mipv6cdsMN->currentRouter())
     mipv6cdsMN->previousDefaultRouter() = mipv6cdsMN->currentRouter();
 
-  if (rt->interfaceCount() == 0)
+  if (ift->numInterfaceGates() == 0)
     return;
 
   ///check if interface 0 is at least initialised totally
@@ -840,7 +840,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     Dout(dc::mipv6|dc::mip_missed_adv|dc::mobile_move, rt->nodeName()<<" "<<setprecision(6)
          <<nd->simTime()<<" exceeded MaxConsecMissedRtrAdv of "
         <<(mipv6cdsMN->currentRouter()?
-           rt->getInterfaceByIndex(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->mipv6Var.maxConsecutiveMissedRtrAdv
+           ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->mipv6Var.maxConsecutiveMissedRtrAdv
            :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
 
     //Can also do NUD to current Rtr to confirm unreachability (once that's
@@ -876,7 +876,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   //Guess we could just do it for the mobile interface i.e. the one with the
   //primaryHA but this should be more correct in theory.  Anyway most mobile
   //nodes have only 1 interface active
-  for(size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)
+  for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     initiateSendRtrSol(ifIndex);
   }
@@ -1076,7 +1076,7 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
     }
     else if (mipv6cdsMN->primaryHA())
     {
-      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+      InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
       ///Form current care of addr regardless of what type of handover
       ipv6_addr coa = mipv6cdsMN->formCareOfAddress(newRtr, ie);
       cout << "At " << nd->simTime() << " sec, "<< rt->nodeName() << endl;
@@ -1087,11 +1087,11 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       bool assigned = false;
       if (rt->odad())
       {
-        assert(ie->addrAssigned(coa)||ie->tentativeAddrAssigned(coa));
-        if (ie->addrAssigned(coa)||ie->tentativeAddrAssigned(coa))
+        assert(ie->ipv6()->addrAssigned(coa)||ie->ipv6()->tentativeAddrAssigned(coa));
+        if (ie->ipv6()->addrAssigned(coa)||ie->ipv6()->tentativeAddrAssigned(coa))
           assigned = true;
       }
-      else if (ie->addrAssigned(coa))
+      else if (ie->ipv6()->addrAssigned(coa))
         assigned = true;
 
       if (assigned)
@@ -1183,7 +1183,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   oldRtr->re.lock()->setState(IPv6NeighbourDiscovery::NeighbourEntry::INCOMPLETE);
 
   unsigned int oldIfIndex = oldRtr->re.lock()->ifIndex();
-  Interface6Entry *oie = rt->getInterfaceByIndex(oldIfIndex);
+  Interface6Entry *oie = ift->interfaceByPortNo(oldIfIndex);
   //Remove old on link prefixes from On Link prefix list
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {

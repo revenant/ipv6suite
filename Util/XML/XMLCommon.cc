@@ -34,20 +34,23 @@
 #include "XMLCommon.h"
 #include "RoutingTable6.h"
 #include "opp_utils.h"
+#include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
+
 
 namespace XMLConfiguration
 {
   const std::string XML_ON = "on";
 
-void checkValidData(RoutingTable6* rt)
+void checkValidData(InterfaceTable *ift, RoutingTable6* rt)
 {
     bool isError = false;
 
     const char* nodeName = OPP_Global::findNetNodeModule(rt)->name();
 
-    for(size_t i = 0; i < rt->interfaceCount(); i++)
+    for(size_t i = 0; i < ift->numInterfaceGates(); i++)
     {
-      Interface6Entry *ie = rt->getInterfaceByIndex(i);
+      InterfaceEntry *ie = ift->interfaceByPortNo(i);
 
       //Todo Max/MinRtrAdvInt checks are clumsy as the DTD can have another set
       //i.e. MIPv6MaxRtrAdvInterval attr for MIPv6 defaults they are not parsed
@@ -56,35 +59,35 @@ void checkValidData(RoutingTable6* rt)
       //the objects do.
 #ifdef USE_MOBILITY
         // mobility support
-      if ((rt->mobilitySupport() && ie->rtrVar.advSendAds &&
-          (ie->rtrVar.maxRtrAdvInt > 1.5 ||
-           ie->rtrVar.maxRtrAdvInt < MIN_MIPV6_MAX_RTR_ADV_INT)) ||
+      if ((rt->mobilitySupport() && ie->ipv6()->rtrVar.advSendAds &&
+          (ie->ipv6()->rtrVar.maxRtrAdvInt > 1.5 ||
+           ie->ipv6()->rtrVar.maxRtrAdvInt < MIN_MIPV6_MAX_RTR_ADV_INT)) ||
           // without mobility support
           (!rt->mobilitySupport() &&
 #else
       if
 #endif
-           (ie->rtrVar.maxRtrAdvInt < 4 ||
-            ie->rtrVar.maxRtrAdvInt > 1800)
+           (ie->ipv6()->rtrVar.maxRtrAdvInt < 4 ||
+            ie->ipv6()->rtrVar.maxRtrAdvInt > 1800)
 #ifdef USE_MOBILITY
            ))
 #endif //USE_MOBILITY
       {
         cerr<<nodeName << ", interface[" << i
             <<"], MaxRtrAdvInterval not set correctly "
-            <<ie->rtrVar.maxRtrAdvInt<<endl;
+            <<ie->ipv6()->rtrVar.maxRtrAdvInt<<endl;
         Dout(dc::warning, nodeName << ", interface[" << i
              <<"], MaxRtrAdvInterval not set correctly "
-             <<ie->rtrVar.maxRtrAdvInt);
+             <<ie->ipv6()->rtrVar.maxRtrAdvInt);
         isError = true;
         break;
       }
 
 #ifdef USE_MOBILITY
-      if((rt->mobilitySupport() && ie->rtrVar.advSendAds &&
-          ie->rtrVar.minRtrAdvInt < MIN_MIPV6_MIN_RTR_ADV_INT) ||
-         (ie->rtrVar.minRtrAdvInt >
-          ie->rtrVar.maxRtrAdvInt) ||
+      if((rt->mobilitySupport() && ie->ipv6()->rtrVar.advSendAds &&
+          ie->ipv6()->rtrVar.minRtrAdvInt < MIN_MIPV6_MIN_RTR_ADV_INT) ||
+         (ie->ipv6()->rtrVar.minRtrAdvInt >
+          ie->ipv6()->rtrVar.maxRtrAdvInt) ||
          // without mobility support
          (!rt->mobilitySupport() &&
 #else
@@ -92,27 +95,27 @@ void checkValidData(RoutingTable6* rt)
       // than .75 * MaxRtrAdvInterval Sec. 6.2.1 of RFC 2461
       if
 #endif
-          (ie->rtrVar.minRtrAdvInt < 3 ||
-         ie->rtrVar.minRtrAdvInt > 0.75 *
-           ie->rtrVar.maxRtrAdvInt)
+          (ie->ipv6()->rtrVar.minRtrAdvInt < 3 ||
+         ie->ipv6()->rtrVar.minRtrAdvInt > 0.75 *
+           ie->ipv6()->rtrVar.maxRtrAdvInt)
 #ifdef USE_MOBILITY
           ))
 #endif //USE_MOBILITY
       {
         cerr<<nodeName << ", interface[" << i
-            <<"], MinRtrAdvInterval="<<ie->rtrVar.minRtrAdvInt
+            <<"], MinRtrAdvInterval="<<ie->ipv6()->rtrVar.minRtrAdvInt
             <<" not set correctly. MaxRtrAdvInterval="
-            <<ie->rtrVar.maxRtrAdvInt
+            <<ie->ipv6()->rtrVar.maxRtrAdvInt
             <<endl;
         Dout(dc::warning, nodeName << ", interface[" << i
-             <<"], MinRtrAdvInterval="<<ie->rtrVar.minRtrAdvInt
+             <<"], MinRtrAdvInterval="<<ie->ipv6()->rtrVar.minRtrAdvInt
              <<" not set correctly. MaxRtrAdvInterval="
-             <<ie->rtrVar.maxRtrAdvInt);
+             <<ie->ipv6()->rtrVar.maxRtrAdvInt);
         isError = true;
         break;
       }
 
-      if(ie->rtrVar.advReachableTime > 3600000)
+      if(ie->ipv6()->rtrVar.advReachableTime > 3600000)
       {
         cerr<<nodeName << ", interface[" << i
             <<"], AdvReachableTime not set correctly" << endl;
@@ -122,14 +125,14 @@ void checkValidData(RoutingTable6* rt)
 
       // AdvDefaultLifetime MUST be either 0 or between
       // MaxRtrAdvInterval and 9000 seconds
-      if(ie->rtrVar.advDefaultLifetime != 0 &&
-         (ie->rtrVar.advDefaultLifetime <
-          ie->rtrVar.maxRtrAdvInt ||
-          ie->rtrVar.advDefaultLifetime > 9000 ))
+      if(ie->ipv6()->rtrVar.advDefaultLifetime != 0 &&
+         (ie->ipv6()->rtrVar.advDefaultLifetime <
+          ie->ipv6()->rtrVar.maxRtrAdvInt ||
+          ie->ipv6()->rtrVar.advDefaultLifetime > 9000 ))
       {
         cerr<<nodeName << ", interface[" << i
             <<"], AdvDefaultLifetime not set correctly "
-            <<ie->rtrVar.advDefaultLifetime<< endl;
+            <<ie->ipv6()->rtrVar.advDefaultLifetime<< endl;
         isError = true;
         break;
       }

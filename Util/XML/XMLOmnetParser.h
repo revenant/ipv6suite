@@ -37,7 +37,7 @@
 #endif //STRING
 
 class cXMLElement;
-
+class InterfaceTable;
 class RoutingTable6;
 class WirelessEtherModule;
 class MobilityStatic;
@@ -126,14 +126,14 @@ class XMLOmnetParser
    * Fills in the MAP info part of the given RoutingTable6 data structure
    * for the host whose hostname is passed in the RoutingTable6 data structure.
    */
-  void parseMAPInfo(RoutingTable6* rt);
+  void parseMAPInfo(InterfaceTable *ift, RoutingTable6 *rt);
 #endif // USE_HMIP
 
   /**
    * Fills in the given RoutingTable6 data structure with the static routing table
    * of the host given by the nodeName parameter.
    */
-  void staticRoutingTable(RoutingTable6* rt);
+  void staticRoutingTable(InterfaceTable *ift, RoutingTable6 *rt);
 
   ///Returns a string for further tokenising into logfile & debug channel names
   std::string retrieveDebugChannels();
@@ -144,19 +144,19 @@ class XMLOmnetParser
    * Fills in the given RoutingTable6 data structure with the routing table
    * of the host whose hostname is passed in the RoutingTable6 data structure.
    */
-  void parseNetworkEntity(RoutingTable6* rt);
+  void parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt);
 
  protected:
 
  private:
 
-  void tunnelConfiguration(RoutingTable6* rt);
-  void sourceRoute(RoutingTable6* rt);
+  void tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt);
+  void sourceRoute(InterfaceTable *ift, RoutingTable6 *rt);
 
   /// parse node level attributes
   void parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne);
   /// parse the attributes of interface nif at index iface_index
-  void parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index);
+  void parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index);
   //@}
 
 

@@ -35,11 +35,12 @@
 #define STRING
 #endif //STRING
 
+class InterfaceTable;
 class RoutingTable6;
 
 namespace XMLConfiguration
 {
-  void checkValidData(RoutingTable6* rt);
+  void checkValidData(InterfaceTable *ift, RoutingTable6 *rt);
 
   extern const std::string XML_ON;
 };

@@ -56,7 +56,7 @@ std::auto_ptr<ICMPv6Message>  MIPv6NDStateRouter::processMessage(std::auto_ptr<I
 }
 
 ICMPv6NDMRtrAd* MIPv6NDStateRouter
-::createRA(const Interface6Entry::RouterVariables& rtrVar, size_t ifidx)
+::createRA(const IPv6InterfaceData::RouterVariables& rtrVar, size_t ifidx)
 {
   MIPv6ICMPv6NDMRtrAd* rtrAd = new MIPv6ICMPv6NDMRtrAd(static_cast<unsigned int>(rtrVar.advDefaultLifetime),
                                                        rtrVar.advCurHopLimit,

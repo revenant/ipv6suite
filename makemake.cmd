@@ -47,7 +47,7 @@ cd %root%\Network\HMIPv6 && %MAKEMAKE% %OPTS% -n -r -I..\IPv6 -I..\ICMPv6 -I..\M
 cd %root%\Network\RIP && %MAKEMAKE% %OPTS% -n -r
 
 cd %root%\Util\Loki && %MAKEMAKE% %OPTS% -n -r
-cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r -I..\.. -I.. -I..\..\Mobility -I..\..\Base -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\IPv6 -I..\..\Network\ICMPv6 -I..\..\Network\IPv4 -I..\..\Network\MIPv6 -I..\..\Network\HMIPv6
+cd %root%\Util\XML && %MAKEMAKE% %OPTS% -n -r -I..\.. -I.. -I..\..\Mobility -I..\..\Base -I..\..\NetworkInterfaces -I..\..\NetworkInterfaces\Wireless -I..\..\NetworkInterfaces\Ethernet6 -I..\..\Network\Generic -I..\..\Network\IPv6 -I..\..\Network\ICMPv6 -I..\..\Network\IPv4 -I..\..\Network\MIPv6 -I..\..\Network\HMIPv6
 cd %root%\Util\Topology && %MAKEMAKE% %OPTS% -n -r
 
 :#FIXME remove -IWireless from Eth!!!!! --AV

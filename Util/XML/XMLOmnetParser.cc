@@ -41,6 +41,7 @@
 #include "XMLOmnetParser.h"
 #include "XMLCommon.h"
 
+#include "InterfaceTable.h"
 #include "RoutingTable6.h"
 #include "opp_utils.h"
 #include "IPv6Encapsulation.h" // XXX WHY????? --AV
@@ -157,7 +158,7 @@ unsigned int  XMLOmnetParser::version() const
   return _version;
 }
 
-void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
+void XMLOmnetParser::staticRoutingTable(InterfaceTable *ift, RoutingTable6 *rt)
 {
   cXMLElement* ne = getNetNode(rt->nodeName());
   if (!ne)
@@ -197,14 +198,15 @@ void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
       exit(1);
     }
 
-    int ifaceIdx = rt->interfaceNameToNo(iface.c_str());
-    if(ifaceIdx == -1)
+    InterfaceEntry *ie = ift->interfaceByName(iface.c_str());
+    if(!ie)
     {
       cerr << "Node: "<< rt->nodeName()
            <<" Route has incorrect interface identifier in static routing table... "
            <<"(" << iface << ")" << endl;
       exit(1);
     }
+    int ifaceIdx = ie->outputPort();
     IPv6Address nextHopAddr(nextHop.c_str());
     IPv6Address destAddr(dest.c_str());
     //Ensure dest does not have a suffix?
@@ -218,12 +220,12 @@ void XMLOmnetParser::staticRoutingTable(RoutingTable6* rt)
   }//end for loop of routeEntries
 
   if (_version >= 2)
-    tunnelConfiguration(rt);
+    tunnelConfiguration(ift, rt);
 
 }
 
 
-void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
+void XMLOmnetParser::tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt)
 {
   using namespace OPP_Global;
   string iface, tunEntry, tunExit, destination;
@@ -254,16 +256,15 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
   {
     cXMLElement* nte = *it;
     iface = getNodeProperties(nte, "exitIface");
-    int ifaceIdx = rt->interfaceNameToNo(iface.c_str());
-
-    if(ifaceIdx == -1)
+    InterfaceEntry *ie = ift->interfaceByName(iface.c_str());
+    if (!ie)
     {
       Dout(dc::encapsulation|dc::warning, "Node: "<< rt->nodeName() <<
            " TunnelEntry has incorrect interface identifier in XML configuration file ..."
            <<"(" << iface << ")"<<" IGNORING");
-      assert(ifaceIdx != -1);
       continue;
     }
+    int ifaceIdx = ie->outputPort();
 
     tunEntry = getNodeProperties(nte, "entryPoint");
     tunExit = getNodeProperties(nte, "exitPoint");
@@ -311,11 +312,11 @@ void XMLOmnetParser::tunnelConfiguration(RoutingTable6* rt)
 
   } //end for tunnelEntries
 
-  sourceRoute(rt);
+  sourceRoute(ift, rt);
 
 }
 
-void XMLOmnetParser::sourceRoute(RoutingTable6* rt)
+void XMLOmnetParser::sourceRoute(InterfaceTable *ift, RoutingTable6 *rt)
 {
   using namespace OPP_Global;
   IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
@@ -356,7 +357,7 @@ void XMLOmnetParser::sourceRoute(RoutingTable6* rt)
 
 }
 
-void XMLOmnetParser::parseNetworkEntity(RoutingTable6* rt)
+void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
 {
   static bool printXMLFile = false;
   if (!printXMLFile)
@@ -379,14 +380,14 @@ void XMLOmnetParser::parseNetworkEntity(RoutingTable6* rt)
 
   //Parse per interface attribute
   cXMLElementList el = ne->getChildrenByTagName("interface");
-  if (rt->interfaceCount() > el.size())
+  if (ift->numInterfaceGates() > el.size())
   {
-    Dout(dc::notice, rt->nodeName()<<" rt->interfaceCount()="<<rt->interfaceCount()
+    Dout(dc::notice, rt->nodeName()<<" ift->numInterfaceGates()="<<ift->numInterfaceGates()
          <<" while xml interface count is "<<el.size());
   }
 
   NodeIt startIf = el.begin();
-  for(size_t iface_index = 0; iface_index < rt->interfaceCount(); iface_index++, startIf++)
+  for(size_t iface_index = 0; iface_index < ift->numInterfaceGates(); iface_index++, startIf++)
   {
     if (startIf == el.end())
     {
@@ -397,11 +398,11 @@ void XMLOmnetParser::parseNetworkEntity(RoutingTable6* rt)
     }
     cXMLElement* nif = *startIf;
 
-    parseInterfaceAttributes(rt, nif, iface_index);
+    parseInterfaceAttributes(ift, rt, nif, iface_index);
   }
 
   // do an additional parameter check
-  checkValidData (rt);
+  checkValidData(ift, rt);
 }
 
 /// parse node level attributes
@@ -514,10 +515,10 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 }
 
 
-void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index)
+void XMLOmnetParser::parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index)
 {
-  Interface6Entry* ie = rt->getInterfaceByIndex(iface_index);
-  Interface6Entry::RouterVariables& rtrVar = ie->rtrVar;
+  InterfaceEntry *ie = ift->interfaceByPortNo(iface_index);
+  IPv6InterfaceData::RouterVariables& rtrVar = ie->ipv6()->rtrVar;
 
   rtrVar.advSendAds = getNodeProperties(nif, "AdvSendAdvertisements") == XML_ON;
   rtrVar.maxRtrAdvInt = OPP_Global::atod(getNodeProperties(nif, "MaxRtrAdvInterval").c_str());
@@ -535,7 +536,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
            <<" maxRtrAdv="<<rtrVar.maxRtrAdvInt);
   }
 
-  Interface6Entry::mipv6Variables& mipVar = ie->mipv6Var;
+  IPv6InterfaceData::mipv6Variables& mipVar = ie->ipv6()->mipv6Var;
   mipVar.maxConsecutiveMissedRtrAdv = OPP_Global::atoul(getNodeProperties(nif, "MaxConsecMissRtrAdv").c_str());
 
 #endif // USE_MOBILITY
@@ -568,18 +569,20 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
   //stringstream smarts in conversion so lexical_cast won't work. Converted t
   //o decimal in schema now.
   rtrVar.advDefaultLifetime =  OPP_Global::atoul(getNodeProperties(nif, "AdvDefaultLifetime").c_str());
-  ie->mtu =  OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str());
-  ie->curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
-  ie->baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
-  ie->retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
+  ie->setMtu(OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str()));
+  ie->ipv6()->curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
+  ie->ipv6()->baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
+  ie->ipv6()->retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
 #if FASTRS
-  ie->maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());
+  ie->ipv6()->maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());
 #endif // FASTRS
-  ie->dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits").c_str());
+  ie->ipv6()->dupAddrDetectTrans = OPP_Global::atoul(getNodeProperties(nif, "HostDupAddrDetectTransmits").c_str());
 
+/*XXX
   ///Only some older XML files did not name their interfaces guess it is not
   ///really necessary as we do things in order anyway.
   ie->iface_name = getNodeProperties(nif, "name", false);
+*/
 
   cXMLElement* napl =  nif->getElementByPath("./AdvPrefixList");
   if (napl)
@@ -587,7 +590,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
     //Parse prefixes
     cXMLElementList apl = napl->getChildrenByTagName("AdvPrefix");
     size_t numOfPrefixes = apl.size();
-    ie->rtrVar.advPrefixList.resize(numOfPrefixes);
+    ie->ipv6()->rtrVar.advPrefixList.resize(numOfPrefixes);
     if (numOfPrefixes == 0)
       Dout(dc::xml_addresses|dc::warning, rt->nodeName()
            <<" no prefixes even though advPrefixList exists");
@@ -597,7 +600,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
       if (startPr == apl.end())
         assert(false);
       cXMLElement* npr = *startPr;
-      PrefixEntry& pe = ie->rtrVar.advPrefixList[j];
+      PrefixEntry& pe = ie->ipv6()->rtrVar.advPrefixList[j];
       pe._advValidLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvValidLifetime").c_str());
       pe._advOnLink =  getNodeProperties(npr, "AdvOnLinkFlag") == XML_ON;
       pe._advPrefLifetime =  OPP_Global::atoul(getNodeProperties(npr, "AdvPreferredLifetime").c_str());
@@ -627,7 +630,7 @@ void XMLOmnetParser::parseInterfaceAttributes(RoutingTable6* rt, cXMLElement* ni
       if (startAd == addrList.end())
         assert(false);
       cXMLElement* nad = *startAd;
-      ie->tentativeAddrs.push_back(IPv6Address(stripWhitespace(nad->getNodeValue())));
+      ie->ipv6()->tentativeAddrs.push_back(IPv6Address(stripWhitespace(nad->getNodeValue())));
       Dout(dc::continued, "address "<< k << " is "<<stripWhitespace(nad->getNodeValue())<<" ");
     }
     Dout( dc::finish, "-|" );
@@ -817,7 +820,7 @@ void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)
 }
 
 #ifdef USE_HMIP
-void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
+void XMLOmnetParser::parseMAPInfo(InterfaceTable *ift, RoutingTable6 *rt)
 {
   NeighbourDiscovery* ndmod = static_cast<NeighbourDiscovery*>(OPP_Global::findModuleByName(rt, "nd"));
 
@@ -868,7 +871,7 @@ void XMLOmnetParser::parseMAPInfo(RoutingTable6* rt)
 
   cXMLElementList ifaces = ne->getChildrenByTagName("interface");
   NodeIt startIf = ifaces.begin();
-  for(size_t i = 0; i < rt->interfaceCount() ; i++, ++startIf)
+  for(size_t i = 0; i < ift->numInterfaceGates() ; i++, ++startIf)
   {
     if (startIf == ifaces.end())
     {

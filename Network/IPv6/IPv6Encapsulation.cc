@@ -84,7 +84,7 @@ void IPv6Encapsulation::initialize(int stageNo)
     tunHopLimit = 0; //0 to use defaults again
     ///not implemented 6.6
     encapLimit = 4;
-    vIfIndexTop = UINT_MAX - rt->interfaceCount() - 1;
+    vIfIndexTop = UINT_MAX - ift->numInterfaces() - 1;
   }
   else if (stageNo == 1)
   {
@@ -281,7 +281,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
       if (origDgram->hopLimit() == 0)
       {
         if (!rt->isRouter())
-          origDgram->setHopLimit(rt->getInterfaceByIndex(0)->curHopLimit);
+          origDgram->setHopLimit(ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
         else
           origDgram->setHopLimit(DEFAULT_ROUTER_HOPLIMIT);
       }
@@ -302,7 +302,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     else if (tunHopLimit != 0)
       tunDgram->setTimeToLive(tunHopLimit);
     else
-      tunDgram->setTimeToLive(rt->getInterfaceByIndex(tun.ifIndex)->curHopLimit);
+      tunDgram->setTimeToLive(ift->interfaceByPortNo(tun.ifIndex)->ipv6()->curHopLimit);
 
     tunDgram->setName(tunDgram->encapsulatedMsg()->name());
     sendDelayed(tunDgram.release(), delay, "encapsulatedSendOut");

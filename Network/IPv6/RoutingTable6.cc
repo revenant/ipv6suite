@@ -110,7 +110,7 @@ void RoutingTable6::initialize(int stage)
     interfaces.resize(numOfIfaces + 1);
 
     // add in loopback InterfaceEntry
-    Interface6Entry *loopback_iface = new Interface6Entry();
+    InterfaceEntry *loopback_iface = new InterfaceEntry();
     //loopback_iface.loopback = true;
     loopback_iface->iface_name = "lo";
 
@@ -120,7 +120,7 @@ void RoutingTable6::initialize(int stage)
     interfaces[0] = loopback_iface;
 
     for(size_t i = 0; i < numOfIfaces; i++)
-        interfaces[i+1] = new Interface6Entry();
+        interfaces[i+1] = new InterfaceEntry();
 
     wp = check_and_cast<WorldProcessor*>
       (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
@@ -609,66 +609,6 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
   return false;
 }
 
-/*
- * Return the InterfaceEntry specified by its index.
- */
-
-Interface6Entry *RoutingTable6::getInterfaceByIndex(unsigned int index)
-{
-  if (index + 1 >= interfaces.size())
-    DoutFatal(dc::core, nodeName()<<" index is "<<index<<" while interfaces.size"
-              <<interfaces.size());
-  //Want to return only real interfaces not the loop back
-  return interfaces[index + 1];
-}
-
-/*
- * Return the InterfaceEntry specified by its index. Const version
- */
-const Interface6Entry *RoutingTable6::getInterfaceByIndex(unsigned int index) const
-{
-  if (index + 1 >= interfaces.size())
-    DoutFatal(dc::core, nodeName()<<" index is "<<index<<" while interfaces.size"
-              <<interfaces.size());
-  //Want to return only real interfaces not the loop back
-  return interfaces[index + 1];
-}
-
-/*
- * Search the index of an interface given by its name.
- * Return -1 on error.
- */
-int RoutingTable6::interfaceNameToNo(const char *iface_name) const
-{
-  if (iface_name == NULL) return -1;
-
-  for (size_t i = 0; i < interfaces.size(); i++)
-  {
-    if (interfaces[i]->iface_name == iface_name)
-      // the interface index corresponds to the port index
-          return i-1;
-  }
-
-  return -1;
-}
-
-/*
- * Search the index of an interface given by its address.
- * Return -1 if not found.
- */
-int RoutingTable6::interfaceAddressToNo(const IPv6Address& addr) const
-{
-  for (size_t i = 0; i < interfaces.size(); i++)
-  {
-    for (size_t j = 0; j < interfaces[i]->inetAddrs.size(); j++)
-    {
-      if (addr==interfaces[i]->inetAddrs[j])
-        return i;
-    }
-  }
-
-  return -1;
-}
 
 int RoutingTable6::nodeId() const
 {
@@ -704,11 +644,11 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
   if (if_idx >= interfaces.size())
     return false;
 
-  Interface6Entry *ie = getInterfaceByIndex(if_idx);
-  assert(!ie->addrAssigned(addr));
-  if (ie->tentativeAddrAssigned(addr))
+  InterfaceEntry *ie = getInterfaceByIndex(if_idx);
+  assert(!ie->ipv6()->addrAssigned(addr));
+  if (ie->ipv6()->tentativeAddrAssigned(addr))
     ie->removeTentativeAddress(addr);
-  ie->inetAddrs.push_back(addr);
+  ie->ipv6()->inetAddrs.push_back(addr);
 
 
   //Don't know why it asserts when default ctor of IPv6Address puts lifetime of
@@ -729,7 +669,7 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
 void RoutingTable6::removeAddress(const IPv6Address& addr, unsigned int ifIndex)
 {
   Dout(dc::debug|flush_cf, nodeName()<<":"<<ifIndex<<" "<<addr<<" removed");
-  Interface6Entry *ie = getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
   ie->removeAddress(addr);
 }
 
@@ -755,8 +695,8 @@ void RoutingTable6::removeAddress(const ipv6_addr& addr, unsigned int ifIndex)
  */
 bool RoutingTable6::addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) const
 {
-  const Interface6Entry *ie = getInterfaceByIndex(ifIndex);
-  return ie->addrAssigned(addr);
+  const InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
+  return ie->ipv6()->addrAssigned(addr);
 }
 
 ///Elapse all valid/preferredLifetimes of assigned addresses on all
@@ -769,7 +709,7 @@ void RoutingTable6::elapseLifetimes(unsigned int seconds)
   }
   //InterfaceEntries6::iterator start = interfaces.begin();
   //start++;
-  //for_each(start, interfaces.end(),bind2nd(mem_fun_ref(&Interface6Entry::elapseLifetimes), seconds));
+  //for_each(start, interfaces.end(),bind2nd(mem_fun_ref(&IPv6InterfaceData::elapseLifetimes), seconds));
 }
 
 ///Remove addresss that have stored lifetime of 0
@@ -778,15 +718,15 @@ void RoutingTable6::invalidateAddresses()
   bool addrRemovedFromIface = false;
   for (size_t ifIndex = 0; ifIndex < interfaceCount(); ifIndex++)
   {
-    Interface6Entry *ie = getInterfaceByIndex(ifIndex);
-    for (size_t addrIndex = 1; addrIndex < ie->inetAddrs.size(); addrIndex++)
+    InterfaceEntry *ie = getInterfaceByIndex(ifIndex);
+    for (size_t addrIndex = 1; addrIndex < ie->ipv6()->inetAddrs.size(); addrIndex++)
     {
-      if (ie->inetAddrs[addrIndex].storedLifetime() == 0)
+      if (ie->ipv6()->inetAddrs[addrIndex].storedLifetime() == 0)
       {
         Dout(dc::address_timer|flush_cf|dc::ipv6, nodeName()<<":"<<ifIndex<<" "
-             <<ie->inetAddrs[addrIndex]<<" removed");
+             <<ie->ipv6()->inetAddrs[addrIndex]<<" removed");
 
-        removeAddress(ie->inetAddrs[addrIndex], ifIndex);
+        removeAddress(ie->ipv6()->inetAddrs[addrIndex], ifIndex);
         addrRemovedFromIface = true;
       }
     }
@@ -997,11 +937,11 @@ void RoutingTableTest::setUp()
   if (!rt)
     return;
 
-  Interface6Entry *ie1 = new Interface6Entry();
+  InterfaceEntry *ie1 = new InterfaceEntry();
   ie1->iface_name = "eth800";
   rt->interfaces.push_back(ie1);
 
-  Interface6Entry *ie2 = new Interface6Entry();
+  InterfaceEntry *ie2 = new InterfaceEntry();
   ie2->iface_name = "ppp200";
   rt->interfaces.push_back(ie2);
 
@@ -1013,7 +953,7 @@ void RoutingTableTest::setUp()
   p2.setPrefix("3271:2222:3312:4444:6433:0:0:0/50");
   rt->cds->insertPrefixEntry(p2, rt->interfaceNameToNo(ie2.iface_name.c_str()));
 
-  Interface6Entry *ie3 = new Interface6Entry();
+  InterfaceEntry *ie3 = new Interface6Entry();
   ie3->iface_name = "ppp201";
   rt->interfaces.push_back(ie3);
 
@@ -1021,7 +961,7 @@ void RoutingTableTest::setUp()
   p3.setPrefix("3271:2222:3312:4444:6433:3343:0:0/96");
   rt->cds->insertPrefixEntry(p3, rt->interfaceNameToNo(ie3.iface_name.c_str()));
 
-  Interface6Entry *ie4 = new Interface6Entry();
+  InterfaceEntry *ie4 = new Interface6Entry();
   ie4->iface_name = "eth101";
   rt->interfaces.push_back(ie4);
 
@@ -1053,7 +993,7 @@ void RoutingTableTest::testLookupAddress()
   size_t ifIndex = 0;
 
   CPPUNIT_ASSERT(rt->cds->lookupAddress(c_ipv6_addr("3271:2222:3312:4444:6433:3343:1234:0"), ifIndex));
-  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
   // result should be "ppp201" since ppp201 interface has longer prefix
   // length specified than ppp200 interface

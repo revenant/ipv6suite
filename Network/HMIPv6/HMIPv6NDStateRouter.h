@@ -77,7 +77,7 @@ public:
   bool reverseTunnel;
 
  protected:
-  virtual ICMPv6NDMRtrAd* createRA(const Interface6Entry::RouterVariables& rtr, size_t ifidx);
+  virtual ICMPv6NDMRtrAd* createRA(const IPv6InterfaceData::RouterVariables& rtr, size_t ifidx);
 /*
  private:
   HMIPv6ICMPv6NDOptMAP* getMAPbyInterface(size_t iface_Idx);

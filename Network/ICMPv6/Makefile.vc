@@ -207,6 +207,7 @@ AddressResolution.obj: AddressResolution.cc \
   ../IPv6/IPv6Datagram.h \
   ICMPv6NDMessage.h \
   ../Generic/InterfaceTableAccess.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../IPv6/RoutingTable6Access.h \
   ../IPv6/IPv6Forward.h \
   ../../Util/cTimerMessage.h \
@@ -399,10 +400,9 @@ AddressResolution.obj: AddressResolution.cc \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
-  ../IPv6/RoutingTable6.h \
-  ../IPv6/Interface6Entry.h \
-  ../../Util/ExpiryEntryList.h \
   ./NDEntry.h \
+  ../IPv6/RoutingTable6.h \
+  ../../Util/ExpiryEntryList.h \
   ../../Util/cTimerMessageCB.h \
   ../../Util/Loki/Functor.h \
   ../../Util/Loki/HierarchyGenerators.h \
@@ -788,7 +788,7 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   ../IPv6/RoutingTable6.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
   ./NDEntry.h \
@@ -2240,7 +2240,7 @@ MLD.obj: MLD.cc \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   ../IPv6/RoutingTable6.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
   ./NDEntry.h \
@@ -2774,7 +2774,7 @@ MLDv2Record.obj: MLDv2Record.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
   ./NDEntry.h \
@@ -3120,7 +3120,7 @@ NDStateHost.obj: NDStateHost.cc \
   ../../Util/boost/detail/lightweight_mutex.hpp \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ./NDEntry.h \
   ../IPv6/IPv6Headers.h \
@@ -3284,7 +3284,7 @@ NDStateRouter.obj: NDStateRouter.cc \
   ../../Util/opp_akaroa.h \
   ../IPv6/IPv6Output.h \
   NDStateHost.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   NDStates.h \
   ../../config.h \
   ./NDEntry.h \
@@ -3687,7 +3687,7 @@ NDStates.obj: NDStates.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ./ICMPv6NDOptionBase.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ./NDEntry.h \
   ../IPv6/IPv6Headers.h \
   ../IPv4/IPProtocolId_m.h \
@@ -3915,7 +3915,7 @@ NDTimers.obj: NDTimers.cc \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
   ../IPv6/IPv6Headers.h \
   ../IPv4/IPProtocolId_m.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
   ./NDEntry.h \
@@ -4133,7 +4133,7 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../Generic/InterfaceTable.h \
   ../../Base/INETDefs.h \
   ../IPv6/RoutingTable6.h \
-  ../IPv6/Interface6Entry.h \
+  ../IPv6/IPv6InterfaceData.h \
   ../../Util/ExpiryEntryList.h \
   ../../config.h \
   ./NDEntry.h \

@@ -51,6 +51,7 @@
 #include "IPv6Multicast.h"
 #include "IPv6Datagram.h"
 #include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "AddrResInfo_m.h"
 #include "IPv6Forward.h"
@@ -97,7 +98,7 @@ void IPv6Multicast::endService(cMessage* msg)
     ctrIP6InMcastPkts++;
   }
 
-  for (size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)
+  for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     if (ifIndex == static_cast<size_t> (datagram->inputPort()))
       //Don't send on incoming interface again otherwise we'll get a
@@ -105,8 +106,8 @@ void IPv6Multicast::endService(cMessage* msg)
       continue;
     if (ifaceSpecified)
     {
-      Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
-      if (ie->addrAssigned(datagram->srcAddress()))
+      InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+      if (ie->ipv6()->addrAssigned(datagram->srcAddress()))
       {
         dupAndSendPacket(datagram, ifIndex);
         break;

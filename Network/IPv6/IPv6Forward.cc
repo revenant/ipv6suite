@@ -46,6 +46,7 @@
 
 #include "IPv6Forward.h"
 #include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "IPv6Datagram.h"
 #include "ICMPv6Message.h"
@@ -53,7 +54,7 @@
 #include "NDEntry.h"
 #include "AddrResInfo_m.h"
 #include "HdrExtRteProc.h"
-#include "Interface6Entry.h"
+#include "IPv6InterfaceData.h"
 #include "IPv6CDS.h"
 
 #ifdef USE_MOBILITY
@@ -165,7 +166,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 {
   std::auto_ptr<IPv6Datagram> datagram(check_and_cast<IPv6Datagram*> (theMsg));
 
-  assert(datagram->inputPort() < (int)rt->interfaceCount());
+  assert(datagram->inputPort() < (int)ift->numInterfaceGates());
 
   //Disabled for now. Don't know why some packets when they leave this function
   //still display 0 source address when they shouldn't. Recording at prerouting
@@ -185,7 +186,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     IPv6Datagram* copy = datagram->dup();
     if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
         datagram->inputPort() == -1)
-      copy->setSrcAddress(rt->getInterfaceByIndex(0)->inetAddrs[0]);
+      copy->setSrcAddress(ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0]);
 
     send(copy, "localOut");
     //Check if it is a multicast packet that we need to forward
@@ -216,7 +217,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     //-1 is used to indicate promiscuous addr res so INCOMPLETE test
     //required
     if (ne && ne->state() != NeighbourEntry::INCOMPLETE &&
-        ne->ifIndex()  > rt->interfaceCount() )
+        ne->ifIndex()  > ift->numInterfaceGates() )
     {
       Dout(dc::encapsulation|dc::forwarding|dc::debug|flush_cf, rt->nodeName()
            <<" Found tunnel vifIndex ="<<hex<<it->second.neighbour.lock().get()->ifIndex()
@@ -329,14 +330,14 @@ void IPv6Forward::endService(cMessage* theMsg)
     if (rt->odad())
     {
       bool foundTentative = false;
-      for (unsigned int i = 0; i < rt->interfaceCount(); i++)
+      for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
       {
-        Interface6Entry* ie = rt->getInterfaceByIndex(i);
+        InterfaceEntry *ie = ift->interfaceByPortNo(i);
         if ((datagram->srcAddress() != IPv6_ADDR_UNSPECIFIED &&
-             ie->tentativeAddrAssigned(datagram->srcAddress()))
+             ie->ipv6()->tentativeAddrAssigned(datagram->srcAddress()))
 #ifdef USE_MOBILITY
             || (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome() &&
-                ie->tentativeAddrAssigned(
+                ie->ipv6()->tentativeAddrAssigned(
                   boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>
                   (rt->mipv6cds)->careOfAddr(true)))
 #endif //USE_MOBILITY
@@ -358,7 +359,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   //Required to enable triggering of prefix addresses instead of just a host
   //match as done via rt->cds->findDestEntry earlier in this function
-  if ((unsigned int)status > rt->interfaceCount())
+  if ((unsigned int)status > ift->numInterfaceGates())
   {
     Dout(dc::encapsulation|dc::forwarding|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()
          <<" vIfindex="<<hex<<status<<dec<<" dgram="<<*datagram);
@@ -400,13 +401,13 @@ void IPv6Forward::endService(cMessage* theMsg)
 
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
-        rt->getInterfaceByIndex(info->ifIndex())->addrAssigned(
+        ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
           mipv6cdsMN->careOfAddr(pcoa))
         ||
         (rt->odad() &&
          //for tentative true is a misnomer because the newcoa should have been
          //assigned to tentative addr anyway
-         rt->getInterfaceByIndex(info->ifIndex())->tentativeAddrAssigned(
+         ift->interfaceByPortNo(info->ifIndex())->ipv6()->tentativeAddrAssigned(
            mipv6cdsMN->careOfAddr(pcoa))
          )
         )
@@ -468,14 +469,14 @@ void IPv6Forward::endService(cMessage* theMsg)
         HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN =
           boost::polymorphic_downcast<HierarchicalMIPv6::HMIPv6CDSMobileNode*>(rt->mipv6cds);
 
-        Interface6Entry* ie = rt->getInterfaceByIndex(0);
+        InterfaceEntry *ie = ift->interfaceByPortNo(0);
 
         if (hmipv6cdsMN->isMAPValid())
         {
             //This is too restrictive especially when EdgeHandover is on no
             //packets go out until we update HA
             //mipv6cdsMN->careOfAddr(pcoa) != hmipv6cdsMN->remoteCareOfAddr())
-          if (!ie->addrAssigned(hmipv6cdsMN->remoteCareOfAddr()))
+          if (!ie->ipv6()->addrAssigned(hmipv6cdsMN->remoteCareOfAddr()))
           {
             Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
                  <<" from new MAP not ready yet(awaiting BA from MAP), dropping packet");
@@ -721,7 +722,7 @@ int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
       else
       {
 
-        if (rt->interfaceCount() > 1)
+        if (ift->numInterfaceGates() > 1)
           //Signify to addr res to occur on all interfaces
           info->setIfIndex(UINT_MAX);
         else
@@ -811,52 +812,52 @@ ipv6_addr IPv6Forward::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex
   //will find the correct iface and the subsequent source Address
   if (ifIndex == UINT_MAX && rt->cds->defaultRouter().lock().get() == 0)
   {
-    if (rt->getInterfaceByIndex(0)->inetAddrs.size() == 0)
+    if (ift->interfaceByPortNo(0)->ipv6()->inetAddrs.size() == 0)
     {
-      cerr <<rt->nodeId()<<" "<<rt->getInterfaceByIndex(ifIndex)->iface_name
+      cerr <<rt->nodeId()<<" "<<ift->interfaceByPortNo(ifIndex)->name()
            <<" is not ready (no addresses assigned"<<endl;
-      Dout(dc::mipv6, rt->nodeName()<<" "<<rt->getInterfaceByIndex(ifIndex)->iface_name
+      Dout(dc::mipv6, rt->nodeName()<<" "<<ift->interfaceByPortNo(ifIndex)->name()
            <<" is not ready (no addresses assigned");
 
       if (rt->odad())
       {
-        if (rt->getInterfaceByIndex(0)->tentativeAddrs.size())
+        if (ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs.size())
         {
           Dout(dc::custom, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
                <<" determineSrcAddress no default rtr case ODAD is on using tentative addr="
-               << rt->getInterfaceByIndex(0)->tentativeAddrs[0]);
-          return rt->getInterfaceByIndex(0)->tentativeAddrs[0];
+               << ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0]);
+          return ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0];
         }
       }
 
       return IPv6_ADDR_UNSPECIFIED;
     }
     else
-      return rt->getInterfaceByIndex(0)->inetAddrs[0];
+      return ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0];
   }
 
-  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
-  for (size_t i = 0; i < ie->inetAddrs.size(); i++)
-    if (ie->inetAddrs[i].scope() == destScope)
-      return ie->inetAddrs[i];
+  for (size_t i = 0; i < ie->ipv6()->inetAddrs.size(); i++)
+    if (ie->ipv6()->inetAddrs[i].scope() == destScope)
+      return ie->ipv6()->inetAddrs[i];
 
   if (rt->odad())
   {
-    for (size_t i = 0; i < ie->tentativeAddrs.size(); i++)
-      if (ie->tentativeAddrs[i].scope() == destScope)
+    for (size_t i = 0; i < ie->ipv6()->tentativeAddrs.size(); i++)
+      if (ie->ipv6()->tentativeAddrs[i].scope() == destScope)
       {
         Dout(dc::custom, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
              <<" determineSrcAddress using ODAD addr="
-             << rt->getInterfaceByIndex(0)->tentativeAddrs[0]);
-        return ie->tentativeAddrs[i];
+             << ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0]);
+        return ie->ipv6()->tentativeAddrs[i];
       }
   }
 
 #if !defined NOIPMASQ
   //Perhaps allow return of src addresses with diff scope to allow for case of
   //"IP MASQ".
-  return ie->inetAddrs[ie->inetAddrs.size() - 1];
+  return ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size() - 1];
 #else
   return IPv6_ADDR_UNSPECIFIED;
 #endif //!NOIPMASQ

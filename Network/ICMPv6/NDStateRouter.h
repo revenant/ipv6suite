@@ -25,24 +25,13 @@
    @date 24.9.01
 */
 
-#if !defined NDSTATEROUTER_H__
+#ifndef NDSTATEROUTER_H__
 #define NDSTATEROUTER_H__
 
-#ifndef NDSTATES_H
-#include "NDStateHost.h"
-#endif //NDSTATES_H
-
-#ifndef INTERFACE6ENTRY_H
-#include "Interface6Entry.h"
-#endif //INTERFACE6ENTRY_H
-
-#ifdef USE_HMIP
-#ifndef HMIPV6ICMPV6NDMESSAGE_H
-#include "HMIPv6ICMPv6NDMessage.h"
-#endif //HMIPV6ICMPV6NDMESSAGE_H
-#endif //USE_HMIP
-
 #include <memory> //auto_ptr
+#include "NDStateHost.h"
+#include "IPv6InterfaceData.h"
+#include "HMIPv6ICMPv6NDMessage.h"
 
 namespace IPv6NeighbourDiscovery
 {
@@ -94,7 +83,7 @@ namespace IPv6NeighbourDiscovery
     // vritual create handling RA; New RA may be override if new
     // handler (inherited from NDStateRouter) is defined
     // ifidx is used by HMIPv6NDStateRouter
-    virtual ICMPv6NDMRtrAd* createRA(const Interface6Entry::RouterVariables& rtr, size_t ifidx);
+    virtual ICMPv6NDMRtrAd* createRA(const IPv6InterfaceData::RouterVariables& rtr, size_t ifidx);
 
     std::vector<RtrTimer*> advTmrs;
 

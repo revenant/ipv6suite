@@ -371,7 +371,7 @@ void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
 {
   IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, ba);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  reply->setHopLimit(mod->rt->getInterfaceByIndex(0)->curHopLimit);
+  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->curHopLimit);
   Dout(dc::mipv6, mod->nodeName()<<" sending BA to "<<destAddr);
 
   //rev. 24

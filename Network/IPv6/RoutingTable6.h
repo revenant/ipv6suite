@@ -31,37 +31,15 @@
 #ifndef ROUTINGTABLE6_H
 #define ROUTINGTABLE6_H
 
-#ifndef CASSERT
-#define CASSERT
 #include <cassert>
-#endif //CASSERT
-#ifndef STRING
-#define STRING
 #include <string>
-#endif //STRING
-#ifndef VECTOR
-#define VECTOR
 #include <vector>
-#endif //VECTOR
-#ifndef LIST
-#define LIST
 #include <list>
-#endif //LIST
-#ifndef MAP
-#define MAP
 #include <map>
-#endif //MAP
 
-#ifndef __OMNETPP_H
 #include <omnetpp.h>
-#endif //__OMNETPP_H
-
-#ifndef IPv6_ADDR_H
 #include "ipv6_addr.h"
-#endif //IPv6_ADDR_H
-#ifndef INTERFACE6ENTRY_H
-#include "Interface6Entry.h"
-#endif //INTERFACE6ENTRY_H
+#include "IPv6InterfaceData.h"
 
 
 using IPv6NeighbourDiscovery::RouterEntry;
@@ -235,7 +213,7 @@ public:
   void leaveMulticastGroup(const ipv6_addr& addr);
   //@}
 
-  ///@name InterfaceEntry functions
+  ///@name InterfaceEntry functions  XXX THESE SHOULD GO!!!!!!!!!!!! --AV
   //@{
 
   /// Assigns a tentative Address to interface at if_idx
@@ -246,47 +224,6 @@ public:
   void removeAddress(const ipv6_addr& addr, unsigned int ifIndex);
   /// Convenience function for checking if addr assigned
   bool addrAssigned(const ipv6_addr& addr, unsigned int ifIndex) const;
-
-  /// Return the InterfaceEntry specified by its index.
-  Interface6Entry *getInterfaceByIndex(unsigned int index);
-  /// Return the InterfaceEntry specified by its index.
-  const Interface6Entry *getInterfaceByIndex(unsigned int index) const;
-
-  /// Get loopback interface
-  Interface6Entry& loopbackInterface() { return *(interfaces[0]); }
-
-  // Search the index of an interface given by its name. The index is
-  // determined from an array index of Interface6Entries
-  int interfaceNameToNo(const char *name) const;
-
-  // Search the index of an interface given by its address. The index
-  // is determined from an array index of Interface6Entries
-  int interfaceAddressToNo(const IPv6Address& address) const;
-
-  //// Return the number of interfaces excluding loopback
-  size_t interfaceCount() const
-    {
-      assert(interfaces.size() - 1 == numOfIfaces);
-      return interfaces.size() - 1;
-    }
-
-  ///ie has to originate from this object originally for this to work
-  bool indexOfInterface(Interface6Entry *ie, size_t& ifIndex) const
-    {
-      //Do this linear search for now perhaps incorporate ifIndex inside the
-      //Interface6Entry itself although that places restrictions and burden on
-      //maintenance of this index when interfaces are add/removed
-      for (size_t i = 0; i < interfaceCount(); i++)
-        {
-          if (getInterfaceByIndex(i) == ie)
-          {
-            ifIndex = i;
-            return true;
-          }
-        }
-      return false;
-    }
-
   //@}
 
   ///@name RoutingAlgorithm interface
@@ -346,20 +283,6 @@ private:
 
   WorldProcessor* wp;
 
-  typedef std::vector<Interface6Entry*> InterfaceEntries6;
-
-  /**
-     Interface  Warning:
-
-     As PrefixList impl keeps pointers to these entries stored in this vector
-     when new interface is added and reallocation occurs all those pointers will
-     become invalid because the interfaceEntries are copied to new memory
-     regions.  To prevent this either don't add interfaces after storing
-     pointers to them permanently or declare interfaces to store pointer to
-     Interface6Entry instead of the object itself
-  */
-  InterfaceEntries6 interfaces;
-
   ///Set of mulicast groups to which this node belongs to
   typedef std::vector<ipv6_addr> MulticastAddresses;
   MulticastAddresses multicastGroup;
@@ -414,3 +337,4 @@ private:
 
 
 #endif //ROUTINGTABLE6_H
+

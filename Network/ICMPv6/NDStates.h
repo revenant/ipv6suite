@@ -44,7 +44,7 @@ class cMessage;
 class NeighbourDiscovery;
 class IPv6Datagram;
 class IPv6Address;
-class Interface6Entry;
+class IPv6InterfaceData;
 
 namespace IPv6NeighbourDiscovery
 {

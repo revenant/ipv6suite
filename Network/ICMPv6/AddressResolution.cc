@@ -35,6 +35,7 @@
 #include "IPv6Datagram.h"
 #include "ICMPv6NDMessage.h"
 #include "InterfaceTableAccess.h"
+#include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "IPv6Forward.h"
 #include "cTimerMessage.h"
@@ -79,19 +80,19 @@ void AddressResolution::initialize()
   ctrIcmp6OutNgbrAdv = 0;
   ctrIcmp6OutNgbrSol = 0;
 
-  if (rt->interfaceCount()==0)
+  if (ift->numInterfaceGates()==0)
   {
     outputUnicastGate = -1;
     outputMod = NULL; //XXX is that enough? --AV
     return;
   }
-  outputMod = new cModule*[rt->interfaceCount()];
+  outputMod = new cModule*[ift->numInterfaceGates()];
   //nd->icmp->proc
   cModule* procMod = parentModule();
   assert(procMod);
   //ned gen sources don't have header files for incl.
   //assert(check_and_cast<IPv6Processing*>(procMod));
-  for (unsigned int i = 0; i < rt->interfaceCount(); i++)
+  for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
   {
     outputMod[i] = procMod->submodule("output", i);
     assert(outputMod[i]);
@@ -248,7 +249,7 @@ void AddressResolution::initiateNgbrSol(NDARTimer* tmr)
     //Insert the tmr with UINT_MAX as a marker for a promiscous addr res (no
     //real timer msg associated with it though)
     tmrs.push_back(tmr);
-    for (size_t ifIndex = 0; ifIndex < rt->interfaceCount(); ifIndex++)
+    for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
     {
       NDARTimer* tmrCopy = tmr->dup(ifIndex);
       sendNgbrSol(tmrCopy);
@@ -261,10 +262,10 @@ void AddressResolution::initiateNgbrSol(NDARTimer* tmr)
 
 void AddressResolution::sendNgbrSol(NDARTimer* tmr)
 {
-  Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
   unsigned int ifIndex = tmr->ifIndex;
   if (rt->odad() && tmr->dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED
-      && ie->tentativeAddrAssigned(tmr->dgram->srcAddress()))
+      && ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress()))
     Dout(dc::addr_resln|dc::warning|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
          <<" ODAD who sent a packet for addr res with a tentative srcAddr of "
          <<tmr->dgram->srcAddress());
@@ -272,11 +273,11 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
 
   if (tmr->msg == 0)
   {
-    if (!ie->addrAssigned(tmr->dgram->srcAddress()))
-      if (ie->inetAddrs.size())
+    if (!ie->ipv6()->addrAssigned(tmr->dgram->srcAddress()))
+      if (ie->ipv6()->inetAddrs.size())
       {
         //Use link-local addr
-        tmr->dgram->setSrcAddress(ie->inetAddrs[0]);
+        tmr->dgram->setSrcAddress(ie->ipv6()->inetAddrs[0]);
       }
       else
       {
@@ -309,7 +310,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
     ctrIcmp6OutNgbrSol++;
     rt->ctrIcmp6OutMsgs++;
 
-    scheduleAt(simTime() + ie->retransTimer/1000.0, tmr->msg);
+    scheduleAt(simTime() + ie->ipv6()->retransTimer/1000.0, tmr->msg);
   }
   else
   {
@@ -355,7 +356,7 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
   }
 
 
-  Interface6Entry* ie = rt->getInterfaceByIndex(tmr->ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
 
   Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<tmr->ifIndex
        <<" Address Res failed for "<<tmr->targetAddr);
@@ -399,7 +400,7 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
           //Just use any ifaces link local address as src address to notify
           //local process of error
 
-          p->second->setSrcAddress(ie->inetAddrs[0]);
+          p->second->setSrcAddress(ie->ipv6()->inetAddrs[0]);
         }
 
         ICMPv6Message* icmp = new ICMPv6Message(ICMPv6_DESTINATION_UNREACHABLE,
@@ -424,11 +425,11 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
   //Retrieve details from packet and send off response
   IPv6Datagram* dgram = check_and_cast<IPv6Datagram *>(ngbrSol->encapsulatedMsg());
 
-  assert(dgram->inputPort() > -1 && dgram->inputPort() < (int)rt->interfaceCount());
+  assert(dgram->inputPort() > -1 && dgram->inputPort() < (int)ift->numInterfaceGates());
   //Send reply back on this interface
   size_t ifIndex = dgram->inputPort();
 
-  Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
   bool dupDetectSource = false;
 
@@ -460,11 +461,11 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
   //According to NDisc 7.2.3 reply only if address is assigned on receiving
   //interface
   IPv6Datagram* response = 0;
-  if (ie->addrAssigned(ngbrSol->targetAddr()))
+  if (ie->ipv6()->addrAssigned(ngbrSol->targetAddr()))
     response = new IPv6Datagram(ngbrSol->targetAddr(), dgram->srcAddress());
 
   bool optimistic = false;
-  if (rt->odad() && !response && ie->tentativeAddrAssigned(ngbrSol->targetAddr()))
+  if (rt->odad() && !response && ie->ipv6()->tentativeAddrAssigned(ngbrSol->targetAddr()))
   {
     response = new IPv6Datagram(ngbrSol->targetAddr(), dgram->srcAddress());
     optimistic = true;
@@ -609,8 +610,8 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
             }
             if (rt->odad())
             {
-              Interface6Entry* ie = rt->getInterfaceByIndex(ifIndex);
-              if (ie->tentativeAddrAssigned(p->second->srcAddress()))
+              InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+              if (ie->ipv6()->tentativeAddrAssigned(p->second->srcAddress()))
                 Dout(dc::warning|dc::addr_resln|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
                      <<" ODAD we're not supposed to do AddrResln on packet"
                      <<" that would have been sent from tentative addr even though we do"

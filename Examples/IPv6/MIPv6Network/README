@@ -1,0 +1,72 @@
+Normal MIPv6 on and no HMIP 
+links we seem to have first handover starting at 47
+then another one at 130. However the one at 130 is stuffed because it is a
+missed rtradv triggered not his L2 triggers. They do not appear to be the cause
+of the handover.
+
+At Router3 the ping reply from Server4 cannot be sent back to the coa of MN due
+to addrResln failing for addr fe80:0:0:480a:deff:fed4:5948:0. Now eventually it
+registers this failure after many ping reply have been waiting at AddrResln.
+When it does realise this failure it suddenly sends 1 ICMP unreachable per
+packet and you end up with around 40 all coming very quickly at the ICMPv6Core.
+This is where I get the mesage about dropping them.  Funnily enough the rest of
+the ping replies make it back after this bad batch as they use the default
+router instead of trying to look for that bad addr on one of the links connected
+to router3.  Guess default router is HA so packet actually goes via triangular
+route to MN.  Shows how robust the routing mechanism is in IPv6 and MIPv6 too.
+
+
+Eric's L2 trigger
+Assertion triggers because coa not assigned yet.  This is due to fact that DAD
+is not completed yet since this handover step is happening at exact same time as
+just after initiating DAD. Requires either assign address first and do DAD
+simultaneously or
+
+[Run 1]
+--------------------------------------------------------
+Ping: deadline reached at 350s
+mipv6Network.client1.ping6App %drop rate 25.452%
+round-trip min/avg/max = 0.542ms/1.730ms/354.243ms
+stddev=9.958ms variance=0.099ms
+--------------------------------------------------------
+
+[Run 3]
+to omit 0 values from scalar file
+grep -v "[ ][[:space:]]\<0" omnetpp.sca
+
+
+Without RO (routeOptimisation="off" for client1)
+--------------------------------------------------------
+        mipv6fastRANet.client1.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 350s
+mipv6fastRANet.client1.ping6App %drop rate 2.551%
+round-trip min/avg/max = 0.542ms/1.291ms/2.400ms
+stddev=0.270ms variance=0.000ms
+--------------------------------------------------------
+
+With RO (default configuration)
+--------------------------------------------------------
+        mipv6fastRANet.client1.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 350s
+mipv6fastRANet.client1.ping6App %drop rate 2.915%
+round-trip min/avg/max = 0.543ms/1.204ms/2.615ms
+stddev=0.264ms variance=0.000ms
+--------------------------------------------------------
+
+#####################
+PCOAForwarding.ini -r 1
+--------------------------------------------------------
+        pcoaForwardingNet.client1.ping6App
+--------------------------------------------------------
+Ping: deadline 700s NOT reached at 250s
+pcoaForwardingNet.client1.ping6App %drop rate 2.684%
+round-trip min/avg/max = 1000.407ms/1191.838ms/3001.681ms
+stddev=404.789ms variance=163.854ms
+--------------------------------------------------------
+
+PCOAForwarding.ini -r 3
+
+Runs but there is a big handover at the start perhaps ping packets didn't get
+through then?

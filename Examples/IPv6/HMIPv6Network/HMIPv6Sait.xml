@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:rcfile:MobileMove:notice">
+<!--Ping6:Statistic:HMIPv6:custom:MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
+  <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
+  hierarchicalMIPv6Support="on" routeOptimisation="off">
+<!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
+<!-- perhaps other values do not work either (applies to xerces-c interface) -->
+    <interface name="wlan0" HostDupAddrDetectTransmits="1">      
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="server" mobileIPv6Support="on">
+    <interface name="ppp0">
+      <inetAddr>3011:bbbb:3333:6666:ac24:aff:fe11:bba</inetAddr>
+    </interface>
+  </local>
+  <local node="ap1">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap2">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap3">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap4">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+ <local node="apa">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="apb">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="apc">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="apd">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+
+  <local node="hap">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="1.5" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+
+
+
+<!-- routing table configuration for primary HA -->
+  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="ppp0">
+      <inetAddr>3018:EEEE:0:0:89d6:9cff:fe7e:83d2</inetAddr>
+    </interface>
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on"
+      MaxFastRAS="10">
+<!--
+
+      iface for MN to register primary HA so needs to advertise global addr
+      Global addr should be assigned to iface where it is to be used as src
+      although I guess mip6 should always choose the correct src address based
+      on advertised global router addr rather than what is assigned on the
+      iface(what our mip6 impln does) but is that standards conforming?
+
+        <inetAddr>3018:EEEE:0:1:7920:1fff:fe22:1122</inetAddr> 
+
+      Workaround: Advertise eth0 address and treat its prefix as on-link here
+-->
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:EEEE:0:0:89d6:9cff:fe7e:83d2/64</AdvPrefix>
+<!--
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:EEEE:0:1:7920:1fff:fe22:1122/64</AdvPrefix>
+-->
+      </AdvPrefixList>
+    </interface>
+
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="0/0"
+	routeNextHop="3018:AAAA:0:1:4609:52ff:fe8b:a252"/>
+      <routeEntry routeIface="eth0" routeDestination="3018:EEEE:0:0:0:0:0:0/64"/>
+    </route> 
+  </local>
+<!-- routing table configuration for AR 
+  Note: Does not require any hmip or mip support to forward map options. By default all
+  routers will forward received map options on all ifaces that are advertising.
+  -->
+  <local node="ar" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface> 
+    <interface name="eth1" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:1:606:98ff:fe24:52f5</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:1:606:98ff:fe24:52f5/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth2" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:2:8087:eff:fe1a:7281</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:2:8087:eff:fe1a:7281/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="eth3" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="ppp0">
+      <!-- does not need to be globally scoped -->
+      <inetAddr>3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f</inetAddr>
+    </interface>
+    <route>
+      <routeEntry 
+       routeIface="eth0"
+	routeDestination="3018:FFFF:0:0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth1"
+	routeDestination="3018:FFFF:0:1:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth2"
+	routeDestination="3018:FFFF:0:2:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth3"
+	routeDestination="3018:FFFF:0:3:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="ppp0" routeNextHop="3018:AAAA:0:2:0450:90ff:fe5d:f971"
+	routeDestination="0/0"/>    
+     
+    </route> 
+  </local>
+<!-- routing table configuration for MAP -->
+ <local node="map" routePackets="on" mobileIPv6Support="on"
+   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on"
+mapReverseTunnel="on">
+    <interface name="ppp0"  AdvSendAdvertisements="on">
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">3011:BBBB:3333:6666:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+   <interface name="ppp1">
+ <!-- does not need to be globally scoped but needs to be assigned for static
+      routing purposes -->
+      <inetAddr>3018:AAAA:0:1:4609:52ff:fe8b:a252</inetAddr>
+    </interface>
+    <interface name="ppp2" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3018:AAAA:0:2:0450:90ff:fe5d:f971</inetAddr>    
+      <AdvMAPList>
+        <AdvMAPEntry>3018:AAAA:0:2:0450:90ff:fe5d:f971</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name="ppp3" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3018:AAAA:0:3:0450:90ff:fe5d:f971</inetAddr>    
+      <AdvMAPList>
+        <AdvMAPEntry>3018:AAAA:0:3:0450:90ff:fe5d:f971</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <!-- to server -->
+      <routeEntry
+	routeIface="ppp0" routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>
+      <!-- Goes to primary HA -->
+      <routeEntry 
+	routeIface="ppp1" routeDestination="3018:EEEE:0:0:0:0:0:0/32"
+	routeNextHop="3018:EEEE:0:0:89d6:9cff:fe7e:83d2"/>
+      <!-- Goes to 4th if of AR -->
+      <routeEntry routeIface="ppp2" routeDestination="3018:FFFF:0:0/60" 
+	routeNextHop="3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f"/>
+      <routeEntry routeIface="ppp3" routeDestination="0/0" 
+	routeNextHop="3018:FFFF:0:e:5f6a:a9ff:fe2c:df2f"/>
+    </route>
+  </local>
+
+ <local node="ar2" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:a0:127b:c0ff:fe2e:7212</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:a0:127b:c0ff:fe2e:7212/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface> 
+    <interface name="eth1" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:b0:606:98ff:fe24:52f5</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:b0:606:98ff:fe24:52f5/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth2" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:c0:8087:eff:fe1a:7281</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:c0:8087:eff:fe1a:7281/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="eth3" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
+      <inetAddr>3018:FFFF:0:d0:5f6a:a9ff:fe2c:df2e</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:d0:5f6a:a9ff:fe2c:df2e/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="ppp0">
+      <!-- does not need to be globally scoped -->
+      <inetAddr>3018:FFFF:0:e:5f6a:a9ff:fe2c:df2f</inetAddr>
+    </interface>
+    <route>
+      <routeEntry 
+       routeIface="eth0"
+	routeDestination="3018:FFFF:0:a0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth1"
+	routeDestination="3018:FFFF:0:b0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth2"
+	routeDestination="3018:FFFF:0:c0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth3"
+	routeDestination="3018:FFFF:0:d0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="ppp0" routeNextHop="3018:AAAA:0:3:0450:90ff:fe5d:f971"
+	routeDestination="0/0"/>    
+     
+    </route> 
+  </local>
+
+  <misc>
+    <ObjectMovement>
+      <MovingNode NodeName="client1" startTime="0">
+        <move moveToX="250" moveToY="436" moveSpeed="3"/>
+        <move moveToX="400" moveToY="286" moveSpeed="3"/>
+        <move moveToX="550" moveToY="436" moveSpeed="3"/>
+        <move moveToX="700" moveToY="286" moveSpeed="3"/>
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+
+</netconf>

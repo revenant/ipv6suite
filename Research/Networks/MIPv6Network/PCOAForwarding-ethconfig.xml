@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug1.log:MobileMove::notice:custom:Ping6:Statistic">
+<!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
+  <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
+  hierarchicalMIPv6Support="off">
+<!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
+<!-- perhaps other values do not work either -->
+    <interface name="wlan0" HostDupAddrDetectTransmits="0">      
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="server" mobileIPv6Support="on">
+    <interface name="eth0">
+    </interface>
+  </local>
+  <local node="ap1">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap2">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap3">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap4">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+
+  <local node="hap">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="0.1" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+
+
+
+<!-- routing table configuration for primary HA -->
+  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0">
+      <inetAddr>3018:EEEE:0:0:89d6:9cff:fe7e:83d2</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" AdvHomeAgent="on"
+      MaxFastRAS="10">
+      <!-- iface for MN to register primary HA so needs to advertise global addr-->
+      <inetAddr>3018:EEEE:0:1:7920:1fff:fe22:1122</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:EEEE:0:1:7920:1fff:fe22:1122/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+
+    <route>
+      <routeEntry routeIface="eth0" routeDestination="0/0"
+	routeNextHop="3018:FFFF:0:5:8bd7:8aff:fe91:4c36"/>
+    </route> 
+  </local>
+<!-- routing table configuration for router/MAP/HA -->
+  <local node="router" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="off" MaxFastRAS="10">
+      <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface> 
+    <interface name="eth1" AdvSendAdvertisements="on" AdvHomeAgent="off" MaxFastRAS="10">
+      <inetAddr>3018:FFFF:0:1:606:98ff:fe24:52f5</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:1:606:98ff:fe24:52f5/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth2" AdvSendAdvertisements="on" AdvHomeAgent="off" MaxFastRAS="10">
+      <inetAddr>3018:FFFF:0:2:8087:eff:fe1a:7281</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:2:8087:eff:fe1a:7281/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="eth3" AdvSendAdvertisements="on" AdvHomeAgent="off" MaxFastRAS="10">
+      <inetAddr>3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="eth4" AdvSendAdvertisements="on"> 
+<!-- Shouldn't need to be mip6 ra intervals
+    <interface name="eth4" AdvSendAdvertisements="on" MIPv6MaxRtrAdvInterval="1.5" MaxFastRAS="10"> 
+-->
+      <inetAddr>3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">3011:BBBB:3333:6666:5f6a:a9ff:fe2c:df2f/64</AdvPrefix>
+	</AdvPrefixList>
+    </interface>
+    <interface name="eth5">
+      <!-- Shouldn't need to advertise at all because we set the static routes-->
+      <inetAddr>3018:FFFF:0:5:8bd7:8aff:fe91:4c36</inetAddr>
+    </interface>
+    <route>
+      <routeEntry 
+       routeIface="eth0"
+	routeDestination="3018:FFFF:0:0:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth1"
+	routeDestination="3018:FFFF:0:1:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth2"
+	routeDestination="3018:FFFF:0:2:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth3"
+	routeDestination="3018:FFFF:0:3:0:0:0:0/64"/>
+      <routeEntry 
+       routeIface="eth4"
+	routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>    
+      <!--      Goes back to primary HA -->
+      <routeEntry 
+	routeIface="eth5" routeDestination="0/0"
+	routeNextHop="3018:EEEE:0:0:89d6:9cff:fe7e:83d2"/>    
+
+
+    </route> 
+  </local>
+
+  <misc>
+    <ObjectMovement>
+      <MovingNode NodeName="client1" startTime="0">
+        <move moveToX="800" moveToY="1" moveSpeed="3"/>
+<!--        <move moveToX="88" moveToY="118" moveSpeed="3"/>
+-->
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+
+</netconf>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:notice:debug:Routing:AddrResln">
+  <global gAdvSendAdvertisements="on" gMaxRtrAdvInterval="1700"
+    gMinRtrAdvInterval="500" gAdvManagedFlag="on"
+    gAdvOtherConfigFlag="on" gAdvLinkMTU="5644"
+    gAdvReachableTime="33567" gAdvRetransTimer="5346"
+    gAdvCurHopLimit="457457" gAdvDefaultLifetime="8000"
+    gHostLinkMTU="1400" gHostCurHopLimit="2"
+    gHostBaseReachableTime="232" gHostRetransTimer="234"
+    gHostDupAddrDetectTransmits="3"/>
+  <local node="client1">
+    <interface name="ppp0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface> 
+    <route>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="fe80:0:0:0:260:97ff:0:5/128"/>
+      <!-- Does not have an effect perhaps only routers read routes? -->
+      <routeEntry
+       routeIface="ppp1"
+        routeDestination="fe80:0:0:0:260:97ff:0:88/64"
+        routeNextHop="fe80:0:0:0:260:97ff:0:88/64"/>
+    </route>
+  </local>
+  <local node="client2">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>      
+    </interface>  
+  </local>
+  <local node="client3">
+    <interface name="ppp0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:3/64</inetAddr>      
+    </interface>  
+  </local>
+  <local node="server4">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:88/64</inetAddr>      
+    </interface>  
+    <interface name="ppp1">
+      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr> 
+      <inetAddr >fec0:0:0:ABCD:260:97ff:0:4/64</inetAddr>     
+    </interface>  
+  </local>
+  <local node="router">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:5/64</inetAddr>
+    </interface> 
+    <interface>
+      <AdvPrefixList>
+	<AdvPrefix AdvValidLifetime="888888" AdvOnLinkFlag="off"
+	AdvPreferredLifetime="88888">FEC0:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface>
+      <AdvPrefixList>
+	<AdvPrefix>FEC0:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface AdvSendAdvertisements="off" MaxRtrAdvInterval="1231"
+      MinRtrAdvInterval="344">
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="fe80:0:0:0:260:97ff:0:1/128"/>
+      <routeEntry
+	routeIface="ppp1"
+        routeDestination="fe80:0:0:0:260:97ff:0:2/128"
+        routeNextHop="fe80:0:0:0:260:97ff:0:2/128"/>
+      <routeEntry
+	routeIface="ppp2"
+        routeDestination="fe80:0:0:0:260:97ff:0:3/128"/>
+      <routeEntry
+	routeIface="ppp3"
+        routeDestination="fe80:0:0:0:260:97ff:0:4/128"
+        routeNextHop="fe80:0:0:0:260:97ff:0:4/128"/>
+    </route>
+  </local>
+</netconf>

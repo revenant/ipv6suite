@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf>
+  <local node="ecse_router" routePackets="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3ffe:8001:12:fc:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth1">
+      <inetAddr>3ffe:8001:12:fc:5f6a:a9ff:fe2c:df2e</inetAddr>
+    </interface>
+    <interface name="eth2">
+      <inetAddr>3ffe:8001:12:fc:a64b:65ff:fec6:a7fc</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="eth1"
+        routeDestination="3ffe:8001:08:ee:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:08:ee:7356:9dff:fefb:2b75"/>
+      <routeEntry
+	routeIface="eth1"
+        routeDestination="3d33:4564:dfe:0:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:08:ee:7356:9dff:fefb:2b75"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="3752:4413:0:0:0:0:0:0/64" 
+        routeNextHop="3752:4413:0:0:7eef:81ff:fe7a:ec2"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="3752:4413:0:0:7eef:81ff:fe7a:ec2"/>
+    </route>
+  </local>
+
+  <local node="ctie_router" routePackets="on">  
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3ffe:8001:08:ee:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth1">
+      <inetAddr>3ffe:8001:08:ee:7356:9dff:fefb:2b75</inetAddr>
+    </interface>
+    <interface name="eth2">
+      <inetAddr>3ffe:8001:08:ee:89d6:9cff:fe7e:83d2</inetAddr>
+    </interface>
+    <interface name="eth3">
+      <inetAddr>3ffe:8001:08:ee:7920:1fff:fe22:1122</inetAddr>
+    </interface>    
+    <route>
+      <routeEntry
+	routeIface="eth1"
+        routeDestination="3ffe:8001:12:fc:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:12:fc:5f6a:a9ff:fe2c:df2e"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="3752:4413:0:0:0:0:0:0/64" 
+        routeNextHop="3752:4413:0:0:f2fe:39ff:fef0:2b41"/>
+      <routeEntry
+	routeIface="eth3"
+        routeDestination="3d33:4564:dfe:0:0:0:0:0/64" 
+        routeNextHop="3d33:4564:dfe:0:480a:deff:fed4:5948"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="3752:4413:0:0:f2fe:39ff:fef0:2b41 "/>
+    </route>
+  </local>
+
+  <local node="optus_router" routePackets="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3fe2:5641:ffe:0:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth1">
+      <inetAddr>3fe2:5641:ffe:0:d6f7:bcff:fefd:d06e</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="eth1"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="3752:4413:0:0:4af:adff:fec8:b6e6"/>
+    </route>
+  </local>
+
+  <local node="staff_dialin" routePackets="on">
+    <interface name="ppp0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3d33:4564:dfe:0:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth0">
+      <inetAddr>3d33:4564:dfe:0:480a:deff:fed4:5948</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="3ffe:8001:08:ee:7920:1fff:fe22:1122"/>
+    </route>
+  </local>
+
+  <local node="telstra_router" routePackets="on">  
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3752:4413:0:0:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="eth1">
+      <inetAddr>3752:4413:0:0:7eef:81ff:fe7a:ec2</inetAddr>      
+    </interface>
+    <interface name="eth2">
+      <inetAddr>3752:4413:0:0:f2fe:39ff:fef0:2b41</inetAddr>
+    </interface>
+    <interface name="eth3">
+      <inetAddr>3752:4413:0:0:4af:adff:fec8:b6e6</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="eth1"
+        routeDestination="3ffe:8001:12:fc:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:12:fc:a64b:65ff:fec6:a7fc"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="3ffe:8001:08:ee:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:08:ee:89d6:9cff:fe7e:83d2"/>
+      <routeEntry
+	routeIface="eth2"
+        routeDestination="3d33:4564:dfe:0:0:0:0:0/64" 
+        routeNextHop="3ffe:8001:08:ee:89d6:9cff:fe7e:83d2"/>
+      <routeEntry
+	routeIface="eth3"
+        routeDestination="3fe2:5641:ffe:0:0:0:0:0/64" 
+        routeNextHop="3fe2:5641:ffe:0:d6f7:bcff:fefd:d06e"/>
+    </route>
+  </local>
+</netconf>

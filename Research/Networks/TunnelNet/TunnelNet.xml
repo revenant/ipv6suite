@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf
+debugChannel="debug.log:notice:AddressTimer:RouterDisc:XMLAddresses:RouterTimer:Routing">
+  <global
+    gAdvSendAdvertisements ="off"
+    gMaxRtrAdvInterval="1700"
+    gMinRtrAdvInterval="500"
+    gAdvManagedFlag="on"
+    gAdvOtherConfigFlag="on"
+    gAdvLinkMTU="5644"
+    gAdvReachableTime="33567"
+    gAdvRetransTimer="5346"
+    gAdvCurHopLimit="457457"
+    gAdvDefaultLifetime="8000"
+    gHostLinkMTU="1400"
+    gHostCurHopLimit="2"
+    gHostBaseReachableTime="232"
+    gHostRetransTimer="234"
+    gHostDupAddrDetectTransmits="3"
+    />
+  <local node="client">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface>
+    <sourceRoute>
+      <!-- Exercise source routing! -->
+      <sourceRouteEntry finalDestination="fec0:0:0:ABCD:260:97ff:0:3">
+	<nextHop address="fe80:0:0:0:260:97ff:0:a1"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:da"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:cd"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:bc"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:db"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:cd"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+ 
+  </local>
+  <local node="routerA" routePackets="on">
+    <interface AdvSendAdvertisements="on">
+      <inetAddr >fe80:0:0:0:260:97ff:0:a1/64</inetAddr>
+      <!--inetAddr >fec0:0:0:ABCD:260:97ff:0:2/64</inetAddr-->
+      <AdvPrefixList>
+	<AdvPrefix>FEC0:0:0:ABCD:260:97ff:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>  
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ab/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ad/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="fe80:0:0:0:260:97ff:0:1"/>
+      <routeEntry routeIface="ppp1"
+      routeDestination="fec0:0:0:0:260:97ff:0:ba/128" isRouter="on"/>
+      <routeEntry routeIface="ppp2"
+      routeDestination="fec0:0:0:0:260:97ff:0:da/128" isRouter="on"/>
+    </route>
+    <tunnel>
+      <tunnelEntry exitIface="ppp1" entryPoint="fec0:0:0:0:260:97ff:0:ab"
+	exitPoint="fec0:0:0:0:260:97ff:0:cd">
+	<triggers destination="fe80:0:0:0:260:97ff:0:4"/>	
+      </tunnelEntry>
+	<!-- just other arbitrary tunnels that we create to test handling of
+	tunnels in general-->
+      <tunnelEntry exitIface="ppp2" entryPoint="fec0:0:0:0:260:97ff:0:ad"
+	exitPoint="fec0:0:0:0:260:97ff:0:cb">
+      </tunnelEntry>
+      <tunnelEntry exitIface="ppp1" entryPoint="fec0:0:0:0:260:97ff:0:ab"
+	exitPoint="fec0:0:0:0:260:97ff:0:db">
+      </tunnelEntry>
+    </tunnel>
+    <sourceRoute>
+      <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:cd">
+	<nextHop address="fec0:0:0:0:260:97ff:0:ba"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:db"/>
+      </sourceRouteEntry>
+      <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:cb">
+	<nextHop address="fec0:0:0:0:260:97ff:0:da"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:bd"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+  </local>
+  <local node="routerB" routePackets="on">
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ba/64</inetAddr>      
+    </interface>  
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:bd/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:bc/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="fec0:0:0:0:260:97ff:0:ab/128" isRouter="on"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:db"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:cb"
+      isRouter="on"/>
+    </route>
+  </local>
+  <local node="routerD" routePackets="on">
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:da/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:db</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:dc</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="fec0:0:0:0:260:97ff:0:ad"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:bd"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:cd"
+      isRouter="on"/>
+    </route>
+  </local>
+  <local node="routerC" routePackets="on">
+    <interface AdvSendAdvertisements="on">
+      <inetAddr>fec0:0:0:0:260:97ff:0:c4</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:cb</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:cd</inetAddr>
+    </interface>       
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="fe80:0:0:0:260:97ff:0:4"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:bc"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:dc"
+      isRouter="on"/>
+    </route>
+    <tunnel>
+      <!-- Take different route on return  see the source route for this tunnel
+      exitPoint -->
+      <tunnelEntry exitIface="ppp1" entryPoint="fec0:0:0:0:260:97ff:0:cb"
+	exitPoint="fec0:0:0:0:260:97ff:0:ad">
+	<triggers destination="fe80:0:0:0:260:97ff:0:1"/>	
+      </tunnelEntry>
+	<!-- just other arbitrary tunnels that we create to test handling of
+	tunnels in general -->
+      <tunnelEntry exitIface="ppp2" entryPoint="fec0:0:0:0:260:97ff:0:cd"
+	exitPoint="fec0:0:0:0:260:97ff:0:ab">
+      </tunnelEntry>
+      <tunnelEntry exitIface="ppp2" entryPoint="fec0:0:0:0:260:97ff:0:cd" 
+	exitPoint="fec0:0:0:0:260:97ff:0:ad">
+      </tunnelEntry>
+      <!-- have to create a dynamic srcRoute to utilise this tunnel that goes
+      from C->D->A as a preconfigured source route to fec0:0:0:0:260:97ff:0:ab
+      exists already -->
+      <tunnelEntry exitIface="ppp1" entryPoint="fec0:0:0:0:260:97ff:0:cb"
+	exitPoint="fec0:0:0:0:260:97ff:0:ab">
+      </tunnelEntry>
+    </tunnel>
+    <sourceRoute>
+      <!-- C->B->D->A -->
+      <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:ad">
+	<nextHop address="fec0:0:0:0:260:97ff:0:bc"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:db"/>
+      </sourceRouteEntry>
+      <!-- C->D->B->A -->
+      <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:ab">
+	<nextHop address="fec0:0:0:0:260:97ff:0:dc"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:bd"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+  </local>  
+  <local node="server">
+    <interface name="ppp0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr> 
+      <!--inetAddr >fec0:0:0:ABCD:260:97ff:0:4/64</inetAddr-->
+    </interface>  
+  </local>
+</netconf>

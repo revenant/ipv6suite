@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf.dtd">
+
+<netconf>
+  <local node="client1">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+      <inetAddr >2222:2222:2222:2222:0:4/64</inetAddr>
+    </interface> 
+    <route>
+      <routeEntry
+	routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="fe80:0:0:0:260:97ff:0:5/128">
+      </routeEntry>
+    </route>
+  </local>
+</netconf>

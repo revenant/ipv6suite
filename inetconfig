@@ -1,0 +1,16 @@
+#
+# Config file for the INET framework. This is included by every makefile.
+#
+# !!! IMPORTANT !!!
+# Please re-generate omnetppconfig before trying to build INET!
+# The command is:  opp_makemake -f --genconfig omnetppconfig
+#
+
+# include omnetppconfig from this directory
+ROOT=$(HOME)/INET
+include $(ROOT)/omnetppconfig
+
+#INCLUDE_PATH+= ...additional include directories...
+#LIBS+= ...additional libs and lib directories...
+
+

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:notice:xmlAddresses:UDPVidStrmSvr:WirelessEthernet">
+  <global gHostDupAddrDetectTransmits="2"/>
+  <local node="ms1">
+    <interface name="wlan0">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ms2">
+    <interface name="wlan0">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ms3">
+    <interface name="wlan0">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ms4">
+    <interface name="wlan0">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap1">
+    <interface name="wlanap">
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap2">
+    <interface name="wlanap">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap3">
+    <interface name="wlanap">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap4">
+    <interface name="wlanap">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap5">
+    <interface name="wlanap">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <local node="ap6">
+    <interface name="wlanap">    
+      <WirelessEtherInfo>
+        <WEInfo WETxPower="4.0" />
+      </WirelessEtherInfo>
+    </interface>
+  </local>
+  <misc>
+   <ObjectMovement>
+      <MovingNode NodeName="ms1" startTime="0">
+        <move moveToX="250" moveToY="120" moveSpeed="2"/>
+        <move moveToX="60" moveToY="120" moveSpeed="2"/>
+      </MovingNode>
+      <MovingNode NodeName="ms2" startTime="0">
+        <move moveToX="270" moveToY="120" moveSpeed="2"/>
+        <move moveToX="510" moveToY="120" moveSpeed="2"/>
+      </MovingNode>
+      <MovingNode NodeName="ms3" startTime="0">
+        <move moveToX="250" moveToY="220" moveSpeed="2"/>
+        <move moveToX="60" moveToY="220" moveSpeed="2"/>
+      </MovingNode>
+      <MovingNode NodeName="ms4" startTime="0">
+        <move moveToX="270" moveToY="220" moveSpeed="2"/>
+        <move moveToX="510" moveToY="220" moveSpeed="2"/>
+      </MovingNode>
+      <MovingNode NodeName="ms5" startTime="0">
+        <move moveToX="340" moveToY="170" moveSpeed="2"/>
+        <move moveToX="180" moveToY="170" moveSpeed="2"/>
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+</netconf>

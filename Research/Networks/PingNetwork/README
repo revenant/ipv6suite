@@ -1,0 +1,47 @@
+The initial ping starts at 30 and goes from client1 to server4.
+
+The Routers do not advertise.  The defaults are added to the hosts and the
+  routers so that the path is pretty much predetermined.
+
+Expected Results at end of simulation
+
+gcc 3.2.3
+--------------------------------------------------------
+        pingNet.client1.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 100s
+pingNet.client1.ping6App %drop rate 0.000%
+round-trip min/avg/max = 0.104ms/0.105ms/0.218ms
+stddev=0.014ms variance=0.000ms
+--------------------------------------------------------
+
+
+gcc3.1
+Ping: deadline reached at 100s
+pingNet.client1.ping6App %drop rate 0.000%
+round-trip min/avg/max = 0.093ms/0.095ms/0.188ms
+stddev=0.011ms variance=0.000ms
+Ping: deadline reached at 200.000000s
+pingNet.client2.ping6App %drop rate 95.122%
+round-trip min/avg/max = 0.003ms/666.668ms/1000.000ms
+stddev=516.396ms variance=266.665ms
+
+gcc2.96 
+Ping: deadline reached at 100s
+pingNet.client1.ping6App %drop rate 0%
+round-trip min/avg/max = 0.0933ms/0.0946ms/0.188ms
+stddev=0.0114ms variance=1.3e-07ms
+Ping: deadline reached at 200s
+pingNet.client2.ping6App %drop rate 95.1%
+round-trip min/avg/max = 0.0027ms/667ms/1e+03ms
+stddev=516ms variance=267ms
+
+Differences attributed to the format specifiers for display.
+
+The strangest thing is on gcc3.1 the simulation stops at 200 as no messages left
+to process whilst the gcc2.96 version continues running the tcp module in
+client3.
+
+The one that started at time 80 (multicast ping) will only be able to send 3
+pings after that it doesn't send anymore.  Don't know why.  But it has always done
+this.

@@ -1,0 +1,39 @@
+This directory contains various scripts which are relevant to IPv6,
+MIPv6 stack. 
+
+netconf.dtd - XML routing table data type definiton version 1
+netconf2.dtd - XML routing table data type definition version 2 (RECOMMENDED)
+
+netconf.xsd - Transition to XML Schema 
+This offers much better semantic validation of the XML files.  Not only do
+attributes get proper data types, text nodes can be parsed for proper syntax
+too.  It is much simpler and more flexible supporting reuse easily.  Also you
+are learning another XML variant not a different language like DTD.  Refer to
+the http://www.w3.org/TR/xmlschema-0/ for more information.
+
+This file was created originally from netconf2.dtd using dtd2xs from
+www.lumrix.com.  Had to run the java app on the command line rather than as an
+applet in a web page which didn't seem to work.  After that manual changes were made to make it more normative.  This was followed by running it through IBM DeveloperWorks Schema Quality Checker (SQC) to ensure my changes were conformant with XML Schema from W3C.  The included shell script didn't work but running it directly like so does:
+
+CP=.:xmlParserAPIs.jar:xercesImpl.jar:xschemaREC.jar:xml4j.jar:mofrt.jar:regex4j.jar:mail.jar; java -classpath $CP com.ibm.sketch.util.SchemaQualityChecker netconf.xsd
+
+A good book on learning XML schemas is XML Schema Essentials.  Although rather
+dry and boring in the first 2 chapters eventually you realise its actually
+coming together by chapter 4 or 5 and the advantages of Schema over DTDs.
+
+HMIPv6Network-schema.xml - A copy of the XML file from HMIPv6Network
+It was used to test that the regex pattern of the IPv6 address was correct in
+the schema definition.
+
+Currently the XML Schema is functional and provides just some additinal
+constraints over the DTD with respect to the validity of IPv6 address and
+prefixes.  However more work needs to be done to add more constraints where
+appropriate and reduce the amount of validation code in the simulation. By
+making the constraints more explicit it should reduce the amount of necessary
+documentation and ambiguities too e.g. the routing table entries.  Xerces-C already supports validation against XML Schemas.
+
+The only disadvantage I see with XML Schema compared against DTD is that Emacs
+does not have a suitable validating mode (inc. features like type completion)
+like it does with DTD which makes it awkward to write long XML configuration
+files from.  However the goal is to generate them automatically so this should
+prove less of an incovenience.

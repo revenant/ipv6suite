@@ -1,0 +1,96 @@
+#!/bin/sh
+#$Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/CMake/Attic/release.sh.in,v 1.1 2005/02/09 06:15:57 andras Exp $
+#
+# Copyright (C) 2003 by Johnny Lai
+#
+# IPv6Suite is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# IPv6Suite is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+#
+# This file reads $releaseFileName from every directory to generate final release
+# tarball for IPv6 release only. Configured by CMake
+
+SOURCE_DIR=@IPv6Suite_SOURCE_DIR@
+BINARY_DIR=@IPv6Suite_BINARY_DIR@
+RELEASE=@IPV6SUITE_RELEASE@
+releaseFileName=`echo @RELEASE_FILENAME@|sed "s|$BINARY_DIR/||g"`
+output_list="$BINARY_DIR/out.lst"
+output_archive="$BINARY_DIR/@PROJECT_NAME@-$RELEASE.tar.bz2"
+BASEDIR=`basename $SOURCE_DIR`
+logfile="$BINARY_DIR/release.log"
+
+pushd $BINARY_DIR &> /dev/null
+rm -f $output_list
+rm -f $output_archive
+rm -f $logfile
+
+releaseFiles=`find . -name $releaseFileName`
+for d in $releaseFiles;
+do
+  currentDir=`dirname $d`
+  sourceDir="$SOURCE_DIR/$currentDir"
+  pushd $sourceDir &>/dev/null
+
+  #Capture things with relative paths to other dirs. Was working this morning
+  #till I upgraded bash. Now requires the extra find step. Find on its own
+  #without depth limit would capture lots of other things:().
+  real_files=`cat $BINARY_DIR/$currentDir/$releaseFileName|xargs -i ls \{\}  2>/dev/null |sed 's|ls:.*||g'`
+  #needed to capture the wildcard specs *.ned/*.xml
+  real_files2=`cat $BINARY_DIR/$currentDir/$releaseFileName|xargs -i find . -name \{\} -maxdepth 1 2>/dev/null`
+
+  real_files="$real_files $real_files2"
+
+  #Of no use really cause while the filename points to same file is the same
+  #the string is different
+  real_files=`echo $real_files|uniq`
+
+#  echo in $sourceDir with \"$real_files\"
+  for f in $real_files;
+  do 
+    #Fix up path if necessary to relative format (some files are absolute while
+    #others are relative)
+    echo $f |grep "$SOURCE_DIR" &> /dev/null
+    if [ "$?" -eq 0 ]; then
+	f=`echo $f|sed "s|$SOURCE_DIR|$BASEDIR|g"`
+#	echo $f
+    else
+	f="$BASEDIR/$currentDir/$f"	
+    fi
+    echo  $f >> $output_list
+
+    #Check for existence of headers
+    echo $f |grep '.cc' &> /dev/null
+    if [ "$?" -eq 0 ]; then
+	f=`echo $f|sed 's|[.]cc|.h|g'`
+	#Discards these potential files totally prob. incorrect path?
+#	if [ -e $f ]; then
+	    echo $f >> $output_list
+#	fi
+    fi
+  done
+#  echo
+  popd &>/dev/null
+done
+pushd $SOURCE_DIR/.. &> /dev/null
+tar cvf $output_archive -T $output_list &> $logfile
+tar uvf $output_archive $BASEDIR/Etc >> $logfile
+tar uvf $output_archive $BASEDIR/Util/Loki >> $logfile
+popd &> /dev/null
+tar xf $output_archive
+find $BASEDIR -type l -exec rm {} \;
+mv $BASEDIR @PROJECT_NAME@-$RELEASE
+echo Creating tar archive $output_archive >> $logfile
+tar jcvf $output_archive @PROJECT_NAME@-$RELEASE >> $logfile 
+rm -fr @PROJECT_NAME@-$RELEASE
+popd &> /dev/null

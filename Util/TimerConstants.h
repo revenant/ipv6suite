@@ -40,12 +40,14 @@
  * handleMessage loop)
  *
  */
+// XXX ?? --AV
 extern const double SELF_SCHEDULE_DELAY;
 
 /**
  * Delay used for handleMessage to simulate activity's version of wait(0).
  * Required otherwise simulation time will not advance.
  */
+// XXX ?? --AV
 extern const double ZERO_WAIT_DELAY;
 
 

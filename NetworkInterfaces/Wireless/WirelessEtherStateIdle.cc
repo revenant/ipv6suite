@@ -104,7 +104,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateIdle::processData(WirelessEtherMod
 
   // XXX has to duplicate the data because the auto_ptr will delete the
   // instance afterwards
-  mod->inputFrame = data.dup();
+  mod->inputFrame = (WESignalData*)data->dup();
 
   mod->waitStartTime = mod->simTime();
 

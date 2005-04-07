@@ -49,7 +49,7 @@ module UDPNode
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
-            display: "p=291,222;i=sink";
+            display: "p=260,190;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
                 // waiting times
@@ -63,16 +63,11 @@ module UDPNode
                 prerouting_delay = 0.2 us,
                 routing_delay = 1 us,
                 inputqueue_delay = 0,
-
-                // other network parameters
-                //                routingFile = routingFile,
                 IPForward = ancestor IPForward,
                 numOfPorts = sizeof(in);
-
             gatesizes:
                 physIn[sizeof(in)],
                 physOut[sizeof(in)];
-
             display: "p=164,212;i=prot2";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
@@ -83,17 +78,17 @@ module UDPNode
                 from_app[numOfUDPApps],
                 to_app[numOfUDPApps];
             display: "i=fork;p=160,152";
-    udpApps: UDPAppLayer[numOfUDPApps];
+        udpApps: UDPAppLayer[numOfUDPApps];
             display: "p=296,44;i=cogwheel";
         ping6App: Ping6App;
-            display: "p=79,168;b=40,24";
+            display: "p=79,210;b=40,24";
         phyLayer: PHYLayer;
             gatesizes:
                 in[sizeof(in)],
                 out[sizeof(in)],
                 linkIn[sizeof(in)],
                 linkOut[sizeof(in)];
-            display: "p=172,348;b=168,8;o=#4359d7,#4159d7";
+            display: "p=172,348;b=160,8;o=#4359d7,#4159d7";
     connections nocheck:
        networkLayer.errorOut --> errorHandling.in;
 

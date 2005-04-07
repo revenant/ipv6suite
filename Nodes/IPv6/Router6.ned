@@ -35,35 +35,19 @@ module Router6
 
     submodules:
         blackboard: Blackboard;
-            display: "p=62,60;i=block/blackboard";
+            display: "p=62,55;i=block/blackboard";
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
-            display: "p=163,86;i=sink";
+            display: "p=220,130;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
-                // waiting times
-        //icmp_delay = 0,
-        //fragmentation_delay = 0.2 us,
-        //multicast_delay = 0.5 us,
-        //ipoutput_delay = 50ms,
-        //ipsend_delay = 0,
-        //iptunneling_delay = 0,
-        //localdeliver_delay = 0,
-        //prerouting_delay = 0.2 us,
-        //routing_delay = 1 us,
-        //inputqueue_delay = 0,
-
-                // other network parameters
-                //                routingFile = routingFile,
                 IPForward = true,
                 numOfPorts = sizeof(in);
-
             gatesizes:
                 physIn[sizeof(in)],
                 physOut[sizeof(in)];
-
-            display: "p=116,148;i=fork";
+            display: "p=160,148;i=prot2";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;
@@ -74,7 +58,7 @@ module Router6
                 out[sizeof(in)],
                 linkIn[sizeof(in)],
                 linkOut[sizeof(in)];
-            display: "p=148,276;b=168,8;o=#4359d7,#4159d7";
+            display: "p=180,276;b=180,8;o=#4359d7,#4159d7";
     connections nocheck:
         networkLayer.errorOut --> errorHandling.in;
 

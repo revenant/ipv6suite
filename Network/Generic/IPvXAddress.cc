@@ -19,6 +19,38 @@
 #include <iostream>
 #include "IPvXAddress.h"
 
+void IPv6Address_::set(const char *addr)
+{
+    // this impl is based on c_ipv6_addr(const char *)
+    if (addr == 0)
+        addr = "";
+
+    std::stringstream is(addr);
+
+    unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    char sep = '\0';
+
+    try
+    {
+        for (int i = 0; i < 8; i ++)
+        {
+            is >> std::hex >> octals[i];
+            if (is.eof() )
+                break;
+            is >> sep;
+            if (sep == '/')
+                break;
+        }
+    }
+    catch (...)
+    {
+        opp_error("exception thrown while parsing ipv6 char* address");
+    }
+
+    for (unsigned int i = 0; i < 4; i++ )
+        d[i] = (octals[i*2]<<16) + octals[2*i + 1];
+}
+
 std::string IPv6Address_::str()
 {
     std::stringstream os;

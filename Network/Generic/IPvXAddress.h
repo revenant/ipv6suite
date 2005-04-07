@@ -16,15 +16,20 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-#ifndef __IPV4OR6ADDRESS_H
-#define __IPV4OR6ADDRESS_H
+#ifndef __IPVXADDRESS_H
+#define __IPVXADDRESS_H
 
 #include <omnetpp.h>
 #include <string.h>
 #include "inetdefs.h"
 #include "IPAddress.h"
 
-struct IPv6Address_ {uint32 d[4];std::string str();};  // temporary, until IPv6 addresses get sorted out
+/// Temporary, until IPv6 addresses get sorted out
+struct IPv6Address_ { 
+   uint32 d[4];
+   void set(const char *s);
+   std::string str();
+};
 
 
 /**

@@ -29,7 +29,8 @@
 #include "ICMPv6Core.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "IPv6Headers.h"
 #include "ICMPv6Message.h"
 
@@ -229,7 +230,7 @@ void ICMPv6Core::processError(cMessage* msg)
 
   // notify sender
   assert(pdu->srcAddress() != IPv6_ADDR_UNSPECIFIED);
-  sendInterfacePacket(errorMessage, pdu->srcAddress());
+  sendToIPv6(errorMessage, pdu->srcAddress());
   rt->ctrIcmp6OutMsgs++;
 
   Dout(dc::notice|flush_cf, rt->nodeName()<<" "<<simTime()
@@ -248,10 +249,6 @@ void ICMPv6Core::processError(cMessage* msg)
    upper layer protocol is extracted from original PDU (contained inside ICMP
    packet) and used to select appropriate upper layer process to handle error.
 
-   Perhaps the full interfacePacket should be passed to upper layers instead of
-   just the ICMPPacket as the src/dest addr can be reused to find out which
-   interface to send from.  Even though this information should be contained
-   inside the errored PDU which is inside all error ICMP messages.
 */
 void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
 {
@@ -414,7 +411,7 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
 
   Dout(dc::ping6, rt->nodeName()<<":"<<request->inputPort()<<" "<<simTime()
        <<" sending echo reply to "<<request->srcAddress());
-  sendInterfacePacket(reply, request->srcAddress(), src, request->hopLimit());
+  sendToIPv6(reply, request->srcAddress(), src, request->hopLimit());
   ctrIcmp6OutEchoReplies++;
   rt->ctrIcmp6OutMsgs++;
 }
@@ -426,10 +423,6 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
   Ping6PayloadPacket* app_req =
     static_cast<Ping6PayloadPacket*> (echo_reply->decapsulate());
 
-
-  //As the whole ping request info was sent there is no need to reconstruct
-  //another IPv6InterfacePacketWithData and filling it up with values just add the source
-  //address of where the reply came from
   app_req->setSrcAddr(reply->srcAddress());
   app_req->data().hopLimit = reply->hopLimit();
   app_req->data().seqNo = echo_reply->seqNo();
@@ -458,26 +451,23 @@ void ICMPv6Core::sendEchoRequest(cMessage *msg)
   //Send the upper layer req across as test
   request->encapsulate(app_req);
 
-  sendInterfacePacket(request, app_req->destAddr(), app_req->srcAddr(),
+  sendToIPv6(request, app_req->destAddr(), app_req->srcAddr(),
                       app_req->data().hopLimit);
 }
 
-void ICMPv6Core::sendInterfacePacket(ICMPv6Message *msg, const ipv6_addr& dest,
+void ICMPv6Core::sendToIPv6(ICMPv6Message *msg, const ipv6_addr& dest,
                                      const ipv6_addr& src, size_t hopLimit)
 {
-  IPv6InterfacePacket* interfacePacket = new IPv6InterfacePacket;
-
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 
-  interfacePacket->encapsulate(msg);
-  interfacePacket->setDestAddr(dest);
-  interfacePacket->setSrcAddr(src);
-  interfacePacket->setProtocol(IP_PROT_IPv6_ICMP);
-  interfacePacket->setName(msg->name());
-
+  IPv6ControlInfo *ctrl = new IPv6ControlInfo();
+  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
+  ctrl->setSrcAddr(mkIPv6Address_(src));
+  ctrl->setDestAddr(mkIPv6Address_(dest));
   if (hopLimit != 0)
-    interfacePacket->setTimeToLive(hopLimit);
+    ctrl->setTimeToLive(hopLimit);
+  msg->setControlInfo(ctrl);
 
-  send(interfacePacket, "sendOut");
+  send(msg, "sendOut");
 }
 

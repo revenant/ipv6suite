@@ -47,7 +47,8 @@
 
 #include "IPv6Send.h"
 #include "IPv6Datagram.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "HdrExtRteProc.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6InterfaceData.h"
@@ -67,15 +68,14 @@ void IPv6Send::initialize()
 
 void IPv6Send::endService(cMessage* msg)
 {
-  IPv6InterfacePacket *interfaceMsg = check_and_cast<IPv6InterfacePacket*>(msg);
-  IPv6Datagram *dgram = encapsulatePacket(interfaceMsg);
+  IPv6Datagram *dgram = encapsulatePacket(msg);
 
   // send new datagram
   if (dgram)
     send(dgram, "routingOut");
 }
 
-IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
+IPv6Datagram *IPv6Send::encapsulatePacket(cMessage *msg)
 {
   // if no interface exists, do not send datagram
   if (ift->numInterfaceGates() == 0 ||
@@ -83,22 +83,24 @@ IPv6Datagram *IPv6Send::encapsulatePacket(IPv6InterfacePacket *interfaceMsg)
   {
     cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
     Dout(dc::warning, rt->nodeName()<<" 1st Interface is not ready yet");
-    delete interfaceMsg;
+    delete msg;
     return NULL;
   }
 
   IPv6Datagram *datagram = new IPv6Datagram();
-  datagram->encapsulate(interfaceMsg->decapsulate());
-  datagram->setName(interfaceMsg->name());
+  IPv6ControlInfo *ctrl = check_and_cast<IPv6ControlInfo*>(msg->removeControlInfo());
 
-  datagram->setTransportProtocol((IPProtocolId)interfaceMsg->protocol());  // XXX khmm..
+  datagram->encapsulate(msg);
+  datagram->setName(msg->name());
+
+  datagram->setTransportProtocol(ctrl->protocol());
 
   // set source and destination address
-  assert(interfaceMsg->destAddr() != IPv6_ADDR_UNSPECIFIED);
-  datagram->setDestAddress(interfaceMsg->destAddr());
+  assert(mkIpv6_addr(ctrl->destAddr()) != IPv6_ADDR_UNSPECIFIED);
+  datagram->setDestAddress(mkIpv6_addr(ctrl->destAddr()));
 
   // when source address given in Interface Message, use it
-  if (interfaceMsg->srcAddr() != IPv6_ADDR_UNSPECIFIED)
+  if (mkIpv6_addr(ctrl->srcAddr()) != IPv6_ADDR_UNSPECIFIED)
   {
 Debug(
     //Test if source address actually exists
@@ -106,7 +108,7 @@ Debug(
     for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
     {
       InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-      if (ie->ipv6()->addrAssigned(interfaceMsg->srcAddr()))
+      if (ie->ipv6()->addrAssigned(mkIpv6_addr(ctrl->srcAddr())))
       {
         found = true;
         break;
@@ -114,10 +116,10 @@ Debug(
     }
 
     if (!found)
-      Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<interfaceMsg->srcAddr());
+      Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not found in ifaces "<<mkIpv6_addr(ctrl->srcAddr()));
 ); // end Debug
 
-    datagram->setSrcAddress(interfaceMsg->srcAddr());
+    datagram->setSrcAddress(mkIpv6_addr(ctrl->srcAddr()));
   }
   else
   {
@@ -126,13 +128,13 @@ Debug(
 
   datagram->setInputPort(-1);
 
-  if (interfaceMsg->timeToLive() > 0)
-    datagram->setHopLimit(interfaceMsg->timeToLive());
+  if (ctrl->timeToLive() > 0)
+    datagram->setHopLimit(ctrl->timeToLive());
 
   //TODO check dest Path MTU here
   ctrIP6OutRequests++;
 
-  delete interfaceMsg;
+  delete ctrl;
   return datagram;
 }
 

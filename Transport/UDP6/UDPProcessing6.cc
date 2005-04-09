@@ -36,7 +36,8 @@
 
 #include "UDPProcessing6.h"
 #include "UDPMessages_m.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "opp_utils.h"
 
 const unsigned int UDP_HEADER_SIZE = 8;
@@ -72,11 +73,7 @@ void UDPProcessing6::handleMessage(cMessage* theMsg)
   }
   else if (!strcmp(msg->arrivalGate()->name(), "from_ip"))
   {
-    // TODO: need to do the IP version checking in order to dynamically
-    // cast to the appropriate type
-    std::auto_ptr<IPv6InterfacePacket> pkt =
-      OPP_Global::auto_downcast<IPv6InterfacePacket>(msg);
-    processNetworkMsg(pkt.get());
+    processNetworkMsg(msg.get());
   }
   else
     assert(false);
@@ -109,46 +106,38 @@ bool UDPProcessing6::bind(cMessage* msg)
   return true;
 }
 
-void UDPProcessing6::processNetworkMsg(IPv6InterfacePacket* pkt)
+void UDPProcessing6::processNetworkMsg(cMessage *msg)
 {
-  if (pkt->protocol() != IP_PROT_UDP)
-  {
-    Dout(dc::udp|dc::warning, FILE_LINE<<" "<<fullPath()<<": Received packet with unknown protocol "
-         << pkt->protocol() );
-    return;
-  }
+  UDPPacketBase *pkt = check_and_cast<UDPPacketBase*>(msg);
 
-  UDPPacketBase* udpPkt =
-    check_and_cast<UDPPacketBase*>(pkt->cMessage::decapsulate());
-  //Remove UDP packet header length so we are left with app length although the
-  //info is still there of course
-  udpPkt->setLength(udpPkt->length() - UDP_HEADER_SIZE);
+  IPv6ControlInfo *ctrl = check_and_cast<IPv6ControlInfo *>(pkt->removeControlInfo());
 
   UDPAppInterfacePacket* appIntPkt = new UDPAppInterfacePacket;
   appIntPkt->setKind(KIND_DATA);
-  appIntPkt->setSrcIPAddr(pkt->srcAddr());
-  appIntPkt->setDestIPAddr(pkt->destAddr());
-  appIntPkt->encapsulate(udpPkt);
+  appIntPkt->setSrcIPAddr(mkIpv6_addr(ctrl->srcAddr()));
+  appIntPkt->setDestIPAddr(mkIpv6_addr(ctrl->destAddr()));
+  appIntPkt->encapsulate(pkt);
+  delete ctrl;
 
   Dout(dc::udp|continued_cf, fullPath()<<" Received data from "
-       << pkt->srcAddr() << ", port " << dec <<  udpPkt->getSrcPort());
+       << ctrl->srcAddr() << ", port " << dec <<  pkt->getSrcPort());
 
-  Dout(dc::finish," to " << pkt->destAddr() << ", port "
-       << dec <<  udpPkt->getDestPort()  );
+  Dout(dc::finish," to " << ctrl->destAddr() << ", port "
+       << dec <<  pkt->getDestPort()  );
 
   if(appIntPkt->getSrcIPAddr() == IPv6_ADDR_UNSPECIFIED)
-    appIntPkt->setSrcIPAddr(pkt->srcAddr());
+    appIntPkt->setSrcIPAddr(mkIpv6_addr(ctrl->srcAddr()));
 
   UDPApplicationPorts::iterator it;
-  it = boundPorts.find( udpPkt->getDestPort());
+  it = boundPorts.find(pkt->getDestPort());
 
   if(it == boundPorts.end())
   {
     Dout(dc::udp|dc::warning, FILE_LINE<<" "<<fullPath()
          << " UDP Layer: Destination Process belonging to port "
-         << udpPkt->getDestPort()<<" not found");
+         << pkt->getDestPort()<<" not found");
     cerr << "UDP Layer: Error -  Destination Port incorrect! "
-         << udpPkt->getDestPort()<<" not found"<< endl;
+         << pkt->getDestPort()<<" not found"<< endl;
     return;
   }
 
@@ -182,17 +171,19 @@ void UDPProcessing6::processApplicationMsg(UDPAppInterfacePacket* appIntPkt)
 
   //Add UDP header length
   udpPkt->setLength(udpPkt->length() + UDP_HEADER_SIZE);
-  IPv6InterfacePacket* pkt = new IPv6InterfacePacket;
-  pkt->cMessage::encapsulate(udpPkt);
-  pkt->setSrcAddr(appIntPkt->getSrcIPAddr());
-  pkt->setDestAddr(appIntPkt->getDestIPAddr());
-  pkt->setProtocol(IP_PROT_UDP);
 
-  send(pkt, "to_ip");
+  IPv6ControlInfo *ctrl = new IPv6ControlInfo;
+  ctrl->setSrcAddr(mkIPv6Address_(appIntPkt->getSrcIPAddr()));
+  ctrl->setDestAddr(mkIPv6Address_(appIntPkt->getDestIPAddr()));
+  ctrl->setProtocol(IP_PROT_UDP);
+  udpPkt->setControlInfo(ctrl);
+
   ctrUdpOutDgrams++;
-  Dout(dc::udp, fullPath()<<" sending UDP pkt src="<<pkt->srcAddr()<<":"
-       <<udpPkt->getSrcPort()<<" dest="<<pkt->destAddr()<< ":"
+  Dout(dc::udp, fullPath()<<" sending UDP pkt src="<<mkIPv6Address_(appIntPkt->getSrcIPAddr())<<":"
+       <<udpPkt->getSrcPort()<<" dest="<<mkIPv6Address_(appIntPkt->getDestIPAddr())<< ":"
        << udpPkt->getDestPort());
+
+  send(udpPkt, "to_ip");
 }
 
 #if defined USE_CPPUNIT

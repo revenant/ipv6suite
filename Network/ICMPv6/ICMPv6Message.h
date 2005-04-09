@@ -92,7 +92,6 @@ static const int ICMPv6_PARARM_PROB[] =
 };
 
 
-class IPv6InterfacePacket;
 class IPv6Datagram;
 
 /**

@@ -15,19 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/**
-   @file IPv6Encapsulation.cc
-   @brief Implementation for RFC2473 IPv6Encapsulation
-
-   Responsibilities:
-   send new IPv6InterfacePacket to IPv6Send to be newly encapsulated
-   MIPv6 route optimisation callback registration
-   Configure and remove encapsulated targets
-   Decapsulation of tunneled packets
-
-   @author Johnny Lai
-   @date 04.03.02
-*/
 
 #include "sys.h"
 #include "debug.h"
@@ -39,7 +26,8 @@
 #include <iterator> //ostream_iterator
 
 #include "IPv6Encapsulation.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h"
 #include "Constants.h"
@@ -286,23 +274,23 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
       origDgram->setHopLimit(origDgram->hopLimit() - 1);
     }
 
-    auto_ptr<IPv6InterfacePacket> tunDgram(new IPv6InterfacePacket("tunnelledDram"));
-    tunDgram->setSrcAddr(tun.entry);
-    tunDgram->setDestAddr(tun.exit);
-    tunDgram->encapsulate(origDgram.release());
-    tunDgram->setProtocol(IP_PROT_IPv6);
+    IPv6ControlInfo *ctrl = new IPv6ControlInfo;
+    ctrl->setSrcAddr(mkIPv6Address_(tun.entry));
+    ctrl->setDestAddr(mkIPv6Address_(tun.exit));
+    ctrl->setProtocol(IP_PROT_IPv6);
 
     //Set tunnel packet properties (no support for tunnel encapsulation
     //limit option
     if (rt->isRouter() && tunHopLimit == 0)
-      tunDgram->setTimeToLive(DEFAULT_ROUTER_HOPLIMIT);
+      ctrl->setTimeToLive(DEFAULT_ROUTER_HOPLIMIT);
     else if (tunHopLimit != 0)
-      tunDgram->setTimeToLive(tunHopLimit);
+      ctrl->setTimeToLive(tunHopLimit);
     else
-      tunDgram->setTimeToLive(ift->interfaceByPortNo(tun.ifIndex)->ipv6()->curHopLimit);
+      ctrl->setTimeToLive(ift->interfaceByPortNo(tun.ifIndex)->ipv6()->curHopLimit);
 
-    tunDgram->setName(tunDgram->encapsulatedMsg()->name());
-    sendDelayed(tunDgram.release(), delay, "encapsulatedSendOut");
+    origDgram->setControlInfo(ctrl);
+
+    sendDelayed(origDgram.release(), delay, "encapsulatedSendOut");
 
     if (tun.forOnePkt)
       destroyTunnel(tun.entry, tun.exit);

@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004-2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +21,7 @@
 #include <omnetpp.h>
 #include "IPTrafGen.h"
 #include "IPControlInfo_m.h"
+#include "IPv6ControlInfo_m.h"
 #include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 
@@ -48,16 +50,27 @@ void IPTrafSink::handleMessage(cMessage *msg)
 
 void IPTrafSink::printPacket(cMessage *msg)
 {
-    // FIXME prepare this for handling IPv6 as well!!!
-    IPControlInfo *controlInfo = check_and_cast<IPControlInfo *>(msg->controlInfo());
-
-    IPvXAddress src = controlInfo->srcAddr();
-    IPvXAddress dest = controlInfo->destAddr();
-    int protocol = controlInfo->protocol();
+    IPvXAddress src, dest;
+    int protocol = -1;
+    if (dynamic_cast<IPControlInfo *>(msg->controlInfo())!=NULL)
+    {
+        IPControlInfo *ctrl = (IPControlInfo *)msg->controlInfo();
+        src = ctrl->srcAddr();
+        dest = ctrl->destAddr();
+        protocol = ctrl->protocol();
+    }
+    else if (dynamic_cast<IPv6ControlInfo *>(msg->controlInfo())!=NULL)
+    {
+        IPv6ControlInfo *ctrl = (IPv6ControlInfo *)msg->controlInfo();
+        src = ctrl->srcAddr();
+        dest = ctrl->destAddr();
+        protocol = ctrl->protocol();
+    }
 
     ev  << msg << endl;
     ev  << "Payload length: " << (msg->length()/8) << " bytes" << endl;
-    ev  << "src: " << src << "  dest: " << dest << "  protocol=" << protocol << "\n";
+    if (protocol!=-1)
+        ev  << "src: " << src << "  dest: " << dest << "  protocol=" << protocol << "\n";
 }
 
 void IPTrafSink::processPacket(cMessage *msg)
@@ -127,6 +140,7 @@ void IPTrafGen::sendPacket()
     IPvXAddress destAddr = chooseDestAddr();
     if (!destAddr.isIPv6())
     {
+        // send to IPv4
         IPControlInfo *controlInfo = new IPControlInfo();
         controlInfo->setDestAddr(destAddr.get4());
         controlInfo->setProtocol(protocol);
@@ -139,8 +153,11 @@ void IPTrafGen::sendPacket()
     }
     else
     {
-        // FIXME TBD send over IPv6!
-        error("cannot send over IPv6 at the moment, not implemented");
+        // send to IPv6
+        IPv6ControlInfo *controlInfo = new IPv6ControlInfo();
+        controlInfo->setDestAddr(destAddr.get6());
+        controlInfo->setProtocol(protocol);
+        payload->setControlInfo(controlInfo);
 
         ev << "Sending packet: ";
         printPacket(payload);

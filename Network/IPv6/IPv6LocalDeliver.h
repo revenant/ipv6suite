@@ -70,7 +70,6 @@ struct FragmentationBufferEntry
 /*  -------------------------------------------------
     Main Module class: LocalDeliverCore
     -------------------------------------------------    */
-class IPv6InterfacePacket;
 class IPv6Datagram;
 
 /**
@@ -88,9 +87,9 @@ public:
   virtual void finish();
 
 private:
-  ///Returns true if packet needs further processing as InterfacePacket
+  ///Returns true if packet needs further processing
   bool processDatagram(IPv6Datagram* datagram);
-  IPv6InterfacePacket *decapsulateDatagram(IPv6Datagram *datagram);
+  cMessage *decapsulateDatagram(IPv6Datagram *datagram);
 
   unsigned int ctrIP6InUnknownProtos;
   unsigned int ctrIP6InDeliver;

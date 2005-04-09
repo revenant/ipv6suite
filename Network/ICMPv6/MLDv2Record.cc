@@ -39,7 +39,6 @@
 #include "ipv6_addr.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
-#include "IPv6InterfacePacket_m.h"
 #include "opp_utils.h"
 #include "cTimerMessageCB.h"
 #include "IPv6CDS.h"

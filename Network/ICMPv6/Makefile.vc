@@ -608,9 +608,11 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ICMPv6Core.h \
   ../IPv6/IPv6Datagram.h \
   ../IPv6/ipv6_addr.h \
-  ../IPv6/IPv6InterfacePacket_m.h \
+  ../Generic/IPv6ControlInfo_m.h \
+  ../IPv6/ipv6addrconv.h \
   ../IPv6/IPv6Headers.h \
   ICMPv6Message.h \
+  Ping6PayloadPacket_m.h \
   ../../Util/opp_utils.h \
   ../Generic/InterfaceTableAccess.h \
   ../IPv6/RoutingTable6Access.h \
@@ -778,6 +780,10 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Util/boost/mpl/integral_c.hpp \
   ../../Util/boost/mpl/integral_c_fwd.hpp \
   ../../Util/boost/mpl/aux_/ice_cast.hpp \
+  ../Generic/IPAddress.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/INETDefs.h \
+  ../../Base/inetdefs.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \
@@ -789,7 +795,6 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
-  ../../Base/INETDefs.h \
   ../Generic/InterfaceEntry.h \
   ../IPv6/RoutingTable6.h \
   ../IPv6/IPv6InterfaceData.h \
@@ -2074,7 +2079,8 @@ MLD.obj: MLD.cc \
   ../Generic/InterfaceTableAccess.h \
   ../IPv6/RoutingTable6Access.h \
   ../IPv6/IPv6Datagram.h \
-  ../IPv6/IPv6InterfacePacket_m.h \
+  ../Generic/IPv6ControlInfo_m.h \
+  ../IPv6/ipv6addrconv.h \
   ../../Util/opp_utils.h \
   MLDMessage.h \
   MLDv2Message.h \
@@ -2263,6 +2269,9 @@ MLD.obj: MLD.cc \
   ../../Util/boost/detail/lwm_nop.hpp \
   ../Generic/IPProtocolId_m.h \
   ../IPv6/IPv6Datagram_m.h \
+  ../Generic/IPAddress.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
   ICMPv6Message.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \
@@ -2616,7 +2625,6 @@ MLDv2Record.obj: MLDv2Record.cc \
   ../IPv6/ipv6_addr.h \
   ../IPv6/RoutingTable6.h \
   ../IPv6/IPv6Datagram.h \
-  ../IPv6/IPv6InterfacePacket_m.h \
   ../../Util/opp_utils.h \
   ../../Util/cTimerMessageCB.h \
   ../IPv6/IPv6CDS.h \
@@ -4175,8 +4183,8 @@ NeighbourDiscovery.obj: NeighbourDiscovery.cc \
   ../../Util/boost/type_traits/add_pointer.hpp \
   ../../Util/boost/type_traits/remove_reference.hpp \
   ../../Util/boost/utility_fwd.hpp
-Ping6InterfacePacket_m.obj: Ping6InterfacePacket_m.cc \
-  Ping6InterfacePacket_m.h \
+Ping6PayloadPacket_m.obj: Ping6PayloadPacket_m.cc \
+  Ping6PayloadPacket_m.h \
   ../Generic/IPProtocolId_m.h \
   ../IPv6/ipv6_addr.h \
   ../../Util/boost/operators.hpp \

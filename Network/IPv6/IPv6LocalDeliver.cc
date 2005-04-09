@@ -56,7 +56,8 @@
 #include "IPv6LocalDeliver.h"
 #include "HdrExtFragProc.h"
 #include "HdrExtRteProc.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "IPv6Datagram.h"
 
 
@@ -80,59 +81,54 @@ void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
   }
 
   //Give ICMP the direct packet as it will need all the gory details
-  if (datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
+  int protocol = datagram->transportProtocol();
+
+  if (protocol == IP_PROT_IPv6_ICMP)
   {
     send(datagram, "ICMPOut");
     return;
   }
 
-  if (datagram->transportProtocol() == IP_PROT_IPv6)
+  if (protocol == IP_PROT_IPv6)
   {
     send(datagram, "tunnelOut");
     return;
   }
 
 #ifdef USE_MOBILITY
-  if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+  if (protocol == IP_PROT_IPv6_MOBILITY)
   {
     send(datagram, "mobilityOut");
     return;
   }
 #endif // USE_MOBILITY
 
-  IPv6InterfacePacket *interfacePacket = decapsulateDatagram(datagram);
+  cMessage *msg = decapsulateDatagram(datagram);
 
-  switch(interfacePacket->protocol())
+  switch(protocol)
   {
     case IP_PROT_IGMP:
-      send(interfacePacket, "multicastOut");
+      send(msg, "multicastOut");
       break;
 
     case IP_PROT_IP: //IPv4 packets
-      //send(interfacePacket, "preRoutingOut");
+      //send(msg, "preRoutingOut");
       cerr<<"IPv4 in IPv6 tunnels not implemented "<<endl;
-      delete interfacePacket;
+      delete msg;
       break;
 
     case IP_PROT_TCP:
-      send(interfacePacket, "transportOut",0);
+      send(msg, "transportOut",0);
       ctrIP6InDeliver++;
       break;
 
     case IP_PROT_UDP:
-      send(interfacePacket, "transportOut",1);
+      send(msg, "transportOut",1);
       ctrIP6InDeliver++;
       break;
 
     default:
-      cerr << "LocalDeliver6 Error: "
-           << "Transport protocol invalid: "
-           << (int)(interfacePacket->protocol())
-           << "\n";
-      //TODO send a parameter problem with code 1 (unrecognised Next header)
-      ctrIP6InUnknownProtos++;
-      delete interfacePacket;
-      break;
+      error("invalid protocol code %d in datagram", protocol);
   } // end switch
 }
 
@@ -194,18 +190,19 @@ bool IPv6LocalDeliver::processDatagram(IPv6Datagram* datagram)
     return success && localdeliver;
 }
 
-IPv6InterfacePacket *IPv6LocalDeliver::decapsulateDatagram(IPv6Datagram *datagram)
+cMessage *IPv6LocalDeliver::decapsulateDatagram(IPv6Datagram *datagram)
 {
-  IPv6InterfacePacket *interfacePacket = new IPv6InterfacePacket;
-
   cMessage *packet = datagram->decapsulate();
-  interfacePacket->encapsulate(packet);
-  interfacePacket->setName(packet->name());
-  interfacePacket->setProtocol(datagram->transportProtocol());
-  interfacePacket->setSrcAddr(datagram->srcAddress());
-  interfacePacket->setDestAddr(datagram->destAddress());
+
+  IPv6ControlInfo *ctrl = new IPv6ControlInfo();
+  ctrl->setProtocol(datagram->transportProtocol());
+  ctrl->setSrcAddr(mkIPv6Address_(datagram->srcAddress()));
+  ctrl->setDestAddr(mkIPv6Address_(datagram->destAddress()));
+  // ctrl->setInputPort(...); -- FIXME do we have this info here?
+  packet->setControlInfo(ctrl);
+
   delete datagram;
 
-  return interfacePacket;
+  return packet;
 }
 

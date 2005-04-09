@@ -95,21 +95,20 @@ void MobileEntity::drawWirelessRange()
 {
   cModule *nodemod = findNetNodeModule(_mod);
   //Does not work for all modules either as some do not even have layer 3
-  //unsigned int numOfPorts = OPP_Global::findModuleByType(OPP_Global::findNetNodeModule(_mod), "RoutingTable6")->par("numOfPorts");
+  //unsigned int numOfPorts = OPP_Global::findModuleByType(nodemod, "RoutingTable6")->par("numOfPorts");
 
-  //unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("wlin");
-  // gateSize() is an omnetpp version 3.0 function
-  unsigned int numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("wlin")->size();
+  unsigned int numOfPorts = nodemod->gateSize("wlin");
+  //unsigned int numOfPorts = nodemod->gate("wlin")->size();
   if (numOfPorts <= 0)
   {
     cerr << "gateSize of nonexistant gate array " <<numOfPorts<<endl;
     //For MobileNodes
-    //numOfPorts = OPP_Global::findNetNodeModule(_mod)->gateSize("in");
-    numOfPorts = OPP_Global::findNetNodeModule(_mod)->gate("in")->size();
+    numOfPorts = nodemod->gateSize("in");
+    //numOfPorts = nodemod->gate("in")->size();
   }
 
   // label interface name according to the link layer
-  for(size_t i = 0; i < numOfPorts; i ++)
+  for(size_t i = 0; i < numOfPorts; i++)
   {
     cModule* mod = OPP_Global::findModuleByType(_mod, "LinkLayer6");
 

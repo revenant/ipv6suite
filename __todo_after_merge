@@ -9,10 +9,4 @@
 - RELEASE!!!!
 
 TODO:
-- migrate to IPv6ControlInfo
-- UDP, TCP: add gates for IPv6, implement sending over IPv6, recognize&accept
-  IPv6controlInfo in TCP/UDP as well
-
 - IPAddressResolver: should recognize "<modulename>#interface/ipv6"
-
-- add&use utility functions: createIPControlInfo(src,dest,protocol) 

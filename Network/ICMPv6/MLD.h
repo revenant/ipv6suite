@@ -77,7 +77,7 @@ public:
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
 
-  void sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src=IPv6_ADDR_UNSPECIFIED, size_t hopLimit=1);
+  void sendToIPv6(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src=IPv6_ADDR_UNSPECIFIED, size_t hopLimit=1);
 
   void startReportTimer(const ipv6_addr& addr, unsigned int responseInterval = responseInt);
   void removeRtEntry(const ipv6_addr& addr);

@@ -45,7 +45,8 @@
 #include "RoutingTable6Access.h"
 #include "RoutingTable6Access.h"
 #include "IPv6Datagram.h"
-#include "IPv6InterfacePacket_m.h"
+#include "IPv6ControlInfo_m.h"
+#include "ipv6addrconv.h"
 #include "opp_utils.h"
 #include "MLDMessage.h"
 #include "MLDv2Message.h"
@@ -552,9 +553,7 @@ void MLD::sendReport(const ipv6_addr& addr)
   mldmsg->setDelay(0);//query response interval
   mldmsg->setAddress(addr);
 
-  // sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_ROUTERS_LINK_ADDRESS),IPv6_ADDR_UNSPECIFIED,1);
-
-  sendInterfacePacket(mldmsg, addr, IPv6_ADDR_UNSPECIFIED,1);
+  sendToIPv6(mldmsg, addr, IPv6_ADDR_UNSPECIFIED,1);
 
   reportCounter++;
   cout<<"####REPORT funct called @ "<<simTime()<<endl;
@@ -567,7 +566,7 @@ void MLD::sendDone(const ipv6_addr& addr)
   MLDMessage* mldmsg = new MLDMessage(ICMPv6_MLD_DONE);
   mldmsg->setDelay(0);//query response interval
   mldmsg->setAddress(addr);
-  sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_ROUTERS_LINK_ADDRESS) ,IPv6_ADDR_UNSPECIFIED,1);
+  sendToIPv6(mldmsg, c_ipv6_addr(ALL_ROUTERS_LINK_ADDRESS) ,IPv6_ADDR_UNSPECIFIED,1);
 }
 
 void MLD::finish()
@@ -609,7 +608,7 @@ void MLD::sendGenQuery()
     cout << "QQIC:" << mldmsg->QQIC() << endl;
     cout << "NS:" << mldmsg->NS() << endl;
 */
-  sendInterfacePacket(mldmsg, c_ipv6_addr(ALL_NODES_LINK_ADDRESS),IPv6_ADDR_UNSPECIFIED,1);
+  sendToIPv6(mldmsg, c_ipv6_addr(ALL_NODES_LINK_ADDRESS),IPv6_ADDR_UNSPECIFIED,1);
 }
 
 void MLD::sendMASQuery(const ipv6_addr& addr)
@@ -622,26 +621,22 @@ void MLD::sendMASQuery(const ipv6_addr& addr)
 //  mldmsg->setQQIC(125);
 //  mldmsg->setNS(0);
 
-  sendInterfacePacket(mldmsg, addr,IPv6_ADDR_UNSPECIFIED,1);
+  sendToIPv6(mldmsg, addr,IPv6_ADDR_UNSPECIFIED,1);
 }
 
-void MLD::sendInterfacePacket(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src, size_t hopLimit)
+void MLD::sendToIPv6(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& src, size_t hopLimit)
 {
-//  cout << "[MLD]sendInterfacePacket =>" << endl;
-//  cout << "showAddress:" << msg->showAddress() << endl;
-  IPv6InterfacePacket* interfacePacket = new IPv6InterfacePacket;
-//  IPv6Datagram* dgram = new IPv6Datagram;
-
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 
-  interfacePacket->encapsulate(msg);
-  interfacePacket->setDestAddr(dest);
-  interfacePacket->setSrcAddr(src);
-  interfacePacket->setProtocol(IP_PROT_IPv6_ICMP);
-
+  IPv6ControlInfo *ctrl = new IPv6ControlInfo();
+  ctrl->setDestAddr(mkIPv6Address_(dest));
+  ctrl->setSrcAddr(mkIPv6Address_(src));
+  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
   if(hopLimit != 0)
-    interfacePacket->setTimeToLive(hopLimit);
-  send(interfacePacket, "MLDOut");
+    ctrl->setTimeToLive(hopLimit);
+  msg->setControlInfo(ctrl);
+
+  send(msg, "MLDOut");
 }
 
 cTimerMessage* MLD::findTmr(int MLDTimerType, const ipv6_addr& multicast_addr)

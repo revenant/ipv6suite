@@ -174,8 +174,7 @@
 //  - Fast Recovery not tested very much
 //
 // The above problems are relatively easy to fix, and will be resolved in the
-// next interation. Also, other TCPAlgorithms and send queue/receive queue
-// classes will be added.
+// next iteration. Also, other TCPAlgorithms will be added.
 //
 // <b>Tests</b>
 //
@@ -188,8 +187,8 @@ simple TCPMain
       receiveQueueClass: string,
       tcpAlgorithmClass: string;
     gates:
-      in: from_appl[], from_ip;
-      out: to_appl[], to_ip;
+      in: from_appl[], from_ip, from_ipv6;
+      out: to_appl[], to_ip, to_ipv6;
 endsimple
 
 

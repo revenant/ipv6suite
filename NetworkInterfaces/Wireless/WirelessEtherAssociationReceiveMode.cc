@@ -254,7 +254,11 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
           l2delayRecorder->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
         }
       }
-
+/* XXX maybe something like this would be useful:
+      mod->bubble("Handover completed!");
+      mod->parentModule()->bubble("Handover completed!");
+      mod->parentModule()->parentModule()->bubble("Handover completed!");
+*/
       mod->noOfFailedTx = 0;
       mod->noOfSuccessfulTx = 0;
 

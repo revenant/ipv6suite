@@ -32,11 +32,10 @@ class noncobject IPvXAddress;
 class UDPControlInfo
 {
     fields:
-        IPvXAddress srcAddr;  // source IP address
-        IPvXAddress destAddr; // destination IP address
-        int codePoint; // QoS field
+        IPvXAddress srcAddr;  // source IP or IPv6 address
+        IPvXAddress destAddr; // destination IP or IPv6 address
         int srcPort;   // UDP source port in packet
         int destPort;  // UDP destination port in packet
-        int inputPort; // port number (gate index) of interface on which the packet was received
+        int inputPort; // gate index of interface on which the packet was received
 };
 

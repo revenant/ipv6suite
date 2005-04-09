@@ -284,7 +284,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
 
 MIPv6NDStateHost::~MIPv6NDStateHost(void)
 {
-  if (!missedTmr->isScheduled())
+  if (missedTmr && !missedTmr->isScheduled())
     delete missedTmr;
   delete schedSendRtrSolCB;
 }

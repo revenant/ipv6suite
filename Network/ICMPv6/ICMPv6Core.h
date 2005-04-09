@@ -72,7 +72,7 @@ private:
   //@}
 
   ///Send ICMP message to dest
-  void sendInterfacePacket(ICMPv6Message *, const ipv6_addr& dest,
+  void sendToIPv6(ICMPv6Message *, const ipv6_addr& dest,
                            const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                            size_t hopLimit = 0);
 

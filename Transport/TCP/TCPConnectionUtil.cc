@@ -23,6 +23,7 @@
 #include "TCPSegment.h"
 #include "TCPCommand_m.h"
 #include "IPControlInfo_m.h"
+#include "IPv6ControlInfo_m.h"
 #include "TCPSendQueue.h"
 #include "TCPReceiveQueue.h"
 #include "TCPAlgorithm.h"
@@ -168,45 +169,61 @@ void TCPConnection::sendToIP(TCPSegment *tcpseg)
     tcpseg->setLength(8*(TCP_HEADER_OCTETS+tcpseg->payloadLength()));
     // TBD account for Options (once they get implemented)
 
+    tcpEV << "Sending: ";
+    printSegmentBrief(tcpseg);
+
+    // TBD reuse next function for sending
+
     if (!remoteAddr.isIPv6())
     {
+        // send over IPv4
         IPControlInfo *controlInfo = new IPControlInfo();
         controlInfo->setProtocol(IP_PROT_TCP);
         controlInfo->setSrcAddr(localAddr.get4());
         controlInfo->setDestAddr(remoteAddr.get4());
         tcpseg->setControlInfo(controlInfo);
 
-        tcpEV << "Send: ";
-        printSegmentBrief(tcpseg);
-
         tcpMain->send(tcpseg,"to_ip");
     }
     else
     {
-        // FIXME send over IPv6
-        opp_error("sending over IPv6 not yet implemented");
+        // send over IPv6
+        IPv6ControlInfo *controlInfo = new IPv6ControlInfo();
+        controlInfo->setProtocol(IP_PROT_TCP);
+        controlInfo->setSrcAddr(localAddr.get6());
+        controlInfo->setDestAddr(remoteAddr.get6());
+        tcpseg->setControlInfo(controlInfo);
+
+        tcpMain->send(tcpseg,"to_ipv6");
     }
 }
 
 void TCPConnection::sendToIP(TCPSegment *tcpseg, IPvXAddress src, IPvXAddress dest)
 {
+    tcpEV << "Sending: ";
+    printSegmentBrief(tcpseg);
+
     if (!dest.isIPv6())
     {
+        // send over IPv4
         IPControlInfo *controlInfo = new IPControlInfo();
         controlInfo->setProtocol(IP_PROT_TCP);
         controlInfo->setSrcAddr(src.get4());
         controlInfo->setDestAddr(dest.get4());
         tcpseg->setControlInfo(controlInfo);
 
-        tcpEV << "Send: ";
-        printSegmentBrief(tcpseg);
-
         check_and_cast<TCPMain *>(simulation.contextModule())->send(tcpseg,"to_ip");
     }
     else
     {
-        // FIXME send over IPv6
-        opp_error("sending over IPv6 not yet implemented");
+        // send over IPv6
+        IPv6ControlInfo *controlInfo = new IPv6ControlInfo();
+        controlInfo->setProtocol(IP_PROT_TCP);
+        controlInfo->setSrcAddr(src.get6());
+        controlInfo->setDestAddr(dest.get6());
+        tcpseg->setControlInfo(controlInfo);
+
+        check_and_cast<TCPMain *>(simulation.contextModule())->send(tcpseg,"to_ipv6");
     }
 }
 

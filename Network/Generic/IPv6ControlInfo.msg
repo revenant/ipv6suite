@@ -50,10 +50,11 @@ class IPv6ControlInfo
     properties:
         omitGetVerb=true;
     fields:
-        int protocol enum(IPProtocolId);
-        IPv6Address_ destAddr;
-        IPv6Address_ srcAddr;
-        short timeToLive;
+        int protocol enum(IPProtocolId);  // transport layer protocol
+        IPv6Address_ destAddr;  // destination IPv6 address
+        IPv6Address_ srcAddr;   // source IPv6 address 
+        short timeToLive;       // hop limit
+        int inputPort;          // port number of interface on which the datagram was received
 };
 
 

@@ -23,8 +23,8 @@
 //
 simple IPTrafSink
     gates:
-        in: from_ip;
-        out: to_ip;
+        in: from_ip, from_ipv6;
+        out: to_ip, to_ipv6;
 endsimple
 
 
@@ -49,8 +49,8 @@ simple IPTrafGen
         packetLength : numeric, // (bits)
         destAddresses: string; // list of \IP addresses, separated by spaces
     gates:
-        in: from_ip;
-        out: to_ip;
+        in: from_ip, from_ipv6;
+        out: to_ip, to_ipv6;
 endsimple
 
 

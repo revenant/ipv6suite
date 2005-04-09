@@ -25,7 +25,6 @@ cplusplus {{
 
 enum IPProtocolId;
 class noncobject ipv6_addr;
-class IPv6InterfacePacket;
 
 struct echo_int_info
 {

@@ -18,35 +18,18 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-/**
- * @file UDPProcessing6.h
- * @author Johnny Lai
- * @date 21 May 2004
- *
- * @brief Definitition of class UDPProcessing6
- *
- */
 
 #ifndef UDPPROCESSING6_H
 #define UDPPROCESSING6_H
 
-#ifndef __OMNETPP_H
-#include <omnetpp.h>
-#endif //__OMNETPP_H
-
-#ifndef MAP
-#define MAP
 #include <map>
-#endif //MAP
-
-
+#include <omnetpp.h>
 #include "IPProtocolId_m.h"
 
 class UDPAppInterfacePacket;
-class IPv6InterfacePacket;
 
 //Octets Src/Dest port(4) + length + checksum
-extern const unsigned int UDP_HEADER_SIZE; 
+extern const unsigned int UDP_HEADER_SIZE;
 
 /**
  * @class UDPProcessing6
@@ -65,7 +48,7 @@ public:
   typedef int GateID;
   typedef std::map<UDPPort, GateID> UDPApplicationPorts;
   friend class UDPProcessing6Test;
-  
+
   Module_Class_Members(UDPProcessing6, cSimpleModule, 0);
 
   ///@name Overidden cSimpleModule functions
@@ -79,10 +62,10 @@ public:
 
 
 protected:
-  
+
 private:
   void processApplicationMsg(UDPAppInterfacePacket* appIntPkt);
-  void processNetworkMsg(IPv6InterfacePacket* pkt);
+  void processNetworkMsg(cMessage *pkt);
   bool bind(cMessage* msg);
   bool isBound(UDPPort p);
 

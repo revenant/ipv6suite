@@ -18,7 +18,6 @@
 
 
 #include "TCPDump.h"
-#include "IPControlInfo_m.h"
 
 
 TCPDumper::TCPDumper(std::ostream& out)

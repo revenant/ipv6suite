@@ -29,6 +29,7 @@
 #include "UDPPacket.h"
 #include "UDPProcessing.h"
 #include "IPControlInfo_m.h"
+#include "IPv6ControlInfo_m.h"
 
 Define_Module( UDPProcessing );
 
@@ -70,7 +71,7 @@ void UDPProcessing::initialize()
 void UDPProcessing::handleMessage(cMessage *msg)
 {
     // received from IP layer
-    if (!strcmp(msg->arrivalGate()->name(), "from_ip"))
+    if (msg->arrivedOn("from_ip") || msg->arrivedOn("from_ipv6"))
     {
         processMsgFromIp(check_and_cast<UDPPacket *>(msg));
     }
@@ -117,21 +118,40 @@ void UDPProcessing::processMsgFromIp(UDPPacket *udpPacket)
         return;
     }
 
-    IPControlInfo *ipControlInfo = check_and_cast<IPControlInfo *>(udpPacket->removeControlInfo());
+    // get src/dest addresses
+    IPvXAddress srcAddr, destAddr;
+    int inputPort;
+    if (dynamic_cast<IPControlInfo *>(udpPacket->controlInfo())!=NULL)
+    {
+        IPControlInfo *controlInfo = (IPControlInfo *)udpPacket->removeControlInfo();
+        srcAddr = controlInfo->srcAddr();
+        destAddr = controlInfo->destAddr();
+        inputPort = controlInfo->inputPort();
+        delete controlInfo;
+    }
+    else if (dynamic_cast<IPv6ControlInfo *>(udpPacket->controlInfo())!=NULL)
+    {
+        IPv6ControlInfo *controlInfo = (IPv6ControlInfo *)udpPacket->removeControlInfo();
+        srcAddr = controlInfo->srcAddr();
+        destAddr = controlInfo->destAddr();
+        inputPort = controlInfo->inputPort();
+        delete controlInfo;
+    }
+    else
+    {
+        error("(%s)%s arrived without control info", udpPacket->className(), udpPacket->name());
+    }
 
-    cMessage *payload = udpPacket->decapsulate();
-
-    // add UDPControlInfo to packet, and it pass up to the application
+    // send payload with UDPControlInfo up to the application
     UDPControlInfo *udpControlInfo = new UDPControlInfo();
-    udpControlInfo->setSrcAddr(ipControlInfo->srcAddr());
-    udpControlInfo->setDestAddr(ipControlInfo->destAddr());
-    udpControlInfo->setCodePoint(ipControlInfo->diffServCodePoint());
+    udpControlInfo->setSrcAddr(srcAddr);
+    udpControlInfo->setDestAddr(destAddr);
     udpControlInfo->setSrcPort(udpPacket->sourcePort());
     udpControlInfo->setDestPort(udpPacket->destinationPort());
-    udpControlInfo->setInputPort(ipControlInfo->inputPort());
-    payload->setControlInfo(udpControlInfo);
+    udpControlInfo->setInputPort(inputPort);
 
-    delete ipControlInfo;
+    cMessage *payload = udpPacket->decapsulate();
+    payload->setControlInfo(udpControlInfo);
     delete udpPacket;
 
     send(payload, "to_application", appGateIndex);
@@ -152,6 +172,7 @@ void UDPProcessing::processMsgFromApp(cMessage *appData)
 
     if (!udpControlInfo->getDestAddr().isIPv6())
     {
+        // send to IPv4
         IPControlInfo *ipControlInfo = new IPControlInfo();
         ipControlInfo->setProtocol(IP_PROT_UDP);
         ipControlInfo->setSrcAddr(udpControlInfo->getSrcAddr().get4());
@@ -159,13 +180,19 @@ void UDPProcessing::processMsgFromApp(cMessage *appData)
         udpPacket->setControlInfo(ipControlInfo);
         delete udpControlInfo;
 
-        // send to IP
         send(udpPacket,"to_ip");
     }
     else
     {
-        // FIXME send over IPv6
-        opp_error("sending over IPv6 not yet implemented");
+        // send to IPv6
+        IPv6ControlInfo *ipControlInfo = new IPv6ControlInfo();
+        ipControlInfo->setProtocol(IP_PROT_UDP);
+        ipControlInfo->setSrcAddr(udpControlInfo->getSrcAddr().get6());
+        ipControlInfo->setDestAddr(udpControlInfo->getDestAddr().get6());
+        udpPacket->setControlInfo(ipControlInfo);
+        delete udpControlInfo;
+
+        send(udpPacket,"to_ipv6");
     }
     numSent++;
 }

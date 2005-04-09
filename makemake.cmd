@@ -33,7 +33,7 @@ cd %root%\Mobility && %MAKEMAKE% %OPTS% -n -r -I.. -I../Util -I../World -I../Net
 cd %root%\Mobility\adHocSim && %MAKEMAKE% %OPTS% -n -r
 
 cd %root%\Transport && %MAKEMAKE% %OPTS% -n -r -X RTP
-cd %root%\Base && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Base && %MAKEMAKE% %OPTS% -n -r -I..\Util
 :#FIXME Util should not depend on Mobility!
 cd %root%\Util && %MAKEMAKE% %OPTS% -n -r -X boost -X Topology -I. -I../Mobility -I../World -I../Base
 
@@ -62,7 +62,7 @@ cd %root%\Applications\MLD && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Applications\Ping6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic
 cd %root%\Applications\VideoStream && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Transport/UDP6
 
-cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Network/IPv4 -I../../Network/Generic -I../../Network/IPv6 -I../../Network/ICMPv6
+cd %root%\Transport\UDP6 && %MAKEMAKE% %OPTS% -n -r -I../.. -I../../Util -I../../Base -I../../Network/IPv4 -I../../Network/Generic -I../../Network/IPv6 -I../../Network/ICMPv6
 :#FIXME should not depend on all L2 stuff!
 cd %root%\World && %MAKEMAKE% %OPTS% -n -r -I.. -I../Util -I../Mobility -I../Network/IPv4  -I../Network/IPv6 -I../Network/ICMPv6 -I../NetworkInterfaces -I../NetworkInterfaces/Wireless -I../NetworkInterfaces/Ethernet6
 :#FIXME move cc files to Ethernet6 directory!!!

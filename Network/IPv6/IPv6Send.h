@@ -42,10 +42,9 @@
 
 #include "QueueBase.h"
 
-class IPv6InterfacePacket;
 class IPv6Datagram;
-class RoutingTable6;
 class InterfaceTable;
+class RoutingTable6;
 
 /**
  * @class IPv6Send
@@ -65,7 +64,7 @@ public:
   virtual void finish();
 
 private:
-  IPv6Datagram *encapsulatePacket(IPv6InterfacePacket *interfaceMsg);
+  IPv6Datagram *encapsulatePacket(cMessage *msg);
 
   InterfaceTable *ift;
   RoutingTable6 *rt;

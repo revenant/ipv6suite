@@ -22,6 +22,7 @@
 #include "TCPSegment.h"
 #include "TCPCommand_m.h"
 #include "IPControlInfo_m.h"
+#include "IPv6ControlInfo_m.h"
 #include "stlwatch.h"
 
 Define_Module(TCPMain);
@@ -86,15 +87,33 @@ void TCPMain::handleMessage(cMessage *msg)
         if (!ret)
             removeConnection(conn);
     }
-    else if (msg->arrivedOn("from_ip"))
+    else if (msg->arrivedOn("from_ip") || msg->arrivedOn("from_ipv6"))
     {
+        // must be a TCPSegment
         TCPSegment *tcpseg = check_and_cast<TCPSegment *>(msg);
 
-        IPControlInfo *controlInfo = check_and_cast<IPControlInfo *>(msg->removeControlInfo());
-        IPvXAddress srcAddr = controlInfo->srcAddr();
-        IPvXAddress destAddr = controlInfo->destAddr();
-        delete controlInfo;
+        // get src/dest addresses
+        IPvXAddress srcAddr, destAddr;
+        if (dynamic_cast<IPControlInfo *>(tcpseg->controlInfo())!=NULL)
+        {
+            IPControlInfo *controlInfo = (IPControlInfo *)tcpseg->removeControlInfo();
+            srcAddr = controlInfo->srcAddr();
+            destAddr = controlInfo->destAddr();
+            delete controlInfo;
+        }
+        else if (dynamic_cast<IPv6ControlInfo *>(tcpseg->controlInfo())!=NULL)
+        {
+            IPv6ControlInfo *controlInfo = (IPv6ControlInfo *)tcpseg->removeControlInfo();
+            srcAddr = controlInfo->srcAddr();
+            destAddr = controlInfo->destAddr();
+            delete controlInfo;
+        }
+        else
+        {
+            error("(%s)%s arrived without control info", tcpseg->className(), tcpseg->name());
+        }
 
+        // process segment
         TCPConnection *conn = findConnForSegment(tcpseg, srcAddr, destAddr);
         if (!conn)
         {

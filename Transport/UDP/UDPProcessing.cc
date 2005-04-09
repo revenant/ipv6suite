@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2004 Andras Varga
+// Copyright (C) 2004,2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 
 //
 // Author: Jochen Reber
-// Cleanup and rewrite: Andras Varga 2004
+// Rewrite: Andras Varga 2004,2005
 //
 
 #include <omnetpp.h>
@@ -30,33 +30,16 @@
 #include "UDPProcessing.h"
 #include "IPControlInfo_m.h"
 #include "IPv6ControlInfo_m.h"
+#include "stlwatch.h"
 
 Define_Module( UDPProcessing );
 
 void UDPProcessing::initialize()
 {
-    applTable.size = gateSize("to_application");
-    applTable.port = new int[applTable.size];  // FIXME free it in dtor (or change to std::map)
+    // don't dispatch to apps (send everything to gate 0) if: only 1 app + no port bound
+    dispatchByPort = (gateSize("from_application")!=1);
 
-    // if there's only one app and without "local_port" parameter, don't dispatch
-    // incoming packets by port number.
-    if (applTable.size==1 && gate("to_application",0)->toGate() &&
-        gate("to_application",0)->toGate()->ownerModule()->hasPar("local_port")==false)
-    {
-        dispatchByPort = false;
-    }
-    else
-    {
-        dispatchByPort = true;
-        for (int i=0; i<applTable.size; i++)
-        {
-            // "local_port" parameter of connected app module
-            cGate *appgate = gate("to_application",i)->toGate();
-            applTable.port[i] = appgate ? appgate->ownerModule()->par("local_port") : -1;
-        }
-    }
-
-    WATCH(dispatchByPort);
+    WATCH_MAP(port2indexMap);
 
     numSent = 0;
     numPassedUp = 0;
@@ -73,15 +56,42 @@ void UDPProcessing::handleMessage(cMessage *msg)
     // received from IP layer
     if (msg->arrivedOn("from_ip") || msg->arrivedOn("from_ipv6"))
     {
-        processMsgFromIp(check_and_cast<UDPPacket *>(msg));
+        processMsgFromIP(check_and_cast<UDPPacket *>(msg));
     }
     else // received from application layer
     {
-        processMsgFromApp(msg);
+        if (msg->kind()==UDP_C_DATA)
+            processMsgFromApp(msg);
+        else
+            processCommandFromApp(msg);
     }
 
     if (ev.isGUI())
         updateDisplayString();
+}
+
+void UDPProcessing::bind(int gateIndex, int udpPort)
+{
+    dispatchByPort = false;
+    if (port2indexMap.find(udpPort)!=port2indexMap.end())
+        error("bind(): port %d already bound, to app on gate index %d", udpPort, port2indexMap[udpPort]);
+    port2indexMap[udpPort] = gateIndex;
+}
+
+void UDPProcessing::unbind(int gateIndex, int udpPort)
+{
+    IntMap::iterator it = port2indexMap.find(udpPort);
+    if (it!=port2indexMap.end())
+        port2indexMap.erase(it);
+}
+
+int UDPProcessing::findAppGateForPort(int destPort)
+{
+    if (!dispatchByPort)
+        return 0;
+
+    IntMap::iterator it = port2indexMap.find(destPort);
+    return it==port2indexMap.end() ? -1 : it->second;
 }
 
 void UDPProcessing::updateDisplayString()
@@ -96,7 +106,7 @@ void UDPProcessing::updateDisplayString()
     displayString().setTagArg("t",0,buf);
 }
 
-void UDPProcessing::processMsgFromIp(UDPPacket *udpPacket)
+void UDPProcessing::processMsgFromIP(UDPPacket *udpPacket)
 {
     // errorcheck, if applicable
     if (!udpPacket->checksumValid())
@@ -139,7 +149,7 @@ void UDPProcessing::processMsgFromIp(UDPPacket *udpPacket)
     }
     else
     {
-        error("(%s)%s arrived without control info", udpPacket->className(), udpPacket->name());
+        error("(%s)%s arrived from lower layer without control info", udpPacket->className(), udpPacket->name());
     }
 
     // send payload with UDPControlInfo up to the application
@@ -197,14 +207,23 @@ void UDPProcessing::processMsgFromApp(cMessage *appData)
     numSent++;
 }
 
-int UDPProcessing::findAppGateForPort(int destPort)
+void UDPProcessing::processCommandFromApp(cMessage *msg)
 {
-    if (!dispatchByPort)
-        return 0;
+    UDPControlInfo *udpControlInfo = check_and_cast<UDPControlInfo *>(msg->removeControlInfo());
+    switch (msg->kind())
+    {
+        case UDP_C_BIND:
+            bind(msg->arrivalGate()->index(), udpControlInfo->getSrcPort());
+            break;
+        case UDP_C_UNBIND:
+            unbind(msg->arrivalGate()->index(), udpControlInfo->getSrcPort());
+            break;
+        default:
+            error("unknown command code (message kind) %d received from app", msg->kind());
+    }
 
-    for (int i=0; i<applTable.size; i++)
-        if (applTable.port[i]==destPort)
-            return i;
-    return -1;
+    delete udpControlInfo;
+    delete msg;
 }
+
 

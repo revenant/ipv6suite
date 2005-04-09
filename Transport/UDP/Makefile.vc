@@ -145,6 +145,7 @@ UDPProcessing.obj: UDPProcessing.cc \
   UDPPacket.h \
   UDPProcessing.h \
   ../../Network/Generic/IPControlInfo_m.h \
+  ../../Network/Generic/IPv6ControlInfo_m.h \
   UDPPacket_m.h \
   UDPControlInfo_m.h \
   ../../Network/Generic/IPvXAddress.h \

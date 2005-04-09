@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
-// Copyright (C) 2004 Andras Varga
+// Copyright (C) 2004,2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,12 +20,13 @@
 
 //
 // Author: Jochen Reber
-// Cleanup and rewrite: Andras Varga 2004
+// Rewrite: Andras Varga 2004,2005
 //
 
 #ifndef __UDPPROCESSING_H__
 #define __UDPPROCESSING_H__
 
+#include <map>
 #include "IPControlInfo_m.h"
 #include "UDPControlInfo_m.h"
 
@@ -44,14 +45,9 @@ class UDPProcessing : public cSimpleModule
     // if false, all incoming packets are sent up on gate 0
     bool dispatchByPort;
 
-    // Maps "from_application" input gate indices to "local_port" parameters of the
-    // modules (applications) that are connected there.
-    struct UDPApplicationTable
-    {
-        int size;
-        int *port;  // array: port[index]=local_port
-    };
-    UDPApplicationTable applTable;
+    // Maps UDP ports to "from_application"/"to_application" gate indices.
+    typedef std::map<int,int> IntMap;
+    IntMap port2indexMap;
 
     int numSent;
     int numPassedUp;
@@ -63,13 +59,22 @@ class UDPProcessing : public cSimpleModule
     void updateDisplayString();
 
     // utility: look up destPort in applTable
-    virtual int findAppGateForPort(int destPort);
+    int findAppGateForPort(int destPort);
+
+    // bind UDP port to gate index
+    void bind(int gateIndex, int udpPort);
+
+    // remove binding
+    void unbind(int gateIndex, int udpPort);
 
     // process packets coming from IP
-    virtual void processMsgFromIp(UDPPacket *udpPacket);
+    virtual void processMsgFromIP(UDPPacket *udpPacket);
 
     // process packets from application
     virtual void processMsgFromApp(cMessage *appData);
+
+    // process commands from application
+    virtual void processCommandFromApp(cMessage *msg);
 
   public:
     Module_Class_Members(UDPProcessing, cSimpleModule, 0);

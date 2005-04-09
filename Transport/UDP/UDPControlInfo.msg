@@ -24,10 +24,29 @@ cplusplus {{
 
 class noncobject IPvXAddress;
 
+//
+// UDP command codes, sent by the application to UDP. These constants
+// should be set as message kind on a message sent to the UDP entity.
+// UDP_C_BIND (UDP_C_UNBIND) tells UDP that the app is interested
+// (no longer interested) in receiving UDP packets on the given port;
+// the message object is discarded, and only the control info's srcPort 
+// field is significant. 
+//
+// @see UDPControlInfo
+//
+enum UDPCommandCode
+{
+    UDP_C_DATA = 0;   // datagram to send (must carry UDPControlInfo)
+    UDP_C_BIND = 1;   // only UDPControlInfo's srcPort should be filled
+    UDP_C_UNBIND = 2; // only UDPControlInfo's srcPort should be filled
+};
+
 
 //
 // Control info for sending/receiving data via UDP. Travels between
 // application and UDPProcessing.
+//
+// @see UDPCommandCode
 //
 class UDPControlInfo
 {

@@ -31,22 +31,21 @@
 // UDPProcessing will also attach an UDPControlInfo object to any payload
 // message in sends up to the application.
 //
-// For receiving UDP packets, the connected applications should have
-// "local_port" parameters which specify the port number they're interested
-// in. One port can only belong to one app. Packets that don't match
-// any app will be dropped.
+// For receiving UDP packets, the connected applications should first
+// "bind" to the given UDP port. This can be done by sending an
+// arbitrary message with message kind UDP_C_BIND and an UDPControlInfo
+// attached with srcPort filled in.
 //
-//# FIXME change UDP to dynamic port registration by apps, like TCP! hardcoded 
-//# local_port parameter is not very flexible
-//
-// If there's only one app and without "local_port" parameter, that app
-// will receive all incoming packets regardless of destination port number.
+// If there is only one app which doesn't bind to any port, it will
+// receive all packets.
 //
 // <b>Communication with the \IP layer</b>
 //
 // The UDP model relies on sending and receiving IPControlInfo objects
 // attached to UDPPacket objects as control info
 // (see cMessage::setControlInfo()).
+//
+// @see UDPControlInfo, UDPCommandCode
 //
 simple UDPProcessing
     gates:

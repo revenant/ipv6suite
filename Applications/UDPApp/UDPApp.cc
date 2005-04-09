@@ -31,6 +31,17 @@ void UDPSink::initialize()
 {
     numReceived = 0;
     WATCH(numReceived);
+
+    int port = par("local_port");
+    if (port!=-1)
+    {
+        // bind ourselves to local_port in UDP
+        cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
+        UDPControlInfo *ctrl = new UDPControlInfo();
+        ctrl->setSrcPort(port);
+        msg->setControlInfo(ctrl);
+        send(msg, "to_udp");
+    }
 }
 
 void UDPSink::handleMessage(cMessage *msg)

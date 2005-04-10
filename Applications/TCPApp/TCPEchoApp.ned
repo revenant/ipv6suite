@@ -33,6 +33,8 @@
 // app sent a single 100 MB message, it will be echoed only when all 
 // 100 megabytes have arrived.
 //
+// Compatible with both IPv4 and IPv6.
+//
 simple TCPEchoApp
     parameters:
         address: string, // local address; may be left empty ("")

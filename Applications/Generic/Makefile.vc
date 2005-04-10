@@ -125,6 +125,7 @@ re-makemake: makefiles
 IPTrafGen.obj: IPTrafGen.cc \
   IPTrafGen.h \
   ../../Network/Generic/IPControlInfo_m.h \
+  ../../Network/Generic/IPv6ControlInfo_m.h \
   ../../Util/StringTokenizer.h \
   ../../Network/Generic/IPAddressResolver.h \
   ../../Network/Generic/IPvXAddress.h \

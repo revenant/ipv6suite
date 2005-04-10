@@ -31,20 +31,6 @@ import
 //
 module NetworkLayer6
     parameters:
-        // processing delay times
-        icmp_delay : numeric,
-        fragmentation_delay : numeric,
-        multicast_delay : numeric,
-        ipoutput_delay : numeric,
-        ipsend_delay : numeric,
-        iptunneling_delay : numeric,
-        localdeliver_delay : numeric,
-        prerouting_delay : numeric,
-        routing_delay : numeric,
-        inputqueue_delay : numeric,
-
-        // other network parameters
-        //# routingFile : string,
         IPForward : bool,
         numOfPorts : numeric;
     gates:
@@ -61,18 +47,6 @@ module NetworkLayer6
     submodules:
         proc: IPv6Processing;
             parameters:
-                // delay times
-                icmp_delay = icmp_delay,
-                fragmentation_delay = fragmentation_delay,
-                multicast_delay = multicast_delay,
-                ipoutput_delay = ipoutput_delay,
-                ipsend_delay = ipsend_delay,
-                iptunneling_delay = iptunneling_delay,
-                localdeliver_delay = localdeliver_delay,
-                prerouting_delay = prerouting_delay,
-                routing_delay = routing_delay,
-
-                // other parameters
                 // IPForward = IPForward,
                 numOfPorts = numOfPorts,
                 numOfTransportProt = 2,
@@ -84,12 +58,9 @@ module NetworkLayer6
                 queueOut[numOfPorts];
             display: "p=148,90;i=cogwheel";
         inputQueue: IPv6InputQueue;
-            parameters:
-                procDelay = inputqueue_delay;
             gatesizes:
                 fromNW[numOfPorts];
             display: "p=79,157;i=queue";
-
     connections nocheck:
         // transport Layer
         proc.transportOut[0] --> TCPOut;

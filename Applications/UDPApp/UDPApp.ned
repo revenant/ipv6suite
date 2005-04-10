@@ -32,9 +32,11 @@ endsimple
 
 //
 // Sends UDP packets to the given \IP address at the given interval.
+// Compatible with both IPv4 and IPv6.
+//
 // The interval can be a constant or a random value (e.g. exponential(1)).
 // If the dest_addresses parameter contains more than one address, one
-// of them is randomly for each packet. An address may be given in the
+// of them is randomly chosen for each packet. An address may be given in the
 // dotted decimal notation, or with the module name. (The IPAddressResolver
 // class is used to resolve the address.) To disable the model, set
 // dest_addresses to "".
@@ -43,6 +45,7 @@ endsimple
 // exactly like UDPSink).
 //
 //#FIXME change message length to BYTES
+//#FIXME rename this to UDPGenericApp
 //
 simple UDPApp
     parameters:

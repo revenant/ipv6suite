@@ -37,9 +37,7 @@
 
 
 /**
- * @class UDPApplication
- *
- * @brief Base class for all UDP simple modules
+ * Can be used as a base class for UDP-based app modules.
  *
  * For usage look at UDPVideoStream application. This allows all UDP apps to
  * share common port registering code

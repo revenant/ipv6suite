@@ -37,9 +37,10 @@ import
 //
 module UDPNode
     parameters:
+        udpAppType: string,
         IPForward : bool, //Added at higher level so can specify in Network Hierarchy ned file
                           //whether this node acts as a router.
-        numOfUDPApps: numeric;
+        numUdpApps: numeric;
     gates:
         in: in[];
         out: out[];
@@ -52,17 +53,6 @@ module UDPNode
             display: "p=260,190;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
-                // waiting times
-                icmp_delay = 0,
-                fragmentation_delay = 0.2 us,
-                multicast_delay = 0.5 us,
-                ipoutput_delay = 0,
-                ipsend_delay = 0,
-                iptunneling_delay = 0,
-                localdeliver_delay = 0,
-                prerouting_delay = 0.2 us,
-                routing_delay = 1 us,
-                inputqueue_delay = 0,
                 IPForward = ancestor IPForward,
                 numOfPorts = sizeof(in);
             gatesizes:
@@ -73,12 +63,12 @@ module UDPNode
             parameters:
                 nwi_delay = 0;
             display: "p=168,292;i=prot3";
-        udpLayer: UDPProcessing6;
+        udp: UDPProcessing6;
             gatesizes:
-                from_app[numOfUDPApps],
-                to_app[numOfUDPApps];
+                from_app[numUdpApps],
+                to_app[numUdpApps];
             display: "i=fork;p=160,152";
-        udpApps: UDPAppLayer[numOfUDPApps];
+        udpApps: udpAppType[numUdpApps] like UDPApp;
             display: "p=296,44;i=cogwheel";
         ping6App: Ping6App;
             display: "p=79,210;b=40,24";
@@ -110,12 +100,12 @@ module UDPNode
             phyLayer.linkIn[i] <-- linkLayers[i].physOut;
         endfor;
 
-        udpLayer.to_ip --> networkLayer.UDPIn;
-        udpLayer.from_ip <-- networkLayer.UDPOut;
+        udp.to_ip --> networkLayer.UDPIn;
+        udp.from_ip <-- networkLayer.UDPOut;
 
-        for i=0..numOfUDPApps-1 do
-            udpLayer.to_app[i] --> udpApps[i].physIn;
-            udpLayer.from_app[i] <-- udpApps[i].physOut;
+        for i=0..numUdpApps-1 do
+            udp.to_app[i] --> udpApps[i].from_udp;
+            udp.from_app[i] <-- udpApps[i].to_udp;
         endfor;
 
         ping6App.pingOut --> networkLayer.pingIn;

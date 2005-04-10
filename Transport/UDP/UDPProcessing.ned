@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004,2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +20,7 @@
 
 
 //
-// UDP protocol implementation.
+// UDP protocol implementation, for IPv4 and IPv6.
 //
 // The UDP protocol header is represented by the class UDPPacket.
 //
@@ -39,13 +40,13 @@
 // If there is only one app which doesn't bind to any port, it will
 // receive all packets.
 //
-// <b>Communication with the \IP layer</b>
+// <b>Communication with the \IP (IPv4/IPv6) layer</b>
 //
-// The UDP model relies on sending and receiving IPControlInfo objects
-// attached to UDPPacket objects as control info
+// The UDP model relies on sending and receiving IPControlInfo/IPv6ControlInfo
+// objects attached to UDPPacket objects as control info
 // (see cMessage::setControlInfo()).
 //
-// @see UDPControlInfo, UDPCommandCode
+// @see UDPPacket, UDPControlInfo, UDPCommandCode
 //
 simple UDPProcessing
     gates:

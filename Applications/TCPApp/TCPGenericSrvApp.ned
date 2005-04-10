@@ -32,6 +32,8 @@
 // back the same message object. The reply can be delayed by a constant time
 // (replyDelay parameter).
 //
+// Compatible with both IPv4 and IPv6.
+//
 simple TCPGenericSrvApp
     parameters:
         address: string, // local address; may be left empty ("")

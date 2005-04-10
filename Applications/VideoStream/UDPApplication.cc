@@ -18,16 +18,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-/**
- * @file   UDPApplication.cc
- * @author Johnny Lai
- * @date   25 May 2004
- *
- * @brief  Implementation of UDPApplication
- *
- *
- */
-
 //Headers for libcwd debug streams have to be first (remove if not used)
 #include "sys.h"
 #include "debug.h"
@@ -51,7 +41,7 @@ void UDPApplication::initialize()
     port = par("UDPPort");
   }
   address = (const char*) par("UDPServerAddress");
-  gateId = findGate("physOut");
+  gateId = findGate("to_udp");
   bindPort();
   bound = false;
 }

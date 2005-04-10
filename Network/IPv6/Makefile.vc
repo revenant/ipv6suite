@@ -72,10 +72,10 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= IPv6Datagram_m.obj IPv6InterfacePacket_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6InterfacePacketWithData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
+OBJS= IPv6Datagram_m.obj Constants.obj ErrorHandling6.obj HdrExtDestProc.obj HdrExtFragProc.obj HdrExtProc.obj HdrExtRteProc.obj ipv6_addr.obj IPv6Address.obj IPv6CDS.obj IPv6Datagram.obj IPv6Encapsulation.obj IPv6Forward.obj IPv6Fragmentation.obj IPv6Headers.obj IPv6InputQueue.obj IPv6InterfaceData.obj IPv6LocalDeliver.obj IPv6Mobility.obj IPv6Multicast.obj IPv6Output.obj IPv6PreRouting.obj IPv6Send.obj IPv6Utils.obj RoutingTable6.obj
 
 # header files generated (from msg files)
-GENERATEDHEADERS= IPv6Datagram_m.h IPv6InterfacePacket_m.h
+GENERATEDHEADERS= IPv6Datagram_m.h
 
 # subdirectories to recurse into
 SUBDIRS= 
@@ -105,12 +105,6 @@ IPv6Datagram_m.obj: IPv6Datagram_m.cc
 
 IPv6Datagram_m.cc IPv6Datagram_m.h: IPv6Datagram.msg
 	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPv6Datagram.msg
-
-IPv6InterfacePacket_m.obj: IPv6InterfacePacket_m.cc
-	$(CXX) -c $(NEDCOPTS) /Tp IPv6InterfacePacket_m.cc
-
-IPv6InterfacePacket_m.cc IPv6InterfacePacket_m.h: IPv6InterfacePacket.msg
-	$(MSGC:/=\) -s _m.cc $(INCLUDE_PATH) IPv6InterfacePacket.msg
 
 Constants.obj: Constants.cc
 	$(CXX) -c $(COPTS) /Tp Constants.cc
@@ -159,9 +153,6 @@ IPv6InputQueue.obj: IPv6InputQueue.cc
 
 IPv6InterfaceData.obj: IPv6InterfaceData.cc
 	$(CXX) -c $(COPTS) /Tp IPv6InterfaceData.cc
-
-IPv6InterfacePacketWithData.obj: IPv6InterfacePacketWithData.cc
-	$(CXX) -c $(COPTS) /Tp IPv6InterfacePacketWithData.cc
 
 IPv6LocalDeliver.obj: IPv6LocalDeliver.cc
 	$(CXX) -c $(COPTS) /Tp IPv6LocalDeliver.cc
@@ -3153,9 +3144,6 @@ IPv6InterfaceData.obj: IPv6InterfaceData.cc \
   ../../Util/boost/detail/lwm_win32_nt.hpp \
   ../../Util/boost/detail/lwm_nop.hpp \
   ./ipv6_addr.h
-IPv6InterfacePacket_m.obj: IPv6InterfacePacket_m.cc \
-  IPv6InterfacePacket_m.h
-IPv6InterfacePacketWithData.obj: IPv6InterfacePacketWithData.cc
 IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \

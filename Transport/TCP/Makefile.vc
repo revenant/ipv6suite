@@ -200,7 +200,6 @@ TCPConnectionBase.obj: TCPConnectionBase.cc \
   TCPConnection.h \
   TCPSegment.h \
   TCPCommand_m.h \
-  ../../Network/Generic/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
@@ -208,14 +207,12 @@ TCPConnectionBase.obj: TCPConnectionBase.cc \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
-  TCPSegment_m.h \
-  ../../Network/Generic/IPProtocolId_m.h
+  TCPSegment_m.h
 TCPConnectionEventProc.obj: TCPConnectionEventProc.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
   TCPCommand_m.h \
-  ../../Network/Generic/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
@@ -223,14 +220,12 @@ TCPConnectionEventProc.obj: TCPConnectionEventProc.cc \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
-  TCPSegment_m.h \
-  ../../Network/Generic/IPProtocolId_m.h
+  TCPSegment_m.h
 TCPConnectionRcvSegment.obj: TCPConnectionRcvSegment.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
   TCPCommand_m.h \
-  ../../Network/Generic/IPControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
@@ -238,14 +233,14 @@ TCPConnectionRcvSegment.obj: TCPConnectionRcvSegment.cc \
   ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
-  TCPSegment_m.h \
-  ../../Network/Generic/IPProtocolId_m.h
+  TCPSegment_m.h
 TCPConnectionUtil.obj: TCPConnectionUtil.cc \
   TCPMain.h \
   TCPConnection.h \
   TCPSegment.h \
   TCPCommand_m.h \
   ../../Network/Generic/IPControlInfo_m.h \
+  ../../Network/Generic/IPv6ControlInfo_m.h \
   TCPSendQueue.h \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
@@ -257,7 +252,6 @@ TCPConnectionUtil.obj: TCPConnectionUtil.cc \
   ../../Network/Generic/IPProtocolId_m.h
 TCPDump.obj: TCPDump.cc \
   TCPDump.h \
-  ../../Network/Generic/IPControlInfo_m.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Network/IPv4/IPDatagram_m.h \
   TCPSegment.h \
@@ -272,6 +266,7 @@ TCPMain.obj: TCPMain.cc \
   TCPSegment.h \
   TCPCommand_m.h \
   ../../Network/Generic/IPControlInfo_m.h \
+  ../../Network/Generic/IPv6ControlInfo_m.h \
   ../../Util/stlwatch.h \
   ../../Network/Generic/IPvXAddress.h \
   ../../Base/inetdefs.h \

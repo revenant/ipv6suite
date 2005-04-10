@@ -17,6 +17,8 @@ Applications/TCPApp/TCPSinkApp.ned
 Applications/TCPApp/TCPSrvHostApp.ned
 Applications/TCPApp/TelnetApp.ned
 Applications/UDPApp/UDPApp.ned
+Applications/VideoStream/UDPVideoStream.ned
+Applications/VideoStream/UDPVideoStreamSvr.ned
 Base/Blackboard.ned
 Base/Join.ned
 Base/Nop.ned
@@ -158,7 +160,6 @@ Transport/RTP/RTPProfile.ned
 Transport/TCP/TCPDump.ned
 Transport/TCP/TCPMain.ned
 Transport/UDP/UDPProcessing.ned
-Transport/UDP6/UDPApplication.ned
 Transport/UDP6/UDPProcessing6.ned
 Util/Topology/ClosedQueueingNetwork.ned
 Util/Topology/DynamicTopology.ned

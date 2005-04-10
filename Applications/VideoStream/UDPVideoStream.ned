@@ -23,11 +23,11 @@
 //
 simple UDPVideoStream
     parameters:
-	UDPServerAddress: string, 
-	UDPPort: numeric, // server port
-   	startTime;
+        UDPServerAddress: string,
+        UDPPort: numeric, // server port
+        startTime: numeric;
     gates:
-        in: physIn; 
-        out: physOut; 
+        in: from_udp;
+        out: to_udp;
 endsimple
 

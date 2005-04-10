@@ -18,6 +18,19 @@
 
 
 //
+// @page ipaddresses.html, Specifying IP (IPv6) addresses in module parameters
+// 
+// IP vs. IPv6: it's important to know that in the INET Framework, 
+// TCP, UDP and any application model that builds on them work
+// with both IPv4 and IPv6. This is automatic -- it would require
+// extra effort from any programmer to create an application model
+// that works only over IPv4 or over IPv6.
+//
+// Most modules use the IPAddressResolver class to resolve addresses.
+// It accepts the following syntax:
+//#FIXME TBD
+//
+//
 // @page irt.html, The routing files
 //
 // Routing files are files with <tt>.irt</tt> or <tt>.mrt</tt> extension,

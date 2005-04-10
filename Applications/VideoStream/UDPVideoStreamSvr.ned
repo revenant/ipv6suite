@@ -23,15 +23,15 @@
 //
 simple UDPVideoStreamSvr
     parameters:
-	UDPPort: numeric, // port to listen on
-	minWaitInt: numeric,
-	maxWaitInt: numeric,
-	minPacketLen: numeric,
-	maxPacketLen: numeric,
-	videoSize: numeric,
-	speed: numeric;	   
+        UDPPort: numeric, // port to listen on
+        minWaitInt: numeric,
+        maxWaitInt: numeric,
+        minPacketLen: numeric,
+        maxPacketLen: numeric,
+        videoSize: numeric,
+        speed: numeric;
     gates:
-        in: physIn; 
-        out: physOut; 
+        in: from_udp;
+        out: to_udp;
 endsimple
 

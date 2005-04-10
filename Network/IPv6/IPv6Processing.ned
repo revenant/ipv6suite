@@ -44,17 +44,6 @@ import
 //
 module IPv6Processing
     parameters:
-        // processing delay times
-        icmp_delay : numeric,
-        fragmentation_delay : numeric,
-        multicast_delay : numeric,
-        ipoutput_delay : numeric,
-        ipsend_delay : numeric,
-        iptunneling_delay : numeric,
-        localdeliver_delay : numeric,
-        prerouting_delay : numeric,
-        routing_delay : numeric const,
-
         // other parameters
         multicastTimeToLive : numeric,
         numOfPorts : numeric,
@@ -70,36 +59,27 @@ module IPv6Processing
         out: errorOut;
     submodules:
         preRouting: IPv6PreRouting;
-            parameters:
-                procDelay = prerouting_delay;
             display: "p=59,125;i=prot3;q=queue";
         forwarding: IPv6Forward;
-            parameters:
-                procDelay = routing_delay;
             display: "p=146,217;i=bwgen;q=queue";
         localDeliver: IPv6LocalDeliver;
             parameters:
-                procDelay = localdeliver_delay,
                 numOfTransportProt = numOfTransportProt,
                 fragmentTimeout = fragmentTimeout;
             gatesizes:
                 transportOut[numOfTransportProt];
             display: "p=130,51;i=fork";
         multicast: IPv6Multicast;
-            parameters:
-                procDelay = multicast_delay;
             display: "p=226,106;i=bwgen_s";
         ICMP: ICMPv6;
             parameters:
-                numOfPorts = numOfPorts,
-                procDelay = icmp_delay;
+                numOfPorts = numOfPorts;
             gatesizes:
                 ipOutputIn[numOfPorts],
                 outputOut[numOfPorts];
             display: "p=293,69;i=cogwheel";
         send: IPv6Send;
             parameters:
-                procDelay = ipsend_delay,
                 multicastTimeToLive = multicastTimeToLive,
                 numOfTransportProt = numOfTransportProt;
             gatesizes:
@@ -107,14 +87,11 @@ module IPv6Processing
             display: "p=439,59;i=prot1;q=queue";
         fragmentation: IPv6Fragmentation;
             parameters:
-                procDelay = fragmentation_delay,
                 numOfPorts = numOfPorts;
             gatesizes:
                 outputOut[numOfPorts];
             display: "p=428,195;i=bwxconn;q=queue";
         output: IPv6Output[numOfPorts];
-            parameters:
-                procDelay = ipoutput_delay;
             display: "p=302,282,r;i=prot2;q=queue";
         routingTable6: RoutingTable6;
             display: "p=490,120;i=box3";
@@ -125,8 +102,6 @@ module IPv6Processing
                 outputOut[numOfPorts];
             display: "p=193,280;i=queue";
         tunneling: IPv6Encapsulation;
-            parameters:
-                procDelay = iptunneling_delay;
             display: "p=274,182;i=bwxcon_s";
         mobility: IPv6Mobility;
             display: "p=60,268;i=cogwheel";

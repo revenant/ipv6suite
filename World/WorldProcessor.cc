@@ -82,15 +82,11 @@ void WorldProcessor::initialize(int stage)
 {
   if (stage == 0)
   {
-    const char* filename = par("IPv6routingFile");
+    cXMLElement *config = par("IPv6routingFile");
 
-    // Read routing table file once only
-    if (filename[0] != '\0')
-    {
-      parser = new XMLConfiguration::XMLOmnetParser();
-      parser->parseFile(filename);
-      //XXX Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
-    }
+    parser = new XMLConfiguration::XMLOmnetParser();
+    parser->setDoc(config);
+    //XXX Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
 
 #ifdef USE_MOBILITY
     _maxLongitude = par("max_longitude").longValue();

@@ -82,7 +82,7 @@ namespace XMLConfiguration
 {
 
 XMLOmnetParser::XMLOmnetParser():
-  _filename(""), _version(0), root(0)
+  _version(0), root(0)
 {
 }
 
@@ -92,6 +92,7 @@ XMLOmnetParser::~XMLOmnetParser()
   //omnet will clean up too
 }
 
+/*XXX replaced by setDoc()
 void XMLOmnetParser::parseFile(const char* filename)
 {
   if(!filename || '\0' == filename[0])
@@ -101,6 +102,12 @@ void XMLOmnetParser::parseFile(const char* filename)
   }
   _filename = filename;
   root = ev.getXMLDocument(filename);
+}
+*/
+
+void XMLOmnetParser::setDoc(cXMLElement *config)
+{
+  root = config;
 }
 
 std::string XMLOmnetParser::getNodeProperties(const cXMLElement* netNode, const char* attrName, bool required) const
@@ -359,13 +366,6 @@ void XMLOmnetParser::sourceRoute(InterfaceTable *ift, RoutingTable6 *rt)
 
 void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
 {
-  static bool printXMLFile = false;
-  if (!printXMLFile)
-  {
-    Dout(dc::notice, "XML Configuration file is "<<_filename);
-    printXMLFile = true;
-  }
-
   //const xml::node ne = *getNetNode(rt->nodeName());
   cXMLElement* ne = getNetNode(rt->nodeName());
   if (!ne)

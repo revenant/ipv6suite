@@ -39,13 +39,16 @@
 #include "UDPVideoStream.h"
 #include "UDPMessages_m.h"
 
-Define_Module_Like(UDPVideoStream, UDPApplication);
+Define_Module(UDPVideoStream);
 
 using std::endl;
 
 void UDPVideoStream::initialize()
 {
+  server = false; // must be before we invoke base class (this is bad design, but udpapplication needs to be rewritten anyway)
   UDPApplication::initialize();
+
+  address = (const char*) par("UDPServerAddress");
 
   //server Address from UDPApplication
 

@@ -75,6 +75,7 @@ protected:
 private:
   cOutVector eed;
 
+  std::string address;
 
   unsigned int svrPort;
   double startTime;

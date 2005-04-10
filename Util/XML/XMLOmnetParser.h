@@ -73,7 +73,8 @@ class XMLOmnetParser
 
   //@}
 
-  void parseFile(const char* filename);
+  //void parseFile(const char* filename);
+  void setDoc(cXMLElement *config);
 
   ///Make sure that such an attribute exists (required) otherwise will abort
   std::string getNodeProperties(const cXMLElement* netNode, const char* attrName, bool required = true) const;
@@ -167,8 +168,6 @@ class XMLOmnetParser
 
   XMLOmnetParser& operator=(XMLOmnetParser& src);
   //@}
-
-  std::string _filename;
 
   mutable unsigned int _version;
 

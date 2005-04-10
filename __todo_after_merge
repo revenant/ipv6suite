@@ -1,8 +1,6 @@
 
 - change GPL to LGPL
 - switch IPv6 models from counting in BYTES to counting in BITS!!!
-- IPv6Address --> IPv6AddressWithLifetime
-- ipv6_addr ---> IPv6Address
 - Ping6PayloadPacket: strip a controlInfo from it
 
 - write DISCLAIMER.txt: this is work in progress!
@@ -10,3 +8,5 @@
 
 TODO:
 - IPAddressResolver: should recognize "<modulename>#interface/ipv6"
+- change videoapp to use UDP not UDP6
+- add TCP into IPv6 nodes

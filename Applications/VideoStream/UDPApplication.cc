@@ -35,12 +35,11 @@ Define_Module(UDPApplication);
 
 void UDPApplication::initialize()
 {
-  server = par("server");
+  // server = par("server"); -- BASE CLASS SHOULD SET THE "SERVER" PARAM BEFORE CALLING US!! THIS IS BAD DESIGN, BUT UDPAPPLICATION NEEDS TO BE REWRITTEN ANYWAY
   if (server)
   {
     port = par("UDPPort");
   }
-  address = (const char*) par("UDPServerAddress");
   gateId = findGate("to_udp");
   bindPort();
   bound = false;

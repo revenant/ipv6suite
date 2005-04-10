@@ -40,12 +40,13 @@
 #include "opp_akaroa.h"
 #include "opp_utils.h" //auto_downcast
 
-Define_Module_Like(UDPVideoStreamSvr, UDPApplication);
+Define_Module(UDPVideoStreamSvr);
 
 using std::endl;
 
 void UDPVideoStreamSvr::initialize()
 {
+  server = true; // must be before we invoke base class (this is bad design, but udpapplication needs to be rewritten anyway)
   UDPApplication::initialize();
   assert(server == true);
   //Leave address for now but can be used for listening on certain interfaces

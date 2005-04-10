@@ -66,7 +66,6 @@ protected:
   void bindPort();
   bool isReady() const { return bound; }
 
-  std::string address;
   unsigned int port;
   bool server;
 

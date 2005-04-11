@@ -54,7 +54,7 @@ void UDPVideoStreamSvr::handleMessage(cMessage *msg)
     if (msg->isSelfMessage())
     {
         // timer for a particular video stream expired, send packet
-        transmitClientStream(msg);
+        sendVideoData(msg);
     }
     else
     {
@@ -80,11 +80,11 @@ void UDPVideoStreamSvr::processStreamRequest(cMessage *msg)
     timer->setContextPointer(d);
 
     // ... then transmit first packet right away
-    transmitClientStream(timer);
+    sendVideoData(timer);
 }
 
 
-void UDPVideoStreamSvr::transmitClientStream(cMessage *timer)
+void UDPVideoStreamSvr::sendVideoData(cMessage *timer)
 {
     VideoStreamData *d = (VideoStreamData *) timer->contextPointer();
 
@@ -99,7 +99,7 @@ void UDPVideoStreamSvr::transmitClientStream(cMessage *timer)
     d->bytesLeft =- pktLen;
 
     // reschedule timer if there's bytes left to send
-    if (d->bytesLeft==0)
+    if (d->bytesLeft!=0)
     {
         double interval = (*waitInterval);
         scheduleAt(simTime()+interval, timer);

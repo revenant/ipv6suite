@@ -65,7 +65,7 @@ class UDPVideoStreamSvr : public UDPAppBase
     void processStreamRequest(cMessage *msg);
 
     // send a packet of the given video stream
-    void transmitClientStream(cMessage *timer);
+    void sendVideoData(cMessage *timer);
 
   public:
     Module_Class_Members(UDPVideoStreamSvr, UDPAppBase, 0);

@@ -45,4 +45,19 @@ void UDPAppBase::sendToUDP(cMessage *msg, int srcPort, const IPvXAddress& destAd
     send(msg, "to_udp");
 }
 
+void UDPAppBase::printPacket(cMessage *msg)
+{
+    UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
+
+    IPvXAddress src = ctrl->getSrcAddr();
+    IPvXAddress dest = ctrl->getDestAddr();
+    int sentPort = ctrl->getSrcPort();
+    int recPort = ctrl->getDestPort();
+
+    ev  << msg << endl;
+    ev  << "Payload length: " << (msg->length()/8) << " bytes" << endl;
+    ev  << "Src/Port: " << src << " :" << sentPort << "  ";
+    ev  << "Dest/Port: " << dest << ":" << recPort << endl;
+}
+
 

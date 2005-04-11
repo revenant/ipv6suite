@@ -1,5 +1,6 @@
 //
-// Copyright (C) 2005 Andras Varga
+// Copyright (C) 2004 Andras Varga
+// Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,35 +18,27 @@
 //
 
 
-#ifndef __UDPAPPBASE_H__
-#define __UDPAPPBASE_H__
+#ifndef __UDPSINK_H__
+#define __UDPSINK_H__
 
 #include <omnetpp.h>
-#include "IPvXAddress.h"
+#include "UDPAppBase.h"
 
 
 /**
- * Contains a few utility functions as protected methods, for sending
- * and receiving UDP packets.
+ * Consumes and prints packets received from the UDP module. See NED for more info.
  */
-class UDPAppBase : public cSimpleModule
+class UDPSink : public UDPAppBase
 {
   protected:
-    /**
-     * Tells UDP we want to get all packets arriving on the given port
-     */
-    virtual void bindToPort(int port);
+    int numReceived;
 
-    /**
-     * Sends a packet over UDP
-     */
-    virtual void sendToUDP(cMessage *msg, int srcPort, const IPvXAddress& destAddr, int destPort);
+    virtual void processPacket(cMessage *msg);
 
-    /**
-     * Prints a brief about packets having an attached UDPControlInfo
-     * (i.e. those which just arrived from UDP, or about to be send to UDP).
-     */
-    virtual void printPacket(cMessage *msg);
+  public:
+    Module_Class_Members(UDPSink, UDPAppBase, 0);
+    virtual void initialize();
+    virtual void handleMessage(cMessage *msg);
 };
 
 

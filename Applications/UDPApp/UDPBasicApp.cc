@@ -18,18 +18,18 @@
 
 
 #include <omnetpp.h>
-#include "UDPApp.h"
+#include "UDPBasicApp.h"
 #include "UDPControlInfo_m.h"
 #include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 
 
 
-Define_Module(UDPApp);
+Define_Module(UDPBasicApp);
 
-int UDPApp::counter;
+int UDPBasicApp::counter;
 
-void UDPApp::initialize(int stage)
+void UDPBasicApp::initialize(int stage)
 {
     // because of IPAddressResolver, we need to wait until interfaces are registered,
     // address auto-assignment takes place etc.
@@ -38,7 +38,9 @@ void UDPApp::initialize(int stage)
 
     counter = 0;
     numSent = 0;
+    numReceived = 0;
     WATCH(numSent);
+    WATCH(numReceived);
 
     localPort = par("local_port");
     destPort = par("dest_port");
@@ -59,16 +61,16 @@ void UDPApp::initialize(int stage)
     scheduleAt((double)par("message_freq"), timer);
 }
 
-IPvXAddress UDPApp::chooseDestAddr()
+IPvXAddress UDPBasicApp::chooseDestAddr()
 {
     int k = intrand(destAddresses.size());
     return destAddresses[k];
 }
 
-void UDPApp::sendPacket()
+void UDPBasicApp::sendPacket()
 {
     char msgName[32];
-    sprintf(msgName,"udpAppData-%d", counter++);
+    sprintf(msgName,"UDPBasicAppData-%d", counter++);
 
     cMessage *payload = new cMessage(msgName);
     payload->setLength(msgLength);
@@ -79,7 +81,7 @@ void UDPApp::sendPacket()
     numSent++;
 }
 
-void UDPApp::handleMessage(cMessage *msg)
+void UDPBasicApp::handleMessage(cMessage *msg)
 {
     if (msg->isSelfMessage())
     {
@@ -101,4 +103,13 @@ void UDPApp::handleMessage(cMessage *msg)
     }
 }
 
+
+void UDPBasicApp::processPacket(cMessage *msg)
+{
+    ev << "Received packet: ";
+    printPacket(msg);
+    delete msg;
+
+    numReceived++;
+}
 

@@ -18,18 +18,18 @@
 //
 
 
-#ifndef __UDPAPP_H__
-#define __UDPAPP_H__
+#ifndef __UDPBasicApp_H__
+#define __UDPBasicApp_H__
 
 #include <vector>
 #include <omnetpp.h>
-#include "UDPAppBase.h"
+#include "UDPBasicAppBase.h"
 
 
 /**
  * UDP application. See NED for more info.
  */
-class UDPApp : public UDPAppBase
+class UDPBasicApp : public UDPBasicAppBase
 {
   protected:
     std::string nodeName;
@@ -40,13 +40,15 @@ class UDPApp : public UDPAppBase
     static int counter; // counter for generating a global number for each packet
 
     int numSent;
+    int numReceived;
 
     // chooses random destination address
     virtual IPvXAddress chooseDestAddr();
     virtual void sendPacket();
+    virtual void processPacket(cMessage *msg);
 
   public:
-    Module_Class_Members(UDPApp, UDPAppBase, 0);
+    Module_Class_Members(UDPBasicApp, UDPBasicAppBase, 0);
     virtual int numInitStages() const {return 4;}
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);

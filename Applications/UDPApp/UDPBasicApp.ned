@@ -29,13 +29,12 @@
 // class is used to resolve the address.) To disable the model, set
 // dest_addresses to "".
 //
-// The peer can be UDPSink or another UDPApp (it handles received packets
+// The peer can be UDPSink or another UDPBasicApp (it handles received packets
 // exactly like UDPSink).
 //
 //#FIXME change message length to BYTES
-//#FIXME rename this to UDPGenericApp
 //
-simple UDPApp
+simple UDPBasicApp
     parameters:
         local_port : numeric const, // if -1, app doesn't bind in UDP
         dest_port : numeric const,

@@ -20,12 +20,25 @@
 //
 // Video stream server. To be used with UDPVideoStreamCli.
 //
+// The server will wait for incoming "video streaming requests".
+// When a request arrives, it draws a random video stream size
+// using the videoSize parameter, and starts streaming to the client.
+// During streaming, it will send UDP packets of size packetLen at every
+// waitInterval, until videoSize is reached. The parameters packetLen
+// and waitInterval can be set to constant values to create CBR traffic,
+// or to random values (e.g. waitInterval=uniform(1e-6, 1.01e-6)) to
+// accomodate jitter.
+//
+// The server can serve several clients, and several streams per client.
+//
+// @see UDPVideoStreamCli
+//
 simple UDPVideoStreamSvr
     parameters:
         udpPort: numeric const, // port to listen on
-        waitInterval: numeric,
-        packetLen: numeric,
-        videoSize: numeric;
+        waitInterval: numeric,  // can be random, to accomodate jitter
+        packetLen: numeric,     // bytes; can be random
+        videoSize: numeric;     // bytes; can be random
     gates:
         in: from_udp;
         out: to_udp;

@@ -17,70 +17,43 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
+#ifndef _UDPVIDEOSTREAM_H
+#define _UDPVIDEOSTREAM_H
 
-/**
- * @file UDPVideoStream.h
- * @author Johnny Lai
- * @date 25 May 2004
- *
- * @brief Definitition of class UDPVideoStream
- *
- * @test see UDPVideoStreamTest
- *
- * @todo Remove template text
- */
-
-#ifndef UDPVIDEOSTREAM_H
-#define UDPVIDEOSTREAM_H
-
-#ifndef __OMNETPP_H
 #include <omnetpp.h>
-#endif //__OMNETPP_H
-
-#ifndef UDPAPPLICATION_H
-#include "UDPApplication.h"
-#endif //UDPAPPLICATION_H
+#include "UDPAppBase.h"
 
 /**
- * @class UDPVideoStream
- *
- * @brief "Realtime" VideoStream client application
+ * A "Realtime" VideoStream client application.
  *
  * Basic video stream application. Clients connect to server and get a stream of
  * video back.
  */
-
-class UDPVideoStream: public UDPApplication
+class UDPVideoStreamCli : public UDPAppBase
 {
 public:
-  friend class UDPVideoStreamTest;
-
-  Module_Class_Members(UDPVideoStream, UDPApplication, 0);
+  Module_Class_Members(UDPVideoStreamCli, UDPAppBase, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
   virtual void initialize();
-
   virtual void finish();
-
   virtual void handleMessage(cMessage* msg);
   //@}
 
 protected:
-
   void requestStream();
   void receiveStream(cMessage* msg);
 
 private:
+  // statistics
   cOutVector eed;
-
-  std::string address;
-
-  unsigned int svrPort;
-  double startTime;
 };
 
 
-#endif /* UDPVIDEOSTREAM_H */
+#endif
+
+
 

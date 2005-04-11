@@ -64,8 +64,8 @@ OBJS=
 GENERATEDHEADERS= 
 
 # subdirectories to recurse into
-SUBDIRS= Ethernet Generic MLD Ping6 PingApp TCPApp UDPApp VideoStream
-SUBDIR_TARGETS=  Ethernet_dir Generic_dir MLD_dir Ping6_dir PingApp_dir TCPApp_dir UDPApp_dir VideoStream_dir
+SUBDIRS= Ethernet Generic MLD Ping6 PingApp TCPApp UDPApp
+SUBDIR_TARGETS=  Ethernet_dir Generic_dir MLD_dir Ping6_dir PingApp_dir TCPApp_dir UDPApp_dir
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -97,9 +97,6 @@ TCPApp_dir:
 
 UDPApp_dir:
 	cd UDPApp && cd && nmake /nologo /f Makefile.vc
-
-VideoStream_dir:
-	cd VideoStream && cd && nmake /nologo /f Makefile.vc
 
 
 #doc: neddoc doxy

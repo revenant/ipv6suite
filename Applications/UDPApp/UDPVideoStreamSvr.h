@@ -16,65 +16,33 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
-
-/**
- * @file UDPVideoStreamSvr.h
- * @author Johnny Lai
- * @date 01 Jun 2004
- *
- * @brief Definitition of class UDPVideoStreamSvr
- *
- * Video stream server capable of VBR streaming
- *
- */
 
 #ifndef UDPVIDEOSTREAMSVR_H
 #define UDPVIDEOSTREAMSVR_H
 
-#ifndef __OMNETPP_H
-#include <omnetpp.h>
-#endif //__OMNETPP_H
-
-#ifndef VECTOR
-#define VECTOR
 #include <vector>
-#endif //VECTOR
-
-#ifndef MAP
-#define MAP
 #include <map>
-#endif //MAP
-
-#ifndef STRING
-#define STRING
 #include <string>
-#endif //STRING
-
-#ifndef UDPAPPLICATION_H
-#include "UDPApplication.h"
-#endif //UDPAPPLICATION_H
-
-#ifndef EXPIRYENTRYLIST_H
+#include <omnetpp.h>
+#include "UDPApplBase.h"
 #include "ExpiryEntryList.h"
-#endif //EXPIRYENTRYLIST_H
+
 
 /**
- * @class UDPVideoStreamSvr
+ * Stream VBR video streams to clients.
  *
- * @brief Stream VBR video streams to clients
- *
- * Implements the UDPApplication interface and cooperates with UDPVideoStream.
- * UDPVideoStream requests a stream and UDPVideoStreamSvr starts streaming to
+ * Implements the UDPApplBase interface and cooperates with UDPVideoStreamCli.
+ * UDPVideoStreamCli requests a stream and UDPVideoStreamSvr starts streaming to
  * them. Capable of handling streaming to multiple clients.
- * 
+ *
  */
-
-class UDPVideoStreamSvr: public UDPApplication
+class UDPVideoStreamSvr: public UDPApplBase
 {
 public:
-  
-  Module_Class_Members(UDPVideoStreamSvr, UDPApplication, 0);
+
+  Module_Class_Members(UDPVideoStreamSvr, UDPApplBase, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -111,7 +79,7 @@ private:
        packetCount(0)
       {}
 
-    ///peer host ID (IPv6 address) 
+    ///peer host ID (IPv6 address)
     std::string host;
     ///peer port
     unsigned int port;
@@ -124,7 +92,7 @@ private:
     bool operator==(const ClientStreamData& rhs) const
       {
         return this->port == rhs.port && this->host == rhs.host;
-      }    
+      }
   };
 
   //  std::map<std::string, ClientStreamData> cs;
@@ -143,4 +111,6 @@ private:
 };
 
 
-#endif /* UDPVIDEOSTREAMSVR_H */
+#endif
+
+

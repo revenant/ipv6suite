@@ -16,17 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
-
-/**
- * @file   UDPVideoStreamSvr.cc
- * @author Johnny Lai
- * @date   01 Jun 2004
- *
- * @brief  Implementation of UDPVideoStreamSvr
- *
- *
- */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
 #include "sys.h"
@@ -47,7 +38,7 @@ using std::endl;
 void UDPVideoStreamSvr::initialize()
 {
   server = true; // must be before we invoke base class (this is bad design, but udpapplication needs to be rewritten anyway)
-  UDPApplication::initialize();
+  UDPApplBase::initialize();
   assert(server == true);
   //Leave address for now but can be used for listening on certain interfaces
   //only
@@ -88,7 +79,7 @@ void UDPVideoStreamSvr::handleMessage(cMessage* theMsg)
   std::auto_ptr<cMessage> msg(theMsg);
   if (!isReady())
   {
-    UDPApplication::handleMessage(msg.get());
+    UDPApplBase::handleMessage(msg.get());
     return;
   }
 

@@ -16,113 +16,61 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+//
 
 
-/**
- * @file   UDPVideoStream.cc
- * @author Johnny Lai
- * @date   25 May 2004
- *
- * @brief  Implementation of UDPVideoStream
- *
- */
+#include "UDPVideoStreamCli.h"
+#include "IPAddressResolver.h"
 
-//Headers for libcwd debug streams have to be first (remove if not used)
-#include "sys.h"
-#include "debug.h"
 
-#include <iostream>
-#include <sstream>
-#include <boost/cast.hpp>
-#include <memory> //auto_ptr
+Define_Module(UDPVideoStreamCli);
 
-#include "UDPVideoStream.h"
-#include "UDPMessages_m.h"
 
-Define_Module(UDPVideoStream);
-
-using std::endl;
-
-void UDPVideoStream::initialize()
+void UDPVideoStreamCli::initialize()
 {
-  server = false; // must be before we invoke base class (this is bad design, but udpapplication needs to be rewritten anyway)
-  UDPApplication::initialize();
+    eed.setName("video stream eed");
+    double startTime = par("startTime");
 
-  address = (const char*) par("UDPServerAddress");
-
-  //server Address from UDPApplication
-
-  if (!server)
-    svrPort = par("UDPPort");
-
-  startTime = par("startTime");
-
-  Dout(dc::udp_video_svr, fullPath()<<" pars for app "<<className()
-       <<" startTime="<<startTime<<" svrPort="<<svrPort);
-
-  if (startTime != 0)
-    scheduleAt(startTime, new cMessage("UDPVideoStreamStart"));
+    if (startTime>=0)
+        scheduleAt(startTime, new cMessage("UDPVideoStreamStart"));
 }
 
-void UDPVideoStream::finish()
+void UDPVideoStreamCli::finish()
 {
 }
 
-void UDPVideoStream::handleMessage(cMessage* theMsg)
+void UDPVideoStreamCli::handleMessage(cMessage* msg)
 {
-  std::auto_ptr<cMessage> msg(theMsg);
-  if (msg->isSelfMessage())
-  {
-    if (isReady())
-      requestStream();
+    if (msg->isSelfMessage())
+    {
+        delete msg;
+        requestStream();
+    }
     else
-      Dout(dc::udp|dc::warning, fullPath()<<" Trying to send when port was not bound");
-    return;
-  }
-
-  if (!isReady())
-  {
-    UDPApplication::handleMessage(msg.get());
-    return;
-  }
-
-  if (!eed.valuesStored())
-  {
-    std::ostringstream os;
-    os<<className()<<":"<<port<<" eed";
-    eed.setName(os.str().c_str());
-  }
-  receiveStream(msg.get());
+    {
+        receiveStream(msg);
+    }
 }
 
-void UDPVideoStream::requestStream()
+void UDPVideoStreamCli::requestStream()
 {
-  UDPPacketBase* udpPkt = new UDPPacketBase;
-  udpPkt->setSrcPort(port);
-  udpPkt->setDestPort(svrPort);
-  UDPAppInterfacePacket* pkt = new UDPAppInterfacePacket;
-  pkt->setKind(KIND_DATA);
-  pkt->setDestIPAddr(c_ipv6_addr(address.c_str()));
-  pkt->setName("reqVidStm");
-  pkt->encapsulate(udpPkt);
-  send(pkt, gateId);
-  Dout(dc::udp_video_svr, fullPath()<<" requesting video stream from "
-       <<pkt->getDestIPAddr()<<":"<<svrPort);
+    int svrPort = par("serverPort");
+    int localPort = par("localPort");
+    const char *address = par("serverAddress");
+    IPvXAddress svrAddr = IPAddressResolver().resolve(address);
+
+    ev << "Requesting video stream from " << svrAddr << ":" << svrPort << "\n";
+
+    bindToPort(localPort);
+
+    cMessage *msg = new cMessage("VideoStrmReq");
+    sendToUDP(msg, localPort, svrAddr, svrPort);
 }
 
-void UDPVideoStream::receiveStream(cMessage* msg)
+void UDPVideoStreamCli::receiveStream(cMessage* msg)
 {
-   UDPAppInterfacePacket* pkt =
-     check_and_cast<UDPAppInterfacePacket*>(msg);
-   UDPPacketBase* udpPkt =
-     check_and_cast<UDPPacketBase*>(pkt->encapsulatedMsg());
-   assert(port == udpPkt->getDestPort());
-   Dout(dc::udp_video_svr|flush_cf, className()<<":"<<port<<" received packet from "
-    <<pkt->getSrcIPAddr()<<":"<<udpPkt->getSrcPort()<<" len="<<udpPkt->length());
-   eed.record(simTime() - udpPkt->timestamp());
-
-   //Check for ending kind in udpPkt
-   if (udpPkt->kind() == 0)
-     callFinish();
+    ev << "Video stream packet:\n";
+    printPacket(msg);
+    eed.record(simTime() - msg->timestamp());
 }
 

@@ -16,15 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+//
 
 //
 // Video stream client
 //
-simple UDPVideoStream
+simple UDPVideoStreamCli
     parameters:
-        UDPServerAddress: string,
-        UDPPort: numeric, // server port
+        localPort: numeric,
+        serverAddress: string,
+        serverPort: numeric,
         startTime: numeric;
     gates:
         in: from_udp;

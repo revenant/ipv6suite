@@ -1,14 +1,12 @@
 //
-// Copyright (C) 2002 Johnny Lai
+// Copyright (C) 2005 Andras Varga
 //
-// This file is part of IPv6Suite
-//
-// IPv6Suite is free software; you can redistribute it and/or
+// This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-// IPv6Suite is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -20,17 +18,14 @@
 
 
 //
-// Video stream server
+// Video stream server. To be used with UDPVideoStreamCli.
 //
 simple UDPVideoStreamSvr
     parameters:
-        UDPPort: numeric, // port to listen on
-        minWaitInt: numeric,
-        maxWaitInt: numeric,
-        minPacketLen: numeric,
-        maxPacketLen: numeric,
-        videoSize: numeric,
-        speed: numeric;
+        udpPort: numeric const, // port to listen on
+        waitInterval: numeric,
+        packetLen: numeric,
+        videoSize: numeric;
     gates:
         in: from_udp;
         out: to_udp;

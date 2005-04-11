@@ -19,18 +19,6 @@
 
 
 //
-// Consumes and prints packets received from the UDP module.
-//
-simple UDPSink
-    parameters:
-        local_port : numeric const; // if -1, app doesn't bind in UDP
-    gates:
-        in: from_udp;
-        out: to_udp;
-endsimple
-
-
-//
 // Sends UDP packets to the given \IP address at the given interval.
 // Compatible with both IPv4 and IPv6.
 //

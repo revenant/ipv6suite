@@ -23,31 +23,13 @@
 
 #include <vector>
 #include <omnetpp.h>
-#include "IPvXAddress.h"
-
-
-/**
- * Consumes and prints packets received from the UDP module. See NED for more info.
- */
-class UDPSink : public cSimpleModule
-{
-  protected:
-    int numReceived;
-
-    virtual void printPacket(cMessage *msg);
-    virtual void processPacket(cMessage *msg);
-
-  public:
-    Module_Class_Members(UDPSink, cSimpleModule, 0);
-    virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
-};
+#include "UDPAppBase.h"
 
 
 /**
  * UDP application. See NED for more info.
  */
-class UDPApp : public UDPSink
+class UDPApp : public UDPAppBase
 {
   protected:
     std::string nodeName;
@@ -64,7 +46,7 @@ class UDPApp : public UDPSink
     virtual void sendPacket();
 
   public:
-    Module_Class_Members(UDPApp, UDPSink, 0);
+    Module_Class_Members(UDPApp, UDPAppBase, 0);
     virtual int numInitStages() const {return 4;}
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);

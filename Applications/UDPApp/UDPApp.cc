@@ -24,67 +24,6 @@
 #include "IPAddressResolver.h"
 
 
-Define_Module(UDPSink);
-
-
-void UDPSink::initialize()
-{
-    numReceived = 0;
-    WATCH(numReceived);
-
-    int port = par("local_port");
-    if (port!=-1)
-    {
-        // bind ourselves to local_port in UDP
-        cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
-        UDPControlInfo *ctrl = new UDPControlInfo();
-        ctrl->setSrcPort(port);
-        msg->setControlInfo(ctrl);
-        send(msg, "to_udp");
-    }
-}
-
-void UDPSink::handleMessage(cMessage *msg)
-{
-    processPacket(msg);
-
-    if (ev.isGUI())
-    {
-        char buf[32];
-        sprintf(buf, "rcvd: %d pks", numReceived);
-        displayString().setTagArg("t",0,buf);
-    }
-
-}
-
-void UDPSink::printPacket(cMessage *msg)
-{
-    UDPControlInfo *controlInfo = check_and_cast<UDPControlInfo *>(msg->controlInfo());
-
-    IPvXAddress src = controlInfo->getSrcAddr();
-    IPvXAddress dest = controlInfo->getDestAddr();
-    int sentPort = controlInfo->getSrcPort();
-    int recPort = controlInfo->getDestPort();
-
-    ev  << msg << endl;
-    ev  << "Payload length: " << (msg->length()/8) << " bytes" << endl;
-    ev  << "Src/Port: " << src << " :" << sentPort << "  ";
-    ev  << "Dest/Port: " << dest << ":" << recPort << endl;
-}
-
-void UDPSink::processPacket(cMessage *msg)
-{
-    ev << "Received packet: ";
-    printPacket(msg);
-    delete msg;
-
-    numReceived++;
-}
-
-
-
-//===============================================
-
 
 Define_Module(UDPApp);
 
@@ -97,7 +36,9 @@ void UDPApp::initialize(int stage)
     if (stage!=3)
         return;
 
-    UDPSink::initialize();
+    counter = 0;
+    numSent = 0;
+    WATCH(numSent);
 
     localPort = par("local_port");
     destPort = par("dest_port");
@@ -109,13 +50,10 @@ void UDPApp::initialize(int stage)
     while ((token = tokenizer.nextToken())!=NULL)
         destAddresses.push_back(IPAddressResolver().resolve(token));
 
-    counter = 0;
-
-    numSent = 0;
-    WATCH(numSent);
-
     if (destAddresses.empty())
         return;
+
+    bindToPort(localPort);
 
     cMessage *timer = new cMessage("sendTimer");
     scheduleAt((double)par("message_freq"), timer);
@@ -135,17 +73,9 @@ void UDPApp::sendPacket()
     cMessage *payload = new cMessage(msgName);
     payload->setLength(msgLength);
 
-    UDPControlInfo *controlInfo = new UDPControlInfo();
     IPvXAddress destAddr = chooseDestAddr();
-    controlInfo->setDestAddr(destAddr);
-    controlInfo->setSrcPort(localPort);
-    controlInfo->setDestPort(destPort);
-    payload->setControlInfo(controlInfo);
+    sendToUDP(payload, localPort, destAddr, destPort);
 
-    ev << "Sending packet: ";
-    printPacket(payload);
-
-    send(payload, "to_udp");
     numSent++;
 }
 

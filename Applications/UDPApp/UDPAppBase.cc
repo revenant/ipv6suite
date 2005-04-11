@@ -23,7 +23,8 @@
 
 void UDPAppBase::bindToPort(int port)
 {
-    // bind ourselves to local_port in UDP
+    ev << "Binding to UDP port " << port << endl;
+
     cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
     UDPControlInfo *ctrl = new UDPControlInfo();
     ctrl->setSrcPort(port);
@@ -42,6 +43,9 @@ void UDPAppBase::sendToUDP(cMessage *msg, int srcPort, const IPvXAddress& destAd
     ctrl->setDestPort(destPort);
     msg->setControlInfo(ctrl);
 
+    ev << "Sending packet: ";
+    printPacket(payload);
+
     send(msg, "to_udp");
 }
 
@@ -49,15 +53,13 @@ void UDPAppBase::printPacket(cMessage *msg)
 {
     UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
 
-    IPvXAddress src = ctrl->getSrcAddr();
-    IPvXAddress dest = ctrl->getDestAddr();
-    int sentPort = ctrl->getSrcPort();
-    int recPort = ctrl->getDestPort();
+    IPvXAddress srcAddr = ctrl->getSrcAddr();
+    IPvXAddress destAddr = ctrl->getDestAddr();
+    int srcPort = ctrl->getSrcPort();
+    int destPort = ctrl->getDestPort();
 
-    ev  << msg << endl;
-    ev  << "Payload length: " << (msg->length()/8) << " bytes" << endl;
-    ev  << "Src/Port: " << src << " :" << sentPort << "  ";
-    ev  << "Dest/Port: " << dest << ":" << recPort << endl;
+    ev  << msg << "  (" << (msg->length()/8) << " bytes)" << endl;
+    ev  << srcAddr << " :" << srcPort << " --> " << destAddr << ":" << destPort << endl;
 }
 
 

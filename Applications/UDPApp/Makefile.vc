@@ -135,47 +135,4 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-UDPAppBase.obj: UDPAppBase.cc \
-  UDPAppBase.h \
-  ../../Transport/UDP/UDPControlInfo_m.h \
-  ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
-UDPBasicApp.obj: UDPBasicApp.cc \
-  UDPBasicApp.h \
-  ../../Transport/UDP/UDPControlInfo_m.h \
-  ../../Util/StringTokenizer.h \
-  ../../Network/Generic/IPAddressResolver.h \
-  UDPAppBase.h \
-  ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
-UDPSink.obj: UDPSink.cc \
-  UDPSink.h \
-  ../../Transport/UDP/UDPControlInfo_m.h \
-  ../../Util/StringTokenizer.h \
-  ../../Network/Generic/IPAddressResolver.h \
-  UDPAppBase.h \
-  ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
-UDPVideoStreamCli.obj: UDPVideoStreamCli.cc \
-  UDPVideoStreamCli.h \
-  ../../Network/Generic/IPAddressResolver.h \
-  UDPAppBase.h \
-  ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
-UDPVideoStreamSvr.obj: UDPVideoStreamSvr.cc \
-  UDPVideoStreamSvr.h \
-  ../../Transport/UDP/UDPControlInfo_m.h \
-  ../../Util/stlwatch.h \
-  UDPAppBase.h \
-  ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+

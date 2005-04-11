@@ -112,5 +112,4 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-RoutingProtocolRIP.obj: RoutingProtocolRIP.cc \
-  RoutingProtocolRIP.h
+

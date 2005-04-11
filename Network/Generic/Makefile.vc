@@ -151,43 +151,4 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-InterfaceEntry.obj: InterfaceEntry.cc \
-  ../../Util/stlwatch.h \
-  InterfaceEntry.h \
-  ../../Base/INETDefs.h
-InterfaceTable.obj: InterfaceTable.cc \
-  ../../Util/stlwatch.h \
-  InterfaceTable.h \
-  ../../Base/INETDefs.h \
-  InterfaceEntry.h
-IPAddress.obj: IPAddress.cc \
-  IPAddress.h \
-  ../../Base/INETDefs.h
-IPAddressResolver.obj: IPAddressResolver.cc \
-  IPAddressResolver.h \
-  InterfaceTable.h \
-  ../IPv4/IPv4InterfaceData.h \
-  ../IPv4/RoutingTable.h \
-  IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  IPAddress.h \
-  ../../Base/INETDefs.h \
-  InterfaceEntry.h
-IPControlInfo_m.obj: IPControlInfo_m.cc \
-  IPControlInfo_m.h \
-  IPAddress.h \
-  IPProtocolId_m.h \
-  ../../Base/INETDefs.h
-IPProtocolId_m.obj: IPProtocolId_m.cc \
-  IPProtocolId_m.h
-IPv6ControlInfo_m.obj: IPv6ControlInfo_m.cc \
-  IPv6ControlInfo_m.h \
-  IPAddress.h \
-  IPvXAddress.h \
-  ../../Base/INETDefs.h \
-  ../../Base/inetdefs.h
-IPvXAddress.obj: IPvXAddress.cc \
-  IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  IPAddress.h \
-  ../../Base/INETDefs.h
+

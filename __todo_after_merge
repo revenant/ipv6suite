@@ -7,6 +7,11 @@
 - RELEASE!!!!
 
 TODO:
+- my UDPApp:
+    void bind(port)
+    sendToUDP(msg, srcport, destaddr, destport)
+  and use that one as base class for Video
+
 - IPAddressResolver: should recognize "<modulename>#interface/ipv6"
 - change videoapp to use UDP not UDP6
 - add TCP into IPv6 nodes

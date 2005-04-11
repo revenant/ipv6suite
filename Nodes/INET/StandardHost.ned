@@ -91,8 +91,8 @@ module StandardHost
         tcp.from_ip <-- networkLayer.TCPOut;
 
         for i=0..numUdpApps-1 do
-            udpApp[i].to_udp --> udp.from_application++;
-            udpApp[i].from_udp <-- udp.to_application++;
+            udpApp[i].to_udp --> udp.from_app++;
+            udpApp[i].from_udp <-- udp.to_app++;
         endfor;
 
         udp.to_ip --> networkLayer.UDPIn;

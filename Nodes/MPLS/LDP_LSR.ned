@@ -93,8 +93,8 @@ module LDP_LSR
         signal_module.from_tcp_interface <-- tcp.to_appl++;
         signal_module.to_tcp_interface --> tcp.from_appl++;
 
-        signal_module.to_udp_interface --> udp.from_application++;
-        signal_module.from_udp_interface <-- udp.to_application++;
+        signal_module.to_udp_interface --> udp.from_app++;
+        signal_module.from_udp_interface <-- udp.to_app++;
 
         udp.to_ip --> networkLayer.UDPIn;
         udp.from_ip <-- networkLayer.UDPOut;

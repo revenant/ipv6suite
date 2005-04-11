@@ -162,7 +162,6 @@ Transport/RTP/RTPProfile.ned
 Transport/TCP/TCPDump.ned
 Transport/TCP/TCPMain.ned
 Transport/UDP/UDPProcessing.ned
-Transport/UDP6/UDPProcessing6.ned
 Util/Topology/ClosedQueueingNetwork.ned
 Util/Topology/DynamicTopology.ned
 Util/Topology/DynamicTopologyBuilder.ned

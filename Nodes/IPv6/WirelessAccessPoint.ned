@@ -35,17 +35,19 @@ import
 
 module AccessPoint
     parameters:
-        chann : numeric, // channel
-        beaconPeriod : numeric,
-        authWaitEntryTimeout : numeric,
-        authEntryTimeout : numeric,
-        assEntryTimeout : numeric,
-        consecFailedTransLimit : numeric,
-        beginCollectionTime : numeric,
-        endCollectionTime : numeric;
+        chann: numeric, // channel
+        beaconPeriod: numeric,
+        authWaitEntryTimeout: numeric,
+        authEntryTimeout: numeric,
+        assEntryTimeout: numeric,
+        consecFailedTransLimit: numeric,
+        beginCollectionTime: numeric,
+        endCollectionTime: numeric;
     gates:
-        out: out[], wlout;
-        in: in[], wlin;
+        out: out[];
+        out: wlout;
+        in: in[];
+        in: wlin;
     submodules:
         blackboard: Blackboard;
             display: "p=62,60;i=block/blackboard";
@@ -54,17 +56,17 @@ module AccessPoint
         ds: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;
-            display: "p=136,124;i=card2";
+            display: "p=136,137;i=block/ifcard";
         wirelessAccessPoint: LinkLayer6;
             parameters:
                 NWIName = "WirelessAccessPoint",
                 nwi_delay = 0;
-            display: "p=144,268;i=card2";
+            display: "p=144,268;i=block/ifcard";
         bridge: WirelessEtherBridge;
             gatesizes:
                 dsIn[sizeof(in)],
                 dsOut[sizeof(in)];
-            display: "p=248,188;i=bwxconn";
+            display: "p=248,188;i=block/switch";
         phyLayerAP: PHYLayer;
             gatesizes:
                 in[sizeof(wlin)],
@@ -80,7 +82,7 @@ module AccessPoint
                 linkOut[sizeof(in)];
             display: "p=136,72;b=96,16;o=#5853d7,#5951d7";
         mobilityManager: MobilityManager;
-            display: "p=332,284;b=104,56";
+            display: "i=block/cogwheel;p=332,284";
     connections nocheck:
 
         // dsPHY <--> network

@@ -35,11 +35,11 @@ module Router6
 
     submodules:
         blackboard: Blackboard;
-            display: "p=62,55;i=block/blackboard";
+            display: "p=84,59;i=block/blackboard";
         interfaceTable: InterfaceTable;
-            display: "p=60,150;i=block/table";
+            display: "p=83,124;i=block/table";
         errorHandling: ErrorHandling6;
-            display: "p=220,130;i=block/sink_vs";
+            display: "p=244,115;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
                 IPForward = true,
@@ -47,11 +47,11 @@ module Router6
             gatesizes:
                 physIn[sizeof(in)],
                 physOut[sizeof(in)];
-            display: "p=160,148;i=prot2";
+            display: "p=184,133;i=block/network2";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;
-            display: "p=120,212,r;i=prot3";
+            display: "p=130,212,r;i=block/ifcard";
         phyLayer: PHYLayer;
             gatesizes:
                 in[sizeof(in)],
@@ -79,6 +79,5 @@ module Router6
             phyLayer.linkOut[i] --> linkLayers[i].physIn;
             phyLayer.linkIn[i] <-- linkLayers[i].physOut;
         endfor;
-    display: "p=10,10;b=266,310";
 endmodule
 

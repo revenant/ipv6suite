@@ -31,7 +31,7 @@ Define_Module(UDPVideoStreamSvr);
 
 inline std::ostream& operator<<(std::ostream& out, const UDPVideoStreamSvr::VideoStreamData& d) {
     out << "client=" << d.clientAddr << ":" << d.clientPort
-        << "  total=" << d.videoSize << "  left=" << d.bytesLeft;
+        << "  size=" << d.videoSize << "  pksent=" << d.numPkSent << "  bytesleft=" << d.bytesLeft;
     return out;
 }
 
@@ -41,12 +41,20 @@ void UDPVideoStreamSvr::initialize()
     waitInterval = &par("waitInterval");
     packetLen = &par("packetLen");
     videoSize = &par("videoSize");
+    serverPort = par("serverPort");
+
+    numStreams = 0;
+    numPkSent = 0;
 
     WATCH_PTRVECTOR(streamVector);
+
+    bindToPort(serverPort);
 }
 
 void UDPVideoStreamSvr::finish()
 {
+    recordScalar("streams served", numStreams);
+    recordScalar("packets sent", numPkSent);
 }
 
 void UDPVideoStreamSvr::handleMessage(cMessage *msg)
@@ -54,7 +62,7 @@ void UDPVideoStreamSvr::handleMessage(cMessage *msg)
     if (msg->isSelfMessage())
     {
         // timer for a particular video stream expired, send packet
-        sendVideoData(msg);
+        sendStreamData(msg);
     }
     else
     {
@@ -74,17 +82,20 @@ void UDPVideoStreamSvr::processStreamRequest(cMessage *msg)
     d->clientPort = ctrl->getSrcPort();
     d->videoSize = (*videoSize);
     d->bytesLeft = d->videoSize;
+    d->numPkSent = 0;
     streamVector.push_back(d);
 
     cMessage *timer = new cMessage("VideoStreamTmr");
     timer->setContextPointer(d);
 
     // ... then transmit first packet right away
-    sendVideoData(timer);
+    sendStreamData(timer);
+
+    numStreams++;
 }
 
 
-void UDPVideoStreamSvr::sendVideoData(cMessage *timer)
+void UDPVideoStreamSvr::sendStreamData(cMessage *timer)
 {
     VideoStreamData *d = (VideoStreamData *) timer->contextPointer();
 
@@ -94,9 +105,11 @@ void UDPVideoStreamSvr::sendVideoData(cMessage *timer)
     if (pktLen > d->bytesLeft)
         pktLen = d->bytesLeft;
     pkt->setLength(8*pktLen);
-    sendToUDP(pkt, udpPort, d->clientAddr, d->clientPort);
+    sendToUDP(pkt, serverPort, d->clientAddr, d->clientPort);
 
-    d->bytesLeft =- pktLen;
+    d->bytesLeft -= pktLen;
+    d->numPkSent++;
+    numPkSent++;
 
     // reschedule timer if there's bytes left to send
     if (d->bytesLeft!=0)

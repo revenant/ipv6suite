@@ -25,9 +25,8 @@ import
     "PhysicalLayer",
     "LinkLayer6",
     "DualInterfaceLayer",
-    "ControlApp",
-    "UDPProcessing6",
-    "UDPApplication",
+    "UDPProcessing",
+    "UDPApp",
     "Ping6App";
 
 
@@ -45,12 +44,14 @@ import
 //
 module DualIntMobileNode
     parameters:
+        numTcpApps: numeric const,
+        tcpAppType: string,
+        numUdpApps: numeric const,
         udpAppType: string,
-        beginCollectionTime : numeric,
-        endCollectionTime : numeric,
-        IPForward : bool, //Added at higher level so can specify in Network Hierarchy ned file
-                          //whether this node acts as a router.
-        numUdpApps: numeric;
+        beginCollectionTime: numeric,
+        endCollectionTime: numeric,
+        IPForward: bool; //Added at higher level so can specify in Network Hierarchy ned file
+                         //whether this node acts as a router.
     gates:
         in: wlin[];
     submodules:
@@ -59,7 +60,7 @@ module DualIntMobileNode
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
-            display: "p=291,222;i=sink";
+            display: "p=328,228;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
                 IPForward = ancestor IPForward,
@@ -67,39 +68,40 @@ module DualIntMobileNode
             gatesizes:
                 physIn[sizeof(wlin)],
                 physOut[sizeof(wlin)];
-            display: "p=164,236;i=prot2";
+            display: "p=201,242;i=block/network2";
         dualInterfaceLayer: DualInterfaceLayer;
             gatesizes:
                 fromLL[sizeof(wlin)],
                 toLL[sizeof(wlin)],
                 extSignalIn[sizeof(wlin)],
                 extSignalOut[sizeof(wlin)];
-            display: "p=160,298;i=prot3";
+            display: "p=197,304;i=prot3";
         linkLayers: LinkLayer6[sizeof(wlin)];
             parameters:
                 nwi_delay = 0;
             gatesizes:
                 extSignalIn[1],
                 extSignalOut[1];
-            display: "p=160,364;i=prot3";
-        udp: UDPProcessing6;
-            gatesizes:
-        from_app[numUdpApps],
-        to_app[numUdpApps];
-            display: "i=fork;p=160,152";
-        udpApps: udpAppType[numUdpApps] like UDPApp;
-            display: "p=296,44;i=cogwheel";
+            display: "p=197,370;i=block/ifcard_s";
+        tcpApp: tcpAppType[numTcpApps] like TCPApp;
+            display: "p=163,67;i=block/app";
+        tcp: TCPMain;
+            display: "p=163,154;i=block/wheelbarrow";
+        udp: UDPProcessing;
+            display: "i=block/transport;p=280,152";
+        udpApp: udpAppType[numUdpApps] like UDPApp;
+            display: "p=282,68;i=block/app";
         ping6App: Ping6App;
-            display: "p=79,168;b=40,24";
+            display: "i=block/source;p=101,221";
         phyLayer: PHYLayer[sizeof(wlin)];
             gatesizes:
                 in[1],
                 out[1],
                 linkIn[1],
                 linkOut[1];
-            display: "p=180,420;b=168,8;o=#4359d7,#4159d7";
+            display: "p=217,426;b=168,8;o=#4359d7,#4159d7";
         mobilityManager: MobilityManager;
-            display: "p=332,316;b=72,40";
+            display: "i=block/cogwheel;p=332,346";
     connections nocheck:
         networkLayer.errorOut --> errorHandling.in;
 
@@ -129,12 +131,20 @@ module DualIntMobileNode
         networkLayer.physOut[0] --> dualInterfaceLayer.fromNL;
         networkLayer.physIn[0] <-- dualInterfaceLayer.toNL;
 
-        udp.to_ip --> networkLayer.UDPIn;
-        udp.from_ip <-- networkLayer.UDPOut;
+        tcp.to_ipv6 --> networkLayer.TCPIn;
+        tcp.from_ipv6 <-- networkLayer.TCPOut;
+
+        for i=0..numTcpApps-1 do
+            tcpApp[i].tcpOut --> tcp.from_appl++;
+            tcpApp[i].tcpIn <-- tcp.to_appl++;
+        endfor;
+
+        udp.to_ipv6 --> networkLayer.UDPIn;
+        udp.from_ipv6 <-- networkLayer.UDPOut;
 
         for i=0..numUdpApps-1 do
-            udp.to_app[i] --> udpApps[i].from_udp;
-            udp.from_app[i] <-- udpApps[i].to_udp;
+            udp.to_app++ --> udpApp[i].from_udp;
+            udp.from_app++ <-- udpApp[i].to_udp;
         endfor;
 
         ping6App.pingOut --> networkLayer.pingIn;

@@ -119,7 +119,7 @@ int InterfaceTable::numInterfaceGates()
 
 InterfaceEntry *InterfaceTable::interfaceByPortNo(int portNo)
 {
-    Enter_Method("interfaceByPortNo(%d)=?", portNo);
+    Enter_Method_Silent();
 
     // linear search is OK because normally we have don't have many interfaces (1..4, rarely more)
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
@@ -130,7 +130,8 @@ InterfaceEntry *InterfaceTable::interfaceByPortNo(int portNo)
 
 InterfaceEntry *InterfaceTable::interfaceByName(const char *name)
 {
-    Enter_Method("interfaceByName(%s)=?", name);
+    Enter_Method_Silent();
+
     if (!name)
         return NULL;
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
@@ -141,7 +142,7 @@ InterfaceEntry *InterfaceTable::interfaceByName(const char *name)
 
 InterfaceEntry *InterfaceTable::firstLoopbackInterface()
 {
-    Enter_Method("firstLoopbackInterface()=?");
+    Enter_Method_Silent();
 
     for (InterfaceVector::iterator i=interfaces.begin(); i!=interfaces.end(); ++i)
         if ((*i)->isLoopback())

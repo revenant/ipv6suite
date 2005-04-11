@@ -64,8 +64,8 @@ OBJS=
 GENERATEDHEADERS= 
 
 # subdirectories to recurse into
-SUBDIRS= TCP UDP UDP6
-SUBDIR_TARGETS=  TCP_dir UDP_dir UDP6_dir
+SUBDIRS= TCP UDP
+SUBDIR_TARGETS=  TCP_dir UDP_dir
 
 $(TARGET): $(OBJS) Makefile.vc subdirs .tstamp
 
@@ -82,9 +82,6 @@ TCP_dir:
 
 UDP_dir:
 	cd UDP && cd && nmake /nologo /f Makefile.vc
-
-UDP6_dir:
-	cd UDP6 && cd && nmake /nologo /f Makefile.vc
 
 
 #doc: neddoc doxy

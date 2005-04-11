@@ -35,10 +35,10 @@
 //
 simple UDPVideoStreamSvr
     parameters:
-        udpPort: numeric const, // port to listen on
-        waitInterval: numeric,  // can be random, to accomodate jitter
-        packetLen: numeric,     // bytes; can be random
-        videoSize: numeric;     // bytes; can be random
+        serverPort: numeric const, // port to listen on
+        waitInterval: numeric,     // can be random, to accomodate jitter
+        packetLen: numeric,        // bytes; can be random
+        videoSize: numeric;        // bytes; can be random
     gates:
         in: from_udp;
         out: to_udp;

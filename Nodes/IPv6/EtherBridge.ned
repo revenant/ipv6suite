@@ -29,7 +29,7 @@ import
 //
 module EtherBridge
     parameters:
-        entryTimeout : numeric;
+        entryTimeout: numeric;
     gates:
         out: out[];
         in: in[];
@@ -42,7 +42,7 @@ module EtherBridge
             parameters:
                 NWIName = "EtherModuleBridge",
                 nwi_delay = 0;
-            display: "p=136,124;i=card2";
+            display: "p=136,124;i=block/ifcard";
         relayUnit: EtherRelayUnit;
             parameters:
                 numOfPorts = sizeof(in),
@@ -50,7 +50,7 @@ module EtherBridge
             gatesizes:
                 ethIn[sizeof(in)],
                 ethOut[sizeof(in)];
-            display: "p=248,188;i=bwxconn";
+            display: "p=248,188;i=block/switch";
     connections nocheck:
         for i=0..sizeof(in)-1 do
             in[i] --> ethernet[i].physIn;

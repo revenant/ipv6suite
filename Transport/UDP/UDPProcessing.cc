@@ -37,7 +37,7 @@ Define_Module( UDPProcessing );
 void UDPProcessing::initialize()
 {
     // don't dispatch to apps (send everything to gate 0) if: only 1 app + no port bound
-    dispatchByPort = (gateSize("from_application")!=1);
+    dispatchByPort = (gateSize("from_app")!=1);
 
     WATCH_MAP(port2indexMap);
 
@@ -164,7 +164,7 @@ void UDPProcessing::processMsgFromIP(UDPPacket *udpPacket)
     payload->setControlInfo(udpControlInfo);
     delete udpPacket;
 
-    send(payload, "to_application", appGateIndex);
+    send(payload, "to_app", appGateIndex);
     numPassedUp++;
 }
 

@@ -50,10 +50,10 @@
 //
 simple UDPProcessing
     gates:
-        in: from_application[];
+        in: from_app[];
         in: from_ip;
         in: from_ipv6;
-        out: to_application[];
+        out: to_app[];
         out: to_ip;
         out: to_ipv6;
 endsimple

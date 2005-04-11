@@ -44,10 +44,11 @@ class UDPVideoStreamSvr : public UDPAppBase
      */
     struct VideoStreamData
     {
-        IPvXAddress clientAddr;  ///< client address
-        int clientPort;          ///< client UDP port
-        long videoSize;          ///< total size of video
-        long bytesLeft;          ///< bytes left to transmit
+        IPvXAddress clientAddr;   ///< client address
+        int clientPort;           ///< client UDP port
+        unsigned long videoSize;  ///< total size of video
+        unsigned long bytesLeft;  ///< bytes left to transmit
+        unsigned long numPkSent;  ///< number of packets sent
     };
 
   protected:
@@ -55,17 +56,21 @@ class UDPVideoStreamSvr : public UDPAppBase
     VideoStreamVector streamVector;
 
     // module parameters
-    int udpPort;
+    int serverPort;
     cPar *waitInterval;
     cPar *packetLen;
     cPar *videoSize;
+
+    // statistics
+    unsigned int numStreams;  // number of video streams served
+    unsigned long numPkSent;  // total number of packets sent
 
   protected:
     // process stream request from client
     void processStreamRequest(cMessage *msg);
 
     // send a packet of the given video stream
-    void sendVideoData(cMessage *timer);
+    void sendStreamData(cMessage *timer);
 
   public:
     Module_Class_Members(UDPVideoStreamSvr, UDPAppBase, 0);

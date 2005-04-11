@@ -25,9 +25,8 @@ import
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",
-    "ControlApp",
-    "UDPProcessing6",
-    "UDPApplication",
+    "UDPProcessing",
+    "UDPApp",
     "Ping6App";
 
 //
@@ -37,10 +36,12 @@ import
 //
 module UDPNode
     parameters:
+        numTcpApps: numeric const,
+        tcpAppType: string,
+        numUdpApps: numeric const,
         udpAppType: string,
-        IPForward : bool, //Added at higher level so can specify in Network Hierarchy ned file
-                          //whether this node acts as a router.
-        numUdpApps: numeric;
+        IPForward: bool; //Added at higher level so can specify in Network Hierarchy ned file
+                         //whether this node acts as a router.
     gates:
         in: in[];
         out: out[];
@@ -50,7 +51,7 @@ module UDPNode
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;
-            display: "p=260,190;i=block/sink_vs";
+            display: "p=309,212;i=block/sink_vs";
         networkLayer: NetworkLayer6;
             parameters:
                 IPForward = ancestor IPForward,
@@ -58,29 +59,30 @@ module UDPNode
             gatesizes:
                 physIn[sizeof(in)],
                 physOut[sizeof(in)];
-            display: "p=164,212;i=prot2";
+            display: "p=213,234;i=block/network2";
         linkLayers: LinkLayer6[sizeof(in)];
             parameters:
                 nwi_delay = 0;
-            display: "p=168,292;i=prot3";
-        udp: UDPProcessing6;
-            gatesizes:
-                from_app[numUdpApps],
-                to_app[numUdpApps];
-            display: "i=fork;p=160,152";
-        udpApps: udpAppType[numUdpApps] like UDPApp;
-            display: "p=296,44;i=cogwheel";
+            display: "p=217,314;i=block/ifcard";
+        tcpApp: tcpAppType[numTcpApps] like TCPApp;
+            display: "p=163,67;i=block/app";
+        tcp: TCPMain;
+            display: "p=163,154;i=block/wheelbarrow";
+        udp: UDPProcessing;
+            display: "i=block/transport;p=279,151";
+        udpApp: udpAppType[numUdpApps] like UDPApp;
+            display: "p=281,67;i=block/app";
         ping6App: Ping6App;
-            display: "p=79,210;b=40,24";
+            display: "i=block/source;p=106,218";
         phyLayer: PHYLayer;
             gatesizes:
                 in[sizeof(in)],
                 out[sizeof(in)],
                 linkIn[sizeof(in)],
                 linkOut[sizeof(in)];
-            display: "p=172,348;b=160,8;o=#4359d7,#4159d7";
+            display: "p=221,370;b=160,8;o=#4359d7,#4159d7";
     connections nocheck:
-       networkLayer.errorOut --> errorHandling.in;
+        networkLayer.errorOut --> errorHandling.in;
 
         // Link Layer <-> Network Layer
         for i=0..sizeof(in)-1 do
@@ -100,16 +102,24 @@ module UDPNode
             phyLayer.linkIn[i] <-- linkLayers[i].physOut;
         endfor;
 
-        udp.to_ip --> networkLayer.UDPIn;
-        udp.from_ip <-- networkLayer.UDPOut;
+        tcp.to_ipv6 --> networkLayer.TCPIn;
+        tcp.from_ipv6 <-- networkLayer.TCPOut;
+
+        for i=0..numTcpApps-1 do
+            tcpApp[i].tcpOut --> tcp.from_appl++;
+            tcpApp[i].tcpIn <-- tcp.to_appl++;
+        endfor;
+
+        udp.to_ipv6 --> networkLayer.UDPIn;
+        udp.from_ipv6 <-- networkLayer.UDPOut;
 
         for i=0..numUdpApps-1 do
-            udp.to_app[i] --> udpApps[i].from_udp;
-            udp.from_app[i] <-- udpApps[i].to_udp;
+            udp.to_app++ --> udpApp[i].from_udp;
+            udp.from_app++ <-- udpApp[i].to_udp;
         endfor;
 
         ping6App.pingOut --> networkLayer.pingIn;
         ping6App.pingIn <-- networkLayer.pingOut;
 
-    display: "p=10,10;b=407,383";
 endmodule
+

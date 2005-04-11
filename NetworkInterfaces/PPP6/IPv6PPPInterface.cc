@@ -95,7 +95,7 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
   e->setName(tmp.c_str()); // XXX HACK -- change back to above code!
 
   // port: index of gate where our "netwIn" is connected (in IP)
-  int outputPort = gate("netwIn")->fromGate()->index();
+  int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
   e->setOutputPort(outputPort);
 
   e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV

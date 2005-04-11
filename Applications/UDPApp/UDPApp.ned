@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004 Andras Varga
+// Copyright (C) 2005 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,14 +18,16 @@
 
 
 //
-// Template for TCP applications.
+// Template for UDP applications.
 //
-// This is not an actual module type. It only shows which gates an TCP app 
+// This is not an actual module type. It only shows which gates an UDP app 
 // needs, to be able to be used in StandardHost etc.
 //
-simple TCPApp
+simple UDPApp
     gates:
-        in: tcpIn;
-        out: tcpOut;
+        in: from_udp;
+        out: to_udp;
 endsimple
+
+
 

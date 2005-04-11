@@ -44,7 +44,7 @@ void UDPAppBase::sendToUDP(cMessage *msg, int srcPort, const IPvXAddress& destAd
     msg->setControlInfo(ctrl);
 
     ev << "Sending packet: ";
-    printPacket(payload);
+    printPacket(msg);
 
     send(msg, "to_udp");
 }

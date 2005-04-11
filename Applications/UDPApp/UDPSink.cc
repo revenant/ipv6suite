@@ -18,7 +18,7 @@
 
 
 #include <omnetpp.h>
-#include "UDPApp.h"
+#include "UDPSink.h"
 #include "UDPControlInfo_m.h"
 #include "StringTokenizer.h"
 #include "IPAddressResolver.h"

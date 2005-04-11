@@ -18,18 +18,18 @@
 //
 
 
-#ifndef __UDPBasicApp_H__
-#define __UDPBasicApp_H__
+#ifndef __UDPBASICAPP_H__
+#define __UDPBASICAPP_H__
 
 #include <vector>
 #include <omnetpp.h>
-#include "UDPBasicAppBase.h"
+#include "UDPAppBase.h"
 
 
 /**
  * UDP application. See NED for more info.
  */
-class UDPBasicApp : public UDPBasicAppBase
+class UDPBasicApp : public UDPAppBase
 {
   protected:
     std::string nodeName;
@@ -48,7 +48,7 @@ class UDPBasicApp : public UDPBasicAppBase
     virtual void processPacket(cMessage *msg);
 
   public:
-    Module_Class_Members(UDPBasicApp, UDPBasicAppBase, 0);
+    Module_Class_Members(UDPBasicApp, UDPAppBase, 0);
     virtual int numInitStages() const {return 4;}
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);

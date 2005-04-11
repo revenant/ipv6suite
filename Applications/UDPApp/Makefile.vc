@@ -62,7 +62,7 @@ NEDCOPTS=$(CFLAGS) $(NEDCFLAGS) $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 
 #------------------------------------------------------------------------------
 # object files in this directory
-OBJS= UDPApp.obj
+OBJS= UDPAppBase.obj UDPBasicApp.obj UDPSink.obj
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -90,8 +90,14 @@ $(EXT_DIR_TSTAMPS):
 
 subdirs: $(SUBDIR_TARGETS)
 
-UDPApp.obj: UDPApp.cc
-	$(CXX) -c $(COPTS) /Tp UDPApp.cc
+UDPAppBase.obj: UDPAppBase.cc
+	$(CXX) -c $(COPTS) /Tp UDPAppBase.cc
+
+UDPBasicApp.obj: UDPBasicApp.cc
+	$(CXX) -c $(COPTS) /Tp UDPBasicApp.cc
+
+UDPSink.obj: UDPSink.cc
+	$(CXX) -c $(COPTS) /Tp UDPSink.cc
 
 
 #doc: neddoc doxy
@@ -123,8 +129,23 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-UDPApp.obj: UDPApp.cc \
-  UDPApp.h \
+UDPAppBase.obj: UDPAppBase.cc \
+  UDPAppBase.h \
+  ../../Transport/UDP/UDPControlInfo_m.h \
+  ../../Network/Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  ../../Network/Generic/IPAddress.h \
+  ../../Base/INETDefs.h
+UDPBasicApp.obj: UDPBasicApp.cc \
+  UDPBasicApp.h \
+  ../../Transport/UDP/UDPControlInfo_m.h \
+  ../../Util/StringTokenizer.h \
+  ../../Network/Generic/IPAddressResolver.h \
+  ../../Network/Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  ../../Network/Generic/IPAddress.h \
+  ../../Base/INETDefs.h
+UDPSink.obj: UDPSink.cc \
   ../../Transport/UDP/UDPControlInfo_m.h \
   ../../Util/StringTokenizer.h \
   ../../Network/Generic/IPAddressResolver.h \

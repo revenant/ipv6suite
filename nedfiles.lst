@@ -17,6 +17,8 @@ Applications/TCPApp/TCPSinkApp.ned
 Applications/TCPApp/TCPSrvHostApp.ned
 Applications/TCPApp/TelnetApp.ned
 Applications/UDPApp/UDPApp.ned
+Applications/UDPApp/UDPBasicApp.ned
+Applications/UDPApp/UDPSink.ned
 Applications/VideoStream/UDPVideoStream.ned
 Applications/VideoStream/UDPVideoStreamSvr.ned
 Base/Blackboard.ned

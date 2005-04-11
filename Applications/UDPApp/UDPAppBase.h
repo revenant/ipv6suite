@@ -46,6 +46,9 @@ class UDPAppBase : public cSimpleModule
      * (i.e. those which just arrived from UDP, or about to be send to UDP).
      */
     virtual void printPacket(cMessage *msg);
+  public:
+     Module_Class_Members(UDPAppBase, cSimpleModule, 0);
+
 };
 
 

@@ -42,16 +42,18 @@ module MIPv6NetworkSimulMove
             display: "p=316,40;i=bwgen_s";
         client1: MobileNode; //
             parameters:
-                //# routingFile = "client1.irt",
                 IPForward = false;
-        gatesizes:
-            wlin[1],
-            wlout[1];
+            gatesizes:
+                wlin[1],
+                wlout[1];
             display: "p=88,118;i=laptop3";
         server4: MobileNode;
             parameters:
                 //# routingFile = "server4.irt",
                 IPForward = false;
+            gatesizes:
+                wlin[1],
+                wlout[1];
             display: "p=88,369;i=laptop3";
         ha1: Router6;
             gatesizes:

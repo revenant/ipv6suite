@@ -101,7 +101,7 @@ void MobileEntity::drawWirelessRange()
   //unsigned int numOfPorts = nodemod->gate("wlin")->size();
   if (numOfPorts <= 0)
   {
-    cerr << "gateSize of nonexistant gate array " <<numOfPorts<<endl;
+    cerr << "gateSize of nonexistant gate array " <<numOfPorts<< " in module " << nodemod->fullPath() << endl;
     //For MobileNodes
     numOfPorts = nodemod->gateSize("in");
     //numOfPorts = nodemod->gate("in")->size();

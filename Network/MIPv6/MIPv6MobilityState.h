@@ -1,18 +1,18 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
@@ -25,7 +25,7 @@
  * the type of mobility messages, MIPv6MobilityState switches to the
  * appropriate state (ie. MN, CN or HA); It also manages binding cache
  * replacement policy
- * 
+ *
  *
  */
 
@@ -77,7 +77,7 @@ typedef MIPv6MHBindingMissing         BM;
 extern const int TENTATIVE_BINDING_LIFETIME;
 
 class MIPv6MobilityState
-{ 
+{
  public:
   virtual ~MIPv6MobilityState(void);
 
@@ -87,12 +87,12 @@ class MIPv6MobilityState
    * mobility message from the top function that calls this function so this
    * virtual function does not hold responsiblity to delete the instance for
    * extension purpose.  process mobility message
-   * 
+   *
    */
-  virtual void processMobilityMsg(IPv6Datagram* dgram, 
+  virtual void processMobilityMsg(IPv6Datagram* dgram,
                                   MIPv6MobilityHeaderBase*& mhb,
                                   IPv6Mobility* mod);
-  
+
   // go to next state according to the mobility message in the
   // datagram; return true if the datagram contains mobility message
   // or of the correct type
@@ -110,11 +110,11 @@ class MIPv6MobilityState
                     ipv6_addr& hoa, ipv6_addr& coa);
 
   /// send binding acknowledgement
-  void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, 
-              BA* ba,  IPv6Mobility* mod);  
+  void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
+              BA* ba,  IPv6Mobility* mod);
   //@}
 
-  ///@name handle management of binding cache 
+  ///@name handle management of binding cache
   //@{
   /// add or update binding cache entry in binding cache
   virtual void registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod);
@@ -124,7 +124,7 @@ class MIPv6MobilityState
   virtual bool deregisterBCE(BU* bu, unsigned int ifIndex, IPv6Mobility* mod);
   //@}
 };
-  
+
 } // end namespace MobileIPv6
 
 #endif // MIPV6MOBILTIYSTATE_H

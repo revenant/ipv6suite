@@ -1,17 +1,17 @@
-// Copyright (C) 2002, 2004, 2005 CTIE, Monash University 
+// Copyright (C) 2002, 2004, 2005 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
@@ -19,9 +19,9 @@
  * @file   IDestinationCache.cc
  * @author Johnny Lai
  * @date   18 Apr 2002
- * 
+ *
  * @brief  Implementation of IDestinationCache
- * 
+ *
  */
 
 #include "sys.h"
@@ -39,7 +39,7 @@ std::ostream& operator<<
   os<<"destaddr="<<p.first<<" "<<p.second;
   return os;
 }
-  
+
 /**
    @todo Provide a separate interface into the NC just to test for existence of
    a neighbour.
@@ -84,7 +84,7 @@ boost::weak_ptr<NeighbourEntry> IDestinationCache::lookupDestination(const ipv6_
 
     return ne;
   }
-  
+
   // lookup the destination cache by comparing the longest prefix
   // match between the destination addreess (subnet or the destination
   // host) in the DE and the input address
@@ -98,7 +98,7 @@ boost::weak_ptr<NeighbourEntry> IDestinationCache::lookupDestination(const ipv6_
   {
 
 #if (defined VERBOSE && defined ROUTING) || defined ROUTINGTABLELOOKUP
-    cout << " Dest Entry: " << it->first.address() 
+    cout << " Dest Entry: " << it->first.address()
          << " -- " <<__FILE__ << endl;
 #endif //(defined VERBOSE && defined ROUTING) || defined ROUTINGTABLELOOKUP
 
@@ -122,7 +122,7 @@ boost::weak_ptr<NeighbourEntry> IDestinationCache::lookupDestination(const ipv6_
     }
   }
 
-  return ne;  
+  return ne;
 }
 
 ///Creates a new one if doesn't exist otherwise returns a reference to allow
@@ -140,19 +140,19 @@ DestinationEntry& IDestinationCache::operator[] (const IPv6Address& addr)
   return destCache[addr];
 }
 
-///Returns the DestinationEntry at it and moves it forward by one. 
+///Returns the DestinationEntry at it and moves it forward by one.
 ///Returns 0 when reaching the end.
 ///Make sure that it is a valid it obtained originally with beginDC.
 inline DestinationEntry*  IDestinationCache::nextDC(DCI& it)
 {
   DestinationEntry* retVal = 0;
-  
+
   if (it != destCache.end())
-  {    
+  {
     retVal = &(it->second);
     ++it;
-  }  
-  
+  }
+
   return retVal;
 }
 
@@ -170,7 +170,7 @@ int IDestinationCache::removeDestEntryByNeighbour(const ipv6_addr& addr)
 
   for (it = destCache.begin(); it != destCache.end();   )
   {
-    if (!it->second.neighbour.lock() || 
+    if (!it->second.neighbour.lock() ||
         it->second.neighbour.lock().get()->addr() == addr)
     {
       temp = it;
@@ -185,7 +185,7 @@ int IDestinationCache::removeDestEntryByNeighbour(const ipv6_addr& addr)
 
   Dout(dc::continued|flush_cf, "DC after");
 #ifdef CWDEBUG
-  
+
   if (libcwd::channels::dc::debug.is_on())
     copy(destCache.begin(), destCache.end(), ostream_iterator<IDestinationCache::DestinationCache::value_type>(*libcwd::libcw_do.get_ostream(), "\n"));
 #endif //CWDEBUG
@@ -235,7 +235,7 @@ int IDestinationCache::updateDestEntryByNeighbour(const ipv6_addr& addr,
                                                   const ipv6_addr& ngbr)
 {
   assert(addr != ngbr);
-  
+
   boost::weak_ptr<NeighbourEntry> ne = neighbour(ngbr);
   assert(ne.lock().get() != 0);
   Dout(dc::debug|continued_cf|flush_cf, "updateDestEntryByNeighbour DC before update: "<<addr
@@ -248,7 +248,7 @@ int IDestinationCache::updateDestEntryByNeighbour(const ipv6_addr& addr,
 
   updateDestEntry update(addr, ne);
   for_each(destCache.begin(), destCache.end(), update);
-  
+
   Dout(dc::continued|flush_cf, "DC after");
 #ifdef CWDEBUG
   if (libcwd::channels::dc::debug.is_on())

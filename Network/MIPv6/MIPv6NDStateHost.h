@@ -1,18 +1,18 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /**
@@ -56,14 +56,14 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
  public:
   MIPv6NDStateHost(NeighbourDiscovery* mod);
   virtual ~MIPv6NDStateHost(void);
-    
+
   //virtual void processMessage(ICMPv6Message* msg);
-  
+
   ///Handle RtrAd with the HomeAgent bit set
   virtual std::auto_ptr<RA> processRtrAd(std::auto_ptr<RA> msg);
 
 /*
-  ///Changes to Sending Rtr Solicitations 
+  ///Changes to Sending Rtr Solicitations
   ///@deprecated in draft 24
   void sendRtrSol(NDTimer* tmr);
 */
@@ -74,13 +74,13 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   void movementDetectedCallback(cTimerMessage* tmr);
 
   virtual void print(){};
-  
+
  protected:
   virtual void handover(boost::shared_ptr<MIPv6RouterEntry> newRtr);
 
   ///Check and do returning home case
   void returnHome();
-  
+
   ///Implementation of callback invoked by IPv6Encapsulation
   void checkDecapsulation(IPv6Datagram* dgram);
 
@@ -98,18 +98,18 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   void recordL2LinkDownTime(simtime_t linkdownTime);
 
   // virtual void enterState();
-//   virtual void leaveState();    
-  
+//   virtual void leaveState();
+
 //   virtual void initialiseInterface(size_t ifIndex);
 //   virtual void disableInterface(size_t ifIndex);
-  
+
   ///Hosts simple checks Sec. 6.1.2
-  //virtual bool valRtrAd(RA* ad);  
+  //virtual bool valRtrAd(RA* ad);
 
 public:
   ///gcc34 does not allow friendship to be granted to a protected function of base class? Guess friendship and inheritance are orthogonal
   ///Need access to sendBU
-  //friend void IPv6NeighbourDiscovery::NDStateHost::dupAddrDetSuccess(NDTimer* tmr);  
+  //friend void IPv6NeighbourDiscovery::NDStateHost::dupAddrDetSuccess(NDTimer* tmr);
   void sendBU(const ipv6_addr& ncoa);
 protected:
 
@@ -120,7 +120,7 @@ protected:
   RtrAdvMissedTmr* missedTmr;
   IPv6Mobility* mob;
   MIPv6MStateMobileNode* mstateMN;
-  
+
   ///Used by other modules to schedule a sendRtrSol from ND
   cTTimerMessageCBA<NDTimer, void>* schedSendRtrSolCB;
   cTimerMessage* schedSendUnsolNgbrAd;
@@ -131,7 +131,7 @@ private:
   //Needed by dupAddrDetSuccess to call sendBU
   ipv6_addr futureCoa;
   bool ignoreInitiall2trigger;
-}; 
+};
 
 } //namespace MobileIPv6
 

@@ -1,18 +1,18 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
@@ -47,10 +47,10 @@
 #endif //BOOST_OPERATORS_HPP
 
 namespace HierarchicalMIPv6
-{  
+{
 
 class HMIPv6ICMPv6NDOptMAP;
-  
+
 /**
  * @class HMIPv6MAPEntry
  * @brief Entry for storing a MAP option
@@ -59,9 +59,9 @@ class HMIPv6ICMPv6NDOptMAP;
 class HMIPv6MAPEntry: boost::equality_comparable<HMIPv6MAPEntry>,
                       boost::less_than_comparable<HMIPv6MAPEntry>
 {
-  
+
   friend std::ostream& operator<<(std::ostream& os, const HMIPv6MAPEntry& me);
-  
+
 public:
   HMIPv6MAPEntry(const ipv6_addr& address = IPv6_ADDR_UNSPECIFIED,
                  unsigned int expires = 0 , int dist = 1, int pref=9)
@@ -76,11 +76,11 @@ public:
   HMIPv6MAPEntry(const HMIPv6MAPEntry& src)
     :options(src.options), expires(src.expires), mapAddr(src.mapAddr)
     {}
-  
+
   bool operator==(const HMIPv6MAPEntry& rhs) const
     {
-      return options == rhs.options && expires == rhs.expires && 
-        mapAddr == rhs.mapAddr;      
+      return options == rhs.options && expires == rhs.expires &&
+        mapAddr == rhs.mapAddr;
     }
 
   ///default map selection algorithm  from draft (furthest map is first).
@@ -90,7 +90,7 @@ public:
     }
 
   unsigned int distance() const { return (options & 0xF000)>>12; }
-  
+
   void setDistance(unsigned int dist)
     {
       assert(dist < 1<<4 && dist > 0);
@@ -98,43 +98,43 @@ public:
     }
 
   unsigned int preference() const { return (options & 0xF00)>>8; }
-  
+
   void setPreference(unsigned  int pref)
     {
       assert(pref < 1<<4);
       options = (options & 0xF0FF) | (pref<<8);
     }
-  
+
   bool r() const { return (options & 1<<7); }
   bool m() const { return (options & 1<<6); }
   bool i() const { return (options & 1<<5); }
   bool t() const { return (options & 1<<4); }
   bool p() const { return (options & 1<<3); }
   bool v() const { return (options & 1<<2); }
-  
+
   void setR(bool r) { r?options |= 1<<7:options &= ~(1<<7); }
-  
+
   void setM(bool m) { m?options |= 1<<6:options &= ~(1<<6); }
-  
+
   void setI(bool i) { i?options |= 1<<5:options &= ~(1<<5); }
-  
+
   void setT(bool t) { t?options |= 1<<4:options &= ~(1<<4); }
-  
+
   void setP(bool p) { p?options |= 1<<3:options &= ~(1<<3); }
-  
+
   void setV(bool v) { v?options |= 1<<2:options &= ~(1<<2); }
-  
+
   ///minimum lifetime of map addr/prefix in seconds
   unsigned int lifetime() const  { return expires; }
 
   void setLifetime(unsigned int exp) { expires = exp; }
-  
+
   const ipv6_addr& addr() const { return mapAddr; }
-  
+
   void setAddr(ipv6_addr addr) { mapAddr = addr; }
-  
+
 private:
-  
+
   unsigned int options;
   unsigned int expires;
   ipv6_addr mapAddr;

@@ -3,17 +3,17 @@
 // Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
@@ -29,21 +29,10 @@
 #ifndef IPV6CDS_H
 #define IPV6CDS_H 1
 
-#ifndef IROUTERLIST_H
 #include "IRouterList.h"
-#endif //IROUTERLIST_H
-
-#ifndef IPREFIXLIST_H
 #include "IPrefixList.h"
-#endif //IPREFIXLIST_H
-
-#ifndef INEIGHBOURCACHE_H
 #include "INeighbourCache.h"
-#endif //INEIGHBOURCACHE_H
-
-#ifndef IDESTINATIONCACHE_H
 #include "IDestinationCache.h"
-#endif //IDESTINATIONCACHE_H
 
 
 #ifdef USE_CPPUNIT

@@ -1,18 +1,18 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// GNU Lesser General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
@@ -20,9 +20,9 @@
  * @file   MIPv6MNEntry.cc
  * @author Johnny Lai
  * @date   06 Sep 2002
- * 
+ *
  * @brief  Implementation of MIPv6RouterEntry and bu_entry classes
- * 
+ *
  */
 
 
@@ -60,12 +60,12 @@ namespace MobileIPv6
    * lifetime and ha lifetime is not 0.  Its not implemented like this now
    * however it could be if there is no point in having two different lifetimes.
    */
-  
+
   void MIPv6RouterEntry::setLifetime(unsigned int lifetime)
   {
     _lifetime = lifetime;
   }
-  
+
   unsigned int MIPv6RouterEntry::lifetime() const
   {
     return _lifetime;
@@ -83,15 +83,15 @@ namespace MobileIPv6
 ;
   }
 
-  void bu_entry::setLifetime(unsigned int life) 
+  void bu_entry::setLifetime(unsigned int life)
   {
-    _lifetime = life; 
-    setExpires(_lifetime); 
+    _lifetime = life;
+    setExpires(_lifetime);
   }
 
   void bu_entry::setExpires(unsigned int exp)
   {
     _expires = exp;
   }
-  
+
 } //namespace MobileIPv6

@@ -27,7 +27,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include "MIPv6NDStateHost.h"
 #include "cTTimerMessageCB.h"
@@ -1647,7 +1647,7 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
     Dout(dc::mipv6|dc::encapsulation, " reverse tunnel exists already "<<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
     Dout(dc::mipv6|dc::encapsulation, *tunMod);
   }
-  
+
 }
 // void MIPv6NDStateHost::enterState(void)
 // {}

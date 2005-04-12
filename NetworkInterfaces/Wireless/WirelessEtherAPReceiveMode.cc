@@ -25,7 +25,7 @@
 
 #include "sys.h" // Dout
 #include "debug.h" // Dout
-#include "config.h"
+
 
 #include "WirelessAccessPoint.h"
 #include "WirelessEtherAssociationReceiveMode.h"

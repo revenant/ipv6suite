@@ -26,7 +26,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include <iomanip> //setprecision
 #include <string>
@@ -100,7 +100,7 @@ public:
       {
         Dout(dc::warning|flush_cf, nodeName<<" "<<simulation.simTime()
              <<" todo find out why BU to unspecified address (removing timer)");
-        stateMN->removeBURetranTmr(this); 
+        stateMN->removeBURetranTmr(this);
         return;
       }
 
@@ -513,7 +513,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
               //if rcoa does not prefix match the dgram->srcAddress we ignore
               //since we do not want to bind with HA using a coa from a previous MAP.
 
-              EdgeHandover::EHCDSMobileNode* ehcds = 
+              EdgeHandover::EHCDSMobileNode* ehcds =
                 boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
               assert(ehcds);
               Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
@@ -569,7 +569,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 #endif //EDGEHANDOVER
     }
 #endif //USE_HMIP
-    
+
   }
   else
   {
@@ -1007,7 +1007,7 @@ void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram, IPv6Mobility*
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
   bu_entry* bule = 0;
-  
+
   if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
   {
     Dout(dc::warning, " implement processBM for MN to send BU to CN");

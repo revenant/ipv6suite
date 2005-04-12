@@ -29,7 +29,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include "IPv6InterfaceData.h"
 #include "IPv6Headers.h"

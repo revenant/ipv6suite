@@ -26,7 +26,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include <iomanip> //setprecision
 #include <climits> //UINT_MAX

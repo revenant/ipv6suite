@@ -28,7 +28,7 @@
 //These two headers have to come first if libcwd macros are in use
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include "RoutingTable6.h"
 

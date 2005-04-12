@@ -27,7 +27,7 @@
 #ifndef __WIRELESSACCESSPOINT__
 #define __WIRELESSACCESSPOINT__
 
-#include "config.h"
+
 
 #include <omnetpp.h>
 #include "ExpiryEntryList.h"

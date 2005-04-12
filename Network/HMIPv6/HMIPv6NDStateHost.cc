@@ -30,7 +30,7 @@
 #include <boost/cast.hpp>
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include "HMIPv6NDStateHost.h"
 

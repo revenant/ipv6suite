@@ -28,7 +28,7 @@
 
 #include <climits>
 #include "NDStates.h"
-#include "config.h"
+
 #include "NDStateHost.h"
 #include "NDStateRouter.h"
 

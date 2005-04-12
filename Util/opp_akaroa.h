@@ -33,7 +33,7 @@
 #define OPP_AKAROA_H 1
 
 #ifndef CONFIG_H
-#include "config.h"
+
 #endif //CONFIG_H
 
 #ifndef __OMNETPP_H

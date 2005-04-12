@@ -30,7 +30,7 @@
 #ifndef __IPv6INTERFACEDATA_H
 #define __IPv6INTERFACEDATA_H
 
-#include "config.h"
+
 #include <string>
 #include "ipv6_addr.h"
 #include "NDEntry.h"

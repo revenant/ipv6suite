@@ -27,7 +27,7 @@
 #ifndef __WIRELESSETHERMODULE__
 #define __WIRELESSETHERMODULE__
 
-#include "config.h"
+
 
 #include <memory> //auto_ptr
 

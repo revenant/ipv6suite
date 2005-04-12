@@ -27,7 +27,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include <climits>
 #include <cstdlib>

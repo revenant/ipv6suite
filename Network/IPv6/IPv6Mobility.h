@@ -34,7 +34,7 @@
 
 #include <iostream>
 #include <omnetpp.h>
-#include "config.h"
+
 #include "opp_utils.h" //abort_ipv6suite
 
 #ifdef USE_MOBILITY

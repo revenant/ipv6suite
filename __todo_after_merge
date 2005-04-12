@@ -1,15 +1,8 @@
 
 - change GPL to LGPL
+
 - switch IPv6 models from counting in BYTES to counting in BITS!!!
+
 - Ping6PayloadPacket: strip a controlInfo from it
 
-- write DISCLAIMER.txt: this is work in progress!
-- RELEASE!!!!
-
-TODO:
-
-- videoapp: change module param names in ini files; maigrate to; use UDP not UDP6
-
-- IPAddressResolver: should recognize "<modulename>#interface/ipv6"
-
-- add TCP into IPv6 nodes
+- finish IPAddressResolver

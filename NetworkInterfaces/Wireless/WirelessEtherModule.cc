@@ -26,7 +26,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include <iostream>
 #include <iomanip>

@@ -36,7 +36,7 @@
 
 #include "sys.h"
 #include "debug.h"
-#include "config.h"
+
 
 #include <iomanip> //setprecision
 #include <iterator> //ostream_iterator

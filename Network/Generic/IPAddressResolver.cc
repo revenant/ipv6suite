@@ -48,6 +48,28 @@ IPvXAddress IPAddressResolver::resolve(const char *str)
     return addr;
 }
 
+bool IPAddressResolver::tryResolve(const char *str, IPvXAddress& result)
+{
+    // handle empty address and dotted decimal notation
+    if (!*str)
+        return IPvXAddress();
+    if (isdigit(*str) || *str==':')
+        return IPvXAddress(str); // FIXME IPvXAddress has no such ctor...
+
+    // handle module name
+    cModule *mod = simulation.moduleByPath(str);
+    if (!mod)
+        opp_error("IPAddressResolver: module `%s' not found", str);
+
+    // FIXME TBD: parse requested address type, and pass it as preferIPv6 below
+    IPvXAddress addr = addressOf(mod);
+    if (addr.isNull())
+        opp_error("IPAddressResolver: no interface in `%s' has an IP or IPv6 address "
+                  "assigned (yet? try in a later init stage!)", mod->fullPath().c_str());
+    // FIXME TBD: if address is not of requested type, throw an error
+    return addr;
+}
+
 IPvXAddress IPAddressResolver::addressOf(cModule *host, bool preferIPv6)
 {
     InterfaceTable *ift = interfaceTableOf(host);

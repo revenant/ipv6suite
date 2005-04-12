@@ -55,6 +55,14 @@ class IPAddressResolver
      */
     IPvXAddress resolve(const char *str);
 
+    /**
+     * Similar to resolve(), but returns false (instead of throwing an error)
+     * if the address cannot be resolved because the given host (or interface)
+     * doesn't have an address assigned yet. (It still throws an error
+     * on any other error condition).
+     */
+    bool tryResolve(const char *str, IPvXAddress& result);
+
     /** @name Utility functions supporting resolve() */
     //@{
     /**

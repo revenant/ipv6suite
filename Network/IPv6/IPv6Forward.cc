@@ -464,7 +464,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN =
           boost::polymorphic_downcast<HierarchicalMIPv6::HMIPv6CDSMobileNode*>(rt->mipv6cds);
 
-        InterfaceEntry *ie = ift->interfaceByPortNo(info.ifIndex);
+        InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
 
         if (hmipv6cdsMN->isMAPValid())
         {

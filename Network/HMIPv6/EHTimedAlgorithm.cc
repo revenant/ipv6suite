@@ -32,6 +32,8 @@
 #include "sys.h"
 #include "debug.h"
 
+#include <boost/cast.hpp>
+
 #include "EHTimedAlgorithm.h"
 #include "IPv6Mobility.h"
 #include "NeighbourDiscovery.h"
@@ -64,7 +66,7 @@ EHTimedAlgorithm::~EHTimedAlgorithm()
 
    Currently doing every x seconds. Add boolean to do other way. May
    not ever bind with HA if we actually visit many MAPs before interval expires
-   (in this case will need to distinguish between MAPs?) 
+   (in this case will need to distinguish between MAPs?)
  */
 void EHTimedAlgorithm::mapAlgorithm()
 {

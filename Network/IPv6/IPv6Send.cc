@@ -108,8 +108,8 @@ Debug(
     for (size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
     {
       InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-      if (ie.addrAssigned(mkIpv6_addr(ctrl->srcAddr())) ||
-					  (rt->odad() && ie->ipv6()->addrAssigned(mkIpv6_addr(ctrl->srcAddr())))
+      if (ie->ipv6()->addrAssigned(mkIpv6_addr(ctrl->srcAddr())) ||
+          (rt->odad() && ie->ipv6()->addrAssigned(mkIpv6_addr(ctrl->srcAddr()))))
       {
         found = true;
         break;

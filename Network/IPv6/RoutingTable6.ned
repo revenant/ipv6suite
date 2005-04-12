@@ -16,23 +16,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
+
 //
-//   file: RoutingTable6
-//   Purpose: keep the table of all routing and
-//        nterface information
-//   comment: has no gates;
-//        requires function calls to do anything
+// Keep the table of all routing and interface information
 //
-//   author: Johnny Lai
-//   Based on RoutingTable by Jochen Reber
-
-
-
-
+// @author: Johnny Lai
+// Based on RoutingTable by Jochen Reber
+//
 simple RoutingTable6
     parameters:
-        //Turn on ifconfig like output at initialise for this node?
-	displayIfconfig : bool,
-        IPv6routingFile : string,
-	numOfPorts : numeric;
+	displayIfconfig : bool;
 endsimple

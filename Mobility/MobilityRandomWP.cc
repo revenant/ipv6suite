@@ -31,7 +31,8 @@
 */
 
 #include <cassert>
-
+#include "debug.h"
+#include "opp_utils.h"
 #include "MobilityRandomWP.h"
 #include "WorldProcessor.h"
 #include "XML/XMLOmnetParser.h"
@@ -59,7 +60,7 @@ void MobilityRandomWP::initialize(int stage)
         Dout(dc::xml_addresses, " no global "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
     }
 
-    wproc->parseRandomWPInfo(this);
+    wproc->xmlConfig()->parseRandomWPInfo(this);
 
     randomWP = new RandomWP;
     randomWP->moveInterval = moveInterval;

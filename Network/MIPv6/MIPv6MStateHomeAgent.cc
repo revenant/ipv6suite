@@ -48,7 +48,6 @@
 #include "IPv6CDS.h"
 
 
-
 namespace MobileIPv6
 {
 

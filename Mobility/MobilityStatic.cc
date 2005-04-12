@@ -31,7 +31,8 @@
 */
 
 #include <cassert>
-
+#include "debug.h"
+#include "opp_utils.h"
 #include "MobilityStatic.h"
 #include "WorldProcessor.h"
 #include "XML/XMLOmnetParser.h"
@@ -56,7 +57,7 @@ void MobilityStatic::initialize(int stage)
         Dout(dc::xml_addresses, " no global "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
     }
 
-    wproc->parseMovementInfo(this);
+    wproc->xmlConfig()->parseMovementInfo(this);
     if (mobileEntity->speed() && !selfMovingNotifier)
     {
       elapsedTime = (double)1 / mobileEntity->speed();

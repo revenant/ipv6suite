@@ -2,15 +2,15 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <!-- netconf debugChannel="debug.log:RRProcedure:AddrResln:Forwarding:IPv6:MIPv6:NeighbourDisc" -->
-<netconf debugChannel="debug.log:RRProcedure:WirelessEthernet">
-  <local node="client1" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off">
+<netconf debugChannel="debug.log:RRProcedure:Forwarding"> 
+  <local node="client1" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.9" />
       </WirelessEtherInfo>
     </interface>
   </local>
-  <local node="server4" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off">
+  <local node="server4" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.9" />
@@ -198,12 +198,12 @@
   <misc>
     <ObjectMovement>
       <MovingNode NodeName="client1" startTime="0">
-        <move moveToX="352" moveToY="369" moveSpeed="3"/>
-        <move moveToX="88" moveToY="369" moveSpeed="3"/>
+        <move moveToX="300" moveToY="369" moveSpeed="3"/>
+<!--        <move moveToX="88" moveToY="369" moveSpeed="3"/> not working for the 3rd handover until proxy ND is implemented -->
       </MovingNode>
       <MovingNode NodeName="server4" startTime="0">
-        <move moveToX="352" moveToY="118" moveSpeed="3"/>
-        <move moveToX="88" moveToY="118" moveSpeed="3"/>
+        <move moveToX="300" moveToY="118" moveSpeed="3"/>
+<!--        <move moveToX="88" moveToY="118" moveSpeed="3"/> not working for the 3rd ho until proxy ND is implemented -->
       </MovingNode>
     </ObjectMovement>
   </misc>

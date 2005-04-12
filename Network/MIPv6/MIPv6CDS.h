@@ -26,9 +26,6 @@
 #ifndef MIPV6CDS_H
 #define MIPV6CDS_H 1
 
-#ifndef IPV6CDS_H
-//#include "IPv6CDS.h"
-#endif //IPV6CDS_H
 #ifndef MAP
 #define MAP
 #include <map>

@@ -5,14 +5,14 @@
 <!-- netconf debugChannel="debug.log:WirelessEthernet" -->
 <!-- netconf debugChannel="debug.log:Ping6" -->
 <netconf debugChannel="debug.log:RRProcedure">
-  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" directSignaling="off" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off">
+  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off">
     <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="1">
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.5" WEAuthenticationTimeout="1000" WEAssociationTimeout="1000"/>
       </WirelessEtherInfo>
     </interface>
   </local>
-  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" directSignaling="off" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off">
+  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off">
     <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="1">
       <WirelessEtherInfo>
         <WEInfo WETxPower="0.5" WEAuthenticationTimeout="1000" WEAssociationTimeout="1000"/>

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2004 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,14 +42,26 @@ HdrExtDestProc::HdrExtDestProc(const HdrExtDestProc& src)
   operator=(src);
 }
 
+HdrExtDestProc::~HdrExtDestProc()
+{
+  for ( size_t i = 0; i < destOpts.size(); i ++)
+    delete destOpts[i];
+}
+
 bool HdrExtDestProc::operator==(const HdrExtDestProc& rhs)
 {
-  bool success = HdrExtProc::operator==(rhs);
-
-  if (!success)
+  if (!HdrExtProc::operator==(rhs))
     return false;
 
-  return ( opt_hdr == rhs.opt_hdr && destOpts == rhs.destOpts);
+  if (!(opt_hdr == rhs.opt_hdr && destOpts.size() == rhs.destOpts.size()))
+    return false;
+
+  for ( size_t i = 0; i < rhs.destOpts.size(); i ++)
+  {
+    if (destOpts[i] != rhs.destOpts[i])
+      return false;
+  }
+  return true;
 }
 
 HdrExtDestProc& HdrExtDestProc::operator=(const HdrExtDestProc& rhs)
@@ -59,7 +71,9 @@ HdrExtDestProc& HdrExtDestProc::operator=(const HdrExtDestProc& rhs)
     HdrExtProc::operator=(rhs);
 
     opt_hdr = rhs.opt_hdr;
-    destOpts = rhs.destOpts;
+    destOpts.clear();
+    for ( size_t i = 0; i < rhs.destOpts.size(); i ++)
+      destOpts.push_back(rhs.destOpts[i]->dup());
   }
 
   return *this;

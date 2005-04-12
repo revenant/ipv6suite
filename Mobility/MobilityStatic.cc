@@ -45,7 +45,18 @@ void MobilityStatic::initialize(int stage)
 
   if ( stage == 2 )
   {
-    wproc->xmlConfig()->parseMovementInfo(this);
+    cXMLElement* moveInfo = par("moveXmlConfig");
+    if (moveInfo)
+    {
+       XMLConfiguration::XMLOmnetParser p;
+      //default.ini loads empty.xml at element netconf
+      if (p.getNodeProperties(moveInfo, "debugChannel", false) == "")
+        p.parseMovementInfoDetail(this, moveInfo);
+      else
+        Dout(dc::xml_addresses, " no global "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
+    }
+
+    wproc->parseMovementInfo(this);
     if (mobileEntity->speed() && !selfMovingNotifier)
     {
       elapsedTime = (double)1 / mobileEntity->speed();

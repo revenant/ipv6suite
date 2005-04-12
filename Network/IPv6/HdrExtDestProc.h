@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2004 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -120,6 +119,8 @@ public:
 
   explicit HdrExtDestProc(const HdrExtDestProc& src);
 
+  ~HdrExtDestProc();
+  
   virtual const char* className() const { return "HdrExtDestProc"; }
 
   bool operator==(const HdrExtDestProc& rhs);

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,11 +21,8 @@
  * @author Johnny Lai
  * @date   19 Apr 2002
  *
- * @brief
+ * @brief Binding Cache implementation
  *
- * @todo Implement mainly Binding Cache interface which is common to both
- * HomeAgents and Mobile Nodes however there may be differences so that reuse is
- * inappropriate
  *
  */
 
@@ -34,11 +31,29 @@
 #include "MIPv6Entry.h"
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
+#include <iostream>
 
 using std::rand;
 
+std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS::BindingCache::value_type& p)
+{
+  os<<"key="<<p.first<<" entry: "<<*(p.second);
+  return os;
+}
+  
+std::ostream& MobileIPv6::MIPv6CDS::operator<<(std::ostream& os) const
+{
+  copy(bc.begin(), bc.end(), ostream_iterator<MIPv6CDS::MIPv6CDS::BindingCache::value_type >(os, "\n"));
+  return os;
+}
+
 namespace MobileIPv6
 {
+
+std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
+{
+  return mipv6cds.operator<<(os);
+}
 
   MIPv6CDS::MIPv6CDS():tunMod(0)
   {

@@ -48,7 +48,18 @@ void MobilityRandomWP::initialize(int stage)
 
   if ( stage == 1 )
   {
-    wproc->xmlConfig()->parseRandomWPInfo(this);
+    cXMLElement* moveInfo = par("moveXmlConfig");
+    if (moveInfo)
+    {
+       XMLConfiguration::XMLOmnetParser p;
+      //default.ini loads empty.xml at element netconf
+      if (p.getNodeProperties(moveInfo, "debugChannel", false) == "")
+        p.parseRandomWPInfoDetail(this, moveInfo);
+      else
+        Dout(dc::xml_addresses, " no global "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
+    }
+
+    wproc->parseRandomWPInfo(this);
 
     randomWP = new RandomWP;
     randomWP->moveInterval = moveInterval;
@@ -65,13 +76,12 @@ void MobilityRandomWP::initialize(int stage)
     int y = mobileEntity->position().y;
 
 //    double time = randomWP->randomWaypoint(x, y);
-    double time = 5; // dodgey! but we stick for now; we do this because we want to make sure that mn estbalishes connection with its ha
 
     selfMovingNotifier = new cMessage("move");
     selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
     selfMovingNotifier->addPar("x") = x;
     selfMovingNotifier->addPar("y") = y;
-    scheduleAt(simTime() + time, selfMovingNotifier);
+    scheduleAt(simTime() + startTime, selfMovingNotifier);
   }
 }
 

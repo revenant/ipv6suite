@@ -64,33 +64,42 @@ EHTimedAlgorithm::~EHTimedAlgorithm()
 
    Currently doing every x seconds. Add boolean to do other way. May
    not ever bind with HA if we actually visit many MAPs before interval expires
-   (in this case will need to distinguish between between MAPs?)
+   (in this case will need to distinguish between MAPs?) 
  */
 void EHTimedAlgorithm::mapAlgorithm()
 {
   Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" May do map algorithm");
-  if (!hmipv6cdsMN.isMAPValid() || hmipv6cdsMN.currentMap().addr() == ehcds->boundMapAddr())
+  if (!hmipv6cdsMN.isMAPValid() ||
+      hmipv6cdsMN.currentMap().addr() == ehcds->boundMapAddr())
   {
     if (!mob->edgeHandoverCallback()->isScheduled())
         mob->edgeHandoverCallback()->rescheduleDelay(interval);
     return; //unless state of binding has changed or is about to expire
   }
 
-  Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" invoking map algorithm");
-
-  assert(nd->simTime()>=interval);
+  Dout(dc::eh|flush_cf, mob->nodeName()<<" "<<nd->simTime()<<" invoking map algorithm");
 
   if (!mob->edgeHandoverCallback()->isScheduled())
   {
     //Called when timer expires
+    ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
+                                     (mob->edgeHandoverCallback()))->args)->srcAddress();
 
-    MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(
-      Loki::Field<0>((check_and_cast<EdgeHandover::EHCallback*>
-                      (mob->edgeHandoverCallback()))->args)->srcAddress());
+    MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
+    if (!bue)
+    {
+      Dout(dc::warning|flush_cf, mob->nodeName()<<" "<<nd->simTime()<<" bue for "<<peerAddr<<" not found.");
+      //Caused by HA not sending us back BA and so we have a really old bound
+      //map which may have been removed as we forward from old bmaps for 5
+      //seconds only
+    }
+    else
+    {
     MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
       hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
-         <<" sent bu to all eh callback bue->lifetime="<<bue->lifetime());
+           <<" mapAlgorithm sent bu to all based on BA from bue-"<<*bue);
+    }
     mob->edgeHandoverCallback()->rescheduleDelay(interval);
   }
   else

@@ -61,9 +61,14 @@
 #include "HMIPv6NDStateHost.h"
 #include <string>
 #include <memory>
+#include <iostream>
 using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 using HierarchicalMIPv6::HMIPv6NDStateHost;
 #endif //USE_HMIP
+
+#if EDGEHANDOVER
+#include "EHCDSMobileNode.h"
+#endif //EDGEHANDOVER
 
 
 #if defined __GNUC__ && __GNUC__ < 3
@@ -404,7 +409,7 @@ void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
 
 std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 {
-  rtrAdv.reset(IPv6NeighbourDiscovery::NDStateHost::processRtrAd(rtrAdv).release());
+  rtrAdv = IPv6NeighbourDiscovery::NDStateHost::processRtrAd(rtrAdv);
 
   if (rtrAdv.get() == 0)
     return rtrAdv;
@@ -575,9 +580,10 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     if ((mipv6cdsMN->movementDetected() || mipv6cdsMN->eagerHandover()) &&
         mipv6cdsMN->primaryHA())
     {
+
 #ifdef USE_HMIP
       if (rt->hmipSupport() && rtrAdv->hasMapOptions())
-        Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost6::processRtrAdv deferring handover");
+        Dout(dc::hmip, rt->nodeName()<<" (no current router) Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover");
       else
 #endif //USE_HMIP
       handover(bha);
@@ -615,7 +621,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
            <<"Archaic movement detection triggered handover?");
 #ifdef USE_HMIP
       if (rt->hmipSupport() && rtrAdv->hasMapOptions())
-        Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost6::processRtrAdv deferring handover");
+        Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover(archaic branch) ");
       else
 #endif //USE_HMIP
       handover(bha);
@@ -1552,6 +1558,23 @@ void MIPv6NDStateHost::returnHome()
   schedSendUnsolNgbrAd = schedUNA;
   nd->scheduleAt(nd->simTime() +  2*SELF_SCHEDULE_DELAY, schedSendUnsolNgbrAd);
 
+#ifdef USE_HMIP
+  if (rt->hmipSupport())
+  {
+    HMIPv6CDSMobileNode* hmipv6cds =
+      boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(rt->mipv6cds);
+    assert(hmipv6cds);
+    hmipv6cds->setNoCurrentMap();
+
+#if EDGEHANDOVER
+    if (mob->edgeHandover())
+    {
+      (boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(hmipv6cds))
+        ->setNoBoundMap();
+    }
+  }
+#endif //EDGEHANDOVER
+#endif //USE_HMIP
 }
 
 ///Calls sendBU of MStateMN eventually
@@ -1607,12 +1630,24 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
                                      mipv6cdsMN->primaryHA()->prefix().prefix);
-  assert(!vIfIndex);
+
+  //assert(!vIfIndex);
+  //Sometimes old tunnel is not removed so it may have been created already when
+  //we revisit past ARs
+  if (!vIfIndex)
+  {
   //assuming single mobile interface at 0
   vIfIndex = tunMod->createTunnel(ncoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
 
   Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, " reverse tunnel created entry="
-       <<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<vIfIndex);
+         <<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+  }
+  else
+  {
+    Dout(dc::mipv6|dc::encapsulation, " reverse tunnel exists already "<<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+    Dout(dc::mipv6|dc::encapsulation, *tunMod);
+  }
+  
 }
 // void MIPv6NDStateHost::enterState(void)
 // {}

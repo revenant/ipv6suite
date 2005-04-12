@@ -151,4 +151,30 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+InterfaceEntry.obj: InterfaceEntry.cc \
+  ../../Util/stlwatch.h \
+  InterfaceEntry.h \
+  ../../Base/INETDefs.h
+InterfaceTable.obj: InterfaceTable.cc \
+  ../../Util/stlwatch.h \
+  InterfaceTable.h \
+  ../../Base/INETDefs.h \
+  InterfaceEntry.h
+IPAddress.obj: IPAddress.cc \
+  IPAddress.h \
+  ../../Base/INETDefs.h
+IPAddressResolver.obj: IPAddressResolver.cc \
+  IPAddressResolver.h \
+  InterfaceTable.h \
+  ../IPv4/IPv4InterfaceData.h \
+  ../IPv4/RoutingTable.h \
+  IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  IPAddress.h \
+  ../../Base/INETDefs.h \
+  InterfaceEntry.h
+IPvXAddress.obj: IPvXAddress.cc \
+  IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  IPAddress.h \
+  ../../Base/INETDefs.h

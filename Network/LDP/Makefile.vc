@@ -132,4 +132,26 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+NewLDP.obj: NewLDP.cc \
+  ../MPLS/ConstType.h \
+  NewLDP.h \
+  ../MPLS/LIBtable.h \
+  ../MPLS/MPLSModule.h \
+  ../Generic/InterfaceTableAccess.h \
+  ../IPv4/IPv4InterfaceData.h \
+  ../IPv4/RoutingTableAccess.h \
+  ../../Util/stlwatch.h \
+  ../MPLS/MPLSAccess.h \
+  ../MPLS/LIBTableAccess.h \
+  ../../Transport/TCP/TCPSocketMap.h \
+  ../../Base/ModuleAccess.h \
+  ../../Transport/TCP/TCPSocket.h \
+  ../Generic/IPvXAddress.h \
+  ../../Base/inetdefs.h \
+  ../Generic/IPAddress.h \
+  ../../Base/INETDefs.h \
+  ../MPLS/MPLSPacket.h \
+  ../IPv4/IPDatagram.h \
+  ../Generic/InterfaceTable.h \
+  ../Generic/InterfaceEntry.h \
+  ../IPv4/RoutingTable.h

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University
+// Copyright (C) 2001, 2003, 2004, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -283,7 +283,7 @@ void NeighbourEntry::update(const ICMPv6NDMRedirect* redirect)
 
 std::ostream& operator<<(std::ostream& os, const NeighbourEntry& ne)
 {
-  os<<"Neighbour "<<ne.addr()<<" ifIndex="<<ne.ifIndex()<<" isRouter="
+  os<<ne.addr()<<" ifIndex="<<hex<<ne.ifIndex()<<dec<<" isRouter="
     <<(ne.isRouter()?"true":"false")<<" NUD="<<ne.state()<<" lladdr="
     <<ne.linkLayerAddr();
   return os;
@@ -362,6 +362,16 @@ void RouterEntry::setInvalidTmr(unsigned int newLifetime)
   if (newLifetime != VALID_LIFETIME_INFINITY)
     tmr->reschedule(tmr->msgOwner()->simTime() + newLifetime);
 */
+}
+
+std::ostream& operator<<(std::ostream& os, const DestinationEntry& de)
+{
+    os <<"ngbr: ";
+    if (de.neighbour.lock().get())
+      os <<*(de.neighbour.lock().get());
+    else
+      os <<" none";
+    return os;
 }
 
 }// end  namespace IPv6NeighbourDiscovery

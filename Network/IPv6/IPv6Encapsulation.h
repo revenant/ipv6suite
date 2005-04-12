@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University
+// Copyright (C) 2002, 2004, 2005 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -110,15 +110,15 @@ class IPv6Encapsulation : public cSimpleModule
 
     ~Tunnel();
 
-    ///entry point of tunnel
-    ipv6_addr entry;
-    ///exit point of tunnel
-    ipv6_addr exit;
-
     bool operator==(const Tunnel& rhs)
       {
         return entry == rhs.entry && exit == rhs.exit;
       }
+
+    ///entry point of tunnel
+    ipv6_addr entry;
+    ///exit point of tunnel
+    ipv6_addr exit;
 
     ///outgoing interface for entry point address
     size_t ifIndex;
@@ -136,6 +136,9 @@ class IPv6Encapsulation : public cSimpleModule
     ///after binding established all data packets are direct.
     bool forOnePkt;
   };
+
+  friend std::ostream& operator<<(std::ostream& os,
+                                  const IPv6Encapsulation::Tunnel& tun);
 
   friend std::ostream& operator<<(std::ostream& os,
                                   const pair<const size_t, Tunnel> & p);
@@ -239,6 +242,7 @@ private:
   TFunctorBaseA<IPv6Datagram>* mipv6CheckTunnelCB;
 };
 
+std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation::Tunnel& tun);
 std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation& tunMod);
 
 #endif // IPv6ENCAPSULATION_H

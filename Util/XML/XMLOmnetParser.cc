@@ -726,9 +726,6 @@ void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info
 
 void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
 {
-  // superclass for the (L1) mobile module
-  MobileEntity* me = mod->mobileEntity;
-
   // obtain movement info from XML
   const char* nodeName = OPP_Global::findNetNodeModule(mod)->name();
   cXMLElement* nmisc = doc()->getElementByPath("./misc");
@@ -741,15 +738,24 @@ void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
   cXMLElement* nobj = nmisc->getElementByPath("./ObjectMovement");
   if (!nobj)
   {
-    DoutFatal(dc::core, "Cannot find ObjectMovement in misc");
+    Dout(dc::notice, "Cannot find ObjectMovement in misc better be one in global");
+    return;
   }
 
   cXMLElement* nmovenode = nobj->getFirstChildWithAttribute("MovingNode", "NodeName", nodeName);
   if (!nmovenode)
   {
-    Dout(dc::debug|dc::notice, "No movement info for node "<<nodeName);
+    Dout(dc::notice, "No movement info for node "<<nodeName);
     return;
   }
+
+  parseMovementInfoDetail(mod, nmovenode);
+}
+
+void XMLOmnetParser::parseMovementInfoDetail(MobilityStatic* mod, cXMLElement* nmovenode)
+{
+  // superclass for the (L1) mobile module
+  MobileEntity* me = mod->mobileEntity;
 
   me->setStartMovingTime(OPP_Global::atoul(getNodeProperties(nmovenode, "startTime").c_str()));
 
@@ -762,6 +768,7 @@ void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
                 OPP_Global::atod(getNodeProperties(nmove, "moveSpeed").c_str())
                 );
   }
+
 }
 
 void XMLOmnetParser::parseRandomWPInfo(MobilityRandomWP* mod)
@@ -776,7 +783,12 @@ void XMLOmnetParser::parseRandomWPInfo(MobilityRandomWP* mod)
     Dout(dc::debug|dc::notice, "No movement info for node "<<nodeName);
     return;
   }
+  parseRandomWPInfoDetail(mod, nmovenode);
+}
 
+
+void XMLOmnetParser::parseRandomWPInfoDetail(MobilityRandomWP* mod, cXMLElement* nmovenode)
+{
   mod->minX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinX").c_str());
   mod->maxX = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMaxX").c_str());
   mod->minY = OPP_Global::atoul(getNodeProperties(nmovenode, "RWMinY").c_str());
@@ -786,6 +798,7 @@ void XMLOmnetParser::parseRandomWPInfo(MobilityRandomWP* mod)
   mod->maxSpeed = OPP_Global::atod(getNodeProperties(nmovenode, "RWMaxSpeed").c_str());
   mod->pauseTime = OPP_Global::atod(getNodeProperties(nmovenode, "RWPauseTime").c_str());
   mod->distance = OPP_Global::atoul(getNodeProperties(nmovenode, "RWDistance").c_str());
+  mod->startTime = OPP_Global::atod(getNodeProperties(nmovenode, "RWStartTime").c_str());
 }
 
 void XMLOmnetParser::parseRandomPatternInfo(MobilityRandomPattern* mod)

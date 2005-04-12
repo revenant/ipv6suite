@@ -130,4 +130,18 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+ARP.obj: ARP.cc \
+  ARP.h \
+  ../../Util/stlwatch.h \
+  ../../Network/Generic/InterfaceTableAccess.h \
+  ../../Network/IPv4/IPv4InterfaceData.h \
+  ../../Network/IPv4/RoutingTableAccess.h \
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
+  ../../Network/IPv4/IPDatagram.h \
+  ../../Network/Generic/InterfaceTable.h \
+  ../../Network/IPv4/RoutingTable.h \
+  ../Ethernet/EtherMAC.h \
+  ../../Network/Generic/InterfaceEntry.h \
+  ../Ethernet/Ethernet.h \
+  ../../Base/ModuleAccess.h

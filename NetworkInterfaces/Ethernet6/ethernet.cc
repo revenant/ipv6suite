@@ -34,7 +34,7 @@ const int SELF_BACKOFF = 2001;
 const int SELF_INTERFRAMEGAP = 2002;
 
 // speed
-const int BANDWIDTH = 10000000; // 100 Mbps
+const double BANDWIDTH = 100000000; // 100 Mbps
 //const int BANDWIDTH = 500000; // 500kbps
 
 const char* ETH_BROADCAST_ADDRESS="ff:ff:ff:ff:ff:ff";

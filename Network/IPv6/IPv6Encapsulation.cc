@@ -36,6 +36,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "cTTimerMessageCB.h"
+#include <memory>
 
 using IPv6NeighbourDiscovery::NeighbourEntry;
 using std::auto_ptr;
@@ -181,10 +182,14 @@ size_t IPv6Encapsulation::findTunnel(const ipv6_addr& src, const ipv6_addr& dest
 ///Remove tunnel and the associated entries in Dest Cache
 bool IPv6Encapsulation::destroyTunnel(const ipv6_addr& src, const ipv6_addr& dest)
 {
+  Dout(dc::encapsulation|flush_cf, "destroy tunnel entry="<<src<<" exit="<<dest);
   //remove all dest entries with this as link and delete ne
   size_t vIfIndex = findTunnel(src, dest);
   if (vIfIndex == 0)
+  {
+    Dout(dc::warning|dc::encapsulation|flush_cf, "tunnel not found entry="<<src<<" exit="<<dest);
     return false;
+  }
 
   tunnels.erase(vIfIndex);
   return true;
@@ -192,14 +197,33 @@ bool IPv6Encapsulation::destroyTunnel(const ipv6_addr& src, const ipv6_addr& des
 
 bool IPv6Encapsulation::destroyTunnel(size_t vIfIndex)
 {
-  return tunnels.erase(vIfIndex);
+  Dout(dc::encapsulation, " tunnels are "<<*(this));
+
+  if (tunnels.count(vIfIndex))
+    Dout(dc::encapsulation|flush_cf, "destroy tunnel vIfIndex="<<hex<<vIfIndex<<dec
+         <<" "<<tunnels[vIfIndex]);
+  bool erased = tunnels.erase(vIfIndex);
+  if (!erased)
+    Dout(dc::warning|dc::encapsulation|flush_cf, "tunnel not found vIfIndex="<<hex<<vIfIndex<<dec);
+  
+  return erased;
+}
+
+std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation::Tunnel& tun)
+{
+  os<<" entry="<<tun.entry<<" exit="<<tun.exit<<" ifIndex="<<tun.ifIndex<<" tunnelMTU="
+    <<tun.tunnelMTU<<" ngbr=";
+    if (tun.ne)
+      os<<*(tun.ne);
+    else
+      os<<"none";
+  return os;
 }
 
 std::ostream & operator<<
   (std::ostream& os, const pair<const size_t, IPv6Encapsulation::Tunnel> & p)
 {
-  os <<"Tunnel vifIndex="<<hex<<p.first << " entry="<<p.second.entry
-     <<" exit="<< p.second.exit;
+  os <<"Tunnel vifIndex="<<hex<<p.first <<dec<<p.second;
   return os;
 }
 
@@ -235,10 +259,10 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     if (!tunnels.count(ifIndex))
     {
       //We should send an error message as we can't find the tunnel referred to
-      cerr<<rt->nodeName()<<" - tunnel vifIndex="<<hex<<ifIndex
+      cerr<<rt->nodeName()<<" - tunnel vifIndex="<<hex<<ifIndex<<dec
           <<" does not exist anymore." <<endl;
       cerr<<"We should delete all dest entries pointing at this tunnel"<<endl;
-      Dout(dc::warning|error_cf, rt->nodeName()<<" - tunnel vifIndex="<<hex<<ifIndex
+      Dout(dc::warning|error_cf, rt->nodeName()<<" - tunnel vifIndex="<<hex<<ifIndex<<dec
            <<" does not exist anymore. (todo delete all dest entries that refer to tunnel)");
       return;
     }

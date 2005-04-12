@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2001, 2005 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,15 +17,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /**
     @file MIPv6Entry.h
-    @brief Implementation of "Mobility Support in IPv6 draft 16" -
-             Conceptual Data Structures
+	@brief binding cache entry (bc_entry) and MIPv6Destination Entry structures
     @see draft-ietf-mobileip-ipv6-16.txt, section 4.6
     @author Eric Wu
     @date 2/4/2002
 */
 
-#ifndef __MIPv6ENTRY_H__
-#define __MIPv6ENTRY_H__
+#ifndef MIPv6ENTRY_H
+#define MIPv6ENTRY_H
 
 #ifndef MAP
 #define MAP
@@ -100,61 +99,7 @@ namespace MobileIPv6
     //@}
   };
 
+  std::ostream& operator<< (std::ostream& os, const bc_entry& bce);
 
-  /**
-   * @struct MIPv6DestinationEntry
-   * @brief Combines IPv6 DestinationEntry and bc_entry
-   *
-   * This is to provide efficient lookup within existing mechanism and override
-   * destination entry's next hop neighbour.  According to spec a separate BC
-   * "SHOULD" be maintained per assigned IPv6 addresses but the Destination
-   * Cache is not and it says the two can be combined. So what gives?
-   *
-   * @note If we implement Cache Replacement Policy (CRP) for Binding Cache then
-   * bce would need to be shareable perhaps because we may have a separate
-   * Binding Cache implemented as a ring buffer for CRP.
-   */
-  struct MIPv6DestinationEntry: public IPv6NeighbourDiscovery::DestinationEntry
-  {
-
-    MIPv6DestinationEntry(
-      boost::weak_ptr<IPv6NeighbourDiscovery::NeighbourEntry> ngbr
-      = boost::weak_ptr<IPv6NeighbourDiscovery::NeighbourEntry>(),
-      boost::weak_ptr<bc_entry> bce = boost::weak_ptr<bc_entry>(),
-      size_t mtu = 0)
-      :DestinationEntry(ngbr, mtu), bce(bce)
-      {}
-
-    /**
-     * @brief binding cache entry
-     *
-     * It is a pointer as we need to delete it once the lifetime expires or from
-     * CRP.
-     */
-    boost::weak_ptr<bc_entry> bce;
-  };
-
-  //@}
-
-
-  // simple stl list typedef for BUL, BC for the moment being before
-  // the actual MIPv6CDS constructed
-
-//   typedef list<bu_entry> BUL;
-//   typedef BUL::iterator BUIT;
-
-//   // the key is the home address of the BC
-//   typedef map<ipv6_addr, boost::shared_ptr<bc_entry> > BC;
-//   typedef BC::iterator BCIT;
-
-//   struct MIPv6CDS
-//   {
-//     BUL bul;
-//     BC bc;
-
-//   };
-
-
-}
-
-#endif // __MIPv6ENTRY__
+} //end namespace MobileIPv6
+#endif // MIPv6ENTRY

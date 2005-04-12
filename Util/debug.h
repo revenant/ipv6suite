@@ -129,6 +129,7 @@ namespace simulacrum {       // >
         extern ::libcwd::channel_ct neighbour_disc;
         extern ::libcwd::channel_ct ping6;
 
+        extern ::libcwd::channel_ct wireless_stats;
         extern ::libcwd::channel_ct statistic;
 
         //invalid deallocation at exit
@@ -161,6 +162,7 @@ namespace simulacrum {       // >
         extern const char* ch_NeighbourDisc;
         extern const char* ch_Ping6;
 
+        extern const char* ch_WirelessStats;
         extern const char* ch_Statistic;
 
         extern const char* ch_DestCacheMaint;

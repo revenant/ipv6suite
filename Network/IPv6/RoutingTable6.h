@@ -48,6 +48,7 @@ using IPv6NeighbourDiscovery::NeighbourEntry;
 
 class InterfaceTable;
 class InterfaceEntry;
+class cTimerMessage;
 
 namespace IPv6NeighbourDiscovery
 {

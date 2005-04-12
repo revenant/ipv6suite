@@ -92,13 +92,23 @@ public:
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT
   void retransmitBU()
     {
-      timeout *=2;
-
       string nodeName =
         //check_and_cast<IPv6Mobility*>(module())->nodeName();
         static_cast<IPv6Mobility*>(module())->nodeName();
 
-      if (timeout >= MAX_BINDACK_TIMEOUT)
+      if (dgram->destAddress() == IPv6_ADDR_UNSPECIFIED)
+      {
+        Dout(dc::warning|flush_cf, nodeName<<" "<<simulation.simTime()
+             <<" todo find out why BU to unspecified address (removing timer)");
+        stateMN->removeBURetranTmr(this); 
+        return;
+      }
+
+      if (timeout < MAX_BINDACK_TIMEOUT)
+      {
+        timeout *=2;
+      }
+      else
       {
         bu_entry* bule = mipv6cdsMN->findBU(dgram->destAddress());
         assert(bule);
@@ -109,12 +119,11 @@ public:
             dgram->destAddress()<<".  No more BUs will be sent What to do?\n";
         Dout(dc::warning|dc::notice|dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()<<" timeout="<<timeout
              <<" > MAX_BINDACKK_TIMEOUT="<<MAX_BINDACK_TIMEOUT<<" for homeAgent "
-             <<dgram->destAddress()<<".  No more BUs will be sent"<<
-             " (Alternatively we can send at this rate continually)");
-        stateMN->removeBURetranTmr(this);
-        return;
+             <<dgram->destAddress()<<".  "<<
+             " (we can send at this rate continually)");
+        //stateMN->removeBURetranTmr(this);
+        //return;
       }
-
 
       //Update binding entry with this retransmission
       bu_entry* bule = mipv6cdsMN->findBU(dgram->destAddress());
@@ -137,6 +146,7 @@ public:
       BU* bu = check_and_cast<BU*> (dgram->encapsulatedMsg());
       bu->setSequence(bule->sequence());
       module()->send(dgram->dup(), "routingOut");
+      assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
       Dout(dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()
            <<" Resending BU for the "<<dgram->destAddress());
 
@@ -410,7 +420,16 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   {
     if ((*it)->dgram->destAddress() == dgram->srcAddress())
     {
-      (*it)->cancel();
+      if ((*it)->isScheduled())
+        (*it)->cancel();
+      else
+      {
+        Dout(dc::warning|flush_cf,  mob->nodeName()<<" "<<mob->simTime()
+             <<" unexpected BU Retrans timer not scheduled "
+             <<" is this ba to a BU that we gave up retransmitting? "
+             <<dgram);
+      }
+
       if ((*it)->dgram->srcAddress() == mipv6cdsMN->homeAddr() && dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
       {
         Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" "<<mob->simTime()
@@ -491,7 +510,15 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
               DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
             else
             {
-              Dout(dc::eh, mob->nodeName()<<" invoking eh callback bue->lifetime="<<bue->lifetime());
+              //if rcoa does not prefix match the dgram->srcAddress we ignore
+              //since we do not want to bind with HA using a coa from a previous MAP.
+
+              EdgeHandover::EHCDSMobileNode* ehcds = 
+                boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
+              assert(ehcds);
+              Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
+                   <<" coa="<<hmipv6cds->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
+                   <<" bcoa "<<ehcds->boundCoa());
               Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
                               (mob->edgeHandoverCallback()))->args) = dgram->dup();
               assert(dgram->inputPort() == 0);
@@ -523,7 +550,12 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
         ///If the HA's BA is acknowledging binding with another MAP besides the
         ///currentMap's then this code block needs to be revised accordingly. It
         ///is possible for currentMap to have changed whilst updating HA.
-        assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
+        if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
+        {
+          Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
+               <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
+          assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
+        }
 
         Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
              <<" inport="<<dgram->outputPort());
@@ -537,7 +569,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 #endif //EDGEHANDOVER
     }
 #endif //USE_HMIP
-
+    
   }
   else
   {
@@ -964,26 +996,42 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 }
 
 /**
- * @todo Implement
+ * Binding Error in RFC 3775
  *
  */
 
 void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram, IPv6Mobility* mob)
 {
+
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
-  boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(bm->ha());
+  bu_entry* bule = 0;
+  
+  if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
+  {
+    Dout(dc::warning, " implement processBM for MN to send BU to CN");
+/*
+ o  If the mobile node has recent upper layer progress information,
+      which indicates that communications with the correspondent node
+      are progressing, it MAY ignore the message.  This can be done in
+      order to limit the damage that spoofed Binding Error messages can
+      cause to ongoing communications.
 
+   o  If the mobile node has no upper layer progress information, it
+      MUST remove the entry and route further communications through the
+      home agent.  It MAY also optionally start a return routability
+      procedure (see Section 5.2).
+
+*/
+  }
+  else
+    Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()
+         <<" Unable to process BM from "<<dgram->srcAddress());
   // if the mobile node does not have a binding update list entry for
   // the source of the binding missing message, it MUST ignore the
   // message
-  if (bce.lock().get() != 0)
-  {
 
-  }
-  else
-    DoutFatal(dc::core, mob->nodeName()<<" Unable to process BM from "<<dgram->srcAddress());
 }
 
 /**
@@ -1000,7 +1048,7 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility
   size_t ifIndex = dgram->inputPort();
   bu_entry* bule = 0;
 
-  //Check that CN is in BUL then send BU and upddate BUL details
+  //Check that CN is in BUL then send BU and update BUL details
   if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
   {
 
@@ -1064,6 +1112,23 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
     mipv6cdsMN->currentRouter():mipv6cdsMN->previousDefaultRouter();
   if (oldRtr && oldRtr->isHomeAgent())
   {
+
+#ifdef USE_HMIP
+    //Required to prevent warnings like the following in debug log as b/rcoa is
+    //not a valid home address for pure HA. Anyway HMIP/EH should bind with HAs as
+    //hmip MAP and have only one HA
+
+    //WARNING  :  hoa=30f4:0:0:3:c274:82ff:fea6:958b is not on link w.r.t. HA prefix list
+    bool hmipFlag = false;
+    if (mob->rt->hmipSupport())
+    {
+      HMIPv6CDSMobileNode* hmipv6cdsMN = boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mipv6cdsMN);
+      assert(hmipv6cdsMN);
+
+      hmipFlag = hmipv6cdsMN->mapEntries().count(oldRtr->addr()) == 1;
+    }
+#endif //USE_HMIP
+
     Dout(dc::mipv6, mob->nodeName()<<" pcoaf forwarding from PAR="
          <<*oldRtr.get()<<" pcoa="<<hoa<<" ncoa="<<coa);
 
@@ -1071,7 +1136,11 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
            static_cast<unsigned int>(mipv6cdsMN->pcoaLifetime()), true,
            //don't care about ifIndex as DAD only done on
            //primaryHA and only the very first BU to it
-           0, mob);
+           0, mob
+#ifdef USE_HMIP
+           , hmipFlag
+#endif //USE_HMIP
+           );
     return true;
   }
   return false;
@@ -1171,9 +1240,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
     if (bule->problem)
     {
-      Dout(dc::mipv6, mob->nodeName()<<(homeReg?" HA ":" CN ")<<dest
-           <<" bule has problem flag set");
-      return false;
+      Dout(dc::warning|flush_cf, mob->nodeName()<<(homeReg?" HA ":" CN ")<<dest
+           <<" bule has problem flag set continuing anyway!");
+      //return false;
     }
 
     if ( bule->careOfAddr() == coa )
@@ -1230,12 +1299,13 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       buTmr = new BURetranTmr(static_cast<int>(timeout), dgram->dup(), this, mipv6cdsMN, mob);
       buRetranTmrs.push_back(buTmr);
     }
-    else if (!bule->problem)
+    else
     {
+      if (bule->problem)
+        Dout(dc::mipv6, mob->nodeName()<<" bule "<<dgram->destAddress()<<" has problem flag set");
       bool found = false;
       Dout(dc::mipv6|dc::warning|flush_cf, mob->nodeName()<<" "<<bule->state
            <<" outstanding BU transmission already");
-      //Can we ever get here? Should we actually be sending another one when one is outstanding already?
       for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
       {
         if ((*it)->dgram->destAddress() == dgram->destAddress())
@@ -1250,18 +1320,20 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
           break;
         }
       }
-      assert(found);
+      //assert(found);
+	    if (!found)
+      {
+        Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()<<" unable to find BU retrans timer for BU "<<*bu
+						<<" dgram"<<*dgram);
+      }
     }
-    else
+
+    if (buTmr)
     {
-      Dout(dc::mipv6, mob->nodeName()<<" bule "<<dgram->destAddress()<<" has problem flag set");
-      assert(false);
+      mob->scheduleAt(mob->simTime()+timeout, buTmr);
+      Dout(dc::mipv6, mob->nodeName()<<" Waiting for BU ack timeout="
+           <<setprecision(4)<<timeout);
     }
-
-
-    mob->scheduleAt(mob->simTime()+timeout, buTmr);
-    Dout(dc::mipv6, mob->nodeName()<<" Waiting for BU ack timeout="
-         <<setprecision(4)<<timeout);
   }
 
 #ifdef USE_HMIP

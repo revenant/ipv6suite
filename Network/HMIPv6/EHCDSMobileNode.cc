@@ -90,9 +90,15 @@ boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> EHCDSMobileNode::boundMap()
   }
   else
   {
+    setNoBoundMap();
+  }
+}
+
+void EHCDSMobileNode::setNoBoundMap()
+{
+    assert(!awayFromHome());
     bmap = IPv6_ADDR_UNSPECIFIED;
     bcoa = IPv6_ADDR_UNSPECIFIED;
-  }
 }
 
 }; //namespace EdgeHandover

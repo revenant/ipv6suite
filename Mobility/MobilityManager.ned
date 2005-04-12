@@ -22,6 +22,8 @@
 //
 
 simple MobilityHandler
+    parameters:
+        moveXmlConfig: xml;
 endsimple
 
 module MobilityManager

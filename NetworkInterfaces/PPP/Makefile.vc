@@ -128,4 +128,10 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+PPPInterface.obj: PPPInterface.cc \
+  ../../Network/Generic/InterfaceTable.h \
+  ../../Network/Generic/InterfaceTableAccess.h \
+  PPPInterface.h \
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/InterfaceEntry.h \
+  ../../Base/ModuleAccess.h

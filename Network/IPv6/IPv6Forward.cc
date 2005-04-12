@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University
+// Copyright (C) 2002, 2004, 2005 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -175,7 +175,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   if (rt->localDeliver(datagram->destAddress()))
   {
-    Dout(dc::forwarding|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()<<" "
+    Dout(dc::forwarding|flush_cf, rt->nodeName()<<":"<<hex<<datagram->inputPort()<<dec<<" "
          <<simTime()<<" received packet from "<<datagram->srcAddress()
          <<" dest="<<datagram->destAddress());
 
@@ -221,8 +221,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         ne->ifIndex()  > ift->numInterfaceGates() )
     {
       Dout(dc::encapsulation|dc::forwarding|dc::debug|flush_cf, rt->nodeName()
-           <<" Found tunnel vifIndex ="<<hex<<it->second.neighbour.lock().get()->ifIndex()
-           <<dec);
+           <<" Found tunnel vifIndex ="<<hex<<it->second.neighbour.lock().get()->ifIndex() <<dec);
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(ne->ifIndex());
       send(copy, "tunnelEntry");
@@ -255,7 +254,6 @@ void IPv6Forward::endService(cMessage* theMsg)
 #ifdef USE_MOBILITY
   //If we have a binding for dest then swap dest==hoa to coa
   //Could possibly place this into sendCore
-  using MobileIPv6::MIPv6DestinationEntry;
   using MobileIPv6::bc_entry;
   using MobileIPv6::MIPv6RteOpt;
 
@@ -283,11 +281,9 @@ void IPv6Forward::endService(cMessage* theMsg)
     // no mobility message is allowed to have type 2 rh except BA
     if (ms == 0 || (ms && ms->header_type() ==  MobileIPv6::MIPv6MHT_BA))
     {
-      IPv6NeighbourDiscovery::IPv6CDS::DCI it;
-      if (rt->cds->findDestEntry(datagram->destAddress(), it))
-      {
-        bce = it->second.bce;
-        if (bce.lock().get() != 0)
+
+      boost::weak_ptr<bc_entry> bce = rt->mipv6cds->findBinding(datagram->destAddress());
+      if (bce.lock().get())
         {
           assert(bce.lock()->home_addr == datagram->destAddress());
           datagram->setDestAddress(bce.lock()->care_of_addr);
@@ -301,7 +297,6 @@ void IPv6Forward::endService(cMessage* theMsg)
 //#if defined TESTMIPv6 || defined DEBUG_BC
           Dout(dc::mipv6, rt->nodeName()<<" Found binding for destination "
                <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);
-        }
       }
     }
   }
@@ -457,10 +452,9 @@ void IPv6Forward::endService(cMessage* theMsg)
       datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
 //#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
       Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-           <<static_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-           ->homeAddr()<<" src addr="<<
-           static_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-           ->careOfAddr()<<" for destination "<<datagram->destAddress());
+           <<boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+           ->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr()
+           <<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
 #ifdef USE_HMIP
@@ -470,7 +464,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN =
           boost::polymorphic_downcast<HierarchicalMIPv6::HMIPv6CDSMobileNode*>(rt->mipv6cds);
 
-        InterfaceEntry *ie = ift->interfaceByPortNo(0);
+        InterfaceEntry *ie = ift->interfaceByPortNo(info.ifIndex);
 
         if (hmipv6cdsMN->isMAPValid())
         {
@@ -553,6 +547,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
              <<" is the old one and we have handed to new MAP, awaiting BA "
              <<"from HA to use rcoa, dropping packet");
+        Dout(dc::mipv6, " tunnels "<<*tunMod);
         delete info;
         return;
       }
@@ -718,7 +713,7 @@ int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
              <<dgram->destAddress());
         if (ne.lock()->addr() == dgram->srcAddress())
         {
-          cout<< rt->nodeName()<<" default router of destination points back to source! "
+          cerr<< rt->nodeName()<<" default router of destination points back to source! "
               <<*(static_cast<IRouterList*>(rt->cds))<<endl;
           Dout(dc::warning, rt->nodeName()<<" default router of destination points back to source! "
                <<*(static_cast<IRouterList*>(rt->cds)));

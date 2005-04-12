@@ -66,6 +66,7 @@ namespace simulacrum {      // >
         ::libcwd::channel_ct neighbour_disc(ch_NeighbourDisc);
         ::libcwd::channel_ct ping6(ch_Ping6);
 
+        ::libcwd::channel_ct wireless_stats(ch_WirelessStats);
         ::libcwd::channel_ct statistic(ch_Statistic);
         ::libcwd::channel_ct ipv6addrdealloc(ch_IPv6AddrDeAlloc);
 
@@ -99,6 +100,7 @@ namespace simulacrum {      // >
         const char* ch_NeighbourDisc = "NeighbourDisc";
         const char* ch_Ping6 = "Ping6";
 
+        const char* ch_WirelessStats = "WirelessStats";
         const char* ch_Statistic = "Statistic";
 
         const char* ch_IPv6AddrDeAlloc = "IPv6AddrDeAlloc";
@@ -143,6 +145,7 @@ namespace simulacrum {      // >
           Debug( addChannel(ch_RouterDisc, router_disc); );
           Debug( addChannel(ch_NeighbourDisc, neighbour_disc); );
           Debug( addChannel(ch_Ping6, ping6); );
+          Debug( addChannel(ch_WirelessStats, wireless_stats); );
           Debug( addChannel(ch_Statistic, statistic); );
         }
 

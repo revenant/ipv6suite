@@ -32,6 +32,7 @@
 #include <memory> //auto_ptr
 #include <sstream>
 #include <iostream>
+#include <climits> //UINT_MAX
 
 #include "NDStateRouter.h"
 #include "NDTimers.h"
@@ -779,7 +780,7 @@ std::auto_ptr<RA> NDStateRouter::processRtrAd(std::auto_ptr<RA> old_rtrAdv)
   Debug(
     IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(old_rtrAdv->encapsulatedMsg());
     assert(dgram);
-    unsigned int ifIndex = dgram->inputPort();
+    // unsigned int ifIndex = dgram->inputPort();
     // Dout(dc::debug, rt->nodeName()<<":"<<ifIndex<<" "<<nd->simTime()
     //      <<" Map options found size="<<mapOpts.size());
   );

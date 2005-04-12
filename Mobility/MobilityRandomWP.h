@@ -65,6 +65,7 @@ protected:
   double maxSpeed;
 
   double pauseTime;
+  double startTime;
 
 private:
   RandomWP* randomWP;

@@ -72,6 +72,7 @@ class EHCDSMobileNode: public HierarchicalMIPv6::HMIPv6CDSMobileNode
 
   void setBoundMap(const HierarchicalMIPv6::HMIPv6MAPEntry& map, unsigned int ifIndex = 0);
 
+  void setNoBoundMap();
  protected:
 
  private:

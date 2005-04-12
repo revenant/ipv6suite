@@ -87,7 +87,10 @@ void NeighbourDiscovery::initialize(int stageNo)
   else if (stageNo == 2)
     nd = NDState::startND(this);
   else if (stageNo == 4)
+  {
+    if (rt->displayIfconfig)
     nd->print();
+  }
 }
 
 void NeighbourDiscovery::handleMessage(cMessage* theMsg)

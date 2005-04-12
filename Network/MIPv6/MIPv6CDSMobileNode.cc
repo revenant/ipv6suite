@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2004 CTIE, Monash University
+// Copyright (C) 2002, 2004, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,9 +39,15 @@
 #include "IPv6InterfaceData.h"
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
+#include "opp_utils.h" //nodeName
 
 namespace MobileIPv6
 {
+
+  std::ostream& operator<<(std::ostream& os, const MIPv6CDSMobileNode& cds)
+  {
+    return cds.operator<<(os);
+  }
 
   MIPv6CDSMobileNode::MIPv6CDSMobileNode(size_t interfaceCount)
     :futureCoa(IPv6_ADDR_UNSPECIFIED), away(false), moved(false), _pcoaLifetime(5),
@@ -302,7 +308,9 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
     unsigned int dec = static_cast<MIPv6PeriodicCB*> (tmr)->interval;
     MIPv6CDS::expireLifetimes(tmr);
 
-    //do for bul entries
+    Dout(dc::custom, OPP_Global::nodeName(simulation.contextModule()) 
+         <<" "<< simulation.simTime()<< " expireLifetime bul: "<<*this);
+
     for (BULI it = bul.begin(); it != bul.end();  )
     {
       if ((*it)->expires() > dec)
@@ -312,6 +320,7 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
       }
       else
       {
+        Dout(dc::custom, "bule has expired removing now "<<*(*it));
         it = bul.erase(it);
       }
     }
@@ -327,6 +336,17 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
         it = mrl.erase(it);
       }
     }
+  }
+
+  std::ostream& MIPv6CDSMobileNode::operator<<(std::ostream& os) const
+  {
+    for (BULI it = bul.begin(); it != bul.end(); it++)
+    {
+      os<<*(*it)<<"\n";
+    }
+    //Not useful as its a shared_ptr to bue
+    //copy(bul.begin(), bul.end(), ostream_iterator<BindingUpdateList::value_type >(os, "\n"));
+    return os;
   }
 
   void MIPv6CDSMobileNode::setFutureCoa(const ipv6_addr& ncoa)

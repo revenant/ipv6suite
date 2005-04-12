@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2001, 2003, 2004 CTIE, Monash University 
+// Copyright (C) 2001, 2003, 2004, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -318,6 +318,8 @@ struct DestinationEntry
   size_t pathMTU; 
   //int roundTrip timers
 };
+
+std::ostream& operator<<(std::ostream& os, const DestinationEntry& re);
 
 //@}
 

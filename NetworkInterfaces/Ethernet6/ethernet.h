@@ -39,7 +39,7 @@ extern const int SELF_INTERFRAMEGAP;
 //extern const int SELF_BACKOFF_RB; // for WaitReceiveBackoff
 
 // speed
-extern const int BANDWIDTH; // Mbps
+extern const double BANDWIDTH; // Mbps
 
 // predefined MAC addresses
 extern const char* ETH_BROADCAST_ADDRESS;

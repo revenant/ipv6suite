@@ -96,12 +96,15 @@ void EtherStateSend::endSendingData(EtherModule* mod)
         return;
       }
 
-      // compute backoff period
-      mod->backoffRemainingTime = ( mod->backoffRemainingTime ?
+      if (!mod->getTmrMessage(TRANSMIT_JAM)->isScheduled())
+      {
+        // compute backoff period
+        mod->backoffRemainingTime = ( mod->backoffRemainingTime ?
                                     mod->backoffRemainingTime : getBackoffInterval(mod));
 
-      mod->changeState(EtherStateWaitBackoff::instance());
-      static_cast<EtherStateWaitBackoff*>(mod->currentState())->backoff(mod);
+        mod->changeState(EtherStateWaitBackoff::instance());
+        static_cast<EtherStateWaitBackoff*>(mod->currentState())->backoff(mod);
+      }
       return;
     }
 

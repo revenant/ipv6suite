@@ -62,6 +62,8 @@
 ///have to modify the header and add mobility stuff there which is sort of not
 ///right either
 #include "MIPv6NDStateHost.h"
+#include <string>
+#include <memory>
 #include "WirelessEtherModule.h" //l2 trigger set GD
 #endif //USE_MOBILITY
 

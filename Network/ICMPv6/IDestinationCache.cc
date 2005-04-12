@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2004 CTIE, Monash University 
+// Copyright (C) 2002, 2004, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,39 +28,17 @@
 #include "debug.h"
 
 #include "IDestinationCache.h"
+#include <iostream>
 
 namespace IPv6NeighbourDiscovery
 {
 
-#ifndef USE_MOBILITY
-
 std::ostream& operator<<
   (std::ostream& os, const pair<IPv6Address, DestinationEntry> & p)
 {
-  //Not implemented yet
-  assert(false);
+  os<<"destaddr="<<p.first<<" "<<p.second;
   return os;
 }
-
-#else
-
-/**
- * @todo Output BCE too
- * 
- */
-
-std::ostream& operator<<
-  (std::ostream& os, const pair<IPv6Address, MobileIPv6::MIPv6DestinationEntry> & p)
-{
-  os<<"addr="<<p.first;
-  
-  if (p.second.neighbour.lock().get()!=0)
-    os<<" "<<*(p.second.neighbour.lock().get());
-  else
-    os<<" No neighbour";
-  return os;
-}
-#endif //ifndef USE_MOBILITY
   
 /**
    @todo Provide a separate interface into the NC just to test for existence of
@@ -192,12 +170,13 @@ int IDestinationCache::removeDestEntryByNeighbour(const ipv6_addr& addr)
 
   for (it = destCache.begin(); it != destCache.end();   )
   {
-    if (it->second.neighbour.lock().get()->addr() == addr)
+    if (!it->second.neighbour.lock() || 
+        it->second.neighbour.lock().get()->addr() == addr)
     {
       temp = it;
       it++;
       deletedCount++;
-      Dout(dc::dest_cache_maint, " dcache removed dest="<<temp->first<<" ngbr="<<(temp->second.neighbour.lock().get()?ipv6_addr_toString(temp->second.neighbour.lock().get()->addr()):"none"));
+      Dout(dc::dest_cache_maint, " dcache removed dest entry: "<<*temp);
       destCache.erase(temp);
     }
     else
@@ -231,14 +210,17 @@ namespace
             val.second.neighbour.lock().get()->addr() == key)
         {
 
-          Dout(dc::dest_cache_maint, " dcache replaced dest="<<val.first<<" ngbr="<<(val.second.neighbour.lock().get()?ipv6_addr_toString(val.second.neighbour.lock().get()->addr()):"none")<<" with ngbr="<<ngbr.lock().get()->addr());
-
+          Dout(dc::dest_cache_maint, " dcache replaced dest="<<val.first<<" ngbr="<<(val.second.neighbour.lock().get()?ipv6_addr_toString(val.second.neighbour.lock().get()->addr()):"none")<<" with ngbr="<<*(ngbr.lock()));
+          if (val.second.neighbour.lock().get())
+            Dout(dc::dest_cache_maint, " ngbr was "<<val.second);
           val.second.neighbour = ngbr;
           count++;
         }
         else
         {
           Dout(dc::dest_cache_maint, " dcache did NOT replace dest="<<val.first<<" ngbr="<<(val.second.neighbour.lock().get()?ipv6_addr_toString(val.second.neighbour.lock().get()->addr()):"none"));
+          if (val.second.neighbour.lock().get())
+            Dout(dc::dest_cache_maint, " ngbr is "<<val.second);
         }
       }
 

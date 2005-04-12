@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<netconf debugChannel="debug.log:rcfile:notice:custom:Ping6:Statistic:IPv6:AddrResln:Forwarding:NeighbourDisc:RouterDisc:Routing:UDPVidStrmSvr:UDP:debug">
+  <local node="server1">
+    <interface name="ppp0">
+    </interface>
+  </local>
+  <local node="server2">
+    <interface name="ppp0">
+    </interface>
+  </local>
+  <local node="client1">
+    <interface name="ppp0">
+    </interface>
+  </local>
+  <local node="client2">
+    <interface name="ppp0">
+    </interface>
+  </local>
+  <local node="routerInt" routePackets="on">
+    <interface name="ppp0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:0:4444:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    
+    <interface name="ppp1" AdvSendAdvertisements="on">	
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:0:1111:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>    
+    <interface name="ppp2">	
+    </interface>
+
+    <route>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="3333:0:0:4444:0:0:0:0/64"/>
+      <routeEntry
+	routeIface="ppp1"
+        routeDestination="3333:0:0:1111:0:0:0:0/64"/>
+      <routeEntry
+	routeIface="ppp2"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="fe80:0:0:0:6c48:ade:96d4:5948/128"/>
+    </route>
+
+  </local>
+  <local node="routerExt" routePackets="on">
+    <interface name="ppp0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:e:4444:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    
+    <interface name="ppp1" AdvSendAdvertisements="on">	
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:e:1111:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    
+    <interface name="ppp2">	
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="3333:0:e:4444:0:0:0:0/64"/>
+      <routeEntry
+	routeIface="ppp1"
+        routeDestination="3333:0:e:1111:0:0:0:0/64"/>
+      <routeEntry
+	routeIface="ppp2"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="fe80:0:0:0:38a6:4b65:71c6:a7fc"/>
+    </route>
+  </local>
+</netconf>

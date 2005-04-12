@@ -133,4 +133,7 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+UDPProcessing.obj: UDPProcessing.cc \
+  UDPPacket.h \
+  UDPProcessing.h \
+  ../../Util/stlwatch.h

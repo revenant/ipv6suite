@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,12 +43,6 @@
 #include "NDEntry.h"
 #endif //NDENTRY_H
 
-#ifdef USE_MOBILITY
-#ifndef __MIPv6ENTRY_H__
-#include "MIPv6Entry.h"
-#endif //__MIPv6ENTRY_H__
-#endif //USE_MOBILITY
-
 namespace MobileIPv6
 {
   class MIPv6MobilityState;
@@ -92,19 +85,6 @@ public:
   /// subnets by various pathways)
   DestinationEntry& operator[] (const IPv6Address& addr);
 
-  //@name constructors, destructors and operators
-  //@{
-//  IDestinationCache();
-
-//   ~IDestinationCache();
-
-//   IDestinationCache(const IDestinationCache& src);
-
-//   IDestinationCache& operator=(IDestinationCache& src);
-
-//   bool operator==(const IDestinationCache& rhs);
-  //@}
-
   /**
    * Used by MIPv6 to remove old routes manually since we still need to keep the
    * Router object
@@ -127,21 +107,7 @@ public:
   int updateDestEntryByNeighbour(const ipv6_addr& addr, const ipv6_addr& ngbr);
 
 
-//In the end I reverted to doing this.  I tried the template method but then
-//realised that the two templated versions do not derive from one another so
-//can't use the same pointer to address two different kinds.  I could have made
-//the stored DestinationEntry a pointer and pass an arg into this class's ctor
-//and create the appropriate entry.  However this would just involve too much
-//rewrite and is not a really flexible solution.  Neither is this flexible but
-//it is quick.  Of course I could have just queried the MIPv6cds rather than
-//sharing the bc in here.  but if I did that then there would be possibility of
-//two lookups instead of always just one lookup. So in light of all those
-//concerns the lesser of two evils was introduced.
-#ifndef USE_MOBILITY
   typedef std::map<IPv6Address, DestinationEntry > DestinationCache;
-#else
-  typedef std::map<IPv6Address, MobileIPv6::MIPv6DestinationEntry> DestinationCache;
-#endif //USE_MOBILITY
 
 #ifndef CXX
 protected:
@@ -188,16 +154,10 @@ protected:
   */
   DestinationCache destCache;
 
-  //bool DestEntryType
 };
 
-#ifndef USE_MOBILITY
 std::ostream& operator<<
   (std::ostream& os, const pair<IPv6Address, DestinationEntry> & p);
-#else
-std::ostream& operator<<
-  (std::ostream& os, const pair<IPv6Address, MobileIPv6::MIPv6DestinationEntry> & p);
-#endif //ifndef USE_MOBILITY
 
 } //namespace IPv6NeighbourDiscovery
 

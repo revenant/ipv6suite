@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
+<netconf debugChannel="debug.log:rcfile:notice:custom:Ping6:Statistic:IPv6:AddrResln:Forwarding:NeighbourDisc:RouterDisc:Routing:UDPVidStrmSvr:UDP:debug">
+  <local node="server">
+    <interface name="eth0">
+    </interface>
+  </local>
+  <local node="client1">
+    <interface name="eth0">
+    </interface>
+  </local>
+  <local node="client2">
+    <interface name="eth0">
+    </interface>
+  </local>
+    <local node="router" routePackets="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:0:4444:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    
+    <interface name="eth1" AdvSendAdvertisements="on">	
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	3333:0:0:1111:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    
+    <interface name="eth2" AdvSendAdvertisements="on">	
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on">
+	AAAA:0:0:3333:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    </local>
+</netconf>

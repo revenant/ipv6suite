@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,6 +44,8 @@
 #ifndef MIPv6MOBILITYHEADERS_H
 #include "MIPv6MobilityHeaders.h"
 #endif // MIPv6MOBILITYHEADERS_H
+
+#include <iosfwd>
 
 namespace IPv6NeighbourDiscovery
 {
@@ -94,6 +95,8 @@ namespace MobileIPv6
     ///Replaces the existing binding entry or creates a new association
     boost::weak_ptr<bc_entry> insertBinding(bc_entry* entry);
 
+    std::ostream& operator<<(std::ostream& os) const;
+
     ///Used to create/destroy tunnels for mobility bindings
     IPv6Encapsulation* tunMod;
 
@@ -106,12 +109,12 @@ namespace MobileIPv6
         assert(false);
       }
 
+    typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
+    typedef BindingCache::iterator  BCI;
+
   protected:
     ///Decrement by elapsed time in tmr for all entities with managed lifetimes
     void expireLifetimes(cTimerMessage* tmr);
-
-    typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
-    typedef BindingCache::iterator  BCI;
 
     ///Returns true if found and stores the found object in it false otherwise
     bool findBinding(const ipv6_addr& homeAddr, BCI& it);
@@ -126,7 +129,7 @@ namespace MobileIPv6
   private:
 
   };
-
+  std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds);
 } //namespace MobileIPv6
 
 #endif /* MIPV6CDS_H */

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
+// Copyright (C) 2002, 2003, 2004, 2005 CTIE, Monash University 
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -269,6 +269,8 @@ namespace MobileIPv6
     bool eagerHandover() { return eagerHO; }
     void setEagerHandover(bool eager) { eagerHO = eager; }
 
+    std::ostream& operator<<(std::ostream& os) const;
+
   protected:
 
     void expireLifetimes(cTimerMessage* tmr);
@@ -347,6 +349,7 @@ namespace MobileIPv6
     //@}
   };
 
+  std::ostream& operator<<(std::ostream& os, const MIPv6CDSMobileNode& cds);  
 } //namespace MobileIPv6
 
 #endif /* MIPV6CDSMOBILENODE_H */

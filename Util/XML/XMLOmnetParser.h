@@ -111,12 +111,16 @@ class XMLOmnetParser
    * Fills in parameters inside the given MobilityStatic.
    */
   void parseMovementInfo(MobilityStatic* mod);
+  void parseMovementInfoDetail(MobilityStatic* mod, cXMLElement* nmovenode);
 
   /**
    * Fills in parameters inside the given MobilityRandomWP and
    * MobilityRandomWalk.
    */
   void parseRandomWPInfo(MobilityRandomWP* mod);
+  
+void parseRandomWPInfoDetail(MobilityRandomWP* mod, cXMLElement* movenode);
+
 
   /**
    * Fills in parameters inside the given MobilityRandomPattern.

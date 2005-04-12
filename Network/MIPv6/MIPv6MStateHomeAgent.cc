@@ -103,13 +103,15 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
                                              IPv6Mobility* mod)
 {
   Dout(dc::mipv6|flush_cf, mod->nodeName()<<" "<<mod->simTime()<<" BU from "
-       <<dgram->srcAddress());
+       <<dgram->srcAddress()<<" lifetime="<<bu->expires());
 
   ipv6_addr hoa, coa;
 
   if (!preprocessBU(dgram, bu, mod, hoa, coa))
     return false;
 
+  Dout(dc::mipv6|flush_cf, mod->nodeName()<<" "<<mod->simTime()
+       <<" coa="<<coa<<" hoa="<<hoa);
 
 #ifndef USE_HMIP
   assert(bu->homereg());
@@ -141,7 +143,13 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
   // subnet, perform Primary Care-of Address De-Registration
   if (bu->expires() == 0 || coa == hoa)
   {
-    assert(dgram->inputPort() > -1);
+    //assert(dgram->inputPort() > -1);
+    if (dgram->inputPort() == -1)
+    {
+      Dout(dc::warning, mod->nodeName()<<" "<<mod->simTime()<<
+           " set input port to zero when its -1 for BU");
+      dgram->setInputPort(0);
+    }
 
     if(!deregisterBCE(bu, (unsigned int)dgram->inputPort(), mod))
     {
@@ -204,13 +212,6 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
 void MIPv6MStateHomeAgent::
 registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
 {
-  //if bce not exists then do DAD on it and only after DAD successful then we
-  //send back a BA. That will be tricky indeed
-  //boost::weak_ptr<bc_entry> bce = mob->mipv6cds->findBinding(bu->ha());
-  //if (!bce.get())
-  //do dad and then send self message for when dad successful
-  //callback will sendBA and rest of this fn then multicast NA to all nodes addr on home link
-
   //Test that lifetime of bce is less than bu expires.
   //Test also prefix from which hoa is derived is not shorter than expires.
   boost::weak_ptr<bc_entry> bce = mob->mipv6cds->findBinding(bu->ha());
@@ -219,9 +220,15 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
   {
     oldcoa = bce.lock()->care_of_addr;
   }
+  //if bce not exists then do DAD on it and only after DAD successful then we
+  //send back a BA. That will be tricky indeed
+  //if (!bce.get())
+  //do dad and then send self message for when dad successful
+  //callback will sendBA and rest of this fn then multicast NA to all nodes addr on home link
 
   MIPv6MobilityState::registerBCE(dgram, bu, mob);
 
+  //retrieve updated bce (not necessary) or new bce
   bce = mob->mipv6cds->findBinding(bu->ha());
 
   // The binding cache entry should have already been created by the
@@ -236,13 +243,14 @@ registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob)
   IPv6Encapsulation* tunMod = mob->mipv6cds->tunMod;
   assert(tunMod != 0);
 
-  assert(dgram->inputPort() >= 0);
+
+  //Was this a requirement of MIPv6? If so then HA cannot be a MAP either as MNs
+  //will have moved to a map and bound with it first before sending first BU to
+  //HA. This is only a problem if the MAP we bound with is also the HA as in
+  //randomly generated scenario.
+  //assert(dgram->inputPort() >= 0);
 
 
-
-  //Find HA addr (this is wrong as we could get wrong HA addr if HA serves as
-  //diff HA on each iface and since HA addr is global can come on any iface anyway)
-  //ipv6_addr gaddr = globalAddr(static_cast<unsigned int>(dgram->inputPort()), mob);
 
   /// This contains the real HA addr (Can this be anything else besides HA or
   /// MAP addr)

@@ -158,4 +158,48 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+EtherBus.obj: EtherBus.cc \
+  utils.h \
+  ../../Base/INETDefs.h
+EtherEncap.obj: EtherEncap.cc \
+  Ethernet.h \
+  utils.h \
+  ../../Base/INETDefs.h
+EtherHub.obj: EtherHub.cc \
+  utils.h \
+  ../../Base/INETDefs.h
+EtherLLC.obj: EtherLLC.cc \
+  Ethernet.h \
+  utils.h \
+  ../../Base/INETDefs.h
+EtherMAC.obj: EtherMAC.cc \
+  EtherMAC.h \
+  utils.h \
+  Ethernet.h \
+  ../../Base/INETDefs.h
+MACRelayUnitBase.obj: MACRelayUnitBase.cc \
+  MACRelayUnitBase.h \
+  ../_802/MACAddress.h \
+  utils.h \
+  Ethernet.h \
+  ../../Util/stlwatch.h \
+  ../../Base/INETDefs.h
+MACRelayUnitNP.obj: MACRelayUnitNP.cc \
+  MACRelayUnitNP.h \
+  utils.h \
+  Ethernet.h \
+  ../_802/MACAddress.h \
+  MACRelayUnitBase.h \
+  ../../Util/stlwatch.h \
+  ../../Base/INETDefs.h
+MACRelayUnitPP.obj: MACRelayUnitPP.cc \
+  MACRelayUnitPP.h \
+  utils.h \
+  Ethernet.h \
+  ../_802/MACAddress.h \
+  MACRelayUnitBase.h \
+  ../../Util/stlwatch.h \
+  ../../Base/INETDefs.h
+utils.obj: utils.cc \
+  utils.h \
+  ../../Base/INETDefs.h

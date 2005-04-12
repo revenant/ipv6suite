@@ -122,6 +122,8 @@ cd %root%\Examples\MPLS\TestTE6 && %MAKEMAKE% %ALL_MODEL_OPTS% -I../Tester
 
 :#-----------------
 cd %root%\Examples\IPv6 && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\SingleRouter && %MAKEMAKE% %OPTS% -n -r
+cd %root%\Examples\IPv6\TwoRouters && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\EthNetwork && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\HMIPv6Network && %MAKEMAKE% %OPTS% -n -r
 cd %root%\Examples\IPv6\MIPv6Network && %MAKEMAKE% %OPTS% -n -r

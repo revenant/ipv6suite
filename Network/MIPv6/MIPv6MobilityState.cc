@@ -53,6 +53,7 @@
 
 #ifdef USE_HMIP
 #include "HMIPv6MStateMAP.h"
+#include <iostream>
 #endif
 
 namespace MobileIPv6
@@ -302,6 +303,9 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
 void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
                                      IPv6Mobility* mod)
 {
+/*
+  //Not sure if we really need this zeroing out of the ne 
+
   IPv6NeighbourDiscovery::IPv6CDS::DCI it;
 
   bool success = mod->rt->cds->findDestEntry(bu->ha(), it);
@@ -320,7 +324,7 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
       mod->rt->cds->findDestEntry(bu->ha(), it);
     }
   }
-
+*/
   boost::weak_ptr<bc_entry> bce = mod->mipv6cds->findBinding(bu->ha());
 
   if (bce.lock().get() != 0)
@@ -350,9 +354,9 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
     be->care_of_addr = dgram->srcAddress();
 
     bce = mod->mipv6cds->insertBinding(be);
+    Dout(dc::custom, "bc "<<(*(mod->mipv6cds)));
   }
 
-  it->second.bce = bce;
 }
 
 ///Remove from binding cache

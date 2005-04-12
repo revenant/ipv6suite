@@ -121,4 +121,5 @@ makefiles:
 re-makemake: makefiles
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
+PingApp.obj: PingApp.cc \
+  PingApp.h

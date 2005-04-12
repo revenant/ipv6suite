@@ -25,8 +25,9 @@
 #include "IPAddress.h"
 
 /// Temporary, until IPv6 addresses get sorted out
-struct IPv6Address_ { 
+struct IPv6Address_ {
    uint32 d[4];
+   bool tryParse(const char *s);
    void set(const char *s);
    std::string str();
 };
@@ -62,6 +63,13 @@ class IPvXAddress
      * Constructor for IPv6 addresses.
      */
     IPvXAddress(const IPv6Address_& addr) {set(addr);}
+
+    /**
+     * Accepts string representations suuported by IPAddress (dotted decimal
+     * notation) and IPv6Address_ (hex string with colons). Throws an error
+     * if the format is not recognized.
+     */
+    IPvXAddress(const char *addr) {set(addr);}
 
     /**
      * Copy constructor.
@@ -134,6 +142,16 @@ class IPvXAddress
     }
 
     /**
+     * Accepts string representations supported by IPAddress (dotted decimal
+     * notation) and IPv6Address_ (hex string with colons). Throws an error
+     * if the format is not recognized.
+     */
+    void set(const char *addr) {
+        if (!tryParse(addr))
+            throw new cRuntimeError("IPvXAddress: cannot interpret address string `%s'", addr);
+    }
+
+    /**
      * Assignment
      */
     IPvXAddress& operator=(const IPAddress& addr) {set(addr); return *this;}
@@ -147,6 +165,12 @@ class IPvXAddress
      * Assignment
      */
     IPvXAddress& operator=(const IPvXAddress& addr) {set(addr); return *this;}
+
+    /**
+     * Parses and assigns the given address and returns true if the string is
+     * recognized by IPAddress or IPv6Address_, otherwise just returns false.
+     */
+    bool tryParse(const char *addr);
 
     /**
      * Returns the string representation of the address (e.g. "152.66.86.92")

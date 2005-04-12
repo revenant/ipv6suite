@@ -19,46 +19,83 @@
 #include <iostream>
 #include "IPvXAddress.h"
 
-void IPv6Address_::set(const char *addr)
+
+bool IPv6Address_::tryParse(const char *addr)
 {
     // this impl is based on c_ipv6_addr(const char *)
-    if (addr == 0)
-        addr = "";
+    // FIXME TBD doesn't understand "::" notation!
+    if (!addr)
+        return false;
 
     std::stringstream is(addr);
 
     unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    char sep = '\0';
+    char sep;
 
     try
     {
-        for (int i = 0; i < 8; i ++)
+        int i;
+        for (i=0; i<8; i++)
         {
             is >> std::hex >> octals[i];
-            if (is.eof() )
+            if (is.eof())
                 break;
             is >> sep;
-            if (sep == '/')
-                break;
+            if (sep != ':')
+                return false;
         }
+        if (i!=7)
+            return false; // address incomplete or trailing ":"
     }
     catch (...)
     {
-        opp_error("exception thrown while parsing ipv6 char* address");
+        return false;
     }
 
-    for (unsigned int i = 0; i < 4; i++ )
+    for (unsigned int i=0; i<4; i++)
         d[i] = (octals[i*2]<<16) + octals[2*i + 1];
+
+    return true;
+}
+
+void IPv6Address_::set(const char *addr)
+{
+    if (!tryParse(addr))
+        throw new cRuntimeError("IPv6Address_: cannot interpret address string `%s'", addr);
 }
 
 std::string IPv6Address_::str()
 {
     std::stringstream os;
-    //os << hex;
+    os << std::hex;
     os << (d[0]>>16) << ":" << (d[0]&0xffff) << ":"
        << (d[1]>>16) << ":" << (d[1]&0xffff) << ":"
        << (d[2]>>16) << ":" << (d[2]&0xffff) << ":"
        << (d[3]>>16) << ":" << (d[3]&0xffff);
     return os.str();
 }
+
+//----
+
+bool IPvXAddress::tryParse(const char *addr)
+{
+    // try as IPv4
+    if (IPAddress::isWellFormed(addr))
+    {
+        set(IPAddress(addr));
+        return true;
+    }
+
+    // try as IPv6
+    IPv6Address_ ipv6;
+    if (ipv6.tryParse(addr))
+    {
+        set(ipv6);
+        return true;
+    }
+
+    // no luck
+    return false;
+}
+
 

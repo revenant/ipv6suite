@@ -32,7 +32,7 @@ IPvXAddress IPAddressResolver::resolve(const char *str)
     if (!*str)
         return IPvXAddress();
     if (isdigit(*str) || *str==':')
-        return IPvXAddress(str);
+        return IPvXAddress(str); // FIXME IPvXAddress has no such ctor...
 
     // handle module name
     cModule *mod = simulation.moduleByPath(str);

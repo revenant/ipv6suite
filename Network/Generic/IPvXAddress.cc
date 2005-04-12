@@ -64,7 +64,7 @@ void IPv6Address_::set(const char *addr)
         throw new cRuntimeError("IPv6Address_: cannot interpret address string `%s'", addr);
 }
 
-std::string IPv6Address_::str()
+std::string IPv6Address_::str() const
 {
     std::stringstream os;
     os << std::hex;

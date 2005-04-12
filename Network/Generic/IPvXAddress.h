@@ -29,7 +29,7 @@ struct IPv6Address_ {
    uint32 d[4];
    bool tryParse(const char *s);
    void set(const char *s);
-   std::string str();
+   std::string str() const;
 };
 
 
@@ -102,8 +102,11 @@ class IPvXAddress
      * Get IPv6 address. Throws exception if this is an IPv4 address.
      */
     IPv6Address_ get6() const {
-        if (!isv6)
+        if (!isv6)  {
+            if (d[0]==0) // allow null address to be returned as IPv6
+                return IPv6Address_();
             throw new cException("IPvXAddress: cannot return IPv4 address %s as IPv6", str().c_str());
+        }
         IPv6Address_ ret;
         ret.d[0] = d[0]; ret.d[1] = d[1]; ret.d[2] = d[2]; ret.d[3] = d[3];
         return ret;
@@ -251,6 +254,12 @@ class IPvXAddress
     }
     //@}
 };
+
+
+inline std::ostream& operator<<(std::ostream& os, const IPv6Address_& ip)
+{
+    return os << ip.str();
+}
 
 inline std::ostream& operator<<(std::ostream& os, const IPvXAddress& ip)
 {

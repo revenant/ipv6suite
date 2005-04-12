@@ -26,48 +26,61 @@
 #include "RoutingTable6.h"
 #endif
 
-IPvXAddress IPAddressResolver::resolve(const char *str)
+IPvXAddress IPAddressResolver::resolve(const char *s, bool preferIPv6)
 {
-    // handle empty address and dotted decimal notation
-    if (!*str)
-        return IPvXAddress();
-    if (isdigit(*str) || *str==':')
-        return IPvXAddress(str); // FIXME IPvXAddress has no such ctor...
-
-    // handle module name
-    cModule *mod = simulation.moduleByPath(str);
-    if (!mod)
-        opp_error("IPAddressResolver: module `%s' not found", str);
-
-    // FIXME TBD: parse requested address type, and pass it as preferIPv6 below
-    IPvXAddress addr = addressOf(mod);
-    if (addr.isNull())
-        opp_error("IPAddressResolver: no interface in `%s' has an IP or IPv6 address "
-                  "assigned (yet? try in a later init stage!)", mod->fullPath().c_str());
-    // FIXME TBD: if address is not of requested type, throw an error
+    IPvXAddress addr;
+    if (!tryResolve(s, addr, preferIPv6))
+        opp_error("IPAddressResolver: required address `%s' hasn't been assigned yet (try later!)", s);
     return addr;
 }
 
-bool IPAddressResolver::tryResolve(const char *str, IPvXAddress& result)
+bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool preferIPv6)
 {
-    // handle empty address and dotted decimal notation
-    if (!*str)
-        return IPvXAddress();
-    if (isdigit(*str) || *str==':')
-        return IPvXAddress(str); // FIXME IPvXAddress has no such ctor...
+    // empty address
+    result = IPvXAddress();
+    if (!s || !*s)
+        return true;
 
-    // handle module name
-    cModule *mod = simulation.moduleByPath(str);
+    // handle address literal
+    if (result.tryParse(s))
+        return true;
+
+    // must be "modulename/interfacename(protocol)" syntax then,
+    // "/interfacename" and "(protocol)" being optional
+    const char *slashp = strchr(s,'/');
+    const char *leftparenp = strchr(s,'(');
+    const char *rightparenp = strchr(s,')');
+    const char *endp = s+strlen(s);
+
+    // rudimentary syntax check
+    if ((slashp && leftparenp && slashp>leftparenp) ||
+        (leftparenp && !rightparenp) ||
+        (!leftparenp && rightparenp) ||
+        (rightparenp && rightparenp!=endp-1))
+    {
+        opp_error("IPAddressResolver: syntax error parsing address spec `%s'", s);
+    }
+
+    // parse fields
+    std::string modname, ifname, protocol;
+    modname.assign(s, (slashp?slashp:leftparenp?leftparenp:endp)-s-1);
+    if (slashp)
+        ifname.assign(slashp+1, (leftparenp?leftparenp:endp)-slashp-1);
+    if (leftparenp)
+        protocol.assign(leftparenp+1, rightparenp-leftparenp-1);
+
+    // find module, use protocol
+    cModule *mod = simulation.moduleByPath(modname.c_str());
     if (!mod)
-        opp_error("IPAddressResolver: module `%s' not found", str);
+        opp_error("IPAddressResolver: module `%s' not found", modname.c_str());
+    if (protocol!="ipv4" || protocol!="ipv6")
+        opp_error("IPAddressResolver: error parsing address spec `%s': protocol must be `ipv4' or `ipv6'", s);
 
-    // FIXME TBD: parse requested address type, and pass it as preferIPv6 below
-    IPvXAddress addr = addressOf(mod);
-    if (addr.isNull())
-        opp_error("IPAddressResolver: no interface in `%s' has an IP or IPv6 address "
-                  "assigned (yet? try in a later init stage!)", mod->fullPath().c_str());
+    // FIXME TBD: FINISH!!! parse requested address type, and pass it as preferIPv6 below
+    result = addressOf(mod);
     // FIXME TBD: if address is not of requested type, throw an error
-    return addr;
+
+    return true;
 }
 
 IPvXAddress IPAddressResolver::addressOf(cModule *host, bool preferIPv6)

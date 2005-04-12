@@ -53,7 +53,7 @@ class IPAddressResolver
      * looked up using <tt>simulation.moduleByPath()</tt>, and then
      * addressOf() will be called to determine its IP address.
      */
-    IPvXAddress resolve(const char *str);
+    IPvXAddress resolve(const char *str, bool preferIPv6=false);
 
     /**
      * Similar to resolve(), but returns false (instead of throwing an error)
@@ -61,7 +61,7 @@ class IPAddressResolver
      * doesn't have an address assigned yet. (It still throws an error
      * on any other error condition).
      */
-    bool tryResolve(const char *str, IPvXAddress& result);
+    bool tryResolve(const char *str, IPvXAddress& result, bool preferIPv6=false);
 
     /** @name Utility functions supporting resolve() */
     //@{

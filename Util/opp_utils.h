@@ -41,6 +41,8 @@
 #endif //BOOST_CAST_HPP
 */
 
+#include <omnetpp.h>
+
 // XXX dirty debugging hack, to be thrown out when cerr<< stuff
 // gets properly done with exceptions --AV
 inline void abort_ipv6suite()

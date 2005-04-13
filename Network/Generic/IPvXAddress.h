@@ -21,7 +21,7 @@
 
 #include <omnetpp.h>
 #include <string.h>
-#include "inetdefs.h"
+#include "INETDefs.h"
 #include "IPAddress.h"
 
 /// Temporary, until IPv6 addresses get sorted out

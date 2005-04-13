@@ -29,7 +29,7 @@ all:
 	: #FIXME remove dep on NetworkInterfaces!!!
 	cd PHY && $(MAKEMAKE) $(OPTS) -n -r -I.. -I../Util -I../NetworkInterfaces/Wireless -I../NetworkInterfaces/Ethernet6
 	: #FIXME remove dep on NetworkInterfaces!!!
-	cd Mobility && $(MAKEMAKE) $(OPTS) -n -r -I.. -I../Util -I../World -I../NetworkInterfaces -I../NetworkInterfaces/Wireless  -I../NetworkInterfaces/Ethernet6 -IadHocSim
+	cd Mobility && $(MAKEMAKE) $(OPTS) -n -r -I. -I.. -I../Util -I../World -I../NetworkInterfaces -I../NetworkInterfaces/Wireless  -I../NetworkInterfaces/Ethernet6 -IadHocSim
 	cd Mobility/adHocSim && $(MAKEMAKE) $(OPTS) -n -r
 
 	cd Transport && $(MAKEMAKE) $(OPTS) -n -r -X RTP
@@ -50,12 +50,12 @@ all:
 	cd Util/Topology && $(MAKEMAKE) $(OPTS) -n -r
 
 	: #FIXME remove -IWireless from Eth!!!!! --AV
-	cd NetworkInterfaces/Ethernet6 && $(MAKEMAKE) $(OPTS) -n -r -I../Wireless -I../../PHY -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Base
+	cd NetworkInterfaces/Ethernet6 && $(MAKEMAKE) $(OPTS) -n -r -I../Wireless -I../../PHY -I. -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Base
 	: #FIXME remove -IEthernet6 from PPP6!!!!! (dep on MACAddress) --AV
 	cd NetworkInterfaces/PPP6 && $(MAKEMAKE) $(OPTS) -n -r -I../Ethernet6 -I.. -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../PHY -I../../Base
 	: #FIXME sure we need -IMobility here? --AV
 	: #FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface??)
-	cd NetworkInterfaces/Wireless && $(MAKEMAKE) $(OPTS) -n -r -I../PPP6 -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Mobility -I../../PHY -I../../Base
+	cd NetworkInterfaces/Wireless && $(MAKEMAKE) $(OPTS) -n -r -I../PPP6 -I. -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic -I../../World -I../../Mobility -I../../PHY -I../../Base
 
 	cd Applications/MLD && $(MAKEMAKE) $(OPTS) -n -r
 	cd Applications/Ping6 && $(MAKEMAKE) $(OPTS) -n -r -I../.. -I../../Util -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Generic
@@ -71,7 +71,7 @@ all:
 	cd Applications/TCPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Generic
 	cd Applications/UDPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Generic
 
-	cd Network/Generic && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4
+	cd Network/Generic && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
 	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic
 	cd Network/IPv4d && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../../Base -I../../Util -I../Generic
 	cd Network/AutoRouting && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4  -I../../Base -I../../Util -I../Generic
@@ -132,5 +132,6 @@ all:
 
 	cd Tests/MPLS && $(MAKEMAKE) $(OPTS) -n -r
 	cd Tests/MPLS/LDP1 && $(MAKEMAKE) $(OPTS) -w $(ALL_MPLS_INCLUDES) $(ALL_INET_INCLUDES)
-	cd Tests/NewTCP && $(MAKEMAKE) $(OPTS) -w $(ALL_INET_INCLUDES)
+	: #cd Tests/NewTCP && $(MAKEMAKE) $(OPTS) -w $(ALL_INET_INCLUDES)
+	cd Tests/NewTCP && $(MAKEMAKE) $(OPTS) -w $(ALL_INET_INCLUDES) $(ALL_IPv6_INCLUDES)
 

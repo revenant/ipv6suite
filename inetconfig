@@ -7,7 +7,7 @@
 #
 
 # include omnetppconfig from this directory
-ROOT=$(HOME)/INET
+ROOT=$(HOME)/IPv6SuiteWithINET
 include $(ROOT)/omnetppconfig
 
 CFLAGS+= -DWITH_IPv6 -DUSE_MOBILITY -DUSE_HMIP -DEDGEHANDOVER=1

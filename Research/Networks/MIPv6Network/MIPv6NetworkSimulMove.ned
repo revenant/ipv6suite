@@ -24,7 +24,8 @@ import  //
     "WorldProcessor",
     "WirelessAccessPoint",
     "WirelessMobileNode",
-    "Cables";
+    "Cables",
+    "FlatNetworkConfigurator6";
 
 
 
@@ -102,6 +103,11 @@ module MIPv6NetworkSimulMove
                 in[1],
                 out[1];
             display: "p=32,296;i=pc";
+        configurator6: FlatNetworkConfigurator6;
+            parameters:
+                moduleTypes = "Router6 MobileNode",
+                nonIPModuleTypes = "AccessPoint ";
+            display: "p=396,396;i=block/cogwheel";
     connections nocheck:
 
         // Correct for ping test

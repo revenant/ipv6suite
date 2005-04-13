@@ -20,8 +20,8 @@
 import
     "WorldProcessor",
     "Router6",
-    "UDPNode";
-
+    "UDPNode",
+    "FlatNetworkConfigurator6";
 
 //
 // Network model with a server and three clients, connecting to two routers
@@ -73,6 +73,11 @@ module PingNetwork
                 in[3],
                 out[3];
             display: "p=210,94;i=ipc";
+        configurator6: FlatNetworkConfigurator6;
+            parameters:
+                moduleTypes = "Router6 UDPNode",
+                nonIPModuleTypes = "";
+            display: "p=356,252;i=block/cogwheel";
     connections nocheck:
         client1.out[0] --> routerInt.in[0];
         client1.in[0] <-- routerInt.out[0];
@@ -89,7 +94,6 @@ module PingNetwork
         server4.out[0] --> routerExt.in[1];
         server4.in[0] <-- routerExt.out[1];
 
-    display: "p=10,10;b=317,207";
 endmodule
 
 network pingNet : PingNetwork

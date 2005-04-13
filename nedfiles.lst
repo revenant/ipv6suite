@@ -1,3 +1,4 @@
+./ipv6-index.ned
 ./Applications/Ethernet/EtherAppCli.ned
 ./Applications/Ethernet/EtherAppSrv.ned
 ./Applications/Generic/IPTrafGen.ned
@@ -17,6 +18,10 @@
 ./Applications/UDPApp/UDPSink.ned
 ./Applications/UDPApp/UDPVideoStreamCli.ned
 ./Applications/UDPApp/UDPVideoStreamSvr.ned
+./Base/Blackboard.ned
+./Base/Join.ned
+./Base/Nop.ned
+./Base/Sink.ned
 ./Examples/Ethernet/ARPTest/ARPTest.ned
 ./Examples/Ethernet/LANs/EtherHost.ned
 ./Examples/Ethernet/LANs/LargeNet.ned
@@ -59,16 +64,9 @@
 ./Examples/MPLS/ldp-mpls1/MPLSOnly.ned
 ./Examples/RTP/Multicast1/multicast1.ned
 ./Examples/RTP/Unicast/unicast.ned
-./index.ned
-./inet-doc.ned
-./ipv6-index.ned
-./mpls-doc.ned
-./Base/Blackboard.ned
-./Base/Join.ned
-./Base/Nop.ned
-./Base/Sink.ned
 ./Mobility/MobilityManager.ned
 ./Network/AutoRouting/FlatNetworkConfigurator.ned
+./Network/AutoRouting/FlatNetworkConfigurator6.ned
 ./Network/Generic/InterfaceTable.ned
 ./Network/ICMPv6/AddressResolution.ned
 ./Network/ICMPv6/ICMPv6.ned
@@ -110,11 +108,10 @@
 ./Network/Scenario/NewBWRequestTester.ned
 ./Network/Scenario/NewRouteTester.ned
 ./Network/Scenario/Scenario.ned
-./NetworkInterfaces/ARP/ARP.ned
-./NetworkInterfaces/PPP/PPPInterface.ned
 ./NetworkInterfaces/LinkLayer6.ned
 ./NetworkInterfaces/NetworkInterface.ned
 ./NetworkInterfaces/NetworkInterface6.ned
+./NetworkInterfaces/ARP/ARP.ned
 ./NetworkInterfaces/Ethernet/EtherBus.ned
 ./NetworkInterfaces/Ethernet/EtherEncap.ned
 ./NetworkInterfaces/Ethernet/EtherHub.ned
@@ -128,6 +125,7 @@
 ./NetworkInterfaces/Ethernet/eth-index.ned
 ./NetworkInterfaces/Ethernet6/EtherModuleAP.ned
 ./NetworkInterfaces/Ethernet6/EtherRelayUnit.ned
+./NetworkInterfaces/PPP/PPPInterface.ned
 ./NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 ./NetworkInterfaces/Wireless/WirelessEtherBridge.ned
 ./NetworkInterfaces/Wireless/WirelessEtherModule.ned
@@ -169,3 +167,6 @@
 ./Util/Topology/DynamicTopologyBuilder.ned
 ./World/WirelessStats.ned
 ./World/WorldProcessor.ned
+./index.ned
+./inet-doc.ned
+./mpls-doc.ned

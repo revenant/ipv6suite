@@ -84,9 +84,9 @@ void FlatNetworkConfigurator6::initialize(int stage)
               ie->ipv6()->inetAddrs.push_back(IPv6Address(addr, 64));
 
               // put in link-local address
-              addr.extreme=0xfe80;
               ipv6_addr linklocalAddr = addr;
-
+              linklocalAddr.extreme=0xfe80;
+              linklocalAddr.high=0x0;
               ie->ipv6()->inetAddrs.push_back(IPv6Address(linklocalAddr, 64));
 
             }

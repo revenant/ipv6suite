@@ -44,6 +44,15 @@ foreach line {
    {"Multicast"              "INET/Multicast"    "./Multicast"             "Multicast"}
    {"RouterPerf"             "INET/RouterPerf"   "./RouterPerf"            "RouterPerf"}
    {"BulkTransfer"           "INET/BulkTransfer" "./BulkTransfer"          "BulkTransfer"}
+   
+   {"IPv6Suite"}
+   {"EthNetwork"    "IPv6/EthNetwork"      "./EthNetwork"    "EthNetwork"}
+   {"HMIPv6Network" "IPv6/HMIPv6Network"   "./HMIPv6Network" "HMIPv6Network"}
+   {"MIPv6Network"  "IPv6/MIPv6Network"    "./MIPv6Network"  "MIPv6Network"}
+   {"PingNetwork"   "IPv6/PingNetwork"     "./PingNetwork"   "PingNetwork"}
+   {"TunnelNet"     "IPv6/TunnelNet"       "./TunnelNet"     "TunnelNet"}
+   {"Wireless"      "IPv6/WirelessEtherNetwork"   "./WirelessEtherNetwork"   "WirelessEtherNetwork"}
+   {"Wireless2"     "IPv6/WirelessEtherNetwork2"  "./WirelessEtherNetwork2"  "WirelessEtherNetwork2"}
 
    {"Ethernet"}
    {"ARP Test"               "Ethernet/ARPTest"  "./ARPTest"               "ARPTest"}
@@ -62,7 +71,6 @@ foreach line {
    {"Traffic Reroute 1"      "MPLS/TestTE4"   "./TestTE"    "TestTE"}
    {"Traffic Reroute 2"      "MPLS/TestTE5"   "./TestTE"    "TestTE"}
    {"Reservation preemption" "MPLS/TestTE6"   "./TestTE"    "TestTE"}
-
 } {
    lappend samples $i
    if {[llength $line]==0} {

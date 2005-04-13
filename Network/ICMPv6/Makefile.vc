@@ -781,7 +781,6 @@ ICMPv6Core.obj: ICMPv6Core.cc \
   ../Generic/IPAddress.h \
   ../Generic/IPvXAddress.h \
   ../../Base/INETDefs.h \
-  ../../Base/inetdefs.h \
   ../../Util/boost/weak_ptr.hpp \
   ../../Util/boost/shared_ptr.hpp \
   ../../Util/boost/assert.hpp \
@@ -2265,7 +2264,6 @@ MLD.obj: MLD.cc \
   ../IPv6/IPv6Datagram_m.h \
   ../Generic/IPAddress.h \
   ../Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
   ICMPv6Message.h \
   ../../Util/cTimerMessage.h \
   ../../Util/Loki/Functor.h \

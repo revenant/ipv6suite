@@ -161,17 +161,15 @@ TCPBasicClientApp.obj: TCPBasicClientApp.cc \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPEchoApp.obj: TCPEchoApp.cc \
   TCPEchoApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPGenericCliAppBase.obj: TCPGenericCliAppBase.cc \
   TCPGenericCliAppBase.h \
   ../../Network/Generic/IPAddressResolver.h \
@@ -179,18 +177,16 @@ TCPGenericCliAppBase.obj: TCPGenericCliAppBase.cc \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPGenericSrvApp.obj: TCPGenericSrvApp.cc \
   TCPGenericSrvApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   GenericAppMsg_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPGenericSrvThread.obj: TCPGenericSrvThread.cc \
   TCPGenericSrvThread.h \
   GenericAppMsg_m.h \
@@ -199,41 +195,36 @@ TCPGenericSrvThread.obj: TCPGenericSrvThread.cc \
   ../../Transport/TCP/TCPSocketMap.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPSessionApp.obj: TCPSessionApp.cc \
   TCPSessionApp.h \
   ../../Network/Generic/IPAddressResolver.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPSinkApp.obj: TCPSinkApp.cc \
   TCPSinkApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPSrvHostApp.obj: TCPSrvHostApp.cc \
   TCPSrvHostApp.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPSocketMap.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TelnetApp.obj: TelnetApp.cc \
   TelnetApp.h \
   TCPGenericCliAppBase.h \
   ../../Transport/TCP/TCPSocket.h \
   ../../Transport/TCP/TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h

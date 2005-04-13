@@ -132,5 +132,4 @@ FlatNetworkConfigurator.obj: FlatNetworkConfigurator.cc \
   ../../Base/INETDefs.h \
   ../Generic/IPAddress.h \
   ../Generic/InterfaceEntry.h \
-  ../Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h
+  ../Generic/IPvXAddress.h

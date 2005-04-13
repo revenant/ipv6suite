@@ -2109,7 +2109,6 @@ IPv6Encapsulation.obj: IPv6Encapsulation.cc \
   ../Generic/IPAddress.h \
   ../Generic/IPvXAddress.h \
   ../../Base/INETDefs.h \
-  ../../Base/inetdefs.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \
   ../Generic/InterfaceEntry.h \
@@ -3314,7 +3313,6 @@ IPv6LocalDeliver.obj: IPv6LocalDeliver.cc \
   ../Generic/IPAddress.h \
   ../Generic/IPvXAddress.h \
   ../../Base/INETDefs.h \
-  ../../Base/inetdefs.h \
   IPv6Datagram_m.h
 IPv6Mobility.obj: IPv6Mobility.cc \
   ../../Util/boost/cast.hpp \
@@ -4348,7 +4346,6 @@ IPv6Send.obj: IPv6Send.cc \
   ../Generic/IPAddress.h \
   ../Generic/IPvXAddress.h \
   ../../Base/INETDefs.h \
-  ../../Base/inetdefs.h \
   HdrExtProc.h \
   ../../Base/ModuleAccess.h \
   ../Generic/InterfaceTable.h \

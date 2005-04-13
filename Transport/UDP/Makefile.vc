@@ -136,9 +136,8 @@ re-makemake: makefiles
 UDPControlInfo_m.obj: UDPControlInfo_m.cc \
   UDPControlInfo_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 UDPPacket_m.obj: UDPPacket_m.cc \
   UDPPacket_m.h
 UDPProcessing.obj: UDPProcessing.cc \
@@ -150,7 +149,6 @@ UDPProcessing.obj: UDPProcessing.cc \
   UDPPacket_m.h \
   UDPControlInfo_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Network/Generic/IPProtocolId_m.h

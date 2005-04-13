@@ -129,7 +129,6 @@ IPTrafGen.obj: IPTrafGen.cc \
   ../../Util/StringTokenizer.h \
   ../../Network/Generic/IPAddressResolver.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Network/Generic/IPProtocolId_m.h

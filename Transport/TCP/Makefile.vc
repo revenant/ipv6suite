@@ -186,15 +186,13 @@ DummyTCPAlg.obj: DummyTCPAlg.cc \
   TCPSegment.h \
   ../../Base/INETDefs.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPCommand_m.obj: TCPCommand_m.cc \
   TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPConnectionBase.obj: TCPConnectionBase.cc \
   TCPMain.h \
   TCPConnection.h \
@@ -204,9 +202,8 @@ TCPConnectionBase.obj: TCPConnectionBase.cc \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPConnectionEventProc.obj: TCPConnectionEventProc.cc \
   TCPMain.h \
@@ -217,9 +214,8 @@ TCPConnectionEventProc.obj: TCPConnectionEventProc.cc \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPConnectionRcvSegment.obj: TCPConnectionRcvSegment.cc \
   TCPMain.h \
@@ -230,9 +226,8 @@ TCPConnectionRcvSegment.obj: TCPConnectionRcvSegment.cc \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPConnectionUtil.obj: TCPConnectionUtil.cc \
   TCPMain.h \
@@ -245,9 +240,8 @@ TCPConnectionUtil.obj: TCPConnectionUtil.cc \
   TCPReceiveQueue.h \
   TCPAlgorithm.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h \
   ../../Network/Generic/IPProtocolId_m.h
 TCPDump.obj: TCPDump.cc \
@@ -255,9 +249,8 @@ TCPDump.obj: TCPDump.cc \
   ../../Network/Generic/IPvXAddress.h \
   ../../Network/IPv4/IPDatagram_m.h \
   TCPSegment.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   ../../Network/Generic/IPProtocolId_m.h \
   TCPSegment_m.h
 TCPMain.obj: TCPMain.cc \
@@ -269,9 +262,8 @@ TCPMain.obj: TCPMain.cc \
   ../../Network/Generic/IPv6ControlInfo_m.h \
   ../../Util/stlwatch.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
   ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h \
   ../../Network/Generic/IPProtocolId_m.h
 TCPMsgBasedRcvQueue.obj: TCPMsgBasedRcvQueue.cc \
@@ -284,7 +276,6 @@ TCPMsgBasedRcvQueue.obj: TCPMsgBasedRcvQueue.cc \
   TCPConnection.h \
   ../../Network/Generic/IPvXAddress.h \
   TCPMain.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h
 TCPMsgBasedSendQueue.obj: TCPMsgBasedSendQueue.cc \
   TCPMsgBasedSendQueue.h \
@@ -294,7 +285,6 @@ TCPMsgBasedSendQueue.obj: TCPMsgBasedSendQueue.cc \
   ../../Base/INETDefs.h \
   ../../Network/Generic/IPvXAddress.h \
   TCPMain.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPSegment.obj: TCPSegment.cc \
@@ -308,17 +298,15 @@ TCPSocket.obj: TCPSocket.cc \
   TCPMain.h \
   TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPSocketMap.obj: TCPSocketMap.cc \
   TCPSocketMap.h \
   TCPSocket.h \
   TCPCommand_m.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
-  ../../Network/Generic/IPAddress.h \
-  ../../Base/INETDefs.h
+  ../../Base/INETDefs.h \
+  ../../Network/Generic/IPAddress.h
 TCPTahoeReno.obj: TCPTahoeReno.cc \
   TCPTahoeReno.h \
   TCPMain.h \
@@ -329,7 +317,6 @@ TCPTahoeReno.obj: TCPTahoeReno.cc \
   TCPSegment.h \
   ../../Base/INETDefs.h \
   ../../Network/Generic/IPvXAddress.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h
 TCPVirtualDataRcvQueue.obj: TCPVirtualDataRcvQueue.cc \
@@ -341,7 +328,6 @@ TCPVirtualDataRcvQueue.obj: TCPVirtualDataRcvQueue.cc \
   TCPConnection.h \
   ../../Network/Generic/IPvXAddress.h \
   TCPMain.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h
 TCPVirtualDataSendQueue.obj: TCPVirtualDataSendQueue.cc \
   TCPVirtualDataSendQueue.h \
@@ -351,6 +337,5 @@ TCPVirtualDataSendQueue.obj: TCPVirtualDataSendQueue.cc \
   ../../Base/INETDefs.h \
   ../../Network/Generic/IPvXAddress.h \
   TCPMain.h \
-  ../../Base/inetdefs.h \
   ../../Network/Generic/IPAddress.h \
   TCPSegment_m.h

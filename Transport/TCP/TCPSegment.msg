@@ -18,7 +18,14 @@
 
 
 cplusplus {{
+#include <iostream>
+
 typedef cMessage *cMessagePtr;
+
+inline std::ostream& operator<<(std::ostream& os, cMessagePtr msg) {
+    return os << "(" << msg->className() << ") " << msg->name() << ": " << msg->info();
+}
+
 }};
 
 struct cMessagePtr;

@@ -63,7 +63,7 @@ bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool pref
 
     // parse fields
     std::string modname, ifname, protocol;
-    modname.assign(s, (slashp?slashp:leftparenp?leftparenp:endp)-s-1);
+    modname.assign(s, (slashp?slashp:leftparenp?leftparenp:endp)-s);
     if (slashp)
         ifname.assign(slashp+1, (leftparenp?leftparenp:endp)-slashp-1);
     if (leftparenp)
@@ -73,7 +73,7 @@ bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool pref
     cModule *mod = simulation.moduleByPath(modname.c_str());
     if (!mod)
         opp_error("IPAddressResolver: module `%s' not found", modname.c_str());
-    if (protocol!="ipv4" || protocol!="ipv6")
+    if (!protocol.empty() && protocol!="ipv4" && protocol!="ipv6")
         opp_error("IPAddressResolver: error parsing address spec `%s': protocol must be `ipv4' or `ipv6'", s);
 
     // FIXME TBD: FINISH!!! parse requested address type, and pass it as preferIPv6 below

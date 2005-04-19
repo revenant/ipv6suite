@@ -19,8 +19,10 @@
 #ifndef __FLATNETWORKCONFIGURATOR6_H__
 #define __FLATNETWORKCONFIGURATOR6_H__
 
+#include <algorithm>
 #include <omnetpp.h>
 
+struct ipv6_addr;
 
 /**
  * Configures IP addresses and routing tables for a "flat" network,
@@ -35,9 +37,12 @@ class FlatNetworkConfigurator6 : public cSimpleModule
     Module_Class_Members(FlatNetworkConfigurator6, cSimpleModule, 0);
 
   protected:
-    virtual int numInitStages() const  {return 3;}
+    virtual int numInitStages() const  {return 4;}
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
+
+ private:
+    std::vector<ipv6_addr> nodeAddresses;
 };
 
 #endif

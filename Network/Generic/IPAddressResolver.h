@@ -42,8 +42,6 @@ class IPAddressResolver
     // internal
     IPv6Address_ getIPv6AddressFrom(InterfaceTable *ift);
 
-    IPv6Address_ getIPv6AddressFrom(InterfaceTable *ift, int ifIdx, int addrIdx);
-
   public:
     IPAddressResolver() {}
     ~IPAddressResolver() {}
@@ -77,8 +75,6 @@ class IPAddressResolver
      */
     IPvXAddress addressOf(cModule *host, bool preferIPv6=false);
     
-    IPvXAddress addressOf(cModule *host, int ifIdx, int addrIdx, bool preferIPv6=false);
-    
     /**
      * Returns the IP or IPv6 address of the given host or router, given its InterfaceTable
      * module. If different interfaces have different IP addresses, the function
@@ -86,10 +82,6 @@ class IPAddressResolver
      */
     IPvXAddress getAddressFrom(InterfaceTable *ift, bool preferIPv6=false);
 
-    IPvXAddress getAddressFrom(InterfaceTable *ift, int ifIdx, int addrIdx, bool preferIPv6=false);
-
-    int numIPv6Addrs(cModule *host, int ifIdx);
-    
     /**
      * The function tries to look up the InterfaceTable module as submodule
      * <tt>"interfaceTable"</tt> or <tt>"networkLayer.interfaceTable"</tt> within

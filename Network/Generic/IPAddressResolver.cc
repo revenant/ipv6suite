@@ -89,13 +89,6 @@ IPvXAddress IPAddressResolver::addressOf(cModule *host, bool preferIPv6)
     return getAddressFrom(ift, preferIPv6);
 }
 
-IPvXAddress IPAddressResolver::addressOf(cModule *host, int ifIdx, int addrIdx, bool preferIPv6)
-{
-    InterfaceTable *ift = interfaceTableOf(host);
-    return getAddressFrom(ift, ifIdx, addrIdx, preferIPv6);
-}
-
-
 IPvXAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift, bool preferIPv6)
 {
     IPvXAddress ret;
@@ -113,25 +106,6 @@ IPvXAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift, bool preferIP
     }
     return ret;
 }
-
-IPvXAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift, int ifIdx, int addrIdx, bool preferIPv6)
-{
-    IPvXAddress ret;
-    if (preferIPv6)
-    {
-        ret = getIPv6AddressFrom(ift, ifIdx, addrIdx);
-        if (ret.isNull())
-            ret = getIPv4AddressFrom(ift);
-    }
-    else
-    {
-        ret = getIPv4AddressFrom(ift);
-        if (ret.isNull())
-            ret = getIPv6AddressFrom(ift, ifIdx, addrIdx);
-    }
-    return ret;
-}
-
 
 IPAddress IPAddressResolver::getIPv4AddressFrom(InterfaceTable *ift)
 {
@@ -162,13 +136,6 @@ IPAddress IPAddressResolver::getIPv4AddressFrom(InterfaceTable *ift)
     return addr;
 }
 
-int IPAddressResolver::numIPv6Addrs(cModule *host, int ifIdx)
-{
-  InterfaceTable *ift = interfaceTableOf(host);
-  return ift->interfaceAt(ifIdx)->ipv6()->inetAddrs.size();
-}
-
-
 IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift)
 {
     // browse interfaces: for the purposes of this function, all of them should
@@ -195,22 +162,6 @@ IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift)
 
     return addr;
 }
-
-IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift, int ifIdx, int addrIdx)
-{
-    // browse interfaces: for the purposes of this function, all of them should
-    // share the same IP address
-    IPv6Address_ addr;
-    if (ift->numInterfaces()==0)
-        opp_error("IPAddressResolver: interface table `%s' has no interface registered "
-                  "(yet? try in a later init stage!)", ift->fullPath().c_str());
-
-    InterfaceEntry *ie = ift->interfaceAt(ifIdx);
-    ie->ipv6()->inetAddrs[addrIdx];
-
-    return addr;
-}
-
 
 InterfaceTable *IPAddressResolver::interfaceTableOf(cModule *host)
 {
@@ -244,7 +195,7 @@ RoutingTable6 *IPAddressResolver::routingTable6Of(cModule *host)
     // find RoutingTable
     cModule *mod = host->submodule("routingTable6");
     if (!mod)
-        mod = host->moduleByRelativePath("networkLayer.routingTable6");
+        mod = host->moduleByRelativePath("networkLayer.proc.routingTable6");
     if (!mod)
         opp_error("IPAddressResolver: RoutingTable6 not found as `routingTable6' or "
                   "`networkLayer.routingTable6' within host/router module `%s'",

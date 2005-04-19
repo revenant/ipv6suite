@@ -50,7 +50,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "cTTimerMessageCB.h"
-#include "opp_akaroa.h"
+
 #if defined USE_HMIP
 #include "HMIPv6ICMPv6NDMessage.h"
 #endif //defined USE_HMIP
@@ -452,7 +452,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     else
     {
 #endif
-      delay = OPP_UNIFORM(0, MAX_RTR_SOLICITATION_DELAY);
+      delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
 #ifdef USE_MOBILITY
     }
 #endif
@@ -578,11 +578,11 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
   {
 #if FASTRS
     if (ie->ipv6()->dupAddrDetectTrans < 1)
-      delay = OPP_UNIFORM(0, ie->ipv6()->maxRtrSolDelay);
+      delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
 #else
     //Don't need initial delay if already did a random delay for dupAddrDet
     if (ie->ipv6()->dupAddrDetectTrans < 1)
-      delay = OPP_UNIFORM(0, MAX_RTR_SOLICITATION_DELAY);
+      delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
 #endif // FASTRS
 
     tmr->dgram = new IPv6Datagram(

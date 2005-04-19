@@ -59,7 +59,7 @@ class INeighbourCache//: public IDestinationCache
 public:
 
   // Constructor/destructor.
-  //~INeighbourCache();
+  INeighbourCache();
 
 protected:
 

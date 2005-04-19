@@ -28,6 +28,7 @@
 #include "debug.h"
 
 #include "IDestinationCache.h"
+#include "stlwatch.h"
 #include <iostream>
 
 namespace IPv6NeighbourDiscovery
@@ -55,6 +56,10 @@ boost::weak_ptr<NeighbourEntry> IDestinationCache::neighbour(const ipv6_addr& ad
   return ne;
 }
 
+IDestinationCache::IDestinationCache()
+{
+  WATCH_MAP(destCache);
+}
 
 /**
    Implements longest prefix match.  Will return 0 when the default route is

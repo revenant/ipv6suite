@@ -18,6 +18,7 @@
 
 #include <omnetpp.h>
 #include <vector>
+#include <list>
 #include <map>
 #include <string>
 #include <iostream>
@@ -83,6 +84,71 @@ template <class T>
 void createPointerVectorWatcher(const char *varname, std::vector<T>& v)
 {
     new cPointerVectorWatcher<T>(varname, v);
+}
+
+//
+// Internal class
+//
+template<class T>
+class cListWatcher : public cVectorWatcherBase
+{
+  protected:
+    std::list<T>& v;
+    std::string classname;
+    mutable typename std::list<T>::iterator it;
+    mutable int itPos;
+  public:
+    cListWatcher(const char *name, std::list<T>& var) : cVectorWatcherBase(name), v(var) {
+        itPos=-1;
+        classname = std::string("std::list<")+opp_typename(typeid(T))+">";
+    }
+    const char *className() const {return classname.c_str();}
+    virtual const char *elemTypeName() const {return opp_typename(typeid(T));}
+    virtual int size() const {return v.size();}
+    virtual std::string at(int i) const {
+        // std::list doesn't support random access iterator and iteration is slow,
+        // so we have to use a trick, knowing that Tkenv will call this function with
+        // i=0, i=1, etc...
+        if (i==0) {
+            it=v.begin(); itPos=0;
+        } else if (i==itPos+1 && it!=v.end()) {
+            ++it; ++itPos;
+        } else {
+            it=v.begin();
+            for (int k=0; k<i && it!=v.end(); k++) ++it;
+            itPos=i;
+        }
+        if (it==v.end()) {
+            return std::string("out of bounds");
+        }
+        std::stringstream out;
+        out << (*it);
+        return out.str();
+    }
+};
+
+template <class T>
+void createListWatcher(const char *varname, std::list<T>& v)
+{
+    new cListWatcher<T>(varname, v);
+}
+
+
+//
+// Internal class
+//
+template<class T>
+class cPointerListWatcher : public cListWatcher<T>
+{
+  public:
+    cPointerListWatcher(const char *name, std::list<T>& var) : cListWatcher<T>(name, var) {}
+    virtual std::string at(int i) const {std::stringstream out; out << *(this->v[i]); return out.str();}
+};
+
+template <class T>
+void createPointerListWatcher(const char *varname, std::list<T>& v)
+{
+    new cPointerListWatcher<T>(varname, v);
 }
 
 //
@@ -160,6 +226,10 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
 #define WATCH_VECTOR(v)      createVectorWatcher(#v,(v))
 
 #define WATCH_PTRVECTOR(v)   createPointerVectorWatcher(#v,(v))
+
+#define WATCH_LIST(v)        createListWatcher(#v,(v))
+
+#define WATCH_PTRLIST(v)     createPointerListWatcher(#v,(v))
 
 #define WATCH_MAP(m)         createMapWatcher(#m,(m))
 

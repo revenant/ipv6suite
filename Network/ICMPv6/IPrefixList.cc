@@ -29,12 +29,20 @@
 #include "debug.h"
 
 #include "IPrefixList.h"
+#include "stlwatch.h"
 
 namespace IPv6NeighbourDiscovery
 {
 
+
+std::ostream& operator<<(std::ostream& os, const std::pair<PrefixEntry,size_t>& pe) {
+  return os << pe.first << ", " << pe.second;
+}
+
 IPrefixList::IPrefixList()
-{}
+{
+  WATCH_MAP(prefixList);
+}
 
 IPrefixList::~IPrefixList()
 {}

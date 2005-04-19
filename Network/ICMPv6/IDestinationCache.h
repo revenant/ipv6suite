@@ -70,6 +70,7 @@ class IDestinationCache: public boost::noncopyable
 #endif // USE_MOBILITY
 
 public:
+  IDestinationCache();
 
   ///Returns the next hop neighbour entry for destination of addr or return null
   ///if addr not in DC

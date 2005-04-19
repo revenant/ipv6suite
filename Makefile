@@ -37,7 +37,7 @@ include inetconfig
 SUBDIRS=  Applications Base Examples Mobility Network NetworkInterfaces Nodes PHY Tests Transport Util World
 
 # object files in this directory
-OBJS=     
+OBJS=  
 
 # header files generated (from msg files)
 GENERATEDHEADERS= 
@@ -166,7 +166,4 @@ re-makemake-m: makefile-ins
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-index_n.o: index_n.cc
-inet-doc_n.o: inet-doc_n.cc
-ipv6-index_n.o: ipv6-index_n.cc
-mpls-doc_n.o: mpls-doc_n.cc
+

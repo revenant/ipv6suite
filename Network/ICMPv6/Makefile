@@ -1324,6 +1324,7 @@ IDestinationCache.o: IDestinationCache.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   IDestinationCache.h \
+  ../../Util/stlwatch.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/weak_ptr.hpp \
   NDEntry.h \
@@ -1503,6 +1504,7 @@ IDestinationCache.o: IDestinationCache.cc \
   ../../Util/boost/mpl/aux_/ice_cast.hpp
 INeighbourCache.o: INeighbourCache.cc \
   INeighbourCache.h \
+  ../../Util/stlwatch.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/weak_ptr.hpp \
   NDEntry.h \
@@ -1684,6 +1686,7 @@ IPrefixList.o: IPrefixList.cc \
   ../../Util/sys.h \
   ../../Util/debug.h \
   IPrefixList.h \
+  ../../Util/stlwatch.h \
   NDEntry.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/weak_ptr.hpp \
@@ -1863,6 +1866,7 @@ IPrefixList.o: IPrefixList.cc \
   ../../Util/boost/utility_fwd.hpp
 IRouterList.o: IRouterList.cc \
   IRouterList.h \
+  ../../Util/stlwatch.h \
   ../../Util/boost/utility.hpp \
   ../../Util/boost/weak_ptr.hpp \
   NDEntry.h \
@@ -3013,7 +3017,6 @@ NDStateHost.o: NDStateHost.cc \
   ../../Util/opp_utils.h \
   ../IPv6/IPv6CDS.h \
   ../../Util/cTTimerMessageCB.h \
-  ../../Util/opp_akaroa.h \
   ../HMIPv6/HMIPv6ICMPv6NDMessage.h \
   ../MIPv6/MIPv6NDStateHost.h \
   ../../NetworkInterfaces/Wireless/WirelessEtherModule.h \

@@ -28,9 +28,17 @@
 
 
 #include "INeighbourCache.h"
+#include "stlwatch.h"
+
 
 namespace IPv6NeighbourDiscovery
 {
+
+INeighbourCache::INeighbourCache()
+{
+  WATCH_PTRMAP(neighbourCache);
+}
+
 
 /**
  * @param entry Insert a newly constructed NeighbourEntry or RouterEntry into

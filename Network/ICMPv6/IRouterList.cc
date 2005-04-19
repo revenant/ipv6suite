@@ -28,7 +28,7 @@
 
 
 #include "IRouterList.h"
-
+#include "stlwatch.h"
 
 namespace IPv6NeighbourDiscovery
 {
@@ -51,7 +51,9 @@ std::ostream& operator<<(std::ostream & os, const IPv6NeighbourDiscovery::IRoute
 
 
 IRouterList::IRouterList()
-{}
+{
+  WATCH_LIST(routers);
+}
 
 
 IRouterList::~IRouterList()

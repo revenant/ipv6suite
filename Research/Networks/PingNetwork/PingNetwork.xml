@@ -21,4 +21,7 @@
     <gHostDupAddrDetectTransmits>3</gHostDupAddrDetectTransmits>
   </global>
 -->
+  <local node="routerInt" routePackets="on"/>
+  <local node="routerExt" routePackets="on"/>
+
 </netconf>

@@ -46,25 +46,21 @@ void FlatNetworkConfigurator6::initialize(int stage)
   // since topology may depend on them.
   std::vector<std::string> nonIPTypes = StringTokenizer(par("nonIPModuleTypes"), " ").asVector();
 
-  int numIPNodes = 0;
-  
   if (stage==1)
-    nodeAddresses.resize(topo.nodes());
-  else if (stage==2)
   {
+    nodeAddresses.resize(topo.nodes());
+
     for (int i=0; i<topo.nodes(); i++)
     {
       // skip bus types
       if (std::find(nonIPTypes.begin(), nonIPTypes.end(), topo.node(i)->module()->className())!=nonIPTypes.end())
         continue;
 
-      ipv6_addr addr = { uniform(0,0xffff), uniform(0,0xffff), uniform(0,0xffff), uniform(0,0xffff) };  
-      while ( ipv6_addr_scope(addr) == ipv6_addr::Scope_Global )
+      ipv6_addr addr = { uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff) };  
+      while ( ipv6_addr_scope(addr) != ipv6_addr::Scope_Global )
       {
-        addr.extreme = uniform(0,0xffff);
-        addr.high = uniform(0,0xffff);
-        addr.normal = uniform(0,0xffff);
-        addr.low = uniform(0,0xffff);
+        addr.extreme = uniform(0,0xffffffff);
+        addr.high = uniform(0,0xffffffff);
       }
         
       nodeAddresses[i] = addr;
@@ -80,19 +76,21 @@ void FlatNetworkConfigurator6::initialize(int stage)
         {
           // add in link-local address
           ipv6_addr linklocalAddr = addr;
-          linklocalAddr.extreme=0xfe80;
+          linklocalAddr.extreme=0xfe800000;
           linklocalAddr.high=0x0;
-          ie->ipv6()->inetAddrs.push_back(IPv6Address(linklocalAddr, 64));
+          ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 64));
 
           // add in global address
-          ie->ipv6()->inetAddrs.push_back(IPv6Address(addr, 64));
+          ie->ipv6()->tentativeAddrs.push_back(IPv6Address(addr, 64));
         }
       }
     }
   }
 
-  if ( stage != 3 )
+  if ( stage != 2 )
     return;
+
+  int numIPNodes = 0;
 
   // add default route to nodes with exactly one (non-loopback) interface
   std::vector<bool> usesDefaultRoute;
@@ -104,7 +102,9 @@ void FlatNetworkConfigurator6::initialize(int stage)
     // skip bus types
     if (std::find(nonIPTypes.begin(), nonIPTypes.end(), topo.node(i)->module()->className())!=nonIPTypes.end())
       continue;
-    
+   
+    numIPNodes++;
+ 
     InterfaceTable *ift = IPAddressResolver().interfaceTableOf(node->module());
     RoutingTable6 *rt = IPAddressResolver().routingTable6Of(node->module());
 
@@ -127,7 +127,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
     
     // add route
     IPv6Address defaultAddr("0:0:0:0:0:0:0:0/0");
-    IPv6Address nextHopAddr = nextHopIf->ipv6()->inetAddrs[0];
+    IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[0];
     rt->addRoute(0, nextHopAddr, defaultAddr, true);
   }
 
@@ -175,17 +175,17 @@ void FlatNetworkConfigurator6::initialize(int stage)
       cModule* nextHop = remoteGate->ownerModule();
       InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
 
-      for ( int k = 0; k < nextHopIf->ipv6()->inetAddrs.size(); k++ )
-      {
-        IPv6Address nextHopAddr = nextHopIf->ipv6()->inetAddrs[k];
+//      for ( int k = 0; k < nextHopIf->ipv6()->inetAddrs.size(); k++ )
+//      {
+        IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[0];
         rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddr), true);
-      }
+//      }
     }
   }
 
   // update display string
   char buf[80];
-  sprintf(buf, "%d IP nodes\n%d non-IP nodes", numIPNodes, topo.nodes()-numIPNodes);
+  sprintf(buf, "%d IPv6 nodes\n%d non-IP nodes", numIPNodes, topo.nodes()-numIPNodes);
   displayString().setTagArg("t",0,buf);
 }
 

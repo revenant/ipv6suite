@@ -175,11 +175,8 @@ void FlatNetworkConfigurator6::initialize(int stage)
       cModule* nextHop = remoteGate->ownerModule();
       InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
 
-//      for ( int k = 0; k < nextHopIf->ipv6()->inetAddrs.size(); k++ )
-//      {
-        IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[0];
-        rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddr), true);
-//      }
+      IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[0];
+      rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddr), true);
     }
   }
 

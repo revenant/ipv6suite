@@ -48,22 +48,11 @@ void FlatNetworkConfigurator6::initialize(int stage)
 
   if (stage==1)
   {
-    nodeAddresses.resize(topo.nodes());
-
     for (int i=0; i<topo.nodes(); i++)
     {
       // skip bus types
       if (std::find(nonIPTypes.begin(), nonIPTypes.end(), topo.node(i)->module()->className())!=nonIPTypes.end())
         continue;
-
-      ipv6_addr addr = { uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff) };  
-      while ( ipv6_addr_scope(addr) != ipv6_addr::Scope_Global )
-      {
-        addr.extreme = uniform(0,0xffffffff);
-        addr.high = uniform(0,0xffffffff);
-      }
-        
-      nodeAddresses[i] = addr;
 
       // find interface table and assign address to all (non-loopback) interfaces
       cModule *mod = topo.node(i)->module();
@@ -74,14 +63,39 @@ void FlatNetworkConfigurator6::initialize(int stage)
         InterfaceEntry *ie = ift->interfaceAt(k);
         if (!ie->isLoopback())
         {
-          // add in link-local address
-          ipv6_addr linklocalAddr = addr;
-          linklocalAddr.extreme=0xfe800000;
-          linklocalAddr.high=0x0;
-          ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 64));
+          bool linkLocalAddrAssigned = false;
+          bool globalAddrAssigned = false;
 
-          // add in global address
-          ie->ipv6()->tentativeAddrs.push_back(IPv6Address(addr, 64));
+          for ( int l = 0; l < ie->ipv6()->inetAddrs.size();  l++ )
+          {
+            if ( ie->ipv6()->inetAddrs[l].scope() == ipv6_addr::Scope_Global )
+              globalAddrAssigned = true;
+            
+            if ( ie->ipv6()->inetAddrs[l].scope() == ipv6_addr::Scope_Link )
+              linkLocalAddrAssigned = true;
+          }
+
+          ipv6_addr addr = { uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff), uniform(0,0xffffffff) };  
+          while ( ipv6_addr_scope(addr) != ipv6_addr::Scope_Global )
+          {
+            addr.extreme = uniform(0,0xffffffff);
+            addr.high = uniform(0,0xffffffff);
+          }
+
+          if ( !globalAddrAssigned )
+          {
+            // add in global address
+            ie->ipv6()->tentativeAddrs.push_back(IPv6Address(addr, 64));
+          }
+          
+          if ( ! linkLocalAddrAssigned )
+          {
+            // add in link-local address
+            ipv6_addr linklocalAddr = addr;
+            linklocalAddr.extreme=0xfe800000;
+            linklocalAddr.high=0x0;
+            ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 64));
+          }
         }
       }
     }
@@ -119,8 +133,13 @@ void FlatNetworkConfigurator6::initialize(int stage)
     if (numIntf!=1)
       continue; // only deal with nodes with one interface plus loopback
 
+    // not connect to any node, could be wireless
+    if ( !node->outLinks() )
+      continue;
+
     // determine the next hop address
-    cGate* remoteGate = node->out(0)->remoteGate();
+    cGate* remoteGate = node->out(0)->remoteGate();   
+
     int remoteGateIdx = remoteGate->index();
     cModule* nextHop = remoteGate->ownerModule();
     InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
@@ -140,7 +159,20 @@ void FlatNetworkConfigurator6::initialize(int stage)
     if (std::find(nonIPTypes.begin(), nonIPTypes.end(), destNode->module()->className())!=nonIPTypes.end())
       continue;
 
-    ipv6_addr destAddr = nodeAddresses[i];
+    // get a list of addresse from the dest node
+    std::vector<ipv6_addr> destAddrs;
+    InterfaceTable* destIft = IPAddressResolver().interfaceTableOf(destNode->module());
+    for (int x = 0; x < destIft->numInterfaces(); x++)
+    {
+      InterfaceEntry* destIf = destIft->interfaceAt(x);
+      
+      if ( destIf->isLoopback() )
+        continue;
+      
+      for ( int y = 0; y < destIf->ipv6()->tentativeAddrs.size(); y++)
+        destAddrs.push_back(destIf->ipv6()->tentativeAddrs[y]);
+    }     
+
     std::string destModName = destNode->module()->fullName();
 
     // calculate shortest paths from everywhere towards destNode
@@ -160,23 +192,35 @@ void FlatNetworkConfigurator6::initialize(int stage)
       if (usesDefaultRoute[j])
         continue; // already added default route here
 
-      ipv6_addr atAddr = nodeAddresses[j];
-      
       int outputPort = atNode->path(0)->localGate()->index();
-      ev << "  from " << atNode->module()->fullName() << "=" << IPv6Address(atAddr);
-      ev << " towards " << destModName << "=" << IPv6Address(destAddr) << " outputPort=" << outputPort << endl;
 
       // add route
       RoutingTable6 *rt = IPAddressResolver().routingTable6Of(atNode->module());
-
-      // determine the next hop address
-      cGate* remoteGate = atNode->out(outputPort)->remoteGate();
-      int remoteGateIdx = remoteGate->index();
+     
+      // determine next hop link local address
+      cGate* remoteGate = atNode->path(0)->remoteGate();
       cModule* nextHop = remoteGate->ownerModule();
-      InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
+      IPv6Address nextHopAddr(IPv6_ADDR_UNSPECIFIED);
+      InterfaceTable* nextHopIft = IPAddressResolver().interfaceTableOf(nextHop);
+      InterfaceEntry* nextHopIf = nextHopIft->interfaceByPortNo(remoteGate->index());
 
-      IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[0];
-      rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddr), true);
+      for ( int k = 0; k < nextHopIf->ipv6()->tentativeAddrs.size(); k++ )
+      {
+        if ( nextHopIf->ipv6()->tentativeAddrs[k].scope() == ipv6_addr::Scope_Link )
+        {
+          nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[k];
+          break;
+        }
+      }
+
+      for ( int k = 0; k < destAddrs.size(); k ++ )
+      {
+        if ( ipv6_addr_scope(destAddrs[k]) == ipv6_addr::Scope_Link &&
+             !(nextHopAddr == destAddrs[k]) )
+          continue;
+        
+        rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddrs[k]), true);
+      }
     }
   }
 

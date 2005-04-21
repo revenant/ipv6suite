@@ -105,8 +105,8 @@ module MIPv6NetworkSimulMove
             display: "p=32,296;i=pc";
         configurator6: FlatNetworkConfigurator6;
             parameters:
-                moduleTypes = "Router6 MobileNode",
-                nonIPModuleTypes = "AccessPoint ";
+                moduleTypes = "Router6 MobileNode UDPNode",
+                nonIPModuleTypes = "AccessPoint";
             display: "p=396,396;i=block/cogwheel";
     connections nocheck:
 

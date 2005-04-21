@@ -6,14 +6,15 @@
   <local node="client1" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <WirelessEtherInfo>
-        <WEInfo WETxPower="0.9" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on" returnRoutability="on" directSignaling="on" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
+      <inetAddr>3011:AAAA:1111:2222:1:2:3:4</inetAddr>
       <WirelessEtherInfo>
-        <WEInfo WETxPower="0.9" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
@@ -24,28 +25,28 @@
   <local node="ap1">
     <interface name="wlanap">
       <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap2">
     <interface name="wlanap">
       <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap3">
     <interface name="wlanap">
       <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
   <local node="ap4">
     <interface name="wlanap">
       <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
+        <WEInfo WETxPower="0.008" />
       </WirelessEtherInfo>
     </interface>
   </local>
@@ -59,33 +60,6 @@
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="eth1">
-      <inetAddr>3018:FFFF:0:0:606:98ff:fe24:52f5</inetAddr>
-    </interface>
-    <interface name="eth2">
-      <inetAddr>3018:FFFF:0:0:8087:eff:fe1a:7281</inetAddr>
-    </interface>
-    <interface name="eth3">
-      <inetAddr>3018:FFFF:0:0:5f6a:a9ff:fe2c:df2e</inetAddr>
-    </interface>
-    <route>
-      <routeEntry
-        routeIface="eth1"
-        routeDestination="3092:EEEE:2344:3333:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:8bd7:8aff:fe91:4c36"/>
-      <routeEntry
-        routeIface="eth2"
-        routeDestination="3011:AAAA:1111:2222:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:e0f5:d8ff:fe77:f657"/>
-      <routeEntry
-        routeIface="eth2"
-        routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:e0f5:d8ff:fe77:f657"/>
-      <routeEntry
-        routeIface="eth3"
-        routeDestination="3088:AABB:1122:3456:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:1db4:c2ff:fe7e:01ca"/>
-    </route>
   </local>
 
   <local node="router1" routePackets="on" mobileIPv6Support="on">
@@ -95,33 +69,6 @@
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3092:EEEE:2344:3333:a64b:65ff:fec6:a7fc/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="eth1">
-      <inetAddr>3092:EEEE:2344:3333:8bd7:8aff:fe91:4c36</inetAddr>
-    </interface>
-    <interface name="eth2">
-      <inetAddr>3092:EEEE:2344:3333:7f92:b3ff:fe66:4962</inetAddr>
-    </interface>
-    <interface name="eth3">
-      <inetAddr>3092:EEEE:2344:3333:480a:deff:fed4:5948</inetAddr>
-    </interface>
-    <route>
-      <routeEntry
-        routeIface="eth1"
-        routeDestination="3018:FFFF:0:0:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:606:98ff:fe24:52f5"/>
-      <routeEntry
-        routeIface="eth2"
-        routeDestination="3088:AABB:1122:3456:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:4609:52ff:fe8b:a252"/>
-      <routeEntry
-        routeIface="eth3"
-        routeDestination="3011:AAAA:1111:2222:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:f783:9aff:fe7d:b041"/>
-      <routeEntry
-        routeIface="eth3"
-        routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:f783:9aff:fe7d:b041"/>
-    </route>
   </local>
 
   <local node="router2" routePackets="on" mobileIPv6Support="on">
@@ -131,33 +78,6 @@
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3088:AABB:1122:3456:fbaf:b9ff:fecd:af55/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="eth1">
-      <inetAddr>3088:AABB:1122:3456:4609:52ff:fe8b:a252</inetAddr>
-    </interface>
-    <interface name="eth2">
-      <inetAddr>3088:AABB:1122:3456:450:90ff:fe5d:f971</inetAddr>
-    </interface>
-    <interface name="eth3">
-      <inetAddr>3088:AABB:1122:3456:1db4:c2ff:fe7e:1ca</inetAddr>
-    </interface>
-    <route>
-      <routeEntry
-        routeIface="eth1"
-        routeDestination="3092:EEEE:2344:3333:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:7f92:b3ff:fe66:4962"/>
-      <routeEntry
-        routeIface="eth2"
-        routeDestination="3011:AAAA:1111:2222:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:d6f7:bcff:fefd:d06e"/>
-      <routeEntry
-        routeIface="eth2"
-        routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:d6f7:bcff:fefd:d06e"/>
-      <routeEntry
-        routeIface="eth3"
-        routeDestination="3018:FFFF:0:0:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:5f6a:a9ff:fe2c:df2e"/>
-    </route>
   </local>
 
   <local node="ha2" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
@@ -167,32 +87,6 @@
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3011:AAAA:1111:2222:ee8f:19ff:fe36:a030/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="eth1">
-      <inetAddr>3011:AAAA:1111:2222:d6f7:bcff:fefd:d06e</inetAddr>
-    </interface>
-    <interface name="eth2">
-      <inetAddr>3011:BBBB:3333:6666:27c:8bff:fe8f:8c3d</inetAddr>
-    </interface>
-    <interface name="eth3">
-      <inetAddr>3011:AAAA:1111:2222:e0f5:d8ff:fe77:f657</inetAddr>
-    </interface>
-    <interface name="eth4">
-      <inetAddr>3011:AAAA:1111:2222:f783:9aff:fe7d:b041</inetAddr>
-    </interface>
-    <route>
-      <routeEntry
-        routeIface="eth1"
-        routeDestination="3088:AABB:1122:3456:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:450:90ff:fe5d:f971"/>
-      <routeEntry
-        routeIface="eth3"
-        routeDestination="3018:FFFF:0:0:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:8087:eff:fe1a:7281"/>
-      <routeEntry
-        routeIface="eth4"
-        routeDestination="3092:EEEE:2344:3333:0:0:0:0/64"
-        routeNextHop="fe80:0:0:0:480a:deff:fed4:5948"/>
-    </route>
   </local>
 
   <misc>

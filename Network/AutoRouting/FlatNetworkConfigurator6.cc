@@ -94,7 +94,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
             ipv6_addr linklocalAddr = addr;
             linklocalAddr.extreme=0xfe800000;
             linklocalAddr.high=0x0;
-            ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 64));
+            ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 128));
           }
         }
       }
@@ -145,7 +145,6 @@ void FlatNetworkConfigurator6::initialize(int stage)
     InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
     
     // add route
-    // TODO: FIXME.. nextHopAddr can be anything 
     IPv6Address defaultAddr("0:0:0:0:0:0:0:0/0");
 
     for (int k = 0; k < nextHopIf->ipv6()->tentativeAddrs.size(); k++ )
@@ -169,8 +168,10 @@ void FlatNetworkConfigurator6::initialize(int stage)
     if (std::find(nonIPTypes.begin(), nonIPTypes.end(), destNode->module()->className())!=nonIPTypes.end())
       continue;
 
+    bool isDestHost = !(IPAddressResolver().routingTable6Of(destNode->module())->isRouter());
+
     // get a list of addresse from the dest node
-    std::vector<ipv6_addr> destAddrs;
+    std::vector<IPv6Address> destAddrs;
     InterfaceTable* destIft = IPAddressResolver().interfaceTableOf(destNode->module());
     for (int x = 0; x < destIft->numInterfaces(); x++)
     {
@@ -181,7 +182,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
       
       for ( int y = 0; y < destIf->ipv6()->tentativeAddrs.size(); y++)
         destAddrs.push_back(destIf->ipv6()->tentativeAddrs[y]);
-    }     
+    }
 
     std::string destModName = destNode->module()->fullName();
 
@@ -204,42 +205,63 @@ void FlatNetworkConfigurator6::initialize(int stage)
 
       int outputPort = atNode->path(0)->localGate()->index();
 
-      // add route
       RoutingTable6 *rt = IPAddressResolver().routingTable6Of(atNode->module());
      
       // determine next hop link address
       cGate* remoteGate = atNode->path(0)->remoteGate();
       cModule* nextHop = remoteGate->ownerModule();
-      IPv6Address nextHopAddr(IPv6_ADDR_UNSPECIFIED);
       InterfaceTable* nextHopIft = IPAddressResolver().interfaceTableOf(nextHop);
-      InterfaceEntry* nextHopIf = nextHopIft->interfaceByPortNo(remoteGate->index());
+      InterfaceEntry* nextHopOnlinkIf = nextHopIft->interfaceByPortNo(remoteGate->index());
 
+      // future reference for off-link address
+      IPv6Address nextHopLinkLocalAddr;       
+      for (int k = 0; k < nextHopOnlinkIf->ipv6()->tentativeAddrs.size(); k++ )
+      {
+        nextHopLinkLocalAddr = nextHopOnlinkIf->ipv6()->tentativeAddrs[k];
+        if ( nextHopLinkLocalAddr.scope() == ipv6_addr::Scope_Link )
+          break;
+      }
+      
+      // traverse through address of each node
       for (int k = 0; k < destAddrs.size(); k++ )
       {
-        // add on-link neighbour address into the prefix list (for global addr), or neighbour cache ( for link local addr)
+        // on-link link local address
+//        if (nextHopLinkLocalAddr == destAddrs[k])
+//        {
+//          rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], isDestHost);
+//          continue;
+//        }
+
+        // add on-link neighbour address into the prefix list (for
+        // global addr), or neighbour cache ( for link local addr)
         bool isOnlinkAddr = false;
 
-        IPv6Address nextHopLinkLocalAddr;
-
-        for ( int l = 0; l < nextHopIf->ipv6()->tentativeAddrs.size(); l++ )
+        // traverse through address of next hop
+        for ( int l = 0; l < nextHopIft->numInterfaces(); l++ )
         {
-          nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[l];
-
-          // future reference for off-link address
-          if ( nextHopAddr.scope() == ipv6_addr::Scope_Link )
-            nextHopLinkLocalAddr = nextHopAddr;
-
-          // on-link address
-          if (destAddrs[k] == nextHopAddr)
+          InterfaceEntry* nextHopIf = nextHopIft->interfaceAt(l);
+          
+          if ( nextHopIf->isLoopback() )
+            continue;
+          
+          for ( int m = 0; m < nextHopIf->ipv6()->tentativeAddrs.size(); m++ )
           {
-            rt->addRoute(outputPort, nextHopAddr, IPv6Address(destAddrs[k]), true);
-            isOnlinkAddr = true;
-            break;
+            IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[m];
+            // on-link address
+            if ( (nextHopAddr == destAddrs[k] && nextHopAddr.scope() != ipv6_addr::Scope_Link ))
+            {
+              rt->addRoute(outputPort, nextHopAddr, destAddrs[k], isDestHost);
+              rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], true);
+              isOnlinkAddr = true;
+              break;
+            }
           }
+          if ( isOnlinkAddr )
+            break;
         }
         
-        if ( !isOnlinkAddr )
-          rt->addRoute(outputPort, nextHopLinkLocalAddr, IPv6Address(destAddrs[k]), true);
+        if ( !isOnlinkAddr && destAddrs[k].scope() != ipv6_addr::Scope_Link)
+          rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], isDestHost);
       }
     }
   }

@@ -188,37 +188,6 @@ AdvDefaultLifetime NMTOKEN "0xFFFFFF"
           AdvMAPValidLifetime NMTOKEN "2592"
           >
 
-<!-- Attributes of Wireless Ethernet (802.11) -->
-
-<!ELEMENT WirelessEtherInfo (WEInfo, WESupportedRates?)>
-<!ELEMENT WEInfo (#PCDATA)>
-<!ATTLIST WEInfo
-          WEssid NMTOKEN "default"
-          WEPathLossExponent NMTOKEN "2.6"
-          WEPathLossStdDev NMTOKEN "14.1"
-          WETxPower NMTOKEN "100"
-          WEThresholdPower NMTOKEN "-96"
-          WEHOThresholdPower NMTOKEN "-90"
-	        WEProbeEnergyTimeout NMTOKEN "0.01"
-	        WEProbeResponseTimeout NMTOKEN "0.035"
-          WEAuthenticationTimeout NMTOKEN "2"
-          WEAssociationTimeout NMTOKEN "2"
-          WERetry NMTOKEN "7"
-          WEFastActiveScan (on|off) "off"
-          WEScanShortCircuit (on|off) "off"
-          WECrossTalk (on|off) "on"
-          WEShadowing (on|off) "off"
-          WESignalStrengthMaxSample NMTOKEN "1"
-          WEChannelsNotToScan NMTOKEN "0"
-          WEAddress NMTOKEN "0"
-					WEBandwidthRequirements NMTOKEN "0.5"
-					WERecordStatisticVector (on|off) "off"
-					WEActiveScan (on|off) "on"
-					WEChannelScanTime NMTOKEN "0.2">
-
-<!ELEMENT WESupportedRates (WERate)+>
-<!ELEMENT WERate (#PCDATA)>
-
 <!-- These elements will be deprecated although there is no other alternative at this time -->
 <!ELEMENT AdvManagedFlag (#PCDATA)>
 <!ELEMENT AdvOtherConfigFlag (#PCDATA)>

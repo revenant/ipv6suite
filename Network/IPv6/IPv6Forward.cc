@@ -49,7 +49,8 @@
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "IPv6Datagram.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
+#include "ICMPv6MessageUtil.h"
 #include "opp_utils.h"
 #include "NDEntry.h"
 #include "AddrResInfo_m.h"
@@ -146,7 +147,7 @@ struct printRoutingInfo
       if (display)
       {
         cout<<name<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-            <<datagram->destAddress()<<" len="<<datagram->length()<<endl;
+            <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes\n";
       }
     }
   bool display;
@@ -560,7 +561,6 @@ void IPv6Forward::endService(cMessage* theMsg)
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
       delete info;
-      datagram.release(); // XXX take back ownership as it causes crash on deleting datagram. why??
       return;  // XXX CRASH CRASH CRASH - AT DELETEING DATAGRAM
     }
     else
@@ -948,9 +948,10 @@ bool IPv6Forward::processReceived(IPv6Datagram& datagram)
   datagram.setHopLimit(datagram.hopLimit() - 1);
   if (datagram.hopLimit() == 0)
   {
-    sendErrorMessage(new ICMPv6Message(ICMPv6_TIME_EXCEEDED,
-                                       ND_HOP_LIMIT_EXCEEDED,
-                                       datagram.dup()));
+    sendErrorMessage(createICMPv6Message("timeExceeded",
+                                         ICMPv6_TIME_EXCEEDED,
+                                         ND_HOP_LIMIT_EXCEEDED,
+                                         datagram.dup()));
     Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()
          <<" hop limit exceeded"<<datagram);
     return false;

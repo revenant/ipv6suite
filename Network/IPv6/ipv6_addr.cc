@@ -23,7 +23,7 @@
 #include <iostream>
 #include <algorithm>
 
-const size_t IPv6_ADDR_LENGTH = 128;
+const size_t IPv6_ADDR_BITLENGTH = 128;
 const unsigned int EUI64_LENGTH = 64;
 
 const char* LOOPBACK_ADDRESS = "0:0:0:0:0:0:0:1/0";
@@ -330,7 +330,7 @@ string ipv6_addr_toBinary(const ipv6_addr& src)
       ss<<(addr[h]&(1<<i-1)?"1":"0");
     }
 
-  assert(ss.str().size() == IPv6_ADDR_LENGTH+7);
+  assert(ss.str().size() == IPv6_ADDR_BITLENGTH+7);
   return ss.str();
 }
 
@@ -344,7 +344,7 @@ string longToBinary(unsigned long long no)
       ss<<(no&(1<<i-1)?"1":"0");
     }
     return ss.str();
-    assert(ss.str().size() == IPv6_ADDR_LENGTH/2+3);
+    assert(ss.str().size() == IPv6_ADDR_BITLENGTH/2+3);
   }
 //@}
 

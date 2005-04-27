@@ -34,6 +34,7 @@
 #include "AddressResolution.h"
 #include "IPv6Datagram.h"
 #include "ICMPv6NDMessage.h"
+#include "ICMPv6MessageUtil.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
@@ -409,9 +410,10 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
           p->second->setSrcAddress(ie->ipv6()->inetAddrs[0]);
         }
 
-        ICMPv6Message* icmp = new ICMPv6Message(ICMPv6_DESTINATION_UNREACHABLE,
-                                                ADDRESS_UNREACHABLE,
-                                                p->second->dup());
+        ICMPv6Message* icmp = createICMPv6Message("destUnreachable",
+                                                  ICMPv6_DESTINATION_UNREACHABLE,
+                                                  ADDRESS_UNREACHABLE,
+                                                  p->second->dup());
         delete p->second;
         send(icmp, "ICMPOut");
         fc->ctrIP6OutNoRoutes++;
@@ -530,11 +532,6 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
       //Addr res can not use unicast.  These are most likely NUD messages
       assert(!ngbrSol->targetAddr().isMulticast());
 
-/* XXX changed to use control info --AV
-      LLInterfaceInfo info = {response, ngbrSol->srcLLAddr()};
-      sendDirect(new LLInterfacePkt(info), 0,
-                              outputMod[ifIndex], outputUnicastGate);
-*/
       LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
       ctrlInfo->setDestLLAddr(ngbrSol->srcLLAddr().c_str());
       response->setControlInfo(ctrlInfo);
@@ -542,15 +539,6 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
 
       //Using direct sending for unicast ND messages just like FAST RA
 
-/*
-      AddrResInfo info = {response, response->destAddress(), ifIndex,
-                          ngbrSol->srcLLAddr()};
-
-      //Send to fragmentation it will ignore ICMP messages (cannot send to
-      //Output module as that accepts datagrams for multicast dest at this
-      //time
-      send(new AddrResMsg(info), "fragmentationOut");
-*/
       ctrIcmp6OutNgbrAdv++;
       rt->ctrIcmp6OutMsgs++;
 

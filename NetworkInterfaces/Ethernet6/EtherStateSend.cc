@@ -40,7 +40,7 @@
 #include "EtherStateWaitBackoffJam.h"
 #include "EtherStateWaitBackoff.h"
 #include "EtherStateWaitJam.h"
-#include "opp_akaroa.h"
+
 
 // Ethernet State Send
 
@@ -330,7 +330,7 @@ simtime_t EtherStateSend::getBackoffInterval(EtherModule* mod)
 
   size_t k = (mod->getRetry()>10?10:mod->getRetry());
   size_t u = static_cast<size_t>(pow(2, k));
-  double r = OPP_UNIFORM(0,u);
+  double r = uniform(0,u);
   simtime_t backoff =  r * SLOT_TIME;
 
   return backoff;

@@ -70,7 +70,7 @@ bool HdrExtFragProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
   return false;
 }
 
-// std::string  HdrExtFragProc::info()
+//XXX std::string  HdrExtFragProc::info()
 // {
 //   int bufPos = strlen(buf);
 //   sprintf(&buf[bufPos], " FragHdr id=%d, off=%d, len=%d, more=%d",
@@ -109,10 +109,10 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   //Use the current frag_id
   assert(frag_id == 0); //Original packet was not a fragment itself?
   //Search for Unfragmentable part i.e. iff Routing Header else iff Hop-by-Hop Options.
-  size_t unfrag_len = IPv6_HEADER_LENGTH;
+  size_t unfrag_len = IPv6_HEADER_OCTETLENGTH;
   int pos = -1;
 
-  unfrag_len += cumul_len(*pdu) + length();
+  unfrag_len += cumulLengthInUnits(*pdu) + lengthInUnits()*IPv6_EXT_UNIT_OCTETS;
 
 #ifdef DEBUG
   //Compare with direct computation of the ext_hdrs
@@ -130,7 +130,7 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
     {
       nfrags = 8*i;
       offset = frag_len/nfrags;
-      frag_pdu_len = unfrag_len + length() + offset;
+      frag_pdu_len = unfrag_len + lengthInUnits()*IPv6_EXT_UNIT_OCTETS + offset;
       if (frag_pdu_len <= path_mtu)
         {
           remainder = frag_len%nfrags;

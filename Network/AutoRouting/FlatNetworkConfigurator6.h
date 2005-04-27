@@ -19,10 +19,8 @@
 #ifndef __FLATNETWORKCONFIGURATOR6_H__
 #define __FLATNETWORKCONFIGURATOR6_H__
 
-#include <algorithm>
 #include <omnetpp.h>
 
-struct ipv6_addr;
 
 /**
  * Configures IP addresses and routing tables for a "flat" network,

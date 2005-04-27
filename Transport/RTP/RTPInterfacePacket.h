@@ -26,8 +26,9 @@ cPacket and is used for controlling the rtp layer by the rtp application.
 
 #include <omnetpp.h>
 
-#include "in_addr.h"
-#include "in_port.h"
+//XXX #include "in_addr.h"
+//XXX #include "in_port.h"
+#include "tmp/defs.h"
 
 #include "types.h"
 
@@ -102,7 +103,7 @@ class RTPInterfacePacket : public cPacket {
         /*!
         Writes a longer info about this RTPInterfacePacket into the given stream.
         */
-        virtual void writeContents(ostream& os);
+        virtual void writeContents(std::ostream& os);
 
         /*!
         Called by the rtp application to make the rtp layer enter an
@@ -262,3 +263,4 @@ class RTPInterfacePacket : public cPacket {
 };
 
 #endif
+

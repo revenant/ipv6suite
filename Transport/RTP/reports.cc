@@ -33,7 +33,7 @@ class SenderReport and ReceptionReport.
 Register_Class(SenderReport);
 
 
-SenderReport::SenderReport(const char *name = NULL) : cObject(name) {
+SenderReport::SenderReport(const char *name) : cObject(name) {
     _ntpTimeStamp = 0;
     _rtpTimeStamp = 0;
     _packetCount = 0;
@@ -78,7 +78,7 @@ std::string SenderReport::info() {
 };
 
 
-void SenderReport::writeContents(ostream& os) const {
+void SenderReport::writeContents(std::ostream& os) const {
     os << "SenderReport:" << endl;
     os << "  ntpTimeStamp = " << _ntpTimeStamp << endl;
     os << "  rtpTimeStamp = " << _rtpTimeStamp << endl;
@@ -133,7 +133,7 @@ void SenderReport::setByteCount(u_int32 byteCount) {
 Register_Class(ReceptionReport);
 
 
-ReceptionReport::ReceptionReport(const char *name = NULL) : cObject(name) {
+ReceptionReport::ReceptionReport(const char *name) : cObject(name) {
     _ssrc = 0;
     _fractionLost = 0;
     _packetsLostCumulative = 0;
@@ -184,7 +184,7 @@ std::string ReceptionReport::info() {
 };
 
 
-void ReceptionReport::writeContents(ostream& os) const {
+void ReceptionReport::writeContents(std::ostream& os) const {
     os << "ReceptionReport:" << endl;
     os << "  ssrc = " << _ssrc << endl;
     os << "  fractionLost = " << (int)_fractionLost << endl;

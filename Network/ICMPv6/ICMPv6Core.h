@@ -59,14 +59,20 @@ private:
   void processICMPv6Message(IPv6Datagram *);
 
   /// Notify upper layer of ICMP error messages received
-  void errorOut(ICMPv6Message *);
+  void sendToErrorOut(ICMPv6Message *);
 
   ///@name Echo messages
   //@{
   ///received echo requests are processed
-  void recEchoRequest (IPv6Datagram *);
+  void processEchoRequest (ICMPv6Message *request,
+                           const ipv6_addr& src,
+                           const ipv6_addr& dest,
+                           int hopLimit);
   ///received echo replies are processed
-  void recEchoReply (IPv6Datagram* reply);
+  void processEchoReply (ICMPv6Message *reply,
+                         const ipv6_addr& src,
+                         const ipv6_addr& dest,
+                         int hopLimit);
   ///Initiating an echo dialogue
   void sendEchoRequest(cMessage *);
   //@}

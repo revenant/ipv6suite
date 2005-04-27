@@ -95,48 +95,9 @@ void RoutingTable6::initialize(int stage)
     odadSupport = false;
     ctrIcmp6OutMsgs = 0;
 
-/*XXX now we have ptrs -- not needed --AV
-    interfaces.reserve(MAX_IPv6INTERFACE_NO<interfaces.max_size()?
-                       MAX_IPv6INTERFACE_NO:
-                       interfaces.max_size());
-*/
-//XXX out:    numOfIfaces = par("numOfPorts").longValue();
     displayIfconfig = par("displayIfconfig").boolValue();
-
-/*XXX
-    interfaces.resize(numOfIfaces + 1);
-*/
-/*XXX get configured below, in configureLoopbackForIPv6()
-    // add in loopback InterfaceEntry
-    InterfaceEntry *loopback_iface = new InterfaceEntry();
-    //loopback_iface.loopback = true;
-    loopback_iface->iface_name = "lo";
-
-    IPv6Address loopback_adr(LOOPBACK_ADDRESS);
-
-    loopback_iface->inetAddrs.push_back(loopback_adr);
-    interfaces[0] = loopback_iface;
-*/
-
-/*XXX code moved to stage 1, because we have to wait until interfaces get registered
-    WorldProcessor *wp = check_and_cast<WorldProcessor*>
-      (OPP_Global::iterateSubMod(simulation.systemModule(), "WorldProcessor"));
-    // XXX try
-    // XXX {
-    //parse this network node's parameters and load them into this.
-    wp->xmlConfig()->parseNetworkEntity(ift, this);
-    // XXX }
-    // XXX catch(boost::bad_lexical_cast& e)
-    // XXX {
-    // XXX   Dout(dc::warning|error_cf, nodeName()<<" "<<e.what());
-    // XXX }
-*/
     cModule* ICMP = OPP_Global::findModuleByName(this,"ICMP"); // XXX try to get rid of pointers to other modules --AV
     assert(ICMP);
-/*XXX looks like it's not needed here
-    mld = static_cast<MLD*>(OPP_Global::findModuleByTypeDepthFirst(ICMP,"MLD")); // XXX try to get rid of pointers to other modules --AV
-    assert(mld);
-*/
     //Create here for now
     cds = new IPv6NeighbourDiscovery::IPv6CDS();
 
@@ -252,7 +213,7 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
 
   if (destIsHost && nextHop == IPv6_ADDR_UNSPECIFIED || nextHop == dest)
   {
-    if (dest.prefixLength() > 0 && dest.prefixLength() < IPv6_ADDR_LENGTH)
+    if (dest.prefixLength() > 0 && dest.prefixLength() < IPv6_ADDR_BITLENGTH)
     {
       insertPrefixEntry(PrefixEntry(dest, VALID_LIFETIME_INFINITY), ifIndex);
       Dout(dc::neighbour_disc, nodeName()<<" Added on-link subnet prefix "
@@ -483,18 +444,6 @@ void RoutingTable6::print()
 #endif // USE_MOBILITY
 
   PRINTF("============================================================================ \n");
-
-/* XXX debug only, not needed --AV
-  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
-    (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
-  assert(tunMod != 0);
-
-  cout<<(*tunMod);
-
-  IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
-    (OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
-  cout<<(*forwardMod);
-*/
 }
 
 // -----------------------------------

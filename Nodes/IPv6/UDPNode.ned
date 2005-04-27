@@ -25,9 +25,12 @@ import
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",
+    "ErrorHandling6",
+    "TCPMain",
+    "TCPApp",
     "UDPProcessing",
     "UDPApp",
-    "Ping6App";
+    "PingApp";
 
 //
 // UDP node that can contain many different UDP services
@@ -72,7 +75,7 @@ module UDPNode
             display: "i=block/transport;p=279,151";
         udpApp: udpAppType[numUdpApps] like UDPApp;
             display: "p=281,67;i=block/app";
-        ping6App: Ping6App;
+        pingApp: PingApp;
             display: "i=block/source;p=106,218";
         phyLayer: PHYLayer;
             gatesizes:
@@ -118,8 +121,8 @@ module UDPNode
             udp.from_app++ <-- udpApp[i].to_udp;
         endfor;
 
-        ping6App.pingOut --> networkLayer.pingIn;
-        ping6App.pingIn <-- networkLayer.pingOut;
+        pingApp.pingv6Out --> networkLayer.pingIn;
+        pingApp.pingv6In <-- networkLayer.pingOut;
 
 endmodule
 

@@ -43,7 +43,7 @@
 #include "WirelessEtherStateBackoff.h"
 
 #include "cTimerMessageCB.h"
-#include "opp_akaroa.h"
+
 
 WirelessEtherStateIdle* WirelessEtherStateIdle::_instance = 0;
 

@@ -82,6 +82,9 @@ TCPEventCode TCPConnection::process_RCV_SEGMENT(TCPSegment *tcpseg, IPvXAddress 
     printSegmentBrief(tcpseg);
     tcpEV << "TCB: " << state->info() << "\n";
 
+    if (rcvSeqVector) rcvSeqVector->record(tcpseg->sequenceNo());
+    if (rcvAckVector) rcvAckVector->record(tcpseg->ackNo());
+
     //
     // Note: this code is organized exactly as RFC 793, section "3.9 Event
     // Processing", subsection "SEGMENT ARRIVES".
@@ -621,6 +624,7 @@ TCPEventCode TCPConnection::processSegmentInListen(TCPSegment *tcpseg, IPvXAddre
         state->snd_wnd = tcpseg->window();
         state->snd_wl1 = tcpseg->sequenceNo();
         state->snd_wl2 = state->iss;
+        if (sndWndVector) sndWndVector->record(state->snd_wnd);
 
         sendSynAck();
         startSynRexmitTimer();
@@ -739,6 +743,7 @@ TCPEventCode TCPConnection::processSegmentInSynSent(TCPSegment *tcpseg, IPvXAddr
             state->snd_wnd = tcpseg->window();
             state->snd_wl1 = tcpseg->sequenceNo();
             state->snd_wl2 = tcpseg->ackNo();
+            if (sndWndVector) sndWndVector->record(state->snd_wnd);
         }
 
         // this also seems to be a good time to learn our local IP address
@@ -941,6 +946,7 @@ bool TCPConnection::processAckInEstabEtc(TCPSegment *tcpseg)
             state->snd_wnd = tcpseg->window();
             state->snd_wl1 = tcpseg->sequenceNo();
             state->snd_wl2 = tcpseg->ackNo();
+            if (sndWndVector) sndWndVector->record(state->snd_wnd);
         }
 
         // notify

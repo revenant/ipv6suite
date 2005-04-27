@@ -130,7 +130,7 @@ class MIPv6ICMPv6NDMRtrAd : public IPv6NeighbourDiscovery::ICMPv6NDMRtrAd
         _haInfo = new MIPv6ICMPv6NDOptHomeAgentInfo(haPref, haLifetime);
 
       if (changeLength)
-        setLength(length() + _haInfo->length());
+        setLength(length() + _haInfo->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     }
 
   const MIPv6ICMPv6NDOptHomeAgentInfo& homeAgentInfo()

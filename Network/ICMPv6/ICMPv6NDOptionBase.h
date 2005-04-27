@@ -103,13 +103,13 @@ public:
      This length is different from classes derived from cMessage as
      is in units of 8 octets.  Refer to RFC 2461 Sec. 4.6
   */
-  int length()
+  int lengthInUnits()
     { return _len; }
   /**
      This length is different from classes derived from cMessage as
      is in units of 8 octets
   */
-  void setLength(int len)
+  void setLengthInUnits(int len)
     {
       assert(len <=255);
       _len = len;

@@ -29,6 +29,7 @@
 #include "MIPv6Entry.h"
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
+#include "stlwatch.h"
 #include <iostream>
 
 using std::rand;
@@ -60,6 +61,8 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
 
     careof_token.high = rand();
     careof_token.low = rand();
+
+    WATCH_PTRMAP(bc);
   }
 
   MIPv6CDS::~MIPv6CDS()

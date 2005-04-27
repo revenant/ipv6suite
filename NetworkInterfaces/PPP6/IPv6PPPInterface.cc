@@ -54,26 +54,12 @@ void IPv6PPPInterface::initialize()
   setIface_name(PR_PPP);
   iface_type = PR_PPP;
 
-  // XXX went into registerInterface()
-  //interfaceID[0] = OPP_Global::generateInterfaceId();
-  //interfaceID[1] = OPP_Global::generateInterfaceId();
-
   registerInterface();
 
   waitTmr = new cMessage("IPv6PPPInterfaceWait");
   curMessage = 0;
 }
 
-//XXX replaced by ie->interfaceToken()
-//unsigned int IPv6PPPInterface::lowInterfaceId()
-//{
-//  return interfaceID[1];
-//}
-//
-//unsigned int IPv6PPPInterface::highInterfaceId()
-//{
-//  return interfaceID[0];
-//}
 
 InterfaceEntry *IPv6PPPInterface::registerInterface()
 {
@@ -187,17 +173,6 @@ void IPv6PPPInterface::handleMessage(cMessage* theMsg)
   std::auto_ptr<PPP6Frame> recFrame(check_and_cast<PPP6Frame*>(msg));
   assert(recFrame.get());
 
-/* XXX why's this check? we won't support anything but IP? --AV
-  if (recFrame->protocol() != PPP_PROT_IP)
-  {
-    ev << "\n+ PPPLink of " << fullPath()
-       << " receive error: Not IP protocol.\n";
-    Dout(dc::debug, fullPath()<<" "<<msg->arrivalTime()
-         <<" PPPLink receive error: unknown protocol received (should be PPP_PROT_IP)");
-    return;
-  }
-*/
-
   if (recFrame->hasBitError())
   {
     ev << "\n+ PPPLink of " << fullPath()
@@ -217,50 +192,20 @@ PPP6Frame* IPv6PPPInterface::receiveFromUpperLayer(cMessage* msg) const
   // encapsulate IP datagram in PPP frame
   PPP6Frame* outFrame = new PPP6Frame();
 
-  /* XXX replaced LLInterfacePkt with control info, below --AV
-  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>(msg);
-  */
-
-  //Hack dest LL addr required when we use PPP in access point otherwise packets
-  //don't know which MN to go to. If we used broadcast then all MN would process
-  //packet at upper layers which is not efficient and is not realistic.
-/*
-  outFrame->destAddr = recPkt->data().destLLAddr;
-  Debug( assert(check_and_cast<IPv6Datagram*>(recPkt->data().dgram)!=0); );
-*/
-
-/* XXX next two lines replaced with one --AV
-  cMessage *dupMsg = recPkt->data().dgram->dup();
-  delete recPkt->data().dgram;
-*/
   //cMessage *dupMsg = recPkt->data().dgram;
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   outFrame->destAddr = ctrlInfo->getDestLLAddr();
   delete ctrlInfo;
 
-  msg->setLength(msg->length() * 8); // convert from bytes to bits   XXX ??? --AV
   outFrame->encapsulate(msg);
   outFrame->setProtocol(PPP_PROT_IP); //XXX why hardcode? value from ctrl info? --AV
   outFrame->setName(msg->name());
-  //XXX delete recPkt;
   return outFrame;
-  //wait(delay);
 }
 
 void IPv6PPPInterface::sendToUpperLayer(PPP6Frame* recFrame)
 {
-/* XXX why force IPDatagram? can be anything --AV
- IPDatagram *ipdatagram =
-    check_and_cast<IPDatagram*> (recFrame->decapsulate());
-  ipdatagram->setLength(ipdatagram->length() / 8); // convert from bits back to bytes
-  assert(ipdatagram);
-  //wait(delay);
-  send(ipdatagram, "netwOut");
-*/
   cMessage *packet = recFrame->decapsulate();
-  packet->setLength(packet->length() / 8); // convert from bits back to bytes  XXX why???? --AV
   send(packet, "netwOut");
 }
 
-/* XXX activity() code below was apparently not used at all, removed --AV
-*/

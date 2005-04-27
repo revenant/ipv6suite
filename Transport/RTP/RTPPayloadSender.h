@@ -23,7 +23,7 @@ This file declares the class RTPPayloadSender.
 #ifndef __RTPPAYLOADSENDER_H__
 #define __RTPPAYLOADSENDER_H__
 
-#include <fstream.h>
+#include <fstream>
 #include <omnetpp.h>
 #include "types.h"
 #include "RTPInnerPacket.h"
@@ -67,7 +67,7 @@ class RTPPayloadSender : public cSimpleModule {
         /*!
         The input file stream for the data file.
         */
-        ifstream  _inputFileStream;
+        std::ifstream  _inputFileStream;
 
         /*!
         The maximum size of an RTPPacket.
@@ -211,3 +211,4 @@ class RTPPayloadSender : public cSimpleModule {
 };
 
 #endif
+

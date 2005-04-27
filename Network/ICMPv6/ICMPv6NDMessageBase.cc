@@ -26,7 +26,7 @@
 
 */
 
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ICMPv6NDMessageBase.h"
 #include "IPv6Datagram.h"
 #include "Constants.h"
@@ -43,7 +43,7 @@ void ICMPv6NDMessageBase<n_addrs, n_opts>::removeOptions()
   for (size_t i = 0; i < n_opts; i++)
   {
     if (opts[i] != 0)
-      setLength(length() - opts[i]->length()*ICMPv6_OCTETS_UNIT);
+      setLength(length()-opts[i]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
 
     delete opts[i];
     opts[i] = 0;
@@ -75,7 +75,9 @@ bool ICMPv6NDMessageBase<n_addrs, n_opts>::operator==(const ICMPv6NDMessageBase<
   if (this == &rhs)
     return true;
 
-  if (!ICMPv6Message::operator==(rhs))
+  opp_error("ICMPv6NDMessageBase op== not implemented!");
+/* XXX
+  if (!ICMPv6Message::operator==(rhs))  <--- missing
     return false;
 
   for (size_t i = 0; i < n_opts; i++)
@@ -113,18 +115,19 @@ bool ICMPv6NDMessageBase<n_addrs, n_opts>::operator==(const ICMPv6NDMessageBase<
         return false;
     }
   return true;
+*/
 }
 
 
 
 
-
-
-
 /*export*/ template<size_t n_addrs, size_t n_opts>
-ICMPv6NDMessageBase<n_addrs, n_opts>::ICMPv6NDMessageBase(const ICMPv6Type& otype, const ICMPv6Code& ocode)
-  :ICMPv6Message(otype, ocode)
+ICMPv6NDMessageBase<n_addrs, n_opts>::ICMPv6NDMessageBase(ICMPv6Type otype, const ICMPv6Code& ocode)
+  :ICMPv6Message()
 {
+  setLength(ICMPv6_HEADER_OCTETLENGTH*BITS);
+  setType(otype);
+  setCode(ocode);
   init();
 }
 
@@ -132,6 +135,7 @@ template<size_t n_addrs, size_t n_opts>
 inline ICMPv6NDMessageBase<n_addrs, n_opts>::ICMPv6NDMessageBase(const ICMPv6NDMessageBase& src)
   :ICMPv6Message(src)
 {
+  setLength(ICMPv6_HEADER_OCTETLENGTH*BITS);
   setName(src.name());
   operator=(src);
 }
@@ -152,7 +156,7 @@ inline void ICMPv6NDMessageBase<n_addrs, n_opts>::setLLAddress(bool source, cons
   if (opts[index] == 0)
   {
     opts[index] = new ICMPv6NDOptLLAddr(source, addr, len);
-    addLength(opts[index]->length()*8);
+    addLength(opts[index]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS);
   }
   else
     (static_cast<ICMPv6NDOptLLAddr*> (opts[index]))->setAddress(addr);

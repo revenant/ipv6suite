@@ -53,7 +53,6 @@ extern const int WE_MAC_BRIDGE_REGISTER;
 inline WESignalData *encapsulateIntoWESignalData(cMessage *msg) {
     WESignalData *signal = new WESignalData(msg->name());
     signal->encapsulate(msg);
-    signal->setLength(signal->length() * 8); // convert into bits
     return signal;
 }
 

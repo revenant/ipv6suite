@@ -20,7 +20,7 @@
 import
     "ARP",
     "EtherMAC",
-    "EtherLLC";
+    "EtherEncap";
 
 //
 // Ethernet network interface. Corresponds to the prototype NetworkInterface.
@@ -37,9 +37,6 @@ module EthernetInterface
                 proxyARP = proxyARP;
             display: "p=100,80;i=block/layer;q=pendingQueue";
         encap: EtherEncap;
-            gatesizes:
-                upperLayerIn[1],
-                upperLayerOut[1];
             display: "i=block/fork;p=100,160";
         mac: EtherMAC;
             display: "i=block/queue;p=100,240;q=queue";

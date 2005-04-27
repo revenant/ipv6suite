@@ -1,1 +1,1 @@
-..\..\bin\IPv6SuiteWithINET %*
+..\..\bin\INET %*

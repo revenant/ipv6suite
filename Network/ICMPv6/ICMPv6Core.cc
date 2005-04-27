@@ -32,9 +32,10 @@
 #include "IPv6ControlInfo_m.h"
 #include "ipv6addrconv.h"
 #include "IPv6Headers.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
+#include "ICMPv6MessageUtil.h"
 
-#include "Ping6PayloadPacket_m.h"
+#include "PingPayload_m.h"
 #include "opp_utils.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h" //required for counters only
@@ -198,7 +199,7 @@ void ICMPv6Core::processError(cMessage* msg)
 
     ICMPv6Message* recICMPv6Msg = check_and_cast<ICMPv6Message*> (pdu->encapsulatedMsg());
 
-    if (recICMPv6Msg->isErrorMessage())
+    if (isICMPv6Error((ICMPv6Type)recICMPv6Msg->type()))
     {
       delete errorMessage;
       return;
@@ -258,39 +259,35 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
   switch (icmpmsg->type())
   {
       case ICMPv6_DESTINATION_UNREACHABLE:
-        errorOut(icmpmsg);
+        sendToErrorOut(icmpmsg);
         ctrIcmp6InDestUnreachable++;
         break;
 
       case ICMPv6_PACKET_TOO_BIG:
-        errorOut(icmpmsg);
+        sendToErrorOut(icmpmsg);
         ctrIcmp6InPacketTooBig++;
         break;
 
       case ICMPv6_TIME_EXCEEDED:
-        errorOut(icmpmsg);
+        sendToErrorOut(icmpmsg);
         ctrIcmp6InTimeExceeded++;
         break;
 
       case ICMPv6_PARAMETER_PROBLEM:
-        errorOut(icmpmsg);
+        sendToErrorOut(icmpmsg);
         ctrIcmp6InParamProblem++;
         break;
 
       case ICMPv6_ECHO_REQUEST:
-        dgram->encapsulate(icmpmsg); // FIXME what the hell is this? it's just been decapsulated!!! --Andras
-        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
-        dgram->setName(icmpmsg->name());
-        recEchoRequest(dgram);
+        processEchoRequest(icmpmsg, dgram->srcAddress(), dgram->destAddress(), dgram->hopLimit());
+        delete dgram;
         dgram = 0;
         ctrIcmp6InEchos++;
         break;
 
       case ICMPv6_ECHO_REPLY:
-        dgram->encapsulate(icmpmsg);
-        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
-        dgram->setName(icmpmsg->name());
-        recEchoReply(dgram);
+        processEchoReply(icmpmsg, dgram->srcAddress(), dgram->destAddress(), dgram->hopLimit());
+        delete dgram;
         dgram = 0;
         ctrIcmp6InEchoReplies++;
         break;
@@ -315,21 +312,12 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
 
       default:
         error("wrong ICMP type %d", (int)icmpmsg->type());
-/* XXX changed to error --Andras
-        Dout(dc::warning|flush_cf,"*** ICMPv6: type not found! "
-             << (int)icmpmsg->type());
-        if (icmpmsg->isErrorMessage())
-            //Notify Upper layer
-          errorOut(icmpmsg);
-        else //Discard
-          delete(icmpmsg);
-*/
   }
   delete dgram;
 }
 
 ///
-void ICMPv6Core::errorOut(ICMPv6Message *icmpmsg)
+void ICMPv6Core::sendToErrorOut(ICMPv6Message *icmpmsg)
 {
   send(icmpmsg, "errorOut");
 }
@@ -338,132 +326,118 @@ void ICMPv6Core::errorOut(ICMPv6Message *icmpmsg)
        Echo request and reply ICMPv6 messages
     ----------------------------------------------------------  */
 
-void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
+void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& src,
+                                   const ipv6_addr& dest, int hopLimit)
 {
-  auto_ptr<IPv6Datagram> request(theRequest);
+  // Echo Request may contain anything, but if we recognize it,
+  // we can do some statistics
+  PingPayload *payload = dynamic_cast<PingPayload *>(request->encapsulatedMsg());
 
-  assert(request->encapsulatedMsg() != 0);
-  ICMPv6Echo* req = check_and_cast<ICMPv6Echo*> (request->encapsulatedMsg());
-  assert(req);
-  echo_int_info echo_req = check_and_cast<Ping6PayloadPacket*> (req->encapsulatedMsg())->data();
-
-  if (icmpRecordStats)
+  if (payload && icmpRecordStats)
   {
-    if (echo_req.seqNo > nextEstSeqNo)
+    long seqNo = payload->seqNo();
+    simtime_t sendingTime = payload->creationTime();
+
+    if (seqNo > nextEstSeqNo)
     {
       Dout(dc::ping6, rt->nodeName() <<" pingecho_req: "<<simTime()<<" expected seqNo mismatch, dropCount="
-           <<dropCount<<" echo_req.seqNo="<<echo_req.seqNo<<" nextEstSeqNo="<<nextEstSeqNo
-           <<" just dropped="<<echo_req.seqNo - nextEstSeqNo);
-      dropCount = dropCount + (unsigned short)(echo_req.seqNo - nextEstSeqNo);
+           <<dropCount<<" echo_req.seqNo="<<seqNo<<" nextEstSeqNo="<<nextEstSeqNo
+           <<" just dropped="<<seqNo - nextEstSeqNo);
+      dropCount += (unsigned short)(seqNo - nextEstSeqNo);
       if (simTime() >= icmpRecordStart)
       {
-        pingDrop->record((unsigned short)(echo_req.seqNo - nextEstSeqNo));
+        pingDrop->record((unsigned short)(seqNo - nextEstSeqNo));
         handoverLatency->record(simTime() - lastReceiveTime);
       }
     }
 
-    if (echo_req.seqNo < nextEstSeqNo)
+    if (seqNo < nextEstSeqNo)
     {
       Dout(dc::statistic|flush_cf, rt->nodeName()<<" "<<simTime()<<" out of order ping echo_request"
-         <<" with seq="<<echo_req.seqNo<<" when nextEstSeqNo="<<nextEstSeqNo);
+         <<" with seq="<<seqNo<<" when nextEstSeqNo="<<nextEstSeqNo);
     }
     else
     {
-      nextEstSeqNo=echo_req.seqNo+1;
+      nextEstSeqNo=seqNo+1;
 
       lastReceiveTime = simTime();
       if (simTime() >= icmpRecordStart)
       {
-        pingDelay->record(simTime() -  echo_req.sendingTime);
-        stat->collect(simTime() - echo_req.sendingTime);
+        pingDelay->record(simTime() -  sendingTime);
+        stat->collect(simTime() - sendingTime);
       }
     }
 
     Dout(dc::statistic|flush_cf, rt->nodeName()<<" icmpCorePingReqEED \t"
-         <<simTime()<<"\t"<<simTime() - echo_req.sendingTime);
+         <<simTime()<<"\t"<<simTime() - sendingTime);
 
-    Dout(dc::ping6, req->length()<<dec<<" bytes from " <<request->srcAddress()
-         <<" icmp_seq="<<echo_req.seqNo<<" ttl="<<(size_t)request->hopLimit()
-         <<" eed="<< (simTime() - echo_req.sendingTime ) * 1000 << " msec"
-         <<"  ( ping request received at "<< rt->nodeName() << ")");
+    Dout(dc::ping6, (request->length()/BITS)<<dec<<" bytes from " <<src
+         <<" icmp_seq="<<seqNo<<" ttl="<<hopLimit
+         <<" eed="<< (simTime() - sendingTime) * 1000 << " msec"
+         <<"  (ping request received at "<< rt->nodeName() << ")");
   }
 
   if (!replyToICMPRequests)
+  {
+    delete request;
     return;
-
-  ICMPv6Message* reply = new ICMPv6Echo(req->identifier(), req->seqNo());
-  req->encapsulatedMsg()->setName("PING6_REPLY");
-
-  // HACK FIX FOR NOW
-  req->setLength(req->length() + req->encapsulatedMsg()->length() );
-
-  //Retrieve internal data inside ping packet and put into reply
-  reply->encapsulate(req->decapsulate());
+  }
 
   // send echo reply to the source
+  ICMPv6Message *reply = request;
+  reply->setName((std::string(request->name())+"-reply").c_str());
+  reply->setType(ICMPv6_ECHO_REPLY);
 
   //Use request->destAddress as src Address as there could be two addresses with
   //same scope when determineSrcAddress is used.
-  ipv6_addr src =  request->destAddress();
-  if (request->destAddress().isMulticast())
+  int inputPort = -1; //FIXME where to get it from?????????????????????????!!!!!!!!!!!!!!!!!!!1
+//__asm int 3;
+  ipv6_addr src1 = src;
+  if (dest.isMulticast())
   {
-    src = fc->determineSrcAddress(request->srcAddress(), request->inputPort());
-    if (src == IPv6_ADDR_UNSPECIFIED)
+    src1 = fc->determineSrcAddress(src, inputPort);
+    if (src1 == IPv6_ADDR_UNSPECIFIED)
+    {
+      delete request;
       return;
+    }
   }
 
-  Dout(dc::ping6, rt->nodeName()<<":"<<request->inputPort()<<" "<<simTime()
-       <<" sending echo reply to "<<request->srcAddress());
-  sendToIPv6(reply, request->srcAddress(), src, request->hopLimit());
+  Dout(dc::ping6, rt->nodeName()<<":"<<inputPort<<" "<<simTime()
+       <<" sending echo reply to "<<src);
+  sendToIPv6(reply, src1, dest, hopLimit);
   ctrIcmp6OutEchoReplies++;
   rt->ctrIcmp6OutMsgs++;
 }
 
-void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
+void ICMPv6Core::processEchoReply (ICMPv6Message *reply, const ipv6_addr& src,
+                                   const ipv6_addr& dest, int hopLimit)
 {
-
-  ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
-
-  // HACK FIX
-  echo_reply->setLength( echo_reply->length() + echo_reply->encapsulatedMsg()->length() );
-
-  Ping6PayloadPacket* app_req =
-    static_cast<Ping6PayloadPacket*> (echo_reply->decapsulate());
-
-  app_req->setSrcAddr(reply->srcAddress());
-  app_req->data().hopLimit = reply->hopLimit();
-  app_req->data().seqNo = echo_reply->seqNo();
-  app_req->data().id = echo_reply->identifier();
-
+  // decapsulate ping payload (data)...
+  cMessage *payload = reply->decapsulate();
   delete reply;
 
-  //Notify upper layer
-#if !defined TESTIPv6PING
-  send(app_req, "pingOut");
-#else
-  echo_int_info echo_req = app_req->data();
-  cout<<dec<<echo_req.id<<" "<<echo_req.seqNo<<" from "<<app_req->srcAddress()<<endl;
-  delete app_req;
-#endif //TESTIPv6PING
+  // attach extra info to it ...
+  IPv6ControlInfo *ctrl = new IPv6ControlInfo();
+  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
+  ctrl->setSrcAddr(mkIPv6Address_(src));
+  ctrl->setDestAddr(mkIPv6Address_(dest));
+  ctrl->setTimeToLive(hopLimit);
+  payload->setControlInfo(ctrl);
+
+  // ... then it send up
+  send(payload, "pingOut");
 }
 
 void ICMPv6Core::sendEchoRequest(cMessage *msg)
 {
-  Ping6PayloadPacket*  app_req =
-    static_cast< Ping6PayloadPacket* > (msg);
-  echo_int_info echo_req = app_req->data();
-
-  ICMPv6Message *request = new ICMPv6Echo(echo_req.id, echo_req.seqNo, true);
-  request->setName("PING6_REQ");
-  //Send the upper layer req across as test
-  request->encapsulate(app_req);
-
-  sendToIPv6(request, app_req->destAddr(), app_req->srcAddr(),
-                      app_req->data().hopLimit);
+  IPv6ControlInfo *ctrl = check_and_cast<IPv6ControlInfo*>(msg->removeControlInfo());
+  ICMPv6Message *request = createICMPv6Message(msg->name(), ICMPv6_ECHO_REQUEST, 0, msg);
+  sendToIPv6(request, mkIpv6_addr(ctrl->destAddr()), mkIpv6_addr(ctrl->srcAddr()), ctrl->timeToLive());
 }
 
 void ICMPv6Core::sendToIPv6(ICMPv6Message *msg, const ipv6_addr& dest,
-                                     const ipv6_addr& src, size_t hopLimit)
+                            const ipv6_addr& src, size_t hopLimit)
 {
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 

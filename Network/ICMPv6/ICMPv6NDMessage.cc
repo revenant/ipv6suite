@@ -24,7 +24,7 @@
     @date 14.9.01
 */
 
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ICMPv6NDMessage.h"
 #include "IPv6Datagram.h"
 #include "NDEntry.h"
@@ -66,7 +66,7 @@ ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
 
   size_t len = length();
   for (size_t i = 0; i < prefixes.size(); i++)
-    len += prefixes[i].length()*ICMPv6_OCTETS_UNIT;
+    len += prefixes[i].lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS;
   setLength(len);
 }
 
@@ -171,28 +171,6 @@ const ICMPv6NDMRedirect& ICMPv6NDMRedirect::operator=(const ICMPv6NDMRedirect& s
   return *this;
 }
 
-/* XXX looks like not needed
-bool ICMPv6NDMRedirect::operator==(const ICMPv6NDMRedirect& rhs) const
-{
-  if (this == &rhs)
-    return true;
-
-  if (!ICMPv6NDMsgBaseRedirect::operator==(rhs))
-    return false;
-  if (targetLLAddr() != rhs.targetLLAddr())
-    return false;
-  //Can't assume that this exists always but if it exists then rhs exists too
-  //since ICMPv6MessageBase::operator== takes care of that checking
-  if (header())
-  {
-    assert(rhs.header() != 0);
-    return *header() == *rhs.header()?true:false;
-  }
-
-  return true;
-}
-*/
-
 void ICMPv6NDMRedirect::attachHeader(IPv6Datagram* dgram)
 {
   ICMPv6NDOptRedirect* redirHeader = static_cast<ICMPv6NDOptRedirect*> (opts[1]);
@@ -200,7 +178,7 @@ void ICMPv6NDMRedirect::attachHeader(IPv6Datagram* dgram)
   if (opts[1])
     delete opts[1];
 
-  redirHeader = new ICMPv6NDOptRedirect(dgram, dgram->length()/ICMPv6_OCTETS_UNIT);
+  redirHeader = new ICMPv6NDOptRedirect(dgram, dgram->length()/IPv6_EXT_UNIT_OCTETS/BITS);
   opts[1] = redirHeader;
 
   //TODO suppose to truncate to 1280 octets
@@ -253,17 +231,17 @@ ICMPv6NDOptPrefix::ICMPv6NDOptPrefix(const PrefixEntry& pe)
 
 void ICMPv6NDOptRedirect::setHeader(IPv6Datagram* header)
 {
-  setLength(length() - _header->length()/ICMPv6_OCTETS_UNIT);
+  setLengthInUnits(lengthInUnits() - _header->length()/IPv6_EXT_UNIT_OCTETS/BITS);
   delete _header;
   _header = header;
-  setLength(length() + _header->length()/ICMPv6_OCTETS_UNIT);
+  setLengthInUnits(lengthInUnits() + _header->length()/IPv6_EXT_UNIT_OCTETS/BITS);
 }
 
 IPv6Datagram* ICMPv6NDOptRedirect::removeHeader()
 {
   ::IPv6Datagram* dgram = _header;
   _header = 0;
-  setLength(length() - dgram->length()/ICMPv6_OCTETS_UNIT);
+  setLengthInUnits(lengthInUnits() - dgram->length()/IPv6_EXT_UNIT_OCTETS/BITS);
   return dgram;
 }
 

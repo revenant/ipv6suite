@@ -70,13 +70,13 @@ public:
    *
    */
 
-  virtual size_t length() const;
+  virtual size_t lengthInUnits() const;
 
   /**
-   * accumulate length of pdu headers up to and including this header
+   * accumulate length of pdu headers up to and including this header (in ???)
    * @param pdu has to contain this extension header (loop terminate condition)
    */
-  virtual int cumul_len(const IPv6Datagram& pdu) const;
+  virtual int cumulLengthInUnits(const IPv6Datagram& pdu) const;
 
   /**
      Process extension header according to IPv6 Spec

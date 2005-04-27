@@ -17,9 +17,9 @@
 //
 
 import
-    "Blackboard",
-    "Repeater";
-    
+    "Blackboard";
+
+
 //
 // Wire with 1us delay, which corresponds to 0.2 meters (at 200,000 m/s)
 //
@@ -31,7 +31,7 @@ endchannel
 //
 // Ethernet hub model.
 //
-// Repeats frames on all ports except arrival port. Can be used with 
+// Repeats frames on all ports except arrival port. Can be used with
 // any message type (nothing Ethernet specific).
 //
 simple Repeater

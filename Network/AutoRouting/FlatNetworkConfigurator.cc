@@ -23,7 +23,6 @@
 #include <algorithm>
 #include "RoutingTable.h"
 #include "InterfaceTable.h"
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 #include "FlatNetworkConfigurator.h"
 #include "IPv4InterfaceData.h"
@@ -38,13 +37,13 @@ void FlatNetworkConfigurator::initialize(int stage)
 
     cTopology topo("topo");
 
-    std::vector<std::string> types = StringTokenizer(par("moduleTypes"), " ").asVector();
-    topo.extractByModuleType(types);
+    std::vector<std::string> types = cStringTokenizer(par("moduleTypes"), " ").asVector();
+    topo.extractByModuleType(types);  // FIXME include nonIPModuleTypes too!!!
     ev << "cTopology found " << topo.nodes() << " nodes\n";
 
     // Although bus types are not auto-configured, FNC must still know them
     // since topology may depend on them.
-    std::vector<std::string> nonIPTypes = StringTokenizer(par("nonIPModuleTypes"), " ").asVector();
+    std::vector<std::string> nonIPTypes = cStringTokenizer(par("nonIPModuleTypes"), " ").asVector();
 
     // assign IP addresses
     uint32 networkAddress = IPAddress(par("networkAddress").stringValue()).getInt();

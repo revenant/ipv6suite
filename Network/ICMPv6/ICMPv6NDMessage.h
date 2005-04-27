@@ -215,7 +215,7 @@ public:
 
       opts[1] = new ICMPv6NDOptMTU(mtu);
       if (changeLength)
-        setLength(length() + opts[1]->length());
+        setLength(length() + opts[1]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     }
   unsigned int MTU() const
     {
@@ -237,7 +237,7 @@ public:
         opts[2] = new ICMPv6NDOptAdvInt(advInt);
 
       if (changeLength)
-        setLength(length() + opts[2]->length());
+        setLength(length() + opts[2]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     }
 
   unsigned long advInterval(void)

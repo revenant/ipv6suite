@@ -32,8 +32,7 @@ over the network.
 #ifndef __RTCPPACKET_H__
 #define __RTCPPACKET_H__
 
-#include <iostream.h>
-
+#include <iostream>
 #include <omnetpp.h>
 
 #include "types.h"
@@ -98,7 +97,7 @@ class RTCPPacket : public cPacket {
         /*!
         Writes a detailed report about this RTCPPacket into the given stream.
         */
-        virtual void writeContents(ostream& os) const;
+        virtual void writeContents(std::ostream& os) const;
 
         /*!
         Returns the rtp version of the rtcp packet. It's always 2.
@@ -207,7 +206,7 @@ class RTCPReceiverReportPacket : public RTCPPacket {
         /*!
         Writes a report about the RTCPReceiverReportPacket into the stream.
         */
-        virtual void writeContents(ostream& os) const;
+        virtual void writeContents(std::ostream& os) const;
 
         /*!
         Returns the ssrc indentifier of the source which has sent this
@@ -296,7 +295,7 @@ class RTCPSenderReportPacket : public RTCPReceiverReportPacket {
         /*!
         Writes a longer info about this RTCPSenderReportPacket into the given stream.
         */
-        virtual void writeContents(ostream& os) const;
+        virtual void writeContents(std::ostream& os) const;
 
         /*!
         Returns a copy of the  sender report stored in this RTCPSenderReportPacket.
@@ -366,7 +365,7 @@ class RTCPSDESPacket : public RTCPPacket {
         /*!
         Writes a longer report about this RTCPSDESPacket into the given stream.
         */
-        virtual void writeContents(ostream& os) const;
+        virtual void writeContents(std::ostream& os) const;
 
         /*!
         Returns a copy of the cArray where the sdes chunks are stored.
@@ -494,7 +493,7 @@ class RTCPCompoundPacket : public cPacket {
         /*!
         Writes a longer info about this RTCPCompoundPacket into the given stream.
         */
-        virtual void writeContents(ostream& os) const;
+        virtual void writeContents(std::ostream& os) const;
 
         /*!
         Adds an RTCPPacket to this RTCPCompoundPacket.
@@ -516,3 +515,5 @@ class RTCPCompoundPacket : public cPacket {
 
 };
 #endif
+
+

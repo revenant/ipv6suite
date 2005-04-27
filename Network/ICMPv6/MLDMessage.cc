@@ -25,12 +25,13 @@
  *
  */
 
+#include <assert.h>
 #include "MLDMessage.h"
 
 MLDMessage::MLDMessage(ICMPv6Type type)
-  :ICMPv6Message(type),multicast_addr(IPv6_ADDR_UNSPECIFIED)
+  :ICMPv6Message(),multicast_addr(IPv6_ADDR_UNSPECIFIED)
 {
-
+  setType(type);
 }
 MLDMessage::MLDMessage(const MLDMessage& src)
   :ICMPv6Message(src)

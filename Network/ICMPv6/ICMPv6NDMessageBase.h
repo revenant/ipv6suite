@@ -33,11 +33,12 @@
 #include <omnetpp.h>
 #include <string>
 
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ipv6_addr.h"
 #include "ICMPv6NDOptionBase.h"
 
 class IPv6Datagram;
+
 
 namespace IPv6NeighbourDiscovery
 {
@@ -59,10 +60,9 @@ namespace IPv6NeighbourDiscovery
  */
 
 template<size_t n_addrs, size_t n_opts>
-class ICMPv6NDMessageBase:public ICMPv6Message
+class ICMPv6NDMessageBase : public ICMPv6Message
 {
 public:
-
   /**
      Ensure that removal of options always zeroes out
      the pointers in the opts array.
@@ -114,8 +114,7 @@ protected:
   void setLLAddress(bool source, const string& addr, int len = 1, size_t index = 0);
 
 protected:
-
-  ICMPv6NDMessageBase(const ICMPv6Type& otype, const ICMPv6Code& ocode = 0);
+  ICMPv6NDMessageBase(ICMPv6Type otype, const ICMPv6Code& ocode = 0);
   ICMPv6NDMessageBase(const ICMPv6NDMessageBase& src);
 
   const ICMPv6NDMessageBase& operator=(const ICMPv6NDMessageBase& src);

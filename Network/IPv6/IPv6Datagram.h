@@ -57,6 +57,12 @@ class HdrExtDestProc;
 class HdrExtHopOptProc;
 class HdrExtProc;
 
+#define BITS  8
+
+
+/// The length field in IPv6/ICMPv6 options is in units of 8 OCTETS
+extern const int IPv6_EXT_UNIT_OCTETS;
+
 /**
    @class IPv6Datagram
 
@@ -75,8 +81,6 @@ class HdrExtProc;
    yet).  IP layer will regenerate the c++ classes from the raw data so
    we can deal with them and deallocate them when finished.
 */
-
-// XXX was public IPDatagram, then public cMessage --AV
 class IPv6Datagram : public IPv6Datagram_Base, boost::equality_comparable<IPv6Datagram>
 {
 public:
@@ -159,9 +163,6 @@ public:
 ///@name Redefined cMessage functions
 ///@{
   void encapsulate(cMessage *);
-/* XXX removed --AV
-  cMessage *decapsulate();
-*/
 #ifdef __CN_PAYLOAD_H
   struct network_payload *networkOrder() const;
 #endif /* __CN_PAYLOAD_H*/
@@ -175,52 +176,6 @@ public:
 
   short version() const {return 6;}
 
-/* XXX out -- went to msg class
-  short version() const
-    {
-      //Top 4 bits of ver_traffic_flow
-      assert(header.ver_traffic_flow >>28 <= static_cast<unsigned int> (IPv6_MAX_VERSION));
-      return static_cast<unsigned char> (header.ver_traffic_flow >>28);
-    }
-
-  unsigned int trafficClass() const
-    {
-      return (header.ver_traffic_flow >> 20) & 0xFF;
-    }
-
-  void setTrafficClass(unsigned int traffic_class)
-    {
-      assert(traffic_class < 1<<8);
-      if (traffic_class >= 1<<8)
-        return;
-      header.ver_traffic_flow &= 0xF00FFFFF;
-      header.ver_traffic_flow |= (traffic_class << 20);
-    }
-
-  unsigned int flowLabel() const
-    {
-      return header.ver_traffic_flow & 0xFFFFF;
-    }
-
-  void setFlowLabel(unsigned int label)
-    {
-      assert(label < 1<<20);
-      if (label >= 1<<20)
-        return;
-      header.ver_traffic_flow &= 0xFFF00000;
-      header.ver_traffic_flow |= label;
-    }
-*/
-
-  /// Payload length excludes the fixed IPv6 header length
-  /// i.e. sizeof(ipv6_hdr) refer to RFC2460 Section 3.0
-  int payloadLength() const { return payload_length;}
-  void setPayloadLength(int length)
-    {
-      assert(length >= 0);
-      payload_length = length;
-    }
-
   /// length of IPv6 extension headers (Not part of IPv6 spec)
   short extensionLength() const { return ext_hdr_len;}
 
@@ -228,51 +183,19 @@ public:
   size_t totalLength() const
     {
       //Doesn't exceed 2^16-1 as that's jumbogram size
-      assert(IPv6_HEADER_LENGTH + payload_length <= 1<<16 - 1  );
-      return IPv6_HEADER_LENGTH + payload_length;
+      assert(IPv6_HEADER_OCTETLENGTH + payload_length <= 1<<16 - 1  );
+      return IPv6_HEADER_OCTETLENGTH + payload_length;
     }
 
   void setTotalLength(unsigned int len)
     {
 #ifdef DEBUG
       //Doesn't exceed 2^16-1 as that's jumbogram size
-      assert(len >= IPv6_HEADER_LENGTH);
+      assert(len >= IPv6_HEADER_OCTETLENGTH);
       assert(len <= 1<<16 - 1  );
 #endif
-      payload_length = len - IPv6_HEADER_LENGTH;
+      payload_length = len - IPv6_HEADER_OCTETLENGTH;
     }
-
-/* XXX out -- went to msg class
-  short hopLimit() const { return header.hop_limit; }
-  void setHopLimit(short ttl)
-    {
-      assert(ttl >= 0 && ttl <= (short) MAX_HOPLIMIT);
-      header.hop_limit= ttl;
-    }
-
-  IPProtocolId transportProtocol() const;
-  void setTransportProtocol(const IPProtocolId& prot);
-
-  // header checksum not required
-
-  /// source and destination address
-  const ipv6_addr& srcAddress() const { return header.src_addr; }
-
-  void setSrcAddress(const char* src)
-    {
-      header.src_addr = c_ipv6_addr(src);
-    }
-  void setSrcAddress(const ipv6_addr& src){ header.src_addr = src; }
-
-  const ipv6_addr& destAddress() const { return header.dest_addr; }
-
-  void setDestAddress(const char* dest)
-    {
-      header.dest_addr = c_ipv6_addr(dest);
-    }
-
-  void setDestAddress(const ipv6_addr& dest){ header.dest_addr = dest; }
-*/
   //@}
 
   // FIXME temporary functions:
@@ -280,9 +203,6 @@ public:
   virtual const ipv6_addr& destAddress() const {return ((IPv6Datagram_Base *)const_cast<IPv6Datagram*>(this))->destAddress();}
 
 private:
-/* XXX ipv6_header: went to msg class
-  ipv6_hdr header;
-*/
   unsigned short payload_length;
   unsigned char next_header;
 

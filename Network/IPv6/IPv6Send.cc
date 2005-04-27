@@ -87,13 +87,6 @@ IPv6Datagram *IPv6Send::encapsulatePacket(cMessage *msg)
     return NULL;
   }
 
-  // FIXME we have to divide msg length by 8, because app layer
-  // interprets length in bits and IPv6 in bytes. Actually, every
-  // layer should calculate in BITs so IPv6 will have to be changed,
-  // but for now we just convert... THIS SHOULD BE FIXED IN THE FUTURE.
-  // --Andras
-  msg->setLength(msg->length()/8);
-
   IPv6Datagram *datagram = new IPv6Datagram();
   IPv6ControlInfo *ctrl = check_and_cast<IPv6ControlInfo*>(msg->removeControlInfo());
 

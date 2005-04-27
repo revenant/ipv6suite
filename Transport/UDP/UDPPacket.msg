@@ -28,6 +28,5 @@ message UDPPacket
     fields:
         int sourcePort = -1;
         int destinationPort = -1;
-        bool checksumValid = true;
 };
 

@@ -23,6 +23,7 @@ import
     "ICMP",
     "IGMP",
     "RoutingTable",
+    "ErrorHandling",
     "NetworkInterface";
 
 
@@ -87,6 +88,9 @@ module NetworkLayer
 
         ip.transportOut[5] --> OSPFOut;
         ip.transportIn[5] <-- OSPFIn;
+
+        icmp.pingOut --> pingOut;
+        icmp.pingIn <-- pingIn;
 
         // L2 interfaces to IP
         for i=0..sizeof(physOut)-1 do

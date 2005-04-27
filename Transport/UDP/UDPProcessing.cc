@@ -108,11 +108,9 @@ void UDPProcessing::updateDisplayString()
 
 void UDPProcessing::processMsgFromIP(UDPPacket *udpPacket)
 {
-    // errorcheck, if applicable
-    if (!udpPacket->checksumValid())
+    // simulate checksum: discard packet if it has bit error
+    if (!udpPacket->hasBitError())
     {
-        // throw packet away if bit error discovered
-        // assume checksum found biterror
         delete udpPacket;
         numDroppedBadChecksum++;
         return;

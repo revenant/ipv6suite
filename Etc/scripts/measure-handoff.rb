@@ -20,8 +20,8 @@ require "timeout"
 # Send or receive UDP packets
 #
 class UDPTimestamp
-  VERSION       = "$Revision: 1.1 $"
-  REVISION_DATE = "$Date: 2005/02/09 06:15:57 $"
+  VERSION       = "$Revision: 1.2 $"
+  REVISION_DATE = "$Date: 2005/04/27 08:19:33 $"
   AUTHOR        = "Johnny Lai"
  
   #

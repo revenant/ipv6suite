@@ -32,7 +32,7 @@
 
 #include "IPv6Datagram.h"
 #include "IPv6Headers.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "IPProtocolId_m.h"  //For ProtocolID values
 #include "HdrExtProc.h"
 #include "HdrExtFragProc.h"
@@ -49,6 +49,8 @@ extern "C"
 
 
 Register_Class(IPv6Datagram);
+
+const int IPv6_EXT_UNIT_OCTETS = 8;
 
 /*
 static const ipv6_hdr IPV6_INITIAL_HDR =
@@ -72,7 +74,7 @@ IPv6Datagram::IPv6Datagram(const ipv6_addr& src, const ipv6_addr& dest,
     payload_length(0), next_header(59), route_hdr(0),
                                   frag_hdr(0), dest_hdr(0)
 {
-  setLength(IPv6_HEADER_LENGTH);
+  setLength(IPv6_HEADER_OCTETLENGTH*BITS);
   //This signifies a packet that has not arrived at a host
   setSrcAddress(src);
   setDestAddress(dest);
@@ -114,7 +116,7 @@ IPv6Datagram::~IPv6Datagram()
 
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;
-  
+
   ext_hdrs.clear();
 
   //for each element in ext_hdrs find out what type it is and have
@@ -210,7 +212,7 @@ std::string IPv6Datagram::info()
   //However the stdoutput from os is fine.
   //int ev_limit = os.str().size();
 
-  os << " len="<<length()<<" HL=" <<dec<<hopLimit()
+  os << " len="<<(length()/BITS)<<"bytes HL=" <<dec<<hopLimit()
      << " prot="<<dec<<transportProtocol();
 
   //Can't use this as they're all pointers
@@ -519,9 +521,7 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
       (*(ext_hdrs.rbegin()))->setNextHeader(hdr_type);
 
     ext_hdrs.push_back(proc);
-    ext_hdr_len = proc -> cumul_len(*this);
-        //Extension headers + encapsulated length of upper layer pdu
-    setPayloadLength(ext_hdr_len + length());
+    addLength(proc->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     setTransportProtocol(prot);
   }
 
@@ -583,7 +583,7 @@ std::ostream& operator<<(std::ostream& os, const IPv6Datagram& pdu)
 {
   os << "Source="<< pdu.srcAddress()
      <<" Dest=" << pdu.destAddress();
-  os <<" len="<<pdu.length()<<" HL=" <<dec<<pdu.hopLimit()
+  os <<" len="<<(pdu.length()/BITS)<<"bytes HL=" <<dec<<pdu.hopLimit()
      <<" prot="<<dec<<pdu.transportProtocol();
 
   //Should use writeTo of ext_hdr and info of contained objects?

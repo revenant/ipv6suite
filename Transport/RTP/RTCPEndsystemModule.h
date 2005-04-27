@@ -24,7 +24,8 @@ This file declares the class RTCPEndsystemModule.
 
 #include <omnetpp.h>
 
-#include "sockets.h"
+//XXX #include "sockets.h"
+#include "tmp/defs.h"
 
 #include "types.h"
 #include "RTPInnerPacket.h"
@@ -244,3 +245,5 @@ class RTCPEndsystemModule : public cSimpleModule {
 };
 
 #endif
+
+

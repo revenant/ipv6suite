@@ -119,7 +119,7 @@ IPAddress IPAddressResolver::getIPv4AddressFrom(InterfaceTable *ift)
     for (int i=0; i<ift->numInterfaces(); i++)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
-        if (!ie->ipv4()->inetAddress().isNull() && !ie->isLoopback())
+        if (ie->ipv4() && !ie->ipv4()->inetAddress().isNull() && !ie->isLoopback())
         {
             if (!addr.isNull() && ie->ipv4()->inetAddress()!=addr)
                 opp_error("IPAddressResolver: IP address is ambiguous: different "
@@ -149,16 +149,16 @@ IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
 
-        if (ie->isLoopback())
-          continue;
-        
+        if (!ie->ipv6() || ie->isLoopback())
+            continue;
+
         for ( int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
         {
-          if ( ie->ipv6()->inetAddrs[j].scope() != ipv6_addr::Scope_Link)
-          {
-            addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str());
-            break;
-          }
+            if ( ie->ipv6()->inetAddrs[j].scope() != ipv6_addr::Scope_Link)
+            {
+                addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str());
+                break;
+            }
         }
     }
     return addr;

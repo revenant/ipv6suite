@@ -36,7 +36,7 @@
 #ifdef CWDEBUG
 #undef NDEBUG
 #include <cassert>
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #endif //CWDEBUG
 
 #include <omnetpp.h>

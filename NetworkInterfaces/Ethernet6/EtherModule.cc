@@ -214,9 +214,6 @@ bool EtherModule::sendFrame(cMessage *msg, int gateid)
 void EtherModule::idleNetworkInterface(void)
 {
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << fullPath() << " is ready to accept L3 packets");
-
-/*XXX notifying outputQueue removed from here --AV
-*/
 }
 
 bool EtherModule::sendData(EtherFrame6* frame) //XXX this is actually for passing up packets
@@ -255,8 +252,6 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg) //XXX this is actuall
   // Something to send onto network
   ev << "Received " << msg.get() << " from upper layers for transmission\n";
 
-/* XXX original code was changed to use control info --AV
-*/
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   EtherFrame6* frame = new EtherFrame6(msg->name());
   frame->setSrcAddress(MACAddress6(_myAddr.stringValue()));
@@ -268,7 +263,6 @@ bool EtherModule::receiveData(std::auto_ptr<cMessage> msg) //XXX this is actuall
   EtherSignalData* sigData = new EtherSignalData(frame->name());
   sigData->encapsulate(frame);
   sigData->setSrcModPathName(fullPath().c_str());
-  sigData->setLength(sigData->length() * 8); // convert into bits
 
   outputBuffer.push_back(sigData);
 
@@ -346,17 +340,6 @@ void EtherModule::changeState(EtherState* state)
 {
   _currentState = state;
 }
-
-//XXX no need for this --AV
-//const unsigned int* EtherModule::macAddress(void)
-//{
-//  return _myAddr.intValue();
-//}
-//
-//std::string EtherModule::macAddressString(void)
-//{
-//  return _myAddr.stringValue();
-//}
 
 void EtherModule::cancelAllTmrMessages(void)
 {

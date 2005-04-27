@@ -39,8 +39,6 @@
 #endif
 
 
-// XXX WHAT THE HECK IS THIS? AND WHY IN PPP? --AV
-
 /**
  * @class IPv6PPPAPInterface
  *

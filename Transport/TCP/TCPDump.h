@@ -35,8 +35,8 @@ class TCPDumper
     std::ostream *outp;
   public:
     TCPDumper(std::ostream& o);
-    void dump(const char *label, IPDatagram *dgram, const char *comment=NULL);
-    void dump(const char *label, TCPSegment *tcpseg, const std::string& srcAddr, const std::string& destAddr, const char *comment=NULL);
+    void dump(bool l2r, const char *label, IPDatagram *dgram, const char *comment=NULL);
+    void dump(bool l2r, const char *label, TCPSegment *tcpseg, const std::string& srcAddr, const std::string& destAddr, const char *comment=NULL);
     // dumps arbitary text
     void dump(const char *label, const char *msg);
 };

@@ -80,16 +80,6 @@ public:
   const char *destAddrString(void) const;
   const char *srcAddrString(void) const;
 
-  // return the total length of the packet including the header
-  // the packet is in octets
-//  const int packetLength(void);
-
-/* XXX seems like this is not strictly necessary --AV
-  // encapsulation/decapsulation of the IP datagram
-* virtual void encapsulate(cPacket *);
-  cPacket* decapsulate();
-*/
-
   #if defined __CN_PAYLOAD_H
   //send packets in network order;
   struct network_payload *networkOrder(void) const ;
@@ -100,7 +90,6 @@ private:
   MACAddress6 _srcAddr;
   MACAddress6 _destAddr;
   int pack_mac_addr(const char *straddr, unsigned char *pack) const;
-//  int _dataLen;
 
   // header length functions
   int headerByteLength() const;

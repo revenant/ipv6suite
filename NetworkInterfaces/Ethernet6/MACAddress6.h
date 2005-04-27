@@ -51,8 +51,7 @@ extern const MAC_address MAC_ADDRESS_UNSPECIFIED_STRUCT;
  * @brief IEEE802.3 MAC address object
  * @sa MAC_address
  */
-
-class MACAddress6 : public /*XXX cObject,*/ boost::equality_comparable<MACAddress6>
+class MACAddress6 : public boost::equality_comparable<MACAddress6>
 {
  public:
   // Constructor

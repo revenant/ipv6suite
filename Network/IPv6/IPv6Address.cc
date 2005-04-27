@@ -131,7 +131,7 @@ IPv6Address::IPv6Address(const ipv6_prefix& pref)
 */
   setAddress(pref.prefix);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
-    m_prefix_length = IPv6_ADDR_LENGTH;
+    m_prefix_length = IPv6_ADDR_BITLENGTH;
 }
 
 IPv6Address::IPv6Address(const char* t)
@@ -146,7 +146,7 @@ IPv6Address::IPv6Address(const char* t)
 */
   setAddress(t);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
-    m_prefix_length = IPv6_ADDR_LENGTH;
+    m_prefix_length = IPv6_ADDR_BITLENGTH;
 }
 
 IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
@@ -161,7 +161,7 @@ IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
 */
   setAddress(addr);
   if (m_prefix_length == 0 && m_addr != IPv6_ADDR_UNSPECIFIED)
-    m_prefix_length = IPv6_ADDR_LENGTH;
+    m_prefix_length = IPv6_ADDR_BITLENGTH;
 }
 
 IPv6Address::IPv6Address(const IPv6Address& obj)
@@ -341,11 +341,11 @@ std::string IPv6Address::lowerNbBits(int nbbits)
 ///Truncates everything after nbbits in the address to give a prefix
 ipv6_addr IPv6Address::higherNbBits(size_t nbbits)
 {
-  assert(nbbits <= IPv6_ADDR_LENGTH);
+  assert(nbbits <= IPv6_ADDR_BITLENGTH);
 
   if (nbbits == 0)
     return IPv6_ADDR_UNSPECIFIED;
-  if (nbbits == IPv6_ADDR_LENGTH)
+  if (nbbits == IPv6_ADDR_BITLENGTH)
     return m_addr;
 
   unsigned int addr_int[TOTAL_NUMBER_OF_32BIT_SEGMENT];

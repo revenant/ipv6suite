@@ -76,7 +76,7 @@ public:
   ///processed at every dest in routing header
   virtual bool processHeader(cSimpleModule* mod,
                              IPv6Datagram* pdu,
-                             int cumul_len);
+                             int cumulLengthInUnits);
   ///@}
 
   //Returns the ith address based starting at 1
@@ -99,7 +99,7 @@ public:
 
   }
 
-  size_t length(void)
+  size_t lengthInUnits(void)
   {
     return (n_addr()*IPv6_ADDRESS_LEN + IPv6_RT_HDR_LEN);
   }
@@ -168,7 +168,7 @@ public:
     {}
 
   virtual bool processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
-                             int cumul_len);
+                             int cumulLengthInUnits);
 };
 
 } //namespace MobileIPv6
@@ -214,7 +214,7 @@ public:
   // return a routing header; the default routing header returned is type 0
   HdrExtRte* routingHeader(unsigned char rt_type = IPv6_TYPE0_RT_HDR);
 
-  virtual size_t length() const;
+  virtual size_t lengthInUnits() const;
 
 private:
   typedef std::list<HdrExtRte*>RoutingHeaders;

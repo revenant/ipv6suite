@@ -17,20 +17,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-//XXX enum EtherSignalType
-//{
-//  EST_None = 0;
-//  EST_Data = 1;
-//  EST_Idle = 2;
-//  EST_Jam = 3;
-//  EST_JamEnd = 4;
-
-//  WIRELESS_EST_None = 5;
-//  WIRELESS_EST_Idle = 6;
-//  WIRELESS_EST_Data = 7;
-//};
-
-
 //
 // Ethernet control signal (also for simulation wise)
 // @author Eric Wu

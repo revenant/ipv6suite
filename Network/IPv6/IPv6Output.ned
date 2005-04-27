@@ -17,9 +17,6 @@
 
 
 
-import "NF_IP_POST_ROUTING";
-
-
 //
 // IPv6Output core module, with its main task being TTL check.
 //

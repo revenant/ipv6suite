@@ -194,9 +194,20 @@ void PPPInterface::handleMessage(cMessage *msg)
         if (endTransmissionEvent->isScheduled())
         {
             // We are currently busy, so just queue up the packet.
-            ev << "Received " << msg << " for transmission, but transmitter busy, queueing.\n";
+            ev << "Received " << msg << " for transmission but transmitter busy, queueing.\n";
             if (ev.isGUI() && queue.length()>=3) displayString().setTagArg("i",1,"red");
-            queue.insert(msg);  // FIXME use frameCapacity, bitCapacity
+
+            if (frameCapacity && queue.length() >= frameCapacity)  // FIXME use bitCapacity as well
+            {
+                ev << "Queue full, dropping packet.\n";
+                delete msg;
+                numDropped++;
+            }
+            else
+            {
+                queue.insert(msg);
+            }
+
         }
         else
         {

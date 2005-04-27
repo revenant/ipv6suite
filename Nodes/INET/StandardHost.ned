@@ -98,8 +98,8 @@ module StandardHost
         udp.to_ip --> networkLayer.UDPIn;
         udp.from_ip <-- networkLayer.UDPOut;
 
-        networkLayer.pingOut --> pingApp.in;
-        networkLayer.pingIn <-- pingApp.out;
+        networkLayer.pingOut --> pingApp.pingIn;
+        networkLayer.pingIn <-- pingApp.pingOut;
 
         // connections to network outside
         for i=0..sizeof(out)-1 do

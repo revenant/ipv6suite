@@ -34,7 +34,7 @@
 #include "IPv6InterfaceData.h"
 #include "IPv6Headers.h"
 #include <string>
-#include "opp_akaroa.h"
+
 
 using namespace IPv6NeighbourDiscovery;
 
@@ -141,28 +141,12 @@ bool IPv6InterfaceData::tentativeAddrAssigned(const ipv6_addr& addr) const
   return it!=tentativeAddrs.end();
 }
 
-/* XXX out of order
-const char* IPv6InterfaceData::encap(void)
-{
-  if(iface_name.find("ppp")!=string::npos)
-    return "Point-to-Point Protocol";
-  else if(iface_name.find("eth")!=string::npos)
-    return "Ethernet";
-  else if(iface_name.find("wlan")!=string::npos)
-    return "Wireless Ethernet";
-  else if(iface_name.find("lo")!=string::npos)
-    return "Local Loopback";
-  else
-    return "";
-}
-*/
-
 double IPv6InterfaceData::reachableTime(void)
 {
   if(_prevBaseReachableTime == baseReachableTime)
     return _reachableTime;
 
-  _reachableTime = OPP_UNIFORM(baseReachableTime*MIN_RANDOM_FACTOR,
+  _reachableTime = uniform(baseReachableTime*MIN_RANDOM_FACTOR,
                            baseReachableTime*MAX_RANDOM_FACTOR);
 
   _prevBaseReachableTime = baseReachableTime;
@@ -262,94 +246,4 @@ IPv6Address IPv6InterfaceData::matchPrefix(const ipv6_addr& prefix,
   return IPv6Address(IPv6_ADDR_UNSPECIFIED);
 }
 
-/*XXX to be replaced, implemented etc
-void IPv6InterfaceData::print(bool IPForward)
-{
-  / *
-    e.g.
-    eth0    Link encap:Ethernet  HWaddr 00:60:97:C3:11:97
-    inet6 addr: fe80::260:97ff:fec3:1197/10 Scope:Link
-    inet6 addr: 3ffe:8001:12:fc:260:97ff:fec3:1197/64 Scope:Global
-    UP BROADCAST RUNNING MULTICAST  MTU:1500
-  * /
-
-  // print out general interface info
-  PRINTF("\t Link encap: %s HWAddr: %s \n",
-         iface_name.c_str(),
-         encap(),
-         llAddr.c_str());
-
-  // print out each IPv6 address attached to the interace
-  for(unsigned int i=0; i<inetAddrs.size(); i++)
-  {
-    PRINTF("\t inet6 addr: %s Scope:%s \n",
-           inetAddrs[i].address().c_str(),
-           inetAddrs[i].scope_str());
-  }
-
-  // Current information about the interface
-  //PRINTF("\t UP %s RUNNING \n", loopback ? " LOOPBACK" : "");
-
-  // Host Configuration Vairables
-  PRINTF("==============  Host Configuration Variables  ============================== \n");
-  PRINTF("LinkMTU:\t\t %d octets \n", mtu);
-  PRINTF("CurHopLimit:\t\t %d hops \n", curHopLimit);
-  PRINTF("BaseReachableTime:\t %d millisecond \n", baseReachableTime);
-  PRINTF("ReachableTime:\t\t %f millisecond \n", reachableTime());
-  PRINTF("RetransTimer:\t\t %d millisecond \n", retransTimer);
-  PRINTF("DupAddrDetectTransmits:\t %d transmits \n", dupAddrDetectTrans);
-#if FASTRS
-  PRINTF("MaxRtrSolDelay:\t %e millisecond \n", maxRtrSolDelay * 1000);
-#endif // FASTRS
-
-#ifdef USE_MOBILITY
-  PRINTF("==============  MIPv6 Host Variables  ====================================== \n");
-
-  PRINTF("Deprecated: MinRtrSolInterval:\t\t %d seconds\n", mipv6Var.minRtrSolInterval);
-  PRINTF("Deprecated: MaxInterval: \t\t %d seconds\n", mipv6Var.maxInterval);
-  PRINTF("MaxConsecutiveMissedRtrAdv: \t\t %d misses\n",
-         mipv6Var.maxConsecutiveMissedRtrAdv);
-
-#endif //USE_MOBILITY
-
-  // Router Configuration Vairables
-
-  if(IPForward)
-  {
-
-    PRINTF("==============  Router Configuration Variables  ============================ \n");
-    PRINTF("AdvSendAdvertisements: \t %d \n", rtrVar.advSendAds);
-    PRINTF("MaxRtrAdvInterval: \t %f sec\n", rtrVar.maxRtrAdvInt);
-    PRINTF("MinRtrAdvInterval: \t %f sec\n", rtrVar.minRtrAdvInt);
-    PRINTF("AdvManagedFlag: \t %d \n", rtrVar.advManaged);
-    PRINTF("AdvOtherConfigFlag: \t %d \n", rtrVar.advOther);
-    PRINTF("AdvLinkMTU: \t \t %d Octets \n", rtrVar.advLinkMTU);
-    PRINTF("AdvReachableTime: \t %d ms\n", rtrVar.advReachableTime);
-    PRINTF("AdvRetransTimer: \t %d ms\n", rtrVar.advRetransTmr);
-    PRINTF("AdvCurHopLimit: \t %d hops\n", rtrVar.advCurHopLimit);
-    PRINTF("AdvDefaultLifetime: \t %e sec\n", rtrVar.advDefaultLifetime);
-#ifdef USE_MOBILITY
-    PRINTF("(MIPv6)AdvHomeAgent: \t %d \n", rtrVar.advHomeAgent);
-#endif
-    if (!rtrVar.advPrefixList.empty())
-    {
-      PRINTF("==============  Advertising Prefix List  ============================ \n");
-      for(size_t i = 0; i < rtrVar.advPrefixList.size(); i++)
-      {
-        PRINTF("Prefix[%d]: %s ", i, rtrVar.advPrefixList[i].prefix().address().c_str());
-        PRINTF("Scope: %s\n", rtrVar.advPrefixList[i].prefix().scope_str());
-        PRINTF("AdvOnLinkFlag: %d\t | ", rtrVar.advPrefixList[i].advOnLink());
-        PRINTF("AdvValidLifetime: %d sec\n", rtrVar.advPrefixList[i].advValidLifetime());
-        PRINTF("AdvAutonomousFlag: %d\t | ", rtrVar.advPrefixList[i].advAutoFlag());
-        PRINTF("AdvPreferredLifetime: %d sec\n", rtrVar.advPrefixList[i].advPrefLifetime());
-#ifdef USE_MOBILITY
-                PRINTF("(MIPv6)AdvRouterAddressFlag: %d \n", rtrVar.advPrefixList[i].advRtrAddr());
-#endif
-      }
-    }
-    PRINTF("============================================================================ \n");
-
-  }
-}
-*/
 

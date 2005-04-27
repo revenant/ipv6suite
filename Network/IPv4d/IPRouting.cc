@@ -59,7 +59,7 @@ void IPRouting::endService(cMessage *msg)
 
     IPAddress destAddress = datagram->destAddress();
 
-    ev << "Packet destination address is: " << destAddress << ", ";
+    ev << "Routing datagram `" << datagram->name() << "' with dest=" << destAddress << ": ";
 
     //  multicast check
     if (destAddress.isMulticast())
@@ -73,7 +73,7 @@ void IPRouting::endService(cMessage *msg)
     // check for local delivery
     if (rt->localDeliver(destAddress))
     {
-        ev << "sending to localDeliver\n";
+        ev << "local delivery\n";
         numLocalDeliver++;
         send(datagram, "localOut");
         return;
@@ -110,7 +110,7 @@ void IPRouting::endService(cMessage *msg)
     routingDecision->setOutputPort(outputPort);
     routingDecision->setNextHopAddr(nextHopAddr);
 
-    ev << "output port is " << outputPort << "\n";
+    ev << "output interface is " << outputPort << "\n";
     numForwarded++;
     send(datagram, "fragmentationOut");
 }

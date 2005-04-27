@@ -24,9 +24,12 @@ import
     "NetworkLayer6",
     "PhysicalLayer",
     "LinkLayer6",
+    "ErrorHandling6",
+    "TCPMain",
+    "TCPApp",
     "UDPProcessing",
     "UDPApp",
-    "Ping6App";
+    "PingApp";
 
 
 //
@@ -79,7 +82,7 @@ module MobileNode
             display: "i=block/transport;p=280,152";
         udpApp: udpAppType[numUdpApps] like UDPApp;
             display: "p=278,67;i=block/app";
-        ping6App: Ping6App;
+        pingApp: PingApp;
             display: "i=block/source;p=99,217";
         phyLayer: PHYLayer;
             gatesizes:
@@ -115,8 +118,8 @@ module MobileNode
             udp.from_app++ <-- udpApp[i].to_udp;
         endfor;
 
-        ping6App.pingOut --> networkLayer.pingIn;
-        ping6App.pingIn <-- networkLayer.pingOut;
+        pingApp.pingv6Out --> networkLayer.pingIn;
+        pingApp.pingv6In <-- networkLayer.pingOut;
 
         for i=0..sizeof(wlin)-1 do
             phyLayer.linkOut[i] --> linkLayers[i].physIn;

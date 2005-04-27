@@ -14,7 +14,6 @@
 *********************************************************************/
 
 #include "TED.h"
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 #include "stlwatch.h"
 #include "InterfaceTableAccess.h"
@@ -95,7 +94,7 @@ void TED::buildDatabase()
 
     cTopology topo;
     const char *moduleTypes = par("moduleTypes").stringValue();
-    std::vector<std::string> types = StringTokenizer(moduleTypes, " ").asVector();
+    std::vector<std::string> types = cStringTokenizer(moduleTypes, " ").asVector();
     topo.extractByModuleType(types);
     ev << "Total number of RSVP LSR nodes = " << topo.nodes() << "\n";
 

@@ -41,33 +41,12 @@
 
 using namespace std;
 
-/* XXX apparently not used
-extern const char* ME_OUT;
-extern const char* ME_IN;
-
-extern const int CONNECT;
-extern const int DISCONNECT;
-extern const char* CONNECT_MSG;
-
-// Information about connection with other entity
-struct MEConnInfo
-{
-  Entity* en;
-  int outputGate; // outgoing gate to other entity
-  int inputGate; // incoming gate from other entity
-};
-*/
-
 // record of destionation and the speed per move
 struct MoveInfo
 {
   Position destPos;
   float speed;
 };
-
-/* XXX
-bool operator==(MEConnInfo& lhs, MEConnInfo& rhs);
-*/
 
 class MobileEntity : public Entity
 {
@@ -76,17 +55,6 @@ class MobileEntity : public Entity
 
   // OMNeT++ functions
   MobileEntity(cSimpleModule* mod);
-
-/* XXX apparently obsolete -- removed  --AV
-  // return index of the gate that is belonged to the
-  // Entity::containerModule() if gate connection is successful
-  // otherwise return -1
-  int connectWith(Entity* otherEntity, bool isOutgoing);
-
-  // delete all gates that are associated with gates at the other
-  // module, return true if gate disconnection is successful
-  bool disconnect(Entity* otherEntity);
-*/
 
   // return true if the mobile entity moves
   bool moving(void);

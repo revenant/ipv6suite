@@ -1,5 +1,5 @@
 <?xml encoding="ISO-8859-1"?>
-<!-- $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/netconf3.dtd,v 1.1 2005/02/09 06:15:57 andras Exp $ -->
+<!-- $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/netconf3.dtd,v 1.2 2005/04/27 08:19:33 andras Exp $ -->
 
 <!ELEMENT netconf (global?, local*, misc*)>
 <!ATTLIST netconf 

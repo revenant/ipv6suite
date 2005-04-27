@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<!-- $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/netconf-annotation.xsl,v 1.1 2005/02/09 06:15:57 andras Exp $ -->
+<!-- $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/netconf-annotation.xsl,v 1.2 2005/04/27 08:19:33 andras Exp $ -->
 <!-- Copyright (C) 2002 by Johnny Lai -->
 <!--
  This file is part of IPv6Suite

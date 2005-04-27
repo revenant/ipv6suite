@@ -136,7 +136,7 @@ void WirelessEtherStateReceive::sendAck(WirelessEtherModule* mod,
     a = tmr;
   }
 
-  double d = (double)ack->encapsulatedMsg()->length()*8;
+  double d = (double)ack->encapsulatedMsg()->length();
   simtime_t transmTime = d / BASE_SPEED;
 
   delete ack;

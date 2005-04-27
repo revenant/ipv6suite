@@ -30,18 +30,11 @@
 
 #include <iostream>
 #include <iomanip>
-
-
 #include <cassert>
-
-//#include <boost/tokenizer.hpp> // pulls in half of boost -- NO WAY!!! --Andras
-#include "StringTokenizer.h"     // lot smaller than boost/tokenizer.hpp
 #include <cmath> //std::pow
-//#include <boost/random.hpp> // was not used --Andras
 #include <math.h>
 #include <sstream>
 #include <string>
-
 
 #include "cTTimerMessageCB.h"
 
@@ -50,7 +43,6 @@
 #endif
 
 #include "opp_utils.h"
-//#include "opp_akaroa.h"  //XXX --Andras
 
 #include "WorldProcessor.h"
 #include "MobileEntity.h"
@@ -137,20 +129,6 @@ void WirelessEtherModule::baseInit(int stage)
     totalWaitTimeVec = new cOutVector("avgWaitTime");
     totalBytesTransmitted = 0;
 
-/* XXX XML config replaced by NED parameters
-    cXMLElement* weinfo = par("nwiXmlConfig");
-    if (weinfo)
-    {
-      XMLConfiguration::XMLOmnetParser p;
-      //default.ini loads empty.xml at element netconf
-      if (p.getNodeProperties(weinfo, "debugChannel", false) == "")
-        p.parseWEInfo(this, weinfo);
-      else
-        Dout(dc::xml_addresses, " no global WEInfo for node "<<OPP_Global::nodeName(this));
-    }
-
-    wproc->xmlConfig()->parseWirelessEtherInfo(this);
-*/
     readConfiguration();
 
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
@@ -459,25 +437,20 @@ void WirelessEtherModule::receiveSignal(std::auto_ptr<cMessage> msg)
 
 void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
 {
+  if (msg->length()>WE_MAX_PAYLOAD_BYTES*8)
+  {
+    Dout(dc::wireless_ethernet|flush_cf, "message " << msg->name() << " too large ("
+          << (msg->length()/8) << " bytes), discarding");
+    return;
+  }
+
   //if (_currentReceiveMode != WEDataReceiveMode::instance())
   //  return;
-
-/*XXX changed to use control info --AV
-  LLInterfacePkt* recPkt = check_and_cast<LLInterfacePkt*>
-    (msg.get());
-  assert(recPkt != 0);
-*/
   LL6ControlInfo *ctrlInfo = check_and_cast<LL6ControlInfo*>(msg->removeControlInfo());
   WirelessEtherBasicFrame* frame = createFrame
     (FT_DATA, ST_DATA, address, MACAddress6(ctrlInfo->getDestLLAddr()));
   delete ctrlInfo;
 
-/*XXX replaced with 1 line below --AV
-  cMessage* dupMsg = recPkt->data().dgram->dup();
-  delete recPkt->data().dgram;
-*/
-  //XXX cMessage* dupMsg = recPkt->data().dgram;
-  //XXX frame->setProtocol(PR_WETHERNET);
   frame->encapsulate(msg.get());
   frame->setName(msg->name());
   msg.release();   // XXX maybe get rid of auto_ptr here? --AV
@@ -537,13 +510,6 @@ void WirelessEtherModule::setLayer2Trigger( cTimerMessage* trig, enum TrigVals v
          << fullPath() << " #: "<< v << "\n");
 
 }
-
-/*XXX no longer needed --AV
-const unsigned int* WirelessEtherModule::macAddress(void)
-{
-  return address.intValue();
-}
-*/
 
 std::string WirelessEtherModule::macAddressString(void)
 {
@@ -1414,7 +1380,7 @@ void WirelessEtherModule::sendGQtoUpperLayer()
   cout << endl << OPP_Global::findNetNodeModule(this)->name() << " sendGQtoUpperLayer(), at simTime:" << simTime() << endl;
 //  cout << "_NMAR:" << LStable->NMAR() << endl;
 
-  GQmsg->setLength(28);
+  GQmsg->setLength(28*8);
 
   GQmsg->setMaxRspCode(1000);//query response interval
   GQmsg->setMA(c_ipv6_addr(0));
@@ -1744,21 +1710,10 @@ void WirelessEtherModule::initialiseChannelToScan(void)
   }
 
   // Mark unwanted channels based on XML input
-  StringTokenizer tokenizer(chanNotToScan.c_str(),"-");
+  cStringTokenizer tokenizer(chanNotToScan.c_str(),"-");
   const char *token;
   while ((token = tokenizer.nextToken())!=NULL)
      channelToScan[atoi(token)]=false;
-
-/* XXX replaced with the code above --Andras
-  boost::tokenizer<boost::char_separator<char> >::iterator tokenIt;
-  boost::char_separator<char> sep("-");
-  boost::tokenizer<boost::char_separator<char> > tokens(chanNotToScan, sep);
-
-  for (tokenIt = tokens.begin(); tokenIt != tokens.end(); tokenIt++)
-  {
-    channelToScan[atoi(tokenIt->c_str())]=false;
-  }
-*/
 }
 
 void WirelessEtherModule::insertToAPList(APInfo newEntry)

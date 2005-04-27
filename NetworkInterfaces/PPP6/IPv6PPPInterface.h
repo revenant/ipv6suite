@@ -43,25 +43,16 @@ public:
   Module_Class_Members(IPv6PPPInterface, LinkLayerModule, 0);
 
   virtual void initialize();
-  //XXX virtual void activity();  not used, to be removed ? --AV
   virtual void handleMessage(cMessage* theMsg);
 
   // adds interface entry into InterfaceTable
   InterfaceEntry *registerInterface();
-
-/* XXX  ie->interfaceToken() is used instead --AV
-* unsigned int lowInterfaceId();
-* unsigned int highInterfaceId();
-*/
 
 protected:
   virtual PPP6Frame* receiveFromUpperLayer(cMessage* msg) const;
   virtual void sendToUpperLayer(PPP6Frame* frame);
 
 protected:
-/* XXX  ie->interfaceToken() is used instead --AV
-* unsigned int interfaceID[2];
-*/
   cMessage* waitTmr;
   cMessage* curMessage;
 };

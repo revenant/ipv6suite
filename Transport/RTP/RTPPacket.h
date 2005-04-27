@@ -74,7 +74,7 @@ class RTPPacket : public cPacket {
         /*!
         Writes a longer description about this RTPPacket into the given stream.
         */
-        virtual void writeContents(ostream& os);
+        virtual void writeContents(std::ostream& os);
 
         /*!
         Returns the value of the marker bit in this RTPPacket.
@@ -207,3 +207,4 @@ class RTPPacket : public cPacket {
 };
 
 #endif
+

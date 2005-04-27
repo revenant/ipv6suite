@@ -42,7 +42,7 @@ HdrExtProc::~HdrExtProc()
   delete ext_hdr;
 }
 
-int HdrExtProc::cumul_len(const IPv6Datagram& pdu) const
+int HdrExtProc::cumulLengthInUnits(const IPv6Datagram& pdu) const
 {
   int len = 0;
   HdrExtProc* proc = pdu.getNextHeader(0); //Get the first header
@@ -53,25 +53,19 @@ int HdrExtProc::cumul_len(const IPv6Datagram& pdu) const
   for(;;)
   {
     if (proc == 0)
-    {
+      opp_error("Error in calculating cumulative length. Wrapper not found");
 
-      cerr << "Error in calculating cumulative length. Wrapper not found"<<endl;
-      return len;
-    }
-
-    len += proc->length();
+    len += proc->lengthInUnits();
     //Find cumulative length until it reaches us.
     if (proc == this)
-      return len + length();
+      return len + lengthInUnits();
     proc = pdu.getNextHeader(proc);
   }
-
-
 }
 
 
 //In units of octets.
-size_t HdrExtProc::length() const
+size_t HdrExtProc::lengthInUnits() const
 {
   size_t len = 0;
 

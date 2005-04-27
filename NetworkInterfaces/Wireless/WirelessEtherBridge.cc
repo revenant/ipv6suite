@@ -259,7 +259,6 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
 
           signal = new EtherSignalData(destFrame->name());
           signal->encapsulate(destFrame);
-          signal->setLength(signal->length() * 8); // convert into bits
 
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << fullPath() << " \n"
@@ -276,12 +275,7 @@ cMessage* WirelessEtherBridge::translateFrame(cMessage* frame, int destProtocol)
         {
           signal = new PPP6Frame;
           cMessage* data = srcFrame->decapsulate();
-/* XXX why delete if we copy if before?? --AV
-          cPacket* dupData = static_cast<cPacket*>(data->dup());
-          delete data;
-*/
-          cMessage* dupData = data;  // XXX 2 lines above replaced with this --AV
-
+          cMessage* dupData = data;
           signal->encapsulate(dupData);
           signal->setName(dupData->name());
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "

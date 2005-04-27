@@ -225,12 +225,8 @@ namespace OPP_Global
 
   unsigned int generateInterfaceId()
   {
-/* XXX has to be random??? --Andras
-    static boost::mt19937 rng = boost::mt19937();
-    return rng();
-*/
-    static long lastId = 1000;
-    return lastId++;
+    // generate 32-bit random Id
+    return (uniform(0,0xffff)<<16) | uniform(0,0xffff);
   }
 
   const char* nodeName(const cModule* callingMod)
@@ -246,18 +242,6 @@ namespace OPP_Global
 
     return unknown;
   }
-
-/* XXX moved to Network/IPv6/IPv6Utils.h, to remove Utils' dependency on IPv6  --AV
-  void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* datagram, const char* name, bool directionOut)
-  {
-    if (routingInfoDisplay)
-    {
-      cout<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-          <<datagram->destAddress()<<" len="<<datagram->length()<<endl;
-      cout.flush();
-    }
-  }
-*/
 
   XMLConfiguration::XMLOmnetParser* getParser()
   {

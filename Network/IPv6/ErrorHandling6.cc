@@ -20,7 +20,7 @@
 #include <omnetpp.h>
 #include "ErrorHandling6.h"
 #include "IPv6Datagram.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 
 
 Define_Module(ErrorHandling6);
@@ -38,7 +38,7 @@ void ErrorHandling6::handleMessage(cMessage *msg)
     ev << " Type:    " << (int)icmpMsg->type()
        << " Code:    " << (int)icmpMsg->code()
        << " OptInfo: " << icmpMsg->optInfo()
-       << " Bytelength: " << d->length()/8
+       << " Bytelength: " << (d->length()/BITS)
        << " Src:     " << d->srcAddress()
        << " Dest:    " << d->destAddress()
        << " Time:    " << simTime()

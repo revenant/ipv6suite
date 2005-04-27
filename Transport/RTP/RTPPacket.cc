@@ -28,7 +28,7 @@ This file contains the implementaion of member functions of the class RTPPacket.
 Register_Class(RTPPacket);
 
 
-RTPPacket::RTPPacket(const char *name = NULL) : cPacket(name) {
+RTPPacket::RTPPacket(const char *name) : cPacket(name) {
     _version = 2;
     _padding = 0;
     _extension = 0;
@@ -88,7 +88,7 @@ std::string RTPPacket::info() {
 };
 
 
-void RTPPacket::writeContents(ostream& os) {
+void RTPPacket::writeContents(std::ostream& os) {
     os << "RTPPacket:" << endl;
     os << "  payloadType = " << _payloadType << endl;
     os << "  sequenceNumber = " << _sequenceNumber << endl;

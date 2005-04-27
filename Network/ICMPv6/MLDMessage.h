@@ -24,13 +24,13 @@
  *  @date    28/11/2002
  *
  */
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ipv6_addr.h"
 
 class MLDMessage: public ICMPv6Message
 {
  public:
-  MLDMessage(const ICMPv6Type type);
+  MLDMessage(ICMPv6Type type);
   MLDMessage(const MLDMessage& src);
   virtual MLDMessage& operator=(const MLDMessage & rhs);
   void setDelay(unsigned int maxDelay);

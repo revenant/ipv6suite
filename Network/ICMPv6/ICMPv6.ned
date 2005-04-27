@@ -33,7 +33,11 @@ endsimple
 //
 // Module for processing of ICMPv6 messages.
 //
-// Processing of received ICMP messages from network nodes and local modules.
+// Processing of received ICMPv6 messages from network nodes and local modules.
+//
+// To send ICMPv6 Echo Request, send any message to port pingIn with IPv6ControlInfo
+// attached. The message will be used as ping payload (encapsulated into an ICMPv6Message).
+// When ICMPv6 Echo Reply is received, the payload message will be sent to pingOut.
 //
 //#FIXME gate descriptions needed...
 //

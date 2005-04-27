@@ -121,7 +121,7 @@ void IP::routePacket(IPDatagram *datagram)
 
     IPAddress destAddress = datagram->destAddress();
 
-    ev << "Packet destination address is: " << destAddress << ", ";
+    ev << "Routing datagram `" << datagram->name() << "' with dest=" << destAddress << ": ";
 
     // multicast check
     if (destAddress.isMulticast())
@@ -136,7 +136,7 @@ void IP::routePacket(IPDatagram *datagram)
     // FIXME I don't think that local loopback (127.0.0.1) works correctly... (Andras)
     if (rt->localDeliver(destAddress))
     {
-        ev << "sending to localDeliver\n";
+        ev << "local delivery\n";
         numLocalDeliver++;
         localDeliver(datagram);
         return;
@@ -171,7 +171,7 @@ void IP::routePacket(IPDatagram *datagram)
         datagram->setSrcAddress(ift->interfaceByPortNo(outputPort)->ipv4()->inetAddress());
 
     // default: send datagram to fragmentation
-    ev << "output port is " << outputPort << ", next-hop address: " << nextHopAddr << "\n";
+    ev << "output interface is " << outputPort << ", next-hop address: " << nextHopAddr << "\n";
     numForwarded++;
 
     //

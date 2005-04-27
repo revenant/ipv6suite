@@ -87,7 +87,7 @@ public:
   IPv6Address(const char* t);
   IPv6Address(const IPv6Address& obj);
   explicit IPv6Address(const ipv6_addr& addr,
-                       size_t prefix_len = IPv6_ADDR_LENGTH);
+                       size_t prefix_len = IPv6_ADDR_BITLENGTH);
   explicit IPv6Address(const ipv6_prefix& pref);
 
   virtual ~IPv6Address()
@@ -230,9 +230,9 @@ public:
   ///Truncates the address to the prefix length
   void truncate()
     {
-      if (m_prefix_length > 0 && m_prefix_length <IPv6_ADDR_LENGTH)
+      if (m_prefix_length > 0 && m_prefix_length <IPv6_ADDR_BITLENGTH)
         m_addr = higherNbBits(m_prefix_length);
-      //assert(m_prefix_length >= 0 && m_prefix_length<=IPv6_ADDR_LENGTH);
+      //assert(m_prefix_length >= 0 && m_prefix_length<=IPv6_ADDR_BITLENGTH);
     }
 
 private:

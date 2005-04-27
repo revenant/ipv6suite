@@ -77,14 +77,14 @@ public:
   /**
      a unit of 8 octets for the length of the option including the sub-options
   */
-  int length()
+  int lengthInUnits()
     {
       int sLen = 0;
 
       for ( size_t i = 0; i < _subOptions.size(); i ++ )
-        sLen += _subOptions[i]->length();
+        sLen += _subOptions[i]->lengthInUnits();
 
-      return static_cast<int>((_len+sLen) / 8);
+      return _len+sLen;
     }
 
 protected:

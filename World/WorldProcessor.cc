@@ -52,10 +52,6 @@ using std::vector;
 const int TMR_WPSTATS = 1000;
 #endif //USE_MOBILITY
 
-#if USE_AKAROA
-#include "opp_akaroa.h"
-static const unsigned int OPP_AK_OBSERVE_PARAMETERS = 3;
-#endif //USE_AKAROA
 
 namespace
 {
@@ -116,9 +112,6 @@ void WorldProcessor::finish()
   recordScalar("totalMessageCount", cMessage::totalMessageCount());
 }
 
-/* XXX parseXXX() functions removed -- they only delegated the work
-   to xmlConfig() --AV */
-
 #if defined USE_CPPUNIT
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -157,10 +150,6 @@ Entity* WorldProcessor::registerEntity(string name,
                                              MobileEntityType type,
                                              cSimpleModule* mod)
 {
-  // XXX for loop removed, it's obsolete --AV
-/*XXX
-  for ( size_t i = 0; i < modList.size(); i++) ...
-*/
   Entity* entity;
 
   switch(type)

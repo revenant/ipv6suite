@@ -24,7 +24,8 @@ This file declares the class RTPProfile.
 
 #include <omnetpp.h>
 
-#include "in_port.h"
+//XXX #include "in_port.h"
+#include "tmp/defs.h"
 
 #include "RTPInnerPacket.h"
 #include "RTPSSRCGate.h"
@@ -198,3 +199,4 @@ class RTPProfile : public cSimpleModule {
 };
 
 #endif
+

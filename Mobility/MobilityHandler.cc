@@ -59,15 +59,10 @@ void MobilityHandler::initialize(int stage)
 
 void MobilityHandler::handleMessage(cMessage* msg)
 {
-  if (msg->isSelfMessage() && msg->kind() == TMR_WIRELESSMOVE)
-  {
-    if (mobileEntity->moving())
-      scheduleAt(simTime() + elapsedTime, static_cast<cMessage*>(msg->dup())); //XXX WHY DUP? --AV
-  }
-  else
-    assert(false);
+  assert(msg->isSelfMessage() && msg->kind() == TMR_WIRELESSMOVE);
 
-  delete msg;
+  if (mobileEntity->moving())
+    scheduleAt(simTime() + elapsedTime, msg);
 }
 
 void MobilityHandler::finish()

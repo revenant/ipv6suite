@@ -26,7 +26,6 @@
 #include <ctype.h>
 
 #include "RoutingTableParser.h"
-#include "StringTokenizer.h"
 #include "IPv4InterfaceData.h"
 
 //
@@ -296,7 +295,7 @@ void RoutingTableParser::parseMulticastGroups (char *groupStr,
         mcg.push_back(IPAddress("224.0.0.2"));
 
     // Parse string (IP addresses separated by colons)
-    StringTokenizer tokenizer(groupStr,":");
+    cStringTokenizer tokenizer(groupStr,":");
     const char *token;
     while ((token = tokenizer.nextToken())!=NULL)
         mcg.push_back(IPAddress(token));

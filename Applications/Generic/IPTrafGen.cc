@@ -22,7 +22,6 @@
 #include "IPTrafGen.h"
 #include "IPControlInfo_m.h"
 #include "IPv6ControlInfo_m.h"
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 
 
@@ -106,7 +105,7 @@ void IPTrafGen::initialize(int stage)
     simtime_t startTime = par("startTime");
 
     const char *destAddrs = par("destAddresses");
-    StringTokenizer tokenizer(destAddrs);
+    cStringTokenizer tokenizer(destAddrs);
     const char *token;
     while ((token = tokenizer.nextToken())!=NULL)
         destAddresses.push_back(IPAddressResolver().resolve(token));

@@ -92,19 +92,6 @@ XMLOmnetParser::~XMLOmnetParser()
   //omnet will clean up too
 }
 
-/*XXX replaced by setDoc()
-void XMLOmnetParser::parseFile(const char* filename)
-{
-  if(!filename || '\0' == filename[0])
-  {
-    cerr << "Empty name for XML input file"<<endl;
-    abort_ipv6suite();
-  }
-  _filename = filename;
-  root = ev.getXMLDocument(filename);
-}
-*/
-
 void XMLOmnetParser::setDoc(cXMLElement *config)
 {
   root = config;
@@ -296,7 +283,7 @@ void XMLOmnetParser::tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt)
       bool associatedTrigger = false;
       destination = getNodeProperties(ntrig, "destination");
       IPv6Address dest(destination.c_str());
-      if (dest.prefixLength() == 0 || dest.prefixLength() == IPv6_ADDR_LENGTH)
+      if (dest.prefixLength() == 0 || dest.prefixLength() == IPv6_ADDR_BITLENGTH)
       {
         ipv6_addr trigdest=c_ipv6_addr(destination.c_str());
         associatedTrigger = tunMod->tunnelDestination(trigdest, vifIndex);
@@ -541,18 +528,7 @@ void XMLOmnetParser::parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6
 
 #endif // USE_MOBILITY
 #if FASTRA
-/* XXX let exception pass through as with other similar lines --AV
-  try
-  {
-*/
-    rtrVar.maxFastRAS = OPP_Global::atoul(getNodeProperties(nif, "MaxFastRAS").c_str());
-/* XXX let exception pass through as with other entries --AV
-  }
-  catch(boost::bad_lexical_cast& e)
-  {
-    Dout(dc::warning|error_cf,  rt->nodeName()<<" Cannot convert into integer maxRas="<<getNodeProperties(nif, "MaxFastRAS"));
-  }
-*/
+  rtrVar.maxFastRAS = OPP_Global::atoul(getNodeProperties(nif, "MaxFastRAS").c_str());
   rtrVar.fastRA = rtrVar.maxFastRAS != 0;
   if (rt->isRouter())
     Dout(dc::notice, rt->nodeName()<<":"<<iface_index<<" fastRA="<<rtrVar.fastRA
@@ -639,90 +615,6 @@ void XMLOmnetParser::parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6
 
 
 #ifdef USE_MOBILITY
-
-/*XXX these params went to NED parameters
-void XMLOmnetParser::parseWirelessEtherInfo(WirelessEtherModule* wlanMod)
-{
-  assert(wlanMod);
-  const char* nodeName = OPP_Global::findNetNodeModule(wlanMod)->name();
-
-  cXMLElement* ne = getNetNode(nodeName);
-  if (!ne)
-    return;
-
-  cXMLElement* nif = ne->getFirstChildWithAttribute("interface", "name", wlanMod->getInterfaceName());
-  if (!nif)
-  {
-    Dout(dc::notice, nodeName<<":"<<wlanMod->getInterfaceName()<<"no config found for interface"
-         <<wlanMod->getInterfaceName());
-    return;
-  }
-  cXMLElement* nwei = nif->getElementByPath("./WirelessEtherInfo");
-  if (!nwei)
-  {
-    Dout(dc::xml_addresses, "Make sure global WirelessEtherInfo option exists for "
-         <<nodeName<<":"<< wlanMod->getInterfaceName()
-         <<" as no interface specific WirelessEtherInfo element in XML file");
-    return;
-  }
-
-  cXMLElement* info = nwei->getElementByPath("./WEInfo");
-  if (!info)
-  {
-    Dout(dc::xml_addresses, "Make sure global WEInfo option is assigned for "
-         <<nodeName<<":"<< wlanMod->getInterfaceName()
-         <<" as no interface specific WEInfo element in XML file");
-    return;
-  }
-
-  parseWEInfo(wlanMod, info);
-}
-
-void XMLOmnetParser::parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* info)
-{
-  wlanMod->ssid = getNodeProperties(info, "WEssid");
-  const_cast<double&>(wlanMod->pLExp) = OPP_Global::atod(getNodeProperties(info, "WEPathLossExponent").c_str());
-
-  const_cast<double&>(wlanMod->pLStdDev) = OPP_Global::atod(getNodeProperties(info, "WEPathLossStdDev").c_str());
-  const_cast<double&>(wlanMod->txpower) = OPP_Global::atod(getNodeProperties(info, "WETxPower").c_str());
-  const_cast<double&>(wlanMod->threshpower) = OPP_Global::atod(getNodeProperties(info, "WEThresholdPower").c_str());
-  const_cast<double&>(wlanMod->hothreshpower) = OPP_Global::atod(getNodeProperties(info, "WEHOThresholdPower").c_str());
-  const_cast<double&>(wlanMod->probeEnergyTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeEnergyTimeout").c_str());
-  const_cast<double&>(wlanMod->probeResponseTimeout) = OPP_Global::atod(getNodeProperties(info, "WEProbeResponseTimeout").c_str());
-  const_cast<double&>(wlanMod->authenticationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAuthenticationTimeout").c_str());
-  const_cast<double&>(wlanMod->associationTimeout) = OPP_Global::atod(getNodeProperties(info, "WEAssociationTimeout").c_str());
-  const_cast<unsigned int&>(wlanMod->maxRetry) = OPP_Global::atoul(getNodeProperties(info, "WERetry").c_str());
-  wlanMod->fastActScan = getNodeProperties(info, "WEFastActiveScan") == XML_ON;
-  wlanMod->scanShortCirc = getNodeProperties(info, "WEScanShortCircuit") == XML_ON;
-  wlanMod->crossTalk = getNodeProperties(info, "WECrossTalk") == XML_ON;
-  wlanMod->shadowing = getNodeProperties(info, "WEShadowing") == XML_ON;
-  wlanMod->chanNotToScan = getNodeProperties(info, "WEChannelsNotToScan");
-  const_cast<unsigned int&>(wlanMod->sSMaxSample) = OPP_Global::atoul(getNodeProperties(info, "WESignalStrengthMaxSample").c_str());
-
-  std::string addr = getNodeProperties(info, "WEAddress");
-
-  if(!wlanMod->apMode)
-  {
-    if(addr != "0")
-      wlanMod->address.set(addr.c_str());
-    //Only want to initialise the MN mac address once otherwise routing tables
-    //are wrong if we generate another random number from the stream
-    else if (wlanMod->address == MACAddress6())
-    {
-        MAC_address macAddr;
-        macAddr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-        macAddr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-        wlanMod->address.set(macAddr);
-    }
-  }
-    const_cast<double&>(wlanMod->bWRequirements) = OPP_Global::atod(getNodeProperties(info, "WEBandwidthRequirements").c_str());
-    wlanMod->statsVec = getNodeProperties(info, "WERecordStatisticVector") == XML_ON;
-    wlanMod->activeScan = getNodeProperties(info, "WEActiveScan") == XML_ON;
-    const_cast<double&>(wlanMod->channelScanTime) = OPP_Global::atod(getNodeProperties(info, "WEChannelScanTime").c_str());
- // TODO: parse supported rate
-
-}
-*/
 
 void XMLOmnetParser::parseMovementInfo(MobilityStatic* mod)
 {

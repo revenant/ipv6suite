@@ -20,6 +20,7 @@ import
     "LIBTable",
     "RSVP",
     "OspfTe",
+    "PPPInterface",
     "RSVPAppl";
 
 

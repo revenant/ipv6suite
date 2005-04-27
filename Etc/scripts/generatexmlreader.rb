@@ -1,6 +1,6 @@
 #! /usr/bin/env ruby
 #
-#  $Id: generatexmlreader.rb,v 1.1 2005/02/09 06:15:57 andras Exp $
+#  $Id: generatexmlreader.rb,v 1.2 2005/04/27 08:19:33 andras Exp $
 #  $Source: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/scripts/generatexmlreader.rb,v $
 #
 #  Author: Johnny Lai
@@ -33,8 +33,8 @@ include REXML
 # Generate C++ XML reading code to fill class data members
 #
 class GenerateXMLReader
-  VERSION       = "$Revision: 1.1 $"
-  REVISION_DATE = "$Date: 2005/02/09 06:15:57 $"
+  VERSION       = "$Revision: 1.2 $"
+  REVISION_DATE = "$Date: 2005/04/27 08:19:33 $"
   AUTHOR        = "Johnny Lai"
  
   #

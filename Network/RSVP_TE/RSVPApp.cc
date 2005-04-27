@@ -19,7 +19,6 @@
 #include "RSVPTesterCommands.h"
 #include "MPLSModule.h"
 #include "IPAddressResolver.h"
-#include "StringTokenizer.h"
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "RoutingTableAccess.h"
@@ -961,7 +960,7 @@ RSVPAppl::traffic_request_t RSVPAppl::parseTrafficRequest(const cXMLElement *con
         else if (!strcmp(child->getTagName(),"route"))
         {
             const char *line = child->getNodeValue();
-            StringTokenizer tokenizer(line, ",");
+            cStringTokenizer tokenizer(line, ",");
             const char *aField;
             while ((aField = tokenizer.nextToken()) != NULL)
             {

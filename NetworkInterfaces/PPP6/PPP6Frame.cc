@@ -49,17 +49,4 @@ PPP6Frame& PPP6Frame::operator=(const PPP6Frame& p)
     return *this;
 }
 
-/* encapsulate a packet of type cPacket of the Network Layer;
-    protocol set by default to IP;
-    assumes that networkPacket->length() is
-    length of transport packet in bits
-    adds to it the PPP header length in bits */
-/* XXX removed --AV
-void PPP6Frame::encapsulate(cPacket *networkPacket)
-{
-    cPacket::encapsulate(networkPacket);
-
-    _protocol = PPP_PROT_IP;
-}
-*/
 

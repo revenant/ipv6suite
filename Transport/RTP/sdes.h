@@ -93,7 +93,7 @@ class SDESItem : public cObject {
         /*!
         Writes an info about this SDESItem into the give output stream.
         */
-        virtual void writeContents(ostream& os);
+        virtual void writeContents(std::ostream& os);
 
         /*!
         Returns the type of this sdes item.
@@ -175,7 +175,7 @@ class SDESChunk : public cArray {
         /*!
         Writes a longer info about this SDESChunk into the given stream.
         */
-        virtual void writeContents(ostream& os);
+        virtual void writeContents(std::ostream& os);
 
         /*!
         Adds an SDESItem to this SDESChunk. If there is already an SDESItem
@@ -212,3 +212,4 @@ class SDESChunk : public cArray {
 };
 
 #endif
+

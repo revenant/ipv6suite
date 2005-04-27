@@ -20,12 +20,12 @@
 #pragma warning(disable:4786)
 #endif
 
+#include <algorithm>
 #include "FlatNetworkConfigurator6.h"
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6.h"
 #include "InterfaceTable.h"
 
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 #include "ipv6addrconv.h"
 
@@ -38,13 +38,13 @@ void FlatNetworkConfigurator6::initialize(int stage)
 {
   cTopology topo("topo");
 
-  std::vector<std::string> types = StringTokenizer(par("moduleTypes"), " ").asVector();
+  std::vector<std::string> types = cStringTokenizer(par("moduleTypes"), " ").asVector();
   topo.extractByModuleType(types);
   ev << "cTopology found " << topo.nodes() << " nodes\n";
 
   // Although bus types are not auto-configured, FNC must still know them
   // since topology may depend on them.
-  std::vector<std::string> nonIPTypes = StringTokenizer(par("nonIPModuleTypes"), " ").asVector();
+  std::vector<std::string> nonIPTypes = cStringTokenizer(par("nonIPModuleTypes"), " ").asVector();
 
   if (stage==1)
   {

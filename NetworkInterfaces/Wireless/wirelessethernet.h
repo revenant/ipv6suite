@@ -93,6 +93,8 @@ extern const short FL_REASONCODE;
 extern const short FL_IEHEADER;
 extern const short FL_SEQNUM;
 
+extern const short WE_MAX_PAYLOAD_BYTES;
+
 //Receive mode
 enum ReceiveMode
 {

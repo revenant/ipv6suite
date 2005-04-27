@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
-<netconf debugChannel="debug.log:notice:xmlAddresses:UDPVideoStreamSvr">
-<!--
-  <global>
-    <gAdvSendAdvertisements>off</gAdvSendAdvertisements>
-    <gMaxRtrAdvInterval>1700</gMaxRtrAdvInterval>
-    <gMinRtrAdvInterval>500</gMinRtrAdvInterval>
-    <gAdvManagedFlag>on</gAdvManagedFlag>
-    <gAdvOtherConfigFlag>on</gAdvOtherConfigFlag>
-    <gAdvLinkMTU>5644</gAdvLinkMTU>
-    <gAdvReachableTime>33567</gAdvReachableTime>
-    <gAdvRetransTimer>5346</gAdvRetransTimer>
-    <gAdvCurHopLimit>457457</gAdvCurHopLimit>
-    <gAdvDefaultLifetime>8000</gAdvDefaultLifetime>
-    <gHostLinkMTU>1400</gHostLinkMTU>
-    <gHostCurHopLimit>2</gHostCurHopLimit>
-    <gHostBaseReachableTime>232</gHostBaseReachableTime>
-    <gHostRetransTimer>234</gHostRetransTimer>
-    <gHostDupAddrDetectTransmits>3</gHostDupAddrDetectTransmits>
-  </global>
--->
+<netconf>
   <local node="routerInt" routePackets="on"/>
   <local node="routerExt" routePackets="on"/>
-
 </netconf>

@@ -20,7 +20,6 @@
 #include <omnetpp.h>
 #include "UDPBasicApp.h"
 #include "UDPControlInfo_m.h"
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 
 
@@ -47,7 +46,7 @@ void UDPBasicApp::initialize(int stage)
     msgLength = par("message_length");
 
     const char *destAddrs = par("dest_addresses");
-    StringTokenizer tokenizer(destAddrs);
+    cStringTokenizer tokenizer(destAddrs);
     const char *token;
     while ((token = tokenizer.nextToken())!=NULL)
         destAddresses.push_back(IPAddressResolver().resolve(token));

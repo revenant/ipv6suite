@@ -139,7 +139,7 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth
   // is 1Mbps
 
-  double d = (double)WEBASICFRAME_IN(data)->length()*8;
+  double d = (double)WEBASICFRAME_IN(data)->length();
   simtime_t transmTime = d / BASE_SPEED;
 
 

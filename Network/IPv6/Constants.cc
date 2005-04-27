@@ -34,7 +34,4 @@ const int IMPL_INPUT_PORT_LOCAL_PACKET = -1;
 ///From Tunnel RFC 6.3
 const int DEFAULT_ROUTER_HOPLIMIT = 64;
 
-namespace IPv6NeighbourDiscovery
-{
-  const int IPv6NeighbourDiscovery::ICMPv6_OCTETS_UNIT = 8;
-}
+

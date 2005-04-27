@@ -41,7 +41,7 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateIdle.h"
 #include "WirelessAccessPoint.h"
-#include "opp_akaroa.h"
+
 
 WirelessEtherStateAwaitACK* WirelessEtherStateAwaitACK::_instance = 0;
 

@@ -40,7 +40,8 @@
 #include "Constants.h"
 #include "HdrExtFragProc.h"
 #include "IPv6Datagram.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
+#include "ICMPv6MessageUtil.h"
 #include "AddrResInfo_m.h"
 #include "LL6ControlInfo_m.h"
 #include "AddrResInfo_m.h"
@@ -103,10 +104,11 @@ void IPv6Fragmentation::endService(cMessage* msg)
     //ICMP packets do come through here however they should be limited
     //in size during creation time. Either that or we drop them
     assert(datagram->transportProtocol() != IP_PROT_IPv6_ICMP);
-    ICMPv6Message* err = new ICMPv6Message(ICMPv6_PACKET_TOO_BIG);
-    err->encapsulate(datagram->dup());
-    err->setName("ICMPv6_ERROR:PACKET_TOO_BIG");
-    err->setOptInfo(mtu);
+    ICMPv6Message* err = createICMPv6Message("pkTooBig",
+                                             ICMPv6_PACKET_TOO_BIG,
+                                             0,
+                                             datagram->dup(),
+                                             mtu);
     sendErrorMessage(err);
     if (datagram->inputPort() != -1) //Tried to forward a big packet
       ctrIP6InTooBig++;

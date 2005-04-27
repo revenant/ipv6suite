@@ -36,7 +36,7 @@ namespace IPv6Utils
     if (routingInfoDisplay)
     {
       cout<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-          <<datagram->destAddress()<<" len="<<datagram->length()<<endl;
+          <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes\n";
       cout.flush();
     }
   }

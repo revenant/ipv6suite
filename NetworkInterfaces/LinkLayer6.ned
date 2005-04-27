@@ -18,8 +18,7 @@
 
 
 import
-    "OutputQueue",
-    "NetworkInterface";
+    "NetworkInterface6";
 
 
 

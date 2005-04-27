@@ -39,21 +39,6 @@
 #include "LinkLayerModule.h"
 #include "WirelessEtherModule.h"
 
-/* XXX apparently not used
-const int CONNECT = 1111;
-const int DISCONNECT = 1112;
-const char* CONNECT_MSG = "CONNECT";
-
-const char* ME_OUT = "to";
-const char* ME_IN = "from";
-
-bool operator==(MEConnInfo& lhs, MEConnInfo& rhs)
-{
-  return (lhs.en == rhs.en &&
-          lhs.outputGate == rhs.outputGate &&
-          lhs.inputGate == rhs.inputGate);
-}
-*/
 
 using namespace::OPP_Global;
 using std::string;
@@ -76,20 +61,6 @@ MobileEntity::MobileEntity(cSimpleModule* mod)
 
     _mwp = static_cast<WorldProcessor*>(m);
 }
-
-/* XXX apparently obsolete -- removed  --AV
-bool MobileEntity::disconnect(Entity* otherEntity)
-{
-   ...
-}
-*/
-
-/* XXX apparently obsolete -- removed
-int MobileEntity::connectWith(Entity* otherEntity, bool isOutgoing)
-{
-   ...
-}
-*/
 
 void MobileEntity::drawWirelessRange()
 {

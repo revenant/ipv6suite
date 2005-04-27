@@ -29,14 +29,14 @@ of RTPInnerPacket.
 Register_Class(RTPInnerPacket);
 
 
-RTPInnerPacket::RTPInnerPacket(const char *name = NULL) : cPacket(name) {
+RTPInnerPacket::RTPInnerPacket(const char *name) : cPacket(name) {
     _type = RTP_INP_UNDEF;
     _commonName = NULL;
     _mtu = 0;
     _bandwidth = 0;
     _rtcpPercentage = 0;
-    _address = IN_Addr(IN_Addr::ADDR_UNDEF);
-    _port = IN_Port(IN_Port::PORT_UNDEF);
+    _address = IPADDRESS_UNDEF;
+    _port = IPSuite_PORT_UNDEF;
     _ssrc = 0;
     _payloadType = 0;
     _fileName = NULL;
@@ -96,7 +96,7 @@ std::string RTPInnerPacket::info() {
 };
 
 
-void RTPInnerPacket::writeContents(ostream& os) const {
+void RTPInnerPacket::writeContents(std::ostream& os) const {
     os << "RTPInnerPacket:" << endl;
     os << "  type = " << _type << endl;
     os << "  commonName = " << _commonName << endl;

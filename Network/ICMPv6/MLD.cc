@@ -60,8 +60,6 @@ Define_Module( MLD );
 
 void MLD::initialize()
 {
-  srand((unsigned)time(NULL)); //XXXX ????????????????
-
   ift = InterfaceTableAccess().get();
   rt = RoutingTable6Access().get();
 
@@ -916,7 +914,6 @@ void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 
   dgram->encapsulate(msg);
-  dgram->setPayloadLength(msg->length());
   dgram->setDestAddress(dest);
   dgram->setSrcAddress(src);
   dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
@@ -924,7 +921,6 @@ void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_
   if(hopLimit != 0)
     dgram->setHopLimit(hopLimit);
 
-//  cout << "payloadLength:" << dgram->payloadLength() << endl;
 //  cout << "hopLimit:" << dgram->hopLimit() << endl;
 //  cout << "transportProtocol:" << dgram->transportProtocol() << endl;
 //  cout << "srcAddr:" << dgram->srcAddress() << endl;
@@ -939,7 +935,6 @@ void MLD::MLDv2NodeParsing(cMessage* Qmsg)
   IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(Qmsg);
     cout << endl << "=====" << OPP_Global::findNetNodeModule(this)->name() << "=====" << endl;
         cout << "[MLDv2]Receive packet at:" << simTime() << endl;
-        cout << "payload length:" << dgram->payloadLength() << endl;
         cout << "extension length:" << dgram->extensionLength() << endl;
         cout << "totalLength:" << dgram->totalLength() << endl;
         cout << "transportProtocol:" << dgram->transportProtocol() << endl;

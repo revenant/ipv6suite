@@ -49,7 +49,7 @@ extern const unsigned int MAX_HOPLIMIT;
 
 namespace
 {
-  const unsigned int IPv6_HEADER_LENGTH = 40; //octets
+  const unsigned int IPv6_HEADER_OCTETLENGTH = 40; //octets
   const unsigned int IPv6_MIN_MTU = 1280;
   const unsigned int IPv6_ADDRESS_LEN = 16;
   const unsigned int IPv6_MAX_VERSION = 15;
@@ -144,32 +144,6 @@ enum IPv6ExtHeader
   EXTHDR_AUTH = 51      // Authentication header.
 };
 //@}
-
-/*XXX gone -- put into IPv6Datagram.msg --AV
-/ **
-    IPv6 header format:
-    Version 4 Traffic Class 8 Flow Label 20
-    Payload Length 16 Next header 8 Hop Limit 8
-    Source Address 128
-    Destination Address 128
-* /
-struct ipv6_hdr
-{
-  / **
-     version is 6 for IPv6
-     traffic class is 0 by default, upper layers can modify it.
-     flow label is 0 as not supported and ignored
-  * /
-  unsigned int ver_traffic_flow;
-  unsigned short payload_length;
-  unsigned char next_header;
-  unsigned char hop_limit;
-  ipv6_addr src_addr;
-  ipv6_addr dest_addr;
-};
-
-bool operator== (const ipv6_hdr& lhs, const ipv6_hdr& rhs);
-*/
 
 /**
    Extension headers are unlimited in number i.e. 0 -> 00.

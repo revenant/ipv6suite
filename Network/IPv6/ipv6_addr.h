@@ -44,7 +44,7 @@ extern "C"{
 using namespace std;
 
 
-extern const size_t IPv6_ADDR_LENGTH;
+extern const size_t IPv6_ADDR_BITLENGTH;
 extern const unsigned int EUI64_LENGTH;
 
 extern const char* LOOPBACK_ADDRESS;
@@ -245,7 +245,7 @@ public:
     {}
 
   ipv6_prefix()
-    :prefix(IPv6_ADDR_UNSPECIFIED), length(IPv6_ADDR_LENGTH)
+    :prefix(IPv6_ADDR_UNSPECIFIED), length(IPv6_ADDR_BITLENGTH)
     {}
 
   ///Returns true when length bits in this prefix matches addr

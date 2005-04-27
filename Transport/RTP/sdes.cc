@@ -28,7 +28,7 @@ classes SDESItem and SDESChunk.
 Register_Class(SDESItem);
 
 
-SDESItem::SDESItem(const char *name = NULL) : cObject(name) {
+SDESItem::SDESItem(const char *name) : cObject(name) {
     _type = SDES_UNDEF;
     _length = 2;
     _content = "";
@@ -81,7 +81,7 @@ std::string SDESItem::info() {
 };
 
 
-void SDESItem::writeContents(ostream& os) {
+void SDESItem::writeContents(std::ostream& os) {
     os << "SDESItem:" << endl;
     os << "  type = " << _type << endl;
     os << "  content = " << _content << endl;
@@ -113,7 +113,7 @@ int SDESItem::length() {
 Register_Class(SDESChunk);
 
 
-SDESChunk::SDESChunk(const char *name, u_int32 ssrc = 0) : cArray(name) {
+SDESChunk::SDESChunk(const char *name, u_int32 ssrc) : cArray(name) {
     _ssrc = ssrc;
     _length = 4;
 };
@@ -154,7 +154,7 @@ std::string SDESChunk::info() {
 };
 
 
-void SDESChunk::writeContents(ostream& os) {
+void SDESChunk::writeContents(std::ostream& os) {
     os << "SDESChunk:" << endl;
     os << "  ssrc = " << _ssrc << endl;
     for (int i = 0; i < items(); i++) {

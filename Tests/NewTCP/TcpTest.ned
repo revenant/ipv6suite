@@ -21,10 +21,10 @@ module TcpTestNet1
         tcptester: TCPScriptableTester;
             display: "p=198,178;i=device/router";
     connections:
-        cli.tcpOut --> tcpcli.from_appl;
-        cli.tcpIn <-- tcpcli.to_appl;
-        srv.tcpOut --> tcpsrv.from_appl;
-        srv.tcpIn <-- tcpsrv.to_appl;
+        cli.tcpOut --> tcpcli.from_appl++;
+        cli.tcpIn <-- tcpcli.to_appl++;
+        srv.tcpOut --> tcpsrv.from_appl++;
+        srv.tcpIn <-- tcpsrv.to_appl++;
 
         tcpcli.to_ip --> delay 1ms --> tcptester.in1;
         tcpcli.from_ip <-- delay 1ms <-- tcptester.out1;
@@ -48,10 +48,10 @@ module TcpTestNet2
         tcptester: TCPRandomTester;
             display: "p=198,178;i=device/router";
     connections:
-        cli.tcpOut --> tcpcli.from_appl;
-        cli.tcpIn <-- tcpcli.to_appl;
-        srv.tcpOut --> tcpsrv.from_appl;
-        srv.tcpIn <-- tcpsrv.to_appl;
+        cli.tcpOut --> tcpcli.from_appl++;
+        cli.tcpIn <-- tcpcli.to_appl++;
+        srv.tcpOut --> tcpsrv.from_appl++;
+        srv.tcpIn <-- tcpsrv.to_appl++;
 
         tcpcli.to_ip --> tcptester.in1;
         tcpcli.from_ip <-- tcptester.out1;

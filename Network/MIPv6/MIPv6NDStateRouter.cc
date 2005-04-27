@@ -30,7 +30,7 @@
 #include "MIPv6NDStateRouter.h"
 #include "NDTimers.h"
 #include "NeighbourDiscovery.h"
-//#include "ICMPv6Message.h"
+//#include "ICMPv6Message_m.h"
 #include "MIPv6ICMPv6NDMessage.h"
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"

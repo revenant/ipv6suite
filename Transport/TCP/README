@@ -1,5 +1,5 @@
-NewTCP
-======
+TCP
+===
 
 This folder contains a new TCP model for OMNeT++, partially based on the
 experience from the old tcpmodule.cc. Motivation for writing a new TCP was:

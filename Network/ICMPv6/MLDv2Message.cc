@@ -25,10 +25,12 @@
  *
  */
 
+#include <assert.h>
 #include "MLDv2Message.h"
 
-MLDv2Message::MLDv2Message(ICMPv6Type type, size_t size):ICMPv6Message(type),  _opt(size)
+MLDv2Message::MLDv2Message(ICMPv6Type type, size_t size) : ICMPv6Message(),  _opt(size)
 {
+  setType(type);
 }
 
 

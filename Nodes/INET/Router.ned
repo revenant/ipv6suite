@@ -21,6 +21,8 @@ import
     "Blackboard",
     "InterfaceTable",
     "RoutingTable",
+    "PPPInterface",
+    "EthernetInterface",
     "NetworkLayer";
 
 

@@ -24,9 +24,10 @@ This header file declares the class RTPEndsystemModule.
 
 #include <omnetpp.h>
 
-#include "sockets.h"
-#include "in_addr.h"
-#include "in_port.h"
+//XXX #include "sockets.h"
+//XXX #include "in_addr.h"
+//XXX #include "in_port.h"
+#include "tmp/defs.h"
 
 #include "RTPInterfacePacket.h"
 #include "RTPInnerPacket.h"
@@ -213,3 +214,4 @@ class RTPEndsystemModule : public cSimpleModule {
 };
 
 #endif
+

@@ -36,11 +36,6 @@
 extern const int DEFAULT_ROUTER_HOPLIMIT;
 extern const int IMPL_INPUT_PORT_LOCAL_PACKET;
 
-namespace IPv6NeighbourDiscovery
-{
-  /// The length field in ICMP options is in units of 8 OCTETS
-  extern const int ICMPv6_OCTETS_UNIT;
-}
 
 #endif /* CONSTANTS_H */
 

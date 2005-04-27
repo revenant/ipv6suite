@@ -1404,15 +1404,15 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   // check our BU and BCE to see if the packet comes from the peer
   // node. If it does, we don't need to do correspondent registration
 
-  ipv6_addr srcAddr = tunPacket->srcAddress();
-  bc_entry* bce = mipv6cdsMN->findBindingByCoA(srcAddr).lock().get();
+  boost::weak_ptr<bc_entry> bce =
+    mipv6cdsMN->findBindingByCoA(tunPacket->srcAddress());
 
-  if (bce)
+  if (bce.lock())
   {
     for (MIPv6CDSMobileNode::BULI it = mipv6cdsMN->bul.begin();
          it != mipv6cdsMN->bul.end(); it++)
     {
-      if ( bce->home_addr == (*it)->addr())
+      if ( bce.lock()->home_addr == (*it)->addr())
         return;
     }
   }
@@ -1472,9 +1472,10 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     // OR
 
     // to look up the destination cache entry
-    bc_entry* bce = mipv6cdsMN->findBindingByCoA(tunPacket->srcAddress()).lock().get();
-    if (bce)
-      cna = bce->home_addr;
+    boost::weak_ptr<bc_entry> bce =
+      mipv6cdsMN->findBindingByCoA(tunPacket->srcAddress());
+    if (bce.lock())
+      cna = bce.lock()->home_addr;
 
     Dout(dc::mipv6|flush_cf, "At " << rt->simTime() << "," << rt->nodeName()<<" receiving packet in tunnel, " << *tunPacket);
 

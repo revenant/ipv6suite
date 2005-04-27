@@ -212,18 +212,6 @@ int EtherFrame6::pack_mac_addr(const char *straddr, unsigned char *pack) const
 }
 #endif //defined __CN_PAYLOAD_H
 
-/* encapsulate a packet of type cPacket of the Network Layer;
-    protocol set by default to IP;
-    assumes that networkPacket->length() is
-    length of transport packet in bits
-    adds to it the Ethernet header length in bits */
-/* XXX seems like this is not strictly necessary --AV
-void EtherFrame6::encapsulate(cPacket* networkPacket)
-{
-    cPacket::encapsulate(networkPacket);
-    setName(networkPacket->name());
-}
-*/
 int EtherFrame6::headerByteLength() const
 {
   int headerlen = (PREAMBLE +
@@ -234,13 +222,6 @@ int EtherFrame6::headerByteLength() const
                    POSTAMBLE) / 8;
   return headerlen;
 }
-
-/* XXX no need -- removed to reduce clutter.  --AV
-cPacket* EtherFrame6::decapsulate()
-{
-  return (cPacket *)(cPacket::decapsulate());
-}
-*/
 
 void EtherFrame6::setProtocol(int prot)
 {

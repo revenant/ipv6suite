@@ -26,21 +26,7 @@
 #define OPP_UTILS_H
 
 #include <memory> //std::auto_ptr
-
-/* XXX --AV
-#ifndef BOOST_WEAK_PTR_HPP_INCLUDED
-#include <boost/weak_ptr.hpp>
-#endif  //BOOST_WEAK_PTR_HPP_INCLUDED
-*/
-
 #include <string>
-
-/* XXX --AV
-#ifndef BOOST_CAST_HPP
-#include <boost/cast.hpp>
-#endif //BOOST_CAST_HPP
-*/
-
 #include <omnetpp.h>
 
 // XXX dirty debugging hack, to be thrown out when cerr<< stuff
@@ -146,16 +132,6 @@ namespace OPP_Global
    */
   unsigned long atoul(const char *s);
 
-/* XXX
-  ///downcast (convert down the class hierarchy) for weak_ptrs
-  template<class Target, class  Source> boost::weak_ptr<Target>
-  weak_ptr_downcast(boost::weak_ptr<Source> const& r)
-  {
-    assert( boost::shared_dynamic_cast<Target>(r).get() == r.get());
-    return boost::shared_static_cast<Target>(r);
-  }
-*/
-
   ///downcast (convert down the class hierarchy) for auto_ptrs the source relinquishes
   ///ownership to the returned auto_ptr
   template<class Target, class  Source> std::auto_ptr<Target>
@@ -164,18 +140,6 @@ namespace OPP_Global
     check_and_cast<Target*> (r.get());
     return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
   }
-
-/** XXX moved to Network/IPv6/IPv6Utils.h, to remove Utils' dependency on IPv6  --AV
-   @brief print packet header contents on stdout
-   @arg routingInfoDisplay Display dgram's headers when true. Should pass
-   routingInfoDisplay parameter from IPv6ForwardCore module.
-   @arg dgram datagram to retrieve information from
-   @arg name name of network node
-   @arg directionOut Hint on whether the dgram is egressing the node
-*
-
-  void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
-*/
 
   ///Returns the omnet++ parser for use by other classes to parse their own attributes
   XMLConfiguration::XMLOmnetParser* getParser();

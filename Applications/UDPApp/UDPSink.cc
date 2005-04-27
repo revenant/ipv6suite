@@ -20,7 +20,6 @@
 #include <omnetpp.h>
 #include "UDPSink.h"
 #include "UDPControlInfo_m.h"
-#include "StringTokenizer.h"
 #include "IPAddressResolver.h"
 
 

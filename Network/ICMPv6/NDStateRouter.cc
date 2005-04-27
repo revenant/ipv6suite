@@ -37,7 +37,7 @@
 #include "NDStateRouter.h"
 #include "NDTimers.h"
 #include "NeighbourDiscovery.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ICMPv6NDMessage.h"
 #include "InterfaceTable.h"
 #include "RoutingTable6.h"
@@ -53,7 +53,7 @@
 #endif // USE_HMIP
 
 #include "opp_utils.h"
-#include "opp_akaroa.h"
+
 
 #include "IPv6Output.h"
 
@@ -294,7 +294,7 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
   const IPv6InterfaceData::RouterVariables& rtrVar = ie->ipv6()->rtrVar;
 
   //Calculate new delay
-  double delay = OPP_UNIFORM(rtrVar.minRtrAdvInt, rtrVar.maxRtrAdvInt);
+  double delay = uniform(rtrVar.minRtrAdvInt, rtrVar.maxRtrAdvInt);
   assert(delay <= rtrVar.maxRtrAdvInt);
 
   if (tmr->noInitAds < tmr-> maxInitAds && delay > tmr->maxInitRtrInterval)
@@ -382,8 +382,7 @@ bool NDStateRouter::valRtrSol(RS* msg)
 
   IPv6Datagram* dgram = check_and_cast<IPv6Datagram*> (msg->encapsulatedMsg());
   if (dgram->hopLimit() == NDHOPLIMIT &&
-      msg->calculateChecksum() == msg->checksum() &&
-      msg->length() >= 8)
+      msg->length()/BITS >= 8)
   {
 
     //No source LL address option when unspecified IP address or it should be
@@ -400,7 +399,7 @@ bool NDStateRouter::valRtrSol(RS* msg)
 
   Dout(dc::router_disc, rt->nodeName()<<":"<<dgram->inputPort()<<" "<<rt->simTime()
        <<" ValRtrSol invalid - dropped silently!\n"
-       <<" TTL="<<dgram->hopLimit()<<" length="<<msg->length());
+       <<" TTL="<<dgram->hopLimit()<<" length="<<(msg->length()/BITS)<<"bytes");
   return false;
 }
 
@@ -442,7 +441,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
       msg = tmr->msg;
 
       //really want random not uniform
-      delay = OPP_UNIFORM(0, MAX_RA_DELAY_TIME);
+      delay = uniform(0, MAX_RA_DELAY_TIME);
 
 #if FASTRA
       InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
@@ -461,13 +460,6 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
             {
               //TODO send to addrResln instead so they can resolve address if
               //source did not include source link-layer addr opt.
-/* XXX code changed to use LL6ControlInfo --AV
-              IPv6Datagram* advDgram = createDatagram(tmr->ifIndex, dgram->srcAddress());
-              LLInterfaceInfo info = {advDgram, rtrSol->srcLLAddr()};
-              //cGate *inputgate instead of mod and gatename/id
-              nd->sendDirect( new LLInterfacePkt(info), 0,
-                              outputMod[tmr->ifIndex], outputUnicastGate);
-*/
               IPv6Datagram* advDgram = createDatagram(tmr->ifIndex, dgram->srcAddress());
               LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
               ctrlInfo->setDestLLAddr(rtrSol->srcLLAddr());
@@ -682,11 +674,6 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
           return;
         }
 
-/* XXX code change to use control info --AV
-        LLInterfaceInfo info = {redirect, ne->linkLayerAddr()};
-        nd->sendDirect( new LLInterfacePkt(info), 0,
-                        outputMod[ifIndex], outputUnicastGate);
-*/
         // XXX TBD factor out next 4 lines into separate sendXXXX() function
         LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
         ctrlInfo->setDestLLAddr(ne->linkLayerAddr().c_str());

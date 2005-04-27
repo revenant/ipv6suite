@@ -552,7 +552,7 @@ void WirelessAccessPoint::updateStats(void)
 {
   // Get the available bandwidth
   usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
-  estAvailBW = (BASE_SPEED - usedBW.average*8)/(1024*1024);
+  estAvailBW = (BASE_SPEED - usedBW.average)/(1024*1024);
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << fullPath() << " " << simTime()
@@ -563,7 +563,7 @@ void WirelessAccessPoint::updateStats(void)
 
   WirelessEtherModule::updateStats();
 
-  usedBWStat->collect((usedBW.average*8)/(1024*1024));
+  usedBWStat->collect((usedBW.average)/(1024*1024));
 
   usedBW.sampleTotal = 0;
 

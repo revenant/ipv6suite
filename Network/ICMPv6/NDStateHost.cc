@@ -38,14 +38,13 @@
 #include "NDStateHost.h"
 #include "NDTimers.h"
 #include "NeighbourDiscovery.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ICMPv6NDMessage.h"
 #include "RoutingTable6.h"
 #include "IPv6InterfaceData.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
-//XXX #include "nwiface.h"
 #include "cTimerMessage.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
@@ -301,21 +300,9 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
   if (linkLocal == IPv6_ADDR_UNSPECIFIED)
   {
     IPv6Address lhs;
-    //XXX IPv6Address rhs;
     lhs.setAddress(LINK_LOCAL_PREFIX);
     linkLocal = ipv6_addr_fromInterfaceToken(lhs, ie->interfaceToken());
 
-/* XXX
-    unsigned int interfaceID[4] = {0,0,0,0};
-
-    assert(ie->ipv6()->interfaceIDLength() == EUI64_LENGTH);
-
-    interfaceID[2] = ie->ipv6()->interfaceID()[0];
-    interfaceID[3] = ie->ipv6()->interfaceID()[1];
-    rhs.setAddress(interfaceID);
-
-    linkLocal = IPv6Address(lhs+rhs);
-*/
     //Determine scope
     linkLocal.scope();
 
@@ -479,11 +466,6 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     Dout(dc::finish, nd->simTime() <<" DupAddrDet sends: "<<  tmr->counter
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(4) << tmr->timeout
          <<" initial delay:"<<delay);
-
-    Debug( IPv6Datagram* dg = tmr->dgram->dup();
-           assert(*dynamic_cast<ICMPv6Message*>(dg->encapsulatedMsg()) ==
-                  *dynamic_cast<ICMPv6Message*> (tmr->dgram->encapsulatedMsg()));
-           delete dg; );
 
     //Send directly to IPv6Output as we need to send to a particular interface
     //which the routingCore can't determine from dest addr.
@@ -1014,7 +996,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
    faked because we do not do dad
 
    @return true if the prefix is consistent with this interface i.e. prefix
-   length and interfaceID length equals IPv6_ADDRESS_LENGTH.
+   length and interfaceID length equals IPv6_ADDR_BITLENGTH.
    false if it doesn't or no link local addr assigned yet
 
 */
@@ -1026,7 +1008,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
   assert(storedLifetime != 0);
   //Create a new address and add it to tentative if link local address was
   //an addr conf addr from unique Interface ID
-  if (prefix_len + ie->interfaceToken().length() == IPv6_ADDR_LENGTH )
+  if (prefix_len + ie->interfaceToken().length() == IPv6_ADDR_BITLENGTH )
   {
     //Can't autoconf other addresses till link local done (implementation
     //requires that link local be first address assigned not part of spec).

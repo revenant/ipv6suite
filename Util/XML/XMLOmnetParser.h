@@ -96,18 +96,6 @@ class XMLOmnetParser
   //@{
 #ifdef USE_MOBILITY
   /**
-   * Fills in parameters inside the given WirelessEtherModule.
-   */
-/*XXX these params went to NED parameters
-  void parseWirelessEtherInfo(WirelessEtherModule* mod);
-*/
-  /**
-   * Fills in parameters inside the given WirelessEtherModule.
-   */
-/*XXX these params went to NED parameters
-  void parseWEInfo(WirelessEtherModule* wlanMod, cXMLElement* weInfo);
-*/
-  /**
    * Fills in parameters inside the given MobilityStatic.
    */
   void parseMovementInfo(MobilityStatic* mod);
@@ -118,7 +106,7 @@ class XMLOmnetParser
    * MobilityRandomWalk.
    */
   void parseRandomWPInfo(MobilityRandomWP* mod);
-  
+
 void parseRandomWPInfoDetail(MobilityRandomWP* mod, cXMLElement* movenode);
 
 

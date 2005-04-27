@@ -77,10 +77,6 @@ public:
     virtual PPP6Frame& operator=(const PPP6Frame& p);
     virtual PPP6Frame *dup() const { return new PPP6Frame(*this); }
 
-/* XXX not strictly necessary, removed --AV
-    // overriding encapsulation-function for cPackets
-    virtual void encapsulate(cPacket *);
-*/
   // header length functions
   int headerBitLength() { return 8 * PPP_HEADER_LENGTH; }
   int headerByteLength() { return PPP_HEADER_LENGTH; }

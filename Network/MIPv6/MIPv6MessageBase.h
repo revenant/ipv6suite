@@ -120,12 +120,6 @@ class MIPv6MobilityHeaderBase : public cMessage
   // add an instance of mobility header parameter into the list
   virtual bool addMPar(MIPv6MHParameterBase*);
 
-  void calculateChecksum(void)
-    {
-      // TODO: leave it for future implementation
-    }
-  int checksum(void) const { return _checksum; }
-
   // According to sec 5.1.1, the payload protocol MUST be set to
   // NO_NXTHDR (59)
   IPProtocolId payload_prot(void) const { return _payloadprot; }
@@ -172,8 +166,6 @@ class MIPv6MobilityHeaderBase : public cMessage
 
   // mobility header (MH) Type
   MIPv6MobilityHeaderType _headertype;
-
-  int _checksum;
 
   // mobility header parameters
   Parameters _parameters;

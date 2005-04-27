@@ -35,7 +35,8 @@
 
 #include "IPv6Datagram.h"
 #include "IPv6LocalDeliver.h"
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
+#include "ICMPv6MessageUtil.h"
 #include "IPv6Headers.h"
 
 
@@ -91,7 +92,7 @@ HdrExtRte& HdrExtRte::operator=(const HdrExtRte& rhs)
 std::ostream& HdrExtRte::operator<<(std::ostream& os)
 {
   os <<" Rte0Hdr " << "n_segs="<<(int) n_addr()<<" segments left="
-     <<(int) segmentsLeft()<<" len(octet)="<<length()<<"\n";
+     <<(int) segmentsLeft()<<" len(octet)="<<(lengthInUnits()*IPv6_EXT_UNIT_OCTETS)<<"\n";
   for (int i = 0; i < n_addr(); i++)
     os << "seg #" << i<< " addr="<<rt0_hdr->addr[i]<<'\n';
   return os;
@@ -139,7 +140,7 @@ void HdrExtRte::addAddress(const ipv6_addr& append_addr)
  */
 
 bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
-                              int cumul_len)
+                              int cumulLengthInUnits)
 {
   static const string ICMPErrorGate("errorOut");
 
@@ -162,13 +163,13 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   {
     //Send an ICMP Parameter Problem, Code 0, message to the Source Address,
     //pointing to Hdr Ext Len field, and discard packet.
-    core->send(new ICMPv6Message(ICMPv6_PARAMETER_PROBLEM, 0, pdu->dup(),
-                                 cumul_len - length()// +
-//                                 sizeof(struct ipv6_ext_rt_hdr::next_header)
-                                 ),
+    core->send(createICMPv6Message("paramProblem",
+                                   ICMPv6_PARAMETER_PROBLEM,
+                                   0,
+                                   pdu->dup(),
+                                   (cumulLengthInUnits - lengthInUnits())*IPv6_EXT_UNIT_OCTETS),
                ICMPErrorGate.c_str());
     return false;
-
   }
 
 
@@ -176,9 +177,11 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   {
     //Send send ICMP Par Prob 0 , mess to Src Address, point to
     //segments left field and discard packet
-    core->send(new ICMPv6Message(ICMPv6_PARAMETER_PROBLEM, 0, pdu->dup(),
-                                 cumul_len),// -
-//                                   sizeof(ipv6_ext_segments_left)),
+    core->send(createICMPv6Message("paramProblem",
+                                   ICMPv6_PARAMETER_PROBLEM,
+                                   0,
+                                   pdu->dup(),
+                                   cumulLengthInUnits*IPv6_EXT_UNIT_OCTETS),
                ICMPErrorGate.c_str());
     return false;
   }
@@ -203,8 +206,11 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   if (pdu->hopLimit() <= 1)
   {
     //drop and send Time Exceeded
-    core->send(new ICMPv6Message(ICMPv6_TIME_EXCEEDED, ND_HOP_LIMIT_EXCEEDED,
-                                pdu->dup()), ICMPErrorGate.c_str());
+    core->send(createICMPv6Message("timeExceeded",
+                                   ICMPv6_TIME_EXCEEDED,
+                                   ND_HOP_LIMIT_EXCEEDED,
+                                   pdu->dup()),
+               ICMPErrorGate.c_str());
     return false;
   }
 
@@ -250,7 +256,7 @@ namespace MobileIPv6
  */
 
 bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
-                                int cumul_len)
+                                int cumulLengthInUnits)
 {
   assert(rt0_hdr->segments_left == 1);
 
@@ -351,24 +357,23 @@ HdrExtRte* HdrExtRteProc::routingHeader(unsigned char rt_type)
   return 0;
 }
 
-size_t HdrExtRteProc::length() const
+size_t HdrExtRteProc::lengthInUnits() const
 {
   size_t len = 0;
 
-  //accumulate(rheads.begin(), rheads.end(), _1->length());
   for (RHIT it = rheads.begin(); it != rheads.end(); it++)
-    len += (*it)->length();
+    len += (*it)->lengthInUnits();
   return len;
 }
 
 bool HdrExtRteProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)
 {
-  int cuml_len_to_rh =  cumul_len(*pdu);
+  int cuml_len_to_rh =  cumulLengthInUnits(*pdu);
 
  for (RHIT it = rheads.begin(); it != rheads.end(); it++)
  {
    // cummulated length up to a particular routing header
-   cuml_len_to_rh += (*it)->length();
+   cuml_len_to_rh += (*it)->lengthInUnits();
 
    if ( (*it)->segmentsLeft() != 0)
    {

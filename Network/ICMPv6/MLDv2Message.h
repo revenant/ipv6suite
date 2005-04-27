@@ -25,13 +25,13 @@
  *
  */
 #include <vector>
-#include "ICMPv6Message.h"
+#include "ICMPv6Message_m.h"
 #include "ipv6_addr.h"
 
 class MLDv2Message: public ICMPv6Message
 {
  public:
-  MLDv2Message(const ICMPv6Type type, size_t size);
+  MLDv2Message(ICMPv6Type type, size_t size);
   virtual MLDv2Message& operator=(const MLDv2Message & rhs);
   MLDv2Message* duplicate() const
     { return new MLDv2Message(*this); }

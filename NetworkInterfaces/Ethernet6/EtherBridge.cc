@@ -42,7 +42,6 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
   {
     EtherSignalData* signal = new EtherSignalData(frame->name());
     signal->encapsulate(frame);
-    signal->setLength(signal->length() * 8); // convert into bits
 
     cMessage* internalNotifier = new cMessage;
     internalNotifier->setKind(MK_PACKET);
@@ -65,7 +64,6 @@ void EtherRelayUnit::handleMessage(cMessage* msg)
       {
         EtherSignalData* signal = new EtherSignalData(frame->name());
         signal->encapsulate((cMessage*)frame->dup());
-        signal->setLength(signal->length() * 8); // convert into bits
 
         cMessage* internalNotifier = new cMessage;
         internalNotifier->setKind(MK_PACKET);

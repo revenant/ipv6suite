@@ -56,10 +56,10 @@
         <move moveToX="300" moveToY="369" moveSpeed="3"/>
 <!--        <move moveToX="88" moveToY="369" moveSpeed="3"/> not working for the 3rd handover until proxy ND is implemented -->
       </MovingNode>
-      <MovingNode NodeName="server4" startTime="0">
-        <move moveToX="300" moveToY="118" moveSpeed="3"/>
-<!--        <move moveToX="88" moveToY="118" moveSpeed="3"/> not working for the 3rd ho until proxy ND is implemented -->
-      </MovingNode>
+<!--      <MovingNode NodeName="server4" startTime="0">
+        <move moveToX="300" moveToY="118" moveSpeed="3"/>  -->
+<!--        <move moveToX="88" moveToY="118" moveSpeed="3"/> not working for the 3rd ho until proxy ND is implemented
+      </MovingNode> -->
     </ObjectMovement>
   </misc>
 

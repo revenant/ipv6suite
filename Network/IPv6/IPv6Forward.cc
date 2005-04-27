@@ -561,7 +561,8 @@ void IPv6Forward::endService(cMessage* theMsg)
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
       delete info;
-      return;  // XXX CRASH CRASH CRASH - AT DELETEING DATAGRAM
+      datagram.release(); // XXX take over the ownership from auto_ptr
+      return;  // XXX CRASH CRASH,  STILL CRASH AT DELETEING DATAGRAM
     }
     else
     {

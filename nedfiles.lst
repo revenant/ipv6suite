@@ -1,9 +1,11 @@
+./index.ned
+./inet-doc.ned
 ./ipv6-index.ned
+./mpls-doc.ned
 ./Applications/Ethernet/EtherAppCli.ned
 ./Applications/Ethernet/EtherAppSrv.ned
 ./Applications/Generic/IPTrafGen.ned
 ./Applications/Generic/IPTrafficGenerator.ned
-./Applications/Ping6/Ping6App.ned
 ./Applications/PingApp/PingApp.ned
 ./Applications/TCPApp/TCPApp.ned
 ./Applications/TCPApp/TCPBasicClientApp.ned
@@ -31,6 +33,8 @@
 ./Examples/INET/KIDSNw1/KIDSNw1.ned
 ./Examples/INET/Multicast/MulticastNetwork.ned
 ./Examples/INET/NClients/NClients.ned
+./Examples/INET/REDTest/REDTest.ned
+./Examples/INET/REDTest/REDTestDebug.ned
 ./Examples/INET/RouterPerf/RouterPerf.ned
 ./Examples/IPv6/EthNetwork/Ethernetwork.ned
 ./Examples/IPv6/HMIPv6Network/HMIPv6Network.ned
@@ -112,6 +116,7 @@
 ./NetworkInterfaces/NetworkInterface.ned
 ./NetworkInterfaces/NetworkInterface6.ned
 ./NetworkInterfaces/ARP/ARP.ned
+./NetworkInterfaces/DualWireless/DualInterfaceLayer.ned
 ./NetworkInterfaces/Ethernet/EtherBus.ned
 ./NetworkInterfaces/Ethernet/EtherEncap.ned
 ./NetworkInterfaces/Ethernet/EtherHub.ned
@@ -126,6 +131,7 @@
 ./NetworkInterfaces/Ethernet6/EtherModuleAP.ned
 ./NetworkInterfaces/Ethernet6/EtherRelayUnit.ned
 ./NetworkInterfaces/PPP/PPPInterface.ned
+./NetworkInterfaces/PPP/ThruputMeter.ned
 ./NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 ./NetworkInterfaces/Wireless/WirelessEtherBridge.ned
 ./NetworkInterfaces/Wireless/WirelessEtherModule.ned
@@ -167,6 +173,3 @@
 ./Util/Topology/DynamicTopologyBuilder.ned
 ./World/WirelessStats.ned
 ./World/WorldProcessor.ned
-./index.ned
-./inet-doc.ned
-./mpls-doc.ned

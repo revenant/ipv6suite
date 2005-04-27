@@ -226,7 +226,7 @@ namespace OPP_Global
   unsigned int generateInterfaceId()
   {
     // generate 32-bit random Id
-    return (uniform(0,0xffff)<<16) | uniform(0,0xffff);
+    return (intuniform(0,0xffff)<<16) | intuniform(0,0xffff);
   }
 
   const char* nodeName(const cModule* callingMod)

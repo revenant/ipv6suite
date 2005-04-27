@@ -219,11 +219,11 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   //pdu->setHopLimit(pdu->hopLimit() - 1);
 #if defined TESTIPv6
   if (core)
-    core->send(pdu.release(), "routingOut");
+    core->send(pdu.release()->dup(), "routingOut");
   else //Required during unit testing
     pdu.release();
 #else
-  core->send(pdu.release(), "routingOut");
+  core->send(pdu.release()->dup(), "routingOut");
 #endif //TESTIPv6
 
   return true;

@@ -34,7 +34,7 @@ all:
 	cd Mobility && $(MAKEMAKE) $(OPTS) -n -r -I. -I.. -I../Util -I../World -I../NetworkInterfaces -I../NetworkInterfaces/Wireless  -I../NetworkInterfaces/Ethernet6 -IadHocSim
 	cd Mobility/adHocSim && $(MAKEMAKE) $(OPTS) -n -r
 
-	cd Transport && $(MAKEMAKE) $(OPTS) -n -r
+	cd Transport && $(MAKEMAKE) $(OPTS) -n -r -X RTP
 	cd Base && $(MAKEMAKE) $(OPTS) -n -r -I../Util
 	: #FIXME Util should not depend on Mobility!
 	cd Util && $(MAKEMAKE) $(OPTS) -n -r -X boost -X Topology -I. -I../Mobility -I../World -I../Base

@@ -559,8 +559,9 @@ void IPv6Forward::endService(cMessage* theMsg)
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
-      delete info; // XXX CRASH CRASH CRASH
-      return;
+      delete info;
+      datagram.release(); // XXX take back ownership as it causes crash on deleting datagram. why??
+      return;  // XXX CRASH CRASH CRASH - AT DELETEING DATAGRAM
     }
     else
     {

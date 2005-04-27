@@ -904,6 +904,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 
   TIMsg* hoti = new TIMsg(MIPv6MHT_HoTI, bule->cookie(MIPv6MHT_HoTI));
   IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
+  dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 
   // TODO: return home; Since the return home handover isn't fully
   // robust, we will send the hoti straight to the outputcore instead
@@ -973,6 +974,8 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
   // directly to the output core via "mobilityIn")
 
   IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
+
+  dgram_coti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 
   dgram_coti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
@@ -1269,6 +1272,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+  dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   //Draft 17 6.1.7 BU must have haddr dest opt
   HdrExtDestProc* destProc = dgram->acquireDestInterface();
 

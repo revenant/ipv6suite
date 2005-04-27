@@ -114,7 +114,7 @@ IPv6Datagram::~IPv6Datagram()
 
   for (EHI it = ext_hdrs.begin(); it != ext_hdrs.end(); it++)
     delete *it;
-
+  
   ext_hdrs.clear();
 
   //for each element in ext_hdrs find out what type it is and have

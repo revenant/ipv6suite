@@ -394,6 +394,9 @@ void ICMPv6Core::recEchoRequest(IPv6Datagram* theRequest)
   ICMPv6Message* reply = new ICMPv6Echo(req->identifier(), req->seqNo());
   req->encapsulatedMsg()->setName("PING6_REPLY");
 
+  // HACK FIX FOR NOW
+  req->setLength(req->length() + req->encapsulatedMsg()->length() );
+
   //Retrieve internal data inside ping packet and put into reply
   reply->encapsulate(req->decapsulate());
 
@@ -420,6 +423,10 @@ void ICMPv6Core::recEchoReply (IPv6Datagram* reply)
 {
 
   ICMPv6Echo* echo_reply = static_cast<ICMPv6Echo*> (reply->encapsulatedMsg());
+
+  // HACK FIX
+  echo_reply->setLength( echo_reply->length() + echo_reply->encapsulatedMsg()->length() );
+
   Ping6PayloadPacket* app_req =
     static_cast<Ping6PayloadPacket*> (echo_reply->decapsulate());
 

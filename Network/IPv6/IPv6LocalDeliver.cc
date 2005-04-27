@@ -135,7 +135,7 @@ void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
       break;
 
     default:
-      error("invalid protocol code %d in datagram", protocol);
+      error("at %f sec, invalid protocol code %d in datagram", simTime(), protocol);
   } // end switch
 }
 

@@ -91,5 +91,7 @@ void WirelessEtherStateBackoffReceive::changeNextState(WirelessEtherModule* mod)
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": resume backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds");
 
+  mod->totalWaitTime.sampleTotal += mod->simTime()-mod->waitStartTime;
+  
   mod->changeState(WirelessEtherStateBackoff::instance());
 }

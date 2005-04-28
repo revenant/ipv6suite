@@ -74,9 +74,9 @@ void PingApp::handleMessage(cMessage *msg)
         if (destAddr.isNull())
         {
             destAddr = IPAddressResolver().resolve(par("destAddr"));
+            ASSERT(!destAddr.isNull());
             srcAddr = IPAddressResolver().resolve(par("srcAddr"));
             ev << "Starting up: dest=" << destAddr << "  src=" << srcAddr << "\n";
-            ASSERT(!destAddr.isNull());
         }
 
         // send a ping
@@ -165,10 +165,11 @@ void PingApp::processPingResponse(PingPayload *msg)
 
     if (printPing)
     {
-        cout << msg->length()/8 << " bytes from " << src
+        cout << fullPath() << ": reply of " << std::dec << msg->length()/8
+             << " bytes from " << src
              << " icmp_seq=" << msg->seqNo() << " ttl=" << msgHopCount
              << " time=" << (rtt * 1000) << " msec"
-             << " (ping request by " << fullPath() << ")" << endl;
+             << " (" << msg->name() << ")" << endl;
     }
 
     // update statistics

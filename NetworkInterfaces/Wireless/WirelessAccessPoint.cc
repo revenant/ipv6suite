@@ -109,10 +109,15 @@ void WirelessAccessPoint::initialize(int stage)
     usedBW.sampleTotal = 0;
     usedBW.sampleTime = 1;
     usedBW.average = 0;
-    estAvailBW = BASE_SPEED/(1024*1024);
+    estAvailBW = BASE_SPEED/(1000000);
     estAvailBWVec = new cOutVector("estAvailBW");
 
     usedBWStat = new cStdDev("usedBWStat");
+    outputBuffSizeStat = new cStdDev("outputBuffSizeStat");
+
+    frameSizeVec = new cOutVector("frameSize");
+    frameSizeStat = new cStdDev("frameSizeStat");
+    avgFrameSizeStat = new cStdDev("avgFrameSizeStat");
 
     _currentReceiveMode = WEAPReceiveMode::instance();
   }
@@ -175,11 +180,17 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 void WirelessAccessPoint::finish(void)
 {
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " usedBWStat = " << usedBWStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " outputBuffSizeStat = " << outputBuffSizeStat->mean());
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
   Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " throughputStat = " << throughputStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgBackoffSlots = " << avgBackoffSlotsStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgCW = " << avgCWStat->mean());
+  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgFrameSize = " << avgFrameSizeStat->mean());
+
   if(ifaces != NULL)
   {
     delete ifaces;
@@ -552,20 +563,23 @@ void WirelessAccessPoint::updateStats(void)
 {
   // Get the available bandwidth
   usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
-  estAvailBW = (BASE_SPEED - usedBW.average)/(1024*1024);
+  estAvailBW = (BASE_SPEED - usedBW.average)/(1000000);
 
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
        << fullPath() << " " << simTime()
        << " Estimated available Bandwidth (over "<< usedBW.sampleTime <<" sec interval): " << estAvailBW << "Mb/s");
 
   if(statsVec)
-    estAvailBWVec->record(estAvailBW);
+  {  
+      estAvailBWVec->record(estAvailBW);
+      frameSizeVec->record(frameSizeStat->mean());
+  }
 
   WirelessEtherModule::updateStats();
 
-  usedBWStat->collect((usedBW.average)/(1024*1024));
+  usedBWStat->collect((usedBW.average)/(1000000));
+  outputBuffSizeStat->collect(outputBuffer.size());
 
   usedBW.sampleTotal = 0;
-
-
+  frameSizeStat->clearResult();
 }

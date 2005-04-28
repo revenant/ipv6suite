@@ -29,7 +29,7 @@ ICMPv6Message *createICMPv6Message(const char *name, ICMPv6Type type, int code,
     icmpMsg->setType(type);
     icmpMsg->setCode(code);
     icmpMsg->setOptInfo(optInfo);
-    icmpMsg->setLength(ICMPv6_HEADER_OCTETLENGTH*BITS);
+    icmpMsg->setLength(ICMPv6_HEADER_BYTES*BITS);
     icmpMsg->encapsulate(contents);
     return icmpMsg;
 }

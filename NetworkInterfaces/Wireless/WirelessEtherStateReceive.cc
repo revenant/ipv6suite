@@ -70,8 +70,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEther
       // Check that all frames are fully received or ACK is fully sent before changing state
       if((mod->getNoOfRxFrames() == 0) && !(tmrMessage && tmrMessage->isScheduled()) && !(schedAck && schedAck->isScheduled()))
       {
-        mod->totalWaitTime.sampleTotal += mod->simTime()-mod->waitStartTime;
-        static_cast<WirelessEtherStateReceive*>(mod->currentState())->
+          static_cast<WirelessEtherStateReceive*>(mod->currentState())->
           changeNextState(mod);
       }
       else
@@ -118,6 +117,21 @@ void WirelessEtherStateReceive::changeNextState(WirelessEtherModule* mod)
 void WirelessEtherStateReceive::sendAck(WirelessEtherModule* mod,
                                         WESignalData* ack)
 {
+  double d = (double)ack->encapsulatedMsg()->length();
+  simtime_t transmTime = d / BASE_SPEED;
+
+  //if its probing and cant send ACK in time before scanning next channel, dont send it and go back to normal state
+  //otherwise can be caught in a situatino where only the start of the ACK is sent
+  cTimerMessage* prbTmr = mod->getTmrMessage(TMR_PRBRESPSCAN);
+  if(prbTmr)
+  {
+    if(prbTmr->isScheduled() && (prbTmr->remainingTime() < transmTime))
+    {
+      delete ack;
+      return;
+    }
+  }
+
   mod->sendFrame(ack);
 
   // Schedule an event to indicate end of Ack transmission
@@ -135,9 +149,6 @@ void WirelessEtherStateReceive::sendAck(WirelessEtherModule* mod,
     mod->addTmrMessage(tmr);
     a = tmr;
   }
-
-  double d = (double)ack->encapsulatedMsg()->length();
-  simtime_t transmTime = d / BASE_SPEED;
 
   delete ack;
 

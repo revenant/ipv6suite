@@ -52,8 +52,8 @@ void NewLDP::initialize()
 {
     helloTimeout = par("helloTimeout").doubleValue();
 
-    InterfaceTable *ift = InterfaceTableAccess().get();
-    RoutingTable *rt = RoutingTableAccess().get();
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 
     isIR = par("isIR"); // TBD we shouldn't need these params; see comments at isIR/isER usage in the code
     isER = par("isER");

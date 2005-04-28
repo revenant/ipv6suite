@@ -496,6 +496,8 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
     else
     {
             apMod->usedBW.sampleTotal += data->length();
+      apMod->frameSizeStat->collect(data->length());
+      apMod->avgFrameSizeStat->collect(data->length());
       // renew expiry time for entry
             apMod->addIface(data->getAddress2(), RM_DATA);
       // create data frame to be forwarded

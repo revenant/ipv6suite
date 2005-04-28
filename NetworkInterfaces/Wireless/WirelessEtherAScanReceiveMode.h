@@ -36,7 +36,7 @@ class WEAScanReceiveMode : public WEReceiveMode
 {
     public:
     virtual void handleProbeResponse(WirelessEtherModule* mod, WESignalData* signal);
-
+    virtual void handleAck(WirelessEtherModule* mod, WESignalData* signal);
         static WEAScanReceiveMode* instance();
 
     protected:

@@ -8,9 +8,6 @@
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either (applies to xerces-c interface) -->
     <interface name="wlan0" HostDupAddrDetectTransmits="1">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server" mobileIPv6Support="on">
@@ -18,44 +15,6 @@
       <inetAddr>3011:bbbb:3333:6666:ac24:aff:fe11:bba</inetAddr>
     </interface>
   </local>
-  <local node="ap1">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap2">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap3">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap4">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-
-  <local node="hap">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-
-
 
 <!-- routing table configuration for primary HA -->
   <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">

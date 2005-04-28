@@ -26,15 +26,17 @@
 #include "RoutingTable6.h"
 #endif
 
-IPvXAddress IPAddressResolver::resolve(const char *s, bool preferIPv6)
+
+
+IPvXAddress IPAddressResolver::resolve(const char *s, int addrType)
 {
     IPvXAddress addr;
-    if (!tryResolve(s, addr, preferIPv6))
-        opp_error("IPAddressResolver: required address `%s' hasn't been assigned yet (try later!)", s);
+    if (!tryResolve(s, addr, addrType))
+        opp_error("IPAddressResolver: address `%s' not configured (yet?)", s);
     return addr;
 }
 
-bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool preferIPv6)
+bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, int addrType)
 {
     // empty address
     result = IPvXAddress();
@@ -61,7 +63,7 @@ bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool pref
         opp_error("IPAddressResolver: syntax error parsing address spec `%s'", s);
     }
 
-    // parse fields
+    // parse fields: modname, ifname, protocol
     std::string modname, ifname, protocol;
     modname.assign(s, (slashp?slashp:leftparenp?leftparenp:endp)-s);
     if (slashp)
@@ -69,40 +71,80 @@ bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, bool pref
     if (leftparenp)
         protocol.assign(leftparenp+1, rightparenp-leftparenp-1);
 
-    // find module, use protocol
+    // find module and check protocol
     cModule *mod = simulation.moduleByPath(modname.c_str());
     if (!mod)
         opp_error("IPAddressResolver: module `%s' not found", modname.c_str());
     if (!protocol.empty() && protocol!="ipv4" && protocol!="ipv6")
-        opp_error("IPAddressResolver: error parsing address spec `%s': protocol must be `ipv4' or `ipv6'", s);
+        opp_error("IPAddressResolver: error parsing address spec `%s': address type must be `(ipv4)' or `(ipv6)'", s);
+    if (!protocol.empty())
+        addrType = protocol=="ipv4" ? ADDR_IPv4 : ADDR_IPv6;
 
-    // FIXME TBD: FINISH!!! parse requested address type, and pass it as preferIPv6 below
-    result = addressOf(mod);
-    // FIXME TBD: if address is not of requested type, throw an error
-
-    return true;
+    // get address from the given module/interface
+    if (ifname.empty())
+        result = addressOf(mod, addrType);
+    else
+        result = addressOf(mod, ifname.c_str(), addrType);
+    return !result.isNull();
 }
 
-IPvXAddress IPAddressResolver::addressOf(cModule *host, bool preferIPv6)
+IPvXAddress IPAddressResolver::addressOf(cModule *host, int addrType)
 {
     InterfaceTable *ift = interfaceTableOf(host);
-    return getAddressFrom(ift, preferIPv6);
+    return getAddressFrom(ift, addrType);
 }
 
-IPvXAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift, bool preferIPv6)
+IPvXAddress IPAddressResolver::addressOf(cModule *host, const char *ifname, int addrType)
+{
+    InterfaceTable *ift = interfaceTableOf(host);
+    InterfaceEntry *ie = ift->interfaceByName(ifname);
+    if (!ie)
+        opp_error("IPAddressResolver: no interface called `%s' in `%s'", ifname, ift->fullPath().c_str());
+    return getAddressFrom(ie, addrType);
+}
+
+IPvXAddress IPAddressResolver::getAddressFrom(InterfaceTable *ift, int addrType)
 {
     IPvXAddress ret;
-    if (preferIPv6)
+    if (addrType==ADDR_IPv6 || addrType==ADDR_PREFER_IPv6)
     {
         ret = getIPv6AddressFrom(ift);
-        if (ret.isNull())
+        if (ret.isNull() && addrType==ADDR_PREFER_IPv6)
             ret = getIPv4AddressFrom(ift);
+    }
+    else if (addrType==ADDR_IPv4 || addrType==ADDR_PREFER_IPv4)
+    {
+        ret = getIPv4AddressFrom(ift);
+        if (ret.isNull() && addrType==ADDR_PREFER_IPv4)
+            ret = getIPv6AddressFrom(ift);
     }
     else
     {
-        ret = getIPv4AddressFrom(ift);
-        if (ret.isNull())
-            ret = getIPv6AddressFrom(ift);
+        opp_error("IPAddressResolver: unknown addrType %d", addrType);
+    }
+    return ret;
+}
+
+IPvXAddress IPAddressResolver::getAddressFrom(InterfaceEntry *ie, int addrType)
+{
+    IPvXAddress ret;
+    if (addrType==ADDR_IPv6 || addrType==ADDR_PREFER_IPv6)
+    {
+        if (ie->ipv6())
+            ret = getInterfaceIPv6Address(ie);
+        if (ret.isNull() && addrType==ADDR_PREFER_IPv6 && ie->ipv4())
+            ret = ie->ipv4()->inetAddress();
+    }
+    else if (addrType==ADDR_IPv4 || addrType==ADDR_PREFER_IPv4)
+    {
+        if (ie->ipv4())
+            ret = ie->ipv4()->inetAddress();
+        if (ret.isNull() && addrType==ADDR_PREFER_IPv4 && ie->ipv6())
+            ret = getInterfaceIPv6Address(ie);
+    }
+    else
+    {
+        opp_error("IPAddressResolver: unknown addrType %d", addrType);
     }
     return ret;
 }
@@ -128,11 +170,6 @@ IPAddress IPAddressResolver::getIPv4AddressFrom(InterfaceTable *ift)
             addr = ie->ipv4()->inetAddress();
         }
     }
-
-    //if (addr.isNull())
-    //    opp_error("IPAddressResolver: no interface in `%s' has an IP address "
-    //              "assigned (yet? try in a later init stage!)", ift->fullPath().c_str());
-
     return addr;
 }
 
@@ -140,27 +177,62 @@ IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift)
 {
     // browse interfaces: for the purposes of this function, all of them should
     // share the same IP address
-    IPv6Address_ addr;
     if (ift->numInterfaces()==0)
         opp_error("IPAddressResolver: interface table `%s' has no interface registered "
                   "(yet? try in a later init stage!)", ift->fullPath().c_str());
 
-    for (int i=0; i<ift->numInterfaces(); i++)
+    // we prefer globally routable addresses, but if there's none, link scope addresses are also accepted
+    IPv6Address_ addr;
+    addr = getIPv6AddressFrom(ift, ipv6_addr::Scope_Global);
+    if (addr.isNull())
+        addr = getIPv6AddressFrom(ift, ipv6_addr::Scope_Organization);
+    if (addr.isNull())
+        addr = getIPv6AddressFrom(ift, ipv6_addr::Scope_Site);
+    if (addr.isNull())
+        addr = getIPv6AddressFrom(ift, ipv6_addr::Scope_Link);
+    if (addr.isNull())
+        addr = getIPv6AddressFrom(ift, ipv6_addr::Scope_Node);
+    return addr;
+}
+
+IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift, int scope)
+{
+    IPv6Address_ addr;
+    for (int i=0; i<ift->numInterfaces() && addr.isNull(); i++)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
 
         if (!ie->ipv6() || ie->isLoopback())
             continue;
 
-        for ( int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
+        for (int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
         {
-            if ( ie->ipv6()->inetAddrs[j].scope() != ipv6_addr::Scope_Link)
+            if (ie->ipv6()->inetAddrs[j].scope()==scope)
             {
-                addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str());
+                addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str()); // FIXME conversion via string
                 break;
             }
         }
     }
+    return addr;
+}
+
+IPv6Address_ IPAddressResolver::getInterfaceIPv6Address(InterfaceEntry *ie)
+{
+    IPv6Address_ addr;
+    int scope = ipv6_addr::Scope_None;
+
+    // code below assumes that "better" (more routable) addresses compare larger than less weaker ones
+    ASSERT(ipv6_addr::Scope_Global > ipv6_addr::Scope_Organization &&
+           ipv6_addr::Scope_Organization > ipv6_addr::Scope_Site &&
+           ipv6_addr::Scope_Site > ipv6_addr::Scope_Link &&
+           ipv6_addr::Scope_Link > ipv6_addr::Scope_Node &&
+           ipv6_addr::Scope_Node > ipv6_addr::Scope_None);
+
+    // find "best" address
+    for (int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
+        if (ie->ipv6()->inetAddrs[j].scope() > scope)
+            addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str()); // FIXME conversion via string
     return addr;
 }
 

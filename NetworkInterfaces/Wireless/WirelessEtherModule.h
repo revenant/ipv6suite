@@ -107,6 +107,7 @@ class WirelessEtherModule : public LinkLayerModule
   friend class WirelessEtherStateAwaitACKReceive;
   friend class WirelessEtherStateAwaitACK;
   friend class WirelessEtherStateBackoff;
+  friend class WirelessEtherStateBackoffReceive;
   friend class WirelessEtherStateReceive;
   friend class WirelessEtherStateSend;
   friend class WirelessEtherStateIdle;
@@ -395,6 +396,19 @@ protected:
   cStdDev* errorPercentageStat;
   cStdDev* backoffTimeStat;
   cStdDev* waitTimeStat;
+  cStdDev* throughputStat;
+
+  //statistics which will be resetted every second
+  cStdDev* backoffSlotsStat;  //average backoff time per backoff (in slots)
+  cStdDev* CWStat;            //average contention window per backoff
+
+  //average of above statistics over the whole simulation
+  cStdDev* avgBackoffSlotsStat;
+  cStdDev* avgCWStat;
+
+  //vector of statistics every second
+  cOutVector* backoffSlotsVec;
+  cOutVector* CWVec;
 
   double totalDisconnectedTime;
 

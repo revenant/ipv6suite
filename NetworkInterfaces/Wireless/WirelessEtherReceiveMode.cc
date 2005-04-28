@@ -133,6 +133,15 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
   {
     mod->noOfSuccessfulTx++;
     mod->throughput.sampleTotal += (double)(frame->encapsulatedMsg()->length());
+
+    if(mod->isAP())
+    {
+      WirelessAccessPoint* ap = 
+        boost::polymorphic_downcast<WirelessAccessPoint*>(mod);
+      ap->usedBW.sampleTotal += (double)(frame->encapsulatedMsg()->length());//frame->length();
+      ap->frameSizeStat->collect((double)(frame->encapsulatedMsg()->length()));
+      ap->avgFrameSizeStat->collect((double)(frame->encapsulatedMsg()->length()));
+    }  
   }
 
   delete *(mod->outputBuffer.begin());

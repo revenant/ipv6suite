@@ -41,6 +41,9 @@
 #include "WirelessEtherStateAwaitACK.h"
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherStateBackoff.h"
+#include "WirelessEtherStateAwaitACKReceive.h"
+
+
 
 WEAScanReceiveMode* WEAScanReceiveMode::_instance = 0;
 
@@ -130,3 +133,34 @@ void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalD
     delete probeResponseBody;
   } // endif
 }
+
+void WEAScanReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
+{
+  WirelessEtherBasicFrame* ack =
+      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
+
+  if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
+  {
+    // Since both interfaces have the same MAC Address in a dual interface node, you may
+    // process an ACK which is meant for the other interface. Condition checks that you
+    // are expecting an ACK before processing it.
+    if( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+    {
+      mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
+
+      finishFrameTx(mod);
+      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
+           << mod->fullPath() << "\n"
+           << " ----------------------------------------------- \n"
+           << " ACK received by: " << mod->macAddressString() << "\n"
+           << " ----------------------------------------------- \n");
+
+      changeState = false;
+    }
+  }
+
+  if ( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+    changeState = false;
+}
+
+

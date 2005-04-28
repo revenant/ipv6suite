@@ -125,7 +125,7 @@ class cListWatcher : public cVectorWatcherBase
     }
     virtual std::string atIt() const {
         std::stringstream out;
-        out << "{" << (*it) << "}";
+        out << (*it);
         return out.str();
     }
 };
@@ -147,7 +147,7 @@ class cPointerListWatcher : public cListWatcher<T>
     cPointerListWatcher(const char *name, std::list<T>& var) : cListWatcher<T>(name, var) {}
     virtual std::string atIt() const {
         std::stringstream out;
-        out << "{" << *(*it) << "}";
+        out << (**it);
         return out.str();
     }
 };

@@ -128,19 +128,6 @@ template<class Graph> struct createModules
       return inlinks;
     }
 
-///@define check_error copied from ned generated sources
-//OMNETPP_VERSION from defs.h
-#if defined OMNETPP_VERSION && OMNETPP_VERSION == 0x0202
-#define check_error() \
-    {if (!simulation.ok()) return;}
-#else
-#define check_error() \
-    {(void)0;}
-#endif
-
-#define check_memory() \
-    {if (mod->memoryIsLow()) {opp_error(eNOMEM); return;}}
-
   void operator()(const Vertex& v)
     {
 
@@ -173,11 +160,6 @@ template<class Graph> struct createModules
         createType = nodeType;
 
       createdMod = createType->create(nodename.c_str(), simulation.systemModule(), islocal);
-      check_error(); //check_memory();
-
-      // set machine list:
-      createdMod->setMachinePar("default", ((cPar *)machines[0])->stringValue());
-      check_error(); //check_memory();
 
       EdgeSize outlinks = out_degree(v, g);
       EdgeSize inlinks = outlinks;

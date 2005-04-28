@@ -125,7 +125,7 @@ bool ICMPv6NDMessageBase<n_addrs, n_opts>::operator==(const ICMPv6NDMessageBase<
 ICMPv6NDMessageBase<n_addrs, n_opts>::ICMPv6NDMessageBase(ICMPv6Type otype, const ICMPv6Code& ocode)
   :ICMPv6Message()
 {
-  setLength(ICMPv6_HEADER_OCTETLENGTH*BITS);
+  setLength(ICMPv6_HEADER_BYTES*BITS);
   setType(otype);
   setCode(ocode);
   init();
@@ -135,7 +135,7 @@ template<size_t n_addrs, size_t n_opts>
 inline ICMPv6NDMessageBase<n_addrs, n_opts>::ICMPv6NDMessageBase(const ICMPv6NDMessageBase& src)
   :ICMPv6Message(src)
 {
-  setLength(ICMPv6_HEADER_OCTETLENGTH*BITS);
+  setLength(ICMPv6_HEADER_BYTES*BITS);
   setName(src.name());
   operator=(src);
 }

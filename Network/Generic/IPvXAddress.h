@@ -26,10 +26,12 @@
 
 /// Temporary, until IPv6 addresses get sorted out
 struct IPv6Address_ {
+   IPv6Address_() {d[0]=d[1]=d[2]=d[3]=0;}
    uint32 d[4];
    bool tryParse(const char *s);
    void set(const char *s);
    std::string str() const;
+   bool isNull() {return (d[0]|d[1]|d[2]|d[3])==0;}
 };
 
 

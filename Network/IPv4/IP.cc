@@ -378,6 +378,7 @@ IPDatagram *IP::encapsulate(cMessage *transportPacket)
     IPControlInfo *controlInfo = check_and_cast<IPControlInfo*>(transportPacket->removeControlInfo());
 
     IPDatagram *datagram = new IPDatagram(transportPacket->name());
+    datagram->setLength(8*IP_HEADER_BYTES);
     datagram->encapsulate(transportPacket);
 
     // set source and destination address

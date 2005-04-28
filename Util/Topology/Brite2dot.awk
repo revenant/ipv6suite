@@ -1,4 +1,3 @@
-# $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Util/Topology/Brite2dot.awk,v 1.2 2005/04/27 08:19:35 andras Exp $
 # Copyright (C) 2002 by Johnny Lai
 # Converts BRITE topology files into Graphviz dot format
 # Only actual topological information i.e. nodes and links are converted

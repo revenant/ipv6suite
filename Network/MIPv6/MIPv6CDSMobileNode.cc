@@ -40,6 +40,7 @@
 #include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
 #include "opp_utils.h" //nodeName
+#include "stlwatch.h"
 
 namespace MobileIPv6
 {
@@ -53,6 +54,7 @@ namespace MobileIPv6
     :futureCoa(IPv6_ADDR_UNSPECIFIED), away(false), moved(false), _pcoaLifetime(5),
      eagerHO(false)
   {
+    WATCH_PTRLIST(bul);
   }
 
   MIPv6CDSMobileNode::~MIPv6CDSMobileNode()

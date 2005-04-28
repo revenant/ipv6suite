@@ -5,38 +5,6 @@
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
   hierarchicalMIPv6Support="on">
     <interface name="wlan0">
-      <WirelessEtherInfo>
-        <WEInfo  WETxPower="1.5"/>
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-
-  <local node="ap1">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap2">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap3">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap4">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on">

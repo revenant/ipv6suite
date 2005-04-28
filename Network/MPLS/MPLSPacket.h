@@ -24,7 +24,6 @@ using namespace std;
 /**
  * Represents a packet with MPLS headers
  */
-// FIXME length should be adjusted when length of label stack changes
 class MPLSPacket: public cMessage
 {
   private:
@@ -52,12 +51,12 @@ class MPLSPacket: public cMessage
     /**
      * Pushes new label on the label stack
      */
-    inline void pushLabel(int newLabel)  {labels.push(newLabel);}
+    inline void pushLabel(int newLabel)  {labels.push(newLabel);addLength(32);}
 
     /**
      * Pops the top label
      */
-    inline void popLabel()  {labels.pop();}
+    inline void popLabel()  {labels.pop();addLength(-32);}
 
     /**
      * Returns true if the label stack is not empty

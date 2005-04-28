@@ -139,11 +139,18 @@ void WirelessEtherModule::baseInit(int stage)
     errorPercentageStat = new cStdDev("errorPercentageStat");
     backoffTimeStat = new cStdDev("backoffTimeStat");
     waitTimeStat = new cStdDev("waitTimeStat");
+    throughputStat = new cStdDev("throughputStat");
+
+    backoffSlotsVec = new cOutVector("backoffSlots"); 
+    CWVec = new cOutVector("CW");
+
+    backoffSlotsStat = new cStdDev("backoffSlotsStat");
+    CWStat = new cStdDev("CWStat");
+    avgBackoffSlotsStat = new cStdDev("avgBackoffSlotsStat");
+    avgCWStat = new cStdDev("avgCWStat");
   }
   else if(stage == 1)
   {
-    //std::cout<<"statsVec: "<<statsVec<<endl;
-
     cModule* mobMan = OPP_Global::findModuleByName(this, "mobilityHandler");
     assert(mobMan);
     _mobCore = static_cast<MobilityHandler*>(mobMan);
@@ -289,6 +296,9 @@ void WirelessEtherModule::finish()
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " totalDisconnectedTime = " << totalDisconnectedTime);
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " throughputStat = " << throughputStat->mean());
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgBackoffSlots = " << avgBackoffSlotsStat->mean());
+    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgCW = " << avgCWStat->mean());
   }
 
  // XXX cleanup stuff must be moved to dtor!
@@ -1762,20 +1772,24 @@ void WirelessEtherModule::updateStats(void)
   //Calculate throughput average and error percentage after interval time
   throughput.average = throughput.sampleTotal/throughput.sampleTime;
   errorPercentage = (noOfFailedTx+noOfSuccessfulTx)>0 ? noOfFailedTx/(noOfFailedTx+noOfSuccessfulTx):0;
-  totalWaitTime.average = (noOfSuccessfulTx+noOfSuccessfulTx)>0 ? totalWaitTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalWaitTime.sampleTotal;
-  totalBackoffTime.average = (noOfSuccessfulTx+noOfSuccessfulTx) > 0 ? totalBackoffTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalBackoffTime.sampleTotal;
+  totalWaitTime.average = (noOfFailedTx+noOfSuccessfulTx)>0 ? totalWaitTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalWaitTime.sampleTotal;
+  totalBackoffTime.average = (noOfFailedTx+noOfSuccessfulTx) > 0 ? totalBackoffTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalBackoffTime.sampleTotal;
 
   errorPercentageStat->collect(errorPercentage);
   backoffTimeStat->collect(totalBackoffTime.average);
   waitTimeStat->collect(totalWaitTime.average);
+    throughputStat->collect(throughput.average/1000000);
 
   if(statsVec)
   {
     noOfFailedTxVec->record(noOfFailedTx);
-    throughputVec->record(throughput.average);
+    throughputVec->record(throughput.average/1000000);
     errorPercentageVec->record(errorPercentage);
     totalBackoffTimeVec->record(totalBackoffTime.average);
     totalWaitTimeVec->record(totalWaitTime.average);
+
+    backoffSlotsVec->record(backoffSlotsStat->mean());
+    CWVec->record(CWStat->mean());
   }
 
   if((noOfFailedTx+noOfSuccessfulTx) != 0)
@@ -1786,6 +1800,10 @@ void WirelessEtherModule::updateStats(void)
   throughput.sampleTotal = 0;
   noOfSuccessfulTx = 0;
   noOfFailedTx = 0;
+
+  //clear results after a second has elapsed
+  backoffSlotsStat->clearResult();
+  CWStat->clearResult();
 
   scheduleAt(simTime()+throughput.sampleTime, updateStatsNotifier);
 }

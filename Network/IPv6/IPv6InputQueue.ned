@@ -1,4 +1,3 @@
-// $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Network/IPv6/IPv6InputQueue.ned,v 1.3 2005/04/27 08:19:34 andras Exp $
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 //

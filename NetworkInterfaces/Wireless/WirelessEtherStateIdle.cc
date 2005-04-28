@@ -106,8 +106,6 @@ std::auto_ptr<WESignalData> WirelessEtherStateIdle::processData(WirelessEtherMod
   // instance afterwards
   mod->inputFrame = (WESignalData*)data->dup();
 
-  mod->waitStartTime = mod->simTime();
-
   // entering receive state and waiting to finish receiving the frame
   mod->changeState(WirelessEtherStateReceive::instance());
 
@@ -142,10 +140,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
                 // Remove if its a unicast address not in the list of associated MS
                 if(    (outputFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS)) ||
                         (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
-                {
-                    ap->usedBW.sampleTotal += outputFrame->length();
-                    break;
-                }
+                      break;
                 else
                     mod->outputBuffer.pop_front();
             }
@@ -176,19 +171,20 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
       a = tmr;
     }
 
-    int numSlots;
+    int numSlots, cw;
 
     //check if output frame is a probe req/resp and fast active scan is enabled
     WESignalData* outData = *(mod->outputBuffer.begin());
     assert(outData); // check if the frame is ok
     if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
     {
-      numSlots = intuniform(0,CW_MIN);
+      cw = CW_MIN;
+      numSlots = intuniform(0,cw);
       mod->backoffTime = numSlots * SLOTTIME + SIFS;
     }
     else
     {
-      int cw = (1 << mod->contentionWindowPower()) - 1;
+      cw = (1 << mod->contentionWindowPower()) - 1;
       numSlots = intuniform(0, cw);
       mod->backoffTime = numSlots * SLOTTIME + DIFS;
     }
@@ -196,6 +192,11 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
     if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
     {
       mod->totalBackoffTime.sampleTotal += mod->backoffTime;
+      
+      mod->CWStat->collect(cw);
+      mod->avgCWStat->collect(cw);    
+      mod->backoffSlotsStat->collect(numSlots);
+      mod->avgBackoffSlotsStat->collect(numSlots);
     }
 
     double nextSchedTime = mod->simTime() + mod->backoffTime;

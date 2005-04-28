@@ -18,7 +18,7 @@
 //
 
 cplusplus {{
-#define ICMPv6_HEADER_OCTETLENGTH  8
+#define ICMPv6_HEADER_BYTES  8
 }}
 
 enum ICMPv6Type

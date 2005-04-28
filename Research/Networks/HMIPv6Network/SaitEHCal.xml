@@ -6,50 +6,12 @@
   mobileIPv6Role="MobileNode" routeOptimisation="on"
   hierarchicalMIPv6Support="on" edgeHandoverType="Timed">
     <interface name="wlan0" HostDupAddrDetectTransmits="1">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="cn" mobileIPv6Support="on">
     <interface name="ppp0">
 <!--    should be autoconfed but need to determine for traffic source
   <inetAddr>3011:0:0:b:21ac:240a:911:bba</inetAddr> -->
-    </interface>
-  </local>
- <local node="hap">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
- <local node="apa">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
- <local node="apb">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
- <local node="apc">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
- <local node="apd">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
     </interface>
   </local>
 
@@ -71,13 +33,13 @@
     <route>
       <routeEntry routeIface="ppp0" routeDestination="0/0"
 	routeNextHop="FECO:0:0:a:2280:870e:fb1a:7281"/>
-    </route> 
+    </route>
   </local>
 
   <local node="crh" routePackets="on">
     <interface name="ppp0">
       <inetAddr>FECO:0:0:a:2280:870e:fb1a:7281</inetAddr>
-    </interface> 
+    </interface>
     <interface name="ppp1" AdvSendAdvertisements="on">
       <inetAddr>FEC0:0:0:b:d65f:6aa9:f72c:df2e</inetAddr>
       <AdvPrefixList>
@@ -104,40 +66,40 @@
       <inetAddr>FEC0:0:0:2:87f:92b3:5e66:4962</inetAddr>
     </interface>
     <interface name="ppp2">
-      <inetAddr>FEC0:0:0:3:6c48:ade:96d4:5948</inetAddr>    
+      <inetAddr>FEC0:0:0:3:6c48:ade:96d4:5948</inetAddr>
     </interface>
     <interface name="ppp3">
-      <inetAddr>FEC0:0:0:4:4fde:3e48:e6ee:cdc2</inetAddr>    
+      <inetAddr>FEC0:0:0:4:4fde:3e48:e6ee:cdc2</inetAddr>
     </interface>
     <interface name="ppp4">
 <!-- used new iface ll addr (which does not belong to this node)) since by
       adding one interface rearranges all following LLaddrs. Really need to
       automate table gen. In future put the router that may be expanded last so
-      this does not happen!  
+      this does not happen!
 -->
       <inetAddr>FEC0:0:0:5:27c:8bff:fe8f:8c3d</inetAddr>
     </interface>
     <route>
       <routeEntry routeIface="ppp0" routeDestination="3011:0:0:1:0:0:0:0/64"
       routeNextHop="fec0:0:0:1:b573:569d:74fb:2b75"/>
-      <routeEntry 
+      <routeEntry
 	routeIface="ppp1" routeDestination="3011:0:0:2:0:0:0:0/64"
 	routeNextHop="fec0:0:0:2:2846:952:be8b:a252"/>
-      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:3:0:0:0:0/64" 
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:3:0:0:0:0/64"
 	routeNextHop="fec0:0:0:3:abee:8f19:b836:a030"/>
-      <routeEntry routeIface="ppp4" routeDestination="3011:0:0:5:0:0:0:0/64" 
+      <routeEntry routeIface="ppp4" routeDestination="3011:0:0:5:0:0:0:0/64"
 	routeNextHop="fec0:0:0:5:92f7:839a:4a7d:b041"/>
-      <routeEntry routeIface="ppp3" routeDestination="0/0" 
+      <routeEntry routeIface="ppp3" routeDestination="0/0"
 	routeNextHop="FEC0:0:0:4:38a6:4b65:71c6:a7fc"/>
 
       <routeEntry routeIface="ppp0" routeDestination="FEC0:0:0:11:0:0:0:0/64"
       routeNextHop="fec0:0:0:1:b573:569d:74fb:2b75"/>
-      <routeEntry 
+      <routeEntry
 	routeIface="ppp1" routeDestination="FEC0:0:0:22:0:0:0:0/64"
 	routeNextHop="fec0:0:0:2:2846:952:be8b:a252"/>
-      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:33:0:0:0:0/64" 
+      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:33:0:0:0:0/64"
 	routeNextHop="fec0:0:0:3:abee:8f19:b836:a030"/>
-      <routeEntry routeIface="ppp4" routeDestination="FEC0:0:0:55:0:0:0:0/64" 
+      <routeEntry routeIface="ppp4" routeDestination="FEC0:0:0:55:0:0:0:0/64"
 	routeNextHop="fec0:0:0:5:92f7:839a:4a7d:b041"/>
     </route>
   </local>
@@ -201,8 +163,8 @@
 
 	For hmip suppose to be able to use something that's only routable within
         map domain
-	
-	This would not happen for MAPs that are not at ARs as they would  
+
+	This would not happen for MAPs that are not at ARs as they would
 	MAP options only.
 -->
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">fec0:0:0:33:d6f7:bcff:fefd:d06e/64</AdvPrefix>
@@ -232,8 +194,8 @@
 
 	For hmip suppose to be able to use something that's only routable within
         map domain
-	
-	This would not happen for MAPs that are not at ARs as they would  
+
+	This would not happen for MAPs that are not at ARs as they would
 	MAP options only.
 -->
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">fec0:0:0:55:cb0c:46ff:feb0:d7fe/64</AdvPrefix>

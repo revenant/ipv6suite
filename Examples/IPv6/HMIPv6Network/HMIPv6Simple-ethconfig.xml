@@ -8,53 +8,12 @@
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server" mobileIPv6Support="on">
     <interface name="eth0">
     </interface>
   </local>
-  <local node="ap1">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap2">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap3">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap4">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-
-  <local node="hap">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-
-
 
 <!-- routing table configuration for primary HA -->
   <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">

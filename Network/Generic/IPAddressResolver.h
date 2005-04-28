@@ -27,20 +27,42 @@
 #include "IPvXAddress.h"
 
 class InterfaceTable;
+class InterfaceEntry;
 class RoutingTable;
 class RoutingTable6;
 
 /**
  * Utility class for finding IPv4 or IPv6 address of a host or router.
+ *
+ * Syntax variations understood:
+ *    - literal IPv4 address: "186.54.66.2"
+ *    - literal IPv6 address: "3011:7cd6:750b:5fd6:aba3:c231:e9f9:6a43"
+ *    - module name: "server", "subnet.server[3]"
+ *    - interface of a host or router: "server/eth0", "subnet.server[3]/eth0"
+ *    - IPv4 or IPv6 address of a host or router: "server(ipv4)",
+ *      "subnet.server[3](ipv6)"
+ *    - IPv4 or IPv6 address of an interface of a host or router:
+ *      "server/eth0(ipv4)", "subnet.server[3]/eth0(ipv6)"
  */
 class IPAddressResolver
 {
   private:
     // internal
     IPAddress getIPv4AddressFrom(InterfaceTable *ift);
-
     // internal
     IPv6Address_ getIPv6AddressFrom(InterfaceTable *ift);
+    // internal
+    IPv6Address_ getIPv6AddressFrom(InterfaceTable *ift, int scope);
+    // internal
+    IPv6Address_ getInterfaceIPv6Address(InterfaceEntry *ie);
+
+  public:
+    enum {
+        ADDR_PREFER_IPv4,
+        ADDR_PREFER_IPv6,
+        ADDR_IPv4,
+        ADDR_IPv6
+    };
 
   public:
     IPAddressResolver() {}
@@ -53,7 +75,7 @@ class IPAddressResolver
      * looked up using <tt>simulation.moduleByPath()</tt>, and then
      * addressOf() will be called to determine its IP address.
      */
-    IPvXAddress resolve(const char *str, bool preferIPv6=false);
+    IPvXAddress resolve(const char *str, int addrType=ADDR_PREFER_IPv6);
 
     /**
      * Similar to resolve(), but returns false (instead of throwing an error)
@@ -61,7 +83,7 @@ class IPAddressResolver
      * doesn't have an address assigned yet. (It still throws an error
      * on any other error condition).
      */
-    bool tryResolve(const char *str, IPvXAddress& result, bool preferIPv6=false);
+    bool tryResolve(const char *str, IPvXAddress& result, int addrType=ADDR_PREFER_IPv6);
 
     /** @name Utility functions supporting resolve() */
     //@{
@@ -73,14 +95,24 @@ class IPAddressResolver
      * This function uses routingTableOf() to find the RoutingTable module,
      * then invokes getAddressFrom() to extract the IP address.
      */
-    IPvXAddress addressOf(cModule *host, bool preferIPv6=false);
-    
+    IPvXAddress addressOf(cModule *host, int addrType=ADDR_PREFER_IPv6);
+
+    /**
+     * Similar to addressOf(), but only looks at the given interface
+     */
+    IPvXAddress addressOf(cModule *host, const char *ifname, int addrType=ADDR_PREFER_IPv6);
+
     /**
      * Returns the IP or IPv6 address of the given host or router, given its InterfaceTable
      * module. If different interfaces have different IP addresses, the function
      * throws an error.
      */
-    IPvXAddress getAddressFrom(InterfaceTable *ift, bool preferIPv6=false);
+    IPvXAddress getAddressFrom(InterfaceTable *ift, int addrType=ADDR_PREFER_IPv6);
+
+    /**
+     * Returns the IP or IPv6 address of the given interface (of a host or router).
+     */
+    IPvXAddress getAddressFrom(InterfaceEntry *ie, int addrType=ADDR_PREFER_IPv6);
 
     /**
      * The function tries to look up the InterfaceTable module as submodule

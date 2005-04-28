@@ -152,6 +152,8 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   // status of the medium or other awkard cirumstances. Therefore we
   // are entering collision state and re-assigning the backoff period
 
+  int numSlots, cw;  
+
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());
   assert(outData); // check if the frame is ok
@@ -160,17 +162,25 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   WirelessEtherBasicFrame *outDataEncapFrame = check_and_cast<WirelessEtherBasicFrame*>(outData->encapsulatedMsg());
   if( ((outDataEncapFrame->getFrameControl().subtype == ST_PROBEREQUEST)||(outDataEncapFrame->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
   {
-    mod->backoffTime = (int)intuniform(0, CW_MIN) * SLOTTIME + SIFS;
+    cw = CW_MIN;
+    numSlots = intuniform(0, cw);
+    mod->backoffTime = numSlots * SLOTTIME + SIFS;
   }
   else
   {
-    int cw = (1 << mod->contentionWindowPower()) - 1;
-    mod->backoffTime = (int)intuniform(0, cw) * SLOTTIME + DIFS;
+    cw = (1 << mod->contentionWindowPower()) - 1;
+    numSlots = intuniform(0, cw);
+    mod->backoffTime = numSlots * SLOTTIME + DIFS;
   }
 
   if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
   {
     mod->totalBackoffTime.sampleTotal += mod->backoffTime;
+    
+    mod->CWStat->collect(cw);
+    mod->avgCWStat->collect(cw);    
+    mod->backoffSlotsStat->collect(numSlots);
+    mod->avgBackoffSlotsStat->collect(numSlots);
   }
 
   mod->changeState(WirelessEtherStateBackoff::instance());

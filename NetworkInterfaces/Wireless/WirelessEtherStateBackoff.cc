@@ -76,6 +76,10 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   // now we want to stop the timer and wait for the medium to be idle
   assert(a);
 
+  double probSameSlot = 1-(a->remainingTime()/SLOTTIME);
+  
+  if( (a->remainingTime() >= SLOTTIME) )//||(uniform(0,1) > probSameSlot))
+  {
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());
   assert(outData); // check if the frame is ok
@@ -113,7 +117,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   mod->waitStartTime = mod->simTime();
 
   mod->changeState(WirelessEtherStateBackoffReceive::instance());
-
+  }
   return data;
 }
 
@@ -142,6 +146,8 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   double d = (double)WEBASICFRAME_IN(data)->length();
   simtime_t transmTime = d / BASE_SPEED;
 
+  //tx time should not be smaller than a slot
+  assert(transmTime > SLOTTIME);
 
   // GD Hack: assume not (toDS=1, FromDS=1).
 

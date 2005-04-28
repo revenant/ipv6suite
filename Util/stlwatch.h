@@ -121,8 +121,11 @@ class cListWatcher : public cVectorWatcherBase
         if (it==v.end()) {
             return std::string("out of bounds");
         }
+        return atIt();
+    }
+    virtual std::string atIt() const {
         std::stringstream out;
-        out << (*it);
+        out << "{" << (*it) << "}";
         return out.str();
     }
 };
@@ -142,7 +145,11 @@ class cPointerListWatcher : public cListWatcher<T>
 {
   public:
     cPointerListWatcher(const char *name, std::list<T>& var) : cListWatcher<T>(name, var) {}
-    virtual std::string at(int i) const {std::stringstream out; out << *(this->v[i]); return out.str();}
+    virtual std::string atIt() const {
+        std::stringstream out;
+        out << "{" << *(*it) << "}";
+        return out.str();
+    }
 };
 
 template <class T>

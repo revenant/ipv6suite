@@ -20,7 +20,7 @@ ALL_IPv6_INCLUDES=-I$(ROOT)/Network/IPv6 -I$(ROOT)/Network/ICMPv6 -I$(ROOT)/Netw
 ALL_MODEL_OPTS=$(OPTS) -n
 
 all:
-	$(MAKEMAKE) $(OPTS) -n -r -X Documentation -X Etc -X Unsupported -X Tests
+	$(MAKEMAKE) $(OPTS) -n -r -X Documentation -X Etc -X Unsupported -X Tests -X Research
 
 	cd Applications && $(MAKEMAKE) $(OPTS) -n -r
 	cd Examples && $(MAKEMAKE) $(OPTS) -n -r

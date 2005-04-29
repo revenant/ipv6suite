@@ -258,13 +258,13 @@ void IPv6Forward::endService(cMessage* theMsg)
   using MobileIPv6::bc_entry;
   using MobileIPv6::MIPv6RteOpt;
 
-  weak_ptr<bc_entry> bce;
-
   Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
+
+  boost::weak_ptr<bc_entry> bce;
 
   if (rt->mobilitySupport() && datagram->inputPort() == -1)
   {
-    // In simultaneous movement, it is possible that the mobility
+    // In MN-MN communications, it is possible that the mobility
     // messages are sent in reverse tunnel. Therefore, we need to
     // check if the packet is encapsulated with another IPv6 header.
 
@@ -282,8 +282,8 @@ void IPv6Forward::endService(cMessage* theMsg)
     // no mobility message is allowed to have type 2 rh except BA
     if (ms == 0 || (ms && ms->header_type() ==  MobileIPv6::MIPv6MHT_BA))
     {
+      bce = rt->mipv6cds->findBinding(datagram->destAddress());
 
-      boost::weak_ptr<bc_entry> bce = rt->mipv6cds->findBinding(datagram->destAddress());
       if (bce.lock().get())
         {
           assert(bce.lock()->home_addr == datagram->destAddress());
@@ -410,7 +410,7 @@ void IPv6Forward::endService(cMessage* theMsg)
         )
       coaAssigned = true;
 
-    // In simultaneous movment, there are times when the MN has the
+    // In MN-MN communications, there are times when the MN has the
     // care-of address of the CN in its binding cache entry. Since the
     // dest address of the packet got swapped to the care-of address
     // from the home address of the CN, it is important that we use

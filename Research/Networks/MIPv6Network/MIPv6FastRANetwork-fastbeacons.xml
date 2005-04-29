@@ -8,51 +8,11 @@
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
-<!-- XXX Wireless config moved to ini file -AV
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
--->
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on">
-<!-- XXX not needed -AV
-    <interface name="eth0">
-    </interface>
--->
   </local>
-<!-- XXX Wireless config moved to ini file -AV
-  <local node="ap1">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap2">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap3">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap4">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.1" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
--->
 <!-- routing table configuration -->
-
   <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
     <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on" MaxFastRAS="10" MIPv6MaxRtrAdvInterval="0.07" MIPv6MinRtrAdvInterval="0.03">
       <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212</inetAddr>

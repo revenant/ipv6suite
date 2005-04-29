@@ -4,41 +4,10 @@
 <netconf debugChannel="debug.log:MobileMove:MIPv6MissedAdv:notice:HMIPv6:custom:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc">
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode" returnRoutability="on" hierarchicalMIPv6Support="off">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="0.9" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on">
     <interface name="eth0">
-    </interface>
-  </local>
-  <local node="ap1">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap2">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap3">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
-      </WirelessEtherInfo>
-    </interface>
-  </local>
-  <local node="ap4">
-    <interface name="wlanap">
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="2" />
-      </WirelessEtherInfo>
     </interface>
   </local>
 

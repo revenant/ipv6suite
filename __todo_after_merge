@@ -1,5 +1,0 @@
-- apps: add startTime; IPAddressResolver should only be invoked at startTime not in initialize()!
-
-- finish IPAddressResolver
-
-- TCP tests fail now (TCPDump has changed)

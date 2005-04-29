@@ -107,6 +107,7 @@ void NewLDP::handleMessage(cMessage *msg)
 void NewLDP::sendHelloTo(IPAddress dest)
 {
     LDPHello *hello = new LDPHello("LDP-Hello");
+    hello->setLength(LDP_HEADER_BYTES);
     hello->setType(HELLO);
     hello->setSenderAddress(rt->getRouterId());
     //hello->setReceiverAddress(...);
@@ -311,6 +312,7 @@ void NewLDP::processRequestFromMPLSSwitch(cMessage *msg)
 
     // genarate new LABEL REQUEST and send downstream
     LDPLabelRequest *requestMsg = new LDPLabelRequest("Lb-Req");
+    requestMsg->setLength(LDP_HEADER_BYTES);
     requestMsg->setType(LABEL_REQUEST);
     requestMsg->setFec(fecInt);  // FIXME this is actually the dest IP address!!!
     requestMsg->setFecId(fecId); // FIXME!!!
@@ -502,6 +504,7 @@ void NewLDP::processLABEL_REQUEST(LDPLabelRequest *packet)
 
         // Send LABEL MAPPING upstream
         LDPLabelMapping *lmMessage = new LDPLabelMapping("Lb-Mapping");
+        lmMessage->setLength(LDP_HEADER_BYTES);
         lmMessage->setType(LABEL_MAPPING);
         lmMessage->setLength(30*8); // FIXME find out actual length
         lmMessage->setReceiverAddress(srcAddr);
@@ -532,8 +535,8 @@ void NewLDP::processLABEL_REQUEST(LDPLabelRequest *packet)
 
         // Send LABEL MAPPING upstream
         LDPLabelMapping *lmMessage = new LDPLabelMapping("Lb-Mapping");
+        lmMessage->setLength(LDP_HEADER_BYTES);
         lmMessage->setType(LABEL_MAPPING);
-        lmMessage->setLength(30*8); // FIXME find out actual length
         lmMessage->setReceiverAddress(srcAddr);
         lmMessage->setSenderAddress(rt->getRouterId());
         lmMessage->setLabel(inLabel);

@@ -165,10 +165,10 @@ TCPConnection *TCPConnection::cloneListeningConnection()
 void TCPConnection::sendToIP(TCPSegment *tcpseg)
 {
     // record seq (only if we do send data) and ackno
-    if (sndNxtVector && tcpseg->payloadLength()!=0) 
+    if (sndNxtVector && tcpseg->payloadLength()!=0)
         sndNxtVector->record(tcpseg->sequenceNo());
     if (sndAckVector) sndAckVector->record(tcpseg->ackNo());
-    
+
     // final touches on the segment before sending
     tcpseg->setSrcPort(localPort);
     tcpseg->setDestPort(remotePort);
@@ -484,12 +484,33 @@ bool TCPConnection::sendData(bool fullSegmentsOnly, int congestionWindow)
 
     uint32 old_snd_nxt = state->snd_nxt;
     ASSERT(bytesToSend>0);
-    while (bytesToSend>0) // FIXME should this be if(fullSegmentsOnly ? bytesToSend>=state->snd_mss : bytesToSend>0) ?
+
+#ifdef TCP_SENDFRAGMENTS  /* normally undefined */
+    // make agressive use of the window until the last byte
+    while (bytesToSend>0)
     {
         ulong bytes = Min(bytesToSend, state->snd_mss);
         sendSegment(bytes);
         bytesToSend -= bytes;
     }
+#else
+    // send <MSS segments only if it's the only segment we can send now
+    if (bytesToSend <= state->snd_mss)
+    {
+        sendSegment(bytesToSend);
+    }
+    else
+    {
+        // send whole segments only
+        while (bytesToSend>=state->snd_mss)
+        {
+            sendSegment(state->snd_mss);
+            bytesToSend -= state->snd_mss;
+        }
+        if (bytesToSend>0)
+           tcpEV << bytesToSend << " bytes of space left in effectiveWindow\n";
+    }
+#endif
 
     // remember highest seq sent (snd_nxt may be set back on retransmission,
     // but we'll need snd_max to check validity of ACKs -- they must ack

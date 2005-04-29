@@ -4,3 +4,5 @@
 - apps: add startTime param; IPAddressResolver should only be invoked at startTime not in initialize()!
 
 - TCP tests fail now (TCPDump has changed)
+
+- create RED etc for routers

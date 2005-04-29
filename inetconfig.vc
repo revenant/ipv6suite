@@ -2,7 +2,7 @@
 # Config file for the INET framework. This is included by every makefile.
 #
 
-OMNETPP_ROOT=d:\home\omnetpp
+OMNETPP_ROOT=c:\omnet++
 
 !include $(OMNETPP_ROOT)\configuser.vc
 

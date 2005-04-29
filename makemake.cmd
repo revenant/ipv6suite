@@ -1,4 +1,4 @@
-cd $~dp0
+cd %~dp0
 call ..\omnetpp\setenv-vc71.bat
 nmake ROOT=%~dp0 MAKEMAKE=opp_nmakemake EXT=.vc -f makemakefiles
 

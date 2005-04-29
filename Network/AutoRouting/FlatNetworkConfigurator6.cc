@@ -69,12 +69,12 @@ void FlatNetworkConfigurator6::initialize(int stage)
                     bool linkLocalAddrAssigned = false;
                     bool globalAddrAssigned = false;
 
-                    for (int l = 0; l < ie->ipv6()->inetAddrs.size(); l++)
+                    for (int l = 0; l < ie->ipv6()->tentativeAddrs.size(); l++)
                     {
-                        if (ie->ipv6()->inetAddrs[l].scope() == ipv6_addr::Scope_Global)
+                        if (ie->ipv6()->tentativeAddrs[l].scope() == ipv6_addr::Scope_Global)
                             globalAddrAssigned = true;
 
-                        if (ie->ipv6()->inetAddrs[l].scope() == ipv6_addr::Scope_Link)
+                        if (ie->ipv6()->tentativeAddrs[l].scope() == ipv6_addr::Scope_Link)
                             linkLocalAddrAssigned = true;
                     }
 
@@ -232,16 +232,6 @@ void FlatNetworkConfigurator6::initialize(int stage)
             // traverse through address of each node
             for (int k = 0; k < destAddrs.size(); k++)
             {
-                // on-link link local address
-//FIXME is this necessary, or can be removed?
-//        if (nextHopLinkLocalAddr == destAddrs[k])
-//        {
-//          rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], isDestHost);
-//          continue;
-//        }
-
-                // add on-link neighbour address into the prefix list (for
-                // global addr), or neighbour cache ( for link local addr)
                 bool isOnlinkAddr = false;
 
                 // traverse through address of next hop

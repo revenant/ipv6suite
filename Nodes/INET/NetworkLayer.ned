@@ -68,7 +68,7 @@ module NetworkLayer
         igmp: IGMP;
             display: "p=160,122;i=block/cogwheel_s";
         errorHandling: ErrorHandling;
-            display: "p=133,174;i=block/process_s";
+            display: "p=239,63;i=block/process_s";
     connections nocheck:
         // transport Layer
         ip.transportOut[0] --> TCPOut;
@@ -91,6 +91,8 @@ module NetworkLayer
 
         icmp.pingOut --> pingOut;
         icmp.pingIn <-- pingIn;
+
+        icmp.errorOut --> errorHandling.in;
 
         // L2 interfaces to IP
         for i=0..sizeof(physOut)-1 do

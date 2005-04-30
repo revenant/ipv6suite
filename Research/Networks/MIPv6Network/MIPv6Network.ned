@@ -37,15 +37,15 @@ import  //
 module MIPv6Network
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=316,40;i=bwgen_s";
+            display: "p=436,72;i=misc/sun";
         client1: MobileNode; //
             parameters:
                 //# routingFile = "client1.irt",
                 IPForward = false;
-        gatesizes:
-            wlin[1],
-            wlout[1];
-            display: "p=88,118;i=laptop3";
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=120,142;i=device/palm";
         server4: UDPNode;
             parameters:
                 //# routingFile = "server4.irt",
@@ -53,47 +53,52 @@ module MIPv6Network
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=39,441;i=pc";
+            display: "p=39,521;i=device/pc2";
         ha: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=96,200;i=router";
+            display: "p=120,224;i=device/router";
         router1: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=250,198;i=router";
+            display: "p=410,222;i=device/router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=134,158;i=switch1_s";
+            display: "p=190,190;i=device/accesspoint";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,158;i=switch1_s";
+            display: "p=474,182;i=device/accesspoint";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,330;i=switch1_s";
+            display: "p=474,578;i=device/accesspoint";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=134,330;i=switch1_s";
+            display: "p=182,578;i=device/accesspoint";
         router2: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=256,372;i=router";
+            display: "p=416,524;i=device/router";
         router3: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=92,368;i=router";
+            display: "p=116,520;i=device/router";
+        configurator6: FlatNetworkConfigurator6;
+            parameters:
+                moduleTypes = "Router6 MobileNode UDPNode",
+                nonIPModuleTypes = "AccessPoint ";
+            display: "p=340,76;i=block/cogwheel";
     connections nocheck:
 
         // Correct for ping test
@@ -130,9 +135,10 @@ module MIPv6Network
         router1.out[3] --> internetCable --> router3.in[4];
         router1.in[3] <-- internetCable <-- router3.out[4];
 
-    display: "p=2,10;b=461,539";
+    display: "b=613,705";
 endmodule
 
 
 network mipv6Network : MIPv6Network
 endnetwork
+

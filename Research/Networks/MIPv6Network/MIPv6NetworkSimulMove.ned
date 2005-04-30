@@ -40,14 +40,14 @@ import  //
 module MIPv6NetworkSimulMove
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=316,40;i=bwgen_s";
+            display: "p=380,40;i=misc/sun";
         client1: MobileNode; //
             parameters:
                 IPForward = false;
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=88,118;i=laptop3";
+            display: "p=88,118;i=device/palm";
         server4: MobileNode;
             parameters:
                 //# routingFile = "server4.irt",
@@ -55,54 +55,54 @@ module MIPv6NetworkSimulMove
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=88,369;i=laptop3";
+            display: "p=88,369;i=device/wifilaptop";
         ha1: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=95,200;i=router";
+            display: "p=95,200;i=abstract/router";
         router1: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=250,198;i=router";
+            display: "p=250,198;i=abstract/router";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=135,160;i=switch1_s";
+            display: "p=135,160;i=device/accesspoint";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=306,158;i=switch1_s";
+            display: "p=306,158;i=device/accesspoint";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=300,340;i=switch1_s";
+            display: "p=300,340;i=device/accesspoint";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=142,338;i=switch1_s";
+            display: "p=142,338;i=device/accesspoint";
         router2: Router6;
             gatesizes:
                 in[4],
                 out[4];
-            display: "p=248,292;i=router";
+            display: "p=248,292;i=abstract/router";
         ha2: Router6;
             gatesizes:
                 in[5],
                 out[5];
-            display: "p=92,296;i=router";
+            display: "p=92,296;i=abstract/router";
         ewu: UDPNode;
             parameters:
                 IPForward = false;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=32,296;i=pc";
+            display: "p=32,296;i=device/pc2";
         configurator6: FlatNetworkConfigurator6;
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode",

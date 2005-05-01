@@ -186,6 +186,8 @@ void WirelessEtherModule::initialize(int stage)
     apMode = false;
 
     channel = 0;
+    WATCH(channel);
+
     associateAP.address =  MAC_ADDRESS_UNSPECIFIED_STRUCT;
     associateAP.channel = INVALID_CHANNEL;
     associateAP.rxpower = INVALID_POWER;

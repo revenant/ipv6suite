@@ -24,140 +24,124 @@ import  //
     "WirelessMobileNode",
     "Cables";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module MIPv6NetworkSimulMove2
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=756,504;i=bwgen_s;b=17,17";
+            display: "p=548,40;i=misc/sun";
         mn1: MobileNode;
             parameters:
                 IPForward = false;
-        gatesizes:
-            wlin[1],
-            wlout[1];
+            gatesizes:
+                wlin[1],
+                wlout[1];
             display: "p=110,55;i=laptop3";
         mn2: MobileNode;
             parameters:
                 IPForward = false;
-        gatesizes:
-            wlin[1],
-            wlout[1];
+            gatesizes:
+                wlin[1],
+                wlout[1];
             display: "p=110,325;i=laptop3";
         coreRouter1: Router6;
             gatesizes:
                 in[11],
                 out[11];
-            display: "p=475,220;i=router3;b=38,50";
+            display: "p=475,220;i=router3";
         coreRouter2: Router6;
             gatesizes:
                 in[11],
                 out[11];
-            display: "p=475,330;i=router3;b=38,50";
+            display: "p=475,330;i=router3";
         router1: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=95,100;i=router2;b=31,25";
+            display: "p=95,100;i=router2";
         router2: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,290;i=router2;b=31,25";
+            display: "p=185,290;i=router2";
         router3: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,180;i=router2;b=31,25";
+            display: "p=185,180;i=router2";
         router4: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,370;i=router2;b=31,25";
+            display: "p=185,370;i=router2";
         router5: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,260;i=router2;b=31,25";
+            display: "p=185,260;i=router2";
         router6: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=95,290;i=router2;b=31,25";
+            display: "p=95,290;i=router2";
         router7: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,100;i=router2;b=31,25";
+            display: "p=185,100;i=router2";
         router8: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,290;i=router2;b=31,25";
+            display: "p=275,290;i=router2";
         router9: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,180;i=router2;b=31,25";
+            display: "p=275,180;i=router2";
         router10: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,370;i=router2;b=31,25";
+            display: "p=275,370;i=router2";
         router11: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,260;i=router2;b=31,25";
+            display: "p=275,260;i=router2";
         router12: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=185,450;i=router2;b=31,25";
+            display: "p=185,450;i=router2";
         router13: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,100;i=router2;b=31,25";
+            display: "p=275,100;i=router2";
         router14: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=365,290;i=router2;b=31,25";
+            display: "p=365,290;i=router2";
         router15: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=365,180;i=router2;b=31,25";
+            display: "p=365,180;i=router2";
         router16: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=365,370;i=router2;b=31,25";
+            display: "p=365,370;i=router2";
         router17: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=365,260;i=router2;b=31,25";
+            display: "p=365,260;i=router2";
         router18: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=275,450;i=router2;b=31,25";
+            display: "p=275,450;i=router2";
         router19: Router6;
             gatesizes:
                 in[2],
@@ -268,6 +252,11 @@ module MIPv6NetworkSimulMove2
                 in[1],
                 out[1];
             display: "p=410,490;i=switch1_s";
+        configurator6: FlatNetworkConfigurator6;
+            parameters:
+                moduleTypes = "Router6 MobileNode UDPNode",
+                nonIPModuleTypes = "AccessPoint ";
+            display: "p=596,500;i=block/cogwheel";
     connections nocheck:
         coreRouter1.out[0] --> internetCable --> coreRouter2.in[0];
         coreRouter1.in[0] <-- internetCable <-- coreRouter2.out[0];

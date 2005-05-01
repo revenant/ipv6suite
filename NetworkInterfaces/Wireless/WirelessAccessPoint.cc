@@ -85,6 +85,8 @@ void WirelessAccessPoint::initialize(int stage)
 {
   if ( stage == 0 )
   {
+    WATCH(channel);
+
     LinkLayerModule::initialize();
     cModule* mod = OPP_Global::findModuleByName(this, "worldProcessor");
     assert(mod);

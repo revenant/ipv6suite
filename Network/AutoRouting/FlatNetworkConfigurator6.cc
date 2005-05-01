@@ -150,8 +150,9 @@ void FlatNetworkConfigurator6::initialize(int stage)
         cModule *nextHop = remoteGate->ownerModule();
         InterfaceEntry *nextHopIf = IPAddressResolver().interfaceTableOf(nextHop)->interfaceByPortNo(remoteGateIdx);
 
-        // add route
-        IPv6Address defaultAddr("0:0:0:0:0:0:0:0/0");   // FIXME why empty addr?
+	// for default route, destination address is 0:0:0:0:0:0:0:0/0
+	// [ref] RoutingTable6::addRoute()
+        IPv6Address defaultAddr("0:0:0:0:0:0:0:0/0"); 
 
         for (int k = 0; k < nextHopIf->ipv6()->tentativeAddrs.size(); k++)
         {
@@ -174,7 +175,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
         if (std::find(nonIPTypes.begin(), nonIPTypes.end(), destNode->module()->className()) != nonIPTypes.end())
             continue;
 
-        bool isDestHost = !(IPAddressResolver().routingTable6Of(destNode->module())->isRouter());
+	//        bool isDestHost = !(IPAddressResolver().routingTable6Of(destNode->module())->isRouter());
 
         // get a list of addresse from the dest node
         std::vector<IPv6Address> destAddrs;
@@ -234,32 +235,9 @@ void FlatNetworkConfigurator6::initialize(int stage)
             {
                 bool isOnlinkAddr = false;
 
-                // traverse through address of next hop
-                for (int l = 0; l < nextHopIft->numInterfaces(); l++)
-                {
-                    InterfaceEntry *nextHopIf = nextHopIft->interfaceAt(l);
-
-                    if (nextHopIf->isLoopback())
-                        continue;
-
-                    for (int m = 0; m < nextHopIf->ipv6()->tentativeAddrs.size(); m++)
-                    {
-                        IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[m];
-                        // on-link address
-                        if ((nextHopAddr == destAddrs[k] && nextHopAddr.scope() != ipv6_addr::Scope_Link))
-                        {
-                            rt->addRoute(outputPort, nextHopAddr, destAddrs[k], isDestHost);
-                            rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], true);
-                            isOnlinkAddr = true;
-                            break;
-                        }
-                    }
-                    if (isOnlinkAddr)
-                        break;
-                }
-
-                if (!isOnlinkAddr && destAddrs[k].scope() != ipv6_addr::Scope_Link)     // FIXME and what if it's Node or Organization scope?
-                    rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], isDestHost);
+		// add to destination cache 
+		if ( destAddrs[k].scope() != ipv6_addr::Scope_Link )
+		    rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], true);
             }
         }
     }

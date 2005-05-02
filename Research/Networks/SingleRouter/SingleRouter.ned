@@ -5,15 +5,15 @@ import
 
 module  SingleRouter
     submodules:
-        worldProcessor: WorldProcessor;
+     worldProcessor: WorldProcessor;
             display: "p=165,156;i=bwgen_s";
-        client1: UDPNode;
-            parameters:
+     client1: UDPNode;
+         parameters:
             IPForward = false;
-            gatesizes:
-                in[1],
-                out[1];
-            display: "p=42,56;i=comp";
+         gatesizes:
+            in[1],
+            out[1];
+         display: "p=42,56;i=comp";
      client2: UDPNode;
          parameters:
            IPForward = false;
@@ -27,12 +27,12 @@ module  SingleRouter
          gatesizes:
            in[1],
            out[1];
-           display: "p=288,106;i=comp";
-       router: Router6;
-           gatesizes:
+         display: "p=288,106;i=comp";
+     router: Router6;
+         gatesizes:
            in[3],
            out[3];
-           display: "p=165,106;i=ipc";
+         display: "p=165,106;i=ipc";
   connections nocheck:
       client1.in[0] <-- router.out[0];
       client1.out[0] -->router.in[0];

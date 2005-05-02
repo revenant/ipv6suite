@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?> 
-<!DOCTYPE netconf SYSTEM "../../Etc/netconf2.dtd">
-<netconf debugChannel="debug.log:rcfile:notice:custom:Ping6:Statistic:IPv6:AddrResln:Forwarding:NeighbourDisc:RouterDisc:Routing:UDPVidStrmSvr:UDP:debug">
-  <local node="server1">
-    <interface name="ppp0">
-    </interface>
-  </local>
-  <local node="server2">
-    <interface name="ppp0">
-    </interface>
-  </local>
-  <local node="client1">
-    <interface name="ppp0">
-    </interface>
-  </local>
-  <local node="client2">
-    <interface name="ppp0">
-    </interface>
-  </local>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<netconf>
   <local node="routerInt" routePackets="on">
     <interface name="ppp0" AdvSendAdvertisements="on">
       <AdvPrefixList>

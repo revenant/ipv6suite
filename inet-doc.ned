@@ -28,8 +28,15 @@
 //
 // Most modules use the IPAddressResolver class to resolve addresses.
 // It accepts the following syntax:
-//#FIXME TBD
 //
+//    - literal IPv4 address: "186.54.66.2"
+//    - literal IPv6 address: "3011:7cd6:750b:5fd6:aba3:c231:e9f9:6a43"
+//    - module name: "server", "subnet.server[3]"
+//    - interface of a host or router: "server/eth0", "subnet.server[3]/eth0"
+//    - IPv4 or IPv6 address of a host or router: "server(ipv4)", 
+//      "subnet.server[3](ipv6)"
+//    - IPv4 or IPv6 address of an interface of a host or router: 
+//      "server/eth0(ipv4)", "subnet.server[3]/eth0(ipv6)" 
 //
 // @page irt.html, The routing files
 //

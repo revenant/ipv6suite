@@ -22,6 +22,8 @@ ALL_MODEL_OPTS=$(OPTS) -n
 all:
 	$(MAKEMAKE) $(OPTS) -n -r -X Documentation -X Etc -X Unsupported -X Tests -X Research
 
+	cd bin && $(MAKEMAKE) $(OPTS) -w -o INET $(ALL_INET_INCLUDES) $(ALL_IPv6_INCLUDES) $(ALL_MPLS_INCLUDES)
+
 	cd Applications && $(MAKEMAKE) $(OPTS) -n -r
 	cd Examples && $(MAKEMAKE) $(OPTS) -n -r
 	cd Tests && $(MAKEMAKE) $(OPTS) -n -r -X IPv4 -X MPLS
@@ -94,8 +96,6 @@ all:
 	cd Transport/UDP && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/Generic -I../../Base -I../../Util
 	cd Transport/RTP && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/Generic -I../../Base -I../../Util -X Profiles -X tmp
 	cd Transport/TCP && $(MAKEMAKE) $(OPTS) -n -I../../Network/IPv4 -I../../Network/Generic -I../../Base -I../../Util
-
-	cd Examples/bin && $(MAKEMAKE) $(OPTS) -w -o INET $(ALL_INET_INCLUDES) $(ALL_IPv6_INCLUDES) $(ALL_MPLS_INCLUDES)
 
 	cd Examples/Ethernet && $(MAKEMAKE) $(OPTS) -n -r
 	cd Examples/INET && $(MAKEMAKE) $(OPTS) -n -r

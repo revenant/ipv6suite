@@ -4,8 +4,8 @@ ipv6-index.ned
 mpls-doc.ned
 Applications/Ethernet/EtherAppCli.ned
 Applications/Ethernet/EtherAppSrv.ned
-Applications/Generic/IPTrafGen.ned
 Applications/Generic/IPTrafficGenerator.ned
+Applications/Generic/IPTrafGen.ned
 Applications/PingApp/PingApp.ned
 Applications/TCPApp/TCPApp.ned
 Applications/TCPApp/TCPBasicClientApp.ned
@@ -117,17 +117,17 @@ NetworkInterfaces/NetworkInterface.ned
 NetworkInterfaces/NetworkInterface6.ned
 NetworkInterfaces/ARP/ARP.ned
 NetworkInterfaces/DualWireless/DualInterfaceLayer.ned
+NetworkInterfaces/Ethernet/eth-index.ned
 NetworkInterfaces/Ethernet/EtherBus.ned
 NetworkInterfaces/Ethernet/EtherEncap.ned
 NetworkInterfaces/Ethernet/EtherHub.ned
 NetworkInterfaces/Ethernet/EtherLLC.ned
 NetworkInterfaces/Ethernet/EtherMAC.ned
-NetworkInterfaces/Ethernet/EtherSwitch.ned
 NetworkInterfaces/Ethernet/EthernetInterface.ned
+NetworkInterfaces/Ethernet/EtherSwitch.ned
 NetworkInterfaces/Ethernet/MACRelayUnit.ned
 NetworkInterfaces/Ethernet/MACRelayUnitNP.ned
 NetworkInterfaces/Ethernet/MACRelayUnitPP.ned
-NetworkInterfaces/Ethernet/eth-index.ned
 NetworkInterfaces/Ethernet6/EtherModuleAP.ned
 NetworkInterfaces/Ethernet6/EtherRelayUnit.ned
 NetworkInterfaces/PPP/PPPInterface.ned
@@ -150,8 +150,30 @@ Nodes/IPv6/WirelessAccessPoint.ned
 Nodes/IPv6/WirelessMobileNode.ned
 Nodes/MPLS/LDP_LSR.ned
 Nodes/MPLS/RSVP_LSR.ned
-PHY/PHYSimple.ned
 PHY/PhysicalLayer.ned
+PHY/PHYSimple.ned
+Research/Networks/EthNetwork/Ethernetwork.ned
+Research/Networks/HMIPv6Network/HMIPv6Network.ned
+Research/Networks/HMIPv6Network/HMIPv6Sait.ned
+Research/Networks/HMIPv6Network/HMIPv6Simple.ned
+Research/Networks/HMIPv6Network/SaitEHCal.ned
+Research/Networks/MIPv6Network/MIPv6FastRANetwork.ned
+Research/Networks/MIPv6Network/MIPv6MACBridgeNetwork.ned
+Research/Networks/MIPv6Network/MIPv6Network.ned
+Research/Networks/MIPv6Network/MIPv6NetworkSimulMove.ned
+Research/Networks/MIPv6Network/MIPv6NetworkSimulMove2.ned
+Research/Networks/MIPv6Network/PCOAForwarding.ned
+Research/Networks/PingNetwork/PingNetwork.ned
+Research/Networks/SingleRouter/SingleRouter.ned
+Research/Networks/TestNetwork/TestNetwork.ned
+Research/Networks/TestNetwork/UDPNetwork.ned
+Research/Networks/TunnelNet/PrefixedTunnelNet.ned
+Research/Networks/TunnelNet/TunnelNet.ned
+Research/Networks/TwoRouters/TwoRouters.ned
+Research/Networks/WirelessEtherNetwork/WirelessEtherNetwork.ned
+Research/Networks/WirelessEtherNetwork2/WirelessEtherNetwork2.ned
+Research/Networks/WirelessEtherNetworkDual/WirelessEtherNetworkDual.ned
+Research/Networks/WirelessTest/WirelessTest.ned
 
 
 

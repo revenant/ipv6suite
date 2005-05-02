@@ -11,6 +11,7 @@ subdirs $(OBJS) : generateheaders
 Applications_dir NetworkInterfaces_dir : Network_dir
 
 # add dependencies across directories
+bin_dir: Applications_dir Transport_dir Network_dir NetworkInterfaces_dir PHY_dir Mobility_dir World_dir Base_dir Util_dir Nodes_dir
 Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Applications_dir : Util_dir Base_dir
 Nodes_dir : Network_dir Transport_dir NetworkInterfaces_dir PHY_dir Mobility_dir Applications_dir World_dir
 Examples_dir Tests_dir : Nodes_dir

@@ -76,9 +76,9 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   // now we want to stop the timer and wait for the medium to be idle
   assert(a);
 
-  double probSameSlot = 1-(a->remainingTime()/SLOTTIME);
+  double probSameSlot = 1-(a->remainingTime()/(2*SLOTTIME));
   
-  if( (a->remainingTime() >= SLOTTIME) )//||(uniform(0,1) > probSameSlot))
+  if( (a->remainingTime() >= SLOTTIME)||(uniform(0,1) > probSameSlot) )
   {
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());

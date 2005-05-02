@@ -49,7 +49,6 @@ foreach line {
    {"EthNetwork"    "IPv6/EthNetwork"      "./EthNetwork"    "EthNetwork"}
    {"MIPv6Network"  "IPv6/MIPv6Network"    "./MIPv6Network"  "MIPv6Network"}
    {"PingNetwork"   "IPv6/PingNetwork"     "./PingNetwork"   "PingNetwork"}
-   {"TunnelNet"     "IPv6/TunnelNet"       "./TunnelNet"     "TunnelNet"}
    {"Wireless"      "IPv6/WirelessEtherNetwork"   "./WirelessEtherNetwork"   "WirelessEtherNetwork"}
    {"Wireless2"     "IPv6/WirelessEtherNetwork2"  "./WirelessEtherNetwork2"  "WirelessEtherNetwork2"}
 

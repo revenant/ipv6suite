@@ -495,6 +495,7 @@ bool TCPConnection::sendData(bool fullSegmentsOnly, int congestionWindow)
     }
 #else
     // send <MSS segments only if it's the only segment we can send now
+    // FIXME this should probably obey Nagle's alg -- to be checked
     if (bytesToSend <= state->snd_mss)
     {
         sendSegment(bytesToSend);

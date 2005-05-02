@@ -83,6 +83,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           mapMNMUSTSetRoCAAsSource (on|off) "on"
           mapReverseTunnel (on|off) "on"
           edgeHandoverType CDATA ""
+          ewuOutVectorHODelays (on|off) "off"
           >
 
 <!ELEMENT route (routeEntry)+>
@@ -142,7 +143,7 @@ element. -->
           MIPv6MinRtrAdvInterval NMTOKEN "1"
           MIPv6MinRtrSolInterval NMTOKEN "1"
           MIPv6MaxInterval NMTOKEN "8"
-          MaxFastRAS       NMTOKEN "0"
+          MaxFastRAS       NMTOKEN "10"
           MaxConsecMissRtrAdv NMTOKEN "1"
           >
 
@@ -187,7 +188,7 @@ AdvDefaultLifetime NMTOKEN "0xFFFFFF"
           AdvMAPPref NMTOKEN "1"
           AdvMAPValidLifetime NMTOKEN "2592"
           >
-
+ 
 <!-- These elements will be deprecated although there is no other alternative at this time -->
 <!ELEMENT AdvManagedFlag (#PCDATA)>
 <!ELEMENT AdvOtherConfigFlag (#PCDATA)>

@@ -169,9 +169,6 @@ void WirelessEtherModule::initialize(int stage)
 {
   if (stage == 0)
   {
-    l2LinkDownRecorder = 0;
-    l2DelayRecorder = 0;
-    l2HODelay = new cOutVector("IEEE 802.11 HO Latency");
     linkdownTime = 0;
     totalDisconnectedTime = 0;
 

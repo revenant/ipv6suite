@@ -27,4 +27,6 @@
 simple RoutingTable6
     parameters:
     displayIfconfig : bool;
+    gates:
+    in: recordSimTime;
 endsimple

@@ -63,14 +63,6 @@ void NeighbourDiscovery::initialize(int stageNo)
 {
   if (stageNo == 0)
   {
-#ifdef USE_MOBILITY
-    missedRtrAdvLatency = new cOutVector("Movement Detection Latency");
-    missedRtrDuration = 0;
-    l2LinkupTime = 0;
-    rsLatency = new cOutVector("RS - RA Latency");;
-    rsSentTime = 0;
-#endif // USE_MOBILITY
-
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 

@@ -92,10 +92,8 @@ private:
 
   cOutVector* pingDelay;
   cOutVector* pingDrop;
-  cOutVector* handoverLatency;
   int dropCount;
   unsigned short nextEstSeqNo;
-  simtime_t lastReceiveTime;
 
   InterfaceTable *ift;
   RoutingTable6 *rt;

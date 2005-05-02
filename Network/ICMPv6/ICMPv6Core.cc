@@ -83,10 +83,9 @@ void ICMPv6Core::initialize()
   pingDelay = new cOutVector("pingEED");
   //Per handover
   pingDrop = new cOutVector("pingDrop");
-  handoverLatency = new cOutVector("handoverLatency");
+
   dropCount = 0;
   nextEstSeqNo = 0;
-  lastReceiveTime = 0;
 }
 
 void ICMPv6Core::endService(cMessage* msg)
@@ -345,10 +344,7 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
            <<" just dropped="<<seqNo - nextEstSeqNo);
       dropCount += (unsigned short)(seqNo - nextEstSeqNo);
       if (simTime() >= icmpRecordStart)
-      {
         pingDrop->record((unsigned short)(seqNo - nextEstSeqNo));
-        handoverLatency->record(simTime() - lastReceiveTime);
-      }
     }
 
     if (seqNo < nextEstSeqNo)
@@ -360,7 +356,6 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
     {
       nextEstSeqNo=seqNo+1;
 
-      lastReceiveTime = simTime();
       if (simTime() >= icmpRecordStart)
       {
         pingDelay->record(simTime() -  sendingTime);

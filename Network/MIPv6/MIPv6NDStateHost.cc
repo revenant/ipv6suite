@@ -144,8 +144,6 @@ public:
   void reset(double newInterval)
     {
       interval = newInterval;
-      // for cOutputVector, recording the duration of the missed rtradv
-      static_cast<NeighbourDiscovery*>(mod)->missedRtrDuration = interval;
       consecCountMissed = 0;
       //Cannot always assume that it is scheduled as we can enter a subnet where
       //no default routers are known yet and so missedRtrAdvTmr is obviously not
@@ -194,10 +192,7 @@ private:
       (*cb)(this);
     }
     else
-    {
-      nd->missedRtrDuration = (double)interval * (consecCountMissed + 1);
       rescheduleDelay(interval);
-    }
   }
 
 /**
@@ -262,20 +257,6 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
                                  ///Should pass this tmr as the argument
                                  //to callback as default arg of 0
                                  "Tmr_L2Trigger"));
-
-      L2DelayTmr* l2DelayTmr;
-      l2DelayTmr = new L2DelayTmr(Tmr_L2DelayRecorder, mod, this,
-                                  &MIPv6NDStateHost::recordL2LinkUpTime,
-                                  "recordL2Delay");
-
-      wlanMod->setLayer2DelayRecorder(l2DelayTmr);
-
-      L2DelayTmr* l2LinkDownTmr;
-      l2LinkDownTmr = new L2DelayTmr(Tmr_L2LinkDownRecorder, mod, this,
-                                     &MIPv6NDStateHost::recordL2LinkDownTime,
-                                     "recordLinkDown");
-
-      wlanMod->setLayer2LinkDownRecorder(l2LinkDownTmr);
     }
   }
 
@@ -838,10 +819,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   }
   else if (tmr->kind() == Tmr_RtrAdvMissed)
   {
-    nd->missedRtrAdvLatency->record(nd->missedRtrDuration -
-                                    ( nd->l2LinkupTime -
-                                      mipv6cdsMN->currentRouter()->re.lock()->lastRAReceived ));
-
     mipv6cdsMN->setMovementDetected(true);
     mipv6cdsMN->setAwayFromHome(true);
     Dout(dc::mipv6|dc::mip_missed_adv|dc::mobile_move, rt->nodeName()<<" "<<setprecision(6)
@@ -858,8 +835,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   }
   else if (tmr->kind() == Tmr_L2Trigger)
   {
-    nd->missedRtrAdvLatency->record(nd->simTime() - nd->l2LinkupTime);
-
     if (ignoreInitiall2trigger)
       ignoreInitiall2trigger = false;
     else
@@ -879,7 +854,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     mipv6cdsMN->setMovementDetected(false);
     return;
   }
-  nd->rsSentTime = nd->simTime();
   //Guess we could just do it for the mobile interface i.e. the one with the
   //primaryHA but this should be more correct in theory.  Anyway most mobile
   //nodes have only 1 interface active
@@ -1057,11 +1031,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   if (newRtr)
   {
-    if ( nd->rsSentTime )
-    {
-      nd->rsLatency->record(nd->simTime()-nd->rsSentTime);
-      nd->rsSentTime = 0;
-    }
     Dout(dc::debug|flush_cf, rt->nodeName()<<" handover - new router global is "<<newRtr->prefix()
          <<" link is "<<newRtr->re.lock()->addr());
 
@@ -1106,6 +1075,13 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         //newRtr could be passed in as some places may need it but then DAD dup
         //success bit is missing this. Convert this to a callback too?
         sendBU(coa);
+
+	if ( rt->isEwuOutVectorHODelays() )
+	{
+	  assert( rt->getLinkUpTime() );
+	  rt->recordHODelay( nd->simTime() );
+	  rt->setLinkUpTime(0); // clear the link up time
+	}
       }
       else
       {
@@ -1493,16 +1469,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
            <<cna);
     }
   }
-}
-
-void MIPv6NDStateHost::recordL2LinkDownTime(simtime_t linkdownTime)
-{
-  mob->setl2LinkDownTime(linkdownTime);
-}
-
-void MIPv6NDStateHost::recordL2LinkUpTime(simtime_t linkupTime)
-{
-  nd->l2LinkupTime = linkupTime;
 }
 
 /**

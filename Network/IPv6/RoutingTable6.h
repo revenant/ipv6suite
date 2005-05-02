@@ -120,6 +120,8 @@ public:
   /// Makes it easier to see which node is what during debug
   const char* nodeName() const;
 
+  bool isEwuOutVectorHODelays() const { return ewuOutVectorHODelays; }
+
   bool isRouter() const { return IPForward; }
 
   ///Determines when packets with Site scope should be forwarded
@@ -147,6 +149,14 @@ public:
     }
 
   bool awayFromHome() const;
+
+  void setLinkUpTime(simtime_t t) { linkUpTime = t; }
+  simtime_t getLinkUpTime(void) { return linkUpTime; }
+
+  void recordHODelay(simtime_t t) 
+  { 
+    handoverLatency->record( t - linkUpTime ); 
+  }
 
 #endif //USE_MOBILITY
 
@@ -298,6 +308,12 @@ private:
 
 #ifdef USE_MOBILITY
   bool mipv6Support;
+
+  bool ewuOutVectorHODelays;
+  // handoverLatency is the L3 layer handover delay = time when
+  // obtaining new CoA - link up time
+  cOutVector* handoverLatency; 
+  simtime_t linkUpTime; // time when establishing with new link
 
   /**
    * XML configured role for the current node.  It will eventually be a set of

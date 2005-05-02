@@ -243,16 +243,14 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       {
         mod->totalDisconnectedTime += mod->simTime()-mod->linkdownTime;
 
-        mod->l2HODelay->record(mod->simTime() - mod->linkdownTime);
-        mod->linkdownTime = 0;
+	cMessage* linkUpTimeMsg = new cMessage;
+	linkUpTimeMsg->setTimestamp();
+	mod->sendDirect(linkUpTimeMsg, 
+			0, 
+			OPP_Global::findModuleByName(mod, "routingTable6"), 
+			"recordSimTime");
 
-        L2DelayTmr* l2delayRecorder = mod->getLayer2DelayRecorder();
-        if(l2delayRecorder)
-        {
-          assert(!l2delayRecorder->isScheduled());
-          Loki::Field<0> (l2delayRecorder->args) = mod->simTime();
-          l2delayRecorder->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-        }
+	mod->linkdownTime = 0;
       }
 /* XXX maybe something like this would be useful:
       mod->bubble("Handover completed!");

@@ -93,10 +93,6 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   void relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldRtr,
                         boost::shared_ptr<MIPv6RouterEntry> newRtr);
 
-  void recordL2LinkUpTime(simtime_t delay);
-
-  void recordL2LinkDownTime(simtime_t linkdownTime);
-
   // virtual void enterState();
 //   virtual void leaveState();
 

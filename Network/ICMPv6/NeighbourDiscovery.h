@@ -92,21 +92,6 @@ class NeighbourDiscovery: public cSimpleModule
   virtual int numInitStages() const;
   IPv6NeighbourDiscovery::NDState* getRouterState();
 
-#ifdef USE_MOBILITY
-
-public:
-  // The delay interval of movement detection overlaps L2 delay, we
-  // need to take away the L2 component in order to obtain an accurate
-  // reading for the analysis of total handover latency.
-  cOutVector* missedRtrAdvLatency;
-
-  simtime_t missedRtrDuration;
-  simtime_t l2LinkupTime; // this link up time starts from the previous RA received from the current router to the link up in L2
-
-  cOutVector* rsLatency;
-  simtime_t rsSentTime;
-#endif // USE_MOBILITY
-
  private:
   InterfaceTable *ift;
   RoutingTable6 *rt;

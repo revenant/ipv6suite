@@ -138,12 +138,6 @@ public:
   //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }
   cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }
 
-  void setLayer2DelayRecorder( L2DelayTmr*  recorder ) {l2DelayRecorder = recorder;}
-   L2DelayTmr* getLayer2DelayRecorder(void){ return l2DelayRecorder; }
-
-  void setLayer2LinkDownRecorder( L2DelayTmr*  recorder ) {l2LinkDownRecorder = recorder;}
-  L2DelayTmr* getLayer2LinkDownRecorder(void){ return l2LinkDownRecorder; }
-
   // reset all current CSMA/CA-related values back to initial state
   void reset(void);
 
@@ -430,11 +424,6 @@ protected:
 
   // L2 Trigger
   cTimerMessage* l2Trigger[NumTrigVals];
-
-  // record L2 handover message for higher layer
-  L2DelayTmr* l2DelayRecorder;
-
-  L2DelayTmr* l2LinkDownRecorder;
 
   // generate frame
   WirelessEtherBasicFrame* createFrame(FrameType frameType,

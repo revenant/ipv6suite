@@ -318,13 +318,6 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << " Active scan due to data threshold too low.");
       mod->restartScanning();
       mod->linkdownTime = mod->simTime();
-
-      if(mod->l2LinkDownRecorder)
-      {
-        assert(!mod->l2LinkDownRecorder->isScheduled());
-        Loki::Field<0> (mod->l2LinkDownRecorder->args) = mod->simTime();
-        mod->l2LinkDownRecorder->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-      }
     }
   }
 }
@@ -362,13 +355,6 @@ void WEDataReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* sig
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << " Active scan due to beacon threshold too low ");
       mod->restartScanning();
       mod->linkdownTime = mod->simTime();
-
-      if(mod->l2LinkDownRecorder)
-      {
-        assert(!mod->l2LinkDownRecorder->isScheduled());
-        Loki::Field<0> (mod->l2LinkDownRecorder->args) = mod->simTime();
-        mod->l2LinkDownRecorder->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-      }
     }
   } // endif
 }

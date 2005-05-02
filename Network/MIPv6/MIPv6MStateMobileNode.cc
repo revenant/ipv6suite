@@ -455,6 +455,14 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
          <<dgram->srcAddress()<<" seq="<<ba->sequence());
 
     bue->state = 0;
+
+    if ( mob->rt->isEwuOutVectorHODelays() && bue->homeReg() )
+    {
+      assert( bue->beginRegTime );
+      bue->regDelay->record(mob->simTime() - bue->beginRegTime);
+      bue->beginRegTime = 0;
+    }
+
     if (ba->lifetime() < bue->lifetime())
     {
       bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
@@ -588,6 +596,7 @@ void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr 
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
+  // just make sure we always use hoa of the peer if the peer is also a MN
   boost::weak_ptr<bc_entry> bce =
     mipv6cdsMN->findBindingByCoA(addr);
   if(bce.lock())
@@ -596,14 +605,12 @@ void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr 
   bu_entry* bue = mipv6cdsMN->findBU(addr);
   assert(bue);
 
-  if(bue->correspndRegInitTime && bue->correspndRegDelay)
+  if(bue->regDelay && mob->rt->isEwuOutVectorHODelays())
   {
-    bue->correspndRegDelay->record(buRecvTime - bue->correspndRegInitTime);
-    bue->correspndRegInitTime = 0;
+    assert ( bue->beginRegTime );
+    bue->regDelay->record(buRecvTime - bue->beginRegTime);
+    bue->beginRegTime = 0;
   }
-
-  if (mob->l2LinkDownTime)
-    mob->handoverLatency->record(buRecvTime - mob->getl2LinkDownTime());
 }
 
 /**
@@ -828,7 +835,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
     bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0,
                         0, false);
-    bule->correspndRegDelay = new cOutVector("CN Reg Latency");
+
+    if ( mob->rt->isEwuOutVectorHODelays() )
+    	bule->regDelay = new cOutVector("CN reg (including RR)");
 
     mipv6cdsMN->addBU(bule);
 
@@ -850,8 +859,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       return;
   }
 
+  if ( mob->rt->isEwuOutVectorHODelays() )
+    bule->beginRegTime = mob->simTime();
+
   bule->isPerformingRR = true;
-  bule->correspndRegInitTime = mob->simTime();
 
   Loki::Field<0> (bule->hotiRetransTmr->args) = addrs;
   Loki::Field<0> (bule->cotiRetransTmr->args) = addrs;
@@ -1369,6 +1380,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     if (ack)
       bule->state++;
     mipv6cdsMN->addBU(bule);
+
+    if ( homeReg && mob->rt->isEwuOutVectorHODelays() )
+      bule->regDelay = new cOutVector("home reg");
   }
   else
   {
@@ -1379,6 +1393,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->setCareOfAddr(coa);
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
+
+  if ( homeReg )
+    bule->beginRegTime = mob->simTime();
 
   return true;
 }

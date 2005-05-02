@@ -219,7 +219,7 @@ namespace MobileIPv6
 )
 
       :dest_addr(dest), hoa(hoa), coa(coa), _lifetime(olifetime),
-       correspndRegDelay(0), correspndRegInitTime(0),
+       regDelay(0), beginRegTime(0),
        last_time_sent(lastTime), state(0), seq_no(seq), _homeReg(homeRegn),
        problem(false)
 #ifdef USE_HMIP
@@ -318,9 +318,6 @@ namespace MobileIPv6
     unsigned int _expires;
 
   public:
-    cOutVector* correspndRegDelay;
-    simtime_t correspndRegInitTime;
-
     void setSequence(unsigned int seq) { seq_no = seq; }
     unsigned int sequence() const { return seq_no; }
 
@@ -389,6 +386,9 @@ namespace MobileIPv6
     ///@name RR procedure members
     //@{
   public:
+    cOutVector* regDelay;
+    simtime_t beginRegTime;
+
     bool isPerformingRR;
 
     TIRetransTmr* hotiRetransTmr;

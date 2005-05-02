@@ -234,8 +234,6 @@ private:
   */
   cTimerMessage* ehCallback;
 #endif
-
-  cOutVector* handoverLatency;
 };
 
 

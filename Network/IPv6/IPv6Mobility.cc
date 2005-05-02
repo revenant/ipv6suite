@@ -104,8 +104,6 @@ void IPv6Mobility::initialize(int stage)
     _MobilityState = 0;
     periodTmr = 0;
 #ifdef USE_MOBILITY
-    l2LinkDownTime = 0;
-    handoverLatency = new cOutVector("handoverLatency");
 #if EDGEHANDOVER
     ehCallback = 0;
     //This overwrites the value assigned by XML and I thought this was run before parsing !
@@ -225,7 +223,7 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 
 void IPv6Mobility::recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr)
 {
-  if ( isMobileNode() )
+  if ( isMobileNode() && rt->isEwuOutVectorHODelays() )
   {
     boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(_MobilityState)->
       recordHODelay(buRecvTime, addr, this);

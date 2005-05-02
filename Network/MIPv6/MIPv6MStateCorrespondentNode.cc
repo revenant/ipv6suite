@@ -145,7 +145,7 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
 
         sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
       }
-
+      
       check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime(), dgram->destAddress());
       return true;
     }

@@ -1,0 +1,45 @@
+IPv6SuiteWithINET
+=================
+
+IPv6SuiteWithINET comes from the effort to unify IPv6Suite and the INET
+Framework. Eventually, all components not directly related to IPv4 and
+IPv6 will be shared between the two model frameworks.
+
+Unlike IPv6Suite releases so far, IPv6SuiteWithINET doesn't require special
+version of OMNeT++ (works with stock 3.1), any special tools to build (no
+cmake) or any special 3rd party libraries -- OMNeT++ is the only
+dependency. Also, it compiles on Windows as well (it requires VC7.1 (.NET)
+though, VC6.0 won't work).
+
+
+IPv6SuiteWithINET-20050502
+--------------------------
+- All application layer modules, TCP and UDP now handle both IPv4 and IPv6.
+  Above L3, all components use the IPvXAddress class to represent addresses,
+  which can contain an IPv4 or IPv6 address.
+
+- FlatNetworkConfigurator6 added. This mostly eliminates the need for
+  specifying routes in the XML config file.
+
+- Applications now use an updated IPAddressResolver which can return IPv6
+  addresses as well. This mostly eliminates the need for putting explicit
+  IPv6 addresses into omnetpp.ini files e.g. as dest address for ping.
+  It understands syntaxes like "server", "server[2]", "server1(ipv6)",
+  "server1/eth0(ipv6)" and "server1/eth0", and retrieves the given address
+  from the interface table of the given host or router module.
+
+- PingApp and VideoStreamSvr/VideoStreamCli revised.
+
+- Fixes in TCP. Introduced TCP algorithm classes TCPReno, TCPTaho,
+  TCPNoCongestionControl, TCPDummy. Added recording of windows, sequence
+  numbers etc. into output vectors.
+
+- Unfortunately, IPv4 and IPv6 modules don't share L2 models yet: IPv4 only
+  works with PPPInterface and Ethernet, and IPv6 with PPPInterface6, Ethernet6
+  and Wireless. Work is underway to unify the APIs of IPv4 and IPv6 modules
+  between L2 and L3.
+
+
+IPv6SuiteWithINET-20050413
+--------------------------
+Early snapshot of IPv6SuiteWithINET.

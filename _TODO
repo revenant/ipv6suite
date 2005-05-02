@@ -7,7 +7,4 @@
 
 - create RED etc for routers
 
-- in TCP: just before fast retransmit, it appears that sendData() sends an already 
-  transmitted segment again! this should not happen, it should send from snd_max!
-
 - if a node pings itself, that'll be "destination unreachable" -- fix it

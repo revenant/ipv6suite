@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
-<netconf debugChannel="debug1.log:Ping6">
+<netconf>
   <global gHostDupAddrDetectTransmits="2"/>
   <local node="router" routePackets="on">
     <interface name="eth0" AdvSendAdvertisements="on">

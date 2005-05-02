@@ -64,10 +64,6 @@ Base/Sink.ned
 
 
 
-
-
-
-
 Mobility/MobilityManager.ned
 Network/AutoRouting/FlatNetworkConfigurator.ned
 Network/AutoRouting/FlatNetworkConfigurator6.ned

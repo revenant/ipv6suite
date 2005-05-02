@@ -18,7 +18,7 @@
 
 
 //
-// @page ipv6-index.html
+// @page ipv6-index.html, About IPv6Suite
 //
 // <center><h1>About IPv6Suite</h1></center>
 //

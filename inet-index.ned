@@ -19,7 +19,7 @@
 
 
 //
-// @page inet-index.html
+// @page inet-index.html, About the INET Framework
 //
 // <center><h1>About the INET Framework for OMNeT++/OMNEST</h1></center>
 //

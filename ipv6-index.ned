@@ -18,10 +18,9 @@
 
 
 //
-// @titlepage
+// @page ipv6-index.html
 //
-// <center><h1>IPv6Suite</h1></center>
-// <center><h3>version 0.92</h3></center>
+// <center><h1>About IPv6Suite</h1></center>
 //
 // <a href="http://ctieware.eng.monash.edu.au/twiki/bin/view/Simulation/IPv6Suite">IPv6Suite</a> is an OMNeT++ model suite for accurate simulation of IPv6
 // protocols and networks. The list of implemented standards is 
@@ -34,12 +33,8 @@
 // If you make improvements and/or additional models, please let us know also. 
 //
 // A few useful starting points for browsing the documentation:
-//  - MelbourneNetwork demonstrates many features of fixed network models
 //  - WirelessEtherNetwork or WirelessEtherNetwork2 is a good starting point
 //    if you are looking for modelling wireless (802.11) networks
-//  - WorldProcessor needs to be there in every network model
-//  - the example networks provided are mostly built from UDPNode (as host) and 
-//    Router6 (as router) components; wireless ones also use AccessPoint
 //
 // Overview on several topics are also available:
 //   - list of <a href="http://ctieware.eng.monash.edu.au/twiki/bin/view/Simulation/IPv6Suite">standards</a> implemented 
@@ -70,7 +65,7 @@
 //  - Optimistic Duplicate Address Detection revision 4
 //  - Fast Solicited Router Advertisements revision 4
 // 
-// The wirless link/physical layer based on the IEEE 802.11b.
+// The wireless link/physical layer based on the IEEE 802.11b.
 //#------------------------------------------------------------------------
 // @page config.html, Configuring IPv6 models
 //

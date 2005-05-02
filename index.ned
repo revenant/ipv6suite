@@ -29,10 +29,8 @@
 // IPv6 will be shared between the two model frameworks.
 // 
 // Unlike IPv6Suite releases so far, IPv6SuiteWithINET doesn't require special
-// version of OMNeT++ (works with stock 3.1), any special tools to build (no
-// cmake) or any special 3rd party libraries -- OMNeT++ is the only
-// dependency. Also, it compiles on Windows as well (it requires VC7.1 (.NET),
-// VC6.0 won't work).
+// version of OMNeT++ (works with stock 3.1), or any external libraries or tools.
+// It compiles on Windows as well (VC 7.1 .NET required.)
 //
 // Choose a starting page: 
 //

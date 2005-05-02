@@ -122,8 +122,6 @@ all:
 	cd Examples/MPLS/TestTE5 && $(MAKEMAKE) $(ALL_MODEL_OPTS) -I../Tester
 	cd Examples/MPLS/TestTE6 && $(MAKEMAKE) $(ALL_MODEL_OPTS) -I../Tester
 
-	cd Examples/IPv6/SingleRouter && $(MAKEMAKE) $(ALL_MODEL_OPTS)
-	cd Examples/IPv6/TwoRouters && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/EthNetwork && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/HMIPv6Network && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/MIPv6Network && $(MAKEMAKE) $(ALL_MODEL_OPTS)

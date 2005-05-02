@@ -4,7 +4,7 @@
 all: checkdirs $(TARGET)
 
 checkdirs:
-	if [ -d Applications/Ping6]; then \
+	@if [ -d Applications/Ping6 ]; then \
 	    echo '-----------------------------------------------------------------'; \
 	    echo 'Error: you have empty directories checked out -- please run'; \
 	    echo '"cvs update -dP" to get rid of them, then re-run ./makemake and make.'; \
@@ -12,7 +12,7 @@ checkdirs:
 	    echo '-----------------------------------------------------------------'; \
 	    exit 1; \
 	fi
-	if ! [ -f $(OMNETPP_INCL_DIR)/omnetpp.h ]; then \
+	@if ! [ -f $(OMNETPP_INCL_DIR)/omnetpp.h ]; then \
 	    echo '-----------------------------------------------------------------'; \
 	    echo 'Error: $(OMNETPP_INCL_DIR) does not have omnetpp.h in it -- your'; \
 	    echo 'omnetppconfig file is probably out of date. Please re-generate it'; \

@@ -141,7 +141,7 @@ void WirelessEtherModule::baseInit(int stage)
     waitTimeStat = new cStdDev("waitTimeStat");
     throughputStat = new cStdDev("throughputStat");
 
-    backoffSlotsVec = new cOutVector("backoffSlots"); 
+    backoffSlotsVec = new cOutVector("backoffSlots");
     CWVec = new cOutVector("CW");
 
     backoffSlotsStat = new cStdDev("backoffSlotsStat");
@@ -292,6 +292,7 @@ void WirelessEtherModule::finish()
   //if not dual layer node then print the handover time
   if(!linkLayer->gate("extSignalOut")->isConnected())
   {
+/*
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
@@ -301,6 +302,16 @@ void WirelessEtherModule::finish()
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " throughputStat = " << throughputStat->mean());
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgBackoffSlots = " << avgBackoffSlotsStat->mean());
     Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgCW = " << avgCWStat->mean());
+*/
+    recordScalar("errorPercentageStat", errorPercentageStat->mean());
+    recordScalar("backoffTimeStat", backoffTimeStat->mean());
+    recordScalar("waitTimeStat", waitTimeStat->mean());
+    recordScalar("noOfRetries", noOfRetries);
+    recordScalar("noOfAttemptedTx", noOfAttemptedTx);
+    recordScalar("totalDisconnectedTime", totalDisconnectedTime);
+    recordScalar("throughputStat", throughputStat->mean());
+    recordScalar("avgBackoffSlots", avgBackoffSlotsStat->mean());
+    recordScalar("avgCW", avgCWStat->mean());
   }
 
  // XXX cleanup stuff must be moved to dtor!

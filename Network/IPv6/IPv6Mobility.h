@@ -145,6 +145,23 @@ public:
       _directSignaling = ds;
     }
 
+  bool cellResidencySignaling() { return _cellResidencySignaling; }
+  void setCellResidencySignaling(bool b)
+    {
+      if (!_returnRoutability && b)
+      {
+        std::cerr<<"Error: "<<fullPath()<<" Cell Residency Signaling is true while Route Optimisation is off"<<endl;
+        abort_ipv6suite();
+      }
+      _cellResidencySignaling = b;
+    }
+
+  // CELLTODO - we will provide interface for this paramter;
+  // furthermore, we will provide statistical analysis for this
+  // parameter and that means the values of this variable may be stored
+  // in array, right now, we are simply to get some preliminary results
+  simtime_t homeRegDuration;
+
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
 
   const simtime_t getl2LinkDownTime()
@@ -218,6 +235,8 @@ private:
   bool _isEBU;
 
   bool _directSignaling;
+
+  bool _cellResidencySignaling;
 
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created

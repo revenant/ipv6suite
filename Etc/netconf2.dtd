@@ -74,6 +74,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           returnRoutability (on|off) "off"
           earlyBU (on|off) "off"
           directSignaling (on|off) "off"
+          cellResidencySignaling (on|off) "off"
           respondBindingRequest (on|off) "off"
           eagerHandover (on|off) "off"
           hierarchicalMIPv6Support (on|off) "off"

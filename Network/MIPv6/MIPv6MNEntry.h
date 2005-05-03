@@ -243,8 +243,12 @@ namespace MobileIPv6
         {
           WATCH(_dirSignalCount);
           WATCH(_successDirSignalCount);
+	  WATCH(_careOfTestRTT);
         }
       }
+
+    // CELLTODO - do a proper statistical analysis for this paramter later
+    simtime_t _careOfTestRTT;
 
     std::ostream& operator<<(std::ostream& os) const;
 
@@ -530,7 +534,6 @@ namespace MobileIPv6
 
     bool hotSuccess;
     bool cotSuccess; 
-    
     //@}
   };
 

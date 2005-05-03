@@ -250,12 +250,12 @@ void setupLinks(Graph& g, const Nodes& nodes, cSimpleModule* mod)
   ///Must be a local registration :(
   //Parsed from ned already
   /*
-  cLinkType* slow = findLink( "intranetCable" );
+  cLinkType* slow = findLink( "intranetLink" );
   if (!slow)
-    DoutFatal(dc::fatal, "intranetCable linkType not found");
-  cLinkType* fast = findLink( "internetCable" );
+    DoutFatal(dc::fatal, "intranetLink linkType not found");
+  cLinkType* fast = findLink( "internetLink" );
   if (!fast)
-    DoutFatal(dc::fatal, "internetCable linkType not found");
+    DoutFatal(dc::fatal, "internetLink linkType not found");
   cLinkType* curLinkType = fast;
   */
 

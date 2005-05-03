@@ -3,7 +3,7 @@
 //# FIXME data rate?
 //
 channel internetCable 
-    delay 0.02; //0.012
+    delay 0.0; //0.012
     datarate 100000000;
 endchannel 
 
@@ -13,7 +13,7 @@ endchannel
 //# FIXME data rate?
 //
 channel intranetCable 
-    delay 0; //0.002
+    delay 0.0;
     datarate 500000;//100000000; 
 endchannel 
 

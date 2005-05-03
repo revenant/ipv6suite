@@ -100,6 +100,10 @@ void IPv6Mobility::initialize(int stage)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
+    // CELLTODO: homeRegDuration
+    homeRegDuration = 0;
+    WATCH(homeRegDuration);
+
     mipv6cds = 0;
     _MobilityState = 0;
     periodTmr = 0;

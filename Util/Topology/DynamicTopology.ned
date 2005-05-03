@@ -24,14 +24,12 @@ import
     "TCPNode",
     "UDPNode";
 
-//# FIXME duplicate - make them a separare NED file?
-channel internetCable
+channel internetLink
 	delay 0.012
 	datarate 10e9
 endchannel
 
-//# FIXME duplicate - make them a separare NED file?
-channel intranetCable
+channel intranetLink
 	delay 0.002
 	datarate 100e6
 endchannel

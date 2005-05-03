@@ -453,6 +453,15 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   else
     mob->setDirectSignaling(false);
 
+  if (getNodeProperties(ne, "cellResidencySignaling") == XML_ON)
+  {
+    Dout(dc::notice, rt->nodeName()<<" Cell residency based signaling is true");
+    mob->setCellResidencySignaling(true);
+  }
+  else
+    mob->setCellResidencySignaling(false);
+
+
 #ifdef USE_HMIP
 
  if (version() < 5 || getNodeProperties(ne, "hierarchicalMIPv6Support") != XML_ON)

@@ -459,8 +459,15 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
     if ( mob->rt->isEwuOutVectorHODelays() && bue->homeReg() )
     {
       assert( bue->beginRegTime );
+
+      // CELLTODO - for cellResidencySignaling
+      if ( mob->cellResidencySignaling() )
+      {
+	mob->homeRegDuration = mob->simTime() - bue->beginRegTime;
+      }
+
       bue->regDelay->record(mob->simTime() - bue->beginRegTime);
-      bue->beginRegTime = 0;
+      bue->beginRegTime = 0;      
     }
 
     if (ba->lifetime() < bue->lifetime())
@@ -768,9 +775,17 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   }
 
   // all of the above tests have been passed
+
+
+  // CELLTODO - dealt with this later
+  if ( testMsg->header_type() == MIPv6MHT_CoT )
+    bule->_careOfTestRTT = mob->simTime() - bule->beginRegTime;
+
+
   bule->setToken(testMsg->header_type(), testMsg->token);
 
-  if ( bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT /*&& CELLTODO - cell residency options is on */)
+  if ( bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT &&
+       mob->cellResidencySignaling())
     bule->setTestSuccess(testMsg->header_type());
 
   bule->resetTITimeout(testMsg->header_type());
@@ -798,8 +813,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   if (bule->token(theOtherTestMsgType) != UNSPECIFIED_BIT_64)
   {
-
-    if ( bule->testSuccess() )
+    if ( mob->cellResidencySignaling() && bule->testSuccess() )
       bule->incSuccessDirSignalCount();
 
     bule->resetTestSuccess();
@@ -893,8 +907,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
 
-  //CELLTODO  if (!mob->cellResidencySignaling() )
-  bule->incDirSignalCount();
+  if ( mob->cellResidencySignaling() )
+    bule->incDirSignalCount();
 
 }
 

@@ -251,13 +251,15 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
       //message so movementDetected knows which iface has changed.  Although
       //this is more useful for multihomed hosts for now just assume first iface
       //is mobile
-      wlanMod->setLayer2Trigger(new cTTimerMessageCBA<cTimerMessage, void>
-                                (Tmr_L2Trigger, mod, makeCallback
-                                 (this, &MIPv6NDStateHost::movementDetectedCallback),
-                                 ///Should pass this tmr as the argument
-                                 //to callback as default arg of 0
-                                 "Tmr_L2Trigger"));
-    }
+
+      if ( wlanMod->linkUpTrigger() )
+        wlanMod->setLayer2Trigger(new cTTimerMessageCBA<cTimerMessage, void>
+                                  (Tmr_L2Trigger, mod, makeCallback
+                                   (this, &MIPv6NDStateHost::movementDetectedCallback),
+                                   ///Should pass this tmr as the argument
+                                   //to callback as default arg of 0
+                                   "Tmr_L2Trigger"));
+    }    
   }
 
   assert(rt->mipv6cds != 0);

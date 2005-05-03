@@ -46,6 +46,7 @@ simple WirelessEtherModule
         bandwidthRequirements: numeric const,
         recordStatisticVector: bool,
         activeScan: bool,
+        linkUpTrigger: bool,
         channelScanTime: numeric;
     gates:
         in: physIn, netwIn, extSignalIn[];

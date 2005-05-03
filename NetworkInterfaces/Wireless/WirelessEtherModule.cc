@@ -203,6 +203,9 @@ void WirelessEtherModule::initialize(int stage)
   }
   else if (stage == 1)
   {
+    if (!apMode)
+      _linkUpTrigger = par("linkUpTrigger");
+
     // list to store signal strength readings
     signalStrength = new AveragingList(sSMaxSample);
 
@@ -522,6 +525,12 @@ void WirelessEtherModule::setLayer2Trigger( cTimerMessage* trig, enum TrigVals v
 {
   if (l2Trigger[v])
     delete l2Trigger[v];
+
+  if ( !_linkUpTrigger )
+  {
+    delete trig;
+    return;
+  }
 
   l2Trigger[v] = trig;
 

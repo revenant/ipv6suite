@@ -156,6 +156,9 @@ public:
 
   std::string macAddressString(void);
 
+  bool linkUpTrigger() { return _linkUpTrigger; }
+  
+
   std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
   std::list<WESignalData*> outputBuffer;
   WESignalData* inputFrame;
@@ -438,6 +441,7 @@ protected:
 
 private:
 
+  bool _linkUpTrigger;  
   cOutVector* l2HODelay;
   simtime_t linkdownTime;
 

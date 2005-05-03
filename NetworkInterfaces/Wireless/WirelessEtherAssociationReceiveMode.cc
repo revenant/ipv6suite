@@ -260,11 +260,13 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       mod->noOfFailedTx = 0;
       mod->noOfSuccessfulTx = 0;
 
-#ifdef EWU_L2TRIGGER // Link up trigger ( movement detection for MIPv6 )
-      assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
-      mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-      Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
-#endif // EWU_L2TRIGGER
+      // Link up trigger ( movement detection for MIPv6 )
+      if ( mod->linkUpTrigger() )
+      {
+        assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
+        mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
+        Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
+      }
     }
     // TODO: need to check supported rates and status code
     delete aRFrameBody;
@@ -318,12 +320,12 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
             mod->makeOfflineBufferAvailable();
     }
 
-
-#ifdef EWU_L2TRIGGER // Link up trigger ( movement detection for MIPv6 )
+    if (mod->linkUpTrigger() )
+    {
       assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
-        mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-        Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Reassoc) "<<  mod->associateAP.channel);
-#endif // EWU_L2TRIGGER
+      mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
+      Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Reassoc) "<<  mod->associateAP.channel);
+    }
 
     // TODO: need to check supported rates and status code
     delete rARFrameBody;

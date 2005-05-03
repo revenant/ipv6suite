@@ -770,6 +770,9 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   // all of the above tests have been passed
   bule->setToken(testMsg->header_type(), testMsg->token);
 
+  if ( bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT /*&& CELLTODO - cell residency options is on */)
+    bule->setTestSuccess(testMsg->header_type());
+
   bule->resetTITimeout(testMsg->header_type());
 
   Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " << mob->nodeName()<<" has verified that " << testMsg->className() << " src=" << srcAddr << " dest= " << dgram->destAddress() << " is valid");
@@ -795,6 +798,12 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   if (bule->token(theOtherTestMsgType) != UNSPECIFIED_BIT_64)
   {
+
+    if ( bule->testSuccess() )
+      bule->incSuccessDirSignalCount();
+
+    bule->resetTestSuccess();
+
     // send BU
     sendBU(dgram->srcAddress(), mipv6cdsMN->careOfAddr(),
            mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
@@ -883,6 +892,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     bule->hotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
+
+  //CELLTODO  if (!mob->cellResidencySignaling() )
+  bule->incDirSignalCount();
+
 }
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mobility* mob)
@@ -897,6 +910,8 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 
   bu_entry* bule = mipv6cdsMN->findBU(dest);
   assert(bule);
+
+  bule->increaseHotiTimeout();
 
   if (mob->directSignaling())
   {
@@ -945,8 +960,6 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
   bule->hotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_HoTI));
 
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_HoTI) + mob->simTime());
-
-  bule->increaseHotiTimeout();
 }
 
 void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob)
@@ -961,6 +974,8 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
   bu_entry* bule = mipv6cdsMN->findBU(dest);
   assert(bule);
+
+  bule->increaseCotiTimeout();
 
   if (mob->directSignaling())
   {
@@ -994,8 +1009,6 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
   bule->cotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_CoTI));
 
   Dout(dc::rrprocedure|flush_cf," RR procedure: At " << mob->simTime()<< " sec, "<< mob->nodeName() << " sending CoTI src= " << dgram_coti->srcAddress() << " to " << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_CoTI) + mob->simTime());
-
-  bule->increaseCotiTimeout();
 
   if (mob->earlyBindingUpdate())
   {

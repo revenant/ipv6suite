@@ -227,10 +227,10 @@ namespace MobileIPv6
 #endif //USE_HMIP
        , isPerformingRR(false), hotiRetransTmr(0), cotiRetransTmr(0),
        last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
-       hoti_timeout(INITIAL_BINDACK_TIMEOUT), coti_timeout(INITIAL_BINDACK_TIMEOUT),
+       hoti_timeout(0), coti_timeout(0),
        hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
        careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
-       dirSignalCount(0), sucessDirSignalCount(0)
+       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), cotSuccess(false)
       {
         setExpires(lifetime());
         hoti_cookie.high = rand();
@@ -239,9 +239,11 @@ namespace MobileIPv6
         coti_cookie.high = rand();
         coti_cookie.low = rand();
 
-        WATCH(dirSignalCount);
-        WATCH(sucessDirSignalCount);
-        
+        if (!_homeReg) // information is only valid for mobile CN
+        {
+          WATCH(_dirSignalCount);
+          WATCH(_successDirSignalCount);
+        }
       }
 
     std::ostream& operator<<(std::ostream& os) const;
@@ -310,6 +312,25 @@ namespace MobileIPv6
 
     //boost::weak_ptr<MIPv6RouterEntry> coaRouter;
 
+    bool testSuccess()
+      {
+        return ( hotSuccess && cotSuccess );
+      }
+
+    void resetTestSuccess()
+      {
+        hotSuccess = false;
+        cotSuccess = false;
+      }
+
+    void setTestSuccess(const MIPv6MobilityHeaderType& ht)
+      {
+        if ( ht == MIPv6MHT_HoT )
+          hotSuccess = true;
+        else if ( ht == MIPv6MHT_CoT )
+          cotSuccess = true;
+      }
+    
   private:
     /// IP address of the node to which a binding update was sent
     ipv6_addr dest_addr;
@@ -362,6 +383,12 @@ namespace MobileIPv6
     unsigned int state;
 
     //@}
+
+    unsigned int successDirSignalCount() { return _successDirSignalCount; }
+    void incSuccessDirSignalCount() { _successDirSignalCount++; }
+    
+    unsigned int dirSignalCount() { return _dirSignalCount; }
+    void incDirSignalCount() { _dirSignalCount++; }    
 
   private:
 
@@ -445,9 +472,9 @@ namespace MobileIPv6
 
     double testInitTimeout(const MIPv6MobilityHeaderType& ht)
       {
-        if ( ht == MIPv6MHT_HoTI )
+        if ( ht == MIPv6MHT_HoTI || ht == MIPv6MHT_HoT )
           return hoti_timeout;
-        else if ( ht == MIPv6MHT_CoTI )
+        else if ( ht == MIPv6MHT_CoTI || ht == MIPv6MHT_CoT )
           return coti_timeout;
         else
         {
@@ -458,7 +485,9 @@ namespace MobileIPv6
 
     void increaseHotiTimeout()
       {
-        if ( hoti_timeout == INITIAL_BINDACK_TIMEOUT)
+        if ( hoti_timeout == 0 )
+          hoti_timeout = INITIAL_BINDACK_TIMEOUT;
+        else if ( hoti_timeout == INITIAL_BINDACK_TIMEOUT)
           hoti_timeout = hoti_timeout * 2;
         else if ( hoti_timeout != MAX_BINDACK_TIMEOUT)
           hoti_timeout = pow( hoti_timeout ,2 );
@@ -466,7 +495,9 @@ namespace MobileIPv6
 
     void increaseCotiTimeout()
       {
-        if ( coti_timeout == INITIAL_BINDACK_TIMEOUT)
+        if ( coti_timeout == 0 )
+          coti_timeout = INITIAL_BINDACK_TIMEOUT;
+        else if ( coti_timeout == INITIAL_BINDACK_TIMEOUT)
           coti_timeout = coti_timeout * 2;
         else if ( coti_timeout != MAX_BINDACK_TIMEOUT)
           coti_timeout = pow( coti_timeout ,2 );
@@ -475,9 +506,9 @@ namespace MobileIPv6
     void resetTITimeout(const MIPv6MobilityHeaderType& ht)
       {
         if ( ht == MIPv6MHT_HoT )
-          hoti_timeout = INITIAL_BINDACK_TIMEOUT;
+          hoti_timeout = 0;
         else if ( ht == MIPv6MHT_CoT )
-          coti_timeout = INITIAL_BINDACK_TIMEOUT;
+          coti_timeout = 0;
         else
           assert(false);
       }
@@ -494,8 +525,11 @@ namespace MobileIPv6
 
     // paramters for cell residency signaling heuristic
 
-    unsigned int dirSignalCount;
-    unsigned int sucessDirSignalCount;
+    unsigned int _dirSignalCount;
+    unsigned int _successDirSignalCount;
+
+    bool hotSuccess;
+    bool cotSuccess; 
     
     //@}
   };

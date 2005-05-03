@@ -294,8 +294,8 @@ module MIPv6NetworkSimulMove2
         router6.out[0] --> ap6.in[0];
         router6.in[0] <-- ap6.out[0];
 
-        router6.out[1] --> intranetCable --> coreRouter2.in[3];
-        router6.in[1] <-- intranetCable <-- coreRouter2.out[3];
+        router6.out[1] --> homeLink --> coreRouter2.in[3];
+        router6.in[1] <-- homeLink <-- coreRouter2.out[3];
 
         router7.out[0] --> ap7.in[0];
         router7.in[0] <-- ap7.out[0];

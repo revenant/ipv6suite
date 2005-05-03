@@ -18,6 +18,6 @@ channel intranetCable
 endchannel 
 
 channel homeLink
-    delay 0.005;
+    delay 0.0;
     datarate 10000000;
 endchannel;

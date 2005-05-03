@@ -226,10 +226,11 @@ namespace MobileIPv6
        , mapReg(mapReg)
 #endif //USE_HMIP
        , isPerformingRR(false), hotiRetransTmr(0), cotiRetransTmr(0),
-      last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
-      hoti_timeout(INITIAL_BINDACK_TIMEOUT), coti_timeout(INITIAL_BINDACK_TIMEOUT),
-      hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
-      careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64)
+       last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
+       hoti_timeout(INITIAL_BINDACK_TIMEOUT), coti_timeout(INITIAL_BINDACK_TIMEOUT),
+       hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
+       careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
+       dirSignalCount(0), sucessDirSignalCount(0)
       {
         setExpires(lifetime());
         hoti_cookie.high = rand();
@@ -237,6 +238,10 @@ namespace MobileIPv6
 
         coti_cookie.high = rand();
         coti_cookie.low = rand();
+
+        WATCH(dirSignalCount);
+        WATCH(sucessDirSignalCount);
+        
       }
 
     std::ostream& operator<<(std::ostream& os) const;
@@ -487,6 +492,11 @@ namespace MobileIPv6
     bit_64 careof_token;
     bit_64 home_token;
 
+    // paramters for cell residency signaling heuristic
+
+    unsigned int dirSignalCount;
+    unsigned int sucessDirSignalCount;
+    
     //@}
   };
 

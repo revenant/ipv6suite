@@ -169,6 +169,7 @@ void WirelessEtherModule::initialize(int stage)
 {
   if (stage == 0)
   {
+    _linkUpTrigger = false;
     linkdownTime = 0;
     totalDisconnectedTime = 0;
 
@@ -526,7 +527,7 @@ void WirelessEtherModule::setLayer2Trigger( cTimerMessage* trig, enum TrigVals v
   if (l2Trigger[v])
     delete l2Trigger[v];
 
-  if ( !_linkUpTrigger )
+  if ( v == LinkUP && !_linkUpTrigger )
   {
     delete trig;
     return;

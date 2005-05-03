@@ -320,7 +320,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule* 
             mod->makeOfflineBufferAvailable();
     }
 
-    if (mod->linkUpTrigger() )
+    if ( mod->linkUpTrigger() ) //  movement detection for MIPv6 
     {
       assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
       mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);

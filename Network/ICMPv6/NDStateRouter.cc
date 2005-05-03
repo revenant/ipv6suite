@@ -462,7 +462,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
               //source did not include source link-layer addr opt.
               IPv6Datagram* advDgram = createDatagram(tmr->ifIndex, dgram->srcAddress());
               LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
-              ctrlInfo->setDestLLAddr(rtrSol->srcLLAddr());
+              ctrlInfo->setDestLLAddr(rtrSol->srcLLAddr().c_str());
               advDgram->setControlInfo(ctrlInfo);
               nd->sendDirect(advDgram, 0, outputMod[tmr->ifIndex], outputUnicastGate); // XXX why sendDirect? -AV
 

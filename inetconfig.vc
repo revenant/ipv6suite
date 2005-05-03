@@ -7,7 +7,9 @@ OMNETPP_ROOT=c:\omnet++
 
 !include $(OMNETPP_ROOT)\configuser.vc
 
-CFLAGS=$(CFLAGS) /DWITH_IPv6 /DUSE_MOBILITY /DUSE_HMIP /DEDGEHANDOVER=1
+# FASTRS and FASTRA can be configured through XML. We are going to get rid of these
+# two build options in the near future
+CFLAGS=$(CFLAGS) /DWITH_IPv6 /DFASTRS /DFASTRA /DUSE_MOBILITY /DUSE_HMIP /DEDGEHANDOVER=1
 
 #INCLUDE_PATH=$(INCLUDE_PATH) ...additional include directories...
 #LIBS=$(LIBS) ...additional libs and lib directories...

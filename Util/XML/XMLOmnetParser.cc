@@ -444,23 +444,13 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   }
   else
     mob->setEarlyBindingUpdate(false);
-
-  if (getNodeProperties(ne, "directSignaling") == XML_ON)
-  {
-    Dout(dc::notice, rt->nodeName()<<" Direct Signaling is true");
-    mob->setDirectSignaling(true);
-  }
+  
+  if (getNodeProperties(ne,"signalingEnhance") == string("Direct"))
+    mob->setSignalingEnhance(MobileIPv6::Direct);
+  else if (getNodeProperties(ne,"signalingEnhance") == string("CellResidency"))
+    mob->setSignalingEnhance(MobileIPv6::CellResidency);
   else
-    mob->setDirectSignaling(false);
-
-  if (getNodeProperties(ne, "cellResidencySignaling") == XML_ON)
-  {
-    Dout(dc::notice, rt->nodeName()<<" Cell residency based signaling is true");
-    mob->setCellResidencySignaling(true);
-  }
-  else
-    mob->setCellResidencySignaling(false);
-
+    mob->setSignalingEnhance(MobileIPv6::None);
 
 #ifdef USE_HMIP
 

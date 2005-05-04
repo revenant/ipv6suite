@@ -234,6 +234,23 @@ void IPv6Mobility::recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr)
   }
 }
 
+MobileIPv6::SignalingEnhance IPv6Mobility::signalingEnhance()
+{
+  return _signalingEnhance;
+}
+
+void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
+{
+  // All signaling enhancement requires the use of route
+      // optimization
+  if ( !_returnRoutability && s!= MobileIPv6::None )
+  {
+    std::cerr<<"Error:"<<fullPath()<<" Signaling Enhancement is on while Route Optimisation is off"<<endl;
+    abort_ipv6suite();
+  }
+  _signalingEnhance = s;
+}
+
 void IPv6Mobility::parseXMLAttributes()
 {
 #if defined OPP_VERSION && OPP_VERSION >= 3

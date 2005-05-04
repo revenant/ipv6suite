@@ -55,6 +55,13 @@ namespace MobileIPv6
   extern const int Sched_SendHoTI;
   extern const int Sched_SendCoTI;
 
+  enum SignalingEnhance
+  {
+    None = 0,
+    Direct = 1,
+    CellResidency = 2
+  };
+
   class MIPv6CDS;
   class MIPv6MStateCorrespondentNode;
   class MIPv6MStateMobileNode;
@@ -134,28 +141,9 @@ public:
       _isEBU = isEBU;
     }
 
-  bool directSignaling() { return _directSignaling; }
-  void setDirectSignaling(bool ds)
-    {
-      if (!_returnRoutability && ds)
-      {
-        std::cerr<<"Error: "<<fullPath()<<" Direct Signaling is true while Route Optimisation is off"<<endl;
-        abort_ipv6suite();
-      }
-      _directSignaling = ds;
-    }
-
-  bool cellResidencySignaling() { return _cellResidencySignaling; }
-  void setCellResidencySignaling(bool b)
-    {
-      if (!_returnRoutability && b)
-      {
-        std::cerr<<"Error: "<<fullPath()<<" Cell Residency Signaling is true while Route Optimisation is off"<<endl;
-        abort_ipv6suite();
-      }
-      _cellResidencySignaling = b;
-    }
-
+  MobileIPv6::SignalingEnhance signalingEnhance();
+  void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
+  
   // CELLTODO - we will provide interface for this paramter;
   // furthermore, we will provide statistical analysis for this
   // parameter and that means the values of this variable may be stored
@@ -234,9 +222,7 @@ private:
 
   bool _isEBU;
 
-  bool _directSignaling;
-
-  bool _cellResidencySignaling;
+  MobileIPv6::SignalingEnhance _signalingEnhance;
 
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created

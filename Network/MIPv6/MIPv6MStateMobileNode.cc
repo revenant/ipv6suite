@@ -841,10 +841,19 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       IPv6Mobility* mob)
 {
   OPP_Global::ContextSwitcher switchContext(mob);
-
+  
   std::vector<ipv6_addr> addrs(2);
   addrs[0] = dest;
   addrs[1] = coa;
+
+  // for signaling enhancement schemes, we need one more address just
+  // to obtain binding update list entry for the cn with its home
+  // address
+  if ( mob->signalingEnhance() != None )  
+  {
+    addrs.resize(3);
+    addrs[2] = dest; // dest is currently cn's hoa
+  }
 
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
@@ -856,8 +865,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   {
     isNewBU = true;
 
-    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0,
-                        0, false);
+    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, false);
 
     if ( mob->rt->isEwuOutVectorHODelays() )
     	bule->regDelay = new cOutVector("CN reg (including RR)");
@@ -886,6 +894,13 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     bule->beginRegTime = mob->simTime();
 
   bule->isPerformingRR = true;
+
+  if ( mob->signalingEnhance() == Direct )
+  {
+    boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
+    if(bce.lock())
+      addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
+  }
 
   Loki::Field<0> (bule->hotiRetransTmr->args) = addrs;
   Loki::Field<0> (bule->cotiRetransTmr->args) = addrs;
@@ -916,28 +931,32 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
+  ipv6_addr cnhoa;
+  if ( mob->signalingEnhance() != None )
+    cnhoa= addrs[2];
 
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " is about to send a HoTI, dest= " << IPv6Address(dest));
 
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
-  bu_entry* bule = mipv6cdsMN->findBU(dest);
+  bu_entry* bule;
+  if ( mob->signalingEnhance() == None )
+    bule = mipv6cdsMN->findBU(dest);
+  else
+    bule = mipv6cdsMN->findBU(cnhoa);
+
   assert(bule);
 
   bule->increaseHotiTimeout();
 
-  if ( mob->signalingEnhance() == Direct )
+  if (mob->signalingEnhance() != None && 
+      bule->testInitTimeout(MIPv6MHT_HoTI) != INITIAL_BINDACK_TIMEOUT)
   {
-    if (bule->testInitTimeout(MIPv6MHT_HoTI) == INITIAL_BINDACK_TIMEOUT)
-    {
-      boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
-      if(bce.lock())
-        dest = bce.lock()->care_of_addr;
-    }
+    // only if the dest is CN's CoA, we then revert this address back
+    // to CN's HoA
+    dest = cnhoa;
   }
-
-//  bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);
 
   cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
   assert(outputMod);
@@ -980,28 +999,32 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
+  ipv6_addr cnhoa;
+  if ( mob->signalingEnhance() != None )
+    cnhoa= addrs[2];
 
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " is about to send a CoTI, dest= " << IPv6Address(dest));
 
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
-  bu_entry* bule = mipv6cdsMN->findBU(dest);
+  bu_entry* bule;
+  if ( mob->signalingEnhance() == None )
+    bule = mipv6cdsMN->findBU(dest);
+  else
+    bule = mipv6cdsMN->findBU(cnhoa);
+
   assert(bule);
 
   bule->increaseCotiTimeout();
 
-  if ( mob->signalingEnhance() == Direct )
+  if (mob->signalingEnhance() != None && 
+      bule->testInitTimeout(MIPv6MHT_CoTI) != INITIAL_BINDACK_TIMEOUT)
   {
-    if (bule->testInitTimeout(MIPv6MHT_CoTI) == INITIAL_BINDACK_TIMEOUT)
-    {
-      boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
-      if(bce.lock())
-        dest = bce.lock()->care_of_addr;
-    }
+    // only if the dest is CN's CoA, we then revert this address back
+    // to CN's HoA
+    dest = cnhoa;
   }
-
-//  bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
 
   cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
   assert(outputMod);

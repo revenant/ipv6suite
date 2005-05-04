@@ -461,7 +461,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
       assert( bue->beginRegTime );
 
       // CELLTODO - for cellResidencySignaling
-      if ( mob->cellResidencySignaling() )
+      if ( mob->signalingEnhance() == CellResidency )
       {
 	mob->homeRegDuration = mob->simTime() - bue->beginRegTime;
       }
@@ -723,7 +723,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   bu_entry* bule = 0;
   ipv6_addr srcAddr = dgram->srcAddress();
 
-  if ( mob->directSignaling() )
+  if ( mob->signalingEnhance() == Direct  )
   {
     boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBindingByCoA(srcAddr);
     if(bce.lock())
@@ -785,7 +785,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   bule->setToken(testMsg->header_type(), testMsg->token);
 
   if ( bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT &&
-       mob->cellResidencySignaling())
+       mob->signalingEnhance() == CellResidency )
     bule->setTestSuccess(testMsg->header_type());
 
   bule->resetTITimeout(testMsg->header_type());
@@ -813,7 +813,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   if (bule->token(theOtherTestMsgType) != UNSPECIFIED_BIT_64)
   {
-    if ( mob->cellResidencySignaling() && bule->testSuccess() )
+    if ( mob->signalingEnhance() == CellResidency && bule->testSuccess() )
       bule->incSuccessDirSignalCount();
 
     bule->resetTestSuccess();
@@ -907,7 +907,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
 
-  if ( mob->cellResidencySignaling() )
+  if ( mob->signalingEnhance() == CellResidency )
     bule->incDirSignalCount();
 
 }
@@ -927,7 +927,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 
   bule->increaseHotiTimeout();
 
-  if (mob->directSignaling())
+  if ( mob->signalingEnhance() == Direct )
   {
     if (bule->testInitTimeout(MIPv6MHT_HoTI) == INITIAL_BINDACK_TIMEOUT)
     {
@@ -991,7 +991,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
   bule->increaseCotiTimeout();
 
-  if (mob->directSignaling())
+  if ( mob->signalingEnhance() == Direct )
   {
     if (bule->testInitTimeout(MIPv6MHT_CoTI) == INITIAL_BINDACK_TIMEOUT)
     {
@@ -1245,7 +1245,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   bu_entry* bule = 0;
 
-  if (mob->directSignaling())
+  if (mob->signalingEnhance() == Direct )
   {
     boost::weak_ptr<bc_entry> bce =
       mipv6cdsMN->findBindingByCoA(dest);

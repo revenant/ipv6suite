@@ -117,9 +117,12 @@ void WirelessAccessPoint::initialize(int stage)
     usedBWStat = new cStdDev("usedBWStat");
     outputBuffSizeStat = new cStdDev("outputBuffSizeStat");
 
-    frameSizeVec = new cOutVector("frameSize");
-    frameSizeStat = new cStdDev("frameSizeStat");
-    avgFrameSizeStat = new cStdDev("avgFrameSizeStat");
+    frameSizeTxVec = new cOutVector("frameSizeTx");
+    frameSizeTxStat = new cStdDev("frameSizeTxStat");
+    avgFrameSizeTxStat = new cStdDev("avgFrameSizeTxStat");
+    frameSizeRxVec = new cOutVector("frameSizeRx");
+    frameSizeRxStat = new cStdDev("frameSizeRxStat");
+    avgFrameSizeRxStat = new cStdDev("avgFrameSizeRxStat");
 
     _currentReceiveMode = WEAPReceiveMode::instance();
   }
@@ -181,18 +184,18 @@ void WirelessAccessPoint::handleMessage(cMessage* msg)
 
 void WirelessAccessPoint::finish(void)
 {
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " usedBWStat = " << usedBWStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " outputBuffSizeStat = " << outputBuffSizeStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " throughputStat = " << throughputStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgBackoffSlots = " << avgBackoffSlotsStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgCW = " << avgCWStat->mean());
-  Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgFrameSize = " << avgFrameSizeStat->mean());
-
+  recordScalar("avgRxDataBWStat", avgRxDataBWStat->mean());
+  recordScalar("avgTxDataBWStat", avgTxDataBWStat->mean());
+  recordScalar("avgNoOfRxStat", avgNoOfRxStat->mean());
+  recordScalar("avgNoOfTxStat", avgNoOfTxStat->mean());
+  recordScalar("avgNoOfFailedTxStat", avgNoOfFailedTxStat->mean());
+  recordScalar("avgRxFrameSizeStat", avgRxFrameSizeStat->mean());
+  recordScalar("avgTxFrameSizeStat", avgTxFrameSizeStat->mean());
+  recordScalar("avgTxAccessTimeStat", avgTxAccessTimeStat->mean());
+  recordScalar("avgBackoffSlots", avgBackoffSlotsStat->mean());
+  recordScalar("avgCW", avgCWStat->mean());
+  recordScalar("avgOutBuffSizeStat", avgOutBuffSizeStat->mean());
+    
   if(ifaces != NULL)
   {
     delete ifaces;
@@ -271,10 +274,11 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
           setBeaconInterval((int)(1000*beaconPeriod));
 
         // Additional parameters for HO decision (not part of standard)
-        handoverParams.avgBackoffTime = totalBackoffTime.average;
+        /*handoverParams.avgBackoffTime = totalBackoffTime.average;
         handoverParams.avgWaitTime = totalWaitTime.average;
         handoverParams.avgErrorRate = errorPercentage;
         handoverParams.estAvailBW = estAvailBW;
+        */
 
         capabilityInfo.ESS = !adhocMode;
         capabilityInfo.IBSS = adhocMode;
@@ -413,11 +417,11 @@ FrameBody* WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame* f)
           setBeaconInterval((int)(1000*beaconPeriod));
 
         // Additional parameters for HO decision (not part of standard)
-        handoverParams.avgBackoffTime = totalBackoffTime.average;
+        /*handoverParams.avgBackoffTime = totalBackoffTime.average;
         handoverParams.avgWaitTime = totalWaitTime.average;
         handoverParams.avgErrorRate = errorPercentage;
         handoverParams.estAvailBW = estAvailBW;
-
+        */
         capabilityInfo.ESS = !adhocMode;
         capabilityInfo.IBSS = adhocMode;
         capabilityInfo.CFPollable = false; // CF not implemented
@@ -563,25 +567,5 @@ void WirelessAccessPoint::updateConsecutiveFailedCount()
 
 void WirelessAccessPoint::updateStats(void)
 {
-  // Get the available bandwidth
-  usedBW.average = usedBW.sampleTotal/usedBW.sampleTime;
-  estAvailBW = (BASE_SPEED - usedBW.average)/(1000000);
-
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-       << fullPath() << " " << simTime()
-       << " Estimated available Bandwidth (over "<< usedBW.sampleTime <<" sec interval): " << estAvailBW << "Mb/s");
-
-  if(statsVec)
-  {  
-      estAvailBWVec->record(estAvailBW);
-      frameSizeVec->record(frameSizeStat->mean());
-  }
-
   WirelessEtherModule::updateStats();
-
-  usedBWStat->collect((usedBW.average)/(1000000));
-  outputBuffSizeStat->collect(outputBuffer.size());
-
-  usedBW.sampleTotal = 0;
-  frameSizeStat->clearResult();
 }

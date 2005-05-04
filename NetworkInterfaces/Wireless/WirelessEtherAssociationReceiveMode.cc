@@ -257,9 +257,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       mod->parentModule()->bubble("Handover completed!");
       mod->parentModule()->parentModule()->bubble("Handover completed!");
 */
-      mod->noOfFailedTx = 0;
-      mod->noOfSuccessfulTx = 0;
-
+  
       // Link up trigger ( movement detection for MIPv6 )
       if ( mod->linkUpTrigger() )
       {

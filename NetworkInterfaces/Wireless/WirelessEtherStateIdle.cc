@@ -171,7 +171,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
       a = tmr;
     }
 
-    int numSlots, cw;
+    int numSlots=0, cw=0;
 
     //check if output frame is a probe req/resp and fast active scan is enabled
     WESignalData* outData = *(mod->outputBuffer.begin());
@@ -191,8 +191,7 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
 
     if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
     {
-      mod->totalBackoffTime.sampleTotal += mod->backoffTime;
-      
+      mod->dataReadyTimeStamp = mod->simTime();
       mod->CWStat->collect(cw);
       mod->avgCWStat->collect(cw);    
       mod->backoffSlotsStat->collect(numSlots);

@@ -293,6 +293,12 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
   if((mod->isFrameForMe(data))
       &&(mod->associateAP.address == data->getAddress2()) && (mod->address != data->getAddress3()))
   {
+    //statistics collection
+    mod->noOfRxStat++;
+    mod->RxDataBWStat += (double)data->encapsulatedMsg()->length()/1000000;
+    mod->RxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
+    mod->avgRxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
+
     mod->sendToUpperLayer(data);
 
     if(data->getAddress1() != MACAddress6(WE_BROADCAST_ADDRESS))
@@ -304,7 +310,7 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
                       data->getAddress2());
       WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
       scheduleAck(mod, ackSignal);
-      //delete ack;
+      
       changeState = false;
     }
 

@@ -127,9 +127,13 @@ private:
 
   cStdDev* usedBWStat;
   cStdDev* outputBuffSizeStat;
-  cStdDev* frameSizeStat;     //average per frame sent/received
-  cStdDev* avgFrameSizeStat;  //average frame size for whole sim
-  cOutVector* frameSizeVec;   //vector of frame size each second
+  cStdDev* frameSizeTxStat;     //average frame size tx
+  cStdDev* frameSizeRxStat;     //average frame size rx
+  cStdDev* avgFrameSizeTxStat;  //average frame size tx for whole sim
+  cStdDev* avgFrameSizeRxStat;  //average frame size rx for whole sim
+  cOutVector* frameSizeTxVec;   //vector of frame size tx each second
+  cOutVector* frameSizeRxVec;   //vector of frame size rx each second
+
 };
 
 #endif // __WIRELESSACCESSPOINT__

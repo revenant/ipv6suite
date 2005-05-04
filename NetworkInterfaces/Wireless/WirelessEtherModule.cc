@@ -106,29 +106,6 @@ void WirelessEtherModule::baseInit(int stage)
     frameSource = "";
     backoffTime = 0;
 
-//initialise variables for statistics
-    throughput.sampleTotal = 0;
-    throughput.sampleTime = 1;
-    throughput.average = 0;
-    noOfFailedTx = 0;
-    noOfSuccessfulTx = 0;
-    noOfRetries = 0;
-    noOfAttemptedTx = 0;
-    errorPercentage = 0;
-    totalWaitTime.sampleTotal = 0;
-    totalWaitTime.sampleTime = 1;
-    totalWaitTime.average = 0;
-    totalBackoffTime.sampleTotal = 0;
-    totalBackoffTime.sampleTime = 1;
-    totalBackoffTime.average = 0;
-
-    throughputVec = new cOutVector("throughput");
-    errorPercentageVec = new cOutVector("errorPerc");
-    noOfFailedTxVec = new cOutVector("noOfFailedTx");
-    totalBackoffTimeVec = new cOutVector("avgBackoffTime");
-    totalWaitTimeVec = new cOutVector("avgWaitTime");
-    totalBytesTransmitted = 0;
-
     readConfiguration();
 
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
@@ -136,18 +113,43 @@ void WirelessEtherModule::baseInit(int stage)
 
     registerInterface();
 
-    errorPercentageStat = new cStdDev("errorPercentageStat");
-    backoffTimeStat = new cStdDev("backoffTimeStat");
-    waitTimeStat = new cStdDev("waitTimeStat");
-    throughputStat = new cStdDev("throughputStat");
-
-    backoffSlotsVec = new cOutVector("backoffSlots");
-    CWVec = new cOutVector("CW");
-
+    //Initialise Variables for Statistics
+    statsUpdatePeriod = 1;
+    dataReadyTimeStamp = 0;
+    RxDataBWStat = 0;
+    TxDataBWStat = 0;
+    noOfRxStat = 0;
+    noOfTxStat = 0;
+    noOfFailedTxStat = 0;
+    RxFrameSizeStat = new cStdDev("RxFrameSizeStat");
+    TxFrameSizeStat = new cStdDev("TxFrameSizeStat");
+    TxAccessTimeStat = new cStdDev("TxAccessTimeStat");
     backoffSlotsStat = new cStdDev("backoffSlotsStat");
     CWStat = new cStdDev("CWStat");
+
+    avgRxDataBWStat = new cStdDev("avgRxDataBWStat");
+    avgTxDataBWStat = new cStdDev("avgTxDataBWStat");
+    avgNoOfRxStat = new cStdDev("avgNoOfRxStat");
+    avgNoOfTxStat = new cStdDev("avgNoOfTxStat");
+    avgNoOfFailedTxStat = new cStdDev("avgNoOfFailedTxStat");
+    avgRxFrameSizeStat = new cStdDev("avgRxFrameSizeStat");
+    avgTxFrameSizeStat = new cStdDev("avgTxFrameSizeStat");
+    avgTxAccessTimeStat = new cStdDev("avgTxAccessTimeStat");
     avgBackoffSlotsStat = new cStdDev("avgBackoffSlotsStat");
     avgCWStat = new cStdDev("avgCWStat");
+    avgOutBuffSizeStat = new cStdDev("avgOutBuffSizeStat");
+
+    RxDataBWVec = new cOutVector("RxDataBWVec");
+    TxDataBWVec = new cOutVector("TxDataBWVec");
+    noOfRxVec = new cOutVector("noOfRxVec");
+    noOfTxVec = new cOutVector("noOfTxVec");
+    noOfFailedTxVec = new cOutVector("noOfFailedTxVec");
+    RxFrameSizeVec = new cOutVector("RxFrameSizeVec");
+    TxFrameSizeVec = new cOutVector("TxFrameSizeVec");
+    TxAccessTimeVec = new cOutVector("TxAccessTimeVec");
+    backoffSlotsVec = new cOutVector("backoffSlots");
+    CWVec = new cOutVector("CW");
+    outBuffSizeVec = new cOutVector("outBuffSizeVec");
   }
   else if(stage == 1)
   {
@@ -160,7 +162,7 @@ void WirelessEtherModule::baseInit(int stage)
       new Loki::cTimerMessageCB<void>
       (TMR_STATS, this, this, &WirelessEtherModule::updateStats, "updateStats");
 
-    scheduleAt(simTime()+1, updateStatsNotifier);
+    scheduleAt(simTime()+statsUpdatePeriod, updateStatsNotifier);
   }
 
 }
@@ -290,29 +292,21 @@ void WirelessEtherModule::initialize(int stage)
 void WirelessEtherModule::finish()
 {
   cModule* linkLayer =  gate("extSignalOut")->toGate()->ownerModule();
-  //if not dual layer node then print the handover time
+  //if not dual layer node then print statistics
   if(!linkLayer->gate("extSignalOut")->isConnected())
   {
-/*
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " errorPercentageStat = " << errorPercentageStat->mean());
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " backoffTimeStat = " << backoffTimeStat->mean());
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " waitTimeStat = " << waitTimeStat->mean());
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfRetries = " << noOfRetries);
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " noOfAttemptedTx = " << noOfAttemptedTx);
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " totalDisconnectedTime = " << totalDisconnectedTime);
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " throughputStat = " << throughputStat->mean());
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgBackoffSlots = " << avgBackoffSlotsStat->mean());
-    Dout(dc::wireless_stats|flush_cf, OPP_Global::nodeName(this) << " avgCW = " << avgCWStat->mean());
-*/
-    recordScalar("errorPercentageStat", errorPercentageStat->mean());
-    recordScalar("backoffTimeStat", backoffTimeStat->mean());
-    recordScalar("waitTimeStat", waitTimeStat->mean());
-    recordScalar("noOfRetries", noOfRetries);
-    recordScalar("noOfAttemptedTx", noOfAttemptedTx);
-    recordScalar("totalDisconnectedTime", totalDisconnectedTime);
-    recordScalar("throughputStat", throughputStat->mean());
+    recordScalar("avgRxDataBWStat", avgRxDataBWStat->mean());
+    recordScalar("avgTxDataBWStat", avgTxDataBWStat->mean());
+    recordScalar("avgNoOfRxStat", avgNoOfRxStat->mean());
+    recordScalar("avgNoOfTxStat", avgNoOfTxStat->mean());
+    recordScalar("avgNoOfFailedTxStat", avgNoOfFailedTxStat->mean());
+    recordScalar("avgRxFrameSizeStat", avgRxFrameSizeStat->mean());
+    recordScalar("avgTxFrameSizeStat", avgTxFrameSizeStat->mean());
+    recordScalar("avgTxAccessTimeStat", avgTxAccessTimeStat->mean());
     recordScalar("avgBackoffSlots", avgBackoffSlotsStat->mean());
     recordScalar("avgCW", avgCWStat->mean());
+    recordScalar("avgOutBuffSizeStat", avgOutBuffSizeStat->mean());
+    recordScalar("totalDisconnectedTime", totalDisconnectedTime);
   }
 
  // XXX cleanup stuff must be moved to dtor!
@@ -707,6 +701,7 @@ void WirelessEtherModule::idleNetworkInterface(void)
 }
 
 /**
+   Distance is in meters, rxpwr in dBm
    @note limitation in propagation model as it is only 2D when MN moves over AP
    will obtain distance of zero. In real life we would be under the AP usually
    so there is still some distance
@@ -815,10 +810,10 @@ void WirelessEtherModule::sendStatsSignal(void)
     extSig->setType(ST_STATS);
     // Need to assign power. Keep track by monitoring received frames from associated AP.
     // If not associated, then put power as invalid or low.
-    extSig->setSignalStrength(associateAP.rxpower);
+    /*extSig->setSignalStrength(associateAP.rxpower);
     extSig->setErrorPercentage(errorPercentage);
     extSig->setAvgBackoffTime(totalBackoffTime.average);
-    extSig->setAvgWaitTime(totalWaitTime.average);
+    extSig->setAvgWaitTime(totalWaitTime.average);*/
     send(extSig, "extSignalOut", 0);
   }
 }
@@ -1789,43 +1784,40 @@ void WirelessEtherModule::makeOfflineBufferAvailable(void)
 
 void WirelessEtherModule::updateStats(void)
 {
-  //Calculate throughput average and error percentage after interval time
-  throughput.average = throughput.sampleTotal/throughput.sampleTime;
-  errorPercentage = (noOfFailedTx+noOfSuccessfulTx)>0 ? noOfFailedTx/(noOfFailedTx+noOfSuccessfulTx):0;
-  totalWaitTime.average = (noOfFailedTx+noOfSuccessfulTx)>0 ? totalWaitTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalWaitTime.sampleTotal;
-  totalBackoffTime.average = (noOfFailedTx+noOfSuccessfulTx) > 0 ? totalBackoffTime.sampleTotal/(noOfFailedTx+noOfSuccessfulTx):totalBackoffTime.sampleTotal;
+  //record averages for overall simulation time
+  avgRxDataBWStat->collect(RxDataBWStat/statsUpdatePeriod);
+  avgTxDataBWStat->collect(TxDataBWStat/statsUpdatePeriod);
+  avgNoOfRxStat->collect(noOfRxStat/statsUpdatePeriod);
+  avgNoOfTxStat->collect(noOfTxStat/statsUpdatePeriod);
+  avgOutBuffSizeStat->collect(outputBuffer.size());
 
-  errorPercentageStat->collect(errorPercentage);
-  backoffTimeStat->collect(totalBackoffTime.average);
-  waitTimeStat->collect(totalWaitTime.average);
-    throughputStat->collect(throughput.average/1000000);
-
+  //record vectors if turned ON
   if(statsVec)
   {
-    noOfFailedTxVec->record(noOfFailedTx);
-    throughputVec->record(throughput.average/1000000);
-    errorPercentageVec->record(errorPercentage);
-    totalBackoffTimeVec->record(totalBackoffTime.average);
-    totalWaitTimeVec->record(totalWaitTime.average);
-
+    RxDataBWVec->record(RxDataBWStat/statsUpdatePeriod);
+    TxDataBWVec->record(TxDataBWStat/statsUpdatePeriod);
+    noOfRxVec->record(noOfRxStat/statsUpdatePeriod);
+    noOfTxVec->record(noOfTxStat/statsUpdatePeriod);
+    RxFrameSizeVec->record(RxFrameSizeStat->mean());
+    TxFrameSizeVec->record(TxFrameSizeStat->mean());
+    TxAccessTimeVec->record(TxAccessTimeStat->mean());
     backoffSlotsVec->record(backoffSlotsStat->mean());
-    CWVec->record(CWStat->mean());
+    CWVec->record(CWStat->mean());    
+    outBuffSizeVec->record(outputBuffer.size());
   }
 
-  if((noOfFailedTx+noOfSuccessfulTx) != 0)
-  {
-    totalWaitTime.sampleTotal = 0;
-    totalBackoffTime.sampleTotal = 0;
-  }
-  throughput.sampleTotal = 0;
-  noOfSuccessfulTx = 0;
-  noOfFailedTx = 0;
-
-  //clear results after a second has elapsed
+  //reset stats updated every period
+  RxDataBWStat = 0;
+  TxDataBWStat = 0;
+  noOfRxStat = 0;
+  noOfTxStat = 0;
+  RxFrameSizeStat->clearResult();
+  TxFrameSizeStat->clearResult();
   backoffSlotsStat->clearResult();
   CWStat->clearResult();
-
-  scheduleAt(simTime()+throughput.sampleTime, updateStatsNotifier);
+  
+  //reschedule next update
+  scheduleAt(simTime() + statsUpdatePeriod, updateStatsNotifier);
 }
 
 #if L2FUZZYHO // (Layer 2 fuzzy logic handover)

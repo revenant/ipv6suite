@@ -100,21 +100,17 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
     {
       int slotsElapsed = (int)((a->elapsedTime()-DIFS)/SLOTTIME);
       mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
-      mod->totalBackoffTime.sampleTotal += a->elapsedTime()-(slotsElapsed*SLOTTIME);
     }
     // the time for awaiting MAC has NOT "eaten" the DIFS
     else
     {
       mod->backoffTime = mod->backoffTime + a->elapsedTime();
-      mod->totalBackoffTime.sampleTotal += a->elapsedTime();
     }
   }
   a->cancel();
 
   assert(!mod->inputFrame);
   mod->inputFrame = (WESignalData*) data.get()->dup(); //XXX eliminate dup()
-
-  mod->waitStartTime = mod->simTime();
 
   mod->changeState(WirelessEtherStateBackoffReceive::instance());
   }
@@ -132,11 +128,6 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
   WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>
     (data->encapsulatedMsg());
   assert(frame);
-
-  if (frame->getFrameControl().subtype == ST_DATA)
-  {
-    mod->noOfAttemptedTx++;
-  }
 
   mod->changeState(WirelessEtherStateSend::instance());
 

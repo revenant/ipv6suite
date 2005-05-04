@@ -145,8 +145,8 @@ public:
 
   int getChannel(void){ return channel; }
   double getPower(void) { return txpower; } // mW
-  double getThreshPower(void) { return threshpower; } //mW
-  double getHOThreshPower(void) { return hothreshpower; } //mW
+  double getThreshPower(void) { return threshpower; } // dBm
+  double getHOThreshPower(void) { return hothreshpower; } // dBm
 
   bool isAP() { return apMode; }
 
@@ -164,7 +164,7 @@ public:
   WESignalData* inputFrame;
 
   // list to store signal strength readings
-  AveragingList *signalStrength;
+  AveragingList *signalStrength; // dBm
 
   // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
   virtual int outputQueueInGate() { return findGate("netwIn"); }
@@ -235,6 +235,7 @@ public:
 
   bool scanShortCircuit(void) { return scanShortCirc; }
 
+  // returns range in meters, relative to threspower, not HOthrespower
   double wirelessRange() const
   {
     if (!_wirelessRange)
@@ -374,40 +375,51 @@ protected:
 public:
   virtual void updateStats(void);
 protected:
-  TimeAverageReading throughput; // average stored in bytes/sec
-  double noOfFailedTx; //no. of frames failed to be transmitted (ie max retries have been exceeded)
-  double noOfSuccessfulTx; //no. of frames successfully transmitted (not counting retries)
-  double noOfRetries; //no. of retries attempted
-  double noOfAttemptedTx; //no. of attempted transmission including retries
-  double errorPercentage; // 0-1
-  TimeAverageReading totalWaitTime;
-  TimeAverageReading totalBackoffTime;
-  double waitStartTime;
+  
+   /********* STATISTICAL VARIABLES (START) **********/
 
-  cOutVector* throughputVec;
-  cOutVector* errorPercentageVec;
-  cOutVector* noOfFailedTxVec;
-  cOutVector* totalBackoffTimeVec;
-  cOutVector* totalWaitTimeVec;
-
-  cStdDev* errorPercentageStat;
-  cStdDev* backoffTimeStat;
-  cStdDev* waitTimeStat;
-  cStdDev* throughputStat;
-
-  //statistics which will be resetted every second
-  cStdDev* backoffSlotsStat;  //average backoff time per backoff (in slots)
-  cStdDev* CWStat;            //average contention window per backoff
+  double statsUpdatePeriod; //seconds
+  double dataReadyTimeStamp; //seconds
+  double totalDisconnectedTime; //seconds
+  //statistics which will be resetted every update period
+  double RxDataBWStat;        //received data bandwidth (Mbit)
+  double TxDataBWStat;        //transmitted data bandwidth (Mbit)
+  double noOfRxStat;          //number of received data frames (frames)
+  double noOfTxStat;          //number of transmitted data frames (frames)
+  double noOfFailedTxStat;    //number of dropped transmission (frames)
+  cStdDev* RxFrameSizeStat;   //average received frame size (bytes/frame)
+  cStdDev* TxFrameSizeStat;   //average transmitted frame size (bytes/frame)
+  cStdDev* TxAccessTimeStat;  //average time to successfully tx a frame (sec/successful attempt)
+  cStdDev* backoffSlotsStat;  //average backoff time per backoff (slots/tx attempt)
+  cStdDev* CWStat;            //average contention window per backoff (slots/tx attempt)
 
   //average of above statistics over the whole simulation
-  cStdDev* avgBackoffSlotsStat;
-  cStdDev* avgCWStat;
+  cStdDev* avgRxDataBWStat;     //(Mbit/s)
+  cStdDev* avgTxDataBWStat;     //(Mbit/s)
+  cStdDev* avgNoOfRxStat;       //(frames/s)
+  cStdDev* avgNoOfTxStat;       //(frames/s)
+  cStdDev* avgNoOfFailedTxStat; //(frames/s)
+  cStdDev* avgRxFrameSizeStat;  //(bytes/frame)
+  cStdDev* avgTxFrameSizeStat;  //(bytes/frame)
+  cStdDev* avgTxAccessTimeStat; //(sec/successful attempt)  
+  cStdDev* avgBackoffSlotsStat; //(slots/tx attempt)
+  cStdDev* avgCWStat;           //(slots/tx attempt)
+  cStdDev* avgOutBuffSizeStat;  //average buffer size(frames)
 
   //vector of statistics every second
-  cOutVector* backoffSlotsVec;
-  cOutVector* CWVec;
-
-  double totalDisconnectedTime;
+  cOutVector* RxDataBWVec;     //(Mbit/s)
+  cOutVector* TxDataBWVec;     //(Mbit/s)
+  cOutVector* noOfRxVec;       //(frames/s)
+  cOutVector* noOfTxVec;       //(frames/s)
+  cOutVector* noOfFailedTxVec; //(frames/s)
+  cOutVector* RxFrameSizeVec;  //(bytes/frame)
+  cOutVector* TxFrameSizeVec;  //(bytes/frame)
+  cOutVector* TxAccessTimeVec; //(sec/successful attempt)
+  cOutVector* backoffSlotsVec; //(slots/tx attempt)
+  cOutVector* CWVec;           //(slots/tx attempt)
+  cOutVector* outBuffSizeVec;  //current buffer size(frames)
+   
+  /********* STATISTICAL VARIABLES (END) **********/
 
   unsigned int noOfDiscardedFrames;
   //double totalBackoffTime;
@@ -417,7 +429,8 @@ protected:
   double endCollectionTime;
   //@}
 
-  double getRxPower(int distance); //mW
+  // Distance is in meters, returned power in dBm
+  double getRxPower(int distance); // dBm
 
   // -----
   // debug

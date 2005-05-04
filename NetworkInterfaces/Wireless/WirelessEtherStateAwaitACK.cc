@@ -110,7 +110,8 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   {
     if (frame->getFrameControl().subtype == ST_DATA)
     {
-      mod->noOfFailedTx++;
+      mod->noOfFailedTxStat++;
+      mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
     }
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame");
 
@@ -141,8 +142,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
 
   mod->incContentionWindowPower();
   mod->incrementRetry();
-  mod->noOfRetries++;
-
+  
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "next retry: " << mod->getRetry());
 
   // Couldnt receive any ACK re-assign the backoff period, retry++ and
@@ -152,7 +152,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   // status of the medium or other awkard cirumstances. Therefore we
   // are entering collision state and re-assigning the backoff period
 
-  int numSlots, cw;  
+  int numSlots=0, cw=0;  
 
   //check if output frame is a probe req/resp and fast active scan is enabled
   WESignalData* outData = *(mod->outputBuffer.begin());
@@ -174,9 +174,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
   }
 
   if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
-  {
-    mod->totalBackoffTime.sampleTotal += mod->backoffTime;
-    
+  {  
     mod->CWStat->collect(cw);
     mod->avgCWStat->collect(cw);    
     mod->backoffSlotsStat->collect(numSlots);

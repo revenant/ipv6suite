@@ -495,9 +495,13 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
     // MS is permitted to send class 3 frames
     else
     {
-            apMod->usedBW.sampleTotal += data->length();
-      apMod->frameSizeStat->collect(data->length());
-      apMod->avgFrameSizeStat->collect(data->length());
+      //statistics collection 
+      apMod->noOfRxStat++;
+      apMod->RxDataBWStat += (double)data->encapsulatedMsg()->length()/1000000;
+      apMod->usedBW.sampleTotal += (data->encapsulatedMsg()->length()/1000000);
+      apMod->RxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
+      apMod->avgRxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
+      
       // renew expiry time for entry
             apMod->addIface(data->getAddress2(), RM_DATA);
       // create data frame to be forwarded

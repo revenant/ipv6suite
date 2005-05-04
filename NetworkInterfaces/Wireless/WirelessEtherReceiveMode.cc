@@ -131,17 +131,11 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
   // Update statistics if data frame transmitted.
   if (frame->getFrameControl().subtype == ST_DATA)
   {
-    mod->noOfSuccessfulTx++;
-    mod->throughput.sampleTotal += (double)(frame->encapsulatedMsg()->length());
-
-    if(mod->isAP())
-    {
-      WirelessAccessPoint* ap = 
-        boost::polymorphic_downcast<WirelessAccessPoint*>(mod);
-      ap->usedBW.sampleTotal += (double)(frame->encapsulatedMsg()->length());//frame->length();
-      ap->frameSizeStat->collect((double)(frame->encapsulatedMsg()->length()));
-      ap->avgFrameSizeStat->collect((double)(frame->encapsulatedMsg()->length()));
-    }  
+    mod->noOfTxStat++;
+    mod->TxDataBWStat += (double)frame->encapsulatedMsg()->length()/1000000;
+    mod->TxFrameSizeStat->collect((double)frame->encapsulatedMsg()->length()/8);
+    mod->avgTxFrameSizeStat->collect(frame->encapsulatedMsg()->length()/8);
+    mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
   }
 
   delete *(mod->outputBuffer.begin());

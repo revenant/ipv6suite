@@ -32,6 +32,8 @@
 #ifndef MIPV6MOBILTIYSTATE_H
 #define MIPV6MOBILTIYSTATE_H
 
+#include <omnetpp.h> // for simtime_t
+
 #include "ipv6_addr.h" // for including Ipv6_Addr.H_UNSPECIFIED
 
 class IPv6Mobility;
@@ -111,7 +113,7 @@ class MIPv6MobilityState
 
   /// send binding acknowledgement
   void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
-              BA* ba,  IPv6Mobility* mod);
+              BA* ba,  IPv6Mobility* mod, simtime_t timestamp = 0);
   //@}
 
   ///@name handle management of binding cache

@@ -33,7 +33,6 @@
 
 namespace MobileIPv6
 {
-
   std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6RouterEntry& re)
   {
     return os<<"gaddr="<<re.addr()<<" isHA="<<(re.isHomeAgent()?

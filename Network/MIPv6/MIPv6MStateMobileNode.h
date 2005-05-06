@@ -49,6 +49,11 @@ class IPv6Mobility;
 namespace MobileIPv6
 {
 
+// this is used for cellResidency scheme, where we compute success
+// rate for direct signaling transmission and that we need some
+// information before computations
+extern const unsigned int INITIAL_SIGNALING_COUNT;  
+
 class BURetranTmr;
 
 /**
@@ -83,7 +88,7 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 #ifdef USE_HMIP
               , bool mapReg = false
 #endif //USE_HMIP
-              );
+              , simtime_t timestamp = 0);
 
   void sendInits(const ipv6_addr& dest, const ipv6_addr& coa,
                  IPv6Mobility* mod);
@@ -103,8 +108,8 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   // addrs[0] = dest
   // addrs[1] = coa
-  void sendHoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob);
-  void sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob);
+  void sendHoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t);
+  void sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t);
 
   void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr, IPv6Mobility* mob);
 

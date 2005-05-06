@@ -296,6 +296,8 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
     return false;
   }
 
+  assert ( dgram->timestamp ());
+
   return true;
 }
 
@@ -373,11 +375,12 @@ bool MIPv6MobilityState::deregisterBCE(BU* bu,  unsigned int ifIndex, IPv6Mobili
 */
 void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
                                 const ipv6_addr& destAddr,
-                                BA* ba, IPv6Mobility* mod)
+                                BA* ba, IPv6Mobility* mod, simtime_t timestamp)
 {
   IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, ba);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+  reply->setTimestamp( timestamp );
   Dout(dc::mipv6, mod->nodeName()<<" sending BA to "<<destAddr);
 
   //rev. 24

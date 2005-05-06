@@ -143,10 +143,10 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
         BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
                         bu->expires());
 
-        sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
+        sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
       }
       
-      check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime(), dgram->destAddress());
+      check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime()-dgram->timestamp(), dgram->destAddress());
       return true;
     }
   }
@@ -162,12 +162,14 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
     BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
                     bu->expires());
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
   }
 
   if (!mod->earlyBindingUpdate())
-    check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime(), dgram->destAddress());
-
+  {
+    assert( dgram->timestamp() );
+    check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime()-dgram->timestamp(), dgram->destAddress());
+  }
   return true;
 }
 
@@ -199,6 +201,9 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv
   IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
   reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  
+  assert(dgram->timestamp());
+  reply->setTimestamp(dgram->timestamp());
 
   Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mod->simTime() << "sec, " << mod->nodeName()<<" sending " << testMsg->className() << " src= " << dgram->destAddress() <<" to "<<dgram->srcAddress());
 

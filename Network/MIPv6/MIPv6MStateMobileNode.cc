@@ -64,6 +64,8 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 namespace MobileIPv6
 {
 
+const unsigned int INITIAL_SIGNALING_COUNT = 3;
+
 class BURetranTmr;
 
 /**
@@ -458,16 +460,9 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
     if ( mob->rt->isEwuOutVectorHODelays() && bue->homeReg() )
     {
-      assert( bue->beginRegTime );
+      assert( dgram->timestamp() );
 
-      // CELLTODO - for cellResidencySignaling
-      if ( mob->signalingEnhance() == CellResidency )
-      {
-	mob->homeRegDuration = mob->simTime() - bue->beginRegTime;
-      }
-
-      bue->regDelay->record(mob->simTime() - bue->beginRegTime);
-      bue->beginRegTime = 0;      
+      bue->regDelay->record(mob->simTime() - dgram->timestamp() );
     }
 
     if (ba->lifetime() < bue->lifetime())
@@ -600,24 +595,25 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
 void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr addr, IPv6Mobility* mob)
 {
+  if ( !mob->rt->isEwuOutVectorHODelays() )
+    return;
+
   MIPv6CDSMobileNode* mipv6cdsMN =
     boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mob->mipv6cds);
 
-  // just make sure we always use hoa of the peer if the peer is also a MN
-  boost::weak_ptr<bc_entry> bce =
-    mipv6cdsMN->findBindingByCoA(addr);
-  if(bce.lock())
-    addr = bce.lock()->home_addr;
+  if ( mob->signalingEnhance() != None )
+  {
+    // just make sure we always use hoa of the peer if the peer is also a MN
+    boost::weak_ptr<bc_entry> bce =
+      mipv6cdsMN->findBindingByCoA(addr);
+    if(bce.lock())
+      addr = bce.lock()->home_addr;
+  }
 
   bu_entry* bue = mipv6cdsMN->findBU(addr);
   assert(bue);
 
-  if(bue->regDelay && mob->rt->isEwuOutVectorHODelays())
-  {
-    assert ( bue->beginRegTime );
-    bue->regDelay->record(buRecvTime - bue->beginRegTime);
-    bue->beginRegTime = 0;
-  }
+  bue->regDelay->record(buRecvTime);
 }
 
 /**
@@ -723,9 +719,10 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   bu_entry* bule = 0;
   ipv6_addr srcAddr = dgram->srcAddress();
 
-  if ( mob->signalingEnhance() == Direct  )
+  boost::weak_ptr<bc_entry> bce;
+  if ( mob->signalingEnhance() != None  )
   {
-    boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBindingByCoA(srcAddr);
+    bce = mipv6cdsMN->findBindingByCoA(srcAddr);
     if(bce.lock())
       srcAddr = bce.lock()->home_addr;
   }
@@ -776,16 +773,20 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   // all of the above tests have been passed
 
-
   // CELLTODO - dealt with this later
   if ( testMsg->header_type() == MIPv6MHT_CoT )
-    bule->_careOfTestRTT = mob->simTime() - bule->beginRegTime;
-
+  {
+    assert(dgram->timestamp());
+    bule->_careOfTestRTT = mob->simTime() - dgram->timestamp();
+  }
 
   bule->setToken(testMsg->header_type(), testMsg->token);
 
-  if ( bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT &&
-       mob->signalingEnhance() == CellResidency )
+  // successful transmission when the signaling packets via direct
+  // route reach to the destination first time
+  if ( mob->signalingEnhance() == CellResidency &&
+       bce.lock() && 
+       bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT)
     bule->setTestSuccess(testMsg->header_type());
 
   bule->resetTITimeout(testMsg->header_type());
@@ -818,10 +819,12 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
     bule->resetTestSuccess();
 
+    assert(dgram->timestamp());
+
     // send BU
     sendBU(dgram->srcAddress(), mipv6cdsMN->careOfAddr(),
            mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
-           false, dgram->inputPort(), mob);
+           false, dgram->inputPort(), mob, false, dgram->timestamp());
     Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime()<< " sec, "
          << mob->rt->nodeName()
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
@@ -890,16 +893,45 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       return;
   }
 
-  if ( mob->rt->isEwuOutVectorHODelays() )
-    bule->beginRegTime = mob->simTime();
+  Loki::Field<2> (bule->hotiRetransTmr->args) = mob->simTime();
+  Loki::Field<2> (bule->cotiRetransTmr->args) = mob->simTime();
 
   bule->isPerformingRR = true;
+
+  /*** SIGNALING ENHANCEMENT SCHEMES ***/
 
   if ( mob->signalingEnhance() == Direct )
   {
     boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
     if(bce.lock())
       addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
+  }
+  else if ( mob->signalingEnhance() == CellResidency )
+  {
+    boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
+
+    if ( bule->dirSignalCount() <= INITIAL_SIGNALING_COUNT )
+    {
+      if(bce.lock())
+      {
+        addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
+        bule->incDirSignalCount();
+      }
+    }
+    else 
+    {
+      assert(bce.lock());
+
+      double probSuccess = (double)bule->successDirSignalCount() / bule->dirSignalCount();
+      
+      bool dirSignalDecider = ( probSuccess >= uniform(0,1) );
+      
+      if ( dirSignalDecider )
+      {
+        addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
+        bule->incDirSignalCount();        
+      }
+    }      
   }
 
   Loki::Field<0> (bule->hotiRetransTmr->args) = addrs;
@@ -922,12 +954,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
 
-  if ( mob->signalingEnhance() == CellResidency )
-    bule->incDirSignalCount();
 
 }
 
-void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mobility* mob)
+void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mobility* mob, simtime_t timestamp)
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
@@ -964,6 +994,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
   TIMsg* hoti = new TIMsg(MIPv6MHT_HoTI, bule->cookie(MIPv6MHT_HoTI));
   IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
   dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  dgram_hoti->setTimestamp(timestamp);
 
   // TODO: return home; Since the return home handover isn't fully
   // robust, we will send the hoti straight to the outputcore instead
@@ -995,7 +1026,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_HoTI) + mob->simTime());
 }
 
-void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob)
+void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t timestamp)
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
@@ -1037,8 +1068,8 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
   // directly to the output core via "mobilityIn")
 
   IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
-
   dgram_coti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  dgram_coti->setTimestamp(timestamp);
 
   dgram_coti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
@@ -1243,6 +1274,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #ifdef USE_HMIP
                                    , bool mapReg
 #endif //USE_HMIP
+                                   , simtime_t timestamp
 )
 {
   //Can be called from NDStateHost(IPv6NeighbourDiscovery) or
@@ -1268,7 +1300,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   bu_entry* bule = 0;
 
-  if (mob->signalingEnhance() == Direct )
+  if (mob->signalingEnhance() != None )
   {
     boost::weak_ptr<bc_entry> bce =
       mipv6cdsMN->findBindingByCoA(dest);
@@ -1334,6 +1366,18 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+
+  if (homeReg) // BU sent to HA should not have any timestamp set
+  {
+    assert( !timestamp );
+    dgram->setTimestamp( mob->simTime() );
+  }
+  else // BU sent to CN should already have timestamp from previous state
+  {
+    assert( timestamp );
+    dgram->setTimestamp( timestamp );
+  }
+
   //Draft 17 6.1.7 BU must have haddr dest opt
   HdrExtDestProc* destProc = dgram->acquireDestInterface();
 
@@ -1443,9 +1487,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->setCareOfAddr(coa);
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
-
-  if ( homeReg )
-    bule->beginRegTime = mob->simTime();
 
   return true;
 }

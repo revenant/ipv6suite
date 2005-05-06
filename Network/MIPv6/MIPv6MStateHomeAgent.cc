@@ -162,7 +162,7 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
     else
     {
       BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), 0, 0);
-      sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
+      sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
       Dout(dc::mipv6, " pcoa de-registration succeeded for "
            <<dgram->srcAddress()<<" hoa="<<bu->ha());
       return true;
@@ -185,7 +185,7 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu,
   //Ensure that dgram dest address and type 2 routing header is used only when
   //appropriate see sendBA comments
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
 
     Dout(dc::mipv6|flush_cf, mod->nodeName()<<" "<<mod->simTime()<<" BA sent to "
          <<dgram->srcAddress()<<" status="<<ba->status());

@@ -98,8 +98,9 @@ namespace
 
 namespace MobileIPv6
 {
-  typedef Loki::cTimerMessageCB<void, TYPELIST_2(std::vector<ipv6_addr>,
-                                                 IPv6Mobility*)> TIRetransTmr;
+  typedef Loki::cTimerMessageCB<void, TYPELIST_3(std::vector<ipv6_addr>,
+                                                 IPv6Mobility*,
+                                                 simtime_t)> TIRetransTmr;
 
   class bu_entry;
 
@@ -219,7 +220,7 @@ namespace MobileIPv6
 )
 
       :dest_addr(dest), hoa(hoa), coa(coa), _lifetime(olifetime),
-       regDelay(0), beginRegTime(0),
+       regDelay(0),
        last_time_sent(lastTime), state(0), seq_no(seq), _homeReg(homeRegn),
        problem(false)
 #ifdef USE_HMIP
@@ -423,7 +424,6 @@ namespace MobileIPv6
     //@{
   public:
     cOutVector* regDelay;
-    simtime_t beginRegTime;
 
     bool isPerformingRR;
 
@@ -533,7 +533,7 @@ namespace MobileIPv6
     unsigned int _successDirSignalCount;
 
     bool hotSuccess;
-    bool cotSuccess; 
+    bool cotSuccess;
     //@}
   };
 

@@ -886,6 +886,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
        &MobileIPv6::MIPv6MStateMobileNode::sendCoTI, "Sched_SendCoTI");
     Loki::Field<1> (cotiTmr->args) = mob;
     bule->cotiRetransTmr = cotiTmr;
+
+    if ( mob->signalingEnhance() == CellResidency )
+      bule->setCellResidencySupport(true);
   }
   else
   {
@@ -930,6 +933,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       {
         addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
         bule->incDirSignalCount();        
+      }
+      else
+      {
+        
       }
     }      
   }

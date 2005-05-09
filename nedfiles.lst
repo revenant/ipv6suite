@@ -1,8 +1,8 @@
-mpls-doc.ned
 index.ned
 inet-doc.ned
 inet-index.ned
 ipv6-index.ned
+mpls-doc.ned
 Applications/Ethernet/EtherAppCli.ned
 Applications/Ethernet/EtherAppSrv.ned
 Applications/Generic/IPTrafGen.ned
@@ -123,6 +123,7 @@ Nodes/INET/BurstHost.ned
 Nodes/INET/NetworkLayer.ned
 Nodes/INET/Router.ned
 Nodes/INET/StandardHost.ned
+Nodes/IPv6/Cables.ned
 Nodes/IPv6/DualIntMobileNode.ned
 Nodes/IPv6/EtherBridge.ned
 Nodes/IPv6/EtherHub.ned
@@ -131,7 +132,6 @@ Nodes/IPv6/Router6.ned
 Nodes/IPv6/UDPNode.ned
 Nodes/IPv6/WirelessAccessPoint.ned
 Nodes/IPv6/WirelessMobileNode.ned
-Nodes/IPv6/Cables.ned
 Nodes/MPLS/LDP_LSR.ned
 Nodes/MPLS/RSVP_LSR.ned
 PHY/PHYSimple.ned
@@ -145,8 +145,8 @@ Research/Networks/MIPv6Network/MIPv6FastRANetwork.ned
 Research/Networks/MIPv6Network/MIPv6MACBridgeNetwork.ned
 Research/Networks/MIPv6Network/MIPv6Network.ned
 Research/Networks/MIPv6Network/MIPv6NetworkSimulMove.ned
-Research/Networks/MIPv6Network/PCOAForwarding.ned
 Research/Networks/MIPv6Network/MIPv6NetworkSimulMove2.ned
+Research/Networks/MIPv6Network/PCOAForwarding.ned
 Research/Networks/PingNetwork/PingNetwork.ned
 Research/Networks/SingleRouter/SingleRouter.ned
 Research/Networks/TestNetwork/TestNetwork.ned

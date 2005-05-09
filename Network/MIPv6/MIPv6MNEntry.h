@@ -231,7 +231,7 @@ namespace MobileIPv6
        hoti_timeout(0), coti_timeout(0),
        hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
        careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
-       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), cotSuccess(false)
+       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), cotSuccess(false), isCellResidencySupport(false)
       {
         setExpires(lifetime());
         hoti_cookie.high = rand();
@@ -517,6 +517,11 @@ namespace MobileIPv6
           assert(false);
       }
 
+    void setCellResidencySupport(bool b)
+      {
+        isCellResidencySupport = b;
+      }
+
   private:
     double hoti_timeout;
     double coti_timeout;
@@ -534,6 +539,8 @@ namespace MobileIPv6
 
     bool hotSuccess;
     bool cotSuccess;
+
+    bool isCellResidencySupport;
     //@}
   };
 

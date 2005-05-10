@@ -719,12 +719,16 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   bu_entry* bule = 0;
   ipv6_addr srcAddr = dgram->srcAddress();
 
+  bool isDirectRoute = false;
   boost::weak_ptr<bc_entry> bce;
   if ( mob->signalingEnhance() != None  )
   {
     bce = mipv6cdsMN->findBindingByCoA(srcAddr);
     if(bce.lock())
+    {
+      isDirectRoute = true;
       srcAddr = bce.lock()->home_addr;
+    }
   }
 
   // check if the source address of the packet belongs to a CN for
@@ -782,12 +786,22 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
 
   bule->setToken(testMsg->header_type(), testMsg->token);
 
-  // successful transmission when the signaling packets via direct
-  // route reach to the destination first time
-  if ( mob->signalingEnhance() == CellResidency &&
-       bce.lock() && 
-       bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT)
-    bule->setTestSuccess(testMsg->header_type());
+  if ( mob->signalingEnhance() == CellResidency )
+  {
+    // successful transmission when the signaling packets via direct
+    // route reach to the destination first time
+    if ( isDirectRoute && 
+         bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT)
+      bule->setTestSuccess(testMsg->header_type());
+
+    // signaling loss happens even if signaling packets via indirect
+    // route, so we need to increment the delay for the next signaling
+    // tranmission
+    else if ( !isDirectRoute && bule->testInitTimeout(testMsg->header_type()) != INITIAL_BINDACK_TIMEOUT )
+    {
+      // not successful? increase delay by 25ms
+    }
+  }
 
   bule->resetTITimeout(testMsg->header_type());
 
@@ -886,9 +900,6 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
        &MobileIPv6::MIPv6MStateMobileNode::sendCoTI, "Sched_SendCoTI");
     Loki::Field<1> (cotiTmr->args) = mob;
     bule->cotiRetransTmr = cotiTmr;
-
-    if ( mob->signalingEnhance() == CellResidency )
-      bule->setCellResidencySupport(true);
   }
   else
   {
@@ -900,6 +911,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   Loki::Field<2> (bule->cotiRetransTmr->args) = mob->simTime();
 
   bule->isPerformingRR = true;
+
+  simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
+  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;  
 
   /*** SIGNALING ENHANCEMENT SCHEMES ***/
 
@@ -934,19 +948,12 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
         addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
         bule->incDirSignalCount();        
       }
+      // we are facing high rate of signaling loss, fall back to
+      // indirect signaling
       else
       {
-        // indirect
-
-        // get current timeout 
-
-        // senddelayed the packet
-
-        // not successful? increase delay by 100ms
-
-        // if successful.. decrease delay by 100ms
-
-        // if no timeout, use direct signaling
+        // hotiSchedule + delay for transmission
+        // cotiSchedule + delay for transmission
       }
     }      
   }
@@ -967,11 +974,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   }
 
   if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
-    bule->hotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
+    bule->hotiRetransTmr->reschedule(hotiScheduleTime);
 
-  bule->cotiRetransTmr->reschedule(mob->simTime() + SELF_SCHEDULE_DELAY);
-
-
+  bule->cotiRetransTmr->reschedule(cotiScheduleTime);
 }
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mobility* mob, simtime_t timestamp)

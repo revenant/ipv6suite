@@ -936,7 +936,17 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       }
       else
       {
-        
+        // indirect
+
+        // get current timeout 
+
+        // senddelayed the packet
+
+        // not successful? increase delay by 100ms
+
+        // if successful.. decrease delay by 100ms
+
+        // if no timeout, use direct signaling
       }
     }      
   }
@@ -966,6 +976,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mobility* mob, simtime_t timestamp)
 {
+
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
   ipv6_addr cnhoa;

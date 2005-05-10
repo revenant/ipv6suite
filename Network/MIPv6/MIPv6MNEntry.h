@@ -93,6 +93,8 @@ namespace
   extern const simtime_t MAX_UPDATE_RATE = 1/3;
 
   extern const int MAX_NONCE_LIFETIME = 240;
+
+  extern const simtime_t SEND_DELAY_INCREMENT = 0.025; // ms
   //@}
 }
 
@@ -231,7 +233,9 @@ namespace MobileIPv6
        hoti_timeout(0), coti_timeout(0),
        hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
        careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
-       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), cotSuccess(false)
+       // cell residency related information
+       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
+       cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0)
       {
         setExpires(lifetime());
         hoti_cookie.high = rand();
@@ -507,6 +511,26 @@ namespace MobileIPv6
           coti_timeout = pow( coti_timeout ,2 );
       }
 
+    simtime_t hotiSendDelayTimer()
+      {
+        return _hotiSendDelayTimer;
+      }
+
+    simtime_t cotiSendDelayTimer()
+      {
+        return _cotiSendDelayTimer;
+      }
+
+    void increaseSendDelayTimer(const MIPv6MobilityHeaderType& ht)
+      {
+        if ( ht == MIPv6MHT_HoT )
+          _hotiSendDelayTimer += SEND_DELAY_INCREMENT;
+        else if ( ht == MIPv6MHT_CoT )
+          _cotiSendDelayTimer += SEND_DELAY_INCREMENT;
+        else
+          assert(false);
+      }
+
     void resetTITimeout(const MIPv6MobilityHeaderType& ht)
       {
         if ( ht == MIPv6MHT_HoT )
@@ -535,8 +559,8 @@ namespace MobileIPv6
     bool hotSuccess;
     bool cotSuccess;
 
-    simtime_t hotiSendDelayTimer;
-    simtime_t cotiSendDelayTimer;
+    simtime_t _hotiSendDelayTimer;
+    simtime_t _cotiSendDelayTimer;
 
     //@}
   };

@@ -799,7 +799,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
     // tranmission
     else if ( !isDirectRoute && bule->testInitTimeout(testMsg->header_type()) != INITIAL_BINDACK_TIMEOUT )
     {
-      // not successful? increase delay by 25ms
+      bule->increaseSendDelayTimer(testMsg->header_type());
     }
   }
 
@@ -952,8 +952,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       // indirect signaling
       else
       {
-        // hotiSchedule + delay for transmission
-        // cotiSchedule + delay for transmission
+        hotiScheduleTime += bule->hotiSendDelayTimer();
+        cotiScheduleTime += bule->cotiSendDelayTimer();
       }
     }      
   }

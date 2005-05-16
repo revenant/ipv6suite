@@ -108,8 +108,8 @@ module MIPv6Network
         ap2.out[0] --> intranetCable --> router1.in[0];
         ap2.in[0] <-- intranetCable <-- router1.out[0];
 
-        router1.out[1] --> intranetCable --> ha.in[1];
-        router1.in[1] <-- intranetCable <-- ha.out[1];
+        router1.out[1] --> internetCable --> ha.in[1];
+        router1.in[1] <-- internetCable <-- ha.out[1];
 
         ap3.out[0] --> intranetCable --> router2.in[0];
         ap3.in[0] <-- intranetCable <-- router2.out[0];
@@ -126,11 +126,11 @@ module MIPv6Network
         router3.out[2] --> intranetCable --> server4.in[0];
         router3.in[2] <-- intranetCable <-- server4.out[0];
 
-        ha.in[2] <-- intranetCable <-- router3.out[3];
-        ha.out[2] --> intranetCable --> router3.in[3];
+        ha.in[2] <-- internetCable <-- router3.out[3];
+        ha.out[2] --> internetCable --> router3.in[3];
 
-        ha.in[3] <-- intranetCable <-- router2.out[3];
-        ha.out[3] --> intranetCable --> router2.in[3];
+        ha.in[3] <-- internetCable <-- router2.out[3];
+        ha.out[3] --> internetCable --> router2.in[3];
 
         router1.out[3] --> internetCable --> router3.in[4];
         router1.in[3] <-- internetCable <-- router3.out[4];

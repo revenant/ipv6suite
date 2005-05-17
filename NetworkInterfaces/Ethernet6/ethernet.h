@@ -34,6 +34,7 @@ extern const int TRANSMIT_SENDDATA;
 extern const int TRANSMIT_JAM;
 extern const int SELF_BACKOFF; // for WaitBackoff
 extern const int SELF_INTERFRAMEGAP;
+extern const int TMR_ETH_STATS;
 
 //extern const int SELF_BACKOFF_BJ; // for WaitBackoffJam
 //extern const int SELF_BACKOFF_RB; // for WaitReceiveBackoff

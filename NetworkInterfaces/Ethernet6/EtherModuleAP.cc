@@ -70,6 +70,21 @@ void EtherModuleAP::initialize(int stage)
 
     inGate = findGate("physIn");
     outGate = findGate("physOut");
+
+    //Initialise Variables for Statistics
+    statsUpdatePeriod = 1;
+    RxDataBWStat = 0;
+    TxDataBWStat = 0;
+    noOfRxStat = 0;
+    noOfTxStat = 0;
+
+    RxDataBWVec = new cOutVector("RxDataBWVec");
+    TxDataBWVec = new cOutVector("TxDataBWVec");
+    noOfRxVec = new cOutVector("noOfRxVec");
+    noOfTxVec = new cOutVector("noOfTxVec");
+
+    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
   }
   else if (stage == 1)
   {

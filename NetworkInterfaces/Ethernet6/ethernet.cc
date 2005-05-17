@@ -32,6 +32,7 @@ const int TRANSMIT_SENDDATA = 1001;
 const int TRANSMIT_JAM = 1002;
 const int SELF_BACKOFF = 2001;
 const int SELF_INTERFRAMEGAP = 2002;
+const int TMR_ETH_STATS = 2003;
 
 // speed
 const double BANDWIDTH = 100000000; // 100 Mbps

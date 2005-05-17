@@ -110,6 +110,13 @@ void EtherStateSend::endSendingData(EtherModule* mod)
 
     assert(!mod->interframeGap);
 
+    //collect statistics
+    EtherSignalData* txSignal = check_and_cast<EtherSignalData*>(*(mod->outputBuffer.begin()));
+    mod->TxDataBWStat += (double)txSignal->encapsulatedMsg()->encapsulatedMsg()->length()/1000000;
+    mod->noOfTxStat++;
+    if(mod->statsVec)
+      mod->InstTxFrameSizeVec->record(txSignal->encapsulatedMsg()->encapsulatedMsg()->length()/8);
+
     removeFrameFromBuffer(mod);
 
     mod->resetRetry();

@@ -52,7 +52,7 @@
 #include "opp_utils.h"
 #include <string>
 
-Define_Module_Like( EtherModule, NetworkInterface6 );
+Define_Module(EtherModule);
 
 void EtherModule::initialize(int stage)
 {
@@ -70,12 +70,20 @@ void EtherModule::initialize(int stage)
 
     procdelay = par("procdelay").longValue();
 
-    MAC_address addr;
-    addr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-    addr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-
-    _myAddr.set(addr);
-
+    std::string parAddr = par("address").stringValue();
+    if (!parAddr.empty())
+      _myAddr.set(parAddr.c_str());
+    //Only want to initialise the MN mac address once otherwise routing tables
+    //are wrong if we generate another random number from the stream
+    else if (_myAddr == MACAddress6())
+    {
+      MAC_address addr;
+      addr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+      addr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+      _myAddr.set(addr);
+    }
+    statsVec = par("recordStatisticVector");
+ 
     inputFrame = 0;
     retry = 0;
     interframeGap = 0;
@@ -84,6 +92,21 @@ void EtherModule::initialize(int stage)
     outGate = findGate("physOut");
 
     registerInterface();
+
+    //Initialise Variables for Statistics
+    statsUpdatePeriod = 1;
+    RxDataBWStat = 0;
+    TxDataBWStat = 0;
+    noOfRxStat = 0;
+    noOfTxStat = 0;
+
+    RxDataBWVec = new cOutVector("RxDataBWVec");
+    TxDataBWVec = new cOutVector("TxDataBWVec");
+    noOfRxVec = new cOutVector("noOfRxVec");
+    noOfTxVec = new cOutVector("noOfTxVec");
+
+    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
   }
   else if (stage == 1)
   {
@@ -94,6 +117,13 @@ void EtherModule::initialize(int stage)
     {
       opp_warning("PHYSimple NOT FOUND!");
     }
+
+    // Timer to update statistics
+    updateStatsNotifier  =
+      new Loki::cTimerMessageCB<void>
+      (TMR_ETH_STATS, this, this, &EtherModule::updateStats, "updateStats");
+    
+    scheduleAt(simTime()+statsUpdatePeriod, updateStatsNotifier);
   }
 }
 
@@ -380,8 +410,31 @@ void EtherModule::printSelfMsg(const int messageID)
     message = "SELF_BACKOFF";
   else if ( messageID == SELF_INTERFRAMEGAP )
     message = "SELF_INTERFRAMEGAP";
+  else if ( messageID == TMR_ETH_STATS )
+    message = "TMR_ETH_STATS";
   else
     assert(false); // notify any new message added
 
   Dout(dc::ethernet|flush_cf, "MAC LAYER: " << fullPath() << " receiving self message with ID: " << message << " in " << state << " state");
+}
+
+void EtherModule::updateStats(void)
+{
+  //record vectors
+  if(statsVec)
+  {
+    RxDataBWVec->record(RxDataBWStat/statsUpdatePeriod);
+    TxDataBWVec->record(TxDataBWStat/statsUpdatePeriod);
+    noOfRxVec->record(noOfRxStat/statsUpdatePeriod);
+    noOfTxVec->record(noOfTxStat/statsUpdatePeriod);
+  }
+  
+  //reset stats updated every period
+  RxDataBWStat = 0;
+  TxDataBWStat = 0;
+  noOfRxStat = 0;
+  noOfTxStat = 0;
+
+  //reschedule next update
+  scheduleAt(simTime() + statsUpdatePeriod, updateStatsNotifier);
 }

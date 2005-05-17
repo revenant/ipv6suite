@@ -111,6 +111,12 @@ std::auto_ptr<EtherSignalIdle> EtherStateReceiveWaitBackoff::processIdle(EtherMo
   assert(mod->inputFrame);
   EtherFrame6* recFrame = check_and_cast<EtherFrame6*>(mod->inputFrame->decapsulate());
 
+  //collect statistics
+  mod->RxDataBWStat += (double)recFrame->encapsulatedMsg()->length()/1000000;
+  mod->noOfRxStat++;
+  if(mod->statsVec)
+    mod->InstRxFrameSizeVec->record(recFrame->encapsulatedMsg()->length()/8);
+
   mod->decNumOfRxIdle(idle->getSrcModPathName());
 
   // send to upper layer

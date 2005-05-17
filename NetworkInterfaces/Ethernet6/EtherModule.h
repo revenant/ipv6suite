@@ -43,6 +43,7 @@
 #include "ethernet.h"
 #include "MACAddress6.h"
 #include "cTimerMessage.h"
+#include "cTimerMessageCB.h"
 #include <string>
 
 class EtherState;
@@ -132,6 +133,30 @@ class EtherModule: public LinkLayerModule
 
   simtime_t interframeGap;
 
+  /********* STATISTICS VARIABLES (start) ************/
+
+  bool statsVec;
+  Loki::cTimerMessageCB<void>* updateStatsNotifier;
+  virtual void updateStats(void);
+
+  double statsUpdatePeriod; //seconds
+
+  double RxDataBWStat;        //received data bandwidth (Mbit)
+  double TxDataBWStat;        //transmitted data bandwidth (Mbit)
+  double noOfRxStat;          //number of received data frames (frames)
+  double noOfTxStat;          //number of transmitted data frames (frames)
+  
+  //vector of statistics every second
+  cOutVector* RxDataBWVec;        //(Mbit/s)
+  cOutVector* TxDataBWVec;        //(Mbit/s)
+  cOutVector* noOfRxVec;          //(frames/s)
+  cOutVector* noOfTxVec;          //(frames/s)
+
+  //vector of instantaneaous readings
+  cOutVector* InstRxFrameSizeVec; //(bytes) successful ones
+  cOutVector* InstTxFrameSizeVec; //(bytes) successful ones
+
+  /********* STATISTICS VARIABLES (end) ************/
  protected:
   EtherState* _currentState;
   long procdelay; // ms

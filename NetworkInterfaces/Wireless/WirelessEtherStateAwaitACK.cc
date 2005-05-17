@@ -112,6 +112,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     {
       mod->noOfFailedTxStat++;
       mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
+      mod->avgTxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp); 
     }
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame");
 
@@ -142,6 +143,7 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
 
   mod->incContentionWindowPower();
   mod->incrementRetry();
+  mod->noOfRetriesStat++;
   
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "next retry: " << mod->getRetry());
 

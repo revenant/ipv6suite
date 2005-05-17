@@ -298,6 +298,8 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
     mod->RxDataBWStat += (double)data->encapsulatedMsg()->length()/1000000;
     mod->RxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
     mod->avgRxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
+    if(mod->statsVec)
+      mod->InstRxFrameSizeVec->record(data->encapsulatedMsg()->length()/8);
 
     mod->sendToUpperLayer(data);
 

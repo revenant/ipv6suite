@@ -108,7 +108,7 @@ void WEAssociationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WE
       FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
       assRequest->encapsulate(assRequestFrameBody);
       WESignalData* requestSignal = encapsulateIntoWESignalData(assRequest);
-      mod->outputBuffer.push_back(requestSignal);
+      mod->outputBufferInsert(requestSignal);
       //delete assRequest;
 
       // Stop the authentication timeout timer

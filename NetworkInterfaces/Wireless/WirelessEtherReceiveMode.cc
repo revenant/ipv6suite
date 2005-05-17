@@ -136,6 +136,9 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
     mod->TxFrameSizeStat->collect((double)frame->encapsulatedMsg()->length()/8);
     mod->avgTxFrameSizeStat->collect(frame->encapsulatedMsg()->length()/8);
     mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
+    mod->avgTxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
+    if(mod->statsVec)
+      mod->InstTxFrameSizeVec->record(frame->encapsulatedMsg()->length()/8);
   }
 
   delete *(mod->outputBuffer.begin());

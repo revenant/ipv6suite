@@ -47,7 +47,8 @@ simple WirelessEtherModule
         recordStatisticVector: bool,
         activeScan: bool,
         linkUpTrigger: bool,
-        channelScanTime: numeric;
+        channelScanTime: numeric,
+				bufferSize: numeric;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

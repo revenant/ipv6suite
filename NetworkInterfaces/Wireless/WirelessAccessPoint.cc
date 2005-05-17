@@ -102,7 +102,8 @@ void WirelessAccessPoint::initialize(int stage)
     authEntryTimeout = OPP_Global::findNetNodeModule(this)->par("authEntryTimeout").doubleValue();
     assEntryTimeout = OPP_Global::findNetNodeModule(this)->par("assEntryTimeout").doubleValue();
     consecFailedTransLimit = OPP_Global::findNetNodeModule(this)->par("consecFailedTransLimit").longValue();
-
+    bufferSize = par("bufferSize");
+  
     apMode = true;
     address.set(MAC_ADDRESS_UNSPECIFIED_STRUCT);
 
@@ -133,6 +134,7 @@ void WirelessAccessPoint::initialize(int stage)
     protocolNotifier->setKind(MK_PACKET);
     send(protocolNotifier, inputQueueOutGate());
 
+    double randomStart = uniform(0,1);
     // On power up, access point will start sending beacons.
     cTTimerMessageCBA<void, void>* powerUpBeaconNotifier;
 
@@ -141,7 +143,7 @@ void WirelessAccessPoint::initialize(int stage)
       (TMR_BEACON, this, makeCallback(this, &WirelessAccessPoint::sendBeacon), "sendBeacon");
 
     addTmrMessage(powerUpBeaconNotifier);
-    scheduleAt(simTime()+beaconPeriod, powerUpBeaconNotifier);
+    scheduleAt(simTime()+beaconPeriod+randomStart, powerUpBeaconNotifier);
   }
   baseInit(stage);
 }
@@ -221,7 +223,7 @@ void WirelessAccessPoint::sendBeacon(void)
   beacon->encapsulate(beaconFrameBody);
   WESignalData* beaconSignal = encapsulateIntoWESignalData(beacon);
   beaconSignal->setChannelNum(channel);
-  outputBuffer.push_back(beaconSignal);
+  outputBufferInsert(beaconSignal);
 
   // schedule the next beacon message
   double nextSchedTime = simTime() + beaconPeriod;
@@ -241,7 +243,7 @@ void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
   WESignalData* frame = dynamic_cast<WESignalData*>(msg.get()->decapsulate());
   assert(frame);
 
-  outputBuffer.push_back(frame);
+  outputBufferInsert(frame);
 
     // relying on internal outputBuffer, therefore need to get data from external
     // outputQueue into it quickly.

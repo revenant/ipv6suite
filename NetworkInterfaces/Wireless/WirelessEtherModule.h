@@ -157,10 +157,12 @@ public:
   std::string macAddressString(void);
 
   bool linkUpTrigger() { return _linkUpTrigger; }
-  
 
   std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
   std::list<WESignalData*> outputBuffer;
+
+  void outputBufferInsert(WESignalData* data);
+
   WESignalData* inputFrame;
 
   // list to store signal strength readings
@@ -311,6 +313,8 @@ protected:
   bool statsVec;
   bool activeScan;
   double channelScanTime;
+  unsigned int bufferSize;
+  
 
   //
   // state information and statistics
@@ -387,6 +391,8 @@ protected:
   double noOfRxStat;          //number of received data frames (frames)
   double noOfTxStat;          //number of transmitted data frames (frames)
   double noOfFailedTxStat;    //number of dropped transmission (frames)
+  double noOfAttemptedTxStat; //number of attempted tx (frames)
+  double noOfRetriesStat;    //number of retries
   cStdDev* RxFrameSizeStat;   //average received frame size (bytes/frame)
   cStdDev* TxFrameSizeStat;   //average transmitted frame size (bytes/frame)
   cStdDev* TxAccessTimeStat;  //average time to successfully tx a frame (sec/successful attempt)
@@ -394,31 +400,39 @@ protected:
   cStdDev* CWStat;            //average contention window per backoff (slots/tx attempt)
 
   //average of above statistics over the whole simulation
-  cStdDev* avgRxDataBWStat;     //(Mbit/s)
-  cStdDev* avgTxDataBWStat;     //(Mbit/s)
-  cStdDev* avgNoOfRxStat;       //(frames/s)
-  cStdDev* avgNoOfTxStat;       //(frames/s)
-  cStdDev* avgNoOfFailedTxStat; //(frames/s)
-  cStdDev* avgRxFrameSizeStat;  //(bytes/frame)
-  cStdDev* avgTxFrameSizeStat;  //(bytes/frame)
-  cStdDev* avgTxAccessTimeStat; //(sec/successful attempt)  
-  cStdDev* avgBackoffSlotsStat; //(slots/tx attempt)
-  cStdDev* avgCWStat;           //(slots/tx attempt)
-  cStdDev* avgOutBuffSizeStat;  //average buffer size(frames)
+  cStdDev* avgRxDataBWStat;        //(Mbit/s)
+  cStdDev* avgTxDataBWStat;        //(Mbit/s)
+  cStdDev* avgNoOfRxStat;          //(frames/s)
+  cStdDev* avgNoOfTxStat;          //(frames/s)
+  cStdDev* avgNoOfFailedTxStat;    //(frames/s)
+  cStdDev* avgNoOfAttemptedTxStat; //(frames/s)
+  cStdDev* avgNoOfRetriesStat;    //(frames/s)
+  cStdDev* avgRxFrameSizeStat;     //(bytes/frame)
+  cStdDev* avgTxFrameSizeStat;     //(bytes/frame)
+  cStdDev* avgTxAccessTimeStat;    //(sec/successful attempt)  
+  cStdDev* avgBackoffSlotsStat;    //(slots/tx attempt)
+  cStdDev* avgCWStat;              //(slots/tx attempt)
+  cStdDev* avgOutBuffSizeStat;     //average buffer size(frames)
 
   //vector of statistics every second
-  cOutVector* RxDataBWVec;     //(Mbit/s)
-  cOutVector* TxDataBWVec;     //(Mbit/s)
-  cOutVector* noOfRxVec;       //(frames/s)
-  cOutVector* noOfTxVec;       //(frames/s)
-  cOutVector* noOfFailedTxVec; //(frames/s)
-  cOutVector* RxFrameSizeVec;  //(bytes/frame)
-  cOutVector* TxFrameSizeVec;  //(bytes/frame)
-  cOutVector* TxAccessTimeVec; //(sec/successful attempt)
-  cOutVector* backoffSlotsVec; //(slots/tx attempt)
-  cOutVector* CWVec;           //(slots/tx attempt)
-  cOutVector* outBuffSizeVec;  //current buffer size(frames)
-   
+  cOutVector* RxDataBWVec;        //(Mbit/s)
+  cOutVector* TxDataBWVec;        //(Mbit/s)
+  cOutVector* noOfRxVec;          //(frames/s)
+  cOutVector* noOfTxVec;          //(frames/s)
+  cOutVector* noOfFailedTxVec;    //(frames/s)
+  cOutVector* noOfAttemptedTxVec; //(frames/s)
+  cOutVector* noOfRetriesVec;     //(frames/s)  
+  cOutVector* RxFrameSizeVec;     //(bytes/frame)
+  cOutVector* TxFrameSizeVec;     //(bytes/frame)
+  cOutVector* TxAccessTimeVec;    //(sec/successful attempt)
+  cOutVector* backoffSlotsVec;    //(slots/tx attempt)
+  cOutVector* CWVec;              //(slots/tx attempt)
+  cOutVector* outBuffSizeVec;     //current buffer size(frames)
+
+  //vector of instantaneaous readings
+  cOutVector* InstRxFrameSizeVec; //(bytes) successful ones
+  cOutVector* InstTxFrameSizeVec; //(bytes) successful ones
+
   /********* STATISTICAL VARIABLES (END) **********/
 
   unsigned int noOfDiscardedFrames;

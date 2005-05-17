@@ -129,6 +129,9 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
     (data->encapsulatedMsg());
   assert(frame);
 
+  if (frame->getFrameControl().subtype == ST_DATA)
+    mod->noOfAttemptedTxStat++;
+
   mod->changeState(WirelessEtherStateSend::instance());
 
   // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth

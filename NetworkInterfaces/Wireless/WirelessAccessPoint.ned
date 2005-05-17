@@ -46,7 +46,8 @@ simple WirelessAccessPoint
         bandwidthRequirements: numeric const,
         recordStatisticVector: bool,
         activeScan: bool,
-        channelScanTime: numeric;
+        channelScanTime: numeric,
+	bufferSize: numeric;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

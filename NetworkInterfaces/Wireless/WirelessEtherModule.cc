@@ -121,6 +121,8 @@ void WirelessEtherModule::baseInit(int stage)
     noOfRxStat = 0;
     noOfTxStat = 0;
     noOfFailedTxStat = 0;
+    noOfAttemptedTxStat = 0;
+    noOfRetriesStat = 0;
     RxFrameSizeStat = new cStdDev("RxFrameSizeStat");
     TxFrameSizeStat = new cStdDev("TxFrameSizeStat");
     TxAccessTimeStat = new cStdDev("TxAccessTimeStat");
@@ -131,7 +133,9 @@ void WirelessEtherModule::baseInit(int stage)
     avgTxDataBWStat = new cStdDev("avgTxDataBWStat");
     avgNoOfRxStat = new cStdDev("avgNoOfRxStat");
     avgNoOfTxStat = new cStdDev("avgNoOfTxStat");
-    avgNoOfFailedTxStat = new cStdDev("avgNoOfFailedTxStat");
+    avgNoOfFailedTxStat = new cStdDev("avgNoOfAttemptedTxStat");
+    avgNoOfAttemptedTxStat = new cStdDev("avgNoOfRetriesStat");
+    avgNoOfRetriesStat = new cStdDev("avgNoOfFailedTxStat");
     avgRxFrameSizeStat = new cStdDev("avgRxFrameSizeStat");
     avgTxFrameSizeStat = new cStdDev("avgTxFrameSizeStat");
     avgTxAccessTimeStat = new cStdDev("avgTxAccessTimeStat");
@@ -144,12 +148,18 @@ void WirelessEtherModule::baseInit(int stage)
     noOfRxVec = new cOutVector("noOfRxVec");
     noOfTxVec = new cOutVector("noOfTxVec");
     noOfFailedTxVec = new cOutVector("noOfFailedTxVec");
+    noOfAttemptedTxVec = new cOutVector("noOfAttemptedTxVec");
+    noOfRetriesVec = new cOutVector("noOfRetriesVec");
     RxFrameSizeVec = new cOutVector("RxFrameSizeVec");
     TxFrameSizeVec = new cOutVector("TxFrameSizeVec");
     TxAccessTimeVec = new cOutVector("TxAccessTimeVec");
     backoffSlotsVec = new cOutVector("backoffSlots");
     CWVec = new cOutVector("CW");
     outBuffSizeVec = new cOutVector("outBuffSizeVec");
+
+    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    
   }
   else if(stage == 1)
   {
@@ -214,6 +224,7 @@ void WirelessEtherModule::initialize(int stage)
 
     initialiseChannelToScan();
 
+    double randomStart = uniform(0,1);
     // On power up, wireless ethernet interface is staarting to
     // perform active scanning..
     if(activeScan)
@@ -226,7 +237,7 @@ void WirelessEtherModule::initialize(int stage)
         new cTTimerMessageCBA<void, void>
         (TMR_PRBENERGYSCAN, this, makeCallback(this, &WirelessEtherModule::probeChannel), "probeChannel");
       addTmrMessage(prbEnergyScanNotifier);
-      scheduleAt(simTime() + SELF_SCHEDULE_DELAY, prbEnergyScanNotifier);
+      scheduleAt(simTime() + randomStart, prbEnergyScanNotifier);
 
       //Timer for probe response wait
       cTTimerMessageCBA<void, void>* prbRespScanNotifier;
@@ -246,7 +257,7 @@ void WirelessEtherModule::initialize(int stage)
         new cTTimerMessageCBA<void, void>
         (TMR_CHANNELSCAN, this, makeCallback(this, &WirelessEtherModule::passiveChannelScan), "passiveChannelScan");
       addTmrMessage(channelScanNotifier);
-      scheduleAt(simTime() + SELF_SCHEDULE_DELAY, channelScanNotifier);
+      scheduleAt(simTime() + randomStart, channelScanNotifier);
     }
 
     //Timer to give authentication procedure a timelimit
@@ -300,6 +311,8 @@ void WirelessEtherModule::finish()
     recordScalar("avgNoOfRxStat", avgNoOfRxStat->mean());
     recordScalar("avgNoOfTxStat", avgNoOfTxStat->mean());
     recordScalar("avgNoOfFailedTxStat", avgNoOfFailedTxStat->mean());
+    recordScalar("avgNoOfAttemptedTxStat", avgNoOfAttemptedTxStat->mean());
+    recordScalar("avgNoOfRetriesStat", avgNoOfRetriesStat->mean());
     recordScalar("avgRxFrameSizeStat", avgRxFrameSizeStat->mean());
     recordScalar("avgTxFrameSizeStat", avgTxFrameSizeStat->mean());
     recordScalar("avgTxAccessTimeStat", avgTxAccessTimeStat->mean());
@@ -359,7 +372,23 @@ void WirelessEtherModule::readConfiguration()
   statsVec = par("recordStatisticVector");
   activeScan = par("activeScan");
   channelScanTime = par("channelScanTime");
+  bufferSize = par("bufferSize");
+  
   // TODO: parse supported rates
+}
+
+void WirelessEtherModule::outputBufferInsert(WESignalData* data)
+{
+  assert(outputBuffer.size() <= bufferSize);
+  if(outputBuffer.size() >= bufferSize)
+  {
+    //remove 2nd entry, because the 1st may be being processed
+    std::list<WESignalData*>::iterator it;
+    it = outputBuffer.begin();
+    it++;
+    outputBuffer.erase(it);
+  }
+  outputBuffer.push_back(data);
 }
 
 InterfaceEntry *WirelessEtherModule::registerInterface()
@@ -481,9 +510,9 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
     {
       WESignalData* a = encapsulateIntoWESignalData(frame);
       a->setName(frame->name());
-      outputBuffer.push_back(a);
-      //delete frame;
 
+      outputBufferInsert(a);
+      
       if ( _currentState == WirelessEtherStateIdle::instance())
         static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
       }
@@ -1112,7 +1141,7 @@ void WirelessEtherModule::probeChannel(void)
         authentication->encapsulate(authFrameBody);
         WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
         authSignal->setChannelNum(channel);
-        outputBuffer.push_back(authSignal);
+        outputBufferInsert(authSignal);
         //delete authentication;
 
         // Start the authentication timeout timer
@@ -1158,7 +1187,7 @@ void WirelessEtherModule::probeChannel(void)
   Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << simTime() << " " << fullPath() << " scanning channel: " << channel);
 
   WESignalData* probeSignal = generateProbeReq();
-  outputBuffer.push_back(probeSignal);
+  outputBufferInsert(probeSignal);
 
   static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
 }
@@ -1258,7 +1287,7 @@ void WirelessEtherModule::passiveChannelScan(void)
         authentication->encapsulate(authFrameBody);
         WESignalData* authSignal = encapsulateIntoWESignalData(authentication);
         authSignal->setChannelNum(channel);
-        outputBuffer.push_back(authSignal);
+        outputBufferInsert(authSignal);
         //delete authentication;
 
         // Start the authentication timeout timer
@@ -1777,7 +1806,7 @@ void WirelessEtherModule::makeOfflineBufferAvailable(void)
     frame->setAddress1(associateAP.address);
 
     WESignalData* a = encapsulateIntoWESignalData((cMessage*)frame->dup());
-    outputBuffer.push_back(a);
+    outputBufferInsert(a);
     offlineOutputBuffer.pop_front();
   }
 }
@@ -1789,6 +1818,9 @@ void WirelessEtherModule::updateStats(void)
   avgTxDataBWStat->collect(TxDataBWStat/statsUpdatePeriod);
   avgNoOfRxStat->collect(noOfRxStat/statsUpdatePeriod);
   avgNoOfTxStat->collect(noOfTxStat/statsUpdatePeriod);
+  avgNoOfFailedTxStat->collect(noOfFailedTxStat/statsUpdatePeriod);
+  avgNoOfAttemptedTxStat->collect(noOfAttemptedTxStat/statsUpdatePeriod);
+  avgNoOfRetriesStat->collect(noOfRetriesStat/statsUpdatePeriod);
   avgOutBuffSizeStat->collect(outputBuffer.size());
 
   //record vectors if turned ON
@@ -1798,6 +1830,9 @@ void WirelessEtherModule::updateStats(void)
     TxDataBWVec->record(TxDataBWStat/statsUpdatePeriod);
     noOfRxVec->record(noOfRxStat/statsUpdatePeriod);
     noOfTxVec->record(noOfTxStat/statsUpdatePeriod);
+    noOfFailedTxVec->record(noOfFailedTxStat/statsUpdatePeriod);
+    noOfAttemptedTxVec->record(noOfAttemptedTxStat/statsUpdatePeriod);
+    noOfRetriesVec->record(noOfRetriesStat/statsUpdatePeriod);
     RxFrameSizeVec->record(RxFrameSizeStat->mean());
     TxFrameSizeVec->record(TxFrameSizeStat->mean());
     TxAccessTimeVec->record(TxAccessTimeStat->mean());
@@ -1811,6 +1846,9 @@ void WirelessEtherModule::updateStats(void)
   TxDataBWStat = 0;
   noOfRxStat = 0;
   noOfTxStat = 0;
+  noOfFailedTxStat = 0;
+  noOfAttemptedTxStat = 0;
+  noOfRetriesStat = 0;
   RxFrameSizeStat->clearResult();
   TxFrameSizeStat->clearResult();
   backoffSlotsStat->clearResult();

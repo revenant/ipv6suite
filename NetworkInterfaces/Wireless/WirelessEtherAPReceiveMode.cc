@@ -106,7 +106,7 @@ void WEAPReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalDat
       FrameBody* authFrameBody = apMod->createFrameBody(auth);
       auth->encapsulate(authFrameBody);
       WESignalData* responseSignal = encapsulateIntoWESignalData(auth);
-      apMod->outputBuffer.push_back(responseSignal);
+      apMod->outputBufferInsert(responseSignal);
       //delete auth;
     }
       delete aFrameBody;
@@ -205,7 +205,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint* mod, WESigna
       responseSignal = encapsulateIntoWESignalData(deAuthentication);
       //delete deAuthentication;
     }
-    mod->outputBuffer.push_back(responseSignal);
+    mod->outputBufferInsert(responseSignal);
   }
   delete aRFrameBody;
 }
@@ -287,7 +287,7 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint* mod, WESig
       responseSignal = encapsulateIntoWESignalData(deAuthentication);
       //delete deAuthentication;
     }
-    mod->outputBuffer.push_back(responseSignal);
+    mod->outputBufferInsert(responseSignal);
   }
   delete rARFrameBody;
 }
@@ -334,7 +334,7 @@ void WEAPReceiveMode::handleProbeRequest(WirelessAccessPoint* mod, WESignalData*
     FrameBody* responseFrameBody = mod->createFrameBody(probeResponse);
     probeResponse->encapsulate(responseFrameBody);
     WESignalData* responseSignal = encapsulateIntoWESignalData(probeResponse);
-    mod->outputBuffer.push_back(responseSignal);
+    mod->outputBufferInsert(responseSignal);
     //delete probeResponse;
 
     //static_cast<WirelessEtherStateReceive*>(mod->currentState())->
@@ -475,7 +475,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
       FrameBody* deAuthFrameBody = mod->createFrameBody(deAuthentication);
       deAuthentication->encapsulate(deAuthFrameBody);
       WESignalData* deAuthSignal = encapsulateIntoWESignalData(deAuthentication);
-      apMod->outputBuffer.push_back(deAuthSignal);
+      apMod->outputBufferInsert(deAuthSignal);
       //delete deAuthentication;
     }
     // check if MS is associated
@@ -489,7 +489,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
       FrameBody* disAssFrameBody = mod->createFrameBody(disAssociation);
       disAssociation->encapsulate(disAssFrameBody);
       WESignalData* disAssSignal = encapsulateIntoWESignalData(disAssociation);
-      apMod->outputBuffer.push_back(disAssSignal);
+      apMod->outputBufferInsert(disAssSignal);
       //delete disAssociation;
     }
     // MS is permitted to send class 3 frames
@@ -501,7 +501,8 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
       apMod->usedBW.sampleTotal += (data->encapsulatedMsg()->length()/1000000);
       apMod->RxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
       apMod->avgRxFrameSizeStat->collect(data->encapsulatedMsg()->length()/8);
-      
+      if(mod->statsVec)
+        apMod->InstRxFrameSizeVec->record(data->encapsulatedMsg()->length()/8);
       // renew expiry time for entry
             apMod->addIface(data->getAddress2(), RM_DATA);
       // create data frame to be forwarded
@@ -524,7 +525,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
           // sendFrame is used by the bridge, so cant delete it.
           apMod->send(sendFrame, apMod->inputQueueOutGate());
           WESignalData* sendFrameSignal = encapsulateIntoWESignalData((cMessage*)sendFrame->dup());
-          apMod->outputBuffer.push_back(sendFrameSignal);
+          apMod->outputBufferInsert(sendFrameSignal);
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
              << apMod->fullPath() << "\n"
              << " ----------------------------------------------- \n"
@@ -556,7 +557,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signal)
           // receiving data
                     apMod->addIface(data->getAddress3(), RM_DATA);
           WESignalData* sendFrameSignal = encapsulateIntoWESignalData(sendFrame);
-          apMod->outputBuffer.push_back(sendFrameSignal);
+          apMod->outputBufferInsert(sendFrameSignal);
           Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
                << apMod->fullPath() << "\n"
                << " ----------------------------------------------- \n"

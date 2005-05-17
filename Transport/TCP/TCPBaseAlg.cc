@@ -39,7 +39,9 @@
 
 TCPBaseAlgStateVariables::TCPBaseAlgStateVariables()
 {
-    delayed_acks_enabled = true;
+    // Disabling delayed acks, since it is not used in real networks,
+    // and does not fully utilise link bandwidth
+    delayed_acks_enabled = false;
     nagle_enabled = true;
 
     rexmit_count = 0;

@@ -12,7 +12,7 @@
 # for compiled-in NED files, remove -N from OPTS, and switch to the longer version of ALL_MODEL_OPTS below
 OPTS=-f -N -b $(ROOT) -c $(ROOT)/inetconfig$(EXT)
 
-ALL_INET_INCLUDES=-I$(ROOT)/Network/IPv4 -I$(ROOT)/Network/IPv4d -I$(ROOT)/Network/AutoRouting -I$(ROOT)/Transport/TCP -I$(ROOT)/Transport/UDP -I$(ROOT)/NetworkInterfaces -I$(ROOT)/Network/Generic -I$(ROOT)/NetworkInterfaces/_802 -I$(ROOT)/NetworkInterfaces/ARP -I$(ROOT)/NetworkInterfaces/Ethernet -I$(ROOT)/NetworkInterfaces/PPP -I$(ROOT)/Applications/Generic -I$(ROOT)/Applications/Ethernet -I$(ROOT)/Applications/TCPApp -I$(ROOT)/Applications/UDPApp -I$(ROOT)/Applications/PingApp -I$(ROOT)/Base -I$(ROOT)/Util -I$(ROOT)/Nodes/INET
+ALL_INET_INCLUDES=-I$(ROOT)/Network/IPv4 -I$(ROOT)/Network/IPv4d -I$(ROOT)/Network/AutoRouting -I$(ROOT)/Transport/TCP -I$(ROOT)/Transport/UDP -I$(ROOT)/NetworkInterfaces -I$(ROOT)/Network/Generic -I$(ROOT)/NetworkInterfaces/_802 -I$(ROOT)/NetworkInterfaces/ARP -I$(ROOT)/NetworkInterfaces/Ethernet -I$(ROOT)/NetworkInterfaces/PPP -I$(ROOT)/Applications/Generic -I$(ROOT)/Applications/Ethernet -I$(ROOT)/Applications/TCPApp -I$(ROOT)/Applications/UDPApp -I$(ROOT)/Applications/PingApp -I$(ROOT)/Applications/BRModel -I$(ROOT)/Base -I$(ROOT)/Util -I$(ROOT)/Nodes/INET
 ALL_MPLS_INCLUDES=-I$(ROOT)/Network/MPLS -I$(ROOT)/Network/LDP -I$(ROOT)/Network/RSVP_TE -I$(ROOT)/Network/Scenario -I$(ROOT)/Nodes/MPLS
 ALL_IPv6_INCLUDES=-I$(ROOT)/Network/IPv6 -I$(ROOT)/Network/ICMPv6 -I$(ROOT)/Network/MIPv6 -I$(ROOT)/Network/HMIPv6 -I$(ROOT)/World -I$(ROOT)/PHY -I$(ROOT)/Mobility -I$(ROOT)/Mobility/adHocSim -I$(ROOT)/NetworkInterfaces/Ethernet6 -I$(ROOT)/NetworkInterfaces/PPP6 -I$(ROOT)/NetworkInterfaces/Wireless -I$(ROOT)/NetworkInterfaces/DualWireless -I$(ROOT)/Util/XML -I$(ROOT)/Nodes/IPv6 -I$(ROOT)/Util/Loki
 
@@ -75,6 +75,7 @@ all:
 	cd Applications/PingApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Network/Generic -I../../Base -I../../Util
 	cd Applications/TCPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Generic
 	cd Applications/UDPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Generic
+	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces
 
 	cd Network/Generic && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
 	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic

@@ -21,6 +21,11 @@ Applications/UDPApp/UDPBasicApp.ned
 Applications/UDPApp/UDPSink.ned
 Applications/UDPApp/UDPVideoStreamCli.ned
 Applications/UDPApp/UDPVideoStreamSvr.ned
+Applications/BRModel/ABRSrcModel.ned
+Applications/BRModel/BRModel.ned
+Applications/BRModel/BRSink.ned
+Applications/BRModel/CBRSrcModel.ned
+Applications/BRModel/VBRSrcModel.ned
 Base/Blackboard.ned
 Base/Join.ned
 Base/Nop.ned
@@ -114,10 +119,11 @@ NetworkInterfaces/Ethernet/MACRelayUnitPP.ned
 NetworkInterfaces/Ethernet/eth-index.ned
 NetworkInterfaces/Ethernet6/EtherModuleAP.ned
 NetworkInterfaces/Ethernet6/EtherRelayUnit.ned
+NetworkInterfaces/Ethernet6/EtherModule.ned
 NetworkInterfaces/PPP/PPPInterface.ned
 NetworkInterfaces/PPP/ThruputMeter.ned
-NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 NetworkInterfaces/Wireless/WirelessEtherBridge.ned
+NetworkInterfaces/Wireless/WirelessAccessPoint.ned
 NetworkInterfaces/Wireless/WirelessEtherModule.ned
 Nodes/INET/BurstHost.ned
 Nodes/INET/NetworkLayer.ned
@@ -158,6 +164,7 @@ Research/Networks/WirelessEtherNetwork/WirelessEtherNetwork.ned
 Research/Networks/WirelessEtherNetwork2/WirelessEtherNetwork2.ned
 Research/Networks/WirelessEtherNetworkDual/WirelessEtherNetworkDual.ned
 Research/Networks/WirelessTest/WirelessTest.ned
+Research/Networks/FTPWirelessNetwork/FTPWirelessNetwork.ned
 
 
 

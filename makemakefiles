@@ -75,8 +75,7 @@ all:
 	cd Applications/PingApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Network/Generic -I../../Base -I../../Util
 	cd Applications/TCPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Generic
 	cd Applications/UDPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Generic
-	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces
-
+	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I. -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces -I../../Util
 	cd Network/Generic && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
 	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic
 	cd Network/IPv4d && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../../Base -I../../Util -I../Generic

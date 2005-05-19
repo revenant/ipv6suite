@@ -96,7 +96,13 @@ namespace MobileIPv6
 
     ///prefix length of home_addr
     unsigned char prefix_len;
+    //@}
 
+    //@name Cell Residency Signaling parameters
+    //@{
+    simtime_t prevBUTime; 
+    simtime_t avgCellResidenceTime;
+    simtime_t buArrivalTime;
     //@}
   };
 

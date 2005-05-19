@@ -143,12 +143,10 @@ public:
 
   MobileIPv6::SignalingEnhance signalingEnhance();
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
-  
-  // CELLTODO - we will provide interface for this paramter;
-  // furthermore, we will provide statistical analysis for this
-  // parameter and that means the values of this variable may be stored
-  // in array, right now, we are simply to get some preliminary results
-  simtime_t homeRegDuration;
+
+  // parameters for cell resdiency signaling
+  simtime_t avgCellResidenceTime; // averaged cell residence time
+  simtime_t prevBUTime; // previous BU time
 
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
 

@@ -100,14 +100,14 @@ void IPv6Mobility::initialize(int stage)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
-    // CELLTODO: homeRegDuration
-    homeRegDuration = 0;
-    WATCH(homeRegDuration);
-
     mipv6cds = 0;
     _MobilityState = 0;
     periodTmr = 0;
 #ifdef USE_MOBILITY
+
+    avgCellResidenceTime = 0;
+    prevBUTime = 0;
+
 #if EDGEHANDOVER
     ehCallback = 0;
     //This overwrites the value assigned by XML and I thought this was run before parsing !

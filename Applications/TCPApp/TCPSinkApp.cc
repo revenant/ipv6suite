@@ -62,6 +62,6 @@ void TCPSinkApp::handleMessage(cMessage *msg)
 
 void TCPSinkApp::finish()
 {
-  recordScalar("bytesRcvd", bytesRcvd);
+    recordScalar("bytesRcvd", bytesRcvd);
 }
 

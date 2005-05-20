@@ -18,7 +18,8 @@
 
 
 //
-// Simple model to generate Available Bit Rate Traffic
+// A sink for BR traffic. It keeps statistics on the BR traffic 
+// for each individual source it receives from.
 //
 simple BRSink
     gates:

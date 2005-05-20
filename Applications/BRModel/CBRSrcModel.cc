@@ -17,45 +17,45 @@ Define_Module(CBRSrcModel);
 
 void CBRSrcModel::initialize()
 {
-  //Get NED parameters
-  destAddr.set(par("destAddr").stringValue());  
-  tStart = par("tStart");
-  fragmentLen = par("fragmentLen");
-  bitRate = &par("bitRate");
-
-  sequenceNo = 1;
-  double packetsPerSec = (double)(*bitRate)/(8*fragmentLen);
-  if(packetsPerSec < 1)
-  {
-    packetsPerSec = 1;
-    packetSize = (unsigned long)bitRate/8;
-  }
-  else 
-    packetSize = fragmentLen;
-  
-  sendPeriod = 1/packetsPerSec;
-  
-  //Schedule first active period
-  timer = new cMessage("CBRtimer");
-  scheduleAt(tStart, timer);
+    //Get NED parameters
+    destAddr.set(par("destAddr").stringValue());  
+    tStart = par("tStart");
+    fragmentLen = par("fragmentLen");
+    bitRate = &par("bitRate");
+    
+    sequenceNo = 1;
+    double packetsPerSec = (double)(*bitRate)/(8*fragmentLen);
+    if(packetsPerSec < 1)
+    {
+        packetsPerSec = 1;
+        packetSize = (unsigned long)bitRate/8;
+    }
+    else 
+        packetSize = fragmentLen;
+    
+    sendPeriod = 1/packetsPerSec;
+    
+    //Schedule first active period
+    timer = new cMessage("CBRtimer");
+    scheduleAt(tStart, timer);
 }
 
 void CBRSrcModel::handleMessage(cMessage* msg)
 {
-  if(msg->isSelfMessage())
-  {
-    sendPacket();
-  }
-  else
-  {
-  }
+    if(msg->isSelfMessage())
+    {
+        sendPacket();
+    }
+    else
+    {
+    }
 }
 
 void CBRSrcModel::sendPacket()
 {
-  //send the frame size in bytes
-  fragmentAndSend(packetSize);
-
-  //schedule next frame
-  scheduleAt(simTime()+sendPeriod, timer);
+    //send the frame size in bytes
+    fragmentAndSend(packetSize);
+    
+    //schedule next frame
+    scheduleAt(simTime()+sendPeriod, timer);
 }

@@ -23,17 +23,17 @@
 class CBRSrcModel : public BRSrcModel
 {
  public:
-  Module_Class_Members(CBRSrcModel, BRSrcModel, 0);
-  
-  virtual void initialize();
-  virtual void handleMessage(cMessage* msg);
+    Module_Class_Members(CBRSrcModel, BRSrcModel, 0);
+    
+    virtual void initialize();
+    virtual void handleMessage(cMessage* msg);
  protected:
-  virtual void sendPacket();
-  
-  cPar *bitRate;
-  unsigned long packetSize;
-  double sendPeriod;
-  
+    virtual void sendPacket();
+    
+    cPar *bitRate;
+    unsigned long packetSize;
+    double sendPeriod;
+    
  private:
 };
 

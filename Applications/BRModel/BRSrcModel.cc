@@ -16,10 +16,9 @@
 #include "BRMsg_m.h"
 #include "LL6ControlInfo_m.h"
 
-
 BRSrcModel::~BRSrcModel()
 {
-  delete timer;
+    delete timer;
 }
 
 void BRSrcModel::sendPacket()
@@ -27,28 +26,33 @@ void BRSrcModel::sendPacket()
   //Section to create a packet, fragmentAndSend, and schedule next send
 }
 
+// Divide packet into fragment size and pass to lower layer.
 void BRSrcModel::fragmentAndSend(unsigned long pktSize)
 {
-  while(pktSize > fragmentLen)
-  {
-    sendFragment(fragmentLen);
-    pktSize -= fragmentLen;
-  }
-  sendFragment(pktSize);
+    while(pktSize > fragmentLen)
+    {
+        sendFragment(fragmentLen);
+        pktSize -= fragmentLen;
+    }
+    sendFragment(pktSize);
 }
 
+// Send fragment to lower layer
 void BRSrcModel::sendFragment(unsigned long size)
 {
-  BRMsg* pkt;
-  pkt = new BRMsg("BRPacket");
-  pkt->setLength(size*8);
-  pkt->setTimestamp();
-  pkt->setSrcName(fullPath().c_str());
-  pkt->setSequenceNo(sequenceNo);
-  sequenceNo++;
-
-  LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
-  ctrlInfo->setDestLLAddr(destAddr.stringValue());
-  pkt->setControlInfo(ctrlInfo);
-  send(pkt, "brOut");  
+    // Create the packet along with its details
+    BRMsg* pkt;
+    pkt = new BRMsg("BRPacket");
+    pkt->setLength(size*8);
+    pkt->setTimestamp();
+    pkt->setSrcName(fullPath().c_str());
+    pkt->setSequenceNo(sequenceNo);
+    sequenceNo++;
+    
+    // Attach destination addr to control info, which
+    // can be processed by link layer
+    LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+    ctrlInfo->setDestLLAddr(destAddr.stringValue());
+    pkt->setControlInfo(ctrlInfo);
+    send(pkt, "brOut");  
 }

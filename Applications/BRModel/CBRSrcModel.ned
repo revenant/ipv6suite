@@ -18,14 +18,17 @@
 
 
 //
-// Simple model to generate Constant Bit Rate Traffic
+// Simple model to generate Constant Bit Rate Traffic for testing of the MAC layer.
+//
+// The fragment length will dictate the pace at which the bits will be spread over
+// the second.
 //
 simple CBRSrcModel
     parameters:
-	destAddr: string,
-	tStart: numeric const,
-	bitRate: numeric,
-	fragmentLen: numeric;
+	destAddr: string,	// destination MAC address
+	tStart: numeric const,	// time to start
+	bitRate: numeric,	// bit rate to achieve (bits/s)
+	fragmentLen: numeric;	// fragment length (bytes)
     gates:
         in: brIn;
         out: brOut;

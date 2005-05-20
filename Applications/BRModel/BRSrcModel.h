@@ -19,26 +19,27 @@
 
 /**
  * Base class for BR applications.
+ * Contains functionality common to all Bit Rate models, namely sendFragment and fragmentAndSend
  */
 class BRSrcModel : public cSimpleModule
 {
  public:
-  Module_Class_Members(BRSrcModel, cSimpleModule, 0);
-  ~BRSrcModel();
+    Module_Class_Members(BRSrcModel, cSimpleModule, 0);
+    ~BRSrcModel();
     
-  protected:
-  virtual void sendPacket();
-  void sendFragment(unsigned long);
-  void fragmentAndSend(unsigned long);
-  
-  cMessage* timer;
-  unsigned long sequenceNo;
-
-  //NED file parameters
-  MACAddress6 destAddr;      //mac address of destination
-  unsigned long fragmentLen; //bytes
-  double tStart;             //seconds
-  
+ protected:
+    virtual void sendPacket();
+    void sendFragment(unsigned long);
+    void fragmentAndSend(unsigned long);
+    
+    cMessage* timer;
+    unsigned long sequenceNo;
+    
+    //NED file parameters
+    MACAddress6 destAddr;      //mac address of destination
+    unsigned long fragmentLen; //bytes
+    double tStart;             //seconds
+    
  private:
 };
 

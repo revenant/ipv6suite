@@ -18,15 +18,19 @@
 
 
 //
-// Simple model to generate Variable Bit Rate Traffic
+// Simple model to generate Variable Bit Rate Traffic for testing of the MAC layer.
 //
+// Typically pixPerFrame adn frameRate are specified as constant values. The variable
+// number of bits/pixel is generated internally.
+//
+
 simple VBRSrcModel
     parameters:
-	destAddr: string,
-	tStart: numeric const,
-	fragmentLen: numeric,
-	pixPerFrame: numeric,
-	frameRate: numeric;
+	destAddr: string,	// destination MAC address
+	tStart: numeric const,	// time to start
+	fragmentLen: numeric,	// fragment length
+	pixPerFrame: numeric,	// frame resolution (pixels/frame)
+	frameRate: numeric;	// frame rate (frames/s)
     gates:
         in: brIn;
         out: brOut;

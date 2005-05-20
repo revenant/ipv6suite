@@ -23,22 +23,22 @@
 class VBRSrcModel : public BRSrcModel
 {
  public:
-  Module_Class_Members(VBRSrcModel, BRSrcModel, 0);
-  
-  virtual void initialize();
-  virtual void handleMessage(cMessage* msg);
-  
+    Module_Class_Members(VBRSrcModel, BRSrcModel, 0);
+    
+    virtual void initialize();
+    virtual void handleMessage(cMessage* msg);
+    
  protected:
-  virtual void sendPacket();
-  
-  unsigned long pixPerFrame; //pixels/frame
-  unsigned long frameRate;   //frames/second
-  
-  double a;
-  double b;
-  double normalMean;
-  double previousBitRate;
-
+    virtual void sendPacket();
+    
+    unsigned long pixPerFrame; //pixels/frame
+    unsigned long frameRate;   //frames/second
+    
+    double a;
+    double b;
+    double normalMean;
+    double previousBitRate;
+    
  private:
 };
 

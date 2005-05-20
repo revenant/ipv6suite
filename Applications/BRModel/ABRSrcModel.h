@@ -19,8 +19,8 @@
 
 enum State 
 {
-  IDLE = 0,
-  ACTIVE = 1
+    IDLE = 0,
+    ACTIVE = 1
 };
 
 /**
@@ -29,23 +29,23 @@ enum State
 class ABRSrcModel : public BRSrcModel
 {
  public:
-  Module_Class_Members(ABRSrcModel, BRSrcModel, 0);
-
-  virtual void initialize();
-  virtual void handleMessage(cMessage* msg);
+    Module_Class_Members(ABRSrcModel, BRSrcModel, 0);
+    
+    virtual void initialize();
+    virtual void handleMessage(cMessage* msg);
  protected:
-  virtual void sendPacket();
+    virtual void sendPacket();
+    
+    int state;
+    unsigned long packetsLeft; //packets left to tx in an active period
+    unsigned long packetSize; //size of packet to be transmitted (bytes)
   
-  int state;
-  unsigned long packetsLeft; //packets left to tx in an active period
-  unsigned long packetSize; //size of packet to be transmitted (bytes)
-  
-  //NED file parameters
-  cPar *packetLen;            //bytes
-  cPar *tIdle;           //seconds
-  cPar *activePackets;        //packets
-  cPar *tPause;          //seconds
-  
+    //NED file parameters
+    cPar *packetLen;       //bytes
+    cPar *tIdle;           //seconds
+    cPar *activePackets;   //packets
+    cPar *tPause;          //seconds
+    
  private:
 };
 

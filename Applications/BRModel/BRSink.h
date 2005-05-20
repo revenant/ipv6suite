@@ -31,34 +31,34 @@
 class BRSink : public cSimpleModule
 {
  public:
-  Module_Class_Members(BRSink, cSimpleModule, 0);
-  //
-  // Stores info about each BR stream received
-  //
-  struct BRStreamInfo
-  {
-    std::string srcName;
-    unsigned int numReceived;
-    unsigned int numLost;
-    unsigned int expectedSeq;
-    cStdDev* delayStat;
-    cOutVector* numReceivedVec;
-    cOutVector* numLostVec;
-    cOutVector* avgDelayVec;
-  };    
-  
-  ~BRSink();
-  virtual void initialize();
-  virtual void finish();
-  virtual void handleMessage(cMessage *msg);
+    Module_Class_Members(BRSink, cSimpleModule, 0);
+    //
+    // Stores info about each stream for a particular BR source
+    //
+    struct BRStreamInfo
+    {
+        std::string srcName;
+        unsigned int numReceived;
+        unsigned int numLost;
+        unsigned int expectedSeq;
+        cStdDev* delayStat;
+        cOutVector* numReceivedVec;
+        cOutVector* numLostVec;
+        cOutVector* avgDelayVec;
+    };    
+    
+    ~BRSink();
+    virtual void initialize();
+    virtual void finish();
+    virtual void handleMessage(cMessage *msg);
  protected:
-  typedef std::list<BRStreamInfo*> BRStreamList;
-  BRStreamList streamList;
-  typedef BRStreamList::iterator BRStreamListIt;
-  
-  void updateList(BRMsg *msg);
-  void updateStreamListEntry(BRStreamListIt it, BRMsg* msg);
-  void newStreamListEntry(std::string srcName);
+    typedef std::list<BRStreamInfo*> BRStreamList;
+    BRStreamList streamList;  //list of BR stream
+    typedef BRStreamList::iterator BRStreamListIt;
+    
+    void updateList(BRMsg *msg);
+    void updateStreamListEntry(BRStreamListIt it, BRMsg* msg);
+    void newStreamListEntry(std::string srcName);
 };
 
 

@@ -18,17 +18,23 @@
 
 
 //
-// Simple model to generate Available Bit Rate Traffic
+// Simple model to generate Available Bit Rate Traffic for testing of the MAC layer.
 //
+// Typically activePackets, packetLength, and pause period should be random. tIdle
+// can be used to adjust the network load.
+// Packets will be fragmented according to the fragment length before sending to
+// lower layer.
+//
+
 simple ABRSrcModel
     parameters:
-	destAddr: string,
-	tStart: numeric const,
-	tIdle: numeric,
-	tPause: numeric,
-	activePackets: numeric,
-	packetLen: numeric,
-	fragmentLen: numeric;
+	destAddr: string,	// destination MAC address
+	tStart: numeric const,	// time to start
+	tIdle: numeric,		// idle time between active periods
+	tPause: numeric,	// pause time between packets within an active period
+	activePackets: numeric, // number of packets within an active period
+	packetLen: numeric,	// packet length (bytes)
+	fragmentLen: numeric;	// fragment length (bytes)
     gates:
         in: brIn;
         out: brOut;

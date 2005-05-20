@@ -1,0 +1,5 @@
+- reindent with 4 spaces
+- detailed doc in NED files what it's for, what's the interface to other modules, 
+  what's the meaning of parameters, etc.
+- VBRSrcModel: param "pixPerFrame" - is it streaming video then? because the name
+  or the docs doesn't mention video at all

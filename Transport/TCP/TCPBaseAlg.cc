@@ -39,10 +39,20 @@
 
 TCPBaseAlgStateVariables::TCPBaseAlgStateVariables()
 {
-    // Disabling delayed acks, since it is not used in real networks,
-    // and does not fully utilise link bandwidth
+    // We disable delayed acks, since it appears that it isn't used in real-life TCPs.
+    //
+    // In SSFNet test suite http://www.ssfnet.org/Exchange/tcp/test/f5.html
+    // the rule for delayed ACK is:
+    //   An ACK must be sent immediatly when either of the following conditions exist:
+    //    * Two full-sized packets received (to avoid too few ACKs).
+    //    * Out of order packets received (to help trigger fast retransmission).
+    //    * Received packet fills in all gap or part of gap of out of order data.
+    // We do not implement this rule. In our measurements on network traffic, we 
+    // never encountered delayed ACKs.
+    //
     delayed_acks_enabled = false;
-    nagle_enabled = true;
+
+    nagle_enabled = true; // FIXME this should be parameter eventually
 
     rexmit_count = 0;
     rexmit_timeout = 3.0;

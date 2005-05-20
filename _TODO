@@ -8,3 +8,6 @@
 - create RED etc for routers
 
 - if a node pings itself, that'll be "destination unreachable" -- fix it
+
+- PPP, Eth: restore original conn color when transmission ends
+

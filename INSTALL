@@ -1,7 +1,7 @@
 INSTALLATION INSTRUCTIONS
 =========================
 
-The INET framework can be compiled on any platform supported by OMNeT++.
+The IPv6SuiteWithINET can be compiled on any platform supported by OMNeT++.
 
 PREREQUISITES
 
@@ -14,7 +14,7 @@ LINUX (UNIX)
 1. Make sure you OMNeT++ installation works OK (e.g. try running the samples)
    and it is in the path (try "which nedtool").
 
-2. Change to the INET framework directory and edit the inetconfig file
+2. Change to the IPv6SuiteWithINET directory and edit the inetconfig file 
    to make sure it contains the right settings. You'll probably
    need to adjust ROOT.
 
@@ -30,10 +30,6 @@ LINUX (UNIX)
 
 Finally, try running the demo simulations. Change into Examples/ and type
 "./rundemo".
-
-The INET framework is still work in progress, and thus, not everything will work.
-Notably, MPLS is being revised, and RTP hasn't been integrated yet.
-
 
 
 WINDOWS
@@ -62,10 +58,4 @@ IMPORTANT: YOU NEED VC 7.1 .NET! IPv6SuiteWithINET won't compile with VC 6.0.
 
 Finally, try running the demo simulations. Change to Examples/ and type
 "rundemo.bat".
-
-The INET framework is still work in progress, and thus, not everything will work.
-Notably, MPLS is being revised, and RTP hasn't been integrated yet.
-
-Have fun.
-Andras
 

@@ -74,22 +74,21 @@ void TCPReno::receivedDataAck(uint32 firstSeqAcked)
         if (state->snd_cwnd < state->ssthresh)
         {
             tcpEV << "cwnd<=ssthresh: Slow Start: increasing cwnd by one segment, to ";
-            // STEVE: Contention window only increases when ACK is received, where an
-            // ACK could be acknowledging lots of bytes. This does not allow the
-            // contention window to increase fast enough. Hence we are using 
-            // "Byte Counting" instead
  
             // perform Slow Start. rfc 2581: "During slow start, a TCP increments cwnd
             // by at most SMSS bytes for each ACK received that acknowledges new data."
-            //state->snd_cwnd += state->snd_mss;
+            state->snd_cwnd += state->snd_mss;
 
             // NOTE: we could increase cwnd based on the number of bytes being
             // acknowledged by each arriving ACK, rather than by the number of ACKs
             // that arrive. This is called "Appropriate Byte Counting" (ABC) and is
-            // described in rfc 3465 (experimental).
+            // described in rfc 3465. This rfc is experimental and probably not 
+            // implemented in real-life TCPs, hence it's commented out. Also, the ABC 
+            // rfc would require other modifications as well in addition to the 
+            // two lines below.
             //
-             int bytesAcked = state->snd_una - firstSeqAcked;
-             state->snd_cwnd += bytesAcked*state->snd_mss;
+            // int bytesAcked = state->snd_una - firstSeqAcked;
+            // state->snd_cwnd += bytesAcked*state->snd_mss;
 
             if (cwndVector) cwndVector->record(state->snd_cwnd);
 

@@ -275,7 +275,7 @@ void ARP::sendARPRequest(IPAddress ipAddress)
     arp->setSrcIPAddress(myIPAddress);
     arp->setDestIPAddress(ipAddress);
 
-    static MACAddress broadcastAddress("ff:ff:ff:ff:ff:ff:ff:ff");
+    static MACAddress broadcastAddress("ff:ff:ff:ff:ff:ff");
     sendPacketToMAC(arp, broadcastAddress);
     numRequestsSent++;
 }

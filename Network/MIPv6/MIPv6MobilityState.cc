@@ -337,9 +337,6 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
     else
         bce.lock()->expires = bu->expires();
     bce.lock()->seq_no = bu->sequence();
-
-    // Sathya - cell_resi_time = AVE(BU_arrive_time - prev_bu_time);
-    
   }
   else
   {
@@ -362,12 +359,24 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
     be->prevBUTime = 0;
     be->avgCellResidenceTime = 0;
 
+    if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
+      be->cellResidenceTimeVec = new cOutVector("CN cell residence time");
+
     bce = mod->mipv6cds->insertBinding(be);
     Dout(dc::custom, "bc "<<(*(mod->mipv6cds)));
   }
 
   // Sathya - When BU is received, note down BU_arrive_time
   bce.lock()->buArrivalTime = mod->simTime();
+
+  // Sathya - cell_resi_time = AVE(BU_arrive_time - prev_bu_time);
+  if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
+  {
+    bce.lock()->cellResidenceTimeVec->record(
+      bce.lock()->buArrivalTime - bce.lock()->prevBUTime);
+  }
+
+  bce.lock()->prevBUTime = bce.lock()->buArrivalTime;
 }
 
 ///Remove from binding cache

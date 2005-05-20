@@ -103,6 +103,8 @@ namespace MobileIPv6
     simtime_t prevBUTime; 
     simtime_t avgCellResidenceTime;
     simtime_t buArrivalTime;
+
+    cOutVector* cellResidenceTimeVec;
     //@}
   };
 

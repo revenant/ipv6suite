@@ -46,7 +46,7 @@
 #include <memory>
 #endif
 
-Define_Module_Like( EtherModuleAP, NetworkInterface6 );
+Define_Module( EtherModuleAP);
 
 void EtherModuleAP::initialize(int stage)
 {

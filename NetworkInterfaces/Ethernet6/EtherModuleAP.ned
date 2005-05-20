@@ -22,9 +22,10 @@
 //
 simple EtherModuleAP
     parameters:
-        procdelay : numeric const;
+        procdelay : numeric const,
+	recordStatisticVector: bool;
     gates:
-        in: physIn, netwIn;
-        out: physOut, netwOut;
+        in: physIn, netwIn, extSignalIn[];
+        out: physOut, netwOut, extSignalOut[];
 endsimple
 

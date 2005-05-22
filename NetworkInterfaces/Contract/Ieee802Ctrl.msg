@@ -26,7 +26,7 @@ class noncobject MACAddress;
 //
 // Control structure for communication between LLC and higher layers
 //
-class _802Ctrl
+class Ieee802Ctrl
 {
     fields:
         MACAddress src;  // src MAC address (can be left empty when sending)

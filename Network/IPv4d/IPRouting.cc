@@ -37,8 +37,8 @@ void IPRouting::initialize()
 {
     QueueWithQoS::initialize();
 
-    InterfaceTable *ift = InterfaceTableAccess().get();
-    RoutingTable *rt = RoutingTableAccess().get();
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 
     numMulticast = numLocalDeliver = numDropped = numUnroutable = numForwarded = 0;
 

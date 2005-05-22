@@ -35,8 +35,8 @@ Define_Module(IPMulticast);
 
 void IPMulticast::initialize()
 {
-    InterfaceTable *ift = InterfaceTableAccess().get();
-    RoutingTable *rt = RoutingTableAccess().get();
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 }
 
 void IPMulticast::handleMessage(cMessage *msg)

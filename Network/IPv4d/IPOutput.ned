@@ -28,6 +28,7 @@
 simple IPOutput
     gates:
         in: in;
+        in: arpIn;
         out: queueOut;
 endsimple
 

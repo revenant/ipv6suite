@@ -37,8 +37,8 @@ Define_Module(IPSend);
 
 void IPSend::initialize()
 {
-    InterfaceTable *ift = InterfaceTableAccess().get();
-    RoutingTable *rt = RoutingTableAccess().get();
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 
     defaultTimeToLive = par("timeToLive");
     defaultMCTimeToLive = par("multicastTimeToLive");

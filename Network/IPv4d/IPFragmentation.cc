@@ -32,11 +32,10 @@ const int ICMP_FRAGMENTATION_ERROR_CODE = 4;
 
 void IPFragmentation::initialize()
 {
-    InterfaceTable *ift = InterfaceTableAccess().get();
-    numOfPorts = gate("outputOut")->size();
+    ift = InterfaceTableAccess().get();
 }
 
-// FIXME performance model is not good here!!! we should wait #fragments times delay!!!
+// FIXME performance model is not good here! probably we should wait #fragments times delay
 void IPFragmentation::handleMessage(cMessage *msg)
 {
     IPDatagram *datagram  = check_and_cast<IPDatagram *>(msg);
@@ -49,7 +48,7 @@ void IPFragmentation::handleMessage(cMessage *msg)
     // check if datagram does not require fragmentation
     if (datagram->length()/8 <= mtu)
     {
-        sendDatagramToOutput(datagram, outputPort, nextHopAddr);
+        send(datagram, "outputOut");
         return;
     }
 
@@ -102,19 +101,13 @@ void IPFragmentation::handleMessage(cMessage *msg)
 
 void IPFragmentation::sendDatagramToOutput(IPDatagram *datagram, int outputPort, IPAddress nextHopAddr)
 {
-    // check port index
-    if (outputPort >= numOfPorts)
-        error("Illegal output port %d", outputPort);
-
     // attach next hop address if needed
-    if (!nextHopAddr.isNull())
-    {
-        IPRoutingDecision *routingDecision = new IPRoutingDecision();
-        routingDecision->setNextHopAddr(nextHopAddr);
-        datagram->setControlInfo(routingDecision);
-    }
+    IPRoutingDecision *routingDecision = new IPRoutingDecision();
+    routingDecision->setNextHopAddr(nextHopAddr);
+    routingDecision->setOutputPort(outputPort);
+    datagram->setControlInfo(routingDecision);
 
-    send(datagram, "outputOut", outputPort);
+    send(datagram, "outputOut");
 }
 
 

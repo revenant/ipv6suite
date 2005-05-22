@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +21,7 @@
 #include "IPInputQueue.h"
 #include "IPDatagram.h"
 #include "IPControlInfo_m.h"
+#include "ARPPacket_m.h"
 
 Define_Module(IPInputQueue);
 
@@ -32,6 +34,13 @@ void IPInputQueue::endService(cMessage *msg)
     delete msg->removeControlInfo();
     msg->setControlInfo(routingDecision);
 
-    send(msg, "toIP");
+    if (dynamic_cast<ARPPacket *>(msg))
+    {
+        send(msg, "arpOut");  // dispatch ARP packets to ARP
+    }
+    else
+    {
+        send(msg, "toIP");
+    }
 }
 

@@ -22,6 +22,7 @@
 
 #include "IPOutput.h"
 #include "IPDatagram.h"
+#include "ARPPacket_m.h"
 
 
 Define_Module(IPOutput);
@@ -29,6 +30,13 @@ Define_Module(IPOutput);
 
 void IPOutput::handleMessage(cMessage *msg)
 {
+    if (dynamic_cast<ARPPacket *>(msg))
+    {
+        // dispatch ARP packets to ARP
+        send(msg, "queueOut");
+        return;
+    }
+
     IPDatagram *datagram = check_and_cast<IPDatagram *>(msg);
 
     // hop counter check

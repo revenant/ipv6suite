@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,16 +41,16 @@ import
 //
 module IPProcessing
     parameters:
-        timeToLive : numeric,
-        multicastTimeToLive : numeric,
-        IPForward : bool,
-        fragmentTimeout : numeric const,
-        protocolMapping : string;
+        timeToLive: numeric,
+        multicastTimeToLive: numeric,
+        IPForward: bool,
+        fragmentTimeout: numeric const,
+        protocolMapping: string;
     gates:
         in: transportIn[];
         out: transportOut[];
         in: queueIn[];
-        out: queueOut[];
+        out: queueOut;
     submodules:
         preRouting: IPPreRouting;
             gatesizes:
@@ -77,17 +78,15 @@ module IPProcessing
                 in[sizeof(transportIn)+2];
             display: "p=250,78;i=block/join";
         fragmentation: IPFragmentation;
-            gatesizes:
-                outputOut[sizeof(queueOut)];
             display: "p=231,249;i=block/segm";
         tunneling: IPTunneling;
             display: "p=370,152;i=block/tunnel_s";
-        output: IPOutput[sizeof(queueOut)];
-            display: "p=110,304,row;i=block/queue";
+        output: IPOutput;
+            display: "p=333,322;i=block/queue";
         inputQueue: IPInputQueue;
             gatesizes:
                 fromNW[sizeof(queueIn)];
-            display: "p=50,304;i=block/queue";
+            display: "p=98,322;i=block/queue";
     connections nocheck:
 
         // L2 input to IPInputQueue
@@ -127,9 +126,10 @@ module IPProcessing
         tunneling.sendOut --> send.in[1];
 
         // Output ports
-        for i=0..sizeof(queueOut)-1 do
-            fragmentation.outputOut[i] --> output[i].in;
-            output[i].queueOut --> queueOut[i];
-        endfor;
+        fragmentation.outputOut --> output.in;
+        output.queueOut --> queueOut;
+
+        // shortcut to send incoming ARP packets towards ARP
+        inputQueue.arpOut --> output.arpIn;
 endmodule
 

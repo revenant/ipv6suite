@@ -1,6 +1,6 @@
 //
-//
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,14 +22,13 @@
 // Fragments \IP datagrams if size is greater than MTU of output port.
 // - receive valid \IP datagram from IPRouting or IPMulticast
 // - Fragment datagram if size > MTU [output port]
-// - send fragments to IPOutput[output port]
+// - send fragments to IPOutput
 //
-// author: Jochen Reber
-// date: 2.5.00, 9.5.00, 20.5.00, 9.6.00
+// author: Jochen Reber, Andras Varga
 //
 simple IPFragmentation
     gates:
         in: routingIn, multicastIn;
-        out: outputOut[];
+        out: outputOut;
 endsimple
 

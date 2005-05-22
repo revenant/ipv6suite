@@ -138,13 +138,13 @@ void EtherLLC::processPacketFromHigherLayer(cMessage *msg)
     // Creates MAC header information and encapsulates received higher layer data
     // with this information and transmits resultant frame to lower layer
 
-    // create Ethernet frame, fill it in from _802Ctrl and encapsulate msg in it
+    // create Ethernet frame, fill it in from Ieee802Ctrl and encapsulate msg in it
     EV << "Encapsulating higher layer packet `" << msg->name() <<"' for MAC\n";
     EV << "Sent from " << simulation.module(msg->senderModuleId())->fullPath() << " at " << msg->sendingTime() << " and was created " << msg->creationTime() <<  "\n";
 
-    _802Ctrl *etherctrl = dynamic_cast<_802Ctrl *>(msg->removeControlInfo());
+    Ieee802Ctrl *etherctrl = dynamic_cast<Ieee802Ctrl *>(msg->removeControlInfo());
     if (!etherctrl)
-        error("packet `%s' from higher layer received without _802Ctrl", msg->name());
+        error("packet `%s' from higher layer received without Ieee802Ctrl", msg->name());
 
     EtherFrameWithLLC *frame = new EtherFrameWithLLC(msg->name(), ETH_FRAME);
 
@@ -179,7 +179,7 @@ void EtherLLC::processFrameFromMAC(EtherFrameWithLLC *frame)
 
     cMessage *higherlayermsg = frame->decapsulate();
 
-    _802Ctrl *etherctrl = new _802Ctrl();
+    Ieee802Ctrl *etherctrl = new Ieee802Ctrl();
     etherctrl->setSsap(frame->getSsap());
     etherctrl->setDsap(frame->getDsap());
     etherctrl->setSrc(frame->getSrc());
@@ -206,9 +206,9 @@ int EtherLLC::findPortForSAP(int dsap)
 void EtherLLC::handleRegisterSAP(cMessage *msg)
 {
     int port = msg->arrivalGate()->index();
-    _802Ctrl *etherctrl = dynamic_cast<_802Ctrl *>(msg->removeControlInfo());
+    Ieee802Ctrl *etherctrl = dynamic_cast<Ieee802Ctrl *>(msg->removeControlInfo());
     if (!etherctrl)
-        error("packet `%s' from higher layer received without _802Ctrl", msg->name());
+        error("packet `%s' from higher layer received without Ieee802Ctrl", msg->name());
     int dsap = etherctrl->getDsap();
 
     EV << "Registering higher layer with DSAP=" << dsap << " on port=" << port << "\n";
@@ -223,9 +223,9 @@ void EtherLLC::handleRegisterSAP(cMessage *msg)
 
 void EtherLLC::handleDeregisterSAP(cMessage *msg)
 {
-    _802Ctrl *etherctrl = dynamic_cast<_802Ctrl *>(msg->removeControlInfo());
+    Ieee802Ctrl *etherctrl = dynamic_cast<Ieee802Ctrl *>(msg->removeControlInfo());
     if (!etherctrl)
-        error("packet `%s' from higher layer received without _802Ctrl", msg->name());
+        error("packet `%s' from higher layer received without Ieee802Ctrl", msg->name());
     int dsap = etherctrl->getDsap();
 
     EV << "Deregistering higher layer with DSAP=" << dsap << "\n";

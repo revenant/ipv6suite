@@ -25,7 +25,7 @@
 
 #include "Ethernet.h"
 #include "EtherFrame_m.h"
-#include "_802Ctrl_m.h"
+#include "Ieee802Ctrl_m.h"
 #include "EtherCtrl_m.h"
 #include "utils.h"
 #include "InterfaceTable.h"
@@ -124,10 +124,10 @@ void EtherEncap::processPacketFromHigherLayer(cMessage *msg)
     // Creates MAC header information and encapsulates received higher layer data
     // with this information and transmits resultant frame to lower layer
 
-    // create Ethernet frame, fill it in from _802Ctrl and encapsulate msg in it
+    // create Ethernet frame, fill it in from Ieee802Ctrl and encapsulate msg in it
     EV << "Encapsulating higher layer packet `" << msg->name() <<"' for MAC\n";
 
-    _802Ctrl *etherctrl = check_and_cast<_802Ctrl*>(msg->removeControlInfo());
+    Ieee802Ctrl *etherctrl = check_and_cast<Ieee802Ctrl*>(msg->removeControlInfo());
     EthernetIIFrame *frame = new EthernetIIFrame(msg->name(), ETH_FRAME);
 
     frame->setSrc(etherctrl->getSrc());  // if blank, will be filled in by MAC
@@ -150,8 +150,8 @@ void EtherEncap::processFrameFromMAC(EtherFrame *frame)
     // decapsulate and attach control info
     cMessage *higherlayermsg = frame->decapsulate();
 
-    // add _802Ctrl to packet
-    _802Ctrl *etherctrl = new _802Ctrl();
+    // add Ieee802Ctrl to packet
+    Ieee802Ctrl *etherctrl = new Ieee802Ctrl();
     etherctrl->setSrc(frame->getSrc());
     etherctrl->setDest(frame->getDest());
     higherlayermsg->setControlInfo(etherctrl);

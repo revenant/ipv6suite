@@ -20,11 +20,11 @@
 cplusplus {{
 #include "Ethernet.h"
 #include "MACAddress.h"
-#include "_802Ctrl_m.h"
+#include "Ieee802Ctrl_m.h"
 }};
 
 class noncobject MACAddress;
-class noncobject _802Ctrl;
+class noncobject Ieee802Ctrl;
 
 //
 // Message kind values used with the Ethernet model
@@ -74,7 +74,7 @@ enum SAPCode
 // Control structure for communication between LLC and higher layers.
 // dsap field is used with ETHCTRL_DATA/REGISTER_DSAP/DEREGISTER_DSAP
 //
-class EtherCtrl extends _802Ctrl
+class EtherCtrl extends Ieee802Ctrl
 {
     fields:
         int pauseUnits;  // used with ETHCTRL_PAUSE

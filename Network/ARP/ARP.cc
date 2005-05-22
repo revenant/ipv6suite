@@ -20,7 +20,7 @@
 #include "ARP.h"
 #include "stlwatch.h"
 #include "IPv4InterfaceData.h"
-#include "_802Ctrl_m.h"
+#include "Ieee802Ctrl_m.h"
 
 
 static std::ostream& operator<< (std::ostream& ev, cMessage *msg)
@@ -239,7 +239,7 @@ void ARP::initiateARPResolution(ARPCacheEntry *entry)
 void ARP::sendPacketToNIC(cMessage *msg, int outputPort, const MACAddress& macAddress)
 {
     // add control info with MAC address
-    _802Ctrl *controlInfo = new _802Ctrl();
+    Ieee802Ctrl *controlInfo = new Ieee802Ctrl();
     controlInfo->setDest(macAddress);
     msg->setControlInfo(controlInfo);
 

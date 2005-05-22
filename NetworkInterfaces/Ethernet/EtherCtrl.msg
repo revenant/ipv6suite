@@ -20,10 +20,11 @@
 cplusplus {{
 #include "Ethernet.h"
 #include "MACAddress.h"
+#include "_802Ctrl_m.h"
 }};
 
 class noncobject MACAddress;
-
+class noncobject _802Ctrl;
 
 //
 // Message kind values used with the Ethernet model
@@ -70,16 +71,12 @@ enum SAPCode
 
 
 //
-// Control structure for communication between LLC and higher layers
+// Control structure for communication between LLC and higher layers.
+// dsap field is used with ETHCTRL_DATA/REGISTER_DSAP/DEREGISTER_DSAP
 //
-class EtherCtrl
+class EtherCtrl extends _802Ctrl
 {
     fields:
-        MACAddress src;  // used with ETHCTRL_DATA
-        MACAddress dest; // used with ETHCTRL_DATA
-        int etherType;   // used with ETHCTRL_DATA and EthernetIIFrame
-        int ssap;        // used with ETHCTRL_DATA and EtherFrameWithLLC
-        int dsap;        // used with ETHCTRL_DATA/REGISTER_DSAP/DEREGISTER_DSAP
         int pauseUnits;  // used with ETHCTRL_PAUSE
 };
 

@@ -17,10 +17,11 @@
 //
 
 //
-// \ARP implementation. Performs interface registration in RoutingTable as well.
+// \ARP implementation.
 // Expects IPRoutingDecision control info objects to be attached to packets
-// coming from higher layers. \ARP packets are represented by the ARPPacket 
-// class.
+// coming from higher layers. \ARP packets are represented by the ARPPacket
+// class. Datagrams to be sent and incoming \ARP packets are expected to
+// on gate ipIn.
 //
 simple ARP
     parameters:
@@ -29,8 +30,6 @@ simple ARP
         cacheTimeout: numeric, // number seconds unused entries in the cache will time out
         proxyARP: bool;        // sets proxy ARP mode (replying to ARP requests for the addresses for which a routing table entry exists)
     gates:
-        in: hwIn;
-        out: hwOut;
-        in: hlIn;
-        out: hlOut;
+        in: ipIn;
+        out: nicOut[];
 endsimple

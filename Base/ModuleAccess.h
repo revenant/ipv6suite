@@ -25,7 +25,7 @@
 /**
  * Find a module with given name and type "closest" to module "from".
  *
- * Operation: gradually raises in the module hierarchy, and searches
+ * Operation: gradually rises in the module hierarchy, and searches
  * recursively among all submodules at every level.
  */
 cModule *findModuleWherever(const char *name, const char *classname, cModule *from);

@@ -26,6 +26,7 @@
 #include "IPControlInfo_m.h"
 #include "ICMPMessage_m.h"
 #include "IPv4InterfaceData.h"
+#include "ARPPacket_m.h"
 
 Define_Module(IP);
 
@@ -72,6 +73,11 @@ void IP::endService(cMessage *msg)
     {
         handleMessageFromHL(msg);
     }
+    else if (dynamic_cast<ARPPacket *>(msg))
+    {
+        // dispatch ARP packets to ARP
+        handleARP((ARPPacket *)msg);
+    }
     else
     {
         IPDatagram *dgram = check_and_cast<IPDatagram *>(msg);
@@ -102,11 +108,27 @@ void IP::handlePacketFromNetwork(IPDatagram *datagram)
         }
     }
 
+    // remove control info
+    delete datagram->removeControlInfo();
+
     // hop counter decrement
     datagram->setTimeToLive (datagram->timeToLive()-1);
 
     // routepacket
     routePacket(datagram);
+}
+
+void IP::handleARP(ARPPacket *msg)
+{
+    // dispatch ARP packets to ARP and let it know the gate index it arrived on
+    int inputPort = msg->arrivalGate()->index();
+
+    IPRoutingDecision *routingDecision = new IPRoutingDecision();
+    routingDecision->setInputPort(inputPort);
+    delete msg->removeControlInfo();
+    msg->setControlInfo(routingDecision);
+
+    send(msg, "queueOut");
 }
 
 void IP::handleMessageFromHL(cMessage *msg)
@@ -431,20 +453,13 @@ void IP::sendDatagramToOutput(IPDatagram *datagram, int outputPort, IPAddress ne
         return;
     }
 
-    // check port
-    int numOfPorts = gate("queueOut")->size();
-    if (outputPort >= numOfPorts)
-        error("Illegal output port %d", outputPort);
+    // send out datagram to ARP, with control info attached
+    IPRoutingDecision *routingDecision = new IPRoutingDecision();
+    routingDecision->setOutputPort(outputPort);
+    routingDecision->setNextHopAddr(nextHopAddr);
+    datagram->setControlInfo(routingDecision);
 
-    // attach next hop address if needed
-    if (!nextHopAddr.isNull())
-    {
-        IPRoutingDecision *routingDecision = new IPRoutingDecision();
-        routingDecision->setNextHopAddr(nextHopAddr);
-        datagram->setControlInfo(routingDecision);
-    }
-
-    send(datagram, "queueOut", outputPort);
+    send(datagram, "queueOut");
 }
 
 

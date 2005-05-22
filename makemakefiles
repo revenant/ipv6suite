@@ -12,7 +12,7 @@
 # for compiled-in NED files, remove -N from OPTS, and switch to the longer version of ALL_MODEL_OPTS below
 OPTS=-f -N -b $(ROOT) -c $(ROOT)/inetconfig$(EXT)
 
-ALL_INET_INCLUDES=-I$(ROOT)/Network/IPv4 -I$(ROOT)/Network/IPv4d -I$(ROOT)/Network/AutoRouting -I$(ROOT)/Transport/TCP -I$(ROOT)/Transport/UDP -I$(ROOT)/NetworkInterfaces -I$(ROOT)/Network/Generic -I$(ROOT)/NetworkInterfaces/_802 -I$(ROOT)/NetworkInterfaces/ARP -I$(ROOT)/NetworkInterfaces/Ethernet -I$(ROOT)/NetworkInterfaces/PPP -I$(ROOT)/Applications/Generic -I$(ROOT)/Applications/Ethernet -I$(ROOT)/Applications/TCPApp -I$(ROOT)/Applications/UDPApp -I$(ROOT)/Applications/PingApp -I$(ROOT)/Applications/BRModel -I$(ROOT)/Base -I$(ROOT)/Util -I$(ROOT)/Nodes/INET
+ALL_INET_INCLUDES=-I$(ROOT)/Network/IPv4 -I$(ROOT)/Network/IPv4d -I$(ROOT)/Network/AutoRouting -I$(ROOT)/Transport/TCP -I$(ROOT)/Transport/UDP -I$(ROOT)/NetworkInterfaces -I$(ROOT)/Network/Generic -I$(ROOT)/NetworkInterfaces/_802 -I$(ROOT)/Network/ARP -I$(ROOT)/NetworkInterfaces/Ethernet -I$(ROOT)/NetworkInterfaces/PPP -I$(ROOT)/Applications/Generic -I$(ROOT)/Applications/Ethernet -I$(ROOT)/Applications/TCPApp -I$(ROOT)/Applications/UDPApp -I$(ROOT)/Applications/PingApp -I$(ROOT)/Applications/BRModel -I$(ROOT)/Base -I$(ROOT)/Util -I$(ROOT)/Nodes/INET
 ALL_MPLS_INCLUDES=-I$(ROOT)/Network/MPLS -I$(ROOT)/Network/LDP -I$(ROOT)/Network/RSVP_TE -I$(ROOT)/Network/Scenario -I$(ROOT)/Nodes/MPLS
 ALL_IPv6_INCLUDES=-I$(ROOT)/Network/IPv6 -I$(ROOT)/Network/ICMPv6 -I$(ROOT)/Network/MIPv6 -I$(ROOT)/Network/HMIPv6 -I$(ROOT)/World -I$(ROOT)/PHY -I$(ROOT)/Mobility -I$(ROOT)/Mobility/adHocSim -I$(ROOT)/NetworkInterfaces/Ethernet6 -I$(ROOT)/NetworkInterfaces/PPP6 -I$(ROOT)/NetworkInterfaces/Wireless -I$(ROOT)/NetworkInterfaces/DualWireless -I$(ROOT)/Util/XML -I$(ROOT)/Nodes/IPv6 -I$(ROOT)/Util/Loki
 
@@ -28,7 +28,7 @@ all:
 	cd Examples && $(MAKEMAKE) $(OPTS) -n -r
 	cd Tests && $(MAKEMAKE) $(OPTS) -n -r -X IPv4 -X MPLS
 	cd Network && $(MAKEMAKE) $(OPTS) -n -r
-	cd NetworkInterfaces && $(MAKEMAKE) $(OPTS) -n -r -I../Util
+	cd NetworkInterfaces && $(MAKEMAKE) $(OPTS) -n -r -I../Util -X ARP
 	cd Nodes && $(MAKEMAKE) $(OPTS) -n -r
 	: #FIXME remove dep on NetworkInterfaces!!!
 	cd PHY && $(MAKEMAKE) $(OPTS) -n -r -I.. -I../Util -I../NetworkInterfaces/Wireless -I../NetworkInterfaces/Ethernet6
@@ -76,9 +76,11 @@ all:
 	cd Applications/TCPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Generic
 	cd Applications/UDPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Generic
 	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I. -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces -I../../Util
+
 	cd Network/Generic && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
-	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic
-	cd Network/IPv4d && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../../Base -I../../Util -I../Generic
+	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic -I../ARP -I../../NetworkInterfaces/_802
+	cd Network/IPv4d && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../../Base -I../../Util -I../Generic -I../ARP -I../../NetworkInterfaces/_802
+	cd Network/ARP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Generic -I../IPv4 -I../../NetworkInterfaces/_802
 	cd Network/AutoRouting && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4  -I../../Base -I../../Util -I../Generic -I../IPv6 -I../ICMPv6
 	cd Network/MPLS && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../IPv4d -I../../Base -I../../Util -I../Generic
 	cd Network/LDP && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../IPv4d -I../../Transport/UDP -I../../Transport/TCP -I../MPLS -I../../Base -I../../Util -I../Generic
@@ -87,8 +89,8 @@ all:
 
 	cd NetworkInterfaces/PPP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4 -I../../Network/Generic
 	cd NetworkInterfaces/_802 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4
-	cd NetworkInterfaces/Ethernet && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../ARP -I../_802 -I../../Network/IPv4
-	cd NetworkInterfaces/ARP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4 -I../../Network/Generic -I../_802 -I../Ethernet
+	cd NetworkInterfaces/Ethernet && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../_802 -I../../Network/Generic -I../../Network/IPv4
+	: #cd NetworkInterfaces/ARP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4 -I../../Network/Generic -I../_802 -I../Ethernet
 
 	cd Nodes/INET && $(MAKEMAKE) $(OPTS) -n -r $(ALL_INET_INCLUDES)
 	cd Nodes/MPLS && $(MAKEMAKE) $(OPTS) -n -r $(ALL_INET_INCLUDES) $(ALL_MPLS_INCLUDES)
@@ -124,6 +126,7 @@ all:
 
 	cd Examples/IPv6/EthNetwork && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/MIPv6Network && $(MAKEMAKE) $(ALL_MODEL_OPTS)
+	cd Examples/IPv6/HMIPv6Network && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/PingNetwork && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/WirelessEtherNetwork && $(MAKEMAKE) $(ALL_MODEL_OPTS)
 	cd Examples/IPv6/WirelessEtherNetwork2 && $(MAKEMAKE) $(ALL_MODEL_OPTS)

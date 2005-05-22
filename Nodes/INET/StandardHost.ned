@@ -71,6 +71,8 @@ module StandardHost
         pingApp: PingApp;
             display: "i=block/app;p=343,200";
         networkLayer: NetworkLayer;
+            parameters:
+                proxyARP = false;
             gatesizes:
                 physIn[sizeof(out)+sizeof(ethOut)],
                 physOut[sizeof(out)+sizeof(ethOut)];
@@ -78,8 +80,6 @@ module StandardHost
         ppp: PPPInterface[sizeof(out)];
             display: "p=205,350,row,90;q=queue;i=block/ifcard";
         eth: EthernetInterface[sizeof(ethOut)];
-            parameters:
-                proxyARP = false;
             display: "p=240,350,row,90;q=queue;i=block/ifcard";
     connections nocheck:
         for i=0..numTcpApps-1 do

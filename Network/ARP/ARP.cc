@@ -19,9 +19,8 @@
 
 #include "ARP.h"
 #include "stlwatch.h"
-#include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
-#include "RoutingTableAccess.h"
+#include "_802Ctrl_m.h"
 
 
 static std::ostream& operator<< (std::ostream& ev, cMessage *msg)
@@ -42,21 +41,10 @@ static std::ostream& operator<< (std::ostream& ev, const ARP::ARPCacheEntry& e)
 
 Define_Module (ARP);
 
-void ARP::initialize(int stage)
+void ARP::initialize()
 {
-    if (stage==0)
-    {
-        ift = InterfaceTableAccess().get();
-        rt = RoutingTableAccess().get();
-
-        // register interface in 1st stage
-        interfaceEntry = registerInterface(100000); // FIXME hardcoded 100 Mbps
-        return;
-    }
-
-    // with the rest we have to wait until address auto-assignment takes place
-    if (stage!=3)
-        return;
+    ift = InterfaceTableAccess().get();
+    rt = RoutingTableAccess().get();
 
     retryTimeout = par("retryTimeout");
     retryCount = par("retryCount");
@@ -64,11 +52,6 @@ void ARP::initialize(int stage)
     doProxyARP = par("proxyARP");
 
     pendingQueue.setName("pendingQueue");
-
-    // fill in myIPAddress and myMACAddress
-    InterfaceEntry *ie = ift->interfaceByName(interfaceEntry->name());
-    myIPAddress = ie->ipv4()->inetAddress();
-    myMACAddress = ((EtherMAC *)parentModule()->submodule("mac"))->getMACAddress();
 
     // init statistics
     numRequestsSent = numRepliesSent = 0;
@@ -83,6 +66,10 @@ void ARP::initialize(int stage)
 
 void ARP::finish()
 {
+    recordScalar("ARP requests sent", numRequestsSent);
+    recordScalar("ARP replies sent", numRepliesSent);
+    recordScalar("ARP resolutions", numResolutions);
+    recordScalar("failed ARP resolutions", numFailedResolutions);
 }
 
 ARP::~ARP()
@@ -101,23 +88,15 @@ void ARP::handleMessage(cMessage *msg)
     {
         requestTimedOut(msg);
     }
-    else if (msg->arrivedOn("hwIn"))
+    else if (dynamic_cast<ARPPacket *>(msg))
     {
-        if (dynamic_cast<ARPPacket *>(msg))
-        {
-            ARPPacket *arp = (ARPPacket *)msg;
-            processARPPacket(arp);
-        }
-        else // not ARP
-        {
-            processInboundPacket(msg);
-        }
+        ARPPacket *arp = (ARPPacket *)msg;
+        processARPPacket(arp);
     }
-    else
+    else // not ARP
     {
         processOutboundPacket(msg);
     }
-
     if (ev.isGUI())
         updateDisplayString();
 }
@@ -130,27 +109,26 @@ void ARP::updateDisplayString()
     displayString().setTagArg("t",0,buf);
 }
 
-void ARP::processInboundPacket(cMessage *msg)
-{
-    // remove control info from packet, and send it up
-    EV << "Packet " << msg << " arrived from network, sending up\n";
-    delete msg->removeControlInfo();
-    send(msg,"hlOut");
-}
-
 void ARP::processOutboundPacket(cMessage *msg)
 {
     EV << "Packet " << msg << " arrived from higher layer, ";
 
-    // get next hop address from optional control info in packet
-    IPAddress nextHopAddr;
-    if (msg->controlInfo())
+    // get next hop address from control info in packet
+    IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision*>(msg->removeControlInfo());
+    IPAddress nextHopAddr = controlInfo->nextHopAddr();
+    int outputPort = controlInfo->outputPort();
+    delete controlInfo;
+
+    // if output interface is not broadcast, don't bother with ARP
+    InterfaceEntry *ie = ift->interfaceByPortNo(outputPort);
+    if (!ie->isBroadcast())
     {
-        IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision*>(msg->removeControlInfo());
-        nextHopAddr = controlInfo->nextHopAddr();
-        delete controlInfo;
+        EV << "output interface " << ie->name() << " is not broadcast, skipping ARP\n";
+        send(msg, "nicOut", outputPort);
+        return;
     }
 
+    // determine what address to look up in ARP cache
     if (!nextHopAddr.isNull())
     {
         EV << "using next-hop address " << nextHopAddr << "\n";
@@ -177,7 +155,7 @@ void ARP::processOutboundPacket(cMessage *msg)
         // FIXME: we do a simpler solution right now: send to the Broadcast MAC address
         EV << "destination address is multicast, sending packet to broadcast MAC address\n";
         static MACAddress broadcastAddr("FF:FF:FF:FF:FF:FF");
-        sendPacketToMAC(msg, broadcastAddr);
+        sendPacketToNIC(msg, outputPort, broadcastAddr);
         return;
 #if 0
         // experimental RFC 1112 code
@@ -191,22 +169,24 @@ void ARP::processOutboundPacket(cMessage *msg)
         macBytes[5] = nextHopAddr.getDByte(3);
         MACAddress multicastMacAddr;
         multicastMacAddr.setAddressBytes(bytes);
-        sendPacketToMAC(msg, multicastMacAddr);
+        sendPacketToNIC(msg, outputPort, multicastMacAddr);
         return;
 #endif
     }
 
     // try look up
     ARPCache::iterator it = arpCache.find(nextHopAddr);
+    //ASSERT(it==arpCache.end() || outputPort==(*it).second->outputPort); // verify: if arpCache gets keyed on outputPort too, this becomes unnecessary
     if (it==arpCache.end())
     {
         // no cache entry: launch ARP request
         ARPCacheEntry *entry = new ARPCacheEntry();
         ARPCache::iterator where = arpCache.insert(arpCache.begin(), std::make_pair(nextHopAddr,entry));
         entry->myIter = where; // note: "inserting a new element into a map does not invalidate iterators that point to existing elements"
+        entry->outputPort = outputPort;
 
         EV << "Starting ARP resolution for " << nextHopAddr << "\n";
-        initiateARPResolution(nextHopAddr,entry);
+        initiateARPResolution(entry);
 
         // and queue up packet
         entry->pendingPackets.push_back(msg);
@@ -225,7 +205,8 @@ void ARP::processOutboundPacket(cMessage *msg)
 
         // cache entry stale, send new ARP request
         ARPCacheEntry *entry = (*it).second;
-        initiateARPResolution(nextHopAddr,entry);
+        entry->outputPort = outputPort; // routing table may have changed
+        initiateARPResolution(entry);
 
         // and queue up packet
         entry->pendingPackets.push_back(msg);
@@ -235,16 +216,17 @@ void ARP::processOutboundPacket(cMessage *msg)
     {
         // valid ARP cache entry found, flag msg with MAC address and send it out
         EV << "ARP cache hit, MAC address for " << nextHopAddr << " is " << (*it).second->macAddress << ", sending packet down\n";
-        sendPacketToMAC(msg, (*it).second->macAddress);
+        sendPacketToNIC(msg, outputPort, (*it).second->macAddress);
     }
 }
 
-void ARP::initiateARPResolution(IPAddress nextHopAddr, ARPCacheEntry *entry)
+void ARP::initiateARPResolution(ARPCacheEntry *entry)
 {
+    IPAddress nextHopAddr = entry->myIter->first;
     entry->pending = true;
     entry->numRetries = 0;
     entry->lastUpdate = 0;
-    sendARPRequest(nextHopAddr);
+    sendARPRequest(entry->outputPort, nextHopAddr);
 
     // start timer
     cMessage *msg = entry->timer = new cMessage("ARP timeout");
@@ -254,20 +236,25 @@ void ARP::initiateARPResolution(IPAddress nextHopAddr, ARPCacheEntry *entry)
     numResolutions++;
 }
 
-void ARP::sendPacketToMAC(cMessage *msg, const MACAddress& macAddress)
+void ARP::sendPacketToNIC(cMessage *msg, int outputPort, const MACAddress& macAddress)
 {
     // add control info with MAC address
-    EtherCtrl *controlInfo = new EtherCtrl();
+    _802Ctrl *controlInfo = new _802Ctrl();
     controlInfo->setDest(macAddress);
     msg->setControlInfo(controlInfo);
 
     // send out
-    send(msg,"hwOut");
+    send(msg, "nicOut", outputPort);
 }
 
-void ARP::sendARPRequest(IPAddress ipAddress)
+void ARP::sendARPRequest(int outputPort, IPAddress ipAddress)
 {
-    // fill out everything except dest MAC address
+    // find our own IP address and MAC address on the given interface
+    InterfaceEntry *ie = ift->interfaceByPortNo(outputPort);
+    MACAddress myMACAddress = MACAddress(ie->llAddrStr());
+    IPAddress myIPAddress = ie->ipv4()->inetAddress();
+
+    // fill out everything in ARP Request packet except dest MAC address
     ARPPacket *arp = new ARPPacket("arpREQ");
     arp->setLength(ARP_HEADER_BYTES);
     arp->setOpcode(ARP_REQUEST);
@@ -276,7 +263,7 @@ void ARP::sendARPRequest(IPAddress ipAddress)
     arp->setDestIPAddress(ipAddress);
 
     static MACAddress broadcastAddress("ff:ff:ff:ff:ff:ff");
-    sendPacketToMAC(arp, broadcastAddress);
+    sendPacketToNIC(arp, outputPort, broadcastAddress);
     numRequestsSent++;
 }
 
@@ -289,7 +276,7 @@ void ARP::requestTimedOut(cMessage *selfmsg)
         // retry
         IPAddress nextHopAddr = entry->myIter->first;
         EV << "ARP request for " << nextHopAddr << " timed out, resending\n";
-        sendARPRequest(nextHopAddr);
+        sendARPRequest(entry->outputPort, nextHopAddr);
         scheduleAt(simTime()+retryTimeout, selfmsg);
         return;
     }
@@ -315,17 +302,17 @@ void ARP::requestTimedOut(cMessage *selfmsg)
 }
 
 
-bool ARP::addressRecognized(IPAddress destAddr)
+bool ARP::addressRecognized(IPAddress destAddr, int outputPort)
 {
-    if (destAddr==myIPAddress)
+    if (rt->localDeliver(destAddr))
         return true;
 
     // respond to Proxy ARP request: if we can route this packet (and the
     // output port is different from this one), say yes
     if (!doProxyARP)
         return false;
-    int outputPort = rt->outputPortNo(destAddr);
-    return outputPort!=-1 && outputPort!=interfaceEntry->outputPort();
+    int rteOutputPort = rt->outputPortNo(destAddr);
+    return outputPort!=-1 && rteOutputPort!=outputPort;
 }
 
 void ARP::dumpARPPacket(ARPPacket *arp)
@@ -340,6 +327,11 @@ void ARP::processARPPacket(ARPPacket *arp)
 {
     EV << "ARP packet " << arp << " arrived:\n";
     dumpARPPacket(arp);
+
+    // extract input port
+    IPRoutingDecision *controlInfo = check_and_cast<IPRoutingDecision*>(arp->removeControlInfo());
+    int inputPort = controlInfo->inputPort();
+    delete controlInfo;
 
     //
     // Recipe a'la RFC 826:
@@ -385,7 +377,7 @@ void ARP::processARPPacket(ARPPacket *arp)
 
     // "?Am I the target protocol address?"
     // if Proxy ARP is enabled, we also have to reply if we're a router to the dest IP address
-    if (addressRecognized(arp->getDestIPAddress()))
+    if (addressRecognized(arp->getDestIPAddress(), inputPort))
     {
         // "If Merge_flag is false, add the triplet protocol type, sender
         // protocol address, sender hardware address to the translation table"
@@ -401,6 +393,7 @@ void ARP::processARPPacket(ARPPacket *arp)
                 entry = new ARPCacheEntry();
                 ARPCache::iterator where = arpCache.insert(arpCache.begin(), std::make_pair(srcIPAddress,entry));
                 entry->myIter = where;
+                entry->outputPort = inputPort;
 
                 entry->pending = false;
                 entry->timer = NULL;
@@ -416,6 +409,11 @@ void ARP::processARPPacket(ARPPacket *arp)
             {
                 EV << "Packet was ARP REQUEST, sending REPLY\n";
 
+                // find our own IP address and MAC address on the given interface
+                InterfaceEntry *ie = ift->interfaceByPortNo(inputPort);
+                MACAddress myMACAddress = MACAddress(ie->llAddrStr());
+                IPAddress myIPAddress = ie->ipv4()->inetAddress();
+
                 // "Swap hardware and protocol fields", etc.
                 arp->setName("arpREPLY");
                 IPAddress origDestAddress = arp->getDestIPAddress();
@@ -425,7 +423,7 @@ void ARP::processARPPacket(ARPPacket *arp)
                 arp->setSrcMACAddress(myMACAddress);
                 arp->setOpcode(ARP_REPLY);
                 delete arp->removeControlInfo();
-                sendPacketToMAC(arp, srcMACAddress);
+                sendPacketToNIC(arp, inputPort, srcMACAddress);
                 numRepliesSent++;
                 break;
             }
@@ -472,43 +470,8 @@ void ARP::updateARPCache(ARPCacheEntry *entry, const MACAddress& macAddress)
         pendingPackets.erase(i);
         pendingQueue.remove(msg);
         EV << "Sending out queued packet " << msg << "\n";
-        sendPacketToMAC(msg, macAddress);
+        sendPacketToNIC(msg, entry->outputPort, macAddress);
     }
 }
 
-InterfaceEntry *ARP::registerInterface(double datarate)
-{
-    InterfaceEntry *e = new InterfaceEntry();
 
-    // interface name: NetworkInterface module's name without special characters ([])
-    // --> Emin : Parent module name is used since EtherMAC belongs to EthernetInterface.
-    char *interfaceName = new char[strlen(parentModule()->fullName())+1];
-    char *d=interfaceName;
-    for (const char *s=parentModule()->fullName(); *s; s++)
-        if (isalnum(*s))
-            *d++ = *s;
-    *d = '\0';
-
-    e->setName(interfaceName);
-    delete [] interfaceName;
-
-    e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
-
-    // port: index of gate where parent module's "netwIn" is connected (in IP)
-    int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
-    e->setOutputPort(outputPort);
-
-    // we don't know IP address and netmask, it'll probably come from routing table file
-
-    // MTU is 1500 on Ethernet
-    e->setMtu(1500);
-
-    // capabilities
-    e->setMulticast(true);
-    e->setPointToPoint(false);
-
-    // add
-    ift->addInterface(e);
-
-    return e;
-}

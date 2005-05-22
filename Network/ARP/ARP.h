@@ -31,14 +31,12 @@
 #include "INETDefs.h"
 #include "IPAddress.h"
 #include "ARPPacket_m.h"
-#include "EtherCtrl_m.h"
 #include "IPControlInfo_m.h"
 #include "IPDatagram.h"
 #include "InterfaceTable.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable.h"
 #include "RoutingTableAccess.h"
-#include "EtherMAC.h"
 
 
 
@@ -53,8 +51,10 @@ class ARP : public cSimpleModule
     typedef std::vector<cMessage*> MsgPtrVector;
 
     // IPAddress -> MACAddress table
+    // TBD should we key it on (IPAddress, outputPort)?
     struct ARPCacheEntry
     {
+        int outputPort; // NIC to send the packet to
         bool pending; // true if resolution is pending
         MACAddress macAddress;  // MAC address
         simtime_t lastUpdate;  // entries should time out after cacheTimeout
@@ -71,15 +71,10 @@ class ARP : public cSimpleModule
     simtime_t cacheTimeout;
     bool doProxyARP;
 
-    IPAddress myIPAddress;
-    MACAddress myMACAddress;
-
     long numResolutions;
     long numFailedResolutions;
     long numRequestsSent;
     long numRepliesSent;
-
-    InterfaceEntry *interfaceEntry;
 
     ARPCache arpCache;
 
@@ -92,21 +87,17 @@ class ARP : public cSimpleModule
     Module_Class_Members(ARP,cSimpleModule,0);
     ~ARP();
 
-    virtual int numInitStages() const {return 4;}
-    virtual void initialize(int stage);
+    virtual void initialize();
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
-    InterfaceEntry *registerInterface(double datarate);
-
-    void processInboundPacket(cMessage *msg);
     void processOutboundPacket(cMessage *msg);
-    void sendPacketToMAC(cMessage *msg, const MACAddress& macAddress);
+    void sendPacketToNIC(cMessage *msg, int outputPort, const MACAddress& macAddress);
 
-    void initiateARPResolution(IPAddress nextHopAddr, ARPCacheEntry *entry);
-    void sendARPRequest(IPAddress ipAddress);
+    void initiateARPResolution(ARPCacheEntry *entry);
+    void sendARPRequest(int outputPort, IPAddress ipAddress);
     void requestTimedOut(cMessage *selfmsg);
-    bool addressRecognized(IPAddress destAddr);
+    bool addressRecognized(IPAddress destAddr, int outputPort);
     void processARPPacket(ARPPacket *arp);
     void updateARPCache(ARPCacheEntry *entry, const MACAddress& macAddress);
 

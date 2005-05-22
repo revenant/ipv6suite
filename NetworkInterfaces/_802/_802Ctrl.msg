@@ -29,9 +29,9 @@ class noncobject MACAddress;
 class _802Ctrl
 {
     fields:
-        MACAddress src;  // used with DATA
-        MACAddress dest; // used with DATA
-        int ssap;        // used with DATA
-        int dsap;        // used with DATA
-        int pauseUnits;  // used with PAUSE
+        MACAddress src;  // src MAC address (can be left empty when sending)
+        MACAddress dest; // dest MAC address
+        int etherType;   // used with EthernetIIFrame
+        int ssap;        // used with IEEE 802 LLC (see EtherFrameWithLLC)
+        int dsap;        // used with IEEE 802 LLC (see EtherFrameWithLLC)
 };

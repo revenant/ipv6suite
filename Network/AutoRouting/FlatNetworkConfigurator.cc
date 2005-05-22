@@ -161,6 +161,8 @@ void FlatNetworkConfigurator::initialize(int stage)
             InterfaceTable *ift = IPAddressResolver().interfaceTableOf(atNode->module());
             RoutingTable *rt = IPAddressResolver().routingTableOf(atNode->module());
             InterfaceEntry *ie = ift->interfaceByPortNo(outputPort);
+            if (!ie)
+                error("%s has no entry for interface %d", ift->fullPath().c_str(), outputPort);
 
             RoutingEntry *e = new RoutingEntry();
             e->host = IPAddress(destAddr);

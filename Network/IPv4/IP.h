@@ -30,6 +30,8 @@
 #include "ProtocolMap.h"
 
 
+class ARPPacket;
+
 // ICMP type 2, code 4: fragmentation needed, but don't-fragment bit set
 const int ICMP_FRAGMENTATION_ERROR_CODE = 4;
 
@@ -82,6 +84,11 @@ class IP : public QueueBase
      * Invokes encapsulate(), then routePacket().
      */
     virtual void handleMessageFromHL(cMessage *msg);
+
+    /**
+     * Handle incoming ARP packets by sending them over "queueOut" to ARP.
+     */
+    virtual void handleARP(ARPPacket *msg);
 
     /**
      * Performs routing. Based on the routing decision, it dispatches to

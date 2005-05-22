@@ -25,6 +25,7 @@
 #include <omnetpp.h>
 
 #include "EtherMAC.h"
+#include "EtherCtrl_m.h"
 #include "utils.h"
 
 

@@ -61,6 +61,7 @@ Mobility/MobilityManager.ned
 Network/ARP/ARP.ned
 Network/AutoRouting/FlatNetworkConfigurator.ned
 Network/AutoRouting/FlatNetworkConfigurator6.ned
+Network/Contract/InterfaceTable.ned
 Network/Generic/InterfaceTable.ned
 Network/ICMPv6/AddressResolution.ned
 Network/ICMPv6/ICMPv6.ned

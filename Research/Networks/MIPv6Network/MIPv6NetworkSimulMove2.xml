@@ -201,9 +201,9 @@
        RWMinY="40"
        RWMaxY="240"
        RWMoveInterval="1"
-       RWMinSpeed="3"
-       RWMaxSpeed="5"
-       RWDistance="200"
+       RWMinSpeed="6"
+       RWMaxSpeed="7"
+       RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>
       <RandomMovement RWNodeName="mn2"
@@ -212,9 +212,9 @@
        RWMinY="310"
        RWMaxY="510"
        RWMoveInterval="1"
-       RWMinSpeed="3"
-       RWMaxSpeed="5"
-       RWDistance="200"
+       RWMinSpeed="6"
+       RWMaxSpeed="7"
+       RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>
       <RandomPattern RPXSize="250" RPYSize="200" RPMoveInterval="1" RPMinSpeed="3" RPMaxSpeed="5" RPDistance="100" RPPauseTime="1">

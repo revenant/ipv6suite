@@ -157,9 +157,11 @@ void WirelessEtherModule::baseInit(int stage)
     CWVec = new cOutVector("CW");
     outBuffSizeVec = new cOutVector("outBuffSizeVec");
 
-    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
-    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
-    
+    if (statsVec )
+    {
+      InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+      InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    }
   }
   else if(stage == 1)
   {
@@ -369,11 +371,11 @@ void WirelessEtherModule::readConfiguration()
   }
 
   bWRequirements = par("bandwidthRequirements");
-  statsVec = par("recordStatisticVector");
+  statsVec = par("recordStatisticVector").boolValue();
   activeScan = par("activeScan");
   channelScanTime = par("channelScanTime");
   bufferSize = par("bufferSize");
-  
+
   // TODO: parse supported rates
 }
 
@@ -512,7 +514,7 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
       a->setName(frame->name());
 
       outputBufferInsert(a);
-      
+
       if ( _currentState == WirelessEtherStateIdle::instance())
         static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
       }
@@ -1837,7 +1839,7 @@ void WirelessEtherModule::updateStats(void)
     TxFrameSizeVec->record(TxFrameSizeStat->mean());
     TxAccessTimeVec->record(TxAccessTimeStat->mean());
     backoffSlotsVec->record(backoffSlotsStat->mean());
-    CWVec->record(CWStat->mean());    
+    CWVec->record(CWStat->mean());
     outBuffSizeVec->record(outputBuffer.size());
   }
 
@@ -1853,7 +1855,7 @@ void WirelessEtherModule::updateStats(void)
   TxFrameSizeStat->clearResult();
   backoffSlotsStat->clearResult();
   CWStat->clearResult();
-  
+
   //reschedule next update
   scheduleAt(simTime() + statsUpdatePeriod, updateStatsNotifier);
 }

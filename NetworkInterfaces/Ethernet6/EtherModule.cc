@@ -82,8 +82,8 @@ void EtherModule::initialize(int stage)
       addr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
       _myAddr.set(addr);
     }
-    statsVec = par("recordStatisticVector");
- 
+    statsVec = par("recordStatisticVector").boolValue();
+
     inputFrame = 0;
     retry = 0;
     interframeGap = 0;
@@ -105,8 +105,11 @@ void EtherModule::initialize(int stage)
     noOfRxVec = new cOutVector("noOfRxVec");
     noOfTxVec = new cOutVector("noOfTxVec");
 
-    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
-    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    if ( statsVec )
+    {
+      InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+      InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    }
   }
   else if (stage == 1)
   {
@@ -122,7 +125,7 @@ void EtherModule::initialize(int stage)
     updateStatsNotifier  =
       new Loki::cTimerMessageCB<void>
       (TMR_ETH_STATS, this, this, &EtherModule::updateStats, "updateStats");
-    
+
     scheduleAt(simTime()+statsUpdatePeriod, updateStatsNotifier);
   }
 }
@@ -428,7 +431,7 @@ void EtherModule::updateStats(void)
     noOfRxVec->record(noOfRxStat/statsUpdatePeriod);
     noOfTxVec->record(noOfTxStat/statsUpdatePeriod);
   }
-  
+
   //reset stats updated every period
   RxDataBWStat = 0;
   TxDataBWStat = 0;

@@ -83,8 +83,13 @@ void EtherModuleAP::initialize(int stage)
     noOfRxVec = new cOutVector("noOfRxVec");
     noOfTxVec = new cOutVector("noOfTxVec");
 
-    InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
-    InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    statsVec = par("recordStatisticVector").boolValue();
+
+    if ( statsVec )
+    {
+      InstRxFrameSizeVec = new cOutVector("InstRxFrameSizeVec");
+      InstTxFrameSizeVec = new cOutVector("InstTxFrameSizeVec");
+    }
   }
   else if (stage == 1)
   {

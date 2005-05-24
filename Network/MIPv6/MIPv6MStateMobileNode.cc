@@ -65,6 +65,7 @@ namespace MobileIPv6
 {
 
 const unsigned int INITIAL_SIGNALING_COUNT = 3;
+const simtime_t THRESHOLD = 0.015;
 
 class BURetranTmr;
 
@@ -926,6 +927,13 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   else if ( mob->signalingEnhance() == CellResidency )
   {
     boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
+    
+    if(bce.lock()) // only when CN is also mobile
+    {
+      if ( bce.lock()->avgCellResidenceTime > THRESHOLD )
+        addrs[0] = bce.lock()->care_of_addr; // direct signaling
+    }
+    /*
 
     if ( bule->dirSignalCount() <= INITIAL_SIGNALING_COUNT )
     {
@@ -955,7 +963,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
         hotiScheduleTime += bule->hotiSendDelayTimer();
         cotiScheduleTime += bule->cotiSendDelayTimer();
       }
-    }      
+      }      */
   }
 
   Loki::Field<0> (bule->hotiRetransTmr->args) = addrs;

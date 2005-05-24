@@ -370,6 +370,8 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   bce.lock()->buArrivalTime = mod->simTime();
 
   // Sathya - cell_resi_time = AVE(BU_arrive_time - prev_bu_time);
+  bce.lock()->avgCellResidenceTime = bce.lock()->buArrivalTime - bce.lock()->prevBUTime;
+
   if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
   {
     bce.lock()->cellResidenceTimeVec->record(

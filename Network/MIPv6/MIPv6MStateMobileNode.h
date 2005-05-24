@@ -53,6 +53,8 @@ namespace MobileIPv6
 // rate for direct signaling transmission and that we need some
 // information before computations
 extern const unsigned int INITIAL_SIGNALING_COUNT;  
+extern const simtime_t  THRESHOLD;
+  
 
 class BURetranTmr;
 

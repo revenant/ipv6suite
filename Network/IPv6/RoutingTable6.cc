@@ -83,6 +83,7 @@ void RoutingTable6::initialize(int stage)
   {
     ift = InterfaceTableAccess().get();
 
+    ewuOutVectorHODelays = false;
     linkUpTime = 0;
     addrExpiryTmr = 0;
     IPForward = false;

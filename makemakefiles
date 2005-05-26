@@ -61,7 +61,7 @@ all:
 	: #FIXME sure we need -IMobility here? --AV
 	: #FIXME remove -IPPP6 !!!!!! (dep on IPv6PPPAPInterface??)
 	cd NetworkInterfaces/Wireless && $(MAKEMAKE) $(OPTS) -n -r -I../PPP6 -I. -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Contract -I../../World -I../../Mobility -I../../PHY -I../../Base
-	cd NetworkInterfaces/DualWireless && $(MAKEMAKE) $(OPTS) -n -r -I../PPP6 -I. -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Contract -I../../World -I../../Mobility -I../../PHY -I../../Base
+	cd NetworkInterfaces/DualWireless && $(MAKEMAKE) $(OPTS) -n -r -I../PPP6 -I. -I.. -I../.. -I../../Util -I../Ethernet6 -I../../Network/IPv6 -I../../Network/ICMPv6 -I../../Network/Contract -I../../World -I../../Mobility -I../../PHY -I../../Base -I../Wireless
 
 	cd Applications/MLD && $(MAKEMAKE) $(OPTS) -n -r
 

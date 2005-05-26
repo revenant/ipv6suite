@@ -314,7 +314,7 @@ protected:
   bool activeScan;
   double channelScanTime;
   unsigned int bufferSize;
-  
+  bool regInterface; 
 
   //
   // state information and statistics

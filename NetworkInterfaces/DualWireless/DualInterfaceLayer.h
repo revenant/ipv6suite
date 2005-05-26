@@ -1,7 +1,3 @@
-#if 0
-
-CURRENTLY OUT OF ORDER
-
 //
 // Copyright (C) 2004 CTIE, Monash University 
 //
@@ -34,13 +30,15 @@ CURRENTLY OUT OF ORDER
 #include <list>
 
 #include "cTimerMessageCB.h"
-#include "WirelessEtherSignal.h"
 #include "WirelessEtherFrame_m.h"
+#include "MACAddress6.h"
 
 #include "ExpiryEntryList.h"
 #include "AveragingList.h"
 
 class IPDatagram;
+class WESignalData;
+class InterfaceEntry;
 
 /*
   @class AccessPointEntry
@@ -48,23 +46,22 @@ class IPDatagram;
  */
 class AccessPointEntry
 {
-  public:
-  
-  AccessPointEntry(int listSize = 1);
+ public:
+    AccessPointEntry(int listSize = 1);
 
-  // Needed to use ExpiryEntryList
-  double expiryTime(void) const { return expire; }
-  MACAddress identifier(void) { return address; }
-
-  MACAddress address;  
-  int DSChannel;
-  // this is updated 
-  double expire;
-  AveragingList signalStrength;
-  AveragingList estAvailBW;
-  AveragingList errorPercentage;
-  AveragingList avgBackoffTime;
-  AveragingList avgWaitTime;  
+    // Needed to use ExpiryEntryList
+    double expiryTime(void) const { return expire; }
+    MACAddress6 identifier(void) { return address; }
+    
+    MACAddress6 address;  
+    int DSChannel;
+    // this is updated 
+    double expire;
+    AveragingList signalStrength;
+    AveragingList estAvailBW;
+    AveragingList errorPercentage;
+    AveragingList avgBackoffTime;
+    AveragingList avgWaitTime;  
 };
 
 bool operator==(const AccessPointEntry& lhs,
@@ -83,20 +80,26 @@ class DualInterfaceLayer: public cSimpleModule
 {
 public:
   Module_Class_Members(DualInterfaceLayer, cSimpleModule, 0);
-
+  
   static const double handoverWaitTime = 5;
   static const double monitorChannelTime = 0.2;
   static const double obtainStatsTime = 1;
+
+  ~DualInterfaceLayer();
   
   virtual void initialize(int);
   virtual void handleMessage(cMessage*);
   virtual void finish();
   virtual int numInitStages(void) const { return 2; }
 
+  void readConfiguration();
+  // adds interface entry into InterfaceTable
+  InterfaceEntry *registerInterface();
+  
   // Functions called within handleMessage
-  void handleLinkLayerMessage(std::auto_ptr<cMessage>);
-  void handleNetworkLayerMessage(std::auto_ptr<cMessage>);
-  void handleSignallingMessage(std::auto_ptr<cMessage>);
+  void handleLinkLayerMessage(cMessage*);
+  void handleNetworkLayerMessage(cMessage*);
+  void handleSignallingMessage(cMessage*);
 
   void setMonitoringInterface(int);
   void requestConnectionStats(int);
@@ -112,6 +115,7 @@ private:
   // buffer messages from upper layer
   std::list<cMessage*> buffer;
 
+  MACAddress6 address; // MAC address which should be the same for both interfaces
   // keep track of which interface is associated and which is monitoring
   int connectedLL;
   int monitoringLL;
@@ -144,7 +148,5 @@ private:
   ExpiryEntryList<AccessPointEntry> *apList;
   AccessPointEntry associatedAP;
 };
-
-#endif
 
 #endif

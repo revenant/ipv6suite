@@ -18,7 +18,8 @@
 
 simple DualInterfaceLayer
 	parameters:
-		procDelay: numeric const;
+		procdelay: numeric const,
+		address: string;	   
 	gates:
 		in: fromLL[], fromNL, extSignalIn[];
 		out: toLL[], toNL, extSignalOut[];

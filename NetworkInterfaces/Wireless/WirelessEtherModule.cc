@@ -111,7 +111,9 @@ void WirelessEtherModule::baseInit(int stage)
     beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
     endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
 
-    registerInterface();
+    // Most likely wouldn't want to register interface if using dual interface node
+    if(regInterface)
+        registerInterface();
 
     //Initialise Variables for Statistics
     statsUpdatePeriod = 1;
@@ -375,7 +377,7 @@ void WirelessEtherModule::readConfiguration()
   activeScan = par("activeScan");
   channelScanTime = par("channelScanTime");
   bufferSize = par("bufferSize");
-
+  regInterface = par("registerInterface");
   // TODO: parse supported rates
 }
 
@@ -841,10 +843,10 @@ void WirelessEtherModule::sendStatsSignal(void)
     extSig->setType(ST_STATS);
     // Need to assign power. Keep track by monitoring received frames from associated AP.
     // If not associated, then put power as invalid or low.
-    /*extSig->setSignalStrength(associateAP.rxpower);
-    extSig->setErrorPercentage(errorPercentage);
-    extSig->setAvgBackoffTime(totalBackoffTime.average);
-    extSig->setAvgWaitTime(totalWaitTime.average);*/
+    extSig->setSignalStrength(associateAP.rxpower);
+    //extSig->setErrorPercentage(errorPercentage);
+    //extSig->setAvgBackoffTime(totalBackoffTime.average);
+    //extSig->setAvgWaitTime(totalWaitTime.average);
     send(extSig, "extSignalOut", 0);
   }
 }

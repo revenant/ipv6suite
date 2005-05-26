@@ -47,7 +47,8 @@ simple WirelessAccessPoint
         recordStatisticVector: bool,
         activeScan: bool,
         channelScanTime: numeric,
-	bufferSize: numeric;
+	bufferSize: numeric,
+	registerInterface: bool;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

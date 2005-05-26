@@ -48,7 +48,8 @@ simple WirelessEtherModule
         activeScan: bool,
         linkUpTrigger: bool,
         channelScanTime: numeric,
-				bufferSize: numeric;
+	bufferSize: numeric,
+	registerInterface: bool;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

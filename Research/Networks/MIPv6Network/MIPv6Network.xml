@@ -2,7 +2,7 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf>
-  <local node="client1" mobileIPv6Support="on" returnRoutability="on" directSignaling="off" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
+  <local node="client1" mobileIPv6Support="on" routeOptimisation="off" returnRoutability="off" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <inetAddr>3018:ffff:0:0:2580:ebff:fe8c:1448/64</inetAddr>
     </interface>
@@ -51,7 +51,7 @@
     <ObjectMovement>
       <MovingNode NodeName="client1" startTime="0">
         <move moveToX="500" moveToY="600" moveSpeed="3"/>
-        <move moveToX="150" moveToY="600" moveSpeed="3"/>
+        <move moveToX="150" moveToY="600" moveSpeed="3" moveXFirst="off"/>
       </MovingNode>
     </ObjectMovement>
   </misc>

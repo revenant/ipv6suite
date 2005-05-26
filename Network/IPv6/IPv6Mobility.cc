@@ -105,8 +105,7 @@ void IPv6Mobility::initialize(int stage)
     periodTmr = 0;
 #ifdef USE_MOBILITY
 
-    avgCellResidenceTime = 0;
-    prevBUTime = 0;
+    handoverDelay = 0;
 
 #if EDGEHANDOVER
     ehCallback = 0;

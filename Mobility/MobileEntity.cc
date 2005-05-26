@@ -118,20 +118,39 @@ bool MobileEntity::moving(void)
 
   // the mobile entity moves along the x-axis first then y-axis
 
-  if ( _pos.x != moves[_currentMoveIdx].destPos.x )
+  if ( moves[_currentMoveIdx].moveXFirst )
   {
-    if ( _pos.x < moves[_currentMoveIdx].destPos.x )
-      _pos.x++;
+    if ( _pos.x != moves[_currentMoveIdx].destPos.x )
+    {
+      if ( _pos.x < moves[_currentMoveIdx].destPos.x )
+        _pos.x++;
+      else
+        _pos.x--;
+    }
     else
-      _pos.x--;
+    {
+      if ( _pos.y < moves[_currentMoveIdx].destPos.y )
+        _pos.y++;
+      else
+        _pos.y--;
+    }
   }
-
   else
   {
-    if ( _pos.y < moves[_currentMoveIdx].destPos.y )
-      _pos.y++;
-    else
-      _pos.y--;
+    if ( _pos.y != moves[_currentMoveIdx].destPos.y )
+    {
+      if ( _pos.y < moves[_currentMoveIdx].destPos.y )
+        _pos.y++;
+      else
+        _pos.y--;
+    }
+    else 
+    {
+      if ( _pos.x < moves[_currentMoveIdx].destPos.x )
+        _pos.x++;
+      else
+        _pos.x--;
+    }
   }
 
   setDispPosition(_pos.x, _pos.y);

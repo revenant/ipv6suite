@@ -656,9 +656,17 @@ void XMLOmnetParser::parseMovementInfoDetail(MobilityStatic* mod, cXMLElement* n
   for (NodeIt it = moves.begin(); it != moves.end(); it++)
   {
     cXMLElement* nmove = *it;
+
+    bool moveXFirst;
+    if ( getNodeProperties(nmove, "moveXFirst") == XML_ON )
+      moveXFirst = true;
+    else
+      moveXFirst = false;
+
     me->addMove(OPP_Global::atoul(getNodeProperties(nmove, "moveToX").c_str()),
                 OPP_Global::atoul(getNodeProperties(nmove, "moveToY").c_str()),
-                OPP_Global::atod(getNodeProperties(nmove, "moveSpeed").c_str())
+                OPP_Global::atod(getNodeProperties(nmove, "moveSpeed").c_str()),
+                moveXFirst
                 );
   }
 

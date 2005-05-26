@@ -145,8 +145,7 @@ public:
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
 
   // parameters for cell resdiency signaling
-  simtime_t avgCellResidenceTime; // averaged cell residence time
-  simtime_t prevBUTime; // previous BU time
+  simtime_t handoverDelay;
 
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
 

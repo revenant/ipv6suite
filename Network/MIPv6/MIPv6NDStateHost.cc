@@ -1081,12 +1081,14 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         //success bit is missing this. Convert this to a callback too?
         sendBU(coa);
 
-	if ( rt->isEwuOutVectorHODelays() )
-	{
-	  assert( rt->getLinkUpTime() );
-	  rt->recordHODelay( nd->simTime() );
-	  rt->setLinkUpTime(0); // clear the link up time
-	}
+        if ( mob->signalingEnhance() == CellResidency )
+          mob->handoverDelay = nd->simTime() - rt->getLinkUpTime();
+
+        if ( rt->isEwuOutVectorHODelays() )
+        {
+          rt->recordHODelay( nd->simTime() );
+          rt->setLinkUpTime(0); // clear the link up time
+        }
       }
       else
       {

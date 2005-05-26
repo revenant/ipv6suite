@@ -221,6 +221,7 @@ AdvDefaultLifetime NMTOKEN "0xFFFFFF"
           moveToX NMTOKEN #REQUIRED
           moveToY NMTOKEN #REQUIRED
           moveSpeed NMTOKEN #REQUIRED
+          moveXFirst (on|off) "on"
           >
 
 <!ELEMENT RandomMovement (#PCDATA)>

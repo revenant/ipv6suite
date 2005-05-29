@@ -17,29 +17,44 @@
 //
 
 
-#ifndef __IQOSCLASSIFIER_H__
-#define __IQOSCLASSIFIER_H__
+#ifndef __DROPTAILQUEUE_H__
+#define __DROPTAILQUEUE_H__
 
 #include <omnetpp.h>
+#include "IPassiveQueue.h"
+#include "IQoSClassifier.h"
 
 /**
- * Abstract interface for QoS classifiers, used in QoS queues.
+ * Drop-tail QoS queue. See NED for more info.
  */
-class IQoSClassifier : public cPolymorphic
+class DropTailQoSQueue : public cSimpleModule, public IPassiveQueue
 {
+  protected:
+    // configuration
+    int frameCapacity;
+
+    // state
+    cQueue *queues;
+    int packetRequested;
+    IQoSClassifier *classifier;
+
+    // statistics
+    int numReceived;
+    int numDropped;
+
   public:
-    /**
-     * Returns the largest value plus one classifyPacket() returns.
-     */
-    virtual int maxCategory() = 0;
+    Module_Class_Members(DropTailQoSQueue, cSimpleModule, 0);
+    virtual void initialize();
+    virtual void handleMessage(cMessage *msg);
 
     /**
-     * The method should return the priority (the index of subqueue)
-     * for the given packet, a value between 0 and maxCategory()-1
-     * (inclusive).
+     * The queue should send a packet whenever this method is invoked.
+     * If the queue is currently empty, it should send a packet when
+     * when one becomes available.
      */
-    virtual int classifyPacket(cMessage *msg) = 0;
+    virtual void requestPacket();
 };
 
 #endif
+
 

@@ -17,29 +17,18 @@
 //
 
 
-#ifndef __IQOSCLASSIFIER_H__
-#define __IQOSCLASSIFIER_H__
+//
+// Drop-tail queue with QoS support, to be used in network interfaces.
+// Performs priority queueing.
+//
+simple DropTailQoSQueue
+    parameters:
+        frameCapacity: numeric const,  // per-subqueue capacity
+        classifierClass: string;  // class that inherits from IQoSClassifier
+    gates:
+        in: in;
+        out: out;
+endsimple
 
-#include <omnetpp.h>
 
-/**
- * Abstract interface for QoS classifiers, used in QoS queues.
- */
-class IQoSClassifier : public cPolymorphic
-{
-  public:
-    /**
-     * Returns the largest value plus one classifyPacket() returns.
-     */
-    virtual int maxCategory() = 0;
-
-    /**
-     * The method should return the priority (the index of subqueue)
-     * for the given packet, a value between 0 and maxCategory()-1
-     * (inclusive).
-     */
-    virtual int classifyPacket(cMessage *msg) = 0;
-};
-
-#endif
 

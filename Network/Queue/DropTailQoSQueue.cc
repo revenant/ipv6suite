@@ -18,18 +18,18 @@
 
 
 #include <omnetpp.h>
-#include "DropTailQueue.h"
+#include "DropTailQoSQueue.h"
 
 
-Define_Module(DropTailQueue);
+Define_Module(DropTailQoSQueue);
 
-void DropTailQueue::initialize()
+void DropTailQoSQueue::initialize()
 {
     // configuration
     frameCapacity = par("frameCapacity");
 
     // state
-    queue.setName("queue");
+//    queue.setName("queue");
     packetRequested = 0;
 
     // statistics
@@ -39,24 +39,24 @@ void DropTailQueue::initialize()
     WATCH(numDropped);
 }
 
-void DropTailQueue::handleMessage(cMessage *msg)
+void DropTailQoSQueue::handleMessage(cMessage *msg)
 {
     numReceived++;
     if (packetRequested>0)
     {
-        ASSERT(queue.empty());
+//        ASSERT(queue.empty());
         packetRequested--;
         send(msg, "out");
     }
-    else if (frameCapacity && queue.length() >= frameCapacity)
+//    else if (frameCapacity && queue.length() >= frameCapacity)
     {
         ev << "Queue full, dropping packet.\n";
         delete msg;
         numDropped++;
     }
-    else
+//    else
     {
-        queue.insert(msg);
+//        queue.insert(msg);
     }
 
     if (ev.isGUI())
@@ -67,16 +67,16 @@ void DropTailQueue::handleMessage(cMessage *msg)
     }
 }
 
-void DropTailQueue::requestPacket()
+void DropTailQoSQueue::requestPacket()
 {
-    if (queue.empty())
+//    if (queue.empty())
     {
         packetRequested++;
     }
-    else
+//    else
     {
-        cMessage *msg = (cMessage *)queue.pop();
-        send(msg, "out");
+//        cMessage *msg = (cMessage *)queue.pop();
+//        send(msg, "out");
     }
 }
 

@@ -18,8 +18,8 @@
 //
 
 
-#ifndef __CBRAPP_H__
-#define __CBRAPP_H__
+#ifndef __IPTRAFGEN_H__
+#define __IPTRAFGEN_H__
 
 #include <vector>
 #include <omnetpp.h>
@@ -28,7 +28,7 @@
 
 
 /**
- * Consumes and prints packets received from the UDP module. See NED for more info.
+ * Consumes and prints packets received from the IP module. See NED for more info.
  */
 class IPTrafSink : public cSimpleModule
 {
@@ -46,7 +46,7 @@ class IPTrafSink : public cSimpleModule
 
 
 /**
- * UDP application. See NED for more info.
+ * IP traffic generator application. See NED for more info.
  */
 class IPTrafGen : public IPTrafSink
 {

@@ -7,6 +7,16 @@ contains models for several Internet protocols: beyond TCP and IP there is UDP,
 Ethernet, PPP and MPLS with LDP and RSVP-TE signalling. See the CREDITS file
 for the names of people involved in the development.
 
+IMPORTANT: BE AWARE THAT DIFFERENT COMPONENTS IN THE FRAMEWORK VARY 
+SIGNIFICANTLY IN SOFTWARE QUALITY, LEVEL OF DETAIL, COMPLIANCE AND 
+QUALITY OF DOCUMENTATION, FROM EXCELLENT TO VERY POOR. The framework 
+is being continously improved, the worst parts being either revised, or
+thrown out and replaced. ALWAYS CHECK THE COMPONENTS (READ THE SOURCE, 
+ETC) YOU ARE PLANNING TO USE IN YOUR RESEARCH.
+
+YOUR CONTRIBUTIONS ARE HIGHLY WELCOME! You can make a difference.
+
+
 
 GETTING STARTED
 ---------------
@@ -42,14 +52,15 @@ Bottom-up:
  PHY/                  physical layer models (none yet)
 
  NetworkInterfaces/    L2 (data link layer) protocols
-   _802/               common IEEE 802 stuff
+   Contract/           "contract" (~API) between L2 and higher layers
    Ethernet/           Ethernet model
    PPP                 new PPP implementation
-   ARP/                ARP protocol
 
  Network/              L3 (network layer) protocols
+   Contract/           "contract" (~API) between L3 and higher layers
    IPv4/               IPv4 and associated protocols
    IPv4d/              modularized IPv4 implementation
+   ARP/                ARP protocol
    AutoRouting/        autoconfiguration of static routes
    MPLS/               MPLS implementation
    LDP/                LDP signalling protocol for MPLS
@@ -65,7 +76,7 @@ Bottom-up:
    UDPApp/             UDP application models
    Generic/            traffic generators (directly for IP)
    Ethernet/           traffic generators (directly for Ethernet)
-   PingApp/            ping application (incomplete)
+   PingApp/            ping application
 
 Further directories are:
 

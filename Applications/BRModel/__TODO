@@ -1,5 +1,10 @@
-- reindent with 4 spaces
-- detailed doc in NED files what it's for, what's the interface to other modules, 
-  what's the meaning of parameters, etc.
-- VBRSrcModel: param "pixPerFrame" - is it streaming video then? because the name
-  or the docs doesn't mention video at all
+DOCUMENTATION IS MISSING DETAILS
+- general description is missing (what is active and idle period, etc)
+- what does it send?
+- interface to lower layers? what should it be connected to? 
+  what controlInfo does it attach?
+
+VBR SCOPE IS CONFUSED
+- VBRSrcModel: param "pixPerFrame": if this is a streaming video model,
+  then it should be explained and probably more parameters added.
+  if it's NOT video, then is SHOULDN'T have a parameter called "pixPerFrame"!

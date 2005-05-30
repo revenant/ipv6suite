@@ -65,7 +65,7 @@ namespace MobileIPv6
 {
 
 const unsigned int INITIAL_SIGNALING_COUNT = 3;
-const simtime_t THRESHOLD = 25;
+const simtime_t THRESHOLD = 20;
 
 class BURetranTmr;
 

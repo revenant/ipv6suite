@@ -23,8 +23,9 @@
 #include "IQoSClassifier.h"
 
 /**
- * Just an example for packet classifiers. You'll need to implement
- * others that are actually useful.
+ * Just an example for packet classifiers, based on IPv4 DSCP/IPv6 Traffic
+ * class. You'll probably need to implement others if your research interest 
+ * lies in QoS.
  */
 class ExampleClassifier : public IQoSClassifier
 {

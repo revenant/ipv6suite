@@ -22,6 +22,7 @@
 #include "InterfaceTable.h"
 #include "InterfaceTableAccess.h"
 #include "PPPInterface.h"
+#include "IPassiveQueue.h"
 
 
 
@@ -43,8 +44,7 @@ void PPPInterface::initialize(int stage)
     queue.setName("queue");
     endTransmissionEvent = new cMessage("pppEndTxEvent");
 
-    frameCapacity = par("frameCapacity");
-    bitCapacity = par("bitCapacity");
+    maxQueueLength = par("maxQueueLength");
 
     interfaceEntry = NULL;
 
@@ -53,6 +53,14 @@ void PPPInterface::initialize(int stage)
     WATCH(numRcvdOK);
     WATCH(numBitErr);
     WATCH(numDropped);
+
+    // find inputQueue
+    inputQueue = NULL;
+    if (par("queueModule").stringValue()[0])
+    {
+        cModule *inputQueueMod = parentModule()->submodule(par("queueModule").stringValue());
+        inputQueue = check_and_cast<IPassiveQueue *>(inputQueueMod);
+    }
 
     // we're connected if other end of connection path is an input gate
     cGate *physOut = gate("physOut");
@@ -171,6 +179,11 @@ void PPPInterface::handleMessage(cMessage *msg)
             startTransmitting(msg);
             numSent++;
         }
+        else if (inputQueue)
+        {
+            // tell queue module that we've become idle
+            inputQueue->requestPacket();
+        }
     }
     else if (msg->arrivedOn("physIn"))
     {
@@ -197,7 +210,7 @@ void PPPInterface::handleMessage(cMessage *msg)
             ev << "Received " << msg << " for transmission but transmitter busy, queueing.\n";
             if (ev.isGUI() && queue.length()>=3) displayString().setTagArg("i",1,"red");
 
-            if (frameCapacity && queue.length() >= frameCapacity)  // FIXME use bitCapacity as well
+            if (maxQueueLength && queue.length() >= maxQueueLength)
             {
                 ev << "Queue full, dropping packet.\n";
                 delete msg;

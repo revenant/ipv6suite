@@ -125,8 +125,9 @@ simple EtherMAC
                                 // MAC will actually use duplex mode depends on the result
                                 // of the auto-configuration process (duplex is only
                                 // possible with DTE-to-DTE connection).
-        maxQueueSize : numeric, // maximum number of frames queued up for transmission;
-                                // additional frames are dropped
+        maxQueueLength : numeric, // maximum number of frames queued up for transmission;
+                                // additional frames are dropped. Only used if queueModule==""
+        queueModule: string,    // name of external queue module
         writeScalars: bool;     // enable/disable recording statistics in omnetpp.sca
     gates:
         in: physIn;      // to physical layer or the network

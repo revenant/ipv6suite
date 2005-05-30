@@ -21,22 +21,21 @@
 //
 // PPP network interface. Corresponds to the prototype NetworkInterface.
 //
-// Packets are encapsulated in PPPFrame. While one frame is transmitted, 
+// Packets are encapsulated in PPPFrame. While one frame is transmitted,
 // additional frames get queued up in a buffer. Buffer capacity can be
-// configured in bits and frames. When the buffer is full, extra packets
-// are discarded. 
+// configured. When the buffer is full, extra packets are discarded.
 //
 // There is no buffering done on received packets -- they are just decapsulated
 // and sent up immediately.
-// 
-// Note: PPP is a complex protocol with lots of effort on link configuration 
-// and maintenance, but this implementation ignores these details. 
+//
+// Note: PPP is a complex protocol with lots of effort on link configuration
+// and maintenance, but this implementation ignores these details.
 // This module only performs simple encapsulation/decapsulation and queuing.
 //
 simple PPPInterface
     parameters:
-        frameCapacity: numeric,
-        bitCapacity: numeric;
+        maxQueueLength: numeric,  // only used if queueModule==""
+        queueModule: string;    // name of external queue module
     gates:
         in: physIn;
         out: physOut;

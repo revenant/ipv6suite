@@ -27,6 +27,7 @@
 #include "EtherMAC.h"
 #include "EtherCtrl_m.h"
 #include "utils.h"
+#include "IPassiveQueue.h"
 
 
 
@@ -44,6 +45,14 @@ unsigned int EtherMAC::autoAddressCtr = 0;
 void EtherMAC::initialize()
 {
     queue.setName("queue");
+
+    // find inputQueue
+    inputQueue = NULL;
+    if (par("queueModule").stringValue()[0])
+    {
+        cModule *inputQueueMod = parentModule()->submodule(par("queueModule").stringValue());
+        inputQueue = check_and_cast<IPassiveQueue *>(inputQueueMod);
+    }
 
     frameBeingReceived = NULL;
     endTxMsg = new cMessage("EndTransmission", ENDTRANSMISSION);
@@ -75,7 +84,7 @@ void EtherMAC::initialize()
         myaddress.setAddress(addrstr);
     }
     promiscuous = par("promiscuous");
-    maxQueueSize = par("maxQueueSize");
+    maxQueueLength = par("maxQueueLength");
 
     // check: datarate is forbidden with EtherMAC -- module's txrate must be used
     cGate *g = gate("physOut");
@@ -407,7 +416,7 @@ void EtherMAC::processFrameFromUpperLayer(EtherFrame *frame)
     {
         numFramesFromHL++;
 
-        if (queue.length()>=maxQueueSize)
+        if (queue.length()>=maxQueueLength)
         {
             EV << "Packet " << frame << " arrived from higher layers but queue full, dropping\n";
             numFramesFromHLDropped++;
@@ -1025,6 +1034,12 @@ void EtherMAC::beginSendFrames()
         // Other frames are queued, therefore wait IFG period and transmit next frame
         EV << "Transmit next frame in output queue, after IFG period\n";
         scheduleEndIFGPeriod();
+    }
+    else if (inputQueue)
+    {
+        // tell queue module that we've become idle
+        EV << "Requesting another frame from queue module\n";
+        inputQueue->requestPacket();
     }
     else
     {

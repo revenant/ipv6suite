@@ -25,6 +25,7 @@
 
 
 class InterfaceEntry;
+class IPassiveQueue;
 
 /**
  * PPP implementation. Derived from the p-to-p OMNeT++ sample simulation.
@@ -34,12 +35,12 @@ class PPPInterface : public cSimpleModule
   protected:
     bool connected;
 
-    long frameCapacity;
-    long bitCapacity;
+    long maxQueueLength;
     cGate *gateToWatch;
 
     cQueue queue;
     cMessage *endTransmissionEvent;
+    IPassiveQueue *inputQueue;
 
     InterfaceEntry *interfaceEntry;  // points into InterfaceTable
     double datarate;  // only cached for the display string

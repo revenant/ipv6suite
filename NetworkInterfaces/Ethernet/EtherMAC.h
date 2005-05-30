@@ -50,6 +50,8 @@
 // Length of autoconfig period: should be larger than delays
 #define AUTOCONFIG_PERIOD  0.001  /* well more than 4096 bit times at 10Mb */
 
+class IPassiveQueue;
+
 
 /**
  * Ethernet MAC module.
@@ -88,7 +90,7 @@ class EtherMAC : public cSimpleModule
     bool duplexMode;        // channel connecting to MAC is full duplex, i.e. like a switch with 2 half-duplex lines
     bool carrierExtension;  // carrier extension on/off (Gigabit Ethernet)
     bool frameBursting;     // frame bursting on/off (Gigabit Ethernet)
-    int maxQueueSize;       // max queue length
+    int maxQueueLength;       // max queue length
 
     // MAC transmission characteristics
     double txrate;          // transmission rate of MAC, bit/s
@@ -114,6 +116,7 @@ class EtherMAC : public cSimpleModule
 
     // Other variables
     cQueue queue;    // Output queue
+    IPassiveQueue *inputQueue;
     EtherFrame *frameBeingReceived;
     cMessage *endTxMsg, *endRxMsg, *endIFGMsg, *endBackoffMsg, *endJammingMsg, *endPauseMsg;
 

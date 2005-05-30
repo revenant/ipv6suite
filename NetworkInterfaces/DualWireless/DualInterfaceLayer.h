@@ -81,10 +81,6 @@ class DualInterfaceLayer: public cSimpleModule
 public:
   Module_Class_Members(DualInterfaceLayer, cSimpleModule, 0);
   
-  static const double handoverWaitTime = 5;
-  static const double monitorChannelTime = 0.2;
-  static const double obtainStatsTime = 1;
-
   ~DualInterfaceLayer();
   
   virtual void initialize(int);
@@ -112,9 +108,13 @@ public:
   
 private:
 
+  double handoverWaitTime;
+  double monitorChannelTime;
+  double obtainStatsTime;
+  
   // buffer messages from upper layer
   std::list<cMessage*> buffer;
-
+  
   MACAddress6 address; // MAC address which should be the same for both interfaces
   // keep track of which interface is associated and which is monitoring
   int connectedLL;

@@ -91,6 +91,11 @@ void DualInterfaceLayer::initialize(int stage)
       APEntryLifetime = 100;
       HOThreshPower = -88;
       
+      // SW: make into NED parameters
+      handoverWaitTime = 5;
+      monitorChannelTime = 0.2;
+      obtainStatsTime = 1;
+      
       associatedAP.address = MAC_ADDRESS_UNSPECIFIED_STRUCT;
       associatedAP.DSChannel = -1;
       

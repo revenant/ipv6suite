@@ -28,6 +28,9 @@
  */
 class ExampleClassifier : public IQoSClassifier
 {
+    // internal: maps IPv4/IPv6 DiffServ Code Point to queue number
+    virtual int classifyByDSCP(int dscp);
+
   public:
     /**
      * Returns the largest value plus one classifyPacket() returns.

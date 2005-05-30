@@ -28,7 +28,7 @@ Register_Class(ExampleClassifier);
 
 int ExampleClassifier::numQueues()
 {
-    return 3;
+    return 4;
 }
 
 int ExampleClassifier::classifyPacket(cMessage *msg)
@@ -38,18 +38,41 @@ int ExampleClassifier::classifyPacket(cMessage *msg)
         // IPv4 QoS: map DSCP to queue number
         IPDatagram *datagram = (IPDatagram *)msg;
         int dscp = datagram->diffServCodePoint();
-        //...
+        return classifyByDSCP(dscp);
     }
     else if (dynamic_cast<IPv6Datagram *>(msg))
     {
         // IPv6 QoS: map Traffic Class to queue number
         IPv6Datagram *datagram = (IPv6Datagram *)msg;
         int dscp = datagram->trafficClass();
-        //...
+        return classifyByDSCP(dscp);
     }
     else
     {
-        return 0;
+        return 3; // lowest priority ("best effort")
     }
+}
+
+int ExampleClassifier::classifyByDSCP(int dscp)
+{
+    // DSCP is 6 bits, mask out all others
+    dscp = (dscp & 0x3f);
+
+    // DSCP format:
+    //    xxxxx0: used by standards; see RFC 2474
+    //    xxxxx1: experimental or local use
+    // source: Stallings, High-Speed Networks, 2nd Ed, p494
+
+    // all-zero DSCP maps to Best Effort (lowest priority)
+    if (dscp==0)
+        return 3;
+
+    // assume Best Effort service for experimental or local DSCP's too
+    if (dscp & 1)
+        return 3;
+
+    // from here on, we deal with non-zero standardized DSCP values only
+
+
 }
 

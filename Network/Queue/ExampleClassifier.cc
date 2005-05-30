@@ -35,14 +35,17 @@ int ExampleClassifier::classifyPacket(cMessage *msg)
 {
     if (dynamic_cast<IPDatagram *>(msg))
     {
+        // IPv4 QoS: map DSCP to queue number
         IPDatagram *datagram = (IPDatagram *)msg;
         int dscp = datagram->diffServCodePoint();
-
+        //...
     }
     else if (dynamic_cast<IPv6Datagram *>(msg))
     {
+        // IPv6 QoS: map Traffic Class to queue number
         IPv6Datagram *datagram = (IPv6Datagram *)msg;
         int dscp = datagram->trafficClass();
+        //...
     }
     else
     {

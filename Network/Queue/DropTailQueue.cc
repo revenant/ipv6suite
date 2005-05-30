@@ -25,60 +25,35 @@ Define_Module(DropTailQueue);
 
 void DropTailQueue::initialize()
 {
+    PassiveQueueBase::initialize();
+
     // configuration
     frameCapacity = par("frameCapacity");
 
     // state
     queue.setName("queue");
-    packetRequested = 0;
-
-    // statistics
-    numReceived = 0;
-    numDropped = 0;
-    WATCH(numReceived);
-    WATCH(numDropped);
 }
 
-void DropTailQueue::handleMessage(cMessage *msg)
+bool DropTailQueue::enqueue(cMessage *msg)
 {
-    numReceived++;
-    if (packetRequested>0)
-    {
-        ASSERT(queue.empty());
-        packetRequested--;
-        send(msg, "out");
-    }
-    else if (frameCapacity && queue.length() >= frameCapacity)
+    if (frameCapacity && queue.length() >= frameCapacity)
     {
         ev << "Queue full, dropping packet.\n";
         delete msg;
-        numDropped++;
+        return true;
     }
     else
     {
         queue.insert(msg);
-    }
-
-    if (ev.isGUI())
-    {
-        char buf[40];
-        sprintf(buf, "rcvd: %d pks\ndropped: %d pks", numReceived, numDropped);
-        displayString().setTagArg("t",0,buf);
+        return false;
     }
 }
 
-void DropTailQueue::requestPacket()
+cMessage *DropTailQueue::dequeue()
 {
     if (queue.empty())
-    {
-        packetRequested++;
-    }
-    else
-    {
-        cMessage *msg = (cMessage *)queue.pop();
-        send(msg, "out");
-    }
+        return NULL;
+    return (cMessage *)queue.pop();
 }
-
 
 

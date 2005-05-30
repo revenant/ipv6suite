@@ -21,12 +21,12 @@
 #define __DROPTAILQUEUE_H__
 
 #include <omnetpp.h>
-#include "IPassiveQueue.h"
+#include "PassiveQueueBase.h"
 
 /**
  * Drop-tail queue. See NED for more info.
  */
-class DropTailQueue : public cSimpleModule, public IPassiveQueue
+class DropTailQueue : public PassiveQueueBase
 {
   protected:
     // configuration
@@ -34,23 +34,20 @@ class DropTailQueue : public cSimpleModule, public IPassiveQueue
 
     // state
     cQueue queue;
-    int packetRequested;
-
-    // statistics
-    int numReceived;
-    int numDropped;
 
   public:
-    Module_Class_Members(DropTailQueue, cSimpleModule, 0);
+    Module_Class_Members(DropTailQueue, PassiveQueueBase, 0);
     virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
 
     /**
-     * The queue should send a packet whenever this method is invoked.
-     * If the queue is currently empty, it should send a packet when
-     * when one becomes available.
+     * Redefined from PassiveQueueBase.
      */
-    virtual void requestPacket();
+    virtual bool enqueue(cMessage *msg);
+
+    /**
+     * Redefined from PassiveQueueBase.
+     */
+    virtual cMessage *dequeue();
 };
 
 #endif

@@ -1,0 +1,10 @@
+all: $(TARGET) INET
+	echo>.tstamp
+
+$(TARGET): $(OBJS) $(EXTRA_OBJS) $(EXT_DIR_TSTAMPS) Makefile
+	$(SHLIB_LD) -o $(TARGET) $(OBJS) $(EXTRA_OBJS) $(EXT_DIR_OBJS)
+
+INET: $(TARGET) Makefile
+	$(CXX) -o INET $(TARGET) $(OMNETPP_LIBS)
+
+

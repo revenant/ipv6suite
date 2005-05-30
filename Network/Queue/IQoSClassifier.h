@@ -36,7 +36,7 @@ class IQoSClassifier : public cPolymorphic
     /**
      * The method should return the priority (the index of subqueue)
      * for the given packet, a value between 0 and numQueues()-1
-     * (inclusive).
+     * (inclusive), with 0 representing the highest priority.
      */
     virtual int classifyPacket(cMessage *msg) = 0;
 };

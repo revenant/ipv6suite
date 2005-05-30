@@ -121,6 +121,13 @@ void EtherMAC::initialize()
     }
     WATCH(autoconfigInProgress);
 
+    // request first frame to send
+    if (inputQueue)
+    {
+        EV << "Requesting first frame from queue module\n";
+        inputQueue->requestPacket();
+    }
+
     // initialize state info
     transmitState = TX_IDLE_STATE;
     receiveState = RX_IDLE_STATE;
@@ -1035,17 +1042,20 @@ void EtherMAC::beginSendFrames()
         EV << "Transmit next frame in output queue, after IFG period\n";
         scheduleEndIFGPeriod();
     }
-    else if (inputQueue)
-    {
-        // tell queue module that we've become idle
-        EV << "Requesting another frame from queue module\n";
-        inputQueue->requestPacket();
-    }
     else
     {
-        // No more frames set transmitter to idle
-        EV << "No more frames to send, transmitter set to idle\n";
         transmitState = TX_IDLE_STATE;
+        if (inputQueue)
+        {
+            // tell queue module that we've become idle
+            EV << "Requesting another frame from queue module\n";
+            inputQueue->requestPacket();
+        }
+        else
+        {
+            // No more frames set transmitter to idle
+            EV << "No more frames to send, transmitter set to idle\n";
+        }
     }
 }
 

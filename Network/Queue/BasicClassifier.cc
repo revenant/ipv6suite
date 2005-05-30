@@ -18,22 +18,22 @@
 
 
 #include <omnetpp.h>
-#include "ExampleClassifier.h"
+#include "BasicClassifier.h"
 #include "IPDatagram.h"
 #ifdef WITH_IPv6
 #include "IPv6Datagram.h"
 #endif
 
-Register_Class(ExampleClassifier);
+Register_Class(BasicClassifier);
 
 #define BEST_EFFORT 1
 
-int ExampleClassifier::numQueues()
+int BasicClassifier::numQueues()
 {
     return 2;
 }
 
-int ExampleClassifier::classifyPacket(cMessage *msg)
+int BasicClassifier::classifyPacket(cMessage *msg)
 {
     if (dynamic_cast<IPDatagram *>(msg))
     {
@@ -55,7 +55,7 @@ int ExampleClassifier::classifyPacket(cMessage *msg)
     }
 }
 
-int ExampleClassifier::classifyByDSCP(int dscp)
+int BasicClassifier::classifyByDSCP(int dscp)
 {
     // DSCP is 6 bits, mask out all others
     dscp = (dscp & 0x3f);

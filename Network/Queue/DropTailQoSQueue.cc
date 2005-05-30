@@ -63,6 +63,7 @@ bool DropTailQoSQueue::enqueue(cMessage *msg)
 
 cMessage *DropTailQoSQueue::dequeue()
 {
+    // queue 0 is highest priority
     for (int i=0; i<numQueues; i++)
         if (!queues[i]->empty())
             return (cMessage *)queues[i]->pop();

@@ -17,17 +17,17 @@
 //
 
 
-#ifndef __EXAMPLECLASSIFIER_H__
-#define __EXAMPLECLASSIFIER_H__
+#ifndef __BASICCLASSIFIER_H__
+#define __BASICCLASSIFIER_H__
 
 #include "IQoSClassifier.h"
 
 /**
  * Just an example for packet classifiers, based on IPv4 DSCP/IPv6 Traffic
- * class. You'll probably need to implement others if your research interest 
+ * class. You'll probably need to implement others if your research interest
  * lies in QoS.
  */
-class ExampleClassifier : public IQoSClassifier
+class BasicClassifier : public IQoSClassifier
 {
     // internal: maps IPv4/IPv6 DiffServ Code Point to queue number
     virtual int classifyByDSCP(int dscp);

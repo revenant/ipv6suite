@@ -46,12 +46,12 @@ void EtherMAC::initialize()
 {
     queue.setName("queue");
 
-    // find inputQueue
-    inputQueue = NULL;
+    // find queueModule
+    queueModule = NULL;
     if (par("queueModule").stringValue()[0])
     {
-        cModule *inputQueueMod = parentModule()->submodule(par("queueModule").stringValue());
-        inputQueue = check_and_cast<IPassiveQueue *>(inputQueueMod);
+        cModule *mod = parentModule()->submodule(par("queueModule").stringValue());
+        queueModule = check_and_cast<IPassiveQueue *>(mod);
     }
 
     frameBeingReceived = NULL;
@@ -122,10 +122,10 @@ void EtherMAC::initialize()
     WATCH(autoconfigInProgress);
 
     // request first frame to send
-    if (inputQueue)
+    if (queueModule)
     {
         EV << "Requesting first frame from queue module\n";
-        inputQueue->requestPacket();
+        queueModule->requestPacket();
     }
 
     // initialize state info
@@ -1045,11 +1045,11 @@ void EtherMAC::beginSendFrames()
     else
     {
         transmitState = TX_IDLE_STATE;
-        if (inputQueue)
+        if (queueModule)
         {
             // tell queue module that we've become idle
             EV << "Requesting another frame from queue module\n";
-            inputQueue->requestPacket();
+            queueModule->requestPacket();
         }
         else
         {

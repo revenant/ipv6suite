@@ -54,12 +54,12 @@ void PPPModule::initialize(int stage)
     WATCH(numBitErr);
     WATCH(numDropped);
 
-    // find inputQueue
-    inputQueue = NULL;
+    // find queueModule
+    queueModule = NULL;
     if (par("queueModule").stringValue()[0])
     {
-        cModule *inputQueueMod = parentModule()->submodule(par("queueModule").stringValue());
-        inputQueue = check_and_cast<IPassiveQueue *>(inputQueueMod);
+        cModule *mod = parentModule()->submodule(par("queueModule").stringValue());
+        queueModule = check_and_cast<IPassiveQueue *>(mod);
     }
 
     // we're connected if other end of connection path is an input gate
@@ -98,10 +98,10 @@ void PPPModule::initialize(int stage)
     }
 
     // request first frame to send
-    if (inputQueue)
+    if (queueModule)
     {
         EV << "Requesting first frame from queue module\n";
-        inputQueue->requestPacket();
+        queueModule->requestPacket();
     }
 }
 
@@ -186,10 +186,10 @@ void PPPModule::handleMessage(cMessage *msg)
             startTransmitting(msg);
             numSent++;
         }
-        else if (inputQueue)
+        else if (queueModule)
         {
             // tell queue module that we've become idle
-            inputQueue->requestPacket();
+            queueModule->requestPacket();
         }
     }
     else if (msg->arrivedOn("physIn"))

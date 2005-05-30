@@ -116,7 +116,7 @@ class EtherMAC : public cSimpleModule
 
     // Other variables
     cQueue queue;    // Output queue
-    IPassiveQueue *inputQueue;
+    IPassiveQueue *queueModule;
     EtherFrame *frameBeingReceived;
     cMessage *endTxMsg, *endRxMsg, *endIFGMsg, *endBackoffMsg, *endJammingMsg, *endPauseMsg;
 

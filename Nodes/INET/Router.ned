@@ -21,8 +21,8 @@ import
     "Blackboard",
     "InterfaceTable",
     "RoutingTable",
-    "PPPInterface",
-    "EthernetInterface",
+    "PPPRouterInterface",
+    "EthernetRouterInterface",
     "NetworkLayer";
 
 
@@ -53,9 +53,9 @@ module Router
                 physIn[sizeof(out)+sizeof(ethOut)],
                 physOut[sizeof(out)+sizeof(ethOut)];
             display: "p=200,141;i=block/fork;q=queue";
-        ppp: PPPInterface[sizeof(out)];
+        ppp: PPPRouterInterface[sizeof(out)];
             display: "p=90,257,row,110;q=queue;i=block/ifcard";
-        eth: EthernetInterface[sizeof(ethOut)];
+        eth: EthernetRouterInterface[sizeof(ethOut)];
             display: "p=145,257,row,110;q=queue;i=block/ifcard";
     connections nocheck:
         // connections to network outside

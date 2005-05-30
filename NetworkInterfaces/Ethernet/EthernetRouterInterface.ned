@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005 Andras Varga
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,28 +17,36 @@
 //
 
 
+import
+    "EtherMAC",
+    "EtherEncap",
+    "OutputQueue";
 
 //
-// PPP interface.
+// Ethernet network interface. Corresponds to the prototype NetworkInterface.
 //
-// @see PPPRouterInterface
-//
-module PPPInterface
+module EthernetRouterInterface
+    parameters:
+        queueType: string;
     gates:
         in: physIn;
-        out: physOut;
         in: netwIn;
+        out: physOut;
         out: netwOut;
     submodules:
-        ppp: PPPModule;
-            parameters: 
-                queueModule = "";
-            display: "i=block/rxtx;p=80,80;q=queue";
+        queue: queueType like OutputQueue;
+            display: "i=block/queue;p=92,71;q=queue";
+        mac: EtherMAC;
+            display: "i=block/tx;p=116,231;q=queue";
+        encap: EtherEncap;
+            display: "i=block/square;p=116,151";
     connections:
-        netwIn --> ppp.netwIn display "m=n";
-        netwOut <-- ppp.netwOut display "m=n";
-        physIn --> ppp.physIn display "m=s";
-        physOut <-- ppp.physOut display "m=s";
+        netwIn --> queue.in;
+        queue.out --> encap.upperLayerIn;
+        netwOut <-- encap.upperLayerOut display "m=n";
+        encap.lowerLayerOut --> mac.upperLayerIn;
+        encap.lowerLayerIn <-- mac.upperLayerOut;
+        mac.physIn <-- physIn;
+        mac.physOut --> physOut;
 endmodule
-
 

@@ -40,7 +40,7 @@ class PPPModule : public cSimpleModule
 
     cQueue queue;
     cMessage *endTransmissionEvent;
-    IPassiveQueue *inputQueue;
+    IPassiveQueue *queueModule;
 
     InterfaceEntry *interfaceEntry;  // points into InterfaceTable
     double datarate;  // only cached for the display string

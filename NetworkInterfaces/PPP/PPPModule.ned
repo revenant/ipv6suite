@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005 Andras Varga
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,26 +19,28 @@
 
 
 //
-// PPP interface.
+// PPP implementation.
 //
-// @see PPPRouterInterface
+// Packets are encapsulated in PPPFrame. While one frame is transmitted,
+// additional frames get queued up in a buffer. Buffer capacity can be
+// configured. When the buffer is full, extra packets are discarded.
 //
-module PPPInterface
+// There is no buffering done on received packets -- they are just decapsulated
+// and sent up immediately.
+//
+// Note: PPP is a complex protocol with lots of effort on link configuration
+// and maintenance, but this implementation ignores these details.
+// This module only performs simple encapsulation/decapsulation and queuing.
+//
+simple PPPModule
+    parameters:
+        maxQueueLength: numeric,  // only used if queueModule==""; zero means infinite
+        queueModule: string;    // name of external (QoS,RED,etc) queue module
     gates:
         in: physIn;
         out: physOut;
         in: netwIn;
         out: netwOut;
-    submodules:
-        ppp: PPPModule;
-            parameters: 
-                queueModule = "";
-            display: "i=block/rxtx;p=80,80;q=queue";
-    connections:
-        netwIn --> ppp.netwIn display "m=n";
-        netwOut <-- ppp.netwOut display "m=n";
-        physIn --> ppp.physIn display "m=s";
-        physOut <-- ppp.physOut display "m=s";
-endmodule
+endsimple
 
 

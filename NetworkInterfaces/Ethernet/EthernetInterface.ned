@@ -30,9 +30,11 @@ module EthernetInterface
         out: physOut, netwOut;
     submodules:
         mac: EtherMAC;
-            display: "i=block/queue;p=100,240;q=queue";
+            parameters: 
+                queueModule = "";
+            display: "i=block/queue;p=100,160;q=queue";
         encap: EtherEncap;
-            display: "i=block/fork;p=100,160";
+            display: "i=block/square;p=100,80";
     connections:
         netwIn --> encap.upperLayerIn;
         netwOut <-- encap.upperLayerOut;

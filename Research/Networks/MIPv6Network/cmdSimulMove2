@@ -1,0 +1,1 @@
+../../../bin/INET -u Cmdenv -r 5 $*

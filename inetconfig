@@ -7,7 +7,7 @@
 #
 
 # include omnetppconfig from this directory
-ROOT=$(HOME)/IPv6SuiteWithINET
+ROOT=$(HOME)/oppsim/IPv6Suite/IPv6SuiteWithINET
 include $(ROOT)/omnetppconfig
 
 # FASTRS and FASTRA can be configured through XML. We are going to get rid of these

@@ -12,7 +12,7 @@ setting).
 LINUX (UNIX)
 
 1. Make sure you OMNeT++ installation works OK (e.g. try running the samples)
-   and it is in the path (try "which nedtool").
+   and it is in the path (to test, try the command "which nedtool").
 
 2. Change to the IPv6SuiteWithINET directory and edit the inetconfig file 
    to make sure it contains the right settings. You'll probably
@@ -23,13 +23,20 @@ LINUX (UNIX)
 
 4. Type "./makemake" to create the makefiles.
 
-5. Type "make" to build everything. That should be it.
+5. Type "make" to build everything. 
 
-6. If you add/remove files later, recreate the makefiles with "./makemake".
-   If you add/remove/rename directories, you'll need to modify "makemakefiles".
+6. Add IPv6SuiteWithINET/bin directory to the LD_LIBRARY_PATH.
+
+That should be it.
 
 Finally, try running the demo simulations. Change into Examples/ and type
 "./rundemo".
+
+Note:
+-----
+If you add/remove files later, recreate the makefiles with "./makemake".
+If you add/remove/rename directories, you'll need to modify "makemakefiles".
+
 
 
 WINDOWS

@@ -31,11 +31,11 @@ class IQoSClassifier : public cPolymorphic
     /**
      * Returns the largest value plus one classifyPacket() returns.
      */
-    virtual int maxCategory() = 0;
+    virtual int numQueues() = 0;
 
     /**
      * The method should return the priority (the index of subqueue)
-     * for the given packet, a value between 0 and maxCategory()-1
+     * for the given packet, a value between 0 and numQueues()-1
      * (inclusive).
      */
     virtual int classifyPacket(cMessage *msg) = 0;

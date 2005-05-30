@@ -17,42 +17,40 @@
 //
 
 
-#ifndef __DROPTAILQUEUE_H__
-#define __DROPTAILQUEUE_H__
+#ifndef __DROPTAILQOSQUEUE_H__
+#define __DROPTAILQOSQUEUE_H__
 
 #include <omnetpp.h>
-#include "IPassiveQueue.h"
+#include "PassiveQueueBase.h"
 #include "IQoSClassifier.h"
 
 /**
  * Drop-tail QoS queue. See NED for more info.
  */
-class DropTailQoSQueue : public cSimpleModule, public IPassiveQueue
+class DropTailQoSQueue : public PassiveQueueBase
 {
   protected:
     // configuration
     int frameCapacity;
 
     // state
-    cQueue *queues;
-    int packetRequested;
+    int numQueues;
+    cQueue **queues;
     IQoSClassifier *classifier;
 
-    // statistics
-    int numReceived;
-    int numDropped;
-
   public:
-    Module_Class_Members(DropTailQoSQueue, cSimpleModule, 0);
+    Module_Class_Members(DropTailQoSQueue, PassiveQueueBase, 0);
     virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
 
     /**
-     * The queue should send a packet whenever this method is invoked.
-     * If the queue is currently empty, it should send a packet when
-     * when one becomes available.
+     * Redefined from PassiveQueueBase.
      */
-    virtual void requestPacket();
+    virtual bool enqueue(cMessage *msg);
+
+    /**
+     * Redefined from PassiveQueueBase.
+     */
+    virtual cMessage *dequeue();
 };
 
 #endif

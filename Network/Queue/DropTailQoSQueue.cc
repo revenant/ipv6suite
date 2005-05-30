@@ -25,59 +25,48 @@ Define_Module(DropTailQoSQueue);
 
 void DropTailQoSQueue::initialize()
 {
+    PassiveQueueBase::initialize();
+
     // configuration
     frameCapacity = par("frameCapacity");
 
-    // state
-//    queue.setName("queue");
-    packetRequested = 0;
+    const char *classifierClass = par("classifierClass");
+    classifier = check_and_cast<IQoSClassifier *>(createOne(classifierClass));
 
-    // statistics
-    numReceived = 0;
-    numDropped = 0;
-    WATCH(numReceived);
-    WATCH(numDropped);
+    numQueues = classifier->numQueues();
+    queues = new cQueue *[numQueues];
+    for (int i=0; i<numQueues; i++)
+    {
+        char buf[32];
+        sprintf(buf, "queue-%d", i);
+        queues[i] = new cQueue(buf);
+    }
 }
 
-void DropTailQoSQueue::handleMessage(cMessage *msg)
+bool DropTailQoSQueue::enqueue(cMessage *msg)
 {
-    numReceived++;
-    if (packetRequested>0)
+    int queueIndex = classifier->classifyPacket(msg);
+    cQueue *queue = queues[queueIndex];
+
+    if (frameCapacity && queue->length() >= frameCapacity)
     {
-//        ASSERT(queue.empty());
-        packetRequested--;
-        send(msg, "out");
-    }
-//    else if (frameCapacity && queue.length() >= frameCapacity)
-    {
-        ev << "Queue full, dropping packet.\n";
+        ev << "Queue " << queueIndex << " full, dropping packet.\n";
         delete msg;
-        numDropped++;
+        return true;
     }
-//    else
+    else
     {
-//        queue.insert(msg);
-    }
-
-    if (ev.isGUI())
-    {
-        char buf[40];
-        sprintf(buf, "rcvd: %d pks\ndropped: %d pks", numReceived, numDropped);
-        displayString().setTagArg("t",0,buf);
+        queue->insert(msg);
+        return false;
     }
 }
 
-void DropTailQoSQueue::requestPacket()
+cMessage *DropTailQoSQueue::dequeue()
 {
-//    if (queue.empty())
-    {
-        packetRequested++;
-    }
-//    else
-    {
-//        cMessage *msg = (cMessage *)queue.pop();
-//        send(msg, "out");
-    }
+    for (int i=0; i<numQueues; i++)
+        if (!queues[i]->empty())
+            return (cMessage *)queues[i]->pop();
+    return NULL;
 }
 
 

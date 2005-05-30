@@ -79,7 +79,7 @@ all:
 
 	cd Network/Contract && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
 	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../ARP -I../../NetworkInterfaces/Contract
-	cd Network/Queue && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util
+	cd Network/Queue && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../IPv4 -I../IPv6
 	cd Network/IPv4d && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4 -I../../Base -I../../Util -I../Contract -I../ARP -I../../NetworkInterfaces/Contract
 	cd Network/ARP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../IPv4 -I../../NetworkInterfaces/Contract
 	cd Network/AutoRouting && $(MAKEMAKE) $(OPTS) -n -r -I../IPv4  -I../../Base -I../../Util -I../Contract -I../IPv6 -I../ICMPv6

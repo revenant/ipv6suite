@@ -42,6 +42,7 @@ int BasicClassifier::classifyPacket(cMessage *msg)
         int dscp = datagram->diffServCodePoint();
         return classifyByDSCP(dscp);
     }
+#ifdef WITH_IPv6
     else if (dynamic_cast<IPv6Datagram *>(msg))
     {
         // IPv6 QoS: map Traffic Class to queue number
@@ -49,6 +50,7 @@ int BasicClassifier::classifyPacket(cMessage *msg)
         int dscp = datagram->trafficClass();
         return classifyByDSCP(dscp);
     }
+#endif
     else
     {
         return BEST_EFFORT; // lowest priority ("best effort")

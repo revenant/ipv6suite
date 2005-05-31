@@ -343,6 +343,9 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
     // create a new entry bu does not exists in bc
     bc_entry* be = new bc_entry;
 
+    // initialise the count for number of handovers then increment later
+    be->handoverCount = 0;
+
     //Create a ctor for this
     be->home_addr = bu->ha();
     if (mod->earlyBindingUpdate())
@@ -370,7 +373,11 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   bce.lock()->buArrivalTime = mod->simTime();
 
   // Sathya - cell_resi_time = AVE(BU_arrive_time - prev_bu_time);
-  bce.lock()->avgCellResidenceTime = bce.lock()->buArrivalTime - bce.lock()->prevBUTime;
+  double totalUpTime = bce.lock()->avgCellResidenceTime * bce.lock()->handoverCount;
+  double prevCellResTime = bce.lock()->buArrivalTime - bce.lock()->prevBUTime;
+
+  bce.lock()->avgCellResidenceTime =  ( totalUpTime + prevCellResTime ) / 
+    (bce.lock()->handoverCount + 1);
 
   if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
   {
@@ -379,6 +386,7 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   }
 
   bce.lock()->prevBUTime = bce.lock()->buArrivalTime;
+  bce.lock()->handoverCount++;
 }
 
 ///Remove from binding cache

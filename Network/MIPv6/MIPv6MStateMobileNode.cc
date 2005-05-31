@@ -65,7 +65,7 @@ namespace MobileIPv6
 {
 
 const unsigned int INITIAL_SIGNALING_COUNT = 3;
-const simtime_t THRESHOLD = 20;
+const simtime_t CN_THRESHOLD = 5;
 
 class BURetranTmr;
 
@@ -930,17 +930,12 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     
     if(bce.lock()) // when CN is also mobile
     {
-      // We predict when MN is to change cell; therefore time for next
-      // handover to occur (signaling reading from L2) > avg(L3) +
-      // avg(previous historical rr + bu) delay with a particular CN +
-      // SAFETY THRESHOLD(say 5 second)
-      
-      // signaling reading from L2 - 
+      simtime_t elapsedTime = mob->simTime() - bce.lock()->buArrivalTime;
 
       // Since we can only obtain movement statistics such as binding
       // update time from CN, a THRESHOLD for the BU interval may be
       // the only approach available
-      if ( bce.lock()->avgCellResidenceTime > THRESHOLD )
+      if ( bce.lock()->avgCellResidenceTime - elapsedTime > CN_THRESHOLD )
         addrs[0] = bce.lock()->care_of_addr; // direct signaling
     }
     /*

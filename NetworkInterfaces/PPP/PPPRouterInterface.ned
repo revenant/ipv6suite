@@ -39,7 +39,7 @@ module PPPRouterInterface
             parameters:
                 queueModule = "queue",
                 maxQueueLength = 1; // queue sends one packet at a time
-            display: "i=block/rxtx;p=88,165";
+            display: "i=block/rxtx;p=88,165;q=txQueue";
     connections:
         netwIn --> queue.in display "m=n";
         queue.out --> ppp.netwIn;

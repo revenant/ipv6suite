@@ -38,7 +38,7 @@ class PPPModule : public cSimpleModule
     long maxQueueLength;
     cGate *gateToWatch;
 
-    cQueue queue;
+    cQueue txQueue;
     cMessage *endTransmissionEvent;
     IPassiveQueue *queueModule;
 

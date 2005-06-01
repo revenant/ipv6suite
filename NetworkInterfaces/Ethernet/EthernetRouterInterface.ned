@@ -40,7 +40,7 @@ module EthernetRouterInterface
             parameters:
                 queueModule = "queue",
                 maxQueueLength = 1; // queue sends one packet at a time
-            display: "i=block/tx;p=116,231;q=queue";
+            display: "i=block/rxtx;p=116,231;q=txQueue";
         encap: EtherEncap;
             display: "i=block/square;p=116,151";
     connections:

@@ -32,7 +32,7 @@ module EthernetInterface
         mac: EtherMAC;
             parameters: 
                 queueModule = "";
-            display: "i=block/queue;p=100,160;q=queue";
+            display: "i=block/rxtx;p=100,160;q=txQueue";
         encap: EtherEncap;
             display: "i=block/square;p=100,80";
     connections:

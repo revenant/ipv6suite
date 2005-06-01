@@ -41,7 +41,7 @@ void PPPModule::initialize(int stage)
     if (stage!=0)
         return;
 
-    queue.setName("queue");
+    txQueue.setName("txQueue");
     endTransmissionEvent = new cMessage("pppEndTxEvent");
 
     maxQueueLength = par("maxQueueLength");
@@ -180,9 +180,9 @@ void PPPModule::handleMessage(cMessage *msg)
         ev << "Transmission finished.\n";
         if (ev.isGUI()) displayIdle();
 
-        if (!queue.empty())
+        if (!txQueue.empty())
         {
-            msg = (cMessage *) queue.getTail();
+            msg = (cMessage *) txQueue.getTail();
             startTransmitting(msg);
             numSent++;
         }
@@ -215,9 +215,9 @@ void PPPModule::handleMessage(cMessage *msg)
         {
             // We are currently busy, so just queue up the packet.
             ev << "Received " << msg << " for transmission but transmitter busy, queueing.\n";
-            if (ev.isGUI() && queue.length()>=3) displayString().setTagArg("i",1,"red");
+            if (ev.isGUI() && txQueue.length()>=3) displayString().setTagArg("i",1,"red");
 
-            if (maxQueueLength && queue.length() >= maxQueueLength)
+            if (maxQueueLength && txQueue.length() >= maxQueueLength)
             {
                 ev << "Queue full, dropping packet.\n";
                 delete msg;
@@ -225,7 +225,7 @@ void PPPModule::handleMessage(cMessage *msg)
             }
             else
             {
-                queue.insert(msg);
+                txQueue.insert(msg);
             }
 
         }
@@ -245,7 +245,7 @@ void PPPModule::handleMessage(cMessage *msg)
 
 void PPPModule::displayBusy()
 {
-    displayString().setTagArg("i",1, queue.length()>=3 ? "red" : "yellow");
+    displayString().setTagArg("i",1, txQueue.length()>=3 ? "red" : "yellow");
     gateToWatch->displayString().setTagArg("o",0,"yellow");
     gateToWatch->displayString().setTagArg("o",1,"3");
     gate("physOut")->displayString().setTagArg("o",0,"yellow");

@@ -33,7 +33,7 @@ module PPPInterface
         ppp: PPPModule;
             parameters: 
                 queueModule = "";
-            display: "i=block/rxtx;p=80,80;q=queue";
+            display: "i=block/rxtx;p=80,80;q=txQueue";
     connections:
         netwIn --> ppp.netwIn display "m=n";
         netwOut <-- ppp.netwOut display "m=n";

@@ -72,7 +72,7 @@ class EtherMAC : public cSimpleModule
     /**
      * Public function to query output queue size.
      */
-    long queueLength() {return queue.length();}
+    long queueLength() {return txQueue.length();}
 
     /**
      * Returns MAC address
@@ -115,7 +115,7 @@ class EtherMAC : public cSimpleModule
     int  pauseUnitsRequested; // requested pause duration, or zero -- examined at endTx
 
     // Other variables
-    cQueue queue;    // Output queue
+    cQueue txQueue;    // Output queue
     IPassiveQueue *queueModule;
     EtherFrame *frameBeingReceived;
     cMessage *endTxMsg, *endRxMsg, *endIFGMsg, *endBackoffMsg, *endJammingMsg, *endPauseMsg;
@@ -129,7 +129,7 @@ class EtherMAC : public cSimpleModule
     unsigned long numBytesSent;        // includes Ethernet frame bytes with preamble
     unsigned long numBytesReceivedOK;  // includes Ethernet frame bytes with preamble
     unsigned long numFramesFromHL;     // packets received from higer layer (LLC or MACRelayUnit)
-    unsigned long numFramesFromHLDropped; // packets from higher layer dropped because queue was full
+    unsigned long numFramesFromHLDropped; // packets from higher layer dropped because txQueue was full
     unsigned long numDroppedBitError;  // frames dropped because of bit errors
     unsigned long numDroppedNotForUs;  // frames dropped because destination address didn't match
     unsigned long numFramesPassedToHL; // frames passed to higher layer

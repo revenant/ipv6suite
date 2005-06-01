@@ -37,6 +37,9 @@ module EthernetRouterInterface
         queue: queueType like OutputQueue;
             display: "i=block/queue;p=92,71;q=queue";
         mac: EtherMAC;
+            parameters:
+                queueModule = "queue",
+                maxQueueLength = 1; // queue sends one packet at a time
             display: "i=block/tx;p=116,231;q=queue";
         encap: EtherEncap;
             display: "i=block/square;p=116,151";

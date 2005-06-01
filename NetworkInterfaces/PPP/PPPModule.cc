@@ -110,9 +110,9 @@ InterfaceEntry *PPPModule::registerInterface(double datarate)
     InterfaceEntry *e = new InterfaceEntry();
 
     // interface name: our module name without special characters ([])
-    char *interfaceName = new char[strlen(fullName())+1];
+    char *interfaceName = new char[strlen(parentModule()->fullName())+1];
     char *d=interfaceName;
-    for (const char *s=fullName(); *s; s++)
+    for (const char *s=parentModule()->fullName(); *s; s++)
         if (isalnum(*s))
             *d++ = *s;
     *d = '\0';
@@ -123,7 +123,7 @@ InterfaceEntry *PPPModule::registerInterface(double datarate)
     e->_linkMod = this; // XXX remove _linkMod on the long term!! --AV
 
     // port: index of gate where our "netwIn" is connected (in IP)
-    int outputPort = gate("netwIn")->fromGate()->index();
+    int outputPort = parentModule()->gate("netwIn")->fromGate()->index();
     e->setOutputPort(outputPort);
 
     // generate a link-layer address to be used as interface token for IPv6

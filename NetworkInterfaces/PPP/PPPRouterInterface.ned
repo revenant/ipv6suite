@@ -36,6 +36,9 @@ module PPPRouterInterface
         queue: queueType like OutputQueue;
             display: "i=block/queue;p=60,85;q=queue";
         ppp: PPPModule;
+            parameters:
+                queueModule = "queue",
+                maxQueueLength = 1; // queue sends one packet at a time
             display: "i=block/rxtx;p=88,165";
     connections:
         netwIn --> queue.in display "m=n";

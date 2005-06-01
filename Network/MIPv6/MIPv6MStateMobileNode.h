@@ -54,6 +54,7 @@ namespace MobileIPv6
 // information before computations
 extern const unsigned int INITIAL_SIGNALING_COUNT;  
 extern const simtime_t  CN_THRESHOLD;
+extern const simtime_t  MN_THRESHOLD;
 
 class BURetranTmr;
 

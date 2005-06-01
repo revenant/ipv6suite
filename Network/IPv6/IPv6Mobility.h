@@ -146,6 +146,9 @@ public:
 
   // parameters for cell resdiency signaling
   simtime_t handoverDelay;
+  simtime_t prevLinkUpTime; // Internet link up
+  simtime_t avgCellResidenceTime;
+  int handoverCount;
 
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
 

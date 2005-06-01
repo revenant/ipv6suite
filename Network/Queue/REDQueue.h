@@ -25,6 +25,7 @@
 
 /**
  * RED queue. See NED for more info.
+ * FIXME TBD!
  */
 class REDQueue : public PassiveQueueBase
 {

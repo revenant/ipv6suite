@@ -90,8 +90,8 @@ all:
 
 	cd NetworkInterfaces/PPP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4 -I../../Network/Contract
 	cd NetworkInterfaces/Contract && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4
-	cd NetworkInterfaces/Ethernet && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../../Network/Contract -I../../Network/IPv4
-	: #cd NetworkInterfaces/ARP && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../../Network/IPv4 -I../../Network/Contract -I../Contract -I../Ethernet
+	cd NetworkInterfaces/Ethernet && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../../Network/Contract
+	cd NetworkInterfaces/EtherSwitch && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../Ethernet -I../../Network/Contract
 
 	cd Nodes/INET && $(MAKEMAKE) $(OPTS) -n -r $(ALL_INET_INCLUDES)
 	cd Nodes/MPLS && $(MAKEMAKE) $(OPTS) -n -r $(ALL_INET_INCLUDES) $(ALL_MPLS_INCLUDES)

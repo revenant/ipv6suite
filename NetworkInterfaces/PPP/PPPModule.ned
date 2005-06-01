@@ -21,16 +21,26 @@
 //
 // PPP implementation.
 //
-// Packets are encapsulated in PPPFrame. While one frame is transmitted,
-// additional frames get queued up in a buffer. Buffer capacity can be
-// configured. When the buffer is full, extra packets are discarded.
+// Packets are encapsulated in PPPFrame.
+//
+// PPP is a complex protocol with strong support for link configuration
+// and maintenance. This model ignores those details, and only performs
+// simple encapsulation/decapsulation and queuing.
+//
+// In routers, PPPModule relies on an external queue module (see OutputQueue)
+// to model finite buffer, implement QoS and/or RED, and requests packets
+// from this external queue one-by-one.
+//
+// In hosts, no such queue is used, so PPPModule contains an internal
+// queue named txQueue to queue up packets waiting for transmission.
+// Conceptually, txQueue is of infinite size, but for better diagnostics
+// one can specify a hard limit in the txQueueLimit parameter -- if this is
+// exceeded, the simulation stops with an error.
 //
 // There is no buffering done on received packets -- they are just decapsulated
 // and sent up immediately.
 //
-// Note: PPP is a complex protocol with lots of effort on link configuration
-// and maintenance, but this implementation ignores these details.
-// This module only performs simple encapsulation/decapsulation and queuing.
+// @see PPPInterface, PPPRouterInterface, OutputQueue, PPPFrame
 //
 simple PPPModule
     parameters:

@@ -35,6 +35,8 @@ class DropTailQueue : public PassiveQueueBase
     // state
     cQueue queue;
 
+    // FIXME TBD add statistics, queue length output vector etc
+
   public:
     Module_Class_Members(DropTailQueue, PassiveQueueBase, 0);
     virtual void initialize();

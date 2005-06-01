@@ -26,6 +26,8 @@
 // send a packet whenever the L2 module asks for one by calling the
 // requestPacket() method.
 //
+// @see DropTailQueue, DropTailQoSQueue, REDQueue
+//
 simple OutputQueue
     gates:
         in: in;

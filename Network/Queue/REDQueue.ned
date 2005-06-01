@@ -20,6 +20,8 @@
 //
 // RED queue, to be used in network interfaces
 //
+// FIXME to be completed
+//
 simple REDQueue
     parameters:
         frameCapacity: numeric const;

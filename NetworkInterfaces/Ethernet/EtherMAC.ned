@@ -86,6 +86,20 @@
 // it receives. It is currently not supported to dynamically connect/disconnect
 // an EtherMAC.
 //
+//
+// <b>Queueing</b>
+//
+// In routers, EtherMAC relies on an external queue module (see OutputQueue)
+// to model finite buffer, implement QoS and/or RED, and requests packets
+// from this external queue one-by-one.
+//
+// In hosts, no such queue is used, so EtherMAC contains an internal
+// queue named txQueue to queue up packets waiting for transmission.
+// Conceptually, txQueue is of infinite size, but for better diagnostics
+// one can specify a hard limit in the txQueueLimit parameter -- if this is 
+// exceeded, the simulation stops with an error.
+//
+//
 // <b>Physical layer messaging</b>
 //
 // Please see <a href="physical.html">Messaging on the physical layer</a>.
@@ -99,7 +113,7 @@
 // - bytesReceivedOK: total bytes received, including Ethernet frame fields
 //   (but excluding preamble and SFD), including discarded frames (see also
 //   framesPassedToHL)
-// - droppedQueueFull: number of frames from higher layer dropped
+// - droppedIfaceDown: number of frames from higher layer dropped
 // - droppedBitError: number of frames dropped because of bit errors
 // - droppedNotForUs: number of frames dropped because destination address didn't match
 // - framesPassedToHL: number of frames actually passed up to higher layer
@@ -110,6 +124,9 @@
 //
 // Output scalars (written in the finish() function) include the final values of
 // the above variables and throughput.
+//
+// @see EthernetInterface, EthernetRouterInterface, OutputQueue, EtherEncap, EtherLLC
+// @see EtherFrame, EthernetIIFrame, EtherFrameWithLLC, Ieee802Ctrl, EtherCtrl
 //
 simple EtherMAC
     parameters:

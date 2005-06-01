@@ -84,7 +84,7 @@ void EtherMAC::initialize()
         myaddress.setAddress(addrstr);
     }
     promiscuous = par("promiscuous");
-    maxQueueLength = par("maxQueueLength");
+    txQueueLimit = par("txQueueLimit");
 
     // check: datarate is forbidden with EtherMAC -- module's txrate must be used
     cGate *g = gate("physOut");
@@ -150,7 +150,7 @@ void EtherMAC::initialize()
     totalSuccessfulRxTxTime = 0.0;
     numFramesSent = numFramesReceivedOK = numBytesSent = numBytesReceivedOK = 0;
     numFramesPassedToHL = numDroppedBitError = numDroppedNotForUs = 0;
-    numFramesFromHL = numFramesFromHLDropped = 0;
+    numFramesFromHL = numDroppedIfaceDown = 0;
     numPauseFramesRcvd = numPauseFramesSent = numCollisions = numBackoffs = 0;
 
     WATCH(numFramesSent);
@@ -158,7 +158,7 @@ void EtherMAC::initialize()
     WATCH(numBytesSent);
     WATCH(numBytesReceivedOK);
     WATCH(numFramesFromHL);
-    WATCH(numFramesFromHLDropped);
+    WATCH(numDroppedIfaceDown);
     WATCH(numDroppedBitError);
     WATCH(numDroppedNotForUs);
     WATCH(numFramesPassedToHL);
@@ -171,7 +171,7 @@ void EtherMAC::initialize()
     numFramesReceivedOKVector.setName("framesReceivedOK");
     numBytesSentVector.setName("bytesSent");
     numBytesReceivedOKVector.setName("bytesReceivedOK");
-    numFramesFromHLDroppedVector.setName("framesFromHLDropped");
+    numDroppedIfaceDownVector.setName("framesDroppedIfaceDown");
     numDroppedBitErrorVector.setName("framesDroppedBitError");
     numDroppedNotForUsVector.setName("framesDroppedNotForUs");
     numFramesPassedToHLVector.setName("framesPassedToHL");
@@ -423,14 +423,11 @@ void EtherMAC::processFrameFromUpperLayer(EtherFrame *frame)
     {
         numFramesFromHL++;
 
-        if (txQueue.length()>=maxQueueLength)
-        {
-            EV << "Packet " << frame << " arrived from higher layers but queue full, dropping\n";
-            numFramesFromHLDropped++;
-            numFramesFromHLDroppedVector.record(numFramesFromHLDropped);
-            delete frame;
-            return;
-        }
+        if (txQueueLimit && txQueue.length()>txQueueLimit)
+            error("txQueue length exceeds %d -- this is probably due to "
+                  "a bogus app model generating excessive traffic "
+                  "(or if this is normal, increase txQueueLimit!)",
+                  txQueueLimit);
 
         // fill in src address if not set
         if (frame->getSrc().isEmpty())
@@ -1076,7 +1073,7 @@ void EtherMAC::finish()
         recordScalar("bytes sent",     numBytesSent);
         recordScalar("bytes rcvd",     numBytesReceivedOK);
         recordScalar("frames from higher layer", numFramesFromHL);
-        recordScalar("frames from higher layer dropped (queue full)", numFramesFromHLDropped);
+        recordScalar("frames from higher layer dropped (iface down)", numDroppedIfaceDown);
         recordScalar("frames dropped (bit error)",  numDroppedBitError);
         recordScalar("frames dropped (not for us)", numDroppedNotForUs);
         recordScalar("frames passed up to HL", numFramesPassedToHL);

@@ -44,15 +44,15 @@ void PPPModule::initialize(int stage)
     txQueue.setName("txQueue");
     endTransmissionEvent = new cMessage("pppEndTxEvent");
 
-    maxQueueLength = par("maxQueueLength");
+    txQueueLimit = par("txQueueLimit");
 
     interfaceEntry = NULL;
 
-    numSent = numRcvdOK = numBitErr = numDropped = 0;
+    numSent = numRcvdOK = numBitErr = numDroppedIfaceDown = 0;
     WATCH(numSent);
     WATCH(numRcvdOK);
     WATCH(numBitErr);
-    WATCH(numDropped);
+    WATCH(numDroppedIfaceDown);
 
     // find queueModule
     queueModule = NULL;
@@ -172,7 +172,7 @@ void PPPModule::handleMessage(cMessage *msg)
     {
         ev << "Interface is not connected, dropping packet " << msg << endl;
         delete msg;
-        numDropped++;
+        numDroppedIfaceDown++;
     }
     else if (msg==endTransmissionEvent)
     {
@@ -217,17 +217,13 @@ void PPPModule::handleMessage(cMessage *msg)
             ev << "Received " << msg << " for transmission but transmitter busy, queueing.\n";
             if (ev.isGUI() && txQueue.length()>=3) displayString().setTagArg("i",1,"red");
 
-            if (maxQueueLength && txQueue.length() >= maxQueueLength)
-            {
-                ev << "Queue full, dropping packet.\n";
-                delete msg;
-                numDropped++;
-            }
-            else
-            {
-                txQueue.insert(msg);
-            }
+            if (txQueueLimit && txQueue.length()>txQueueLimit)
+                error("txQueue length exceeds %d -- this is probably due to "
+                      "a bogus app model generating excessive traffic "
+                      "(or if this is normal, increase txQueueLimit!)",
+                      txQueueLimit);
 
+            txQueue.insert(msg);
         }
         else
         {
@@ -283,14 +279,14 @@ void PPPModule::updateDisplayString()
 */
         sprintf(buf, "%s\nrcv:%ld snt:%ld", drate, numRcvdOK, numSent);
 
-        if (numBitErr>0 || numDropped>0)
-            sprintf(buf+strlen(buf), "\nerr:%ld drop:%ld", numBitErr, numDropped);
+        if (numBitErr>0)
+            sprintf(buf+strlen(buf), "\nerr:%ld", numBitErr);
 
         displayString().setTagArg("t",0,buf);
     }
     else
     {
-        sprintf(buf, "not connected\ndropped:%ld", numDropped);
+        sprintf(buf, "not connected\ndropped:%ld", numDroppedIfaceDown);
         displayString().setTagArg("t",0,buf);
     }
 }

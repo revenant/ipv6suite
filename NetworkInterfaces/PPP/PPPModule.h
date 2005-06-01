@@ -35,7 +35,7 @@ class PPPModule : public cSimpleModule
   protected:
     bool connected;
 
-    long maxQueueLength;
+    long txQueueLimit;
     cGate *gateToWatch;
 
     cQueue txQueue;
@@ -49,7 +49,7 @@ class PPPModule : public cSimpleModule
     long numSent;
     long numRcvdOK;
     long numBitErr;
-    long numDropped;
+    long numDroppedIfaceDown;
 
     InterfaceEntry *registerInterface(double datarate);
     void startTransmitting(cMessage *msg);

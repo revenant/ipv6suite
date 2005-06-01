@@ -39,7 +39,7 @@ module EthernetRouterInterface
         mac: EtherMAC;
             parameters:
                 queueModule = "queue",
-                maxQueueLength = 1; // queue sends one packet at a time
+                txQueueLimit = 1; // queue sends one packet at a time
             display: "i=block/rxtx;p=116,231;q=txQueue";
         encap: EtherEncap;
             display: "i=block/square;p=116,151";

@@ -90,7 +90,7 @@ class EtherMAC : public cSimpleModule
     bool duplexMode;        // channel connecting to MAC is full duplex, i.e. like a switch with 2 half-duplex lines
     bool carrierExtension;  // carrier extension on/off (Gigabit Ethernet)
     bool frameBursting;     // frame bursting on/off (Gigabit Ethernet)
-    int maxQueueLength;       // max queue length
+    int txQueueLimit;       // max queue length
 
     // MAC transmission characteristics
     double txrate;          // transmission rate of MAC, bit/s
@@ -129,7 +129,7 @@ class EtherMAC : public cSimpleModule
     unsigned long numBytesSent;        // includes Ethernet frame bytes with preamble
     unsigned long numBytesReceivedOK;  // includes Ethernet frame bytes with preamble
     unsigned long numFramesFromHL;     // packets received from higer layer (LLC or MACRelayUnit)
-    unsigned long numFramesFromHLDropped; // packets from higher layer dropped because txQueue was full
+    unsigned long numDroppedIfaceDown; // packets from higher layer dropped because interface down (TBD not impl yet)
     unsigned long numDroppedBitError;  // frames dropped because of bit errors
     unsigned long numDroppedNotForUs;  // frames dropped because destination address didn't match
     unsigned long numFramesPassedToHL; // frames passed to higher layer
@@ -141,7 +141,7 @@ class EtherMAC : public cSimpleModule
     cOutVector numFramesReceivedOKVector;
     cOutVector numBytesSentVector;
     cOutVector numBytesReceivedOKVector;
-    cOutVector numFramesFromHLDroppedVector;
+    cOutVector numDroppedIfaceDownVector;
     cOutVector numDroppedBitErrorVector;
     cOutVector numDroppedNotForUsVector;
     cOutVector numFramesPassedToHLVector;

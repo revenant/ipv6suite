@@ -34,7 +34,7 @@
 //
 simple PPPModule
     parameters:
-        maxQueueLength: numeric,  // only used if queueModule==""; zero means infinite
+        txQueueLimit: numeric,  // only used if queueModule==""; zero means infinite
         queueModule: string;    // name of external (QoS,RED,etc) queue module
     gates:
         in: physIn;

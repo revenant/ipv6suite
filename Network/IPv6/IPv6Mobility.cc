@@ -45,6 +45,9 @@
 #include "MIPv6Timers.h"
 #include "MIPv6MobilityState.h"
 #include "MIPv6MStateMobileNode.h"
+
+#include "WirelessEtherModule.h" // for linklayer trigger enum values
+
 #ifndef __MIPv6ENTRY_H__
 #include "MIPv6Entry.h"
 #endif // __MIPv6ENTRY_H__
@@ -178,6 +181,15 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 #ifdef USE_MOBILITY
   if (!msg->isSelfMessage())
   {
+    if ( msg->arrivedOn("l2TriggerIn") )
+    {
+      if ( msg->kind() == LinkDOWN)
+      {
+      }
+      delete msg;
+      return;
+    }
+
     IPv6Datagram* dgram = static_cast<IPv6Datagram*>(msg);
     //assert(_MobilityState);
     //bool success = _MobilityState->nextState(dgram, this);

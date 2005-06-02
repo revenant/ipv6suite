@@ -31,6 +31,7 @@ simple IPv6Mobility
        parameters:
        gates:
        in: localDeliverIn;
+       in: l2TriggerIn;
        in: NDiscDIn;
        out: routingOut;
        out: NDiscDOut;

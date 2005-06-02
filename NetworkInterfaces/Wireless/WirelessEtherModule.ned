@@ -47,6 +47,7 @@ simple WirelessEtherModule
         recordStatisticVector: bool,
         activeScan: bool,
         linkUpTrigger: bool,
+        linkDownTrigger: bool,
         channelScanTime: numeric,
 	bufferSize: numeric,
 	registerInterface: bool;

@@ -243,14 +243,15 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       {
         mod->totalDisconnectedTime += mod->simTime()-mod->linkdownTime;
 
-	cMessage* linkUpTimeMsg = new cMessage;
-	linkUpTimeMsg->setTimestamp();
-	mod->sendDirect(linkUpTimeMsg, 
-			0, 
-			OPP_Global::findModuleByName(mod, "routingTable6"), 
-			"recordSimTime");
+        // XXX: SENDIRECT TO MOBILITY INSTEAD OF ROUTING
+        cMessage* linkUpTimeMsg = new cMessage;
+        linkUpTimeMsg->setTimestamp();
+        mod->sendDirect(linkUpTimeMsg, 
+                        0, 
+                        OPP_Global::findModuleByName(mod, "routingTable6"), 
+                        "recordSimTime");
 
-	mod->linkdownTime = 0;
+        mod->linkdownTime = 0;
       }
 /* XXX maybe something like this would be useful:
       mod->bubble("Handover completed!");

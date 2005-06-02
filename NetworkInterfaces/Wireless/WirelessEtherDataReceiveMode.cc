@@ -30,6 +30,8 @@
 #include <iomanip>
 #include <omnetpp.h>
 
+#include "opp_utils.h"
+
 #include "WirelessEtherDataReceiveMode.h"
 #include "cTTimerMessageCB.h"
 #include "WirelessEtherState.h"
@@ -325,6 +327,19 @@ void WEDataReceiveMode::handleData(WirelessEtherModule* mod, WESignalData* signa
     {
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << " Active scan due to data threshold too low.");
       mod->restartScanning();
+
+      // link down trigger
+      if ( mod->linkDownTrigger() )
+      {
+        cMessage* linkDownTrigger = new cMessage;
+        linkDownTrigger->setKind(LinkDOWN);
+        linkDownTrigger->setTimestamp();
+        mod->sendDirect(linkDownTrigger, 
+                        0, 
+                        OPP_Global::findModuleByName(mod, "mobility"), 
+                        "l2TriggerIn");
+      }
+
       mod->linkdownTime = mod->simTime();
     }
   }
@@ -362,6 +377,19 @@ void WEDataReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* sig
     {
       Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << " Active scan due to beacon threshold too low ");
       mod->restartScanning();
+
+      // link down trigger
+      if ( mod->linkDownTrigger() )
+      {
+        cMessage* linkDownTrigger = new cMessage;
+        linkDownTrigger->setKind(LinkDOWN);
+        linkDownTrigger->setTimestamp();
+        mod->sendDirect(linkDownTrigger, 
+                        0, 
+                        OPP_Global::findModuleByName(mod, "mobility"), 
+                        "l2TriggerIn");
+      }
+
       mod->linkdownTime = mod->simTime();
     }
   } // endif

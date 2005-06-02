@@ -186,6 +186,7 @@ void WirelessEtherModule::initialize(int stage)
   if (stage == 0)
   {
     _linkUpTrigger = false;
+    _linkDownTrigger = false;
     linkdownTime = 0;
     totalDisconnectedTime = 0;
 
@@ -221,7 +222,10 @@ void WirelessEtherModule::initialize(int stage)
   else if (stage == 1)
   {
     if (!apMode)
+    {
       _linkUpTrigger = par("linkUpTrigger");
+      _linkDownTrigger = par("linkDownTrigger");
+    }
 
     // list to store signal strength readings
     signalStrength = new AveragingList(sSMaxSample);

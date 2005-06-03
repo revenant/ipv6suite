@@ -1,3 +1,5 @@
+LDFLAGS+= -Wl,-export-dynamic
+
 #
 # incompatible with Windows
 #

@@ -1,7 +1,10 @@
-all: $(TARGET) INET
-	echo>.tstamp
-
-INET: $(TARGET) Makefile
-	$(CXX) -o INET $(TARGET) $(OMNETPP_LIBS)
-
+#
+# incompatible with Windows
+#
+#all: $(TARGET) INET
+#	echo>.tstamp
+#
+#INET: $(TARGET) Makefile
+#	$(CXX) -o INET $(TARGET) $(OMNETPP_LIBS)
+#
 

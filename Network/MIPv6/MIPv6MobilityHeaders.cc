@@ -187,6 +187,7 @@ MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg,
 #ifdef USE_HMIP
                                            , bool map
 #endif
+                                           , bool cellSignaling
                                            ,cModule* senderMod)
   : MIPv6MobilityHeaderBase(MIPv6MHT_BU, 24),
     _ack(ack), _homereg(homereg), _saonly(saonly), _dad(dad),
@@ -194,6 +195,7 @@ MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg,
 #ifdef USE_HMIP
     ,_map(map)
 #endif
+    , _cellSignaling(cellSignaling)
     ,_senderMod(senderMod)
 {
     setName("BU");
@@ -223,6 +225,7 @@ operator=(const MIPv6MHBindingUpdate& rhs)
 #ifdef USE_HMIP
     _map = rhs._map;
 #endif //USE_HMIP
+    _cellSignaling = rhs._cellSignaling;
     _senderMod = rhs._senderMod;
   }
 

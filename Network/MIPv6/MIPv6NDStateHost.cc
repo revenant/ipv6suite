@@ -1082,7 +1082,13 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         sendBU(coa);
 
         if ( mob->signalingEnhance() == CellResidency )
-          mob->handoverDelay = nd->simTime() - rt->getLinkUpTime();
+        {
+          if ( mob->linkDownTime )
+          {
+            mob->handoverDelay = nd->simTime() - mob->linkDownTime;
+            mob->linkDownTime = 0;
+          }
+        }
 
         if ( rt->isEwuOutVectorHODelays() )
         {

@@ -107,8 +107,11 @@ void IPv6Mobility::initialize(int stage)
     _MobilityState = 0;
     periodTmr = 0;
 #ifdef USE_MOBILITY
-
+    linkDownTime = 0;
     handoverDelay = 0;
+    prevLinkUpTime = 0; 
+    avgCellResidenceTime = 0;
+    handoverCount = 0;
 
 #if EDGEHANDOVER
     ehCallback = 0;
@@ -183,9 +186,7 @@ void IPv6Mobility::handleMessage(cMessage* msg)
   {
     if ( msg->arrivedOn("l2TriggerIn") )
     {
-      if ( msg->kind() == LinkDOWN)
-      {
-      }
+      processLinkLayerTrigger(msg);
       delete msg;
       return;
     }
@@ -273,6 +274,26 @@ void IPv6Mobility::parseXMLAttributes()
   }
 #endif
 
+}
+
+void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
+{
+  if ( msg->kind() == LinkDOWN)
+  {
+    // record MN's own handover delay
+    if ( !prevLinkUpTime )
+      return;    
+
+    double totalLinkUpTime = avgCellResidenceTime * handoverCount;
+    double prevCellResidenceTime = msg->timestamp() - prevLinkUpTime;
+    avgCellResidenceTime = ( totalLinkUpTime + prevCellResidenceTime ) / 
+      ( handoverCount + 1);
+    
+    prevLinkUpTime = 0;
+
+    // record link down time
+    linkDownTime = simTime();
+  }
 }
 
 #endif // USE_MOBILITY

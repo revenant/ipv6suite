@@ -148,6 +148,7 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
 #ifdef USE_HMIP
                        , bool map = false
 #endif
+                       , bool cellSignaling = false
                        ,cModule* senderMod = 0);
   MIPv6MHBindingUpdate(const MIPv6MHBindingUpdate& src);
   virtual ~MIPv6MHBindingUpdate(void);
@@ -161,6 +162,7 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
 
   virtual bool addMPar(MIPv6MHParameterBase* param);
 
+  bool cellSignaling(void) const  { return _cellSignaling; }
   bool ack(void) const  { return _ack; }
   bool homereg(void) const  { return _homereg; }
   bool saonly(void) const  { return _saonly; }
@@ -184,7 +186,7 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
   // ...
 
  private:
-  bool _ack, _homereg, _saonly, _dad;
+  bool _ack, _homereg, _saonly, _dad, _cellSignaling;
   unsigned int _seq;
   unsigned int _expires;
   ipv6_addr _ha; // home address

@@ -460,11 +460,15 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
     bue->state = 0;
 
-    if ( mob->rt->isEwuOutVectorHODelays() && bue->homeReg() )
+    if ( bue->homeReg() )
     {
-      assert( dgram->timestamp() );
+      mob->prevLinkUpTime = mob->simTime();
 
-      bue->regDelay->record(mob->simTime() - dgram->timestamp() );
+      if ( mob->rt->isEwuOutVectorHODelays() )
+      {
+        assert( dgram->timestamp() ); 
+        bue->regDelay->record(mob->simTime() - dgram->timestamp() );
+      }
     }
 
     if (ba->lifetime() < bue->lifetime())
@@ -1394,11 +1398,26 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   }
 
+  // When cell residency signaling is enabled, send handover duration
+  // information to the peer
+
+  bool useCellSignaling = false;
+  if (mob->signalingEnhance() == CellResidency )
+  {
+    useCellSignaling = true;
+
+    // add handover delay option
+    
+  }
+
+
   BU* bu = new BU(ack, homeReg, saonly, dad, seq, lifetime, hoa
 #ifdef USE_HMIP
                   , mapReg
 #endif //USE_HMIP
+                  , useCellSignaling
                   ,mob);
+
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);

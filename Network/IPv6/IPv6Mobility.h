@@ -146,6 +146,7 @@ public:
 
   // parameters for cell resdiency signaling
   simtime_t handoverDelay;
+  simtime_t linkDownTime;
   simtime_t prevLinkUpTime; // Internet link up
   simtime_t avgCellResidenceTime;
   int handoverCount;
@@ -206,6 +207,7 @@ private:
   IPv6Mobility(const IPv6Mobility& src);
   IPv6Mobility& operator=(IPv6Mobility& src);
 
+  void processLinkLayerTrigger(cMessage* msg);
 private:
   InterfaceTable *ift;
   RoutingTable6 *rt;

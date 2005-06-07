@@ -180,11 +180,6 @@ class MIPv6MHBindingUpdate : public MIPv6MobilityHeaderBase
 
   cModule* senderModule(void) const { return _senderMod; }
 
-  // I don't know if I should create functions to explicitely set all
-  // of BU's attributes yet so I leave it blank for the moment being
-
-  // ...
-
  private:
   bool _ack, _homereg, _saonly, _dad, _cellSignaling;
   unsigned int _seq;

@@ -89,37 +89,4 @@ namespace MobileIPv6
 
 };
 
-//Duplicated class !!!
-// namespace MobileIPv6
-// {
-
-// class MIPv6TLVOptHomeAddress : public IPv6TLVOptionBase
-// {
-//  public:
-//   MIPv6TLVOptHomeAddress(const ipv6_addr& _homeAddress = IPv6_ADDR_UNSPECIFIED);
-
-//   virtual ~MIPv6TLVOptHomeAddress();
-
-//   virtual MIPv6TLVOptHomeAddress* dup(void) const
-//     {
-//       return new MIPv6TLVOptHomeAddress(*this);
-//     }
-
-//   virtual bool processOption(cSimpleModule* mod, IPv6Datagram* pdu);
-
-//   void setHomeAddr(const ipv6_addr& addr)
-//     {
-//       _homeAddress = addr;
-//     }
-
-//   const ipv6_addr& homeAddr(void) { return _homeAddress; }
-
-//  private:
-//   ipv6_addr _homeAddress;
-// };
-
-// // TODO: Pad1 and PadN declare here ...
-
-// }
-
 #endif // __MIPv6DESTOPTMESSAGES_H__

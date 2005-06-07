@@ -26,18 +26,17 @@
 #ifndef __MIPv6MESSAGEBASE_H__
 #define __MIPv6MESSAGEBASE_H__
 
-#include <list>
 #include <vector>
 #include <omnetpp.h>
 
 #include "IPv6Datagram.h"
 #include "HdrExtProc.h"
+#include "MIPv6MobilityOptions_m.h"
 
 using namespace std;
 
 namespace MobileIPv6
 {
-
 class MIPv6MobilityHeaderBase;
 class MIPv6MHParameterBase;
 class MIPv6DestOptionBase;
@@ -141,20 +140,19 @@ class MIPv6MobilityHeaderBase : public cMessage
       return 0;
     }
 
-  // TODO: add parameter
-//  void addParameter(MIPv6MHParameterBase* parameter)
-//    {}
+  void addMobilityOption(MobilityOptionBase* op)
+    {
+      mobilityOptions.push_back(op);
+    }
 
-  // return physical length in unit of octets of packet that is from real data
-//  size_t physicalLen(void) const { return _physicalLen; }
+  MobilityOptionBase* mobilityOption(int t) const
+    {
+      for ( size_t i = 0; i < mobilityOptions.size(); i++)
+        if ( mobilityOptions[i]->optType() == t )
+          return mobilityOptions[i];
 
-  // set the physical length by calculating the length of packet that is
-  // from real data in unit of octets
-//  void setPhysicalLen(size_t l) { _physicalLen = l; }
-
-  // return phyical length in unit of 8 octets of packet that is from
-  // real data
-//  size_t physicalLenInOctet(void) const { return _physicalLen / 8; }
+      return 0;
+    }
 
  protected:
   MIPv6MobilityHeaderBase(MIPv6MobilityHeaderType headertype = MIPv6MHT_NONE,
@@ -169,6 +167,11 @@ class MIPv6MobilityHeaderBase : public cMessage
 
   // mobility header parameters
   Parameters _parameters;
+
+  // mobility options ARE mobility header parameters in the old
+  // draft. no time to move to MIPv6MobilityOptions.msg If someone can
+  // do it, that would be great!
+  std::vector<MobilityOptionBase*> mobilityOptions;
 
 // private:
 //  // actual length calculated from real data

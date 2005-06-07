@@ -388,8 +388,6 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   // must need cell residency signaling support from both MN and CN
   if ( mod->signalingEnhance() == CellResidency && bu->cellSignaling() )
   {
-    __asm int 3;
-
     double totalHandoverTime = bce.lock()->avgHandoverDelay * bce.lock()->handoverCount;      
 
     bce.lock()->avgHandoverDelay = ( totalHandoverTime +

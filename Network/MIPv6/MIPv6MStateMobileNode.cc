@@ -938,10 +938,19 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     {
       simtime_t elapsedTime = mob->simTime() - bce.lock()->buArrivalTime;
 
-      // Since we can only obtain movement statistics such as binding
-      // update time from CN, a THRESHOLD for the BU interval may be
-      // the only approach available
-      if ( bce.lock()->avgCellResidenceTime - elapsedTime > CN_THRESHOLD )
+      double cnThreshold, mnThreshold;
+      
+      if ( bce.lock()->avgHandoverDelay && bce.lock()->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT < CN_THRESHOLD )
+        cnThreshold = bce.lock()->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT;
+      else
+        cnThreshold = CN_THRESHOLD;
+/*
+      if ( mob->avgHandoverDelay && mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT < MN_THRESHOLD )
+        mnThreshold = mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT;
+      else
+        mnThreshold = MN_THRESHOLD;
+*/
+      if ( bce.lock()->avgCellResidenceTime - elapsedTime > cnThreshold )
         addrs[0] = bce.lock()->care_of_addr; // direct signaling
     }
     /*
@@ -1425,8 +1434,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-
-  cObject* m = dgram->dup()->encapsulatedMsg();
 
   if (homeReg) // BU sent to HA should not have any timestamp set
   {

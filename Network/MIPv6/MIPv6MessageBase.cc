@@ -69,9 +69,9 @@ operator=(const MIPv6MobilityHeaderBase& rhs)
     _headertype = rhs._headertype;
     _parameters = rhs._parameters;
 
-    for ( size_t i = 0; i < mobilityOptions.size(); i++)
+    for ( size_t i = 0; i < rhs.mobilityOptions.size(); i++)
     {
-      MobilityOptionBase* opt = new MobilityOptionBase(*(rhs.mobilityOptions[i]));
+      MobilityOptionBase* opt = static_cast<MobilityOptionBase*>(rhs.mobilityOptions[i]->dup());
       mobilityOptions.push_back(opt);
     }
   }

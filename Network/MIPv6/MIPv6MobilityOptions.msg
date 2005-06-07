@@ -43,6 +43,9 @@ message MobilityOptionBase
 
 message HandoverDelay extends MobilityOptionBase
 {
+    properties:
+        omitGetVerb = true;
+
     fields:
         double delay;
 };

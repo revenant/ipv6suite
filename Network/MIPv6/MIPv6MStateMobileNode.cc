@@ -48,6 +48,7 @@
 #include "RoutingTable6.h" // for sendBU
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
+#include "MIPv6MobilityOptions_m.h"
 
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
@@ -1398,18 +1399,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   }
 
-  // When cell residency signaling is enabled, send handover duration
-  // information to the peer
-
-  bool useCellSignaling = false;
-  if (mob->signalingEnhance() == CellResidency )
-  {
-    useCellSignaling = true;
-
-    // add handover delay option
-    
-  }
-
+  bool useCellSignaling = (mob->signalingEnhance() == CellResidency ? true : false);
 
   BU* bu = new BU(ack, homeReg, saonly, dad, seq, lifetime, hoa
 #ifdef USE_HMIP
@@ -1418,10 +1408,25 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                   , useCellSignaling
                   ,mob);
 
+  // When cell residency signaling is enabled, send handover duration
+  // information to the peer
+
+  if ( useCellSignaling )
+  {
+    // add handover delay option
+    HandoverDelay* delayInfo = new HandoverDelay;
+    delayInfo->setOptType(MOPT_HandoverDelay);
+// Don't remove this line; option length to be decided
+// delayInfo->setOptLength();
+    delayInfo->setDelay(mob->handoverDelay);
+    bu->addMobilityOption(delayInfo);
+  }
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+
+  cObject* m = dgram->dup()->encapsulatedMsg();
 
   if (homeReg) // BU sent to HA should not have any timestamp set
   {
@@ -1582,7 +1587,6 @@ void dupSend(cMessage* msg, const char* gate, cSimpleModule* mob, cTimerMessage*
   ///Schedule a self message to send BU from any module
 void MIPv6MStateMobileNode::scheduleSendBU(IPv6Datagram* dgram, IPv6Mobility* mob)
 {
-  if (schedSendBU == 0)
   {
 //This doesn't work because the message was created within this module.  We have
 //to duplicate it at the new module before sending it.

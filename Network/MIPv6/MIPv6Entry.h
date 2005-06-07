@@ -104,6 +104,7 @@ namespace MobileIPv6
     simtime_t avgCellResidenceTime;
     simtime_t buArrivalTime;
     int handoverCount;
+    simtime_t avgHandoverDelay;
 
     cOutVector* cellResidenceTimeVec;
     //@}

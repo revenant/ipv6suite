@@ -1,4 +1,6 @@
 LDFLAGS+= -Wl,-export-dynamic
+USERIF_LIBS=$(CMDENV_LIBS) $(TKENV_LIBS)
+
 
 #
 # incompatible with Windows

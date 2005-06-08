@@ -65,9 +65,8 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 namespace MobileIPv6
 {
 
-const unsigned int INITIAL_SIGNALING_COUNT = 3;
-const simtime_t CN_THRESHOLD = 5;
-const simtime_t MN_THRESHOLD = 5;
+const simtime_t CELL_RESI_THRESHOLD = 3;
+const simtime_t CN_THRESHOLD = 8;
 
 class BURetranTmr;
 
@@ -940,8 +939,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
       double cnThreshold, mnThreshold;
       
-      if ( bce.lock()->avgHandoverDelay && bce.lock()->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT < CN_THRESHOLD )
-        cnThreshold = bce.lock()->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT;
+      if ( bce.lock()->avgHandoverDelay && bce.lock()->avgHandoverDelay + CELL_RESI_THRESHOLD < CN_THRESHOLD )
+        cnThreshold = bce.lock()->avgHandoverDelay + CELL_RESI_THRESHOLD;
       else
         cnThreshold = CN_THRESHOLD;
 /*

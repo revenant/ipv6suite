@@ -201,8 +201,8 @@
        RWMinY="40"
        RWMaxY="240"
        RWMoveInterval="1"
-       RWMinSpeed="6"
-       RWMaxSpeed="6.9"
+       RWMinSpeed="12"
+       RWMaxSpeed="12.9"
        RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>
@@ -212,8 +212,8 @@
        RWMinY="310"
        RWMaxY="510"
        RWMoveInterval="1"
-       RWMinSpeed="6"
-       RWMaxSpeed="6.9"
+       RWMinSpeed="12"
+       RWMaxSpeed="12.9"
        RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>

@@ -53,7 +53,6 @@ namespace MobileIPv6
 // rate for direct signaling transmission and that we need some
 // information before computations
 extern const simtime_t CELL_RESI_THRESHOLD;
-extern const simtime_t CN_THRESHOLD;  
 
 class BURetranTmr;
 

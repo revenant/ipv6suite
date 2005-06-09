@@ -2,12 +2,12 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf>
-  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="CellResidency" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on"> 
+  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="Direct" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on"> 
     <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
       <inetAddr>3001:0:0:1:6348:ceff:feef:e6bd/64</inetAddr>
     </interface>
   </local>
-  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="CellResidency" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on">
+  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="Direct" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
       <inetAddr>3002:0:0:3:e6dc:76ff:fe90:e849/64</inetAddr>
     </interface>

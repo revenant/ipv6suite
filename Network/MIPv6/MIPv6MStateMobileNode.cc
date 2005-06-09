@@ -65,7 +65,7 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 namespace MobileIPv6
 {
 
-const simtime_t CELL_RESI_THRESHOLD = 6;
+const simtime_t CELL_RESI_THRESHOLD = 4;
 
 class BURetranTmr;
 

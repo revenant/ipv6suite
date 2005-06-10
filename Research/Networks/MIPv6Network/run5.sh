@@ -21,6 +21,6 @@ seed-lcg32 = ${seed}
 EOF
      ./cmdSimulMove2 -f omnetpp${set}-${setRun}.ini
      cat "MN-MNComms-${setRun}.vec" >> MN-MNComms_${1}.vec
-     seed=`expr $seed + 1`
+     setRun=`expr $setRun + 1`
 done
     

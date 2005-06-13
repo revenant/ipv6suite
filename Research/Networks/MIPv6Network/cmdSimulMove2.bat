@@ -1,1 +1,1 @@
-..\..\..\bin\cmdINET -r 5 %*
+..\..\..\bin\cmdINET -f SimulMove2.ini %* -r 5

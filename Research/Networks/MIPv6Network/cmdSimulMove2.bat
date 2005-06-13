@@ -1,1 +1,1 @@
-..\..\..\bin\cmdINET %* -r 5
+..\..\..\bin\cmdINET -r 5 %*

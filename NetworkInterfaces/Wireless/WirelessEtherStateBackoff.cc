@@ -80,39 +80,39 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
   
   if( (a->remainingTime() >= SLOTTIME)||(uniform(0,1) > probSameSlot) )
   {
-  //check if output frame is a probe req/resp and fast active scan is enabled
-  WESignalData* outData = *(mod->outputBuffer.begin());
-  assert(outData); // check if the frame is ok
-  if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
-  {
-    if ( SIFS < a->elapsedTime() )
-    {
-      int slotsElapsed = (int)((a->elapsedTime()-SIFS)/SLOTTIME);
-      mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
-    }
-    else
-      mod->backoffTime = mod->backoffTime + a->elapsedTime();
-  }
-  else
-  {
-    // the time for awaiting MAC has "eaten" the DIFS
-    if ( DIFS < a->elapsedTime() )
-    {
-      int slotsElapsed = (int)((a->elapsedTime()-DIFS)/SLOTTIME);
-      mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
-    }
-    // the time for awaiting MAC has NOT "eaten" the DIFS
-    else
-    {
-      mod->backoffTime = mod->backoffTime + a->elapsedTime();
-    }
-  }
-  a->cancel();
-
-  assert(!mod->inputFrame);
-  mod->inputFrame = (WESignalData*) data.get()->dup(); //XXX eliminate dup()
-
-  mod->changeState(WirelessEtherStateBackoffReceive::instance());
+      //check if output frame is a probe req/resp and fast active scan is enabled
+      WESignalData* outData = *(mod->outputBuffer.begin());
+      assert(outData); // check if the frame is ok
+      if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+      {
+          if ( SIFS < a->elapsedTime() )
+          {
+              int slotsElapsed = (int)((a->elapsedTime()-SIFS)/SLOTTIME);
+              mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
+          }
+          else
+              mod->backoffTime = mod->backoffTime + a->elapsedTime();
+      }
+      else
+      {
+          // the time for awaiting MAC has "eaten" the DIFS
+          if ( DIFS < a->elapsedTime() )
+          {
+              int slotsElapsed = (int)((a->elapsedTime()-DIFS)/SLOTTIME);
+              mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
+          }
+          // the time for awaiting MAC has NOT "eaten" the DIFS
+          else
+          {
+              //mod->backoffTime = mod->backoffTime + a->elapsedTime();
+          }
+      }
+      a->cancel();
+      
+      assert(!mod->inputFrame);
+      mod->inputFrame = (WESignalData*) data.get()->dup(); //XXX eliminate dup()
+      
+      mod->changeState(WirelessEtherStateBackoffReceive::instance());
   }
   return data;
 }

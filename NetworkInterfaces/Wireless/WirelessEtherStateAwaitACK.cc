@@ -117,6 +117,8 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame");
 
     mod->resetRetry();
+    mod->resetContentionWindowPower();
+    
     assert(mod->outputBuffer.size());
 
         //Update the consecutive failed transmission count if its an AP

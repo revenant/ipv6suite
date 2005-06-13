@@ -148,6 +148,7 @@ bool EtherModuleAP::sendData(EtherFrame6* frame)
   assert(frame);
 
   send(frame->dup(), inputQueueOutGate());
+  delete frame;
 
   return true;
 }

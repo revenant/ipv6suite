@@ -791,10 +791,17 @@ bool WirelessEtherModule::handleSendingBcastFrame(void)
     outputBuffer.pop_front();
 
     idleNetworkInterface();
-
-    changeState(WirelessEtherStateIdle::instance());
-    static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
-
+    
+    if(getNoOfRxFrames() > 0)
+    {
+        changeState(WirelessEtherStateReceive::instance());
+    }
+    else
+    {
+        changeState(WirelessEtherStateIdle::instance());
+        static_cast<WirelessEtherStateIdle*>(_currentState)->chkOutputBuffer(this);
+    }
+    
     return true;
   }
 

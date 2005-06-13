@@ -392,6 +392,7 @@ void WEDataReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* sig
 
       mod->linkdownTime = mod->simTime();
     }
+    delete beaconBody;
   } // endif
 }
 

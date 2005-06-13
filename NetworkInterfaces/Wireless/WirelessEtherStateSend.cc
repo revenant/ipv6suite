@@ -39,6 +39,7 @@
 
 #include "WirelessEtherStateIdle.h"
 #include "WirelessEtherStateAwaitACK.h"
+#include "WirelessEtherStateAwaitACKReceive.h"
 #include "WirelessEtherStateBackoff.h"
 
 #include "cTimerMessageCB.h"
@@ -99,33 +100,41 @@ void WirelessEtherStateSend::endSendingData(WirelessEtherModule* mod)
     return;
 
   mod->ackReceived = false;
-  cTimerMessage* tmrMessage = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
 
-  if (!tmrMessage)
+  if(mod->getNoOfRxFrames() > 0)
   {
-    Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* a;
-
-    a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-      (WIRELESS_SELF_AWAITACK, mod, static_cast<WirelessEtherStateAwaitACK*>
-       (mod->currentState()), &WirelessEtherStateAwaitACK::endAwaitACK,
-       "endAwaitACK");
-
-    Loki::Field<0> (a->args) = mod;
-
-    mod->addTmrMessage(a);
-    tmrMessage = a;
+      mod->changeState(WirelessEtherStateAwaitACKReceive::instance());    
   }
-
-  // TODO: maybe the bandwidth for ACK transmission is different
-  double ackTxTime = ACKLENGTH / BASE_SPEED;
-  tmrMessage->reschedule(mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/);
-  //tmrMessage->reschedule(mod->simTime() +  SIFS + ackTxTime /*+ SAP_DELAY*/);
-
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
-       << mod->fullPath() << ": " << "ends await ack at "
-       << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/
+  else
+  {
+      cTimerMessage* tmrMessage = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
+      
+      if (!tmrMessage)
+      {
+          Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* a;
+          
+          a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
+              (WIRELESS_SELF_AWAITACK, mod, static_cast<WirelessEtherStateAwaitACK*>
+               (mod->currentState()), &WirelessEtherStateAwaitACK::endAwaitACK,
+               "endAwaitACK");
+          
+          Loki::Field<0> (a->args) = mod;
+          
+          mod->addTmrMessage(a);
+          tmrMessage = a;
+      }
+      
+      // TODO: maybe the bandwidth for ACK transmission is different
+      double ackTxTime = ACKLENGTH / BASE_SPEED;
+      tmrMessage->reschedule(mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/);
+      //tmrMessage->reschedule(mod->simTime() +  SIFS + ackTxTime /*+ SAP_DELAY*/);
+      
+      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, "
+           << mod->fullPath() << ": " << "ends await ack at "
+           << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() +  SIFS + SLOTTIME + ackTxTime /*+ SAP_DELAY*/
        << " sec");
-
-  mod->changeState(WirelessEtherStateAwaitACK::instance());
+      
+      mod->changeState(WirelessEtherStateAwaitACK::instance());
+  }
 }
 

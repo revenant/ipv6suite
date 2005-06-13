@@ -1,1 +1,1 @@
-../../../bin/INET -u Cmdenv -r 5 $*
+../../../bin/INET -u Cmdenv -f SimulMove2.ini

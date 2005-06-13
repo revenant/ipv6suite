@@ -93,17 +93,24 @@ void WirelessEtherStateSend::endSendingData(WirelessEtherModule* mod)
   // it is able to send the end of frame, eventhought the channel has
   // been changed due to active scan restarting.
   if(mod->outputBuffer.empty())
+  {
+    Dout(dc::wireless_ethernet|flush_cf, "output buffer is empty");
     return;
+  }
 
   // State is changed to Idle if it is a broadcast frame.
   if(mod->handleSendingBcastFrame())
+  {
+    Dout(dc::wireless_ethernet|flush_cf, "sent frame was broadcast, no need to wait for ack");    
     return;
+  }
 
   mod->ackReceived = false;
 
   if(mod->getNoOfRxFrames() > 0)
   {
       mod->changeState(WirelessEtherStateAwaitACKReceive::instance());    
+      Dout(dc::wireless_ethernet|flush_cf, "receiving more than one packet");
   }
   else
   {

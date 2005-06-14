@@ -123,24 +123,24 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
         while(mod->outputBuffer.size())
         {
             WESignalData* a = *(mod->outputBuffer.begin());
-
+            
             WirelessEtherBasicFrame* outputFrame =
-              dynamic_cast<WirelessEtherBasicFrame*>(a->encapsulatedMsg());
+                dynamic_cast<WirelessEtherBasicFrame*>(a->encapsulatedMsg());
 
             FrameControl frameControl = outputFrame->getFrameControl();
-
+            
             // Only remove data frames
             if(frameControl.subtype == ST_DATA)
             {
                 WirelessAccessPoint* ap =
                     check_and_cast<WirelessAccessPoint*>(mod);
-
+                
                 WirelessEtherInterface dest = ap->findIfaceByMAC(outputFrame->getAddress1());
-
+                
                 // Remove if its a unicast address not in the list of associated MS
                 if(    (outputFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS)) ||
-                        (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
-                      break;
+                       (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
+                    break;
                 else
                     mod->outputBuffer.pop_front();
             }
@@ -148,61 +148,61 @@ void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
                 break;
         }
     }
-
-  if (mod->outputBuffer.size())
-  {
-    // switch to backoff state and schedule backoff time for minimum
-    // contention window
-
-    mod->changeState(WirelessEtherStateBackoff::instance());
-
-    cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
-    if (!a)
+    
+    if (mod->outputBuffer.size())
     {
-      Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
+        // switch to backoff state and schedule backoff time for minimum
+        // contention window
+        
+        mod->changeState(WirelessEtherStateBackoff::instance());
 
-      tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-        (WIRELESS_SELF_AWAITMAC, mod,
-         static_cast<WirelessEtherStateBackoff*>(mod->currentState()),
-         &WirelessEtherStateBackoff::readyToSend, "readyToSend");
+        cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
+        if (!a)
+        {
+            Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
+            
+            tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
+                (WIRELESS_SELF_AWAITMAC, mod,
+                 static_cast<WirelessEtherStateBackoff*>(mod->currentState()),
+                 &WirelessEtherStateBackoff::readyToSend, "readyToSend");
+            
+            Loki::Field<0> (tmr->args) = mod;
+            mod->addTmrMessage(tmr);
+            a = tmr;
+        }
+        
+        int numSlots=0, cw=0;
 
-      Loki::Field<0> (tmr->args) = mod;
-      mod->addTmrMessage(tmr);
-      a = tmr;
+        //check if output frame is a probe req/resp and fast active scan is enabled
+        WESignalData* outData = *(mod->outputBuffer.begin());
+        assert(outData); // check if the frame is ok
+        if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
+        {
+            cw = CW_MIN;
+            numSlots = intuniform(0,cw);
+            mod->backoffTime = numSlots * SLOTTIME + SIFS;
+        }
+        else
+        {
+            cw = (1 << mod->contentionWindowPower()) - 1;
+            numSlots = intuniform(0, cw);
+            mod->backoffTime = numSlots * SLOTTIME + DIFS;
+        }
+        
+        if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
+        {
+            mod->dataReadyTimeStamp = mod->simTime();
+            mod->CWStat->collect(cw);
+            mod->avgCWStat->collect(cw);    
+            mod->backoffSlotsStat->collect(numSlots);
+            mod->avgBackoffSlotsStat->collect(numSlots);
+        }
+        
+        double nextSchedTime = mod->simTime() + mod->backoffTime;
+        
+        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds"<< " cw: "<<cw<<" numSlots: "<<numSlots);
+        
+        assert(!a->isScheduled());
+        a->reschedule(nextSchedTime);
     }
-
-    int numSlots=0, cw=0;
-
-    //check if output frame is a probe req/resp and fast active scan is enabled
-    WESignalData* outData = *(mod->outputBuffer.begin());
-    assert(outData); // check if the frame is ok
-    if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
-    {
-      cw = CW_MIN;
-      numSlots = intuniform(0,cw);
-      mod->backoffTime = numSlots * SLOTTIME + SIFS;
-    }
-    else
-    {
-      cw = (1 << mod->contentionWindowPower()) - 1;
-      numSlots = intuniform(0, cw);
-      mod->backoffTime = numSlots * SLOTTIME + DIFS;
-    }
-
-    if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
-    {
-      mod->dataReadyTimeStamp = mod->simTime();
-      mod->CWStat->collect(cw);
-      mod->avgCWStat->collect(cw);    
-      mod->backoffSlotsStat->collect(numSlots);
-      mod->avgBackoffSlotsStat->collect(numSlots);
-    }
-
-    double nextSchedTime = mod->simTime() + mod->backoffTime;
-
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds");
-
-    assert(!a->isScheduled());
-    a->reschedule(nextSchedTime);
-  }
 }

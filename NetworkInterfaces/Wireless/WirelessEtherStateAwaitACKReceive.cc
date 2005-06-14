@@ -62,67 +62,58 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
   // If there is no input Frame, means collision has occured
   if ( mod->inputFrame )
   {
-    if(mod->frameSource == idle->sourceName())
-    {
-      WirelessEtherBasicFrame* frame =
-        dynamic_cast<WirelessEtherBasicFrame*>(mod->inputFrame->encapsulatedMsg());
-
-      if ( frame->getFrameControl().subtype == ST_ACK )
+      if(mod->frameSource == idle->sourceName())
       {
-        mod->decodeFrame(mod->inputFrame);
-      }
-
-      if ( mod->ackReceived )
-      {
-        mod->changeState(WirelessEtherStateIdle::instance());
-        static_cast<WirelessEtherStateIdle*>(mod->currentState())->chkOutputBuffer(mod);
+          WirelessEtherBasicFrame* frame =
+              dynamic_cast<WirelessEtherBasicFrame*>(mod->inputFrame->encapsulatedMsg());
+          
+          if ( frame->getFrameControl().subtype == ST_ACK )
+          {
+              mod->decodeFrame(mod->inputFrame);
+          }
+          
+          if ( mod->ackReceived )
+          {
+              mod->changeState(WirelessEtherStateIdle::instance());
+              static_cast<WirelessEtherStateIdle*>(mod->currentState())->chkOutputBuffer(mod);
+          }
+          else
+          {
+              Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": frame received is not an ACK");
+              
+              cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
+              // Stop the ACK timeout and start retransmission now
+              if ( awaitAckTmr->isScheduled())
+              {
+                  mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
+                  mod->changeState(WirelessEtherStateAwaitACK::instance());
+                  static_cast<WirelessEtherStateAwaitACK*>(mod->currentState())->endAwaitACK(mod);
+              }
+          }
       }
       else
       {
-        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": frame received is not an ACK");
-
-        cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
-        // Stop the ACK timeout and start retransmission now
-        if ( awaitAckTmr->isScheduled())
-        {
-          mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
-          mod->changeState(WirelessEtherStateAwaitACK::instance());
-          static_cast<WirelessEtherStateAwaitACK*>(mod->currentState())->endAwaitACK(mod);
-        }
+          Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": (idle non matching) collision detected in ACK");
       }
-    }
-    else
-    {
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": (idle non matching) collision detected in ACK");
-
-      cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
-
-      // Stop the ACK timeout
-      if ( awaitAckTmr->isScheduled())
-      {
-        mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
-      }
-    }
-    delete mod->inputFrame;
-    mod->inputFrame = 0;
+      delete mod->inputFrame;
+      mod->inputFrame = 0;
   }
   else
   {
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": collision detected in ACK");
-
-    cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
-
-    // Stop the ACK timeout
-    if ( awaitAckTmr && awaitAckTmr->isScheduled())
-    {
-      mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
-    }
-    // Start retransmission if all frames received
-    if(mod->getNoOfRxFrames() == 0)
-    {
-      mod->changeState(WirelessEtherStateAwaitACK::instance());
-      static_cast<WirelessEtherStateAwaitACK*>(mod->currentState())->endAwaitACK(mod);
-    }
+      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": collision detected in ACK");
+      
+      cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
+      assert(awaitAckTmr);
+      
+      // Stop the ACK timeout
+      if ( !awaitAckTmr->isScheduled())
+      {
+          if(mod->getNoOfRxFrames() == 0)
+          {
+              mod->changeState(WirelessEtherStateAwaitACK::instance());
+              static_cast<WirelessEtherStateAwaitACK*>(mod->currentState())->endAwaitACK(mod);
+          }
+      }
   }
 
   return idle;

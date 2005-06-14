@@ -98,6 +98,14 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
     mod->inputFrame = 0;
   }
 
+  // If all the frames havent been fully received when awaitack expired
+  // go back to AwaitAckReceive to receive all frames
+  if(mod->getNoOfRxFrames() > 0)
+  {
+      mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
+      return;
+  }
+
   WESignalData* signal = *(mod->outputBuffer.begin());
   assert(signal->encapsulatedMsg());
 

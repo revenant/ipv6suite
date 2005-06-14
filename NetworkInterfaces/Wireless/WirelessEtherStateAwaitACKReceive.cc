@@ -113,7 +113,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACKReceive::processIdle(Wirel
     cTimerMessage* awaitAckTmr = mod->getTmrMessage(WIRELESS_SELF_AWAITACK);
 
     // Stop the ACK timeout
-    if ( awaitAckTmr->isScheduled())
+    if ( awaitAckTmr && awaitAckTmr->isScheduled())
     {
       mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
     }

@@ -23,6 +23,7 @@ EOF
      ../../../bin/INET -u Cmdenv -f SimulMove2_${1}.ini -r ${setRun}
      cat "MN-MNComms-${setRun}.vec" >> MN-MNComms_${1}.vec
 #     rm omnetpp-${setRun}.ini
+     cp MN-MNComms_${1}.vec ~/data
      setRun=`expr $setRun + 1`
 done
     

@@ -20,7 +20,7 @@ output-vector-file = MN-MNComms-${setRun}.vec
 seed_lcg32 = ${seed}
 include ../../../Etc/default.ini
 EOF
-     ../../../bin/INET -u Cmdenv -f SimulMove2_${1}.ini -r ${setRun}
+     ../../../bin/INET -u Cmdenv -f SimulMove2_${1}.ini -r ${setRun} &> output-${setRun}
      cat "MN-MNComms-${setRun}.vec" >> MN-MNComms_${1}.vec
 #     rm omnetpp-${setRun}.ini
      setRun=`expr $setRun + 1`

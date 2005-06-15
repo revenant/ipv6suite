@@ -32,6 +32,8 @@ void REDQueue::initialize()
 
     // state
     queue.setName("queue");
+
+    error("REDQueue not implemented yet!");
 }
 
 bool REDQueue::enqueue(cMessage *msg)

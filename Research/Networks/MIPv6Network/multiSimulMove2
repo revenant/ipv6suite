@@ -26,5 +26,3 @@ EOF
      setRun=`expr $setRun + 1`
 done     
 cp MN-MNComms_${1}.vec ~/data
-
-    

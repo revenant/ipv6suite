@@ -22,8 +22,7 @@
 
 #include <ctype.h>
 #include "MACAddress.h"
-
-
+#include "InterfaceIdentifier.h"
 
 
 //
@@ -144,4 +143,11 @@ int MACAddress::compareTo(const MACAddress& other) const
     return memcmp(address, other.address, MAC_ADDRESS_BYTES);
 }
 
+InterfaceToken MACAddress::formInterfaceIdentifier() const
+{
+    unsigned char *b = address;
+    uint32 high = (b[0]<<24) | (b[1]<<16) | (b[2]<<8) | 0xff;
+    uint32 low =  (0xfe<<24) | (b[3]<<16) | (b[4]<<8) | b[5];
+    return InterfaceToken(low, high, 64);
+}
 

@@ -53,7 +53,7 @@ IMPORTANT: YOU NEED VC 7.1 .NET! IPv6SuiteWithINET won't compile with VC 6.0.
 2. Change to the INET framework directory. Edit the inetconfig.vc file and
    adjust the OMNETPP_ROOT setting to suit your installation.
 
-3. Run "makemake.bat" to create the makefiles.
+3. Run "makemake.cmd" to create the makefiles.
 
 4. Type "nmake -f Makefile.vc" to build everything.
       HINT: Create an "m.bat" file with the content "nmake -f Makefile.vc %*".

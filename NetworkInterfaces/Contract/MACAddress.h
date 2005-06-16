@@ -25,8 +25,6 @@
 
 #define MAC_ADDRESS_BYTES    6
 
-class InterfaceToken;
-
 
 /**
  * Stores an IEEE 802 MAC address (6 octets = 48 bits).
@@ -122,12 +120,6 @@ class MACAddress
      * Returns -1, 0 or 1 as result of comparison of 2 addresses.
      */
     int compareTo(const MACAddress& other) const;
-
-    /**
-     * Create interface identifier (IEEE EUI-64) which can be used by IPv6
-     * stateless address autoconfiguration.
-     */
-    InterfaceToken formInterfaceIdentifier() const;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const MACAddress& mac)

@@ -97,12 +97,20 @@ namespace MobileIPv6
     ///Used to create/destroy tunnels for mobility bindings
     IPv6Encapsulation* tunMod;
 
-    const bit_64& token(MIPv6MobilityHeaderType& ht)
+    const bit_64& generateToken(MIPv6MobilityHeaderType& ht)
       {
         if (ht==MIPv6MHT_HoT)
+        {
+          home_token.high = rand();
+          home_token.low = rand();
           return home_token;
+        }
         else if (ht==MIPv6MHT_CoT)
+        {
+          careof_token.high = rand();
+          careof_token.low = rand();
           return careof_token;
+        }
         assert(false);
       }
 
@@ -121,10 +129,9 @@ namespace MobileIPv6
 
     BindingCache bc;
 
+  private:
     bit_64 home_token;
     bit_64 careof_token;
-  private:
-
   };
   std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds);
 } //namespace MobileIPv6

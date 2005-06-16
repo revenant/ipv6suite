@@ -849,11 +849,6 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
 
-    // clear the tokens
-    if ( !mob->earlyBindingUpdate())
-      bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);
-    bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
-
     bule->isPerformingRR = false;
   }
 }

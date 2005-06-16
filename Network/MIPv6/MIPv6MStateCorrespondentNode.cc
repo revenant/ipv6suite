@@ -197,7 +197,7 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv
 
   // send back the HoT to the mobile node
   // TODO: not implement the token for now
-  TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mod->mipv6cds->token(replyType));
+  TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mod->mipv6cds->generateToken(replyType));
   IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
   reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);

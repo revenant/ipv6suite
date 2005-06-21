@@ -2,13 +2,15 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf>
-  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on"> 
-    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
+  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off" ewuOutVectorHODelays="on"> 
+<!--    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0"> -->
+    <interface name="wlan0">
       <inetAddr>3001:0:0:1:6348:ceff:feef:e6bd/64</inetAddr>
     </interface>
   </local>
-  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on">
-    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
+  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off" ewuOutVectorHODelays="on">
+<!--    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0"> -->
+    <interface name="wlan0">
       <inetAddr>3002:0:0:3:e6dc:76ff:fe90:e849/64</inetAddr>
     </interface>
   </local>
@@ -201,8 +203,8 @@
        RWMinY="40"
        RWMaxY="240"
        RWMoveInterval="1"
-       RWMinSpeed="1"
-       RWMaxSpeed="1.9"
+       RWMinSpeed="10"
+       RWMaxSpeed="10.9"
        RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>
@@ -212,8 +214,8 @@
        RWMinY="310"
        RWMaxY="510"
        RWMoveInterval="1"
-       RWMinSpeed="1"
-       RWMaxSpeed="1.9"
+       RWMinSpeed="10"
+       RWMaxSpeed="10.9"
        RWDistance="100"
        RWStartTime="5"
        RWPauseTime="0"/>

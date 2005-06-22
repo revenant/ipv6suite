@@ -112,6 +112,8 @@ void IPv6Mobility::initialize(int stage)
     prevLinkUpTime = 0; 
     avgCellResidenceTime = 0;
     handoverCount = 0;
+    ewuOutVectorHODelays = false;
+    linkUpTime = 0;
 
 #if EDGEHANDOVER
     ehCallback = 0;
@@ -160,7 +162,11 @@ void IPv6Mobility::initialize(int stage)
     }
 #endif // USE_MOBILITY
   }
-
+  else if (stage == 2)
+  {
+    if ( ewuOutVectorHODelays )
+      handoverLatency = new cOutVector("L3 handover delay");
+  }
 }
 
 void IPv6Mobility::finish()
@@ -239,7 +245,7 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 
 void IPv6Mobility::recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr)
 {
-  if ( isMobileNode() && rt->isEwuOutVectorHODelays() )
+  if ( isMobileNode() && isEwuOutVectorHODelays() )
   {
     boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(_MobilityState)->
       recordHODelay(buRecvTime, addr, this);
@@ -293,6 +299,11 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 
     // record link down time
     linkDownTime = simTime();
+  }
+  else if ( msg->kind() == LinkUP && ewuOutVectorHODelays )
+  {
+    Dout(dc::mipv6, nodeName()<<":"<< simTime() << " sec, link layer linkup trigger received.");
+    linkUpTime = msg->timestamp();
   }
 }
 

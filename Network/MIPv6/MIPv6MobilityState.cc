@@ -362,7 +362,7 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
     be->prevBUTime = 0;
     be->avgCellResidenceTime = 0;
 
-    if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
+    if ( mod->isMobileNode() && mod->isEwuOutVectorHODelays() )
       be->cellResidenceTimeVec = new cOutVector("CN cell residence time");
 
     bce = mod->mipv6cds->insertBinding(be);
@@ -379,7 +379,7 @@ void MIPv6MobilityState::registerBCE(IPv6Datagram* dgram, BU* bu,
   bce.lock()->avgCellResidenceTime =  ( totalUpTime + prevCellResTime ) / 
     (bce.lock()->handoverCount + 1);
 
-  if ( mod->isMobileNode() && mod->rt->isEwuOutVectorHODelays() )
+  if ( mod->isMobileNode() && mod->isEwuOutVectorHODelays() )
   {
     bce.lock()->cellResidenceTimeVec->record(
       bce.lock()->buArrivalTime - bce.lock()->prevBUTime);

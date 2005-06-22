@@ -401,8 +401,6 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   if (rt->odad())
     Dout(dc::notice|flush_cf, rt->nodeName()<<" ODAD is on");
 
-  rt->ewuOutVectorHODelays = getNodeProperties(ne, "ewuOutVectorHODelays") == XML_ON;
-
 #ifdef USE_MOBILITY
   rt->mipv6Support = getNodeProperties(ne, "mobileIPv6Support") == XML_ON;
   if (rt->mobilitySupport() && version() >= 3)
@@ -419,6 +417,8 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 
   IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByName(rt, "mobility"));
+
+  mob->ewuOutVectorHODelays = getNodeProperties(ne, "ewuOutVectorHODelays") == XML_ON;
 
   if (getNodeProperties(ne, "routeOptimisation") == XML_ON)
   {

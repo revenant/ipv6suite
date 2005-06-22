@@ -243,14 +243,15 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       {
         mod->totalDisconnectedTime += mod->simTime()-mod->linkdownTime;
 
-        // XXX: SENDIRECT TO MOBILITY INSTEAD OF ROUTING
         cMessage* linkUpTimeMsg = new cMessage;
+        linkUpTimeMsg->setKind(LinkUP);
         linkUpTimeMsg->setTimestamp();
         mod->sendDirect(linkUpTimeMsg, 
                         0, 
-                        OPP_Global::findModuleByName(mod, "routingTable6"), 
-                        "recordSimTime");
+                        OPP_Global::findModuleByName(mod, "mobility"), 
+                        "l2TriggerIn");
 
+        Dout(dc::wireless_ethernet, mod->fullPath()<<"link up recording message sent to layer 3 ");
         mod->linkdownTime = 0;
       }
 /* XXX maybe something like this would be useful:
@@ -264,7 +265,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule* mo
       {
         assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
         mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-        Dout(dc::mipv6|dc::mobile_move, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
+        Dout(dc::wireless_ethernet, mod->fullPath()<<"Link-Up trigger signalled (Assoc) "<<  mod->associateAP.channel);
       }
     }
     // TODO: need to check supported rates and status code

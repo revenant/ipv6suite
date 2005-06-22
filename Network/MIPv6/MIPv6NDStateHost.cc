@@ -1090,8 +1090,8 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
           }
         }
 
-        if ( rt->isEwuOutVectorHODelays() )
-          rt->recordHODelay( nd->simTime() );
+        if ( mob->isEwuOutVectorHODelays() )
+          mob->recordHODelay( nd->simTime() );
       }
       else
       {
@@ -1113,8 +1113,8 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   relinquishRouter(oldRtr, newRtr);
 
-  if ( rt->isEwuOutVectorHODelays() )
-    rt->setLinkUpTime(0); // clear the link up time
+  if ( mob->isEwuOutVectorHODelays() )
+    mob->setLinkUpTime(0); // clear the link up time
 }
 
 /**
@@ -1201,14 +1201,17 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
                   <<" checkDupAddrDetected and separate the bits there into separate func");
       }
     }
+
     Dout(dc::prefix_timer|flush_cf, rt->nodeName()<<" removing on link prefix="
          <<*it<<" due to movement");
     //cause of evil?
     //rt->cds->removePrefixEntry((*it));
     PrefixEntry* ppe = rt->cds->getPrefixEntry(IPv6Address(*it));
     assert(ppe);
+    
     rt->removePrefixEntry(ppe);
     it = oldRtr->prefixes.erase(it);
+
   }
 
 
@@ -1580,9 +1583,6 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
   {
 #endif //USE_HMIP
 
-  Dout(dc::mipv6|flush_cf, rt->nodeName()<<" "<<nd->simTime()<<" Sending BU to all coa="
-       <<ncoa<<" hoa="<<mipv6cdsMN->homeAddr());
-
   //We use minimum valid lifetime since that's guaranteed to be <=
   //both home addr and coa
   mstateMN->sendBUToAll(ncoa, mipv6cdsMN->homeAddr(), rt->minValidLifetime(),
@@ -1606,6 +1606,8 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
   if (ocoa != IPv6_ADDR_UNSPECIFIED && ocoa != ncoa)
     tunMod->destroyTunnel(ocoa, mipv6cdsMN->primaryHA()->prefix().prefix);
 
+  Dout(dc::debug|flush_cf, "finding tunnel entry="<<mipv6cdsMN->careOfAddr(pcoa)
+       <<" exit="<<mipv6cdsMN->primaryHA()->prefix().prefix);
   size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
                                      mipv6cdsMN->primaryHA()->prefix().prefix);
 

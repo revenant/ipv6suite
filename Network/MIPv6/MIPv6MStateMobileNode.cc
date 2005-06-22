@@ -463,7 +463,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
     {
       mob->prevLinkUpTime = mob->simTime();
 
-      if ( mob->rt->isEwuOutVectorHODelays() )
+      if ( mob->isEwuOutVectorHODelays() )
       {
         assert( dgram->timestamp() ); 
         bue->regDelay->record(mob->simTime() - dgram->timestamp() );
@@ -600,7 +600,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
 void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr addr, IPv6Mobility* mob)
 {
-  if ( !mob->rt->isEwuOutVectorHODelays() )
+  if ( !mob->isEwuOutVectorHODelays() )
     return;
 
   MIPv6CDSMobileNode* mipv6cdsMN =
@@ -884,7 +884,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
     bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, false);
 
-    if ( mob->rt->isEwuOutVectorHODelays() )
+    if ( mob->isEwuOutVectorHODelays() )
     	bule->regDelay = new cOutVector("CN reg (including RR)");
 
     mipv6cdsMN->addBU(bule);
@@ -1530,7 +1530,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       bule->state++;
     mipv6cdsMN->addBU(bule);
 
-    if ( homeReg && mob->rt->isEwuOutVectorHODelays() )
+    if ( homeReg && mob->isEwuOutVectorHODelays() )
       bule->regDelay = new cOutVector("home reg");
   }
   else

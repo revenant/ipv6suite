@@ -88,6 +88,7 @@ public:
   friend class MobileIPv6::MIPv6MStateMobileNode;
   friend class MobileIPv6::MIPv6MStateHomeAgent;
   friend class MobileIPv6::MIPv6MobilityState;
+  friend class XMLConfiguration::XMLOmnetParser;
 
   //@name constructors, destructors and operators
   //@{
@@ -99,7 +100,7 @@ public:
   //@{
   virtual void finish();
   virtual void initialize(int stage);
-  virtual int numInitStages() const  {return 2;}
+  virtual int numInitStages() const  {return 3;}
   virtual void handleMessage(cMessage* msg);
 
   //@}
@@ -140,6 +141,16 @@ public:
       }
       _isEBU = isEBU;
     }
+
+  void setLinkUpTime(simtime_t t) { linkUpTime = t; }
+  simtime_t getLinkUpTime(void) { return linkUpTime; }
+
+  bool isEwuOutVectorHODelays() const { return ewuOutVectorHODelays; }
+
+  void recordHODelay(simtime_t t) 
+  { 
+    handoverLatency->record( t - linkUpTime ); 
+  }
 
   MobileIPv6::SignalingEnhance signalingEnhance();
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
@@ -223,6 +234,13 @@ private:
   bool _returnRoutability;
 
   bool _isEBU;
+
+  bool ewuOutVectorHODelays;
+  // handoverLatency is the L3 layer handover delay = time when
+  // obtaining new CoA - link up time
+  cOutVector* handoverLatency; 
+
+  simtime_t linkUpTime; // time when establishing with new link
 
   MobileIPv6::SignalingEnhance _signalingEnhance;
 

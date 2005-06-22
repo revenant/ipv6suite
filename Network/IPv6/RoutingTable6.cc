@@ -83,8 +83,6 @@ void RoutingTable6::initialize(int stage)
   {
     ift = InterfaceTableAccess().get();
 
-    ewuOutVectorHODelays = false;
-    linkUpTime = 0;
     addrExpiryTmr = 0;
     IPForward = false;
     forwardSitePacket = true;
@@ -144,9 +142,6 @@ void RoutingTable6::initialize(int stage)
     if (hmipSupport())
       wp->xmlConfig()->parseMAPInfo(ift, this);
 #endif //USE_HMIP
-
-    if ( ewuOutVectorHODelays )
-    	handoverLatency = new cOutVector("L3 handover delay");
   }
 }
 
@@ -155,15 +150,6 @@ void RoutingTable6::handleMessage(cMessage* msg)
 {
   if ( msg->isSelfMessage() )
     check_and_cast<cTimerMessage *>(msg)->callFunc();
-  else // for output vector, recording the sim time
-  {
-    if ( ewuOutVectorHODelays )
-    {
-      assert( !linkUpTime );
-      linkUpTime = msg->timestamp();
-    }
-    delete msg;
-  }
 }
 
 void RoutingTable6::finish()

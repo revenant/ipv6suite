@@ -133,7 +133,7 @@ namespace MobileIPv6
   {
     assert(re.lock().get() != 0);
     const ipv6_prefix& pref = re.lock().get()->prefix();
-    assert(pref.length <= ie->interfaceToken().length());
+    assert((int) pref.length <= ie->interfaceToken().length());
     IPv6Address coaObj(pref);
     coaObj.truncate();
     ipv6_addr coa = ipv6_addr_fromInterfaceToken(coaObj, ie->interfaceToken());

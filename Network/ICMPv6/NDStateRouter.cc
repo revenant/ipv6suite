@@ -113,7 +113,7 @@ NDStateRouter::NDStateRouter(NeighbourDiscovery* mod):NDStateHost(mod)
   if (ift->numInterfaceGates()==0)
   {
     outputMod = NULL; //XXX is that enough? --AV
-    outputUnicastGate = -1;
+    outputUnicastGate = static_cast<unsigned int>(-1);
     return;
   }
   outputMod = new cModule*[ift->numInterfaceGates()];

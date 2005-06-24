@@ -191,8 +191,8 @@ MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg,
                                            ,cModule* senderMod)
   : MIPv6MobilityHeaderBase(MIPv6MHT_BU, 24),
     _ack(ack), _homereg(homereg), _saonly(saonly), _dad(dad),
+    _cellSignaling(cellSignaling),
     _seq(seq), _expires(expires), _ha(ha)
-    , _cellSignaling(cellSignaling)
 #ifdef USE_HMIP
     ,_map(map)
 #endif

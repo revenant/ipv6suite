@@ -290,7 +290,7 @@ IPv6Address NDStateHost::linkLocalAddr(size_t ifIndex)
     {
       linkLocal = ie->ipv6()->tentativeAddrs[k];
       ifIndex = ie->outputPort();
-      assert(ifIndex != -1);
+      assert(ifIndex != (unsigned int) -1);
       ifStats[ifIndex].manualLinkLocal = true;
       break;
     }
@@ -322,7 +322,7 @@ inline bool NDStateHost::linkLocalAddrAssigned(size_t ifIndex) const
 bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
 {
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-  for ( int i = 0; i < ie->ipv6()->inetAddrs.size(); i++)
+  for ( unsigned int i = 0; i < ie->ipv6()->inetAddrs.size(); i++)
     if ( ie->ipv6()->inetAddrs[i].scope() == ipv6_addr::Scope_Global )
       return true;
   return false;

@@ -186,6 +186,7 @@ bool MLDv2Record::setMAtype(ipv6_addr MA, char type)
   {
     ptrMAR->type = type;
   }
+  return true;
 }
 
 
@@ -530,6 +531,9 @@ int MLDv2Record::sizeofMAR(MARecord_t* ptrMAR, char type)
     return ptrMAR->inSize;
   else if(ptrMAR->type==IS_EX)
     return ptrMAR->exSize;
+
+  assert(false);
+  return -1;
 }
 
 int MLDv2Record::sizeofMAL()

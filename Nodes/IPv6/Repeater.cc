@@ -1,10 +1,10 @@
-// etherhub.cc
+// Repeater.cc
 //
 // Simulazione Ethernet RFC 802.3
 // Michele Baresi, 1999
 
 #include <boost/cast.hpp>
-#include "EtherHub.h"
+#include "Repeater.h"
 #include "ethernet.h"
 #include "EtherSignal_m.h"
 #include "IPv6Datagram.h"

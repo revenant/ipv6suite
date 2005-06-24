@@ -1,6 +1,5 @@
 %{!?cvsdate: %{expand: %%define cvsdate %%(/bin/date +"%Y%m%d")}}
 %define cvsdate %nil
-%{!?patchOmnet: %{expand: %%define patchOmnet 1}}
 %{!?libcwd: %define libcwd 0 }
 %{?l_prefix: %define openpkg 1}
 %{!?l_prefix: %define openpkg 0}
@@ -13,6 +12,8 @@
 %if "%{no_doxygen}" == "0"
   %define graphviz_version %(/bin/rpm -q graphviz)
   %{!?no_graphviz: %{expand: %%define no_graphviz %%(echo %%{graphviz_version} |grep -c not)}}
+#Andras is building doc by default in src release
+%define no_graphviz 1
 %endif
 
 %define compiler %(echo $CC $CXX)
@@ -33,21 +34,19 @@
 
 Summary: OMNeT++ is a discrete event simulation tool
 Name: omnetpp
-Version: 3.0
+Version: 3.1
 #Version: 2.3_%{cvsdate}
 Release: %{myrelease}%{cvsdate}%{icctag}
 #Release: 0.%{cvsdate}_%{myrelease}%{icctag}
 URL: www.omnetpp.org
 Source0: http://whale.hit.bme.hu/omnetpp/download/release/%{name}-%{version}%{cvsdate}.tar.bz2
 #Source: %{name}-%{version}-src.tgz
+%if "%{no_graphviz}" == "0"
 Source1: Doxyfile
-#Workaround module vector of size 0 
-Patch0: omnetpp-2.3-IPv6Suite-patch
-#Integrated as of opp3prerelease4
-#Fix bugs identified by valgrind/libcwd
-#Patch1: omnetpp-fixes-n-libcw.patch
-#Patch2: omnetpp-fixes-n-libcw-0.31.patch
-#Patch3: omnetpp-3.0pre-linux.patch
+%endif
+
+Patch: omnetpp-3.1.patch
+
 License: Academic Public License
 Group: Applications/Engineering
 %if "%{openpkg}" == "0"
@@ -107,10 +106,6 @@ the scientific community as well as in industrial settings.
 If you're unsure whether OMNeT++ suits your needs, this page
 http://whale.hit.bme.hu/omnetpp/links.htm may help you find out.
 
-To build with patch for IPv6Suite compatiblity just add the following to the
-rpmbuild command:  --define "patchOmnet 1"
-
-patchOmnet defined as %{patchOmnet}
 Using optflags=%{modoptflags}
 With libcwd malloc checking in libenvir-cw.so=%{libcwd}
 
@@ -119,20 +114,8 @@ With libcwd malloc checking in libenvir-cw.so=%{libcwd}
 %prep
 %setup -q -n %{name}-%{version}%{cvsdate}
 
-%if "%{patchOmnet}" == "1"
 %patch -p1
-#Patch integrated into omnetpp by Andras so only used for official 3.0 
-#prerelease 1
-#patch3 -p1
-#if "%{libcwd}" >= "0.99.29"
-#patch2 -p1
-#else
-#patch1 -p1
-#endif
-%endif
 
-#hack to fix constness compilation error
-perl -i -pwe "s/\(count==/(char*)(count==/" src/tkenv/tkcmd.cc
 ##########################################################
 
 %build
@@ -190,9 +173,6 @@ EOF
 %{!?_smp_mflags:  %{expand: %%define _smp_mflags  %%([ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; [ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-j$RPM_BUILD_NCPUS")}}
 
 %configure
-#perl -i -pwe 's|/home/andras/opp-parsim/omnetpp|../..|g' src/sim/Makefile
-#perl -i -pwe 's|slaveapp\.h||g' src/envir/Makefile
-#perl -i -pwe 's|slaveapp\.cc||g' src/envir/Makefile
 #Set executable bits for any scripts that need it (particularly opp_msgc otherwise we use the one installed on the system)
 #_scripts/setperm #does not work either as it sets output targets which don't exist at this stage
 chmod 755 src/nedc/opp_msgc
@@ -224,7 +204,7 @@ mkdir -pv $RPM_BUILD_ROOT%{oshare}/tkenv
 mkdir -pv $RPM_BUILD_ROOT%{oshare}/gned
 mkdir -pv $RPM_BUILD_ROOT%{oshare}/plove
 find . -name 'CVS'| xargs rm -fr 
-cp -p include/*.h $RPM_BUILD_ROOT%{oinclude}
+cp -pr include/* $RPM_BUILD_ROOT%{oinclude}
 cp -p include/ChangeLog $RPM_BUILD_ROOT%{oinclude}
 cp -p lib/*  $RPM_BUILD_ROOT%{_libdir}
 chmod 755 bin/opp_msgc
@@ -297,6 +277,10 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
+* Sat Jun 11 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.1-1 
+- Update to 3.1
+- copy all things in include dir
+
 * Mon Jan 17 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.0-1
 - Update to 3.0 final
 - copy bitmap dirs

@@ -186,7 +186,6 @@ private:
     //Reference does not work if maxConsecMissedRtrAdv is not exactly unsigned
     //int in Interface6Entry.mipv6Var!
 
-    NeighbourDiscovery* nd = static_cast<NeighbourDiscovery*>(mod);
     if (consecCountMissed > allowCount)
     {
       (*cb)(this);

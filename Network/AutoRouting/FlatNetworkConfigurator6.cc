@@ -61,7 +61,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
             cModule *mod = topo.node(i)->module();
             InterfaceTable *ift = IPAddressResolver().interfaceTableOf(mod);
 
-            for (int k = 0; k < ift->numInterfaces(); k++)
+            for (unsigned int k = 0; k < ift->numInterfaces(); k++)
             {
                 InterfaceEntry *ie = ift->interfaceAt(k);
                 if (!ie->isLoopback())
@@ -69,7 +69,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
                     bool linkLocalAddrAssigned = false;
                     bool globalAddrAssigned = false;
 
-                    for (int l = 0; l < ie->ipv6()->tentativeAddrs.size(); l++)
+                    for (unsigned int l = 0; l < ie->ipv6()->tentativeAddrs.size(); l++)
                     {
                         if (ie->ipv6()->tentativeAddrs[l].scope() == ipv6_addr::Scope_Global)
                             globalAddrAssigned = true;
@@ -78,11 +78,11 @@ void FlatNetworkConfigurator6::initialize(int stage)
                             linkLocalAddrAssigned = true;
                     }
 
-                    ipv6_addr addr = { uniform(0, 0xffffffff), uniform(0, 0xffffffff), uniform(0, 0xffffffff), uniform(0, 0xffffffff) };
+                    ipv6_addr addr = {(unsigned int) uniform(0, 0xffffffff),(unsigned int) uniform(0, 0xffffffff),(unsigned int) uniform(0, 0xffffffff),(unsigned int) uniform(0, 0xffffffff) };
                     while (ipv6_addr_scope(addr) != ipv6_addr::Scope_Global)
                     {
-                        addr.extreme = uniform(0, 0xffffffff);
-                        addr.high = uniform(0, 0xffffffff);
+                        addr.extreme = (unsigned int) uniform(0, 0xffffffff);
+                        addr.high = (unsigned int) uniform(0, 0xffffffff);
                     }
 
                     if (!globalAddrAssigned)
@@ -128,7 +128,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
         // count non-loopback interfaces
         int numIntf = 0;
         InterfaceEntry *ie = NULL;
-        for (int k = 0; k < ift->numInterfaces(); k++)
+        for (unsigned int k = 0; k < ift->numInterfaces(); k++)
             if (!ift->interfaceAt(k)->isLoopback())
             {
                 ie = ift->interfaceAt(k);
@@ -154,7 +154,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
 	// [ref] RoutingTable6::addRoute()
         IPv6Address defaultAddr("0:0:0:0:0:0:0:0/0"); 
 
-        for (int k = 0; k < nextHopIf->ipv6()->tentativeAddrs.size(); k++)
+        for (unsigned int k = 0; k < nextHopIf->ipv6()->tentativeAddrs.size(); k++)
         {
             IPv6Address nextHopAddr = nextHopIf->ipv6()->tentativeAddrs[k];
 
@@ -180,14 +180,14 @@ void FlatNetworkConfigurator6::initialize(int stage)
         // get a list of addresse from the dest node
         std::vector<IPv6Address> destAddrs;
         InterfaceTable *destIft = IPAddressResolver().interfaceTableOf(destNode->module());
-        for (int x = 0; x < destIft->numInterfaces(); x++)
+        for (unsigned int x = 0; x < destIft->numInterfaces(); x++)
         {
             InterfaceEntry *destIf = destIft->interfaceAt(x);
 
             if (destIf->isLoopback())
                 continue;
 
-            for (int y = 0; y < destIf->ipv6()->tentativeAddrs.size(); y++)
+            for (unsigned int y = 0; y < destIf->ipv6()->tentativeAddrs.size(); y++)
                 destAddrs.push_back(destIf->ipv6()->tentativeAddrs[y]);
         }
 
@@ -223,7 +223,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
 
             // future reference for off-link address
             IPv6Address nextHopLinkLocalAddr;
-            for (int k = 0; k < nextHopOnlinkIf->ipv6()->tentativeAddrs.size(); k++)
+            for (unsigned int k = 0; k < nextHopOnlinkIf->ipv6()->tentativeAddrs.size(); k++)
             {
                 nextHopLinkLocalAddr = nextHopOnlinkIf->ipv6()->tentativeAddrs[k];
                 if (nextHopLinkLocalAddr.scope() == ipv6_addr::Scope_Link)
@@ -231,13 +231,12 @@ void FlatNetworkConfigurator6::initialize(int stage)
             }
 
             // traverse through address of each node
-            for (int k = 0; k < destAddrs.size(); k++)
+            for (unsigned int k = 0; k < destAddrs.size(); k++)
             {
-                bool isOnlinkAddr = false;
 
-		// add to destination cache 
-		if ( destAddrs[k].scope() != ipv6_addr::Scope_Link )
-		    rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], true);
+              // add to destination cache 
+              if ( destAddrs[k].scope() != ipv6_addr::Scope_Link )
+                rt->addRoute(outputPort, nextHopLinkLocalAddr, destAddrs[k], true);
             }
         }
     }

@@ -367,14 +367,14 @@ void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
 
   //Parse per interface attribute
   cXMLElementList el = ne->getChildrenByTagName("interface");
-  if (ift->numInterfaceGates() > static_cast<int>(el.size()))
+  if (ift->numInterfaceGates() > el.size())
   {
     Dout(dc::notice, rt->nodeName()<<" ift->numInterfaceGates()="<<ift->numInterfaceGates()
          <<" while xml interface count is "<<el.size());
   }
 
   NodeIt startIf = el.begin();
-  for(int iface_index = 0; iface_index < ift->numInterfaceGates(); iface_index++, startIf++)
+  for(unsigned int iface_index = 0; iface_index < ift->numInterfaceGates(); iface_index++, startIf++)
   {
     if (startIf == el.end())
     {

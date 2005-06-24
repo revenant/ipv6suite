@@ -71,7 +71,7 @@ void FlatNetworkConfigurator::initialize(int stage)
         cModule *mod = topo.node(i)->module();
         InterfaceTable *ift = IPAddressResolver().interfaceTableOf(mod);
 
-        for (int k=0; k<ift->numInterfaces(); k++)
+        for (unsigned int k=0; k<ift->numInterfaces(); k++)
         {
             InterfaceEntry *ie = ift->interfaceAt(k);
             if (!ie->isLoopback())
@@ -99,7 +99,7 @@ void FlatNetworkConfigurator::initialize(int stage)
         // count non-loopback interfaces
         int numIntf = 0;
         InterfaceEntry *ie = NULL;
-        for (int k=0; k<ift->numInterfaces(); k++)
+        for (unsigned int k=0; k<ift->numInterfaces(); k++)
             if (!ift->interfaceAt(k)->isLoopback())
                 {ie = ift->interfaceAt(k); numIntf++;}
 

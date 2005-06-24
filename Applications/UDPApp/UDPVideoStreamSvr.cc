@@ -101,7 +101,7 @@ void UDPVideoStreamSvr::sendStreamData(cMessage *timer)
 
     // generate and send a packet
     cMessage *pkt = new cMessage("VideoStrmPk");
-    int pktLen = (*packetLen);
+    unsigned int pktLen = (*packetLen);
     if (pktLen > d->bytesLeft)
         pktLen = d->bytesLeft;
     pkt->setLength(8*pktLen);

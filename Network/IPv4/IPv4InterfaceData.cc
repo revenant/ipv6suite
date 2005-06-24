@@ -48,7 +48,7 @@ std::string IPv4InterfaceData::info() const
     if (!multicastGroups().empty())
     {
         out << " mcastgrps:";
-        for (int j=0; j<multicastGroups().size(); j++)
+        for (unsigned int j=0; j<multicastGroups().size(); j++)
             if (!multicastGroups()[j].isNull())
                 out << (j>0?",":"") << multicastGroups()[j];
     }
@@ -64,7 +64,7 @@ std::string IPv4InterfaceData::detailedInfo() const
     out << "Metric: " << metric() << "\n";
 
     out << "Groups:";
-    for (int j=0; j<multicastGroups().size(); j++)
+    for (unsigned int j=0; j<multicastGroups().size(); j++)
         if (!multicastGroups()[j].isNull())
             out << "  " << multicastGroups()[j];
     out << "\n";

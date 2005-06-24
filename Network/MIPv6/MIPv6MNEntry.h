@@ -222,7 +222,6 @@ namespace MobileIPv6
 )
 
       :dest_addr(dest), hoa(hoa), coa(coa), _lifetime(olifetime),
-       regDelay(0),
        last_time_sent(lastTime), state(0), seq_no(seq), _homeReg(homeRegn),
        problem(false)
 #ifdef USE_HMIP
@@ -235,7 +234,8 @@ namespace MobileIPv6
        careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
        // cell residency related information
        _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
-       cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0)
+      cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0),
+       regDelay(0)
       {
         setExpires(lifetime());
         hoti_cookie.high = rand();
@@ -427,7 +427,6 @@ namespace MobileIPv6
     ///@name RR procedure members
     //@{
   public:
-    cOutVector* regDelay;
 
     bool isPerformingRR;
 
@@ -561,6 +560,10 @@ namespace MobileIPv6
 
     simtime_t _hotiSendDelayTimer;
     simtime_t _cotiSendDelayTimer;
+
+  public:
+
+    cOutVector* regDelay;
 
     //@}
   };

@@ -158,7 +158,7 @@ IPAddress IPAddressResolver::getIPv4AddressFrom(InterfaceTable *ift)
         opp_error("IPAddressResolver: interface table `%s' has no interface registered "
                   "(yet? try in a later init stage!)", ift->fullPath().c_str());
 
-    for (int i=0; i<ift->numInterfaces(); i++)
+    for (unsigned int i=0; i<ift->numInterfaces(); i++)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
         if (ie->ipv4() && !ie->ipv4()->inetAddress().isNull() && !ie->isLoopback())
@@ -198,14 +198,14 @@ IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift)
 IPv6Address_ IPAddressResolver::getIPv6AddressFrom(InterfaceTable *ift, int scope)
 {
     IPv6Address_ addr;
-    for (int i=0; i<ift->numInterfaces() && addr.isNull(); i++)
+    for (unsigned int i=0; i<ift->numInterfaces() && addr.isNull(); i++)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
 
         if (!ie->ipv6() || ie->isLoopback())
             continue;
 
-        for (int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
+        for (unsigned int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
         {
             if (ie->ipv6()->inetAddrs[j].scope()==scope)
             {
@@ -230,7 +230,7 @@ IPv6Address_ IPAddressResolver::getInterfaceIPv6Address(InterfaceEntry *ie)
            ipv6_addr::Scope_Node > ipv6_addr::Scope_None);
 
     // find "best" address
-    for (int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
+    for (unsigned int j = 0; j < ie->ipv6()->inetAddrs.size(); j++)
         if (ie->ipv6()->inetAddrs[j].scope() > scope)
             addr.set(ie->ipv6()->inetAddrs[j].addressSansPrefix().c_str()); // FIXME conversion via string
     return addr;

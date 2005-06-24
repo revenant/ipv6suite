@@ -79,7 +79,7 @@ class InterfaceTable: public cSimpleModule
     /**
      * Returns the number of interfaces.
      */
-    int numInterfaces()  {return interfaces.size();}
+    unsigned int numInterfaces()  {return interfaces.size();}
 
     /**
      * Returns the InterfaceEntry specified by an index 0..numInterfaces-1.
@@ -89,7 +89,7 @@ class InterfaceTable: public cSimpleModule
     /**
      * Returns the maximum gate index plus one.
      */
-    int numInterfaceGates();
+    unsigned int numInterfaceGates();
 
     /**
      * Returns an interface given by its port number (gate index,

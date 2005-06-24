@@ -275,7 +275,7 @@ void IPv6Mobility::parseXMLAttributes()
   if (isMobileNode())
   {
     XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
-    MIPv6CDSMobileNode* mipv6cdsMN = check_and_cast<MIPv6CDSMobileNode*>(mipv6cds);
+    MIPv6CDSMobileNode* mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mipv6cds);
     mipv6cdsMN->setEagerHandover(p->getNodePropBool(p->getNetNode(nodeName()), "eagerHandover"));
   }
 #endif

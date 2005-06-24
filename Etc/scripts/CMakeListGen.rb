@@ -27,9 +27,9 @@ ensure
   Dir.chdir(oldpwd)
 end
 
-def customCommands(dir)  
+def customCommands(dir, ignorePattern,projName)  
   
-  m = traverseDirectory(dir,RECURSEDIR+MSGEXT,"RTP|Unsupported")
+  m = traverseDirectory(dir,RECURSEDIR+MSGEXT, ignorePattern)
   
   genSources = Array.new
   cleanSources = Array.new 
@@ -51,11 +51,11 @@ def customCommands(dir)
     cleanSources.push(hfile)
     objs.push(ofile)
 
-    # ADD_CUSTOM_COMMAND(TARGET #{cwd} PRE_BUILD COMMAND ${OPP_MSGC} ARGS -h #{m})
-  }
+		}
 
-  #string += "\nOPP_WRAP_MSGC(dum dum2 #{m.join("\n")}\n)\n"
-  string += "\nOPP_WRAP_MSGC_ALL()\n"
+  string += "\nOPP_WRAP_MSGC(dum dum2 #{m.join("\n")}\n)\n"
+	#the following will include all msg files in all subdirs
+	#string += "\nOPP_WRAP_MSGC_ALL()\n"
 
   Array[string, genSources]
 end
@@ -70,19 +70,6 @@ def addSourceFiles(dir, ignorePattern)
     header
   }
   Array[c, includeDirs]
-end
-
-# Used only by IPv6Suite
-def readSourceList(filename)
-  @sourceList = IO.readlines(filename)
-  @sourceList.map! {|e|
-    e.chomp!
-    #Remove leading path so we match only on file component
-    e.gsub!(/^.*\//,"")
-    e
-  }
-  @sourceList.delete_if{|e| not e =~ /[[:alpha:]]/}
-  return @sourceList
 end
 
 def addTests(dir)
@@ -104,12 +91,11 @@ def writeTest(testDirs, projName)
 end
 
 def writeCMakeList(dir, outputName, projName = nil)
+				#EtherSwitch
+  commonIgnore =
+	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|ARP|IPv4|MPLS|RSVP|RTP|TCP"
   
-  commonIgnore = "Unsupported|_m\.|test"
-  
-  ignore = @customise ? "TCP|" + commonIgnore : "RTP|" + commonIgnore
-
-  sources, includes = addSourceFiles(dir, ignore)    
+  sources, includes = addSourceFiles(dir, commonIgnore)    
   
   projName ||= File.basename(dir)  
   
@@ -127,13 +113,16 @@ def writeCMakeList(dir, outputName, projName = nil)
       
       x.puts %{OPTION(BUILD_SHARED_LIBS "Build with shared libraries." ON)}
       x.puts %{SET(ONE_BIG_EXE ON)}
+			#SET(IPv6Suite_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+			#INCLUDE(${CMAKEFILES_PATH}/Main.cmake)
       x.puts("INCLUDE(${CMAKEFILES_PATH}/FindOmnet.cmake)")  
-      
+      x.puts %{ADD_DEFINITIONS(-DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
+ 
       x.puts("INCLUDE_DIRECTORIES(${OPP_INCLUDE_PATH})") 
       x.puts("INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})")
     end
 
-    customCommandsLines, genSources = customCommands(dir)
+    customCommandsLines, genSources = customCommands(dir, commonIgnore, projName)
     
     x.print customCommandsLines
 
@@ -144,27 +133,6 @@ def writeCMakeList(dir, outputName, projName = nil)
     #x.print "SET_SOURCE_FILES_PROPERTIES(${GENERATED_MSGC_FILES} GENERATED PROPERTIES COMPILE_FLAGS -Wall)\n\n"
 
     x.print "\nSET( ", projName, "_SRCS\n"
-
-    if @customise
-      #Do special inclusion of files only found in sourceList returned from
-      #readSourceList (IPv6Suite one huge statc executable)
-      readSourceList("#{dir}/sourcelist")
-      sources.delete_if {|e|
-        ret = true
-        @sourceList.each{|y|
-          if e =~ Regexp.new("#{y}$")
-            ret = false
-            #Must have been deleting wrong ones as other files were missing (premature optimisation) since some
-            #files have similar postfix names
-            # @sourceList.delete(y){|z|
-            #  $stderr.puts "Unable to remove element #{y} from @sourceList"
-            #}
-            break
-          end
-        }
-        ret
-      }
-    end
 
     #necessary otherwise any subsequent SUBDIRS commands will change
     #the relative source file to an incorrect absolute path
@@ -213,7 +181,8 @@ if ARGV.length < 2 then
   exit
 else
   projName = ARGV[1]
-  @customise = projName == "IPv6Suite"
+	#customise used to be for making OneBigStaticExe.cmake except forgot how to generate sourcelist sourcelist 
+  @customise = false
   outname = @customise ? "OneBigStaticExe.cmake" : "CMakeLists.txt"
   writeCMakeList(ARGV[0], outname, projName)
 end

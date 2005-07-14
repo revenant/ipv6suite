@@ -27,7 +27,7 @@ import  //
 module MIPv6NetworkSimulMove2
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=52,136;i=misc/sun";
+            display: "p=52,304;i=misc/sun";
         mn1: MobileNode;
             parameters:
                 IPForward = false;
@@ -256,7 +256,7 @@ module MIPv6NetworkSimulMove2
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode",
                 nonIPModuleTypes = "AccessPoint ";
-            display: "p=52,60;i=block/cogwheel";
+            display: "p=52,228;i=block/cogwheel";
     connections nocheck:
         coreRouter1.out[0] --> internetCable --> coreRouter2.in[0];
         coreRouter1.in[0] <-- internetCable <-- coreRouter2.out[0];

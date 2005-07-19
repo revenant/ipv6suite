@@ -13,6 +13,7 @@ RECURSEDIR="**/*"
 
 #Extension of files used for message subclassing
 MSGEXT=".msg"
+NEDEXT=".ned"
 
 def traverseDirectory(dir, expression, ignore = nil)
   oldpwd = Dir.pwd
@@ -30,34 +31,18 @@ end
 def customCommands(dir, ignorePattern,projName)  
   
   m = traverseDirectory(dir,RECURSEDIR+MSGEXT, ignorePattern)
-  
-  genSources = Array.new
-  cleanSources = Array.new 
-  objs = Array.new
-
-  string = ""
-  
-  m.each{|msg|
-    cfile = msg.to_s.gsub(MSGEXT,"_m.cc")  
-    hfile = msg.to_s.gsub(MSGEXT,"_m.h")
-    ofile = msg.to_s.gsub(MSGEXT, "_m.o")
-    
-    #Needed as we do opp_msgc gen and rest of build from top level dir only
-    cfile = File.basename cfile
-    hfile = File.basename hfile
-    ofile = File.basename ofile
-
-    genSources.push(cfile)
-    cleanSources.push(hfile)
-    objs.push(ofile)
-
-		}
-
-  string += "\nOPP_WRAP_MSGC(dum dum2 #{m.join("\n")}\n)\n"
+ 
+  string = "\nOPP_WRAP_MSGC(dum dum2 #{m.join("\n")}\n)\n"
 	#the following will include all msg files in all subdirs
-	#string += "\nOPP_WRAP_MSGC_ALL()\n"
+	#string += "\nOPP_WRAP_MSGC_ALL()\n"  
+end
 
-  Array[string, genSources]
+def createNedFilesList(dir, ignorePattern)  
+  m = traverseDirectory(dir,RECURSEDIR+NEDEXT, ignorePattern)
+  string = "#{m.join("\n")}"
+  open("#{dir}/nedfiles.lst","w") {  |x|
+    x.print string
+  }
 end
 
 def addSourceFiles(dir, ignorePattern)
@@ -124,7 +109,8 @@ def writeCMakeList(dir, outputName, projName = nil)
       x.puts("INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})")
     end
 
-    customCommandsLines, genSources = customCommands(dir, commonIgnore, projName)
+    createNedFilesList(dir, commonIgnore)
+    customCommandsLines = customCommands(dir, commonIgnore, projName)
     
     x.print customCommandsLines
 
@@ -159,7 +145,7 @@ def writeCMakeList(dir, outputName, projName = nil)
     x.puts ")\n\n"
 
     if not @customise
-      outputdir = projName == "INET" ? "Examples/bin" : "."
+      outputdir = projName == "INET" ? "bin" : "."
       x.puts %{SET(OUTPUTDIR #{outputdir}) } 
             
       x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))

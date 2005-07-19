@@ -29,7 +29,7 @@
   %define icctag %nil
 %endif
 
-%define myrelease 1
+%define myrelease 2
 #####################################################
 
 Summary: OMNeT++ is a discrete event simulation tool
@@ -121,7 +121,11 @@ With libcwd malloc checking in libenvir-cw.so=%{libcwd}
 %build
 if [ "x$DISPLAY" == "x" ]; then
 #Newer distributions aka fc3 unset display and wish/blt test both need X
-  export DISPLAY=":0.0"
+  export DISPLAY="%{display}"
+  if [ x"%{display}" == "x" ]; then
+    echo please rerun with rpm --rebuild --define \"display $DISPLAY\"
+    exit 1
+  fi
 fi
 export PATH=`pwd`/bin:$PATH:
 export LD_LIBRARY_PATH=`pwd`/lib
@@ -164,6 +168,7 @@ OMNETPP_PLOVE_DIR="%{oshare}/plove"
 build_shared_libs=no
 %endif
 TK_CFLAGS="-I%{_prefix}/X11R6/include"
+BLT_LIBS="-L%{_libdir}/blt2.4 -lBLT24"
 EOF
 
 #Hack required only when these files were missing
@@ -277,6 +282,10 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
+* Sat Jul  2 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.1-2
+- added define option for DISPLAY so can be built remotely too (as long as X11 forwarding is on)
+- fixed detection of BLT by adding -L for fedora distros
+
 * Sat Jun 11 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.1-1 
 - Update to 3.1
 - copy all things in include dir

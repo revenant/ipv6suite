@@ -1,9 +1,14 @@
 %{!?cvsdate: %{expand: %%define cvsdate %%(/bin/date +"%Y%m%d")}}
-%define cvsdate %nil
+%define cvsdate pre1
 %{!?libcwd: %define libcwd 0 }
 %{?l_prefix: %define openpkg 1}
 %{!?l_prefix: %define openpkg 0}
 %{!?shared_libs %define shared_libs 1}
+
+%define srcext tgz
+
+#Fix FC3 and above unset of DISPLAY by saving it as configure test of wish needs it
+%{!?display: %{expand: %%define display %%(echo $DISPLAY)}}
 
 %define doxygen_version %(/bin/rpm -q doxygen)
 %define fedora_dist %(cat /etc/issue|grep -ic fedora)
@@ -34,18 +39,15 @@
 
 Summary: OMNeT++ is a discrete event simulation tool
 Name: omnetpp
-Version: 3.1
+Version: 3.2
 #Version: 2.3_%{cvsdate}
-Release: %{myrelease}%{cvsdate}%{icctag}
-#Release: 0.%{cvsdate}_%{myrelease}%{icctag}
+#Release: %{myrelease}%{cvsdate}%{icctag}
+Release: 0.%{cvsdate}_%{myrelease}%{icctag}
 URL: www.omnetpp.org
-Source0: http://whale.hit.bme.hu/omnetpp/download/release/%{name}-%{version}%{cvsdate}.tar.bz2
-#Source: %{name}-%{version}-src.tgz
+Source0: http://whale.hit.bme.hu/omnetpp/download/release/%{name}-%{version}%{cvsdate}.%{srcext}
 %if "%{no_graphviz}" == "0"
 Source1: Doxyfile
 %endif
-
-Patch: omnetpp-3.1.patch
 
 License: Academic Public License
 Group: Applications/Engineering
@@ -114,7 +116,6 @@ With libcwd malloc checking in libenvir-cw.so=%{libcwd}
 %prep
 %setup -q -n %{name}-%{version}%{cvsdate}
 
-%patch -p1
 
 ##########################################################
 
@@ -122,8 +123,8 @@ With libcwd malloc checking in libenvir-cw.so=%{libcwd}
 if [ "x$DISPLAY" == "x" ]; then
 #Newer distributions aka fc3 unset display and wish/blt test both need X
   export DISPLAY="%{display}"
-  if [ x"%{display}" == "x" ]; then
-    echo please rerun with rpm --rebuild --define \"display $DISPLAY\"
+  if [ x"%{display}" == 'x' ]; then
+    echo please rerun with rpm --rebuild --define \"display \$DISPLAY\"
     exit 1
   fi
 fi
@@ -171,8 +172,6 @@ TK_CFLAGS="-I%{_prefix}/X11R6/include"
 BLT_LIBS="-L%{_libdir}/blt2.4 -lBLT24"
 EOF
 
-#Hack required only when these files were missing
-#cp /usr/lib/rpm/config.{guess,sub} src/utils
 
 #Hopefully this fixes mandrake's missing macro
 %{!?_smp_mflags:  %{expand: %%define _smp_mflags  %%([ -z "$RPM_BUILD_NCPUS" ] && RPM_BUILD_NCPUS="`/usr/bin/getconf _NPROCESSORS_ONLN`"; [ "$RPM_BUILD_NCPUS" -gt 1 ] && echo "-j$RPM_BUILD_NCPUS")}}
@@ -282,6 +281,10 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
+* Fri Jul 22 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre1
+- Updated to 3.2pre
+- Saves DISPLAY env var so no need to define in rpmbuild command
+
 * Sat Jul  2 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.1-2
 - added define option for DISPLAY so can be built remotely too (as long as X11 forwarding is on)
 - fixed detection of BLT by adding -L for fedora distros

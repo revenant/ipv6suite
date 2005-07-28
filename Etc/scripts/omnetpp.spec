@@ -1,5 +1,5 @@
 %{!?cvsdate: %{expand: %%define cvsdate %%(/bin/date +"%Y%m%d")}}
-%define cvsdate pre1
+%define cvsdate pre2
 %{!?libcwd: %define libcwd 0 }
 %{?l_prefix: %define openpkg 1}
 %{!?l_prefix: %define openpkg 0}
@@ -281,8 +281,11 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
+* Thu Jul 28 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre2
+- Updated to 3.2pre2
+
 * Fri Jul 22 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre1
-- Updated to 3.2pre
+- Updated to 3.2pre1
 - Saves DISPLAY env var so no need to define in rpmbuild command
 
 * Sat Jul  2 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.1-2

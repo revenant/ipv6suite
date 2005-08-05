@@ -18,7 +18,8 @@ Define_Module(ABRSrcModel);
 void ABRSrcModel::initialize()
 {
     //Get NED parameters
-    destAddr.set(par("destAddr").stringValue());  
+    msgType = par("msgType");
+    destAddr = par("destAddr").stringValue();  
     tStart = par("tStart");
     tIdle = &par("tIdle");
     tPause = &par("tPause");
@@ -34,7 +35,8 @@ void ABRSrcModel::initialize()
     
     //Schedule first active period
     timer = new cMessage("ABRtimer");
-    scheduleAt(tStart, timer);
+    if(tStart > 0)
+        scheduleAt(tStart, timer);
 }
 
 void ABRSrcModel::handleMessage(cMessage* msg)
@@ -58,7 +60,7 @@ void ABRSrcModel::handleMessage(cMessage* msg)
 
 void ABRSrcModel::sendPacket()
 {
-    fragmentAndSend(*packetLen);
+    fragmentAndSend(*packetLen, msgType);
     packetsLeft--;
     //pause if more packets left to send
     if(packetsLeft > 0)

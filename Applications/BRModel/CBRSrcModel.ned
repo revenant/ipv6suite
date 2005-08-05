@@ -25,12 +25,12 @@
 //
 simple CBRSrcModel
     parameters:
+	msgType: numeric,	// msg type
 	destAddr: string,	// destination MAC address
 	tStart: numeric const,	// time to start
 	bitRate: numeric,	// bit rate to achieve (bits/s)
 	fragmentLen: numeric;	// fragment length (bytes)
     gates:
-        in: brIn;
         out: brOut;
 endsimple
 

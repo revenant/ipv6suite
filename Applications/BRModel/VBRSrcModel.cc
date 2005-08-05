@@ -18,7 +18,8 @@ Define_Module(VBRSrcModel);
 void VBRSrcModel::initialize()
 {
     //Get NED parameters
-    destAddr.set(par("destAddr").stringValue());  
+    msgType = par("msgType");
+    destAddr = par("destAddr").stringValue();  
     tStart = par("tStart");
     fragmentLen = par("fragmentLen");
     pixPerFrame = par("pixPerFrame");
@@ -32,7 +33,8 @@ void VBRSrcModel::initialize()
     
     //Schedule first active period
     timer = new cMessage("VBRtimer");
-    scheduleAt(tStart, timer);
+    if(tStart > 0)
+        scheduleAt(tStart, timer);
 }
 
 void VBRSrcModel::handleMessage(cMessage* msg)
@@ -55,7 +57,7 @@ void VBRSrcModel::sendPacket()
     previousBitRate = bitRate;
     
     //send the frame size in bytes
-    fragmentAndSend((unsigned long)((double)pixPerFrame*bitRate/8));
+    fragmentAndSend((unsigned long)((double)pixPerFrame*bitRate/8), msgType);
     
     //schedule next frame
     scheduleAt(simTime()+(1/(double)frameRate), timer);

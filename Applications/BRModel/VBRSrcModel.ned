@@ -26,13 +26,13 @@
 
 simple VBRSrcModel
     parameters:
+	msgType: numeric,	// msg type
 	destAddr: string,	// destination MAC address
 	tStart: numeric const,	// time to start
 	fragmentLen: numeric,	// fragment length
 	pixPerFrame: numeric,	// frame resolution (pixels/frame)
 	frameRate: numeric;	// frame rate (frames/s)
     gates:
-        in: brIn;
         out: brOut;
 endsimple
 

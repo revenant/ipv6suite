@@ -17,12 +17,20 @@
 //
 
 
+enum MsgType
+{
+	MT_DT = 0;
+	MT_VI = 1;
+	MT_VO = 2;
+};
+
 //
 // Message to store info about the source, for statistical book keeping
 //
 message BRMsg
 {
     fields:
+	int type;
         string srcName;
 	unsigned int sequenceNo;
 };

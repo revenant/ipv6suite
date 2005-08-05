@@ -18,7 +18,8 @@ Define_Module(CBRSrcModel);
 void CBRSrcModel::initialize()
 {
     //Get NED parameters
-    destAddr.set(par("destAddr").stringValue());  
+    msgType = par("msgType");
+    destAddr = par("destAddr").stringValue();  
     tStart = par("tStart");
     fragmentLen = par("fragmentLen");
     bitRate = &par("bitRate");
@@ -37,7 +38,8 @@ void CBRSrcModel::initialize()
     
     //Schedule first active period
     timer = new cMessage("CBRtimer");
-    scheduleAt(tStart, timer);
+    if(tStart > 0)
+        scheduleAt(tStart, timer);
 }
 
 void CBRSrcModel::handleMessage(cMessage* msg)
@@ -54,7 +56,7 @@ void CBRSrcModel::handleMessage(cMessage* msg)
 void CBRSrcModel::sendPacket()
 {
     //send the frame size in bytes
-    fragmentAndSend(packetSize);
+    fragmentAndSend(packetSize, msgType);
     
     //schedule next frame
     scheduleAt(simTime()+sendPeriod, timer);

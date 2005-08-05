@@ -41,6 +41,7 @@ class ABRSrcModel : public BRSrcModel
     unsigned long packetSize; //size of packet to be transmitted (bytes)
   
     //NED file parameters
+    int msgType;           //msg type
     cPar *packetLen;       //bytes
     cPar *tIdle;           //seconds
     cPar *activePackets;   //packets

@@ -75,7 +75,7 @@ all:
 	cd Applications/PingApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Network/Contract -I../../Base -I../../Util
 	cd Applications/TCPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/TCP -I../../Base -I../../Util -I../../Network/Contract
 	cd Applications/UDPApp && $(MAKEMAKE) $(OPTS) -n -r -I../../Network/IPv4 -I../../Transport/UDP -I../../Base -I../../Util -I../../Network/Contract
-	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I. -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces -I../../Util
+	cd Applications/BRModel && $(MAKEMAKE) $(OPTS) -n -r -I. -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces -I../../Util -I../../Network/IPv4 -I../../Network/Contract -I../../Base
 
 	cd Network/Contract && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../IPv4 -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../HMIPv6 -I.
 	cd Network/IPv4 && $(MAKEMAKE) $(OPTS) -n -r -I../../Base -I../../Util -I../Contract -I../ARP -I../../NetworkInterfaces/Contract

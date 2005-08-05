@@ -42,7 +42,7 @@ void BRSink::initialize()
 
 void BRSink::handleMessage(cMessage *msg)
 {
-    if(!msg->isSelfMessage())
+    if(!msg->isSelfMessage() && dynamic_cast<BRMsg*>(msg))
         updateList(check_and_cast<BRMsg*>(msg));
     
     delete msg;
@@ -94,12 +94,12 @@ void BRSink::updateStreamListEntry(BRStreamListIt it, BRMsg* msg)
 {
     assert(msg->getSequenceNo() >= (*it)->expectedSeq);
     (*it)->numReceived++;
-    (*it)->numReceivedVec->record((*it)->numReceived); 
+    //(*it)->numReceivedVec->record((*it)->numReceived); 
     (*it)->numLost += msg->getSequenceNo()-(*it)->expectedSeq;
-    (*it)->numLostVec->record((*it)->numLost);
+    //(*it)->numLostVec->record((*it)->numLost);
     (*it)->expectedSeq = msg->getSequenceNo()+1;
     (*it)->delayStat->collect(simTime()-msg->timestamp());
-    (*it)->avgDelayVec->record((*it)->delayStat->mean());
+    //(*it)->avgDelayVec->record((*it)->delayStat->mean());
 }
 
 //

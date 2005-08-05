@@ -28,6 +28,7 @@
 
 simple ABRSrcModel
     parameters:
+	msgType: numeric,	// msg type
 	destAddr: string,	// destination MAC address
 	tStart: numeric const,	// time to start
 	tIdle: numeric,		// idle time between active periods
@@ -36,7 +37,6 @@ simple ABRSrcModel
 	packetLen: numeric,	// packet length (bytes)
 	fragmentLen: numeric;	// fragment length (bytes)
     gates:
-        in: brIn;
         out: brOut;
 endsimple
 

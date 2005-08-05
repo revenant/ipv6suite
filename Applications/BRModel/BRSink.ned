@@ -24,6 +24,5 @@
 simple BRSink
     gates:
         in: brIn;
-        out: brOut;
 endsimple
 

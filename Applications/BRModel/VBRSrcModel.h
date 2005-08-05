@@ -30,7 +30,8 @@ class VBRSrcModel : public BRSrcModel
     
  protected:
     virtual void sendPacket();
-    
+
+    int msgType;           //msg type
     unsigned long pixPerFrame; //pixels/frame
     unsigned long frameRate;   //frames/second
     

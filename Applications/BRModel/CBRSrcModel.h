@@ -30,6 +30,7 @@ class CBRSrcModel : public BRSrcModel
  protected:
     virtual void sendPacket();
     
+    int msgType;           //msg type    
     cPar *bitRate;
     unsigned long packetSize;
     double sendPeriod;

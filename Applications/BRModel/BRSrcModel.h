@@ -29,14 +29,15 @@ class BRSrcModel : public cSimpleModule
     
  protected:
     virtual void sendPacket();
-    void sendFragment(unsigned long);
-    void fragmentAndSend(unsigned long);
+    void sendFragment(unsigned long, int msgType);
+    void fragmentAndSend(unsigned long, int msgType);
+    const char* resolveMACAddress(std::string);
     
     cMessage* timer;
     unsigned long sequenceNo;
     
     //NED file parameters
-    MACAddress6 destAddr;      //mac address of destination
+    std::string destAddr;      //mac address of destination
     unsigned long fragmentLen; //bytes
     double tStart;             //seconds
     

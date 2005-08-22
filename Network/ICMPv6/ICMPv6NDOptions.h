@@ -77,6 +77,17 @@ public:
       return new ICMPv6NDOptPrefix(*this);
     }
 
+  std::ostream& operator<<(std::ostream& os) const
+  {
+    return os<<" prefixLen="<<prefixLen<<" onlink="<<onLink<<" autoconf="
+             <<autoConf<<" validLifetime="<<validLifetime<<" preferredLifetime="
+             <<preferredLifetime<<" prefix="<<prefix
+#ifdef USE_MOBILITY
+             <<" rtrAddr="<<rtrAddr
+#endif
+      ;
+  }
+
   unsigned char prefixLen;
   bool onLink;
   bool autoConf;

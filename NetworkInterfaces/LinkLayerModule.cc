@@ -27,6 +27,7 @@
 #include "LinkLayerModule.h"
 #include "opp_utils.h"
 #include <sstream>
+#include "cwatch.h"
 
 LinkLayerModule::~LinkLayerModule()
 {}
@@ -36,7 +37,7 @@ void LinkLayerModule::initialize()
   delay = par("procdelay");
   iface_type = 0; // unknown protocol
   cntReceivedPackets = 0;
-  new cWatch ( "received pkts", cntReceivedPackets );
+  createWatch ( "received pkts", cntReceivedPackets );
 }
 
 void LinkLayerModule::setIface_name(int llProtocol)

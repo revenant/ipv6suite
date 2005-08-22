@@ -69,6 +69,12 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
       return new HMIPv6ICMPv6NDOptMAP(*this);
     }
 
+  std::ostream& operator<<(std::ostream& os) const
+  {
+    return os<<" addr="<<addr()<<" lifetime="<<lifetime()<<" v="<<v()<<" dist="
+             <<dist()<<" pref="<<pref()<<" ifaceIdx"<<ifaceIdx();
+  }
+
   void setDist(int dist);
   void setPref(int pref);
 
@@ -79,7 +85,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
   void setP(bool p);
   void setV(bool v);
 
-  size_t ifaceIdx() { return iface_idx; }
+  size_t ifaceIdx() const { return iface_idx; }
 
   unsigned int dist(void) const { return _dist; }
   unsigned int pref(void) const { return _pref; }
@@ -119,6 +125,9 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
 
   ipv6_addr map_addr; // MAP's global address
 };
+
+  std::ostream& operator<<(std::ostream& os, const HMIPv6ICMPv6NDOptMAP& map); 
+
 
 typedef std::vector<HMIPv6ICMPv6NDOptMAP> MAPOptions;
 

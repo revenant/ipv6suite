@@ -141,6 +141,31 @@ inline void ICMPv6NDMRtrAd::setPrefixesInfo(const AdvPrefixList& pe)
 #endif //VERBOSE
 }
 
+std::ostream&  ICMPv6NDMRtrAd::operator<<(std::ostream& os) const
+{
+  os<<" curHopLimit="<<curHopLimit()<<" managed="<<managed()<<" other="
+    <<other()<<" lifetime="<<routerLifetime()
+#ifdef USE_MOBILITY
+    <<" ha="<<isHomeAgent()
+#endif
+    <<"  reachableTime="<<reachableTime()<<" retransTime="<<retransTimer()
+    <<" mtu="<<MTU()<<" advInt="<<advInterval()
+    <<" L2 addr="<<(hasSrcLLAddr()?srcLLAddr():string(""))
+    <<" prefixes: ";
+  std::copy(prefixesInfo().begin(), prefixesInfo().end(),
+            ostream_iterator<ICMPv6NDOptPrefix, char>(os, "\t"));
+
+#ifdef USE_HMIP
+  if (hasMapOptions())
+  {
+    os<<"\nmapOptions:";
+    std::copy(mapOptions().begin(), mapOptions().end(),
+              ostream_iterator<HierarchicalMIPv6::HMIPv6ICMPv6NDOptMAP>(os, "\n"));
+  }
+#endif 
+  return os;
+}
+
 ICMPv6NDMRedirect::ICMPv6NDMRedirect(const ipv6_addr& dest,
                                      const ipv6_addr& target,
                                      IPv6Datagram* dgram,

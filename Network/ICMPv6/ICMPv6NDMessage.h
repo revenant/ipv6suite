@@ -136,6 +136,8 @@ public:
 
   virtual ICMPv6NDMRtrAd* dup() const { return new ICMPv6NDMRtrAd(*this); }
 
+  std::ostream& operator<<(std::ostream& os) const;
+
   ///@name ICMP fields
   //@{
   int curHopLimit() const { return optInfo()>>24; }
@@ -240,12 +242,13 @@ public:
         setLength(length() + opts[2]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     }
 
-  unsigned long advInterval(void)
+  unsigned long advInterval(void) const
     {
       if (opts[2])
         return (static_cast<ICMPv6NDOptAdvInt*>(opts[2]))->advInterval;
       return 0;
     }
+
 #endif
 
 #ifdef USE_HMIP
@@ -280,6 +283,11 @@ protected:
   HierarchicalMIPv6::MAPOptions mapOpts;
 #endif //USE_HMIP
 };
+
+inline std::ostream& operator<<(std::ostream& os, const ICMPv6NDMRtrAd& ra)
+{
+  return ra.operator<<(os);
+}
 
 /**
    @class ICMPv6NDMNgbrSol

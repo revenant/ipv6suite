@@ -31,6 +31,11 @@
 namespace HierarchicalMIPv6
 {
 
+  std::ostream& operator<<(std::ostream& os, const HMIPv6ICMPv6NDOptMAP& map)
+  {
+    return map.operator<<(os);
+  }
+
 HMIPv6ICMPv6NDOptMAP::HMIPv6ICMPv6NDOptMAP(const int dist, const int pref,
                                            const unsigned int exp,
                                            const ipv6_addr& addr,

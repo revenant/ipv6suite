@@ -107,6 +107,8 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
   InterfaceTable *ift = InterfaceTableAccess().get();
   ift->addInterface(e);
 
+  printf("DBG: %s as '%s' on %d\n", fullPath().c_str(), e->name(), outputPort);
+
   return e;
 }
 

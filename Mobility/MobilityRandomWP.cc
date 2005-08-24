@@ -31,6 +31,7 @@
 */
 
 #include <cassert>
+#include "sys.h"
 #include "debug.h"
 #include "opp_utils.h"
 #include "MobilityRandomWP.h"

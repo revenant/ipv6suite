@@ -26,7 +26,11 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#if defined OPP_VERSION && OPP_VERSION >= 3
+
+#ifndef __DEFS_H
+#include "defs.h" //OMNETPP_VERSION
+#endif
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #include <libcwd/sys.h>
 #else
 #include <libcw/sysd.h>

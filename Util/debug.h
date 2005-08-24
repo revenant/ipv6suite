@@ -85,7 +85,7 @@
 #define DEBUGCHANNELS ::simulacrum::debug::channels
 #endif
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #include <libcwd/debug.h>
 #else
 #include <libcw/debug.h>

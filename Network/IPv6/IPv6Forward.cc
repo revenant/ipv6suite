@@ -343,7 +343,6 @@ void IPv6Forward::endService(cMessage* theMsg)
           //forward via router
           Dout (dc::custom|dc::forwarding|flush_cf, rt->nodeName()<<":"<<simTime()
                 <<" ODAD would forward to router for unknown neighbour LL addr. (once I get more time)");
-          delete info;
           foundTentative = true;
           return;
         }
@@ -476,7 +475,6 @@ void IPv6Forward::endService(cMessage* theMsg)
           {
             Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
                  <<" from new MAP not ready yet(awaiting BA from MAP), dropping packet");
-            delete info;
             return;
           }
 
@@ -498,7 +496,6 @@ void IPv6Forward::endService(cMessage* theMsg)
               IPv6Datagram* copy = datagram->dup();
               copy->setOutputPort(vIfIndex);
               send(copy, "tunnelEntry");
-              delete info;
               return;
             }
           }
@@ -512,7 +509,6 @@ void IPv6Forward::endService(cMessage* theMsg)
               Dout(dc::eh, rt->nodeName()<<" "<<simTime()<<" dgram dropped as src="
                    <<datagram->srcAddress()<<" is no longer onlink (BU to HA not sent "
                    <<"yet so coa is not current rcoa)");
-              delete info;
               return;
             }
           }
@@ -549,7 +545,6 @@ void IPv6Forward::endService(cMessage* theMsg)
              <<" is the old one and we have handed to new MAP, awaiting BA "
              <<"from HA to use rcoa, dropping packet");
         Dout(dc::mipv6, " tunnels "<<*tunMod);
-        delete info;
         return;
       }
 #endif //USE_HMIP
@@ -560,7 +555,6 @@ void IPv6Forward::endService(cMessage* theMsg)
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
-      delete info;
       datagram.release(); // XXX take over the ownership from auto_ptr
       return;  // XXX CRASH CRASH,  STILL CRASH AT DELETEING DATAGRAM
     }
@@ -598,7 +592,6 @@ void IPv6Forward::endService(cMessage* theMsg)
     ctrIP6OutNoRoutes++;
     //TODO probably send error message about -EADDRNOTAVAIL
 
-    delete info;
     return;
   }
 
@@ -623,7 +616,6 @@ void IPv6Forward::endService(cMessage* theMsg)
            <<" "<<simTime()<<" sent redirect to ODAD node "<<datagram->srcAddress());
       if (redirected)
       {
-        delete info;
         return;
       }
     }

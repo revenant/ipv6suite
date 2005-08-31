@@ -68,6 +68,10 @@
 #include "MIPv6MessageBase.h"
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
+#ifdef EDGEHANDOVER
+#include "EHCDSMobileNode.h"
+#include "HMIPv6Entry.h"
+#endif //EDGEHANDOVER
 #endif //USE_HMIP
 #endif //#ifdef USE_MOBILITY
 
@@ -169,6 +173,8 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   assert(datagram->inputPort() < (int)ift->numInterfaceGates());
 
+// {{{ localdeliver
+
   //Disabled for now. Don't know why some packets when they leave this function
   //still display 0 source address when they shouldn't. Recording at prerouting
   //and output
@@ -195,6 +201,10 @@ void IPv6Forward::endService(cMessage* theMsg)
     if (!datagram->destAddress().isMulticast())
       return;
   }
+
+// }}}
+
+// {{{ tunnel via dest addr using CDS::findDestEntry
 
 #if !defined NOINGRESSFILTERING
   //Cannot use the result of conceptual sending i.e. ifIndex because at that
@@ -233,9 +243,12 @@ void IPv6Forward::endService(cMessage* theMsg)
   }
 #endif //!NOINGRESSFILTERING
 
+// }}}
+
   insertSourceRoute(*datagram);
 
-  //Packet was received
+// {{{ Packet was received
+
   if (datagram->inputPort() != -1 )
   {
     if (!processReceived(*datagram))
@@ -245,6 +258,7 @@ void IPv6Forward::endService(cMessage* theMsg)
          <<" forwarding packet "<<*datagram);
   }//End if packet was received
 
+// }}}
 
   if (datagram->destAddress().isMulticast())
   {
@@ -252,8 +266,9 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
+// {{{ If we have a binding for dest then swap dest==hoa to coa
+
 #ifdef USE_MOBILITY
-  //If we have a binding for dest then swap dest==hoa to coa
   //Could possibly place this into sendCore
   using MobileIPv6::bc_entry;
   using MobileIPv6::MIPv6RteOpt;
@@ -303,12 +318,16 @@ void IPv6Forward::endService(cMessage* theMsg)
   }
 #endif //USE_MOBILITY
 
+// }}}
+
   Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()
        <<" sending/forwarding dgram="<<*datagram);
 
   AddrResInfo *info = new AddrResInfo;
   int status = conceptualSending(datagram.get(), info); // fills in control info
   datagram->setControlInfo(info);
+
+// {{{ Address res required
 
   // destination address does not exist in routing table:
   // Can this ever happen unless there is no default router?
@@ -353,6 +372,10 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
+// }}}
+
+// {{{ tunnel via dest address using conceptualSending (for prefixed dest addresses)
+
   //Required to enable triggering of prefix addresses instead of just a host
   //match as done via rt->cds->findDestEntry earlier in this function
   if ((unsigned int)status > ift->numInterfaceGates())
@@ -365,6 +388,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
+// }}}
 
   //Set src address here if upper layer protocols left it up
   //to network layer
@@ -374,6 +398,7 @@ void IPv6Forward::endService(cMessage* theMsg)
                               datagram->destAddress(), info->ifIndex()));
   }
 
+// {{{ away from home (MIPv6)
 
 #ifdef USE_MOBILITY
   //Check to see if we have sent a BU to the peer (bule exists) and if so use a hoa dest
@@ -397,6 +422,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
+        mipv6cdsMN->careOfAddr(pcoa) != mipv6cdsMN->homeAddr() &&
         ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
           mipv6cdsMN->careOfAddr(pcoa))
         ||
@@ -424,6 +450,8 @@ void IPv6Forward::endService(cMessage* theMsg)
 
     if (bule)
       Dout(dc::debug|flush_cf, "bule "<<*bule);
+
+// {{{ add home address option if bule contains this mn's coa and perhaps reverse tunnel to map
 
     // The following section of the code only applies to data packet
     // sent from upper layer. The mobility messages do not contain the
@@ -478,6 +506,43 @@ void IPv6Forward::endService(cMessage* theMsg)
             return;
           }
 
+#ifdef EDGEHANDOVER
+          if (!mob)
+            mob = boost::polymorphic_downcast<IPv6Mobility*>
+              (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
+          assert(mob != 0);
+          cerr<<"name is "<<mob->nodeName()<<endl;
+          if (mob->edgeHandover())
+          {
+            EdgeHandover::EHCDSMobileNode* ehcds =
+              boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
+            assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
+            cerr<<"modified to bcoa="<<ehcds->boundCoa()<<" from nrcoa="<<hmipv6cdsMN->remoteCareOfAddr()<<endl; 
+
+            if (hmipv6cdsMN->remoteCareOfAddr() != ehcds->boundCoa() && 
+                ehcds->boundCoa() == datagram->srcAddress())
+            {
+              cerr<<"Will reverse tunnel to current map even though src is bcoa"<<endl;            
+              docheck = false;
+
+              HierarchicalMIPv6::HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
+              if (bmap.v())
+              {
+                size_t vIfIndex = tunMod->findTunnel(ehcds->boundCoa(), bmap.addr());
+                assert(vIfIndex);
+
+              Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+                   <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
+                   <<" for dest="<<datagram->destAddress());
+              IPv6Datagram* copy = datagram->dup();
+              copy->setOutputPort(vIfIndex);
+              send(copy, "tunnelEntry");
+              return;
+              }
+            }
+          } else
+#endif //EDGEHANDOVER
+
           if (hmipv6cdsMN->remoteCareOfAddr() == datagram->srcAddress())
           {
             docheck = false;
@@ -531,6 +596,11 @@ void IPv6Forward::endService(cMessage* theMsg)
       }
 
     }
+
+// }}}
+
+// {{{reverse tunnel (mipv6)
+
     else if (coaAssigned)
     {
       //Reverse Tunnel
@@ -558,6 +628,11 @@ void IPv6Forward::endService(cMessage* theMsg)
       datagram.release(); // XXX take over the ownership from auto_ptr
       return;  // XXX CRASH CRASH,  STILL CRASH AT DELETEING DATAGRAM
     }
+
+// }}}
+
+// {{{ assign unspecified src address
+
     else
     {
       if (dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
@@ -580,8 +655,14 @@ void IPv6Forward::endService(cMessage* theMsg)
       datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }
 
+// }}}
+
   }
 #endif //USE_MOBILITY
+
+// }}} away from home (MIPv6)
+
+// {{{ unspecified src addr so drop
 
   if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
   {
@@ -595,6 +676,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
+// }}}
 
   //Unicast dest addr with dest LL addr available in DC -> NE
   assert(datagram->srcAddress() != IPv6_ADDR_UNSPECIFIED &&
@@ -602,6 +684,8 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   // default: send datagram to fragmentation
   datagram->setOutputPort(info->ifIndex());
+
+// {{{ send redirect if on link neighbour
 
   if (rt->odad())
   {
@@ -620,6 +704,8 @@ void IPv6Forward::endService(cMessage* theMsg)
       }
     }
   }
+
+// }}}
 
   send(datagram.release(), "fragmentationOut");
 }
@@ -961,4 +1047,5 @@ bool IPv6Forward::processReceived(IPv6Datagram& datagram)
 void IPv6Forward::sendErrorMessage(ICMPv6Message* err)
 {
     send(err, "errorOut");
+
 }

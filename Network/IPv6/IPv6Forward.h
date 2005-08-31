@@ -74,6 +74,8 @@ class ICMPv6Message;
 class AddrResInfo; //remove this dependency when conceptual sending is removed
 class RoutingTable6;
 class IPv6Encapsulation;
+class IPv6Mobility;
+
 namespace IPv6NeighbourDiscovery
 {
   class NDStateRouter; //for sending redirect
@@ -139,6 +141,10 @@ private:
   ///Used for sending redirects on our behalf
   IPv6NeighbourDiscovery::NDStateRouter* nd;
   IPv6Encapsulation* tunMod;
+#ifdef EDGEHANDOVER
+  //used to determine bcoa to trigger reverse tunnel
+  IPv6Mobility* mob;
+#endif //EDGEHANDOVER
 
 };
 

@@ -500,18 +500,56 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
       //from the previous MAP/AR.
       EdgeHandover::EHCDSMobileNode* ehcds =
         boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
+      assert(ehcds);
+      assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
+
       ipv6_addr bcoa = ehcds->boundCoa();
-      if (bcoa != IPv6_ADDR_UNSPECIFIED)
+      if (bcoa != IPv6_ADDR_UNSPECIFIED &&
+          ehcds->boundMapAddr() != bestMap.addr() &&
+          ehcds->mapEntries()[ehcds->boundMapAddr()].distance() == 1)
       {
-/*
-      if (oldRcoa != bcoa)
-      {
-*/
-        Dout(dc::eh, rt->nodeName()<<" Forwarding from bmap="<<ehcds->boundMapAddr()<<" to lcoa="
-             <<lcoa);
-        mstateMN->sendMapBU(ehcds->boundMapAddr(), lcoa, bcoa,
+//        Dout(dc::eh, rt->nodeName()<<" Forwarding from bmap="<<ehcds->boundMapAddr()<<" to lcoa="
+//             <<lcoa);
+        Dout(dc::eh, rt->nodeName()<<" forwarding from bmap="<<ehcds->boundMapAddr()<<" to nrcoa="
+             <<rcoa);
+        mstateMN->sendMapBU(ehcds->boundMapAddr(), rcoa, bcoa,
                             static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
                             ifIndex, mob);
+
+        HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
+
+        //trigger on bound map so that we get this reverse tunnel lcoa->best MAP encapsulation
+        tunMod->tunnelDestination(bmap.addr(), vIfIndex);
+        
+        //create nrcoa to bmap reverse tunnel and trigger on primary HA (bc bmap is really just best MAP in HMIP6)
+        if (bmap.v())
+        {
+          //rcoa in this case is nrcoa
+          vIfIndex = tunMod->findTunnel(rcoa, bmap.addr());
+          //assert(!vIfIndex);
+          //Sometimes old tunnel is not removed so it may have been created already when
+          //we revisit past ARs
+          if (!vIfIndex)
+          {
+
+            //assuming single mobile interface at 0
+            vIfIndex = tunMod->createTunnel(rcoa, bmap.addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
+            Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+                 <<" (mapHandover) reverse tunnel created entry nrcoa="<<rcoa
+                 <<" exit bmap="<< bmap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec
+                 <<" V flag set so triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
+
+          }
+          else
+          {
+            Dout(dc::eh|dc::encapsulation, "(mapHandover) reverse tunnel exists already nrcoa="
+                 <<rcoa<<" exit bmap="<< bmap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+            Dout(dc::hmip|dc::encapsulation, *tunMod);
+            //trigger on bestmap in case not done
+            tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->prefix().prefix, vIfIndex);
+          }
+        }
+
       }
     }
 #endif // EDGEHANDOVER

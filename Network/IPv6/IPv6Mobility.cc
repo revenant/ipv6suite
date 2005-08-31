@@ -52,7 +52,7 @@
 #include "MIPv6Entry.h"
 #endif // __MIPv6ENTRY_H__
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #include "opp_utils.h" //getParser()
 #include "XMLOmnetParser.h"
 #include "XMLCommon.h"
@@ -271,7 +271,7 @@ void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
 
 void IPv6Mobility::parseXMLAttributes()
 {
-#if defined OPP_VERSION && OPP_VERSION >= 3
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
   if (isMobileNode())
   {
     XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();

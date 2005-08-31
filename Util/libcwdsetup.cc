@@ -180,7 +180,7 @@ namespace libcwdsetup
       ///XML and ignore any other channels.  Otherwise if "all" channel exists
       ///then specified channels are turned off. Otherwise just specified
       ///channels are turned on.
-#if defined OPP_VERSION && OPP_VERSION >= 3
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
       if (find(tokens.begin(), tokens.end(), "rcfile") != tokens.end())
       {
         Debug( read_rcfile() );

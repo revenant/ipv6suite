@@ -53,7 +53,7 @@ namespace
  * @ingroup ipv6_addrOp
  */
 
-#if defined OPP_VERSION && OPP_VERSION >= 3
+#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #else
 cEnvir& operator<<(cEnvir& ev, const ipv6_addr& addr)
 {
@@ -307,14 +307,21 @@ std::string IPv6Address::address(void) const
 
 bool IPv6Address::isNetwork(const IPv6Address& toCmp) const
 {
-  if(nbBitsMatching(&toCmp)>=m_prefix_length)
+  assert(m_prefix_length <= 128);
+  unsigned int match = m_prefix_length;
+  if (m_prefix_length == 0)
+    match = 128;
+  if(nbBitsMatching(&toCmp)>=match)
     return true;
   return false;
 }
 
 bool IPv6Address::isNetwork(const ipv6_addr& prefix) const
 {
-  if(nbBitsMatching(prefix)>=m_prefix_length)
+  unsigned int match = m_prefix_length;
+  if (m_prefix_length == 0)
+    match = 128;
+  if(nbBitsMatching(prefix)>=match)
     return true;
   return false;
 }

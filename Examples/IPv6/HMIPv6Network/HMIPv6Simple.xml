@@ -8,7 +8,9 @@
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either (applies to xerces-c interface) -->
     <interface name="wlan0" HostDupAddrDetectTransmits="1">      
+						<!--
      <inetAddr>3018:eeee:0:0:2580:ebff:fe8c:1448</inetAddr>
+		 -->
     </interface>
   </local>
   <local node="server" mobileIPv6Support="on">
@@ -23,7 +25,7 @@
     <interface name="ppp0">
       <inetAddr>3018:EEEE:0:0:89d6:9cff:fe7e:83d2</inetAddr>
     </interface>
-    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on"
+    <interface name="eth1" AdvSendAdvertisements="on" AdvHomeAgent="on"
       MaxFastRAS="10">
 <!--
 
@@ -48,7 +50,7 @@
     <route>
       <routeEntry routeIface="ppp0" routeDestination="0/0"
 	routeNextHop="3018:AAAA:0:1:4609:52ff:fe8b:a252"/>
-      <routeEntry routeIface="eth0" routeDestination="3018:EEEE:0:0:0:0:0:0/64"/>
+      <routeEntry routeIface="eth1" routeDestination="3018:EEEE:0:0:0:0:0:0/64"/>
     </route> 
   </local>
 <!-- routing table configuration for AR 
@@ -80,7 +82,7 @@
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:3:5f6a:a9ff:fe2c:df2e/64</AdvPrefix>
 	</AdvPrefixList>
     </interface>
-    <interface name="ppp0">
+    <interface name="ppp4">
       <!-- does not need to be globally scoped -->
       <inetAddr>3018:FFFF:0:4:5f6a:a9ff:fe2c:df2f</inetAddr>
     </interface>
@@ -98,7 +100,7 @@
        routeIface="eth3"
 	routeDestination="3018:FFFF:0:3:0:0:0:0/64"/>
       <routeEntry 
-       routeIface="ppp0" routeNextHop="3018:AAAA:0:2:0450:90ff:fe5d:f971"
+       routeIface="ppp4" routeNextHop="3018:AAAA:0:2:0450:90ff:fe5d:f971"
 	routeDestination="0/0"/>    
      
     </route> 

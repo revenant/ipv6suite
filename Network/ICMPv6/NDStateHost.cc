@@ -926,7 +926,10 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       if (prefOpt.validLifetime > ADDR_CONF_TIME ||
           prefOpt.validLifetime > addr.storedLifetime())
       {
-        Dout(dc::address_timer, rt->nodeName()<<":"<<ifIndex<<"["<<i<<"]"<<"="<<addr<<" "<<rt->simTime()<<" RA triggered updating lifetimes  rtr.pref="<<prefOpt.preferredLifetime<<" rtr.valid="<<prefOpt.validLifetime);
+        Dout(dc::address_timer, rt->nodeName()<<":"<<ifIndex<<"["<<i<<"]"<<"="
+             <<addr<<" "<<rt->simTime()<<" matches prefix "<<prefOpt.prefix<<"/"
+             <<prefOpt.prefixLen<<" from RA.  Updating lifetimes from rtr.pref="
+             <<prefOpt.preferredLifetime<<" rtr.valid="<<prefOpt.validLifetime);
 
         //Specs don't say anything about updating preferredLifetime
         //so I guess this is a good guess.
@@ -1036,6 +1039,14 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
 
     if (rt->mobilitySupport() && rt->isMobileNode())// && rt->awayFromHome())
     {
+      //Do not do DAD on outstanding DAD which is indicated by been in
+      //tentativeAddrs. Only when interface initialises are there already
+      //stuff in tentativeAddrs
+      if (ie->ipv6()->tentativeAddrAssigned(addrObj))
+      {
+        return true;
+      }
+
       Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
              <<addrObj<<" undergoing DAD prefix="
              <<prefix<<"/"<<dec<<(int)prefix_len<<" at "
@@ -1045,7 +1056,8 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
     else
     {
 #endif //USE_MOBILITY
-
+      if (!ie->ipv6()->tentativeAddrAssigned(addrObj))
+      {
       if (!ifStats[ifIndex].manualLinkLocal)
       {
         //Skip DAD if auto conf link local interfaceID passed
@@ -1057,9 +1069,9 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
              <<nd->simTime());
         rt->assignAddress(addrObj, ifIndex);
       }
-      else
+      else 
         detectDupAddress(ifIndex, addrObj);
-
+      }
 #ifdef USE_MOBILITY
     }
 #endif //USE_MOBILITY

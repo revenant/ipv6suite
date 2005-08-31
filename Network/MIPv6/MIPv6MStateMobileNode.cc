@@ -1422,7 +1422,11 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 
-  if (homeReg) // BU sent to HA should not have any timestamp set
+  if (homeReg 
+#ifdef USE_HMIP
+      || mapReg
+#endif //USE_HMIP
+      ) // BU sent to HA should not have any timestamp set
   {
     assert( !timestamp );
     dgram->setTimestamp( mob->simTime() );

@@ -413,7 +413,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                       //This may not be exact lifetime as DAD delay will have reduced this
                       lifetime,
                       ifIndex, mob);
-  mstateMN->lbuVector.record(nd->simTime());
+  mstateMN->lbuVector->record(nd->simTime());
 
   IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
@@ -694,7 +694,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
                         ifIndex,
                         //newRtr->re.lock()->ifIndex(),
                         mob);
-    mstateMN->lbuVector.record(nd->simTime());
+    mstateMN->lbuVector->record(nd->simTime());
 /*
 #if EDGEHANDOVER
     if (mob->edgeHandover()) //and previous map distance > 1 then do pcoaf otherwise we would be in mapHandover anyway.

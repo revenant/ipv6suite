@@ -298,10 +298,15 @@ MIPv6MStateMobileNode* MIPv6MStateMobileNode::instance(void)
 }
 
 MIPv6MStateMobileNode::MIPv6MStateMobileNode(void)
-    :backVector("BAck recv"), buVector("BU sent"),
-     lbuVector("LBU sent"), lbackVector("LBAck recv"),
-     schedSendBU(0)
-{}
+    //:backVector("BAck recv"), buVector("BU sent"),
+    // lbuVector("LBU sent"), lbackVector("LBAck recv"),
+     :schedSendBU(0)
+{
+ backVector = new cOutVector("BAck recv");
+ buVector = new cOutVector("BU sent");
+ lbuVector = new cOutVector("LBU sent");
+ lbackVector = new cOutVector("LBAck recv");
+}
 
 MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
 {
@@ -451,7 +456,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   }
 
   if (dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
-    backVector.record(mob->simTime());
+    backVector->record(mob->simTime());
 
   if (!found)
     Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
@@ -514,7 +519,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
               hmipv6cds->currentMap().distance() > 1)
           {
 #endif //EDGEHANDOVER
-            lbackVector.record(mob->simTime());
+            lbackVector->record(mob->simTime());
           Dout(dc::hmip, " sending BU to all coa="
                <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
 
@@ -1456,7 +1461,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   //assert((dad && ack && homeReq) || !dad)
 
   if (mipv6cdsMN->primaryHA().get() && dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
-    buVector.record(mob->simTime());
+    buVector->record(mob->simTime());
   scheduleSendBU(dgram, mob);
 
   ///Create timer only when ack is set i.e for homeReg in this impln

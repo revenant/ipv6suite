@@ -112,10 +112,10 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   void sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t);
 
   void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr, IPv6Mobility* mob);
-  cOutVector backVector;
-  cOutVector buVector;
-  cOutVector lbuVector;
-  cOutVector lbackVector;
+  cOutVector* backVector;
+  cOutVector* buVector;
+  cOutVector* lbuVector;
+  cOutVector* lbackVector;
 
  protected:
   ///handle Binding Acks according to draft 16 10.14

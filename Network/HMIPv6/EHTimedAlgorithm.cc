@@ -97,9 +97,9 @@ void EHTimedAlgorithm::mapAlgorithm()
     }
     else
     {
-    MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
-      hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
-    Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
+      MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
+        hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
+      Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" mapAlgorithm sent bu to all based on BA from bue: "<<*bue);
     }
     mob->edgeHandoverCallback()->rescheduleDelay(interval);
@@ -128,6 +128,9 @@ void EHTimedAlgorithm::mapAlgorithm()
     //Called directly from processBA
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "
          <<mob->edgeHandoverCallback()->arrivalTime());
+
+    //record LBAck from MAP
+    mstateMN->lbackVector.record(nd->simTime());
 
     //Bind every x seconds from map ba
     //mob->edgeHandoverCallback()->rescheduleDelay(interval);

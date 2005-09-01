@@ -100,7 +100,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
   ///schedule msg for arrival at interval seconds from now
   void rescheduleDelay(simtime_t interval)
     {
-      //setOwner(mod);
+      cContextSwitcher context(mod);
       reschedule(mod->simTime()+interval);
     }
 

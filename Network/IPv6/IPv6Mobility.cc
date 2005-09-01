@@ -166,6 +166,8 @@ void IPv6Mobility::initialize(int stage)
   {
     if ( ewuOutVectorHODelays )
       handoverLatency = new cOutVector("L3 handover delay");
+    linkUpVector = new cOutVector("L2 Up");
+    linkDownVector = new cOutVector("L2 Down");
   }
 }
 
@@ -286,6 +288,7 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 {
   if ( msg->kind() == LinkDOWN)
   {
+    linkDownVector->record(msg->timestamp());
     // record MN's own handover delay
     if ( !prevLinkUpTime )
       return;    
@@ -300,10 +303,14 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
     // record link down time
     linkDownTime = simTime();
   }
-  else if ( msg->kind() == LinkUP && ewuOutVectorHODelays )
+  else if ( msg->kind() == LinkUP)
   {
-    Dout(dc::mipv6, nodeName()<<":"<< simTime() << " sec, link layer linkup trigger received.");
-    linkUpTime = msg->timestamp();
+    linkUpVector->record(msg->timestamp());
+    if (ewuOutVectorHODelays)
+    {
+      Dout(dc::mipv6, nodeName()<<":"<< simTime() << " sec, link layer linkup trigger received.");
+      linkUpTime = msg->timestamp();
+    }
   }
 }
 

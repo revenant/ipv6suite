@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <omnetpp.h>
+#include <string>
 
 #include "opp_utils.h" //abort_ipv6suite
 
@@ -239,11 +240,12 @@ private:
   // handoverLatency is the L3 layer handover delay = time when
   // obtaining new CoA - link up time
   cOutVector* handoverLatency; 
-
+  cOutVector* linkUpVector;
+  cOutVector* linkDownVector;  
   simtime_t linkUpTime; // time when establishing with new link
 
   MobileIPv6::SignalingEnhance _signalingEnhance;
-
+  
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created
   std::string ehType;

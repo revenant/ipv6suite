@@ -62,10 +62,23 @@ END
     cp -p $XMLFILE.xml $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug.\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
-    echo $SIMEXE -f $FILENAMEI.ini -r $SIMRUN '&>' test-$FILENAMEI.out
-    if [ "$DEBUG" != "y" ]; then
-        $SIMEXE -f $FILENAMEI.ini -r $SIMRUN &> test-$FILENAMEI.out &
+    perl -i -pwe "s|${INIFILE}\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
+    perl -i -pwe "s|${INIFILE}\.vec|omnetpp.vec|" $FILENAMEI.ini
+
+    local BACKGROUND
+    BACKGROUND="&"
+    if [ "$NOTIMEOUT" = "y" ]; then
+	BACKGROUND=
     fi
+
+    echo $SIMEXE -f $FILENAMEI.ini -r $SIMRUN '&>' test-$FILENAMEI.out $BACKGROUND
+    if [ "$DEBUG" != "y" ]; then
+        $SIMEXE -f $FILENAMEI.ini -r $SIMRUN &> test-$FILENAMEI.out $BACKGROUND
+    fi
+
+
+    if [ "$NOTIMEOUT" != "y" ]; then
+
     #do some checks on output e.g. ended etc.
     j=0
     until grep "Calling finish" test-$FILENAMEI.out &> /dev/null
@@ -102,6 +115,9 @@ END
         killall -9 $SIMEXE &> /dev/null
         echo "brute force required to kill!!"
     fi
+
+    fi #    if [ "$NOTIMEOUT" != "y" ]; then
+
     if [ -f omnetpp.vec ]; then
         local value
         value=`tail -1 < omnetpp.vec | cut -f 2`    
@@ -157,7 +173,7 @@ END
         DESTDIR=$DESTDIR-single
     fi
     mkdir -pv $DESTDIR
-    mv params.ini *.sh $FILENAMEI.vec $FILENAMEI.ini *.bz2 *.out $XMLFILE-$FILENAMEI.xml $DESTDIR
+    mv core.* params.ini *.sh $FILENAMEI.vec $FILENAMEI.ini *.bz2 *.out $XMLFILE-$FILENAMEI.xml $DESTDIR
 
     if [ "$PARALLEL" != "p" ]; then
         mv *.${GFORMAT} *.${GFORMAT}c $DESTDIR

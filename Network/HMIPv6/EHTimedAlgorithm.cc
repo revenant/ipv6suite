@@ -106,7 +106,7 @@ void EHTimedAlgorithm::mapAlgorithm()
   }
   else
   {
-/*
+
     if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
     {
       //Called when timer expires 
@@ -119,11 +119,12 @@ void EHTimedAlgorithm::mapAlgorithm()
         hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
       Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" First binding with HA so doing it straight away from bue: "<<*bue);
-      mob->edgeHandoverCallback()->cancel();
-      mob->edgeHandoverCallback()->rescheduleDelay(interval);
+      //mob->edgeHandoverCallback()->cancel();
+      //even with contextSwitcher still not able to reschedule message from diff module
+      //mob->edgeHandoverCallback()->rescheduleDelay(interval);
       return;
     }
-*/
+
 
     //Called directly from processBA
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "

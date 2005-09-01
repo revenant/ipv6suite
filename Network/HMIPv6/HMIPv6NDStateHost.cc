@@ -568,8 +568,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     //create tunnel from lcoa to old map
 
 */
-    //Destroy tunnel from old lcoa to old map
-    if (oldBULE && curMapCopy.v())
+    //Destroy tunnel from old lcoa to old map except when forwarding from old/bound map to current coa
+    if (oldBULE && curMapCopy.v() && oldBULE->careOfAddr() != rcoa)
       tunMod->destroyTunnel(oldBULE->careOfAddr(), curMapCopy.addr());
     //Destroy tunnel to HA from oldRcoa
     tunMod->destroyTunnel(oldRcoa, mipv6cdsMN->primaryHA()->prefix().prefix);

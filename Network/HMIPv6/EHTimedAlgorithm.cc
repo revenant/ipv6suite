@@ -100,12 +100,31 @@ void EHTimedAlgorithm::mapAlgorithm()
     MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
       hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
-           <<" mapAlgorithm sent bu to all based on BA from bue-"<<*bue);
+           <<" mapAlgorithm sent bu to all based on BA from bue: "<<*bue);
     }
     mob->edgeHandoverCallback()->rescheduleDelay(interval);
   }
   else
   {
+/*
+    if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
+    {
+      //Called when timer expires 
+      ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
+                                           (mob->edgeHandoverCallback()))->args)->srcAddress();
+    
+      MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
+
+      MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
+        hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
+      Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
+           <<" First binding with HA so doing it straight away from bue: "<<*bue);
+      mob->edgeHandoverCallback()->cancel();
+      mob->edgeHandoverCallback()->rescheduleDelay(interval);
+      return;
+    }
+*/
+
     //Called directly from processBA
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "
          <<mob->edgeHandoverCallback()->arrivalTime());

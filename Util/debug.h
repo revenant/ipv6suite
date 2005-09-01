@@ -47,7 +47,7 @@
 # define Dout(a, b)
 #else
 // use OMNeT++'s "ev" output
-# define Debug(x)  x
+# define Debug(x)  
 # define Dout(a, b)  ev << #a << ": " << b << "\n"
 #endif 
 

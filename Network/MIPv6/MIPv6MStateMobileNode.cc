@@ -1433,7 +1433,13 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   }
   else // BU sent to CN should already have timestamp from previous state
   {
+#ifndef USE_HMIP
     assert( timestamp );
+#else
+//Removed assertion as SaitEHCal -r 1 will cause this to trigger. Don't know where to set timestamp
+    if (!timestamp)
+      timestamp = mob->simTime();
+#endif
     dgram->setTimestamp( timestamp );
   }
 

@@ -110,6 +110,7 @@ void IPv6Forward::initialize(int stage)
     tunMod = check_and_cast<IPv6Encapsulation*>
       (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
     assert(tunMod != 0);
+    mob = 0;
 #endif //USE_MOBILITY
   }
   //numInitStages needs to be after creation of ND state in NeighbourDiscovery
@@ -481,7 +482,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 //#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
       Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
            <<boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-           ->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr()
+           ->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
            <<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
@@ -511,36 +512,33 @@ void IPv6Forward::endService(cMessage* theMsg)
             mob = boost::polymorphic_downcast<IPv6Mobility*>
               (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
           assert(mob != 0);
-          cerr<<"name is "<<mob->nodeName()<<endl;
           if (mob->edgeHandover())
           {
             EdgeHandover::EHCDSMobileNode* ehcds =
               boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
             assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
-            cerr<<"modified to bcoa="<<ehcds->boundCoa()<<" from nrcoa="<<hmipv6cdsMN->remoteCareOfAddr()<<endl; 
+            Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<" nrcoa="<<hmipv6cdsMN->remoteCareOfAddr()); 
 
             if (hmipv6cdsMN->remoteCareOfAddr() != ehcds->boundCoa() && 
                 ehcds->boundCoa() == datagram->srcAddress())
             {
-              cerr<<"Will reverse tunnel to current map even though src is bcoa"<<endl;            
-              docheck = false;
 
               HierarchicalMIPv6::HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
               if (bmap.v())
               {
-                size_t vIfIndex = tunMod->findTunnel(ehcds->boundCoa(), bmap.addr());
+                size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->remoteCareOfAddr(), bmap.addr());
                 assert(vIfIndex);
 
-              Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-                   <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
-                   <<" for dest="<<datagram->destAddress());
-              IPv6Datagram* copy = datagram->dup();
-              copy->setOutputPort(vIfIndex);
-              send(copy, "tunnelEntry");
-              return;
+                Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+                     <<" reverse tunnelling to BMAP vIfIndex="<<hex<<vIfIndex<<dec
+                     <<" for dest="<<datagram->destAddress());
+                IPv6Datagram* copy = datagram->dup();
+                copy->setOutputPort(vIfIndex);
+                send(copy, "tunnelEntry");
+                return;
               }
             }
-          } else
+          } 
 #endif //EDGEHANDOVER
 
           if (hmipv6cdsMN->remoteCareOfAddr() == datagram->srcAddress())
@@ -645,12 +643,15 @@ void IPv6Forward::endService(cMessage* theMsg)
       }
       else
       {
+        InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
+        ipv6_addr unready = dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>
+          (rt->mipv6cds)->careOfAddr(false);
+        if (ie->ipv6()->tentativeAddrs.size())
+          unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-             <<" No suitable src address available on foreign network as "
-             <<"ncoa in dad "<<
-             dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-             ->careOfAddr(false)
-             );
+             <<"No suitable src address available on foreign network as "
+             <<"ncoa in not ready from DAD or BA from HA/MAP not received "
+             <<unready<<" packet dropped");
       }
       datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }

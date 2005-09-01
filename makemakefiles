@@ -42,7 +42,7 @@ all:
 	cd Util && $(MAKEMAKE) $(OPTS) -n -r -X boost -X Topology -I. -I../Mobility -I../World -I../Base
 
 	: #FIXME try to eliminate dep in NetworkInterfaces, Ethernet6, PPP6, Wireless, Mobility!!
-	cd Network/IPv6 && $(MAKEMAKE) $(OPTS) -n -r -I. -I../ICMPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/PPP6 -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless  -I../HMIPv6  -I../MIPv6 -I../../Util -I../../Util/Loki -I../../World -I../../Mobility -I../.. -I../IPv4 -I../Contract -I../../Base
+	cd Network/IPv6 && $(MAKEMAKE) $(OPTS) -n -r -I. -I../ICMPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/PPP6 -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless  -I../HMIPv6  -I../MIPv6 -I../../Util -I../../Util/Loki -I../../World -I../../Mobility -I../.. -I../IPv4 -I../Contract -I../../Base -I../../Util/XML
 	: # dependency on Application/PingApp is not too nice
 	cd Network/ICMPv6 && $(MAKEMAKE) $(OPTS) -n -r -I. -I../IPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/PPP6 -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless  -I../HMIPv6  -I../MIPv6 -I../../Util -I../../Util/Loki -I../../World -I../../Mobility -I../.. -I../IPv4 -I../Contract -I../IPv6 -I../../Base -I../../Applications/PingApp
 	: #FIXME try to eliminate MIP dependency on HMIP and on Wireless!

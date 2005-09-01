@@ -82,7 +82,9 @@ void WorldProcessor::initialize(int stage)
 
     parser = new XMLConfiguration::XMLOmnetParser();
     parser->setDoc(config);
-    //XXX Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
+#ifdef CWDEBUG
+    Debug( libcwdsetup::l_debugSettings(parser->retrieveDebugChannels()) );
+#endif
 
 #ifdef USE_MOBILITY
     _maxLongitude = par("max_longitude").longValue();

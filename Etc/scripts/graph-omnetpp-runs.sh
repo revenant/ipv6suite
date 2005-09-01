@@ -20,6 +20,9 @@
 #SIMRUN=$3
 #NUMBEROFRUNS=$4
 #BEGINRUNNUMBER=$5 or 0
+#INIFILE= $6
+#XMLFILE= $7
+#NETNAME = $8
 local NUMBEROFGOODRUNS
 NUMBEROFGOODRUNS=0
 
@@ -34,7 +37,14 @@ function iterate
     else
         FILENAMEI=$FILENAME
     fi
-    cp -p $INIFILE.ini $FILENAMEI.ini
+pwd
+echo cp -p $INIFILE.ini $FILENAMEI.ini
+    cp -p $INIFILE.ini $FILENAMEI.ini 
+    if [ -f $INIFILE.ini ]; then
+ echo "file is here so screw you $INIFILE.ini"
+    cp -p ${INIFILE}.ini /tmp/${FILENAMEI}.ini 
+    fi
+pwd
 #remove default.ini because that contains a dummy xml file and ini is law
 #for first entry
     perl -i -pwe 's|.*\.xml\"$||g' $FILENAMEI.ini
@@ -45,6 +55,7 @@ function iterate
     if [ "$PARALLEL" = "p" ]; then
         echo "include params.ini" >> $FILENAMEI.ini
     fi
+    echo "Dam you"
     if [ "$NETNAME" = "ethernetwork" ]; then
         ruby << END > tmp
         File.open("random.txt", "r") do |file|

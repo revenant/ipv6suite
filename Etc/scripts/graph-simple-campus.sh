@@ -1,5 +1,6 @@
 
 
+#DEBUG=y
 ############Main
 SHDIR=~/bash
 # Directory to store plots and output data obtained under subdir $FILENAME
@@ -8,7 +9,8 @@ DATADIR=~/src/phantasia/master/output
 #SOURCEDIR=~/src/IPv6Suite
 SOURCEDIR=~/src/IPv6SuiteWithINET
 #SRCDIR=~/src/IPv6Suite-cvsbuildtest/IPv6Suite
-SCRIPTDIR=~/src/IPv6Suite/Etc/scripts
+#SCRIPTDIR=~/src/IPv6Suite/Etc/scripts
+SCRIPTDIR=${SOURCEDIR}/Etc/scripts
 
 # Retrieve bash cps functions and convnofastras
 . $SHDIR/functions
@@ -49,7 +51,9 @@ fi
 #SRCDIR=~/src/IPv6Suite-cvsbuildtest/IPv6Suite
 SRCDIR=$SOURCEDIR
 #TOPDIR=/local/cronbuild/IPv6Suite-eh-cwd
-TOPDIR=$SRCDIR
+#Do not use NFS home drive otherwise will not work
+#TOPDIR=$SRCDIR
+TOPDIR=/local/cronbuild/IPv6SuiteWithINET
 
 
 
@@ -79,7 +83,7 @@ if [ $? -ne 0 ]; then
 fi
 
 #Assuming things made
-pushd $SIMDIR &> /dev/null
+pushd $SIMDIR #&> /dev/null
 
 cp -p $XMLFILE.xml{,.orig}
 
@@ -92,13 +96,11 @@ do
 FILENAME=$conf
 #Change Run number depending on conf
 if [ "$conf" = "hmip-sait-noro" ]; then
-    echo $conf
   cp -p $XMLFILE.xml{.orig,}
   perl -i -pwe 's|routeOptimisation="on"|routeOptimisation="off"|g' $XMLFILE.xml
   perl -i -pwe "s|routeOptimisation='on'|routeOptimisation='off'|g" $XMLFILE.xml
 fi
 if [ "$conf" = "hmip-sait-hmip" ]; then
-    echo $conf
   cp -p $XMLFILE.xml{.orig,}
   perl -i -pwe 's|edgeHandoverType="Timed"||g' $XMLFILE.xml
   perl -i -pwe "s|edgeHandoverType='Timed'||g" $XMLFILE.xml
@@ -118,6 +120,6 @@ fi
 if [ ! -f $SCRIPTDIR/graph-omnetpp-runs.sh ]; then
     SCRIPTDIR=$SOURCEDIR/Etc/scripts
 fi
-
+    echo $conf
 . $SCRIPTDIR/graph-omnetpp-runs.sh
 done

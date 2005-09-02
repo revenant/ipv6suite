@@ -23,6 +23,8 @@
 #INIFILE= $6
 #XMLFILE= $7
 #NETNAME = $8
+#SIMTIMELIMIT = $9
+
 local NUMBEROFGOODRUNS
 NUMBEROFGOODRUNS=0
 
@@ -39,10 +41,10 @@ function iterate
     fi
 pwd
 echo cp -p $INIFILE.ini $FILENAMEI.ini
-    cp -p $INIFILE.ini $FILENAMEI.ini 
+    cp -p ${INIFILE}.ini ${FILENAMEI}.ini 
     if [ -f $INIFILE.ini ]; then
- echo "file is here so screw you $INIFILE.ini"
     cp -p ${INIFILE}.ini /tmp/${FILENAMEI}.ini 
+    cp -p /tmp/${FILENAMEI}.ini .
     fi
 pwd
 #remove default.ini because that contains a dummy xml file and ini is law
@@ -55,7 +57,6 @@ pwd
     if [ "$PARALLEL" = "p" ]; then
         echo "include params.ini" >> $FILENAMEI.ini
     fi
-    echo "Dam you"
     if [ "$NETNAME" = "ethernetwork" ]; then
         ruby << END > tmp
         File.open("random.txt", "r") do |file|
@@ -69,12 +70,14 @@ END
         echo ethernetwork.numOfClients = `cat tmp` >> $FILENAMEI.ini
         rm tmp
     fi
+    local VECFILE
+    VECFILE=${INIFILEI}.vec
     CWDEBUGFILE=debug-${FILENAMEI}.log
     cp -p $XMLFILE.xml $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug.\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|${INIFILE}\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
-    perl -i -pwe "s|${INIFILE}\.vec|omnetpp.vec|" $FILENAMEI.ini
+    perl -i -pwe "s|${INIFILE}\.vec|${VECFILE}|" $FILENAMEI.ini
 
     local BACKGROUND
     BACKGROUND="&"
@@ -129,9 +132,9 @@ END
 
     fi #    if [ "$NOTIMEOUT" != "y" ]; then
 
-    if [ -f omnetpp.vec ]; then
+    if [ -f ${VECFILE} ]; then
         local value
-        value=`tail -1 < omnetpp.vec | cut -f 2`    
+        value=`tail -1 < ${VECFILE} | cut -f 2`    
         #if [ $value -lt $SIMTIMELIMIT ]; then #works for integers only
         value=`echo $value '<' $SIMTIMELIMIT|bc`
         if [ $value -eq 1 ] ; then
@@ -166,10 +169,12 @@ END
     fi
     bzip2 ${CWDEBUGFILE}
     bzip2 test-$FILENAMEI.out
-    mv omnetpp.vec $FILENAMEI.vec
-    if [ "$DEBUG" != "y" ]; then
-        . $SCRIPTDIR/graph-plot-graph.sh
-    fi
+#    mv omnetpp.vec $FILENAMEI.vec
+
+# todo check if still works and valid
+#    if [ "$DEBUG" != "y" ]; then
+#        . $SCRIPTDIR/graph-plot-graph.sh
+#    fi
 
     DESTDIR=$DATADIR/$FILENAME
     

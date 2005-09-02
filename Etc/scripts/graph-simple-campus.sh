@@ -69,7 +69,7 @@ SIMEXE=./${EXDIRNAMES}
 INIFILE=CampusEH
 XMLFILE=$INIFILE
 BEGINSIMTIME=10 #Used by graph-plot-graph.sh
-SIMTIMELIMIT="698.0" #set to diff value by each config (limit in ini file to 2 decimal places.) Make sure ping will have times exceeding this as graph-omnetpp-runs.sh checks for this too as a proper run.
+SIMTIMELIMIT="81.5" #set to diff value by each config (limit in ini file to 2 decimal places.) Make sure ping will have times exceeding this as graph-omnetpp-runs.sh checks for this too as a proper run.
 
 NETNAME=`grep "network =" $TOPDIR/$SIMDIR/$INIFILE.ini |cut -d " " -f 3` #mipv6fastRANet
 #Assumes output vector filename is omnetpp.vec if not change or make
@@ -106,12 +106,12 @@ if [ "$conf" = "hmip-sait-hmip" ]; then
   perl -i -pwe "s|edgeHandoverType='Timed'||g" $XMLFILE.xml
 fi
 if [ "$conf" = "mip-sait" ]; then
-    cp -p $XMLFILE.xml{.orig,}
     EXDIRNAMES="MIPv6Network"
     SIMEXE=./${EXDIRNAMES}
     SIMDIR=Examples/IPv6/${EXDIRNAMES}
     popd
     pushd $SIMDIR &> /dev/null
+    cp -p $XMLFILE.xml{.orig,}
     perl -i -pwe 's|edgeHandoverType="Timed"||g' $XMLFILE.xml
     perl -i -pwe "s|edgeHandoverType='Timed'||g" $XMLFILE.xml
     perl -i -pwe 's|hierarchicalMIPv6Support="on"||g' $XMLFILE.xml
@@ -123,3 +123,4 @@ fi
     echo $conf
 . $SCRIPTDIR/graph-omnetpp-runs.sh
 done
+#cp -p $XMLFILE.xml{.orig,}

@@ -40,6 +40,16 @@
 
 #ifdef USE_MOBILITY
 struct ipv6_addr;
+
+#ifndef LIST
+#define LIST
+#include <list>
+#endif //LIST
+
+#ifndef CTIMERMESSAGECB_H
+#include "cTimerMessageCB.h" //schedSendBU
+#endif //  CTIMERMESSAGECB_H
+
 #endif
 
 
@@ -68,6 +78,7 @@ namespace MobileIPv6
   class MIPv6MStateMobileNode;
   class MIPv6MStateHomeAgent;
   class MIPv6MobilityState;
+  class BURetranTmr;
 }
 
 class cTimerMessage;
@@ -176,6 +187,20 @@ public:
     }
 
   void parseXMLAttributes();
+
+
+  // TODO: it would probably make more sense to add buRetransTmr in
+  // each of the BUL entry instead of storing a list of buRetransTmrs
+  // in the state class.
+
+  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
+  typedef BURetranTmrs::iterator BURTI;
+
+  BURetranTmrs buRetranTmrs;
+
+  Loki::cTimerMessageCB
+  <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
+  schedSendBU;
 
 #endif // USE_MOBILITY
 

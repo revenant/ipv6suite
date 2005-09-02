@@ -61,13 +61,14 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 #endif //EDGEHANDOVER
 #endif //USE_HMIP
 
-
 namespace MobileIPv6
 {
 
 const simtime_t CELL_RESI_THRESHOLD = 4;
 
 class BURetranTmr;
+typedef std::list<BURetranTmr*> BURetranTmrs;
+typedef BURetranTmrs::iterator BURTI;
 
 /**
    @class BURetranTmr
@@ -103,7 +104,8 @@ public:
       {
         Dout(dc::warning|flush_cf, nodeName<<" "<<simulation.simTime()
              <<" todo find out why BU to unspecified address (removing timer)");
-        stateMN->removeBURetranTmr(this);
+        assert(dynamic_cast<IPv6Mobility*>(mod));
+        stateMN->removeBURetranTmr(this, (IPv6Mobility*) mod);
         return;
       }
 
@@ -297,14 +299,11 @@ MIPv6MStateMobileNode* MIPv6MStateMobileNode::instance(void)
   return _instance;
 }
 
-MIPv6MStateMobileNode::MIPv6MStateMobileNode(void):schedSendBU(0)
+MIPv6MStateMobileNode::MIPv6MStateMobileNode(void)
 {}
 
 MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
-{
-  delete schedSendBU;
-  schedSendBU = 0;
-}
+{}
 
 void MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram,
                                                MIPv6MobilityHeaderBase*& mhb,
@@ -418,7 +417,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   //addr not more(when multiple interfaceID's exist), if we do then will need to
   //check exactly for which care of addr we are removing timer for
   bool found = false;
-  for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
+  for (BURTI it = mob->buRetranTmrs.begin(); it != mob->buRetranTmrs.end(); it++)
   {
     if ((*it)->dgram->destAddress() == dgram->srcAddress())
     {
@@ -441,7 +440,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
       }
       Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
            <<" deleting BURetranTmr as we received Back from "<<dgram->srcAddress());
-      removeBURetranTmr(*it);
+      removeBURetranTmr(*it, mob);
       found = true;
       break;
     }
@@ -1212,9 +1211,9 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility
   delete br;
 }
 
-void MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr)
+void MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr, IPv6Mobility* mob)
 {
-  buRetranTmrs.remove(buTmr);
+  mob->buRetranTmrs.remove(buTmr);
   delete buTmr;
 }
 
@@ -1475,7 +1474,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       assert(static_cast<int> (timeout) > 0);
       //Should we preserve the value instead of truncating timeout?
       buTmr = new BURetranTmr(static_cast<int>(timeout), dgram->dup(), this, mipv6cdsMN, mob);
-      buRetranTmrs.push_back(buTmr);
+      mob->buRetranTmrs.push_back(buTmr);
     }
     else
     {
@@ -1484,7 +1483,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       bool found = false;
       Dout(dc::mipv6|dc::warning|flush_cf, mob->nodeName()<<" "<<bule->state
            <<" outstanding BU transmission already");
-      for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
+      for (BURTI it = mob->buRetranTmrs.begin(); it != mob->buRetranTmrs.end(); it++)
       {
         if ((*it)->dgram->destAddress() == dgram->destAddress())
         {
@@ -1605,19 +1604,19 @@ void MIPv6MStateMobileNode::scheduleSendBU(IPv6Datagram* dgram, IPv6Mobility* mo
 //       new Loki::cTimerMessageCB< int, TYPELIST_2(cMessage*, const char*)>
 //       (Sched_SendBU, mob, mob, static_cast<sendPtr>(&IPv6Mobility::send), "Sched_SendBU");
 
-    schedSendBU =
+    mob->schedSendBU =
       new Loki::cTimerMessageCB
       <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>
       (Sched_SendBU, mob, &dupSend, "Sched_SendBU");
-    Loki::Field<1> (schedSendBU->args) = "routingOut";
-    Loki::Field<2> (schedSendBU->args) = mob;
-    Loki::Field<3> (schedSendBU->args) = schedSendBU;
+    Loki::Field<1> (mob->schedSendBU->args) = "routingOut";
+    Loki::Field<2> (mob->schedSendBU->args) = mob;
+    Loki::Field<3> (mob->schedSendBU->args) = mob->schedSendBU;
   }
 
-  Loki::Field<0> (schedSendBU->args) = dgram;
-  mob->scheduleAt(mob->simTime() +  SELF_SCHEDULE_DELAY, schedSendBU);
+  Loki::Field<0> (mob->schedSendBU->args) = dgram;
+  mob->scheduleAt(mob->simTime() +  SELF_SCHEDULE_DELAY, mob->schedSendBU);
   //will be deleted by callback dupSend
-  schedSendBU = 0;
+  mob->schedSendBU = 0;
 }
 
 } //namespace MobileIPv6

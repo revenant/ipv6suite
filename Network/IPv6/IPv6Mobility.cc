@@ -107,6 +107,7 @@ void IPv6Mobility::initialize(int stage)
     _MobilityState = 0;
     periodTmr = 0;
 #ifdef USE_MOBILITY
+    schedSendBU = 0;
     linkDownTime = 0;
     handoverDelay = 0;
     prevLinkUpTime = 0; 
@@ -189,6 +190,8 @@ void IPv6Mobility::finish()
   periodTmr = 0;
   delete mipv6cds;
   mipv6cds = 0;
+  delete schedSendBU;
+  schedSendBU = 0;
 #endif
 }
 

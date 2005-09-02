@@ -28,20 +28,9 @@
 #ifndef MIPV6MSTATEMOBILENODE_H
 #define MIPV6MSTATEMOBILENODE_H
 
-#ifndef LIST
-#define LIST
-#include <list>
-#endif //LIST
-
 #ifndef MIPV6MSTATECORRESPONDENTNODE_H
 #include "MIPv6MStateCorrespondentNode.h"
 #endif //MIPV6MSTATECORRESPONDENTNODE_H
-
-#ifndef CTIMERMESSAGECB_H
-#include "cTimerMessageCB.h" //schedSendBU
-#endif //  CTIMERMESSAGECB_H
-
-
 
 class IPv6Datagram;
 class IPv6Mobility;
@@ -75,7 +64,7 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   ///@name Implementation details
   //@{
-  void removeBURetranTmr(BURetranTmr* buTmr);
+  void removeBURetranTmr(BURetranTmr* buTmr, IPv6Mobility* mob);
   //@}
 
   ///Sends a binding update to primary HA and HA/CN in BUL too
@@ -137,18 +126,6 @@ private:
   ///Schedule a self message to send BU from any module
   void scheduleSendBU(IPv6Datagram* dgram, IPv6Mobility* mob);
 
-  typedef std::list<BURetranTmr*> BURetranTmrs;
-  typedef BURetranTmrs::iterator BURTI;
-
-  // TODO: it would probably make more sense to add buRetransTmr in
-  // each of the BUL entry instead of storing a list of buRetransTmrs
-  // in the state class.
-
-  BURetranTmrs buRetranTmrs;
-
-  Loki::cTimerMessageCB
-  <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
-  schedSendBU;
 };
 
 } // end namespace MobileIPv6

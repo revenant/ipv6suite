@@ -131,7 +131,7 @@ void EHTimedAlgorithm::mapAlgorithm()
          <<mob->edgeHandoverCallback()->arrivalTime());
 
     //record LBAck from MAP
-    mstateMN->lbackVector->record(nd->simTime());
+    mob->lbackVector->record(nd->simTime());
 
     //Bind every x seconds from map ba
     //mob->edgeHandoverCallback()->rescheduleDelay(interval);

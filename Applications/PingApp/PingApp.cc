@@ -169,7 +169,7 @@ void PingApp::processPingResponse(PingPayload *msg)
              << " bytes from " << src
              << " icmp_seq=" << msg->seqNo() << " ttl=" << msgHopCount
              << " time=" << (rtt * 1000) << " msec"
-             << " (" << msg->name() << ")" << endl;
+             << " (" << msg->name() << ")" << " at "<<simTime()<<"\n";
     }
 
     // update statistics

@@ -209,6 +209,11 @@ public:
 
   const char* nodeName() const;
 
+  cOutVector* backVector;
+  cOutVector* buVector;
+  cOutVector* lbuVector;
+  cOutVector* lbackVector;
+
 protected:
 #ifdef USE_MOBILITY
   simtime_t l2LinkDownTime;

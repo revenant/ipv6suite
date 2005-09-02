@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.3 $"
-  REVISION_DATE = "$Date: 2005/09/02 05:33:14 $"
+  VERSION       = "$Revision: 1.4 $"
+  REVISION_DATE = "$Date: 2005/09/02 07:28:49 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -287,6 +287,9 @@ end
 #for each config append this stuff and perhaps make xml config dependent too
 #and gen diff ones from here or just copy modulename.xml and search replace
 if false
+  ["sait-hmip" "sait-eh" "sait-mip"].each{ |configname|
+    `cp -p #{modulename}.ini #{configname}.ini`
+var = ""
 1.upto(@runCount) do |i|
   vectorfile = configname + i.to_s + ".vec"
   scalarfile = configname + i.to_s + ".sca"
@@ -305,6 +308,8 @@ defaultini.insert(0, "../") if not $noINET
 var += <<EOF
 include #{defaultini}
 EOF
+   File.open("#{configname}.ini", "a"){|f| f << var}
+  }
 end
 
   end#run
@@ -652,6 +657,7 @@ def generateChannels
 //Look at ethernet.cc for BANDWIDTH constant and alter that.
 channel #{modulename}IntranetCable
     datarate 100e6
+    delay 10e-3
 endchannel
 
 channel #{modulename}InternetCable

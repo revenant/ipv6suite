@@ -205,7 +205,9 @@ public:
 #endif // USE_MOBILITY
 
 #ifdef USE_HMIP
-  bool isMAP();
+  bool isMAP() const;
+
+  bool hmipSupport() const;
 
 #if EDGEHANDOVER
   bool edgeHandover() const
@@ -239,6 +241,10 @@ public:
   cOutVector* lbuVector;
   cOutVector* lbackVector;
 
+  InterfaceTable *ift;
+  RoutingTable6 *rt;
+
+  MobileIPv6::MIPv6CDS* mipv6cds;
 protected:
 #ifdef USE_MOBILITY
   simtime_t l2LinkDownTime;
@@ -251,11 +257,8 @@ private:
 
   void processLinkLayerTrigger(cMessage* msg);
 private:
-  InterfaceTable *ift;
-  RoutingTable6 *rt;
 
   MobileIPv6::MIPv6MobilityState* _MobilityState;
-  MobileIPv6::MIPv6CDS* mipv6cds;
 
   cTimerMessage* periodTmr;
 
@@ -272,11 +275,13 @@ private:
   simtime_t linkUpTime; // time when establishing with new link
   MobileIPv6::SignalingEnhance _signalingEnhance;
   
+public:
   cOutVector* handoverLatency; 
   cOutVector* linkUpVector;
   cOutVector* linkDownVector;  
   cOutVector* lbbuVector;
   cOutVector* lbbackVector;
+private:
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created
   std::string ehType;

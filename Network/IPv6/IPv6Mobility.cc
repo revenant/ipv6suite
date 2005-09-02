@@ -326,10 +326,15 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 #endif // USE_MOBILITY
 
 #ifdef USE_HMIP
-  bool IPv6Mobility::isMAP()
+  bool IPv6Mobility::isMAP() const
     {
       return rt->isMAP();
     }
+
+bool IPv6Mobility::hmipSupport() const
+{
+  return rt->hmipSupport();
+}
 #endif // USE_HMIP
 
 const char* IPv6Mobility::nodeName() const

@@ -86,7 +86,7 @@ namespace MobileIPv6
    *
    * @arg old true by default to maintain compability will return coa registered with pHA
    *
-   * if arg is true and a newer coa has been created but awaiting dad then that
+   * if arg is false and a newer coa has been created but awaiting dad then that
    * coa is returned. This may or may not be registered with ha depending on
    * whether opt dad is done in which case there should not be a diffrence.
    * new coa is written to by setFutureCoa which MIPv6NDStateHost::processRtrAdv does
@@ -101,7 +101,11 @@ namespace MobileIPv6
       if (futureCoa != IPv6_ADDR_UNSPECIFIED)
       {
         if (bule != 0)
-          assert(bule->careOfAddr() != futureCoa);
+        {
+          //assert(bule->careOfAddr() != futureCoa);
+          if (bule->careOfAddr() == futureCoa)
+            cerr<<"why futureCoa is same as coa "<<futureCoa;
+        }
         if (!old)
         {
           Dout(dc::debug|flush_cf,

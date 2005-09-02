@@ -53,7 +53,7 @@ pwd
     perl -i -pwe 's|.*default.ini$||g' $FILENAMEI.ini
     #standardize networkname
     echo "$NETNAME.*.IPv6routingFile =\"$XMLFILE-$FILENAMEI.xml\"" >> $FILENAMEI.ini
-    echo "include ../../Etc/default.ini" >> $FILENAMEI.ini
+    echo "include ../../../Etc/default.ini" >> $FILENAMEI.ini
     if [ "$PARALLEL" = "p" ]; then
         echo "include params.ini" >> $FILENAMEI.ini
     fi
@@ -71,13 +71,15 @@ END
         rm tmp
     fi
     local VECFILE
-    VECFILE=${INIFILEI}.vec
+    VECFILE=${FILENAMEI}.vec
+    echo $VECFILE
     CWDEBUGFILE=debug-${FILENAMEI}.log
     cp -p $XMLFILE.xml $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug.\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|debug\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|${INIFILE}\.log|${CWDEBUGFILE}|" $XMLFILE-$FILENAMEI.xml
     perl -i -pwe "s|${INIFILE}\.vec|${VECFILE}|" $FILENAMEI.ini
+    echo perl -i -pwe "s|${INIFILE}\.vec|${VECFILE}|" $FILENAMEI.ini
 
     local BACKGROUND
     BACKGROUND="&"

@@ -269,13 +269,14 @@ private:
   bool ewuOutVectorHODelays;
   // handoverLatency is the L3 layer handover delay = time when
   // obtaining new CoA - link up time
+  simtime_t linkUpTime; // time when establishing with new link
+  MobileIPv6::SignalingEnhance _signalingEnhance;
+  
   cOutVector* handoverLatency; 
   cOutVector* linkUpVector;
   cOutVector* linkDownVector;  
-  simtime_t linkUpTime; // time when establishing with new link
-
-  MobileIPv6::SignalingEnhance _signalingEnhance;
-  
+  cOutVector* lbbuVector;
+  cOutVector* lbbackVector;
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created
   std::string ehType;

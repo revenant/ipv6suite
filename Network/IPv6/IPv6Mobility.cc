@@ -132,12 +132,12 @@ void IPv6Mobility::initialize(int stage)
         mipv6cds = new MIPv6CDSHomeAgent(ift->numInterfaceGates());
       else if (isMobileNode())
       {
-
         backVector = new cOutVector("BAck recv");
         buVector = new cOutVector("BU sent");
         lbuVector = new cOutVector("LBU sent");
         lbackVector = new cOutVector("LBAck recv");
-
+        lbbuVector = new cOutVector("LBBU sent");
+        lbbackVector = new cOutVector("LBBAck sent");
 #ifdef USE_HMIP
         if (!rt->hmipSupport())
 #endif //USE_HMIP

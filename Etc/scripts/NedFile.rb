@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.1 $"
-  REVISION_DATE = "$Date: 2005/09/01 14:31:49 $"
+  VERSION       = "$Revision: 1.2 $"
+  REVISION_DATE = "$Date: 2005/09/02 00:33:07 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -353,7 +353,7 @@ preload-ned-files=*.ned @../../../nedfiles.lst
 total-stack-kb=17535
 ini-warnings = no
 warnings = yes
-sim-time-limit = 702
+sim-time-limit = 202
 
 [Cmdenv]
 module-messages = no
@@ -398,7 +398,7 @@ EOF
       
       if @ping
         ping = "#{netName}.mn#{i}.#{pingAppName}."
-        var = iniPingTraffic(var, ping, destAddr, 10, 0.1)
+        var = iniPingTraffic(var, ping, destAddr, 10, 0.5)
       end
 
       var << "\n"
@@ -458,11 +458,13 @@ EOF
 #{netName}.mn**.linkLayers[*].NWIName="WirelessEtherModule"
 EOF
 if not $noINET
+  var += <<EOF
 #{netName}.**.networkInterface.authenticationTimeout = 3000
 #{netName}.**.networkInterface.associationTimeout = 3000
 #{netName}.**.networkInterface.txPower = 1.5
 #{netName}.**.networkInterface.linkUpTrigger = true
 #{netName}.**.networkInterface.linkDownTrigger = true
+EOF
 end
 
   #Hardcoded channels

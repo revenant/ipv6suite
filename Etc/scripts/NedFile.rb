@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.2 $"
-  REVISION_DATE = "$Date: 2005/09/02 00:33:07 $"
+  VERSION       = "$Revision: 1.3 $"
+  REVISION_DATE = "$Date: 2005/09/02 05:33:14 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -57,6 +57,7 @@ class NedFile
     @verbose  = false
     @quit     = false
     @mnCount  = 50
+    @runCount = 20
     @mip6 = false
     @ping = false
     @video = false
@@ -102,6 +103,8 @@ class NedFile
 
       opt.on("--mncount", "-m [Integer]", OptionParser::DecimalInteger, "Number of MNs to generate"){|@mnCount|}
 
+      opt.on("--runcount", "-r [Integer]", OptionParser::DecimalInteger, "Number of runs to generate in inifile"){|@runCount|}
+
       opt.on("--mip6", "-M", "Add MIPv6 options to MN in xml file"){|@mip6|}
 
       opt.on("--ping", "-p", "Add ping traffic sources for all MNs"){|@ping|}
@@ -127,6 +130,7 @@ class NedFile
 
       opt.on("--unittest", "-u", "Run unit tests"){|$unittest|}
 
+#      opt.on("--configname", "-c [String]", "Configuration name for this batch of runs and resulting output files"){|@configname|}
 
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -278,6 +282,31 @@ end
       xdoc.write(f, 0)
     end
     File.open("#{modulename}.ini", "w"){|f| f << generateIni }
+
+#copy ini file to configname
+#for each config append this stuff and perhaps make xml config dependent too
+#and gen diff ones from here or just copy modulename.xml and search replace
+if false
+1.upto(@runCount) do |i|
+  vectorfile = configname + i.to_s + ".vec"
+  scalarfile = configname + i.to_s + ".sca"
+  var += <<EOF
+
+[Run #{i}]
+output-vector-file = #{vectorfile}
+output-scalar-file = #{scalarfile}
+
+EOF
+end 
+
+defaultini = "../../Etc/default.ini"
+defaultini.insert(0, "../") if not $noINET
+
+var += <<EOF
+include #{defaultini}
+EOF
+end
+
   end#run
 
   def calculateAPPositions(width = 100, offset = width/2)
@@ -365,7 +394,7 @@ animation-speed = 1.0
 EOF
     #runs
     var += <<EOF
-[Run 1]
+[Parameters]
 
 EOF
   cns = @vs.select {|k,v| v.kind_of? Host}
@@ -442,8 +471,6 @@ EOF
 ;#{netName}.cn**.ping6App.interval = 0.01
 ;#{netName}.cn**.ping6App.packetSize = 1000
 
-
-output-vector-file = #{modulename}.vec
 EOF
 
  end
@@ -453,7 +480,7 @@ EOF
       xmldoc = xmldoc+")"
     end
     var += <<EOF
-[Parameters]
+
 #{netName}.**.IPv6routingFile = #{xmldoc}
 #{netName}.mn**.linkLayers[*].NWIName="WirelessEtherModule"
 EOF
@@ -493,9 +520,6 @@ EOF
       end
     end
 
-defaultini = "../../Etc/default.ini"
-defaultini.insert(0, "../") if not $noINET
-
     var += <<EOF
 #{netName}.*ap*.wirelessAccessPoint.networkInterface.nwiXmlConfig=xmldoc("#{modulename}.xml","netconf/global/WirelessEtherInfo/WEInfo")
 #{netName}.mn*.linkLayers[0].networkInterface.nwiXmlConfig=xmldoc("#{modulename}.xml","netconf/global/WirelessEtherInfo/WEInfo")
@@ -510,9 +534,28 @@ defaultini.insert(0, "../") if not $noINET
 *.cn*.linkLayers[*].NWIName="IPv6PPPInterface"
 *.ar*.linkLayers[0].NWIName="IPv6PPPInterface"
 
+EOF
+
+1.upto(@runCount) do |i|
+  vectorfile = modulename + i.to_s + ".vec"
+  scalarfile = modulename + i.to_s + ".sca"
+  var += <<EOF
+
+[Run #{i}]
+output-vector-file = #{vectorfile}
+output-scalar-file = #{scalarfile}
+
+EOF
+end 
+
+defaultini = "../../Etc/default.ini"
+defaultini.insert(0, "../") if not $noINET
+
+var += <<EOF
 include #{defaultini}
 EOF
-  end
+  end #generateIni
+
   def generateNed(*g)
     ned = generateHeader
     ned += generateImports

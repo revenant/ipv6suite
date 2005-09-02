@@ -151,9 +151,36 @@ public:
       BU* bu = check_and_cast<BU*> (dgram->encapsulatedMsg());
       bu->setSequence(bule->sequence());
       module()->send(dgram->dup(), "routingOut");
+
+      IPv6Mobility* mob = static_cast<IPv6Mobility*>(mod);
+      simtime_t now = module()->simTime();
+      if (dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
+      {
+        mob->buVector->record(now);
+      }
+#ifdef USE_HMIP
+      else if (mob->hmipSupport())
+      {
+        HMIPv6CDSMobileNode* hmipv6cds =
+          boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mob->mipv6cds);
+        assert(hmipv6cds);
+
+#if EDGEHANDOVER
+        if (mob->edgeHandover() && dgram->destAddress() == ((EdgeHandover::EHCDSMobileNode*)hmipv6cds)->boundMapAddr())
+        {
+          mob->lbbuVector->record(now);
+        } else
+#endif //EDGEHANDOVER
+          if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->destAddress())
+          {
+            mob->lbuVector->record(now);
+          }
+      }
+#endif //USE_HMIP
+
       assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
-      Dout(dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()
-           <<" Resending BU for the "<<dgram->destAddress());
+      Dout(dc::mipv6|flush_cf, nodeName<<" "<<now<<" Resending BU for the "
+           <<dgram->destAddress());
 
     }
 
@@ -478,7 +505,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
 #ifdef USE_HMIP
     //mob->sendDirect(new ICMPv6Message(0,0, dgram->dup()), 0, nd, NDiscOut);
-    if (mob->rt->hmipSupport())
+    if (mob->hmipSupport())
     {
 
       HMIPv6CDSMobileNode* hmipv6cds =
@@ -645,7 +672,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
 
 #ifdef USE_HMIP
   HMIPv6CDSMobileNode* hmipv6cdsMN = 0;
-  if (mob->rt->hmipSupport())
+  if (mob->hmipSupport())
   {
     hmipv6cdsMN = boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mipv6cdsMN);
     assert(hmipv6cdsMN);
@@ -659,7 +686,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
 #ifdef USE_HMIP
     //point of hmip is to bind with MAP first to eliminate extra binding.
     //HMIP can send BU to MAP before BU to HA
-    || (mob->rt->hmipSupport() &&
+    || (mob->hmipSupport() &&
         !mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr()) &&
         hmipv6cdsMN->isMAPValid())
 #endif //USE_HMIP
@@ -700,8 +727,8 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
 
 #ifdef USE_HMIP
       //Forwarding from previous MAP to new MAP is already done in HMIP
-      if (!mob->rt->hmipSupport() ||
-          (mob->rt->hmipSupport() && !hmipv6cdsMN->isMAPValid()) )
+      if (!mob->hmipSupport() ||
+          (mob->hmipSupport() && !hmipv6cdsMN->isMAPValid()) )
       {
 #endif //USE_HMIP
         previousCoaForward(coa, oldcoa, mob);
@@ -1254,7 +1281,7 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
 
     //WARNING  :  hoa=30f4:0:0:3:c274:82ff:fea6:958b is not on link w.r.t. HA prefix list
     bool hmipFlag = false;
-    if (mob->rt->hmipSupport())
+    if (mob->hmipSupport())
     {
       HMIPv6CDSMobileNode* hmipv6cdsMN = boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mipv6cdsMN);
       assert(hmipv6cdsMN);

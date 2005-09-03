@@ -83,7 +83,7 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   assert(rtrAdv.get() != 0);
   if (rtrAdv.get() == 0)
   {
-    Dout(dc::core|error_cf, rt->nodeName()
+    DoutFatal(dc::core|error_cf, rt->nodeName()
          <<" HMIP rtrAdv was invalidated after normal MIPv6 processing");
     return rtrAdv;
   }

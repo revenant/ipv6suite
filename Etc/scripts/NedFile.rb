@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.5 $"
-  REVISION_DATE = "$Date: 2005/09/03 07:47:43 $"
+  VERSION       = "$Revision: 1.6 $"
+  REVISION_DATE = "$Date: 2005/09/03 13:14:39 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -196,7 +196,7 @@ end
       le.add_attributes Hash[* %w|routePackets on| ] if start.kind_of? Router
 
       #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
-      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent map on hierarchicalMIPv6Support on | ] if start.kind_of? AR
+      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent map on hierarchicalMIPv6Support on | ] if start.kind_of? AR or start.kind_of? HA
 
 
       ifaces = %w|eth0 ppp0|
@@ -212,10 +212,14 @@ end
         iface.ifname = ifname.dup
         ie.add_element("inetAddr").text = iface.address
 
-        if start.kind_of? Router and not iface.remoteNode.kind_of? Router
-          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|]    #for APs or fixed cn
-
-          if iface.remoteNode.kind_of? AP
+        if start.kind_of? Router 
+          if not iface.remoteNode.kind_of? Router or start.kind_of? HA
+            ie.add_attributes Hash[* %w|AdvSendAdvertisements on|]    #for APs or fixed cn
+          end
+        
+          #HA needs to have an adv prefix list otherwise
+          #it will reject BUs as it checks hoa against prefix when using assigned HA
+          if iface.remoteNode.kind_of? AP or start.kind_of? HA
 
             #We need all ARs to adv. as HA as MN do not have a preconfigured
             #HA. So first HA they see is primary HA will conflict with existing

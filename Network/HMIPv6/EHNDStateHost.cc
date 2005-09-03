@@ -84,9 +84,9 @@ namespace EdgeHandover
 //   new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,
 //                  &EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
 //                  "EHInvokeMapAlgorithmCallback"));
-
+  check_and_cast<cSimpleModule*>(nd);
   ehcds->bcoaChangedNotifier =
-    new BoundMapChangedCB(Tmr_EHBMapChangedCB, (cSimpleModule*)nd, this,
+    new BoundMapChangedCB(Tmr_EHBMapChangedCB, static_cast<cSimpleModule*>(nd), this,
                           &EdgeHandover::EHNDStateHost::invokeBoundMapChangedCallback,
                           "EHInvokedBoundMapChangedCallback");
 }

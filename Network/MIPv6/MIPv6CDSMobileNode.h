@@ -68,7 +68,7 @@ namespace MobileIPv6
 
     friend class MIPv6NDStateHost;
     friend class MIPv6MStateMobileNode;
-
+    friend class IPv6Mobility; //_homeAddr
   public:
 
     //@name constructors, destructors and operators
@@ -258,6 +258,16 @@ namespace MobileIPv6
 
     ipv6_addr formCareOfAddress(boost::weak_ptr<MIPv6RouterEntry> re,
                                 InterfaceEntry *ie) const;
+
+    
+    /**
+     * @param re the MIPv6 router to form hoa from
+     * @param ie the interface to retrieve Interface ID from
+     * @param primaryHoa sets homeAddr/homePrefix if true
+     */
+
+    ipv6_prefix formHomeAddress(boost::weak_ptr<MIPv6RouterEntry> re,
+                                InterfaceEntry *ie, bool primaryHoa);
 
     ///Returns the preferred lifetime management function to be called at every
     ///period

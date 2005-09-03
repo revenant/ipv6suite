@@ -52,6 +52,8 @@ class CR < Router
 end
 class AR < Router
 end
+class HA < Router
+end
 
 class Vertex
 
@@ -64,6 +66,7 @@ class Vertex
       @@nedTypes[CR] = NedType.new("Router6", "cr", "router")
       @@nedTypes[AP] = NedType.new("AccessPoint", "ap", "switch1_s")
       @@nedTypes[Host] = NedType.new("UDPNode", "cn", "pc")
+      @@nedTypes[HA] = NedType.new("Router6", "ha", "router")
     end
     @@nedTypes
   end
@@ -151,6 +154,8 @@ dg.each{|v|
             CR.new(v)
           when 10
             Host.new(v)
+          when 11
+            HA.new(v)
           else
             AR.new(v)
           end

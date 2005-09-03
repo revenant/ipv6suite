@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.4 $"
-  REVISION_DATE = "$Date: 2005/09/02 07:28:49 $"
+  VERSION       = "$Revision: 1.5 $"
+  REVISION_DATE = "$Date: 2005/09/03 07:47:43 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -167,7 +167,7 @@ class NedFile
     #read graph and draw from here
     #require or C-x C-l is good for syntax checking
     require "gentopology.rb"
-    dg=RGL::AdjacencyGraph[1,2, 2,3, 3,4, 2,5, 1,6, 6,7, 6,8, 7,9, 1,10]
+    dg=RGL::AdjacencyGraph[1,2, 2,3, 3,4, 2,5, 1,6, 6,7, 6,8, 7,9, 1,10, 1,11]
     g, @vs = genEHTopology(dg)
     @pos, xcoords, ycoords = calculateAPPositions
     open("#{modulename}.ned","w") {|x| x.puts generateNed(g, @mnCount)}
@@ -489,6 +489,7 @@ EOF
 #{netName}.**.IPv6routingFile = #{xmldoc}
 #{netName}.mn**.linkLayers[*].NWIName="WirelessEtherModule"
 EOF
+
 if not $noINET
   var += <<EOF
 #{netName}.**.networkInterface.authenticationTimeout = 3000
@@ -496,6 +497,10 @@ if not $noINET
 #{netName}.**.networkInterface.txPower = 1.5
 #{netName}.**.networkInterface.linkUpTrigger = true
 #{netName}.**.networkInterface.linkDownTrigger = true
+#{netName}.**.networkLayer.proc.mobility.homeAgent = "#{@vs[11].ifaces[0].address}"
+;;Can't use name yet as resolver complains about unable to resolve at initialise
+#{netName}.**.networkLayer.proc.mobility.homeAgent = "ha11"
+
 EOF
 end
 
@@ -537,8 +542,7 @@ EOF
 *.cr*.linkLayers[*].NWIName="IPv6PPPInterface"
 *.ar*.linkLayers[*].NWIName="IPv6PPPInterface"
 *.cn*.linkLayers[*].NWIName="IPv6PPPInterface"
-*.ar*.linkLayers[0].NWIName="IPv6PPPInterface"
-
+*.ha*.linkLayers[0].NWIName="IPv6PPPInterface"
 EOF
 
 1.upto(@runCount) do |i|
@@ -715,6 +719,7 @@ EOF
       var +=  %|display: "i=#{v.icon};p=#{@pos[index]},#{@pos[index + 1]}";|
       index += 2
     else
+#      var +=  %|//let omnet arrange where node goes if non AP|
       var +=  %|display: "i=#{v.icon}";|
     end
     var +="\n\n"
@@ -729,7 +734,7 @@ EOF
   g.each_edge{ |u,v|
     nodea = u.nodeName
     nodeb = v.nodeName
-    cable = (u.instance_of? Host or v.instance_of? Host) ? "InternetCable" : "IntranetCable"
+    cable = (u.instance_of? Host or v.instance_of? Host or u.instance_of? HA or v.instance_of? HA) ? "InternetCable" : "IntranetCable"
 
     var += <<EOF
     #{nodea}.out[#{u.ifaces.index(nil)}] --> #{modulename}#{cable} --> #{nodeb}.in[#{v.ifaces.index(nil)}];

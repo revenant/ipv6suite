@@ -90,7 +90,8 @@ public:
     {}
   virtual ~BURetranTmr(void)
     {
-      delete dgram;
+//stop it from dumping core at end run of sim
+//      delete dgram;
     };
 
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT
@@ -438,6 +439,8 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
     return;
   }
 
+  simtime_t now = mob->simTime();
+
   //cancel and delete BU retransmission timer (as received)
 
   //Warning: Assuming that we are sending only binding update for one care of
@@ -452,7 +455,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
         (*it)->cancel();
       else
       {
-        Dout(dc::warning|flush_cf,  mob->nodeName()<<" "<<mob->simTime()
+        Dout(dc::warning|flush_cf,  mob->nodeName()<<" "<<now
              <<" unexpected BU Retrans timer not scheduled "
              <<" is this ba to a BU that we gave up retransmitting? "
              <<dgram);
@@ -460,12 +463,12 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
       if ((*it)->dgram->srcAddress() == mipv6cdsMN->homeAddr() && dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
       {
-        Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" "<<mob->simTime()
+        Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" "<<now
              <<" returning home completed setting awayFromHome to false");
         mipv6cdsMN->setAwayFromHome(false);
 
       }
-      Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
+      Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<now
            <<" deleting BURetranTmr as we received Back from "<<dgram->srcAddress());
       removeBURetranTmr(*it, mob);
       found = true;
@@ -474,27 +477,46 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
   }
 
   if (dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
-    mob->backVector->record(mob->simTime());
+    mob->backVector->record(now);
+#ifdef USE_HMIP
+  else if (mob->hmipSupport())
+  {
+    HMIPv6CDSMobileNode* hmipv6cds =
+      boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mob->mipv6cds);
+    assert(hmipv6cds);
+
+#if EDGEHANDOVER
+    if (mob->edgeHandover() && dgram->srcAddress() == ((EdgeHandover::EHCDSMobileNode*)hmipv6cds)->boundMapAddr())
+        {
+          mob->lbbackVector->record(now);
+        } else
+#endif //EDGEHANDOVER
+          if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
+          {
+            mob->lbackVector->record(now);
+          }
+  }
+#endif //USE_HMIP
 
   if (!found)
-    Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
+    Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<now
          <<" unable to find BURetranTmr for deletion as received Back from "
          <<dgram->srcAddress());
   if (BA::BAS_ACCEPTED == ba->status())
   {
-    Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BA received from "
+    Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
          <<dgram->srcAddress()<<" seq="<<ba->sequence());
 
     bue->state = 0;
 
     if ( bue->homeReg() )
     {
-      mob->prevLinkUpTime = mob->simTime();
+      mob->prevLinkUpTime = now;
 
       if ( mob->isEwuOutVectorHODelays() )
       {
         assert( dgram->timestamp() ); 
-        bue->regDelay->record(mob->simTime() - dgram->timestamp() );
+        bue->regDelay->record(now - dgram->timestamp() );
       }
     }
 
@@ -514,7 +536,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
       if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
       {
-        Dout(dc::hmip, mob->nodeName()<<" "<<mob->simTime()<<" BA from MAP "
+        Dout(dc::hmip, mob->nodeName()<<" "<<now<<" BA from MAP "
              <<dgram->srcAddress());
 
         //Assuming single interface for now if assumption not true revise code
@@ -537,7 +559,6 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
               hmipv6cds->currentMap().distance() > 1)
           {
 #endif //EDGEHANDOVER
-            mob->lbackVector->record(mob->simTime());
           Dout(dc::hmip, " sending BU to all coa="
                <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
 

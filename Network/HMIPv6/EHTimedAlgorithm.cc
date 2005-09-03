@@ -83,6 +83,16 @@ void EHTimedAlgorithm::mapAlgorithm()
 
   if (!mob->edgeHandoverCallback()->isScheduled())
   {
+    //Possible that while we have set a valid MAP we have not actually received a BA from it yet 
+    //so callback args are not set. This happens due to lossy property of wireless env.
+    if (!Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
+                         (mob->edgeHandoverCallback()))->args))
+    {
+      Dout(dc::eh, " Unable to do anything as BA not received from Map yet");
+      mob->edgeHandoverCallback()->rescheduleDelay(interval);
+      return;
+    }
+
     //Called when timer expires
     ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
                                      (mob->edgeHandoverCallback()))->args)->srcAddress();
@@ -106,10 +116,9 @@ void EHTimedAlgorithm::mapAlgorithm()
   }
   else
   {
-
+    //Called directly from processBA
     if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
     {
-      //Called when timer expires 
       ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
                                            (mob->edgeHandoverCallback()))->args)->srcAddress();
     
@@ -125,13 +134,8 @@ void EHTimedAlgorithm::mapAlgorithm()
       return;
     }
 
-
-    //Called directly from processBA
     Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "
          <<mob->edgeHandoverCallback()->arrivalTime());
-
-    //record LBAck from MAP
-    mob->lbackVector->record(nd->simTime());
 
     //Bind every x seconds from map ba
     //mob->edgeHandoverCallback()->rescheduleDelay(interval);

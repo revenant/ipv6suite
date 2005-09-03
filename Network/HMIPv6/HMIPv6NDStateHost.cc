@@ -483,7 +483,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     //zone for a long time or very short binding lifetime with MAP
     assert(oldBULE);
     InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-    assert(ie->ipv6()->addrAssigned(oldRcoa));
+    if (!ie->ipv6()->addrAssigned(oldRcoa))
+      Dout(dc::warning, rt->nodeName()<<" oldRcoa "<<oldRcoa<<" was not assigned as never received BA from MAP.");
 
     Dout(dc::hmip, rt->nodeName()<<" forwarding from MAP="
          <<curMapCopy.addr()<<" to MAP="<<bestMap.addr()<<" oldrcoa="
@@ -499,7 +500,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
       EdgeHandover::EHCDSMobileNode* ehcds =
         boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
       assert(ehcds);
-      assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
+      if (ehcds->boundMapAddr() != IPv6_ADDR_UNSPECIFIED)
+        assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
 
       ipv6_addr bcoa = ehcds->boundCoa();
       if (bcoa != IPv6_ADDR_UNSPECIFIED &&

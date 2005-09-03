@@ -58,7 +58,12 @@
 #include "XMLCommon.h"
 #endif
 
-#endif
+#include "IPvXAddress.h"
+#include "IPAddressResolver.h"
+#include "MIPv6MNEntry.h"
+#include "IPv6CDS.h"
+#include "MIPv6CDSMobileNode.h"
+#endif //USE_MOBILITY
 
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
@@ -171,10 +176,40 @@ void IPv6Mobility::initialize(int stage)
   }
   else if (stage == 2)
   {
+#ifdef USE_MOBILITY
     if ( ewuOutVectorHODelays )
       handoverLatency = new cOutVector("L3 handover delay");
     linkUpVector = new cOutVector("L2 Up");
     linkDownVector = new cOutVector("L2 Down");
+    
+    if (rt->mobilitySupport() && isMobileNode() && par("homeAgent").stringValue()[0])
+    { 
+      ipv6_addr haAddr = IPv6_ADDR_UNSPECIFIED;
+      IPvXAddress destAddr = IPAddressResolver().resolve(par("homeAgent"));
+      if (destAddr.isNull())
+        haAddr = c_ipv6_addr(par("homeAgent"));
+      else
+        haAddr = c_ipv6_addr(destAddr.get6().str().c_str());
+
+      if (haAddr == IPv6_ADDR_UNSPECIFIED)
+        return;
+      Dout(dc::mipv6, nodeName()<<" using assigned homeAgent "<<haAddr
+           <<" from par(homeAgent) "<<par("homeAgent"));
+      IPv6NeighbourDiscovery::RouterEntry* re = new IPv6NeighbourDiscovery::RouterEntry(haAddr);
+      rt->cds->insertRouterEntry(re, false);
+      boost::weak_ptr<IPv6NeighbourDiscovery::RouterEntry> bre = rt->cds->router(haAddr);
+      MIPv6RouterEntry* ha = new MIPv6RouterEntry(bre, true, ipv6_prefix(haAddr, 64), VALID_LIFETIME_INFINITY);
+      MIPv6CDSMobileNode* mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mipv6cds);
+      mipv6cdsMN->insertHomeAgent(ha);
+      boost::shared_ptr<MIPv6RouterEntry> bha = mipv6cdsMN->findHomeAgent(haAddr);
+      mipv6cdsMN->primaryHA() = bha;
+      //Todo assuming HA is on ifIndex of 0
+      bool primaryHoa = true;
+      mipv6cdsMN->formHomeAddress(mipv6cdsMN->primaryHA(),
+                                  ift->interfaceByPortNo(0), primaryHoa);
+    }
+#endif // USE_MOBILITY
+
   }
 }
 

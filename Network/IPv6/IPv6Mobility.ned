@@ -29,6 +29,7 @@
 //
 simple IPv6Mobility
        parameters:
+         homeAgent: string;
        gates:
        in: localDeliverIn;
        in: l2TriggerIn;

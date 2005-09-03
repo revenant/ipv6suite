@@ -144,6 +144,19 @@ namespace MobileIPv6
     return coa;
   }
 
+  ipv6_prefix MIPv6CDSMobileNode::formHomeAddress(
+    boost::weak_ptr<MIPv6RouterEntry> re, InterfaceEntry *ie, bool primaryHoa)
+  {
+    ipv6_prefix pref = re.lock().get()->prefix();    
+    ipv6_addr hoa = formCareOfAddress(re, ie);
+    pref.prefix = hoa;
+    if (primaryHoa)
+    {
+      _homeAddr = pref;
+    }
+    return pref;
+  }
+
   /**
    * @warning make sure that this is indeed a new ha before inserting otherwise
    * there will be two HA objects pointing to the one logical HA.

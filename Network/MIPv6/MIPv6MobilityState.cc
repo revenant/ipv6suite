@@ -287,7 +287,8 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
     BA* ba = new BA(BA::BAS_REG_TYPE_CHANGE_DIS, bce.lock()->seq_no,
                     bce.lock()->expires, UNDEFINED_REFRESH);
     sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
-    Dout(dc::mipv6|dc::warning, " BU has different setting from bce for home_reg flag="<<(bu->homereg()));
+    Dout(dc::warning|dc::mipv6, " BU has different setting from bce for home_reg flag="<<(bu->homereg()));
+    return false;
   }
 
   if (bu->homereg() && !hoaOptFound)

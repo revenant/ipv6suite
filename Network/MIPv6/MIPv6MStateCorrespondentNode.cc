@@ -104,7 +104,8 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
                     UNDEFINED_EXPIRES, UNDEFINED_REFRESH);
 
     sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
-
+    Dout(dc::warning|dc::mipv6, mod->nodeName()<<" BU received with homereg bit set but in"
+         <<"CN mode so check config BA sent with seq no "<<UNDEFINED_SEQ);
     return false;
   }
 

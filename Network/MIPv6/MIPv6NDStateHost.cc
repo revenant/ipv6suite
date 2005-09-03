@@ -559,6 +559,12 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 
   if (!mipv6cdsMN->currentRouter())
   {
+    if (rt->cds->defaultRouter().lock()->state() == NeighbourEntry::INCOMPLETE 
+        && rt->cds->routerCount() == 2)
+    {
+        Dout(dc::mipv6, " hack to get starting away from home working");
+        rt->cds->setDefaultRouter(bha->re);
+    }
     if ((mipv6cdsMN->movementDetected() || mipv6cdsMN->eagerHandover()) &&
         mipv6cdsMN->primaryHA())
     {

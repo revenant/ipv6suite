@@ -202,6 +202,7 @@ private:
   ///not implemented 6.6
   int encapLimit;
   typedef
+/*
 #if defined __GNUC__
 #if __GNUC_PREREQ(3,1)
   __gnu_cxx::hash_map<size_t, struct Tunnel, __gnu_cxx::hash<size_t> >
@@ -210,13 +211,16 @@ private:
 #endif //__GNUC_PREREQ(3,1)
 #else
 #if defined CXX || __INTEL_COMPILER >= 810 || defined _MSC_VER
+*/
   //must be bug in icc 8.1 that prevents compilation of hash_map when it used to work
   std::map<std::size_t, struct Tunnel>
+/*
 #else
   //Intel icc < 8.1 and anything besides gcc/Compaq cxx
   std::hash_map<std::size_t, struct Tunnel>
 #endif //CXX || __INTEL_COMPILER > 810
 #endif // __GNUC__
+*/
   Tunnels;
 
   typedef Tunnels::iterator TI;

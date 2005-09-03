@@ -196,6 +196,7 @@ void IPv6Mobility::initialize(int stage)
       Dout(dc::mipv6, nodeName()<<" using assigned homeAgent "<<haAddr
            <<" from par(homeAgent) "<<par("homeAgent"));
       IPv6NeighbourDiscovery::RouterEntry* re = new IPv6NeighbourDiscovery::RouterEntry(haAddr);
+      re->setState(NeighbourEntry::INCOMPLETE);
       rt->cds->insertRouterEntry(re, false);
       boost::weak_ptr<IPv6NeighbourDiscovery::RouterEntry> bre = rt->cds->router(haAddr);
       MIPv6RouterEntry* ha = new MIPv6RouterEntry(bre, true, ipv6_prefix(haAddr, 64), VALID_LIFETIME_INFINITY);
@@ -205,8 +206,12 @@ void IPv6Mobility::initialize(int stage)
       mipv6cdsMN->primaryHA() = bha;
       //Todo assuming HA is on ifIndex of 0
       bool primaryHoa = true;
-      mipv6cdsMN->formHomeAddress(mipv6cdsMN->primaryHA(),
-                                  ift->interfaceByPortNo(0), primaryHoa);
+      ipv6_prefix hoa = mipv6cdsMN->formHomeAddress(
+        mipv6cdsMN->primaryHA(), ift->interfaceByPortNo(0), primaryHoa);
+      rt->assignAddress(IPv6Address(hoa), 0);
+      mipv6cdsMN->setAwayFromHome(true);
+      mipv6cdsMN->currentRouter() = boost::shared_ptr<MIPv6RouterEntry>();
+      rt->cds->removeDestEntryByNeighbour(haAddr);
     }
 #endif // USE_MOBILITY
 

@@ -36,6 +36,7 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "cTTimerMessageCB.h"
+#include "stlwatch.h"
 #include <memory>
 
 using IPv6NeighbourDiscovery::NeighbourEntry;
@@ -74,6 +75,7 @@ void IPv6Encapsulation::initialize(int stageNo)
     ///not implemented 6.6
     encapLimit = 4;
     vIfIndexTop = UINT_MAX - ift->numInterfaces() - 1;
+    WATCH_MAP(tunnels);
   }
 }
 

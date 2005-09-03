@@ -220,19 +220,18 @@ void AddressResolution::handleMessage(cMessage* msg)
       Dout(dc::addr_resln, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
            <<": creating new NC entry for nexthop="<<tmr->targetAddr);
     }
-
     if (ngbr.lock().get()->state() != NeighbourEntry::INCOMPLETE)
       Dout(dc::warning|flush_cf, rt->nodeName()<<setprecision(6)<<" "<<simTime()
            <<" "<<tmr->ifIndex<<" mismatched ND State="<<ngbr.lock().get()->state()
            <<" for "<<ngbr.lock().get()->addr());
+    assert(ngbr.lock().get()->addr() == tmr->targetAddr);
     assert(ngbr.lock().get()->state() == NeighbourEntry::INCOMPLETE);
     //Check that targetAddr really is a neighbour
     assert(ngbr.lock().get()->addr() == tmr->targetAddr);
 
     //Sending solicitation to solicited node multicast dest addr
     tmr->dgram = new IPv6Datagram(dgram->srcAddress(), IPv6Address::solNodeAddr(tmr->targetAddr));
-    Debug(tmr->dgram->setName("addrRes"); );
-
+    
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
     initiateNgbrSol(tmr);
@@ -288,9 +287,11 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
       }
       else
       {
-        Dout(dc::core|error_cf|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
-             <<" Cannot find any suitable source address for AddrResln so just returning");
-        assert(false);
+        //happens when other nodes are ready but our addresses are not
+        Dout(dc::warning|error_cf|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
+             <<" Cannot find any suitable source address for AddrResln so dropping");
+        fc->ctrIP6OutNoRoutes++;
+        delete tmr;
         return;
       }
 

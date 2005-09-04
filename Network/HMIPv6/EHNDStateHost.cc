@@ -71,7 +71,8 @@ namespace EdgeHandover
   cTimerMessage* tmr = new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,
                    &EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
                                       "EHInvokeMapAlgorithmCallback");
-
+  Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
+                  (tmr))->args) = 0;
   ///Create timer message with our callback (timer used if we want timed
   ///notification otherwise used as a callback pointer)
   mob->setEdgeHandoverCallback(tmr);

@@ -875,8 +875,10 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   if (tmr && tmr->kind() != Tmr_RtrAdvMissed || !tmr)
   {
     //not scheduled when MN moves through no coverage zones
-    if (missedTmr->isScheduled())
+    if (missedTmr && missedTmr->isScheduled())
       missedTmr->cancel();
+    else if (!missedTmr)
+      cout<<"Where is missedTmr "<<nd->simTime()<<" tmr "<<tmr<<endl;
   }
 
   if (mipv6cdsMN->currentRouter())

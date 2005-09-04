@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.6 $"
-  REVISION_DATE = "$Date: 2005/09/03 13:14:39 $"
+  VERSION       = "$Revision: 1.7 $"
+  REVISION_DATE = "$Date: 2005/09/04 14:15:11 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -62,6 +62,7 @@ class NedFile
     @ping = false
     @video = false
     @netmaskunique = Array.new
+    @configs = false
 
     self.modulename = modulename
 
@@ -131,6 +132,7 @@ class NedFile
       opt.on("--unittest", "-u", "Run unit tests"){|$unittest|}
 
 #      opt.on("--configname", "-c [String]", "Configuration name for this batch of runs and resulting output files"){|@configname|}
+      opt.on("--configsgen", "-c","Generate multiple ini/ned/xml files for specific hardcoded configs"){|@configs|}
 
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -184,7 +186,8 @@ end
           *%w|RWMoveInterval 1 RWMinSpeed 3 RWMaxSpeed 5 RWDistance 100 RWPauseTime 1 RWNodeName all RWStartTime 3|])
     #MN entries
     1.upto(@mnCount) do |i|
-      le = root.add_element("local", Hash["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on hierarchicalMIPv6Support on edgeHandoverType Timed|])
+  #eagerHandover (hands over when different router addr detected from current/primaryHA)
+      le = root.add_element("local", Hash["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on hierarchicalMIPv6Support on eagerHandover on edgeHandoverType Timed|])
       le.add_element("interface", Hash[* %w|name wlan0 HostDupAddrDetectTransmits 1 MaxConsecMissRtrAdv 3|])
     end if @mip6
 
@@ -290,31 +293,36 @@ end
 #copy ini file to configname
 #for each config append this stuff and perhaps make xml config dependent too
 #and gen diff ones from here or just copy modulename.xml and search replace
-if false
-  ["sait-hmip" "sait-eh" "sait-mip"].each{ |configname|
-    `cp -p #{modulename}.ini #{configname}.ini`
-var = ""
-1.upto(@runCount) do |i|
-  vectorfile = configname + i.to_s + ".vec"
-  scalarfile = configname + i.to_s + ".sca"
-  var += <<EOF
+if @configs
+  var3 = ""
+  ["sait-hmip", "sait-eh", "sait-mip"].each{ |configname|
+#    system("cp -p #{modulename}.ini #{configname}.ini")
+    var2 = ""
+    1.upto(@runCount) do |i|
+      vectorfile = configname + i.to_s + ".vec"
+      scalarfile = configname + i.to_s + ".sca"
+      var2 += <<EOF
 
 [Run #{i}]
 output-vector-file = #{vectorfile}
 output-scalar-file = #{scalarfile}
 
 EOF
-end 
+      var3 += <<EOF
+./HMIPv6Network -f #{configname}.ini -r #{i}
+EOF
+    end 
 
-defaultini = "../../Etc/default.ini"
-defaultini.insert(0, "../") if not $noINET
+    defaultini = "../../Etc/default.ini"
+    defaultini.insert(0, "../") if not $noINET
 
-var += <<EOF
+    var2 += <<EOF
 include #{defaultini}
 EOF
-   File.open("#{configname}.ini", "a"){|f| f << var}
+#    File.open("#{configname}.ini", "a"){|f| f << var2}
   }
-end
+#  File.open("run.txt", "w"){|f| f<< var3}
+end #configs
 
   end#run
 
@@ -549,24 +557,26 @@ EOF
 *.ha*.linkLayers[0].NWIName="IPv6PPPInterface"
 EOF
 
-1.upto(@runCount) do |i|
-  vectorfile = modulename + i.to_s + ".vec"
-  scalarfile = modulename + i.to_s + ".sca"
-  var += <<EOF
+    if not @configs
+      1.upto(@runCount) do |i|
+    vectorfile = modulename + i.to_s + ".vec"
+    scalarfile = modulename + i.to_s + ".sca"
+    var += <<EOF
 
 [Run #{i}]
 output-vector-file = #{vectorfile}
 output-scalar-file = #{scalarfile}
 
 EOF
-end 
+  end 
 
-defaultini = "../../Etc/default.ini"
-defaultini.insert(0, "../") if not $noINET
+      defaultini = "../../Etc/default.ini"
+      defaultini.insert(0, "../") if not $noINET
 
 var += <<EOF
 include #{defaultini}
 EOF
+    end #not @configs
   end #generateIni
 
   def generateNed(*g)

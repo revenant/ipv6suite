@@ -1149,7 +1149,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
 
   //assert((potentialNewInterval != 0 && newRtr.lock().get() != 0) || potentialNewInterval ==0);
 
-  if (missedTmr->isScheduled())
+  if (missedTmr && missedTmr->isScheduled())
     missedTmr->cancel();
 
   //We can't really have a missed timer if there are no routers in current
@@ -1157,10 +1157,13 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   if (!newRtr)
     potentialNewInterval = 0;
 
-  if (potentialNewInterval != 0)
-    missedTmr->rescheduleDelay(potentialNewInterval);
+  if (missedTmr)
+  {
+    if (potentialNewInterval != 0)
+      missedTmr->rescheduleDelay(potentialNewInterval);
 
-  missedTmr->resetCount();
+    missedTmr->resetCount();
+  }
 
   Dout(dc::mip_missed_adv|flush_cf, rt->nodeName()
        <<" missedAdvTimer reset as moved to new subnet potentialNewInterval="

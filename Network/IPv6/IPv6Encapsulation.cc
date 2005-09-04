@@ -258,6 +258,15 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     //int 4 so this is necessary
     unsigned int ifIndex = origDgram->outputPort();
 
+    if (origDgram->encapLimit() == 0)
+    {
+      cerr<<rt->nodeName()<<" dgram dropped as exceeded tunnelling limit ("<<*origDgram<<")\n";
+      Dout(dc::warning|dc::encapsulation, rt->nodeName()
+           <<" dgram dropped as exceeded tunnelling limit ("<<*origDgram<<")");
+      //TODO should send back ICMP param problem with code 0 acc. to rfc2473 to src
+      return;
+    }
+
     if (!tunnels.count(ifIndex))
     {
       //We should send an error message as we can't find the tunnel referred to
@@ -305,14 +314,15 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     ctrl->setDestAddr(mkIPv6Address_(tun.exit));
     ctrl->setProtocol(IP_PROT_IPv6);
 
-    //Set tunnel packet properties (no support for tunnel encapsulation
-    //limit option
+    //Set tunnel packet properties
     if (rt->isRouter() && tunHopLimit == 0)
       ctrl->setTimeToLive(DEFAULT_ROUTER_HOPLIMIT);
     else if (tunHopLimit != 0)
       ctrl->setTimeToLive(tunHopLimit);
     else
       ctrl->setTimeToLive(ift->interfaceByPortNo(tun.ifIndex)->ipv6()->curHopLimit);
+
+    ctrl->setEncapLimit(origDgram->encapLimit() - 1);
 
     origDgram->setControlInfo(ctrl);
 

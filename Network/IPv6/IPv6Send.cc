@@ -132,6 +132,8 @@ Debug(
   if (ctrl->timeToLive() > 0)
     datagram->setHopLimit(ctrl->timeToLive());
 
+  datagram->setEncapLimit(ctrl->encapLimit());
+
   //TODO check dest Path MTU here
   ctrIP6OutRequests++;
 

@@ -55,6 +55,7 @@ class IPv6ControlInfo
         IPv6Address_ srcAddr;   // source IPv6 address
         short timeToLive;       // hop limit
         int inputPort;          // port number of interface on which the datagram was received
+        short encapLimit = 16;  // encapsulation limit dest option value
 };
 
 

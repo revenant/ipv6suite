@@ -44,5 +44,7 @@ message IPv6Datagram
         ipv6_addr destAddress;
         unsigned int flowLabel;
         unsigned int trafficClass;
+        //supposed to be dest opt
+        short encapLimit = 16;
 };
 

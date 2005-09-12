@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.7 $"
-  REVISION_DATE = "$Date: 2005/09/04 14:15:11 $"
+  VERSION       = "$Revision: 1.8 $"
+  REVISION_DATE = "$Date: 2005/09/12 02:28:26 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -400,8 +400,10 @@ total-stack-kb=17535
 ini-warnings = no
 warnings = yes
 sim-time-limit = 202
+debug-on-errors = true
 
 [Cmdenv]
+express-mode = yes
 module-messages = no
 event-banners = no
 

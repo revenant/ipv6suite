@@ -792,8 +792,10 @@ std::auto_ptr<RA> NDStateRouter::processRtrAd(std::auto_ptr<RA> old_rtrAdv)
     {
       (*mapIt).setDist((*mapIt).dist()+1);
       transitMapOpts.push_back(*mapIt);
-      Dout(dc::debug, rt->nodeName()<<" "<<nd->simTime()
+      Dout(dc::hmip|dc::debug, rt->nodeName()<<" "<<nd->simTime()
            <<" map options added "<<HierarchicalMIPv6::HMIPv6MAPEntry(*mapIt));
+      //TODO removal of unadvertised MAPs. Will need to store iface received
+      //from so can determine if not advertised anymore
     }
   }
   return old_rtrAdv;

@@ -228,13 +228,12 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   {
     //handover choice
     preprocessMapHandover(bestMap, accessRouter, dgram);
+    return rtrAdv;
   }
-  else if (curMapCopy != invalidMAP &&
+  
+  if (curMapCopy != invalidMAP &&
            curMapCopy != hmipv6cdsMN.currentMap())
   {
-    //Current Map has changed properties.  Usually it may just be lifetime
-    //so update lifetime of RCOA
-
     if (curMapCopy.distance() != hmipv6cdsMN.currentMap().distance())
     {
       //  movement detected?
@@ -242,24 +241,74 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
            <<" MAP option "<<curMapCopy.addr()
            <<" distance changed from "<<curMapCopy.distance()<<" to "
            <<hmipv6cdsMN.currentMap().distance());
-      //Should we do AR-AR handover?
-      handover(accessRouter);
-      //Don't think this was ever tested.
-      assert(false);
+      //defer to next commented out if branch
     }
+    else
+    {
+      //TODO Current Map has changed properties.  Usually it may just be lifetime
+      //so update lifetime of RCOA
+      return rtrAdv;
+    }
+  }
+  
+  //do ar handover
+
+//  else if (curMapCopy != invalidMAP &&
+//           curMapCopy == hmipv6cdsMN.currentMap())
+  {
+    InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
+    ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
+    if (hmipv6cdsMN.localCareOfAddr() == lcoa)
+      return rtrAdv;
+
+    bool assigned = false;
+    if (rt->odad())
+    {
+      assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
+      if (ie->ipv6()->addrAssigned(lcoa) || ie->ipv6()->tentativeAddrAssigned(lcoa))
+      {
+        assigned = true;
+      }
+    }
+    else if (ie->ipv6()->addrAssigned(lcoa))
+    {
+      assigned = true;
+    }
+
+    if (assigned)
+    {
+      arhandover(lcoa);
+      return rtrAdv;
+    }
+
+    //MIPv6NDStateHost used to/supposed to handle this case in sendBU. Don't know
+    //how/why it does not now (may be due to eagerHandover and thinking
+    //existence of map options should defer to here) . Anyway even if it did it is
+    //not optimal as it relies on RtrAdv to trigger actual sending of BU instead
+    //of binding handover to dupAddrDetSuccess.
+    typedef Loki::cTimerMessageCB<bool, TYPELIST_1(ipv6_addr)> cbSendMapBUAR;
+    cbSendMapBUAR* ocb = 0;
+    if (callbackAdded(lcoa, 5445))
+    {
+      ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallbacks[lcoa]);
+      if (ocb && Loki::Field<0>(ocb->args) == lcoa)
+        return rtrAdv;
+      else
+      {
+        ocb->cancel();
+        delete ocb;
+      }
+    }
+
+    ocb = new cbSendMapBUAR(5445, nd, this, &HMIPv6NDStateHost::arhandover, "SendMAPBUAR");
+    Loki::Field<0>(ocb->args) = lcoa;
+    Dout(dc::hmip, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
+         <<" iface="<<dgram->inputPort()<<" HMIP lcoa="<<lcoa<<" not assigned yet undergoing DAD "
+         <<"doing arhandover as MAP not changed");
+    addCallbackToAddress(lcoa, ocb);
   }
 
   return rtrAdv;
-
-/*
-  //if bestMap != curMapCop (handover)
-  if (mapOpt.addr() == curMapCopy.addr())
-    curMapFound = true;
-
-  compose2(logical_and<bool>(),
-           bind2nd(greater<int>(), 100),
-           bind2nd(less<int>(), 1000));
-*/
 }
 
 
@@ -633,11 +682,12 @@ HMIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   Called from sendBU of MIPv6NDStateHost base class. Forwards from PAR to NAR if
   ARs have HA func.
-
+  Assumes lcoa is assigned already
   @callgraph
  */
 bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 {
+
 //instead of lcoa should really use this to get ifIndex too
 //boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> newRtr)
 

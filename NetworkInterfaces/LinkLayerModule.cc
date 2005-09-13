@@ -37,7 +37,8 @@ void LinkLayerModule::initialize()
   delay = par("procdelay");
   iface_type = 0; // unknown protocol
   cntReceivedPackets = 0;
-  createWatch ( "received pkts", cntReceivedPackets );
+  WATCH( cntReceivedPackets );
+//  createWatch ( "received pkts", cntReceivedPackets );
 }
 
 void LinkLayerModule::setIface_name(int llProtocol)

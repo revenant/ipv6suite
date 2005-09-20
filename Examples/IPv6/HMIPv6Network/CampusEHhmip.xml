@@ -1,0 +1,830 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<netconf debugChannel='CampusEHhmip.log:rcfile:MobileMove::notice:custom:Ping6:Statistic'>
+<global>
+    <ObjectMovement>
+      <RandomMovement RWMinX='50' RWNodeName='all' RWMinY='50' RWMaxSpeed='5' RWPauseTime='1' RWMaxX='250' RWStartTime='3' RWMaxY='1150' RWDistance='100' RWMinSpeed='3' RWMoveInterval='1'/>
+    </ObjectMovement>
+  </global>
+  <local node='mn1' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn2' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn3' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn4' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn5' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn6' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn7' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn8' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn9' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn10' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn11' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn12' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn13' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn14' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn15' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn16' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn17' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn18' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn19' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn20' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn21' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn22' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn23' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn24' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn25' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn26' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn27' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn28' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn29' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn30' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn31' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn32' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn33' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn34' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn35' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn36' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn37' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn38' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn39' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn40' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn41' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn42' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn43' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn44' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn45' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn46' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn47' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn48' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn49' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='mn50' mobileIPv6Role='MobileNode' hierarchicalMIPv6Support='on'  routeOptimisation='on' mobileIPv6Support='on'>
+    <interface name='wlan0' MaxConsecMissRtrAdv='3' HostDupAddrDetectTransmits='1'/>
+  </local>
+  <local node='cn10' mobileIPv6Support='on'>
+    <interface name='ppp0'>
+      <inetAddr>30fa:0:0:1:a000:0:0:0</inetAddr>
+    </interface>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar5' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='eth0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fc:0:0:5:5000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fc:0:0:5:5000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:5000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fd:0:0:5:5000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fd:0:0:5:5000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:5000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth2' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f5:0:0:e:5000:0:0:2</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f5:0:0:e:5000:0:0:2/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:5000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp3'>
+      <inetAddr>30f5:0:0:2:5000:0:0:3</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface='eth0' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth2' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f5:0:0:2:2000:0:0:0' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ha11' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='ppp0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fb:0:0:1:b000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fb:0:0:1:b000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30fb:0:0:1:b000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30fb:0:0:1:1000:0:0:1' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar6' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='eth0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30ff:0:0:6:6000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30ff:0:0:6:6000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:1:6000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f0:1000:0:6:6000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f0:1000:0:6:6000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:1:6000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth2' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f6:0:0:11:6000:0:0:2</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f6:0:0:11:6000:0:0:2/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:1:6000:0:0:3/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp3'>
+      <inetAddr>30f6:0:0:1:6000:0:0:3</inetAddr>
+    </interface>
+    <interface name='ppp4' AdvSendAdvertisements='on'>
+      <inetAddr>30f6:0:0:7:6000:0:0:4</inetAddr>
+    </interface>
+    <interface name='ppp5' AdvSendAdvertisements='on'>
+      <inetAddr>30f6:0:0:8:6000:0:0:5</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth0' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth2' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f6:0:0:8:8000:0:0:0' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f6:0:0:8:8000:0:0:0' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f6:0:0:8:8000:0:0:0' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f6:0:0:8:8000:0:0:0' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f6:0:0:7:7000:0:0:2' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f6:0:0:1:1000:0:0:2' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local node='cr1' routePackets='on' mobileIPv6Support='on' mobileIPv6Role='HomeAgent' hierarchicalMIPv6Support='on' map='on'>
+    <interface name='ppp0' AdvSendAdvertisements='on'>
+      <inetAddr>30fa:0:0:1:1000:0:0:0</inetAddr>
+    </interface>
+    <interface name='ppp1'>
+      <inetAddr>30fb:0:0:1:1000:0:0:1</inetAddr>
+    </interface>
+    <interface name='ppp2' HMIPAdvMAP='on' AdvSendAdvertisements='on'>
+      <inetAddr>30f6:0:0:1:1000:0:0:2</inetAddr>
+			<AdvMAPList>
+							<AdvMAPEntry>30f6:0:0:1:1000:0:0:2/64</AdvMAPEntry>
+			</AdvMAPList>
+    </interface>
+		<interface name='ppp3' HMIPAdvMAP='on' AdvSendAdvertisements='on'>
+      <inetAddr>30f1:0:0:2:1000:0:0:3</inetAddr>
+			<AdvMAPList>
+							<AdvMAPEntry>30f1:0:0:2:1000:0:0:3/64</AdvMAPEntry>
+			</AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp1' routeNextHop='30fb:0:0:1:b000:0:0:0' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:1:6000:0:0:3' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:2000:0:0:3' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar7' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='eth0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f2:1000:0:7:7000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f2:1000:0:7:7000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:7:7000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f3:1000:0:7:7000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f3:1000:0:7:7000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:7:7000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp2'>
+      <inetAddr>30f6:0:0:7:7000:0:0:2</inetAddr>
+    </interface>
+    <interface name='eth3' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f4:1000:0:7:7000:0:0:3</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f4:1000:0:7:7000:0:0:3/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:7:7000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp4' AdvSendAdvertisements='on'>
+      <inetAddr>30f7:0:0:9:7000:0:0:4</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth0' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth3' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f7:0:0:9:9000:0:0:0' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f7:0:0:9:9000:0:0:0' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f7:0:0:9:9000:0:0:0' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f7:0:0:9:9000:0:0:0' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f6:0:0:7:6000:0:0:4' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar2' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='ppp0' AdvSendAdvertisements='on'>
+      <inetAddr>30f5:0:0:2:2000:0:0:0</inetAddr>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f5:1000:0:2:2000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f5:1000:0:2:2000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:2000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth2' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f6:1000:0:2:2000:0:0:2</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f6:1000:0:2:2000:0:0:2/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:2000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp3'>
+      <inetAddr>30f1:0:0:2:2000:0:0:3</inetAddr>
+    </interface>
+    <interface name='eth4' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f7:1000:0:2:2000:0:0:4</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f7:1000:0:2:2000:0:0:4/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f5:0:0:2:2000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp5' AdvSendAdvertisements='on'>
+      <inetAddr>30f2:0:0:3:2000:0:0:5</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp0' routeNextHop='30f5:0:0:2:5000:0:0:3' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f5:0:0:2:5000:0:0:3' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f5:0:0:2:5000:0:0:3' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f5:0:0:2:5000:0:0:3' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth2' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth4' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp3' routeNextHop='30f1:0:0:2:1000:0:0:3' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp5' routeNextHop='30f2:0:0:3:3000:0:0:2' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar8' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='ppp0'>
+      <inetAddr>30f6:0:0:8:8000:0:0:0</inetAddr>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f8:1000:0:8:8000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f8:1000:0:8:8000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:8:8000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth2' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f9:1000:0:8:8000:0:0:2</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f9:1000:0:8:8000:0:0:2/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:8:8000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth3' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fa:1000:0:8:8000:0:0:3</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fa:1000:0:8:8000:0:0:3/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f6:0:0:8:8000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth2' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth3' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f6:0:0:8:6000:0:0:5' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar3' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='eth0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fb:1000:0:3:3000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fb:1000:0:3:3000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f2:0:0:3:3000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fc:1000:0:3:3000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fc:1000:0:3:3000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f2:0:0:3:3000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp2'>
+      <inetAddr>30f2:0:0:3:3000:0:0:2</inetAddr>
+    </interface>
+    <interface name='eth3' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fd:1000:0:3:3000:0:0:3</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fd:1000:0:3:3000:0:0:3/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f2:0:0:3:3000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp4' AdvSendAdvertisements='on'>
+      <inetAddr>30f3:0:0:4:3000:0:0:4</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth0' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f3:0:0:4:4000:0:0:2' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f3:0:0:4:4000:0:0:2' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth3' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f3:0:0:4:4000:0:0:2' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f2:0:0:3:2000:0:0:5' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp4' routeNextHop='30f3:0:0:4:4000:0:0:2' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar9' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='ppp0'>
+      <inetAddr>30f7:0:0:9:9000:0:0:0</inetAddr>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30fe:1000:0:9:9000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30fe:1000:0:9:9000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f7:0:0:9:9000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth2' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30ff:1000:0:9:9000:0:0:2</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30ff:1000:0:9:9000:0:0:2/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f7:0:0:9:9000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth3' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f0:2000:0:9:9000:0:0:3</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f0:2000:0:9:9000:0:0:3/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f7:0:0:9:9000:0:0:0/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth2' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth3' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp0' routeNextHop='30f7:0:0:9:7000:0:0:4' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+  <local mobileIPv6Role='HomeAgent' node='ar4' hierarchicalMIPv6Support='on'  routePackets='on' mobileIPv6Support='on'>
+    <interface name='eth0' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f1:2000:0:4:4000:0:0:0</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f1:2000:0:4:4000:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f3:0:0:4:4000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='eth1' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f2:2000:0:4:4000:0:0:1</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f2:2000:0:4:4000:0:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f3:0:0:4:4000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <interface name='ppp2'>
+      <inetAddr>30f3:0:0:4:4000:0:0:2</inetAddr>
+    </interface>
+    <interface name='eth3' MIPv6MaxRtrAdvInterval='0.12' HMIPAdvMAP='on' MaxFastRAS='10' AdvHomeAgent='on' AdvSendAdvertisements='on' MIPv6MinRtrAdvInterval='0.08'>
+      <inetAddr>30f3:2000:0:4:4000:0:0:3</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvRtrAddrFlag='on' AdvOnLinkFlag='on'>30f3:2000:0:4:4000:0:0:3/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>30f3:0:0:4:4000:0:0:2/64</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fc:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fa:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30ff:0:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fd:0:0:5:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f5:0:0:e:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f5:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f2:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f0:1000:0:6:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fb:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f5:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f3:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f6:0:0:11:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f6:0:0:1:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f6:0:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f6:0:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f8:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f6:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f1:0:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fb:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f9:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f4:1000:0:7:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f7:0:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fe:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fc:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f7:1000:0:2:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f2:0:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth0' routeDestination='30f1:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30ff:1000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fa:1000:0:8:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth1' routeDestination='30f2:2000:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30fd:1000:0:3:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f3:0:0:4:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='ppp2' routeNextHop='30f3:0:0:4:3000:0:0:4' routeDestination='30f0:2000:0:9:0000:0000:0000:0000/64'/>
+      <routeEntry routeIface='eth3' routeDestination='30f3:2000:0:4:0000:0000:0000:0000/64'/>
+    </route>
+  </local>
+</netconf>
+

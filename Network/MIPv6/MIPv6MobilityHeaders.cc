@@ -31,8 +31,9 @@
 using std::list;
 
 namespace MobileIPv6
-{
+{  
 
+const int BITS_PER_OCTET = 8;
 const unsigned int UNDEFINED_REFRESH = 0xFFFFFFFF;
 const unsigned int UNDEFINED_EXPIRES = 0xFFFFFFFF;
 const unsigned int UNDEFINED_SEQ = 0xFFFF;
@@ -52,7 +53,7 @@ const bit_64 UNSPECIFIED_BIT_64 = {0 ,0};
 // Binding Request
 
 MIPv6MHBindingRequest::MIPv6MHBindingRequest(void)
-  : MIPv6MobilityHeaderBase(MIPv6MHT_BR, 2)
+  : MIPv6MobilityHeaderBase(MIPv6MHT_BR, 8*BITS_PER_OCTET)
 {
   setName("BR");
 }
@@ -91,7 +92,7 @@ void MIPv6MHBindingRequest::info(char* buf)
 // Test Init Message
 
 MIPv6MHTestInit::MIPv6MHTestInit(MIPv6MobilityHeaderType _headertype, const bit_64& __cookie)
-  : MIPv6MobilityHeaderBase(_headertype, 16), cookie(__cookie)
+  : MIPv6MobilityHeaderBase(_headertype, 16*BITS_PER_OCTET), cookie(__cookie)
 {
   assert(_headertype == MIPv6MHT_HoTI || _headertype == MIPv6MHT_CoTI);
   if ( _headertype == MIPv6MHT_HoTI)
@@ -134,7 +135,7 @@ void MIPv6MHTestInit::info(char* buf)
 // Test Message
 
 MIPv6MHTest::MIPv6MHTest(MIPv6MobilityHeaderType _headertype, int hni, const bit_64& __cookie, const bit_64& __token)
-  : MIPv6MobilityHeaderBase(_headertype, 24),
+  : MIPv6MobilityHeaderBase(_headertype, 24*BITS_PER_OCTET),
     _hni(hni),
     cookie(__cookie),
     token(__token)
@@ -189,7 +190,7 @@ MIPv6MHBindingUpdate::MIPv6MHBindingUpdate(bool ack, bool homereg,
 #endif
                                            , bool cellSignaling
                                            ,cModule* senderMod)
-  : MIPv6MobilityHeaderBase(MIPv6MHT_BU, 24),
+  : MIPv6MobilityHeaderBase(MIPv6MHT_BU, 12*BITS_PER_OCTET),
     _ack(ack), _homereg(homereg), _saonly(saonly), _dad(dad),
     _cellSignaling(cellSignaling),
     _seq(seq), _expires(expires), _ha(ha)
@@ -251,7 +252,7 @@ MIPv6MHBindingAcknowledgement(const BAStatus status,
                               const unsigned int seq,
                               const unsigned int expires,
                               const unsigned int refresh)
-  : MIPv6MobilityHeaderBase(MIPv6MHT_BA, 14),
+  : MIPv6MobilityHeaderBase(MIPv6MHT_BA, 12*BITS_PER_OCTET),
     _status(status),
     _seq(seq),
     _expires(expires),
@@ -297,7 +298,7 @@ void MIPv6MHBindingAcknowledgement::info(char* buf)
 // Binding Missing
 
 MIPv6MHBindingMissing::MIPv6MHBindingMissing(const ipv6_addr& ha)
-  : MIPv6MobilityHeaderBase(MIPv6MHT_BM, 22),
+  : MIPv6MobilityHeaderBase(MIPv6MHT_BM, 22*BITS_PER_OCTET),
     _ha(ha)
 {
   setName("BM");

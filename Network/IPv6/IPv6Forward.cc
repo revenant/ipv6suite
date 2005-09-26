@@ -311,6 +311,7 @@ void IPv6Forward::endService(cMessage* theMsg)
           assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
           MIPv6RteOpt* rt2 = new MIPv6RteOpt(bce.lock()->home_addr);
           rtProc->addRoutingHeader(rt2);
+          datagram->addLength(rtProc->lengthInUnits()*BITS);
 //#if defined TESTMIPv6 || defined DEBUG_BC
           Dout(dc::mipv6, rt->nodeName()<<" Found binding for destination "
                <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);

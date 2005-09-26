@@ -50,7 +50,7 @@ extern "C"
 
 Register_Class(IPv6Datagram);
 
-const int IPv6_EXT_UNIT_OCTETS = 8;
+const int IPv6_EXT_UNIT_OCTETS = 1;
 
 /*
 static const ipv6_hdr IPV6_INITIAL_HDR =

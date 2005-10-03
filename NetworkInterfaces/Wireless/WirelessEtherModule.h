@@ -27,11 +27,8 @@
 #ifndef __WIRELESSETHERMODULE__
 #define __WIRELESSETHERMODULE__
 
-
-
 #include <memory> //auto_ptr
 
-#include <boost/cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <vector> // for supported rates
@@ -63,18 +60,16 @@ class WirelessEtherState;
 class WESignal;
 class WESignalData;
 class WirelessEtherFrame;
+class WEQueue;
+class WEQoSQueue;
 
 class WirelessAccessPoint;
 class MobilityHandler;
 class WorldProcessor;
 class InterfaceEntry;
 
-
 // support rates of the wireless network interface
 typedef std::vector<SupportedRatesElement> SupportedRates;
-
-// output queue for which frames are prepared to send to network
-//typedef std::list<WESignalData*> OutputBuffer;
 
 namespace XMLConfiguration
 {
@@ -89,456 +84,470 @@ enum TrigVals{
   NumTrigVals = 2
 };
 
-typedef Loki::cTimerMessageCB<void, TYPELIST_1(double)> L2DelayTmr;
 
 class WirelessEtherModule : public LinkLayerModule
 {
-  friend class XMLConfiguration::IPv6XMLParser;
-  friend class XMLConfiguration::IPv6XMLWrapManager;
-  friend class XMLConfiguration::XMLOmnetParser;
-  friend class WEReceiveMode;
-  friend class WEAScanReceiveMode;
-  friend class WEPScanReceiveMode;
-  friend class WEAuthenticationReceiveMode;
-  friend class WEAssociationReceiveMode;
-  friend class WEDataReceiveMode;
-  friend class WEMonitorReceiveMode;
-  friend class WEAPReceiveMode;
-  friend class WirelessEtherStateAwaitACKReceive;
-  friend class WirelessEtherStateAwaitACK;
-  friend class WirelessEtherStateBackoff;
-  friend class WirelessEtherStateBackoffReceive;
-  friend class WirelessEtherStateReceive;
-  friend class WirelessEtherStateSend;
-  friend class WirelessEtherStateIdle;
+    friend class XMLConfiguration::IPv6XMLParser;
+    friend class XMLConfiguration::IPv6XMLWrapManager;
+    friend class XMLConfiguration::XMLOmnetParser;
 
-public:
-  Module_Class_Members(WirelessEtherModule, LinkLayerModule, 0);
+    friend class WEReceiveMode;
+    friend class WEAScanReceiveMode;
+    friend class WEPScanReceiveMode;
+    friend class WEAuthenticationReceiveMode;
+    friend class WEAssociationReceiveMode;
+    friend class WEDataReceiveMode;
+    friend class WEMonitorReceiveMode;
+    friend class WEAPReceiveMode;
 
-  virtual void initialize(int stage);
-  virtual void handleMessage(cMessage* msg);
-  virtual void finish();
-  virtual int numInitStages(void) const { return 2; }
+    friend class WirelessEtherStateAwaitACKReceive;
+    friend class WirelessEtherStateAwaitACK;
+    friend class WirelessEtherStateBackoff;
+    friend class WirelessEtherStateBackoffReceive;
+    friend class WirelessEtherStateReceive;
+    friend class WirelessEtherStateSend;
+    friend class WirelessEtherStateIdle;
+    friend class WEQoSQueue;
 
-  void readConfiguration();
+  public:
+    Module_Class_Members(WirelessEtherModule, LinkLayerModule, 0);
 
-  // adds interface entry into InterfaceTable
-  InterfaceEntry *registerInterface();
+    ~WirelessEtherModule();
+    virtual void initialize(int stage);
+    virtual void handleMessage(cMessage* msg);
+    virtual void finish();
+    virtual int numInitStages(void) const { return 2; }
 
-  void receiveSignal(std::auto_ptr<cMessage> msg);
+    void readConfiguration();
 
-  // receive packet from other layer besides physical layer e.g. upper
-  // layer or peer layer
-  virtual void receiveData(std::auto_ptr<cMessage> msg);
+    // adds interface entry into InterfaceTable
+    InterfaceEntry *registerInterface();
 
-  //void setLayer2Trigger(TFunctorBaseA<cTimerMessage>* cb);
-  //virtual void setLayer2Trigger(cTimerMessage* trig);
-  virtual void setLayer2Trigger( cTimerMessage* trig, enum TrigVals v=LinkUP);
+    void receiveSignal(std::auto_ptr<cMessage> msg);
 
-  //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }
-  cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }
+    // receive packet from other layer besides physical layer e.g. upper
+    // layer or peer layer
+    virtual void receiveData(std::auto_ptr<cMessage> msg);
 
-  // reset all current CSMA/CA-related values back to initial state
-  void reset(void);
+    //void setLayer2Trigger(TFunctorBaseA<cTimerMessage>* cb);
+    //virtual void setLayer2Trigger(cTimerMessage* trig);
+    virtual void setLayer2Trigger( cTimerMessage* trig, enum TrigVals v=LinkUP);
 
-  // attributes
+    //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }
+    cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }
 
-  int getChannel(void){ return channel; }
-  double getPower(void) { return txpower; } // mW
-  double getThreshPower(void) { return threshpower; } // dBm
-  double getHOThreshPower(void) { return hothreshpower; } // dBm
+    // reset all current CSMA/CA-related values back to initial state
+    void reset(void);
 
-  bool isAP() { return apMode; }
+    // attributes
 
-  virtual void idleNetworkInterface(void);
+    int getChannel(void){ return channel; }
+    double getPower(void) { return txpower; } // mW
+    double getThreshPower(void) { return threshpower; } // dBm
+    double getHOThreshPower(void) { return hothreshpower; } // dBm
 
-  long procDelay(void) { return procdelay; }
+    bool isAP() { return apMode; }
 
-  std::string macAddressString(void);
+    long procDelay(void) { return procdelay; }
 
-  bool linkUpTrigger() { return _linkUpTrigger; }
-  bool linkDownTrigger() { return _linkDownTrigger; }
+    std::string macAddressString(void);
 
-  std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
-  std::list<WESignalData*> outputBuffer;
+    bool linkUpTrigger() { return _linkUpTrigger; }
 
-  void outputBufferInsert(WESignalData* data);
+    WEQueue* outputQueue;
+    std::list<WirelessEtherBasicFrame*> offlineOutputBuffer;
 
-  WESignalData* inputFrame;
+    WESignalData* inputFrame;
 
-  // list to store signal strength readings
-  AveragingList *signalStrength; // dBm
+    // list to store signal strength readings
+    AveragingList *signalStrength; // dBm
 
-  // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
-  virtual int outputQueueInGate() { return findGate("netwIn"); }
+    // input gate of the Output Queue for incoming packet from other layer or peer L2 modules
+    virtual int outputQueueInGate() { return findGate("netwIn"); }
 
-  // output gate of the Input Queue to other layer or peer L2 modules
-  virtual int inputQueueOutGate() { return findGate("netwOut"); }
+    // output gate of the Input Queue to other layer or peer L2 modules
+    virtual int inputQueueOutGate() { return findGate("netwOut"); }
 
-  // CSMA-CA
+    // CSMA-CA
 
-  // check if the sending frame is a broadcast frame, if it is then go
-  // back to idle
-  bool handleSendingBcastFrame(void);
+    // check if the sending frame is a broadcast frame, if it is then go
+    // back to idle
+    bool handleSendingBcastFrame(void);
+    void sendFrame(WirelessEtherBasicFrame*);
+    void sendEndOfFrame();
 
-  int contentionWindowPower(void) { return contWindowPwr; }
-  void incContentionWindowPower(void)
-    {
-      assert(contWindowPwr >= 5);
-      if ( contWindowPwr < 10 )
-        contWindowPwr++;
-    }
-  void resetContentionWindowPower(void) { contWindowPwr = 5; }
+    WirelessEtherState* currentState() const { return _currentState; }
+    WEReceiveMode* currentReceiveMode() const { return _currentReceiveMode; }
+    void changeState(WirelessEtherState* state) { _currentState = state; }
 
-  double backoffTime;
+    void scanNextChannel(void);
+    void sendSuccessSignal(void);
+    void sendStatsSignal(void);
+    void startMonitorMode(void);
+    void restartScanning(void);
 
-  void sendFrame(WESignal* msg);
-  void sendEndOfFrame();
+    // check if the frame belongs to me
+    virtual bool isFrameForMe(WirelessEtherBasicFrame*);
 
-  WirelessEtherState* currentState() const { return _currentState; }
-  WEReceiveMode* currentReceiveMode() const { return _currentReceiveMode; }
-  void changeState(WirelessEtherState* state) { _currentState = state; }
+    virtual void sendToUpperLayer(WirelessEtherBasicFrame*);
 
-  void incrementRetry(void) { retry++; }
-  unsigned int getRetry(void) const { return retry; }
-  void resetRetry(void) { retry = 0; }
-  unsigned int  getMaxRetry(void) const { return maxRetry; }
-
-  void scanNextChannel(void);
-  void sendSuccessSignal(void);
-  void sendStatsSignal(void);
-  void startMonitorMode(void);
-  void restartScanning(void);
-
-  // check if the frame belongs to me
-  virtual bool isFrameForMe(WirelessEtherBasicFrame*);
-
-  virtual void sendToUpperLayer(WirelessEtherBasicFrame*);
-
-  void sendMonitorFrameToUpperLayer(WESignalData*);
-  // related to Mobile MLDv2
+    void sendMonitorFrameToUpperLayer(WESignalData*);
+    // related to Mobile MLDv2
 #if MLDV2
-  void sendGQtoUpperLayer();
+    void sendGQtoUpperLayer();
 #endif
-  // self timer mssages
+    // self timer mssages
 
-  void addTmrMessage(cTimerMessage* msg) { tmrs.push_back(msg); }
-  cTimerMessage* getTmrMessage(const int& messageID);
+    void cancelAllTmrMessages(void);
 
-  void cancelAllTmrMessages(void);
+    void decodeFrame(WESignalData* signal);
 
-  void decodeFrame(WESignalData* signal);
-
-  void incrementSequenceNumber(void)
-  {
-    sequenceNumber = static_cast<unsigned short>((sequenceNumber+1)%4096);
-  }
-
-  bool fastActiveScan(void) { return fastActScan; }
-
-  bool scanShortCircuit(void) { return scanShortCirc; }
-
-  // returns range in meters, relative to threspower, not HOthrespower
-  double wirelessRange() const
-  {
-    if (!_wirelessRange)
+    void incrementSequenceNumber(void)
     {
-      _wirelessRange = pow((double)10, (double)((-threshpower+(10*log10(txpower))-40)/(10*pLExp)));
+      sequenceNumber = static_cast<unsigned short>((sequenceNumber+1)%4096);
     }
-    return _wirelessRange;
-  }
 
-  void incNoOfRxFrames(void) { noOfRxFrames++; }
+    bool fastActiveScan(void) { return fastActScan; }
 
-  void decNoOfRxFrames(void)
-  {
-    // noOfRxFrames is already 0, means that module has only received
-    // the end of a frame (half of frame), in which case set inputFrame = 0
-    // to prevent decoding it.
-    if(noOfRxFrames)
-      noOfRxFrames--;
-    else
-      inputFrame=0;
-  }
+    bool scanShortCircuit(void) { return scanShortCirc; }
 
-  void resetNoOfRxFrames(void) { noOfRxFrames = 0; }
+    // returns range in meters, relative to threspower, not HOthrespower
+    double wirelessRange() const
+    {
+      if (!_wirelessRange)
+      {
+        _wirelessRange = pow((double)10, (double)((-threshpower+(10*log10(txpower))-40)/(10*pLExp)));
+      }
+      return _wirelessRange;
+    }
 
-  int getNoOfRxFrames(void) const { return noOfRxFrames; }
+    void incNoOfRxFrames(void) { noOfRxFrames++; }
 
-  void makeOfflineBufferAvailable(void);
+    void decNoOfRxFrames(void)
+    {
+      // noOfRxFrames is already 0, means that module has only received
+      // the end of a frame (half of frame), in which case set inputFrame = 0
+      // to prevent decoding it.
+      if(noOfRxFrames)
+        noOfRxFrames--;
+      else
+        inputFrame=0;
+    }
+
+    void resetNoOfRxFrames(void) { noOfRxFrames = 0; }
+
+    int getNoOfRxFrames(void) const { return noOfRxFrames; }
+
+    void makeOfflineBufferAvailable(void);
 
 #if L2FUZZYHO // (Layer 2 fuzzy logic handover)
-    double calculateHOValue(double rxpower, double ap_avail_bw, double bw_req);
+      double calculateHOValue(double rxpower, double ap_avail_bw, double bw_req);
 #endif // L2FUZZYHO
 
-protected:
+  protected:
 
-  void baseInit(int stage);
+    void baseInit(int stage);
 
-  class TimeAverageReading
-    {
-        public:
-            double sampleTotal;
-            double sampleTime;
-            double average;
-    };
+    class TimeAverageReading
+      {
+          public:
+              double sampleTotal;
+              double sampleTime;
+              double average;
+      };
 
-  // ----------
-  // general attributes
-  // ----------
+    // ----------
+    // general attributes
+    // ----------
 
-  //
-  // configuration
-  //
-  MACAddress6 address;
-  bool apMode;
-  bool adhocMode;
-  std::string ssid;
-  SupportedRates rates; // Mbps (NOT IMPLEMENTED YET!)
-  double pLExp; // path loss exponent
-  double pLStdDev; // dB; standard deviation of Gauss. dist. for path loss model
-  double txpower; // mW
-  double threshpower; // dBm; threshold power
-  double hothreshpower; // dBm; handover threshold power
-  double probeEnergyTimeout;
-  double probeResponseTimeout;
-  double authenticationTimeout;
-  double associationTimeout;
-  unsigned int maxRetry;
-  bool fastActScan;
-  bool scanShortCirc;
-  bool crossTalk;
-  bool shadowing;
-  std::string chanNotToScan;
-  double bWRequirements;  // rating from 0-1
-  bool statsVec;
-  bool activeScan;
-  double channelScanTime;
-  unsigned int bufferSize;
-  bool regInterface; 
-
-  //
-  // state information and statistics
-  //
-  bool ackReceived;
-  int channel;
-  unsigned int retry;
-
-  long procdelay; // ms
-
-  int noOfRxFrames; //used for collision detection
-  std::string frameSource; // name of module its receiving a frame from
-
-  // ---------
-  // specific implementation wise attributes
-  // ---------
-
-  //sequence number
-  unsigned short sequenceNumber;
-
-  MobilityHandler* _mobCore;
-  WorldProcessor* wproc; // aware of all mobile nodes
-
-  WESignalData* tempOutputFrame; // frame in process of sending
-
-  std::list<cTimerMessage*> tmrs;
-
-  typedef struct destInfo
-  {
-    WirelessEtherModule* mod; // module to send to
-    int index;                // node interface index
-    int channel;
-    double rxPower;
-  }
-  DestInfo;
-
-  /**
-     @brief store modules which need to be sent the end of a frame
-
-     Using shared_ptr so whenever we do idelDest.clear() all the pointed to
-     entities are automatically deleted.
-
-     @todo DestInfo does not really need to be a pointer does it? (Johnny)
-  */
-  typedef std::list<boost::shared_ptr<DestInfo> > IdleDest;
-  IdleDest idleDest;
-  typedef IdleDest::iterator IDIT;
-
-  int contWindowPwr;
-
-  // --------------------------
-  // specific 802.11 operations
-  // --------------------------
-
-  WirelessEtherState* _currentState; // CSMA-CA state
-  WEReceiveMode* _currentReceiveMode; // Receive mode
-
-  ///@name statistics variables
-  //@{
-  //Storing values for statistics
-  Loki::cTimerMessageCB<void>* updateStatsNotifier;
-public:
-  virtual void updateStats(void);
-protected:
-  
-   /********* STATISTICAL VARIABLES (START) **********/
-
-  double statsUpdatePeriod; //seconds
-  double dataReadyTimeStamp; //seconds
-  double totalDisconnectedTime; //seconds
-  //statistics which will be resetted every update period
-  double RxDataBWStat;        //received data bandwidth (Mbit)
-  double TxDataBWStat;        //transmitted data bandwidth (Mbit)
-  double noOfRxStat;          //number of received data frames (frames)
-  double noOfTxStat;          //number of transmitted data frames (frames)
-  double noOfFailedTxStat;    //number of dropped transmission (frames)
-  double noOfAttemptedTxStat; //number of attempted tx (frames)
-  double noOfRetriesStat;    //number of retries
-  cStdDev* RxFrameSizeStat;   //average received frame size (bytes/frame)
-  cStdDev* TxFrameSizeStat;   //average transmitted frame size (bytes/frame)
-  cStdDev* TxAccessTimeStat;  //average time to successfully tx a frame (sec/successful attempt)
-  cStdDev* backoffSlotsStat;  //average backoff time per backoff (slots/tx attempt)
-  cStdDev* CWStat;            //average contention window per backoff (slots/tx attempt)
-
-  //average of above statistics over the whole simulation
-  cStdDev* avgRxDataBWStat;        //(Mbit/s)
-  cStdDev* avgTxDataBWStat;        //(Mbit/s)
-  cStdDev* avgNoOfRxStat;          //(frames/s)
-  cStdDev* avgNoOfTxStat;          //(frames/s)
-  cStdDev* avgNoOfFailedTxStat;    //(frames/s)
-  cStdDev* avgNoOfAttemptedTxStat; //(frames/s)
-  cStdDev* avgNoOfRetriesStat;    //(frames/s)
-  cStdDev* avgRxFrameSizeStat;     //(bytes/frame)
-  cStdDev* avgTxFrameSizeStat;     //(bytes/frame)
-  cStdDev* avgTxAccessTimeStat;    //(sec/successful attempt)  
-  cStdDev* avgBackoffSlotsStat;    //(slots/tx attempt)
-  cStdDev* avgCWStat;              //(slots/tx attempt)
-  cStdDev* avgOutBuffSizeStat;     //average buffer size(frames)
-
-  //vector of statistics every second
-  cOutVector* RxDataBWVec;        //(Mbit/s)
-  cOutVector* TxDataBWVec;        //(Mbit/s)
-  cOutVector* noOfRxVec;          //(frames/s)
-  cOutVector* noOfTxVec;          //(frames/s)
-  cOutVector* noOfFailedTxVec;    //(frames/s)
-  cOutVector* noOfAttemptedTxVec; //(frames/s)
-  cOutVector* noOfRetriesVec;     //(frames/s)  
-  cOutVector* RxFrameSizeVec;     //(bytes/frame)
-  cOutVector* TxFrameSizeVec;     //(bytes/frame)
-  cOutVector* TxAccessTimeVec;    //(sec/successful attempt)
-  cOutVector* backoffSlotsVec;    //(slots/tx attempt)
-  cOutVector* CWVec;              //(slots/tx attempt)
-  cOutVector* outBuffSizeVec;     //current buffer size(frames)
-
-  //vector of instantaneaous readings
-  cOutVector* InstRxFrameSizeVec; //(bytes) successful ones
-  cOutVector* InstTxFrameSizeVec; //(bytes) successful ones
-
-  /********* STATISTICAL VARIABLES (END) **********/
-
-  unsigned int noOfDiscardedFrames;
-  //double totalBackoffTime;
-  double totalBytesTransmitted;
-  unsigned int totalBytesReceived;
-  double beginCollectionTime;
-  double endCollectionTime;
-  //@}
-
-  // Distance is in meters, returned power in dBm
-  double getRxPower(int distance); // dBm
-
-  // -----
-  // debug
-  // -----
-
-  void printSelfMsg(const cMessage* msg);
-
-  // L2 Trigger
-  cTimerMessage* l2Trigger[NumTrigVals];
-
-  // generate frame
-  WirelessEtherBasicFrame* createFrame(FrameType frameType,
-                                       SubType subType,
-                                       MACAddress6 source,
-                                       MACAddress6 destination = MACAddress6(WE_BROADCAST_ADDRESS));
-
-  //create Frame body
-  virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
-
-  mutable double _wirelessRange;
-
-private:
-
-  bool _linkUpTrigger;
-  bool _linkDownTrigger;
-
-  cOutVector* l2HODelay;
-  simtime_t linkdownTime;
-
-  // maximum number of signal strength readings
-  unsigned int sSMaxSample; //obtained from XML
-
-  struct APInfo
-  {
+    //
+    // configuration
+    //
     MACAddress6 address;
+    bool apMode;
+    bool adhocMode;
+    std::string ssid;
+    SupportedRates rates; // Mbps (NOT IMPLEMENTED YET!)
+    double pLExp; // path loss exponent
+    double pLStdDev; // dB; standard deviation of Gauss. dist. for path loss model
+    double txpower; // mW
+    double threshpower; // dBm; threshold power
+    double hothreshpower; // dBm; handover threshold power
+    double probeEnergyTimeout;
+    double probeResponseTimeout;
+    double authenticationTimeout;
+    double associationTimeout;
+    unsigned int maxRetry;
+    bool fastActScan;
+    bool scanShortCirc;
+    bool crossTalk;
+    bool shadowing;
+    std::string chanNotToScan;
+    double bWRequirements;  // rating from 0-1
+    bool statsVec;
+    bool activeScan;
+    double channelScanTime;
+    unsigned int bufferSize;
+    bool regInterface;
+    double errorRate;
+
+    //
+    // state information and statistics
+    //
+    bool ackReceived;
     int channel;
-    double rxpower; // received power from AP
-    double hOValue;    // value to resolve handover decisions
+
+    long procdelay; // ms
+
+    int noOfRxFrames; //used for collision detection
+    std::string frameSource; // name of module its receiving a frame from
+
+    // ---------
+    // specific implementation wise attributes
+    // ---------
+
+    //sequence number
+    unsigned short sequenceNumber;
+
+    MobilityHandler* _mobCore;
+    WorldProcessor* wproc; // aware of all mobile nodes
+
+    WESignalData* tempOutputFrame; // frame in process of sending
+
+    //std::list<cTimerMessage*> tmrs;
+
+    // timers
+    cMessage *awaitAckTimer;    // WIRELESS_SELF_AWAITACK
+    cMessage *backoffTimer;    // WIRELESS_SELF_AWAITMAC
+    cMessage *sendAckTimer; // WIRELESS_SELF_SCHEDULEACK
+    cMessage *endSendAckTimer;  // WIRELESS_SELF_ENDSENDACK
+    cMessage *endSendDataTimer;    // WE_TRANSMIT_SENDDATA
+    cMessage *updateStatsTimer;  // TMR_STATS
+
+    cMessage *powerUpBeaconNotifier;
+    cMessage *prbEnergyScanNotifier;
+    cMessage *prbRespScanNotifier;
+    cMessage *channelScanNotifier;
+    cMessage *authTimeoutNotifier;
+    cMessage *assTimeoutNotifier;
+
+    typedef struct destInfo
+    {
+      WirelessEtherModule* mod; // module to send to
+      int index;                // node interface index
+      int channel;
+      double rxPower;
+    }
+    DestInfo;
+
+    // SWOON HACK: To find achievable throughput
+    double probTxInSlot;
+    int appType;
+
+    /**
+       @brief store modules which need to be sent the end of a frame
+
+       Using shared_ptr so whenever we do idelDest.clear() all the pointed to
+       entities are automatically deleted.
+
+       @todo DestInfo does not really need to be a pointer does it? (Johnny)
+    */
+    typedef std::list<boost::shared_ptr<DestInfo> > IdleDest;
+    IdleDest idleDest;
+    typedef IdleDest::iterator IDIT;
+
+    // --------------------------
+    // specific 802.11 operations
+    // --------------------------
+
+    WirelessEtherState* _currentState; // CSMA-CA state
+    WEReceiveMode* _currentReceiveMode; // Receive mode
+
+    ///@name statistics variables
+    //@{
+  public:
+    virtual void updateStats(void);
+  protected:
+
+     /********* STATISTICAL VARIABLES (START) **********/
+      double samplingStartTime;  //seconds
+    double statsUpdatePeriod; //seconds
+    double dataReadyTimeStamp; //seconds
+    double totalDisconnectedTime; //seconds
+    //statistics which will be resetted every update period
+    double RxDataBWStat;        //received data bandwidth (Mbit)
+    double TxDataBWStat;        //transmitted data bandwidth (Mbit)
+    double noOfRxStat;          //number of received data frames (frames)
+    double noOfTxStat;          //number of transmitted data frames (frames)
+    double noOfFailedTxStat;    //number of dropped transmission (frames)
+    double txSuccess;
+    cStdDev* RxFrameSizeStat;   //average received frame size (bytes/frame)
+    cStdDev* TxFrameSizeStat;   //average transmitted frame size (bytes/frame)
+    cStdDev* TxAccessTimeStat;  //average time to successfully tx a frame (sec/successful attempt)
+    cStdDev* backoffSlotsStat;  //average backoff time per backoff (slots/tx attempt)
+    cStdDev* CWStat;            //average contention window per backoff (slots/tx attempt)
+
+    //average of above statistics over the whole simulation
+    cStdDev* avgRxDataBWStat;        //(Mbit/s)
+    cStdDev* avgTxDataBWStat;        //(Mbit/s)
+    cStdDev* avgNoOfRxStat;          //(frames/s)
+    cStdDev* avgNoOfTxStat;          //(frames/s)
+    cStdDev* avgNoOfFailedTxStat;    //(frames/s)
+    cStdDev* avgRxFrameSizeStat;     //(bytes/frame)
+    cStdDev* avgTxFrameSizeStat;     //(bytes/frame)
+    cStdDev* avgTxFrameRateStat;
+    cStdDev* avgTxAccessTimeStat;    //(sec/successful attempt)
+    cStdDev* avgBackoffSlotsStat;    //(slots/tx attempt)
+    cStdDev* avgCWStat;              //(slots/tx attempt)
+
+    cStdDev* avgOutBuffSizeBEStat;     //current buffer size(frames)
+    cStdDev* avgOutBuffSizeVIStat;     //current buffer size(frames)
+    cStdDev* avgOutBuffSizeVOStat;     //current buffer size(frames)
+
+    //vector of statistics every second
+    cOutVector* RxDataBWVec;        //(Mbit/s)
+    cOutVector* TxDataBWVec;        //(Mbit/s)
+    cOutVector* noOfRxVec;          //(frames/s)
+    cOutVector* noOfTxVec;          //(frames/s)
+    cOutVector* noOfFailedTxVec;    //(frames/s)
+    cOutVector* RxFrameSizeVec;     //(bytes/frame)
+    cOutVector* TxFrameSizeVec;     //(bytes/frame)
+    cOutVector* TxFrameRateVec;
+    cOutVector* TxAccessTimeVec;    //(sec/successful attempt)
+    cOutVector* backoffSlotsVec;    //(slots/tx attempt)
+    cOutVector* CWVec;              //(slots/tx attempt)
+
+    cOutVector* outBuffSizeBEVec;     //current buffer size(frames)
+    cOutVector* outBuffSizeVIVec;     //current buffer size(frames)
+    cOutVector* outBuffSizeVOVec;     //current buffer size(frames)
+    cOutVector* probTxInSlotBEVec;
+    cOutVector* probTxInSlotVIVec;
+    cOutVector* probTxInSlotVOVec;
+    cOutVector* lambdaBEVec;
+    cOutVector* lambdaVIVec;
+    cOutVector* lambdaVOVec;
+    cOutVector* noOfCollisionBEVec;
+    cOutVector* noOfCollisionVIVec;
+    cOutVector* noOfCollisionVOVec;
+    cOutVector* noOfAttemptedBEVec;
+    cOutVector* noOfAttemptedVIVec;
+    cOutVector* noOfAttemptedVOVec;
+    cOutVector* avgTxFrameSizeBEVec;
+    cOutVector* avgTxFrameSizeVIVec;
+    cOutVector* avgTxFrameSizeVOVec;
+
+    //vector of instantaneaous readings
+    cOutVector* InstRxFrameSizeVec; //(bytes) successful ones
+    cOutVector* InstTxFrameSizeVec; //(bytes) successful ones
+
+    /********* STATISTICAL VARIABLES (END) **********/
+
+    unsigned int noOfDiscardedFrames;
+    //double totalBackoffTime;
+    double totalBytesTransmitted;
+    unsigned int totalBytesReceived;
+    double beginCollectionTime;
+    double endCollectionTime;
+    //@}
+
+    // Distance is in meters, returned power in dBm
+    double getRxPower(int distance); // dBm
+
+    // -----
+    // debug
+    // -----
+
+    void printSelfMsg(const cMessage* msg);
+
+    // L2 Trigger
+    cTimerMessage* l2Trigger[NumTrigVals];
+
+    // generate frame
+    WirelessEtherBasicFrame* createFrame(FrameType frameType,
+                                         SubType subType,
+                                         MACAddress6 source,
+                                         int frameAppType,
+                                         MACAddress6 destination = MACAddress6(WE_BROADCAST_ADDRESS));
+
+    //create Frame body
+    virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
+
+    mutable double _wirelessRange;
+
+    void reschedule(cMessage *msg, simtime_t t);
+
+  private:
+
+    bool _linkUpTrigger;
+    cOutVector* l2HODelay;
+    simtime_t linkdownTime;
+
+    // maximum number of signal strength readings
+    unsigned int sSMaxSample; //obtained from XML
+
+    struct APInfo
+    {
+      MACAddress6 address;
+      int channel;
+      int receivedSequence;
+      double rxpower; // received power from AP
+      double hOValue;    // value to resolve handover decisions
       bool associated;
 
-    // parameters to help HO decision (not part of standard)
-    double estAvailBW;
-    double errorPercentage;
-    double avgBackoffTime;
-    double avgWaitTime;
-  } associateAP;
+      // parameters to help HO decision (not part of standard)
+      double estAvailBW;
+      double errorPercentage;
+      double avgBackoffTime;
+      double avgWaitTime;
+    } associateAP;
 
-  //  for scan purpose
+    //  for scan purpose
 
-  typedef std::list<APInfo> AccessPointList;
-  typedef std::list<APInfo>::iterator AIT;
+    typedef std::list<APInfo> AccessPointList;
+    typedef std::list<APInfo>::iterator AIT;
 
-  // Used for specifying a handover target
-  struct HOTarget
-  {
-    bool valid;
-    APInfo target;
-  } handoverTarget;
+    // Used for specifying a handover target
+    struct HOTarget
+    {
+      bool valid;
+      APInfo target;
+    } handoverTarget;
 
-  ReceiveMode receiveMode;
+    ReceiveMode receiveMode;
 
-  // temporaroy access point list during the scan process
-  AccessPointList tempAPList;
+    // temporaroy access point list during the scan process
+    AccessPointList tempAPList;
 
-  bool *channelToScan;
+    bool *channelToScan;
 
-  // generate probe request
-  WESignalData* generateProbeReq(void);
+    // send beacon -- only makes sense in an AP
+    virtual void sendBeacon();
 
-  // self check if the frame is a probe request
-  bool isProbeReq(WESignalData* signal);
+    // generate probe request
+    WirelessEtherBasicFrame* generateProbeReq(void);
 
-  // probe channel process
-  void probeChannel(void);
+    // self check if the frame is a probe request
+    bool isProbeReq(WESignalData* signal);
 
-  // passive scan process
-  void passiveChannelScan(void);
+    // probe channel process
+    void probeChannel(void);
 
-  void authTimeoutHandler(void);
+    // passive scan process
+    void passiveChannelScan(void);
 
-  void assTimeoutHandler(void);
+    void authTimeoutHandler(void);
 
-  void initialiseChannelToScan(void);
+    void assTimeoutHandler(void);
 
-  void insertToAPList(APInfo newEntry);
+    void initialiseChannelToScan(void);
 
-  bool highestPowerAPEntry(APInfo&);
-  bool highestHOValueAPEntry(APInfo&);
+    void insertToAPList(APInfo newEntry);
 
-  bool findAPEntry(APInfo&);
+    bool highestPowerAPEntry(APInfo&);
+    bool highestHOValueAPEntry(APInfo&);
+
+    bool findAPEntry(APInfo&);
 };
 
-typedef std::list<WESignalData*>::iterator WIT;
-typedef std::list<cTimerMessage*>::iterator TIT;
 
-#endif //
+#endif

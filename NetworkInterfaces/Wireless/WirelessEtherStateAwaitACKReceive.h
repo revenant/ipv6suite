@@ -29,10 +29,6 @@
 
 #include <memory> //auto_ptr
 
-#ifndef BOOST_CAST_HPP
-#include <boost/cast.hpp>
-#endif //BOOST_CAST_HPP
-
 #include <omnetpp.h>
 #include "WEthernet.h"
 #include "WirelessEtherState.h"

@@ -23,8 +23,8 @@
           Eric Wu
 */
 
-#include <sys.h> // Dout
-#include "debug.h" // Dout
+#include <sys.h>
+#include "debug.h"
 #include <iomanip>
 
 #include "WirelessEtherMonitorReceiveMode.h"
@@ -42,30 +42,27 @@
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherStateBackoff.h"
 
-WEMonitorReceiveMode* WEMonitorReceiveMode::_instance = 0;
+WEMonitorReceiveMode *WEMonitorReceiveMode::_instance = 0;
 
-WEMonitorReceiveMode* WEMonitorReceiveMode::instance()
+WEMonitorReceiveMode *WEMonitorReceiveMode::instance()
 {
-  if (_instance == 0)
-    _instance = new WEMonitorReceiveMode;
+    if (_instance == 0)
+        _instance = new WEMonitorReceiveMode;
 
-  return _instance;
+    return _instance;
 }
 
-void WEMonitorReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
+void WEMonitorReceiveMode::decodeFrame(WirelessEtherModule *mod, WESignalData *signal)
 {
-  // need to print or store contents of Frame.
-  // pass frame up to higher layer
-  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
+    // need to print or store contents of Frame.
+    // pass frame up to higher layer
+    WirelessEtherBasicFrame *frame = check_and_cast<WirelessEtherBasicFrame *>(signal->encapsulatedMsg());
 
-  FrameControl frameControl = frame->getFrameControl();
+    FrameControl frameControl = frame->getFrameControl();
 
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " " << mod->fullPath() << "Frame Control: "<<frameControl.subtype<<endl);
+    wEV << currentTime() << " " << mod->fullPath() << "Frame Control: "<<frameControl.subtype<<endl << "\n";
 
+    mod->sendMonitorFrameToUpperLayer(signal);
 
-  mod->sendMonitorFrameToUpperLayer(signal);
-
-  static_cast<WirelessEtherStateReceive*>(mod->currentState())->
-    changeNextState(mod);
+    static_cast<WirelessEtherStateReceive *>(mod->currentState())->changeNextState(mod);
 }
-

@@ -25,8 +25,8 @@
             Eric Wu
 */
 
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 
 #include <iostream>
 #include <iomanip>
@@ -48,78 +48,80 @@
 #include "WirelessEtherStateAwaitACKReceive.h"
 #include "WirelessEtherStateBackoff.h"
 
-std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg)
+std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule *mod,
+                                                             std::auto_ptr<cMessage> msg)
 {
-  // Message from Upper layer
-  if (msg.get()->arrivedOn(mod->outputQueueInGate()))
-  {
-    mod->receiveData(msg);
+    // Message from Upper layer
+    if (msg.get()->arrivedOn(mod->outputQueueInGate()))
+    {
+        mod->receiveData(msg);
+        return msg;
+    }
+    // Message from external signalling
+    if (strcmp(msg.get()->arrivalGate()->name(), "extSignalIn") == 0)
+    {
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": external signal received\n";
+
+        mod->receiveSignal(msg);
+        return msg;
+    }
+
+    WESignal *signal = check_and_cast<WESignal *>(msg.get());
+
+    if (signal->channelNum() != mod->getChannel())
+        return msg;
+
+    // debug
+    printMsg(mod, signal);
+    ///////
+
+    if (dynamic_cast<WESignalData *>(signal))
+        msg.reset((processData(mod, auto_downcast < WESignalData > (msg))).release());
+    else if (dynamic_cast<WESignalIdle *>(signal))
+        msg.reset((processIdle(mod, auto_downcast < WESignalIdle > (msg))).release());
+    else
+        assert(false);
     return msg;
-  }
-  // Message from external signalling
-  if (strcmp(msg.get()->arrivalGate()->name(),"extSignalIn") == 0)
-  {
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": external signal received");
-
-    mod->receiveSignal(msg);
-    return msg;
-  }
-
-  WESignal* signal = check_and_cast<WESignal*>(msg.get());
-
-  if (signal->channelNum() != mod->getChannel())
-    return msg;
-
-  // debug
-  printMsg(mod, signal);
-  ///////
-
-  if (dynamic_cast<WESignalData*>(signal))
-      msg.reset((processData(mod, auto_downcast<WESignalData> (msg))).release());
-  else if (dynamic_cast<WESignalIdle*>(signal))
-      msg.reset((processIdle(mod, auto_downcast<WESignalIdle> (msg))).release());
-  else
-      assert(false);
-  return msg;
 }
 
-std::auto_ptr<WESignalIdle> WirelessEtherState::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
+std::auto_ptr<WESignalIdle> WirelessEtherState::processIdle(WirelessEtherModule *mod,
+                                                               std::auto_ptr<WESignalIdle> idle)
 {
-  return idle;
+    return idle;
 }
 
-std::auto_ptr<WESignalData> WirelessEtherState::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
+std::auto_ptr<WESignalData> WirelessEtherState::processData(WirelessEtherModule *mod,
+                                                               std::auto_ptr<WESignalData> data)
 {
-  return data;
+    return data;
 }
 
 // debug message
-void WirelessEtherState::printMsg(WirelessEtherModule* mod, WESignal* signal)
+void WirelessEtherState::printMsg(WirelessEtherModule *mod, WESignal * signal)
 {
-  std::string s = signal->className();
+    std::string s = signal->className();
 
-  if ( mod->currentState() == WirelessEtherStateIdle::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_IDLE state");
+    if (mod->currentState() == WirelessEtherStateIdle::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_IDLE state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateSend::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_SEND state");
+    else if (mod->currentState() == WirelessEtherStateSend::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_SEND state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateBackoff::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_BACKOFF state");
+    else if (mod->currentState() == WirelessEtherStateBackoff::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_BACKOFF state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateAwaitACK::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_AWAITACK state");
+    else if (mod->currentState() == WirelessEtherStateAwaitACK::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_AWAITACK state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_AWAITACKRECEIVE state");
+    else if (mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_AWAITACKRECEIVE state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateBackoffReceive::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_BACKOFFRECEIVE state");
+    else if (mod->currentState() == WirelessEtherStateBackoffReceive::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_BACKOFFRECEIVE state\n";
 
-  else if ( mod->currentState() == WirelessEtherStateReceive::instance())
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_RECEIVE state");
+    else if (mod->currentState() == WirelessEtherStateReceive::instance())
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << s.c_str() << " in WIRELESS_RECEIVE state\n";
 
-  else
-    assert(false);
+    else
+        assert(false);
 }
-

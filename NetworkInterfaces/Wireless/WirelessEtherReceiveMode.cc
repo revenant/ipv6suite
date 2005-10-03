@@ -24,8 +24,8 @@
     @author    Steve Woon
           Eric Wu
 */
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 
 #include <iomanip>
 
@@ -50,132 +50,133 @@
 #include "WirelessEtherStateBackoff.h"
 
 #include "WirelessEtherAScanReceiveMode.h"
+#include "WEQueue.h"
 
-WEReceiveMode* WEReceiveMode::_instance = 0;
+WEReceiveMode *WEReceiveMode::_instance = 0;
 
-WEReceiveMode* WEReceiveMode::instance()
+WEReceiveMode *WEReceiveMode::instance()
 {
-  if (_instance == 0)
-    _instance = new WEReceiveMode;
+    if (_instance == 0)
+        _instance = new WEReceiveMode;
 
-  return _instance;
+    return _instance;
 }
 
-void WEReceiveMode::decodeFrame(WirelessEtherModule* mod, WESignalData* signal)
+void WEReceiveMode::decodeFrame(WirelessEtherModule *mod, WESignalData *signal)
 {
-  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
-  assert(frame);
+    WirelessEtherBasicFrame *frame = check_and_cast<WirelessEtherBasicFrame *>(signal->encapsulatedMsg());
+    assert(frame);
 
-  FrameControl frameControl = frame->getFrameControl();
+    FrameControl frameControl = frame->getFrameControl();
 
-  //mod->changeState(WirelessEtherStateIdle::instance());
-  changeState = true;
+    changeState = true;
 
 
-  switch(frameControl.subtype)
-  {
+    switch (frameControl.subtype)
+    {
     case ST_BEACON:
-      handleBeacon(mod, signal);
-      break;
+        handleBeacon(mod, signal);
+        break;
     case ST_PROBEREQUEST:
-      handleProbeRequest(static_cast<WirelessAccessPoint*>(mod), signal);
-      break;
+        handleProbeRequest(static_cast<WirelessAccessPoint *>(mod), signal);
+        break;
     case ST_PROBERESPONSE:
-      handleProbeResponse(mod, signal);
-      break;
+        handleProbeResponse(mod, signal);
+        break;
     case ST_ASSOCIATIONREQUEST:
-      handleAssociationRequest(static_cast<WirelessAccessPoint*>(mod), signal);
-      break;
+        handleAssociationRequest(static_cast<WirelessAccessPoint *>(mod), signal);
+        break;
     case ST_ASSOCIATIONRESPONSE:
-      handleAssociationResponse(mod, signal);
-      break;
+        handleAssociationResponse(mod, signal);
+        break;
     case ST_REASSOCIATIONREQUEST:
-      handleReAssociationRequest(static_cast<WirelessAccessPoint*>(mod), signal);
-      break;
+        handleReAssociationRequest(static_cast<WirelessAccessPoint *>(mod), signal);
+        break;
     case ST_REASSOCIATIONRESPONSE:
-      handleReAssociationResponse(mod, signal);
-      break;
+        handleReAssociationResponse(mod, signal);
+        break;
     case ST_DISASSOCIATION:
-      handleDisAssociation(mod, signal);
-      break;
+        handleDisAssociation(mod, signal);
+        break;
     case ST_DATA:
-      handleData(mod, signal);
-      break;
+        handleData(mod, signal);
+        break;
     case ST_ACK:
-      handleAck(mod, signal);
-      break;
+        handleAck(mod, signal);
+        break;
     case ST_AUTHENTICATION:
-      handleAuthentication(mod, signal);
-      break;
+        handleAuthentication(mod, signal);
+        break;
     case ST_DEAUTHENTICATION:
-      handleDeAuthentication(mod, signal);
-      break;
-  }
-  //Frames which do not need to be ACK can change states immediately
-  if(changeState == true)
-  {
-    static_cast<WirelessEtherStateReceive*>(mod->currentState())->
-      changeNextState(mod);
-  }
+        handleDeAuthentication(mod, signal);
+        break;
+    }
+    // Frames which do not need to be ACK can change states immediately
+    if (changeState == true)
+    {
+        static_cast<WirelessEtherStateReceive *>(mod->currentState())->changeNextState(mod);
+    }
 }
 
-void WEReceiveMode::finishFrameTx(WirelessEtherModule* mod)
+void WEReceiveMode::finishFrameTx(WirelessEtherModule *mod)
 {
-  WESignalData* signal = *(mod->outputBuffer.begin());
-  assert(signal->encapsulatedMsg());
+    WirelessEtherBasicFrame *frame = mod->outputQueue->getReadyFrame();
+    assert(frame);
 
-  WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (signal->encapsulatedMsg());
-  assert(frame);
+    if (frame->getFrameControl().subtype == ST_DATA)
+    {
+        if (mod->isAP() && (frame->getAddress1() != MACAddress6(WE_BROADCAST_ADDRESS)))
+        {
+            WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
+            // renew expiry time for entry
+            WirelessEtherInterface wie = apMod->findIfaceByMAC(frame->getAddress1());
+            apMod->addIface(frame->getAddress1(), RM_DATA, wie.currentSequence);
+        }
 
-  // Update statistics if data frame transmitted.
-  if (frame->getFrameControl().subtype == ST_DATA)
-  {
-    mod->noOfTxStat++;
-    mod->TxDataBWStat += (double)frame->encapsulatedMsg()->length()/1000000;
-    mod->TxFrameSizeStat->collect((double)frame->encapsulatedMsg()->length()/8);
-    mod->avgTxFrameSizeStat->collect(frame->encapsulatedMsg()->length()/8);
-    mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
-    mod->avgTxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
-    if(mod->statsVec)
-      mod->InstTxFrameSizeVec->record(frame->encapsulatedMsg()->length()/8);
-  }
+        // Update statistics if data frame transmitted.
+        mod->noOfTxStat++;
+        mod->TxDataBWStat += (double) frame->length() / 1000000;        // (double)frame->encapsulatedMsg()->length()/1000000;
+        if (mod->isAP())
+        {
+            WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
+            if (frame->getAppType() == AC_BE)
+            {
+                // BASE_SPEED can be substituted for AP to MS tx BW
+                apMod->durationBE += (double) frame->length() / BASE_SPEED + successOhDurationBE;
+                apMod->durationDataBE += (double) frame->length() / BASE_SPEED;
+                apMod->TxDataBWBE += (double) frame->length() / 1000000;
+            }
+            else if (frame->getAppType() == AC_VI)
+            {
+                apMod->durationVI += (double) frame->length() / BASE_SPEED + successOhDurationVI;
+                apMod->durationDataVI += (double) frame->length() / BASE_SPEED;
+                apMod->TxDataBWVI += (double) frame->length() / 1000000;
+            }
+            else
+            {
+                apMod->durationVO += (double) frame->length() / BASE_SPEED + successOhDurationVO;
+                apMod->durationDataVO += (double) frame->length() / BASE_SPEED;
+                apMod->TxDataBWVO += (double) frame->length() / 1000000;
+            }
 
-  delete *(mod->outputBuffer.begin());
-  mod->outputBuffer.pop_front();
-  mod->resetRetry();
-  mod->resetContentionWindowPower();
-  mod->backoffTime = 0;
-  mod->incrementSequenceNumber();
-  mod->idleNetworkInterface();
-  mod->ackReceived = true;
+        }
+        mod->TxFrameSizeStat->collect((double) frame->length() / 8);
+        mod->avgTxFrameSizeStat->collect(frame->length() / 8);
+        mod->TxAccessTimeStat->collect(mod->simTime() - mod->dataReadyTimeStamp);
+        mod->avgTxAccessTimeStat->collect(mod->simTime() - mod->dataReadyTimeStamp);
+        mod->txSuccess++;
+        if (mod->statsVec)
+            mod->InstTxFrameSizeVec->record(frame->length() / 8);
+    }
+    mod->outputQueue->prepareNextFrame(mod->simTime());
+    mod->ackReceived = true;
 }
 
-void WEReceiveMode::scheduleAck(WirelessEtherModule* mod, WESignalData* ack)
+void WEReceiveMode::scheduleAck(WirelessEtherModule *mod, WirelessEtherBasicFrame *ack)
 {
-  // Schedule to send an ACK
-  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_SCHEDULEACK);
-  
-  Loki::cTimerMessageCB<void, 
-    TYPELIST_2(WirelessEtherModule*,WESignalData*)>* tmr;
-  
-  if (!a)
-  {
-    tmr = new Loki::cTimerMessageCB<void, 
-      TYPELIST_2(WirelessEtherModule*,WESignalData*)>
-      (WIRELESS_SELF_SCHEDULEACK, mod, 
-       static_cast<WirelessEtherStateReceive*>(mod->currentState()), 
-       &WirelessEtherStateReceive::sendAck, "sendAck");
-      
-    Loki::Field<0> (tmr->args) = mod;
-    mod->addTmrMessage(tmr);
-    a = tmr;
-  }
-  else
-    tmr = static_cast<Loki::cTimerMessageCB<void, TYPELIST_2(WirelessEtherModule*,WESignalData*)>*>(a);
-
-  Loki::Field<1> (tmr->args) = ack;
-
-  assert(!a->isScheduled());
-  a->reschedule(mod->simTime() + SIFS);
+    // Schedule to send an ACK
+    cMessage *sendAckTmr = mod->sendAckTimer;
+    sendAckTmr->setContextPointer(ack);
+    assert(!sendAckTmr->isScheduled());
+    mod->reschedule(sendAckTmr, mod->simTime() + SIFS);
 }

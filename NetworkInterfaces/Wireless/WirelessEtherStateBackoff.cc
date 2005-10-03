@@ -25,8 +25,8 @@
             Eric Wu
 */
 
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 #include <iostream>
 #include <iomanip>
 
@@ -41,148 +41,117 @@
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateSend.h"
+#include "WEQueue.h"
 
 #include "opp_utils.h"
 
-WirelessEtherStateBackoff* WirelessEtherStateBackoff::_instance = 0;
+WirelessEtherStateBackoff *WirelessEtherStateBackoff::_instance = 0;
 
-WirelessEtherStateBackoff* WirelessEtherStateBackoff::instance()
+WirelessEtherStateBackoff *WirelessEtherStateBackoff::instance()
 {
-  if (_instance == 0)
-    _instance = new WirelessEtherStateBackoff;
+    if (_instance == 0)
+        _instance = new WirelessEtherStateBackoff;
 
-  return _instance;
+    return _instance;
 }
 
-std::auto_ptr<cMessage> WirelessEtherStateBackoff::processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg)
+std::auto_ptr<cMessage> WirelessEtherStateBackoff::processSignal(WirelessEtherModule *mod,
+                                                                    std::auto_ptr<cMessage> msg)
 {
-  return WirelessEtherState::processSignal(mod, msg);
+    return WirelessEtherState::processSignal(mod, msg);
 }
 
-std::auto_ptr<WESignalIdle> WirelessEtherStateBackoff::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
+std::auto_ptr<WESignalIdle> WirelessEtherStateBackoff::processIdle(WirelessEtherModule *mod,
+                                                                      std::auto_ptr<WESignalIdle> idle)
 {
-  mod->decNoOfRxFrames();
-  return idle;
+    mod->decNoOfRxFrames();
+    return idle;
 }
 
-std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
+std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEtherModule *mod,
+                                                                      std::auto_ptr<WESignalData> data)
 {
-  mod->incNoOfRxFrames();
-  mod->frameSource = data->sourceName();
+    mod->incNoOfRxFrames();
+    mod->frameSource = data->sourceName();
 
-  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
+    // timer to await for MAC to be free should have already been created
+    // now we want to stop the timer and wait for the medium to be idle
+    assert(mod->backoffTimer->isScheduled());
 
-  // timer to await for MAC to be free should have already been created
-  // now we want to stop the timer and wait for the medium to be idle
-  assert(a);
+    // double probSameSlot = 1-(a->remainingTime()/(SLOTTIME));
+    // There is a chance the backoff time will expire on the same time slot as
+    // when an incoming frame is received
+    // if( (a->remainingTime() >= SLOTTIME)||(uniform(0,1) > probSameSlot) )
+    // {
+    simtime_t remainingTime = mod->simTime() - mod->backoffTimer->arrivalTime();
+    if (remainingTime >= RXTXTURNAROUND)
+    {
+        // inform queue of interruption
+        mod->outputQueue->contentionInterrupted(mod->simTime());
 
-  double probSameSlot = 1-(a->remainingTime()/(2*SLOTTIME));
-  
-  if( (a->remainingTime() >= SLOTTIME)||(uniform(0,1) > probSameSlot) )
-  {
-      //check if output frame is a probe req/resp and fast active scan is enabled
-      WESignalData* outData = *(mod->outputBuffer.begin());
-      assert(outData); // check if the frame is ok
-      if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
-      {
-          if ( SIFS < a->elapsedTime() )
-          {
-              int slotsElapsed = (int)((a->elapsedTime()-SIFS)/SLOTTIME);
-              mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
-          }
-          else
-              mod->backoffTime = mod->backoffTime + a->elapsedTime();
-      }
-      else
-      {
-          // the time for awaiting MAC has "eaten" the DIFS
-          if ( DIFS < a->elapsedTime() )
-          {
-              int slotsElapsed = (int)((a->elapsedTime()-DIFS)/SLOTTIME);
-              mod->backoffTime = mod->backoffTime - (slotsElapsed * SLOTTIME);
-          }
-          // the time for awaiting MAC has NOT "eaten" the DIFS
-          else
-          {
-              //mod->backoffTime = mod->backoffTime + a->elapsedTime();
-          }
-      }
-      a->cancel();
-      
-      assert(!mod->inputFrame);
-      mod->inputFrame = (WESignalData*) data.get()->dup(); //XXX eliminate dup()
-      
-      mod->changeState(WirelessEtherStateBackoffReceive::instance());
-  }
-  return data;
+        // pause backoff countdown
+        mod->cancelEvent(mod->backoffTimer);
+
+        // get the frame just received
+        assert(!mod->inputFrame);
+        mod->inputFrame = (WESignalData *) data.get()->dup();   // XXX eliminate dup()
+
+        mod->outputQueue->endIdleCount(mod->simTime());
+        mod->outputQueue->startBusyCount(mod->simTime());
+
+        mod->changeState(WirelessEtherStateBackoffReceive::instance());
+    }
+    // else
+    // mod->txFailedReasonCount[1]++;
+
+
+    return data;
 }
 
-void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule* mod)
+void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule *mod)
 {
-  assert(mod->outputBuffer.size());
+    // Get frame to be sent
+    WirelessEtherBasicFrame *frame = mod->outputQueue->getReadyFrame();
+    assert(frame);
 
-  WESignalData* data = *(mod->outputBuffer.begin());
-  mod->sendFrame(data);
+    mod->outputQueue->endIdleCount(mod->simTime());
 
-  // Keeping track of number of attempted tx
-  WirelessEtherBasicFrame* frame = check_and_cast<WirelessEtherBasicFrame*>
-    (data->encapsulatedMsg());
-  assert(frame);
+    // Place a lock on the frame being sent, apply mainly
+    // to QoS queues and update other queue elapsedTime
+    mod->outputQueue->sendingReadyFrame(mod->simTime());
 
-  if (frame->getFrameControl().subtype == ST_DATA)
-    mod->noOfAttemptedTxStat++;
+    // Calculate tx time
+    double d = (double) frame->length();
+    simtime_t transmTime = d / BASE_SPEED;
 
-  mod->changeState(WirelessEtherStateSend::instance());
+    // tx time should not be smaller than a slot
+    assert(transmTime > SLOTTIME);
 
-  // TODO: supported rates NOT IMPLEMENTED YET.. therefore bandwidth
-  // is 1Mbps
+    // GD Hack: assume not (toDS=1, FromDS=1).
+    short st = frame->getFrameControl().subtype;
+    if (!((st == ST_CTS) || (st == ST_ACK)))
+    {
+        wEV  << mod->fullPath() << " \n"
+             << " ---------------------------------------------------- \n"
+             << " sending a frame to : " << frame->getAddress1() << " WLAN Tx(2): "
+             << dynamic_cast<WirelessEtherRTSFrame *>(frame)->getAddress2()
+             << " will finish at " << formatTime(mod->simTime() + transmTime)
+             << "\n ---------------------------------------------------- \n";
+    }
+    else
+    {
+        wEV  << mod->fullPath() << " \n"
+             << " ---------------------------------------------------- \n"
+             << " sending a frame to : " << frame->getAddress1()
+             << " will finish at " << formatTime(mod->simTime() + transmTime)
+             << "\n ---------------------------------------------------- \n";
+    }
 
-  double d = (double)WEBASICFRAME_IN(data)->length();
-  simtime_t transmTime = d / BASE_SPEED;
+    OPP_Global::ContextSwitcher switchContext(mod);
 
-  //tx time should not be smaller than a slot
-  assert(transmTime > SLOTTIME);
+    // send frame
+    mod->sendFrame(frame);
+    mod->changeState(WirelessEtherStateSend::instance());
 
-  // GD Hack: assume not (toDS=1, FromDS=1).
-
-  short st = WEBASICFRAME_IN(data)->getFrameControl().subtype;
-  if(!(( st == ST_CTS) || (  st == ST_ACK )))  {
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-       << mod->fullPath() << " \n"
-       << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << WEBASICFRAME_IN(data)->getAddress1() <<" WLAN Tx(2): "<<((WirelessEtherRTSFrame *)(data->encapsulatedMsg()))->getAddress2()
-       << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
-       << "\n ---------------------------------------------------- \n");
-  }
-  else{
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-       << mod->fullPath() << " \n"
-       << " ---------------------------------------------------- \n"
-       << " sending a frame to : " << WEBASICFRAME_IN(data)->getAddress1()
-       << " will finish at " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() + transmTime
-       << "\n ---------------------------------------------------- \n");
-  }
-
-  OPP_Global::ContextSwitcher switchContext(mod);
-
-  cTimerMessage* tmrMessage = mod->getTmrMessage(WE_TRANSMIT_SENDDATA);
-
-  if (!tmrMessage)
-  {
-    Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* a;
-
-    a  = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-      (WE_TRANSMIT_SENDDATA, mod, static_cast<WirelessEtherStateSend*>
-       (mod->currentState()), &WirelessEtherStateSend::endSendingData,
-       "endSendingData");
-
-    Loki::Field<0> (a->args) = mod;
-
-    mod->addTmrMessage(a);
-    tmrMessage = a;
-  }
-
-  mod->backoffTime = 0;
-
-  tmrMessage->reschedule(mod->simTime() +  transmTime);
+    mod->reschedule(mod->endSendDataTimer, mod->simTime() + transmTime);
 }

@@ -41,172 +41,148 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateIdle.h"
 #include "WirelessAccessPoint.h"
+#include "WEQueue.h"
 
+WirelessEtherStateAwaitACK *WirelessEtherStateAwaitACK::_instance = 0;
 
-WirelessEtherStateAwaitACK* WirelessEtherStateAwaitACK::_instance = 0;
-
-WirelessEtherStateAwaitACK* WirelessEtherStateAwaitACK::instance()
+WirelessEtherStateAwaitACK *WirelessEtherStateAwaitACK::instance()
 {
-  if (_instance == 0)
-    _instance = new WirelessEtherStateAwaitACK;
+    if (_instance == 0)
+        _instance = new WirelessEtherStateAwaitACK;
 
-  return _instance;
+    return _instance;
 }
 
-std::auto_ptr<cMessage> WirelessEtherStateAwaitACK::processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg)
+std::auto_ptr<cMessage> WirelessEtherStateAwaitACK::processSignal(WirelessEtherModule *mod,
+                                                                     std::auto_ptr<cMessage> msg)
 {
-  return WirelessEtherState::processSignal(mod, msg);
+    return WirelessEtherState::processSignal(mod, msg);
 }
 
-std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACK::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
+std::auto_ptr<WESignalIdle> WirelessEtherStateAwaitACK::processIdle(WirelessEtherModule *mod,
+                                                                       std::auto_ptr<WESignalIdle> idle)
 {
-  mod->decNoOfRxFrames();
-  return idle;
+    mod->decNoOfRxFrames();
+    return idle;
 }
 
-std::auto_ptr<WESignalData> WirelessEtherStateAwaitACK::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
+std::auto_ptr<WESignalData> WirelessEtherStateAwaitACK::processData(WirelessEtherModule *mod,
+                                                                       std::auto_ptr<WESignalData> data)
 {
-  mod->incNoOfRxFrames();
-  mod->frameSource = data->sourceName();
+    mod->incNoOfRxFrames();
+    mod->frameSource = data->sourceName();
 
-  // check that we are not in backoff state
-  assert(!mod->getTmrMessage(WIRELESS_SELF_AWAITMAC) ||
-         !mod->getTmrMessage(WIRELESS_SELF_AWAITMAC)->isScheduled());
+    mod->outputQueue->endIdleCount(mod->simTime());
+    mod->outputQueue->startBusyCount(mod->simTime());
 
-  // make sure the inputFrame is empty to store new frame
-  assert(!mod->inputFrame);
+    // check that we are not in backoff state
+    assert(!mod->backoffTimer->isScheduled());
 
-  // XXX has to duplicate the data because the auto_ptr will delete the
-  // instance afterwards
-  mod->inputFrame = check_and_cast<WESignalData*>(data.get()->dup());
+    // make sure the inputFrame is empty to store new frame
+    assert(!mod->inputFrame);
 
-  // entering receive state and waiting to finish receiving the ACK frame
-  mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
+    // XXX has to duplicate the data because the auto_ptr will delete the
+    // instance afterwards.
+    mod->inputFrame = check_and_cast<WESignalData *>(data.get()->dup());
 
-  return data;
+    // entering receive state and waiting to finish receiving the ACK frame
+    mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
+
+    return data;
 }
 
 // Prepare for the next retransmission when ACK is not received
-void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule* mod)
+void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule *mod)
 {
-  assert(!mod->backoffTime);
-
-  // Just in case there is a frame in input when ACK timeout expires
-  if(mod->inputFrame != 0)
-  {
-    delete mod->inputFrame;
-    mod->inputFrame = 0;
-  }
-
-  // If all the frames havent been fully received when awaitack expired
-  // go back to AwaitAckReceive to receive all frames
-  if(mod->getNoOfRxFrames() > 0)
-  {
-      mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
-      return;
-  }
-
-  WESignalData* signal = *(mod->outputBuffer.begin());
-  assert(signal->encapsulatedMsg());
-
-  WirelessEtherBasicFrame* frame = static_cast<WirelessEtherBasicFrame*>
-    (signal->encapsulatedMsg());
-  assert(frame);
-
-  // If maximum retry has been reached, dont attempt to retrasmit again, go on to next frame
-  if ( mod->getRetry() > mod->getMaxRetry() )
-  {
-    if (frame->getFrameControl().subtype == ST_DATA)
+    // Just in case there is a frame in input when ACK timeout expires
+    if (mod->inputFrame != 0)
     {
-      mod->noOfFailedTxStat++;
-      mod->TxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp);
-      mod->avgTxAccessTimeStat->collect(mod->simTime()-mod->dataReadyTimeStamp); 
+        delete mod->inputFrame;
+        mod->inputFrame = 0;
     }
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame");
 
-    mod->resetRetry();
-    mod->resetContentionWindowPower();
-    
-    assert(mod->outputBuffer.size());
+    // If all the frames havent been fully received when awaitack expired
+    // go back to AwaitAckReceive to receive all frames
+    if (mod->getNoOfRxFrames() > 0)
+    {
+        mod->changeState(WirelessEtherStateAwaitACKReceive::instance());
+        return;
+    }
 
-        //Update the consecutive failed transmission count if its an AP
-        if(mod->isAP())
+    // Get a copy of the frame sent, since it may be deleted when initiateRetry
+    // is called.
+    WirelessEtherBasicFrame *frame =
+        dynamic_cast<WirelessEtherBasicFrame *>(mod->outputQueue->getReadyFrame()->dup());
+
+    // SWOON HACK: To find achievable throughput
+    if (mod->isAP())
+    {
+        WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
+        if (apMod->outputQueue->getQueueType() == AC_VO)
+            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationVO);
+        else if (mod->outputQueue->getQueueType() == AC_VI)
+            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationVI);
+        else
         {
-            WirelessAccessPoint* ap = check_and_cast<WirelessAccessPoint*>(mod);
-            ap->updateConsecutiveFailedCount();
+            apMod->collDurationBE += (double) frame->length() / BASE_SPEED + collOhDurationBE;
+            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationBE);
         }
 
-    WESignalData* a = *(mod->outputBuffer.begin());
+    }
 
-    delete a;
-    mod->outputBuffer.pop_front();
 
-    // TODO: change receive mod if it is not a access point?
+    // If maximum retry has been reached, dont attempt to retrasmit again, go on to next frame
+    if (!mod->outputQueue->initiateRetry(mod->simTime()))
+    {
+        // If frame sent was a DATA frame, collect stats
+        if (frame->getFrameControl().subtype == ST_DATA)
+        {
+            mod->noOfFailedTxStat++;
+            mod->TxAccessTimeStat->collect(mod->simTime() - mod->dataReadyTimeStamp);
+            mod->avgTxAccessTimeStat->collect(mod->simTime() - mod->dataReadyTimeStamp);
+        }
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << "maximum retry triggered.. discard frame\n";
 
-    mod->idleNetworkInterface();
+        // Update the consecutive failed transmission count if its an AP
+        if (mod->isAP())
+        {
+            WirelessAccessPoint *ap = check_and_cast<WirelessAccessPoint *>(mod);
+            ap->updateConsecutiveFailedCount(frame);
+        }
+        // TODO: change receive mod if it is not a access point?
 
-    mod->changeState(WirelessEtherStateIdle::instance());
-    static_cast<WirelessEtherStateIdle*>(mod->currentState())->chkOutputBuffer(mod);
+        mod->changeState(WirelessEtherStateIdle::instance());
+        static_cast<WirelessEtherStateIdle *>(mod->currentState())->chkOutputBuffer(mod);
+    }
+    else                        // retry sending same frame
+    {
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": " << "next retry: " << mod->outputQueue->getRetry() << "\n";
 
-    return;
-  }
+        // Get the frame being transmitted
+        WirelessEtherBasicFrame *txFrame = mod->outputQueue->getReadyFrame();
 
-  mod->incContentionWindowPower();
-  mod->incrementRetry();
-  mod->noOfRetriesStat++;
-  
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": " << "next retry: " << mod->getRetry());
+        // If its a DATA frame, collect stats
+        if (txFrame->getFrameControl().subtype == ST_DATA)
+        {
+            mod->CWStat->collect(mod->outputQueue->getCW());
+            mod->avgCWStat->collect(mod->outputQueue->getCW());
+            mod->backoffSlotsStat->collect(mod->outputQueue->getBackoffSlots());
+            mod->avgBackoffSlotsStat->collect(mod->outputQueue->getBackoffSlots());
+        }
 
-  // Couldnt receive any ACK re-assign the backoff period, retry++ and
-  // send it again
+        mod->outputQueue->startingContention(mod->simTime());
+        mod->changeState(WirelessEtherStateBackoff::instance());
 
-  // This may be due to some mobile station who was unware of the
-  // status of the medium or other awkard cirumstances. Therefore we
-  // are entering collision state and re-assigning the backoff period
+        // We go to Backoff state instead of Backoff because we know that
+        // there is nothing in the medium as all MS's cease sending the
+        // frames (i.e. not IDLE will be received) whereas in backoff, we
+        // are awaiting the medium to be free by the reception of the IDLE
+        assert(!mod->backoffTimer->isScheduled());
+        double nextSchedTime = mod->simTime() + mod->outputQueue->getTimeToSend();
 
-  int numSlots=0, cw=0;  
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->outputQueue->getTimeToSend() << " seconds\n";
+        mod->reschedule(mod->backoffTimer, nextSchedTime);
 
-  //check if output frame is a probe req/resp and fast active scan is enabled
-  WESignalData* outData = *(mod->outputBuffer.begin());
-  assert(outData); // check if the frame is ok
-
-  // To support fast Active scanning, where you use the smallest contention window and SIFS wait time
-  WirelessEtherBasicFrame *outDataEncapFrame = check_and_cast<WirelessEtherBasicFrame*>(outData->encapsulatedMsg());
-  if( ((outDataEncapFrame->getFrameControl().subtype == ST_PROBEREQUEST)||(outDataEncapFrame->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
-  {
-    cw = CW_MIN;
-    numSlots = intuniform(0, cw);
-    mod->backoffTime = numSlots * SLOTTIME + SIFS;
-  }
-  else
-  {
-    cw = (1 << mod->contentionWindowPower()) - 1;
-    numSlots = intuniform(0, cw);
-    mod->backoffTime = numSlots * SLOTTIME + DIFS;
-  }
-
-  if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
-  {  
-    mod->CWStat->collect(cw);
-    mod->avgCWStat->collect(cw);    
-    mod->backoffSlotsStat->collect(numSlots);
-    mod->avgBackoffSlotsStat->collect(numSlots);
-  }
-
-  mod->changeState(WirelessEtherStateBackoff::instance());
-  // set retry flag of the sending frame to true
-  WEBASICFRAME_IN(outData)->getFrameControl().retry = true;
-
-  // We go to Backoff state instead of Backoff because we know that
-  // there is nothing in the medium as all MS's cease sending the
-  // frames (i.e. not IDLE will be received) whereas in backoff, we
-  // are awaiting the medium to be free by the reception of the IDLE
-  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
-  assert(a);
-  assert(!a->isScheduled());
-
-  double nextSchedTime = mod->simTime() + mod->backoffTime;
-
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds");
-  a->reschedule(nextSchedTime);
+    }
+    delete frame;
 }

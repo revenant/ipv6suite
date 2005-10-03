@@ -23,8 +23,8 @@
           Eric Wu
 */
 
-#include <sys.h> // Dout
-#include "debug.h" // Dout
+#include <sys.h>
+#include "debug.h"
 
 #include "WirelessEtherAssociationReceiveMode.h"
 #include "WirelessEtherAuthenticationReceiveMode.h"
@@ -44,147 +44,130 @@
 
 #include "WirelessEtherDataReceiveMode.h"
 #include "WirelessEtherAScanReceiveMode.h"
+#include "WEQueue.h"
 
-WEAuthenticationReceiveMode* WEAuthenticationReceiveMode::_instance = 0;
+WEAuthenticationReceiveMode *WEAuthenticationReceiveMode::_instance = 0;
 
-WEAuthenticationReceiveMode* WEAuthenticationReceiveMode::instance()
+WEAuthenticationReceiveMode *WEAuthenticationReceiveMode::instance()
 {
-  if (_instance == 0)
-    _instance = new WEAuthenticationReceiveMode;
+    if (_instance == 0)
+        _instance = new WEAuthenticationReceiveMode;
 
-  return _instance;
+    return _instance;
 }
 
-void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule* mod, WESignalData* signal)
+void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule *mod, WESignalData *signal)
 {
-  WirelessEtherManagementFrame* authentication =
-      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
+    WirelessEtherManagementFrame *authentication =
+        static_cast<WirelessEtherManagementFrame *>(signal->encapsulatedMsg());
 
-  if(authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
-  {
-    AuthenticationFrameBody* aFrameBody =
-      static_cast<AuthenticationFrameBody*>(authentication->decapsulate());
-
-    // Check if its an authentication response for "open system"
-    if(aFrameBody->getSequenceNumber() == 2)
+    if (authentication->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
     {
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-           << mod->fullPath() << "\n"
-           << " ----------------------------------------------- \n"
-           << " Authentication received by: "
-           << mod->macAddressString() << "\n"
-           << " from " << authentication->getAddress2() << " \n"
-           << " Sequence No.: " << aFrameBody->getSequenceNumber() << "\n"
-           << " Status Code: " << aFrameBody->getStatusCode() << "\n"
-           << " ----------------------------------------------- \n");
+        AuthenticationFrameBody *aFrameBody =
+            static_cast<AuthenticationFrameBody *>(authentication->decapsulate());
 
-      mod->associateAP.address = authentication->getAddress2();
-      mod->associateAP.channel = signal->channelNum();
-      mod->associateAP.rxpower = signal->power();
-      mod->associateAP.associated = false;
-      mod->_currentReceiveMode = WEAssociationReceiveMode::instance();
+        // Check if its an authentication response for "open system"
+        if (aFrameBody->getSequenceNumber() == 2)
+        {
+            wEV  << mod->fullPath() << "\n"
+                 << " ----------------------------------------------- \n"
+                 << " Authentication received by: "
+                 << mod->macAddressString() << "\n"
+                 << " from " << authentication->getAddress2() << " \n"
+                 << " Sequence No.: " << aFrameBody->getSequenceNumber() << "\n"
+                 << " Status Code: " << aFrameBody->getStatusCode() << "\n"
+                 << " ----------------------------------------------- \n";
 
-      // send ACK to confirm the transmission has been sucessful
-      WirelessEtherBasicFrame* ack = mod->
-        createFrame(FT_CONTROL, ST_ACK,
-                    MACAddress6(mod->macAddressString().c_str()),
-                    authentication->getAddress2());
-      WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-      scheduleAck(mod, ackSignal);
-      //delete ack;
-      changeState = false;
+            mod->associateAP.address = authentication->getAddress2();
+            mod->associateAP.channel = signal->channelNum();
+            mod->associateAP.rxpower = signal->power();
+            mod->associateAP.associated = false;
+            mod->_currentReceiveMode = WEAssociationReceiveMode::instance();
 
-      // TODO: need to check status code
-      //send association request frame
-      WirelessEtherBasicFrame* assRequest = mod->
-          createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
-                    MACAddress6(mod->macAddressString().c_str()),
-                    authentication->getAddress2());
-      FrameBody* assRequestFrameBody = mod->createFrameBody(assRequest);
-      assRequest->encapsulate(assRequestFrameBody);
-      WESignalData* requestSignal = encapsulateIntoWESignalData(assRequest);
-      mod->outputBufferInsert(requestSignal);
-      //delete assRequest;
+            // send ACK to confirm the transmission has been sucessful
+            WirelessEtherBasicFrame *ack = mod->createFrame(FT_CONTROL, ST_ACK,
+                                                            MACAddress6(mod->macAddressString().c_str()),
+                                                            AC_VO,
+                                                            authentication->getAddress2());
+            scheduleAck(mod, ack);
+            // delete ack;
+            changeState = false;
 
-      // Stop the authentication timeout timer
-      cTimerMessage* authTmr = mod->getTmrMessage(TMR_AUTHTIMEOUT);
-      assert(authTmr);
-      if(authTmr->isScheduled())
-      {
-        authTmr->cancel();
-      }
+            // TODO: need to check status code
+            // send association request frame
+            WirelessEtherBasicFrame *assRequest = mod->createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
+                                                                   MACAddress6(mod->macAddressString().
+                                                                               c_str()), AC_VO,
+                                                                   authentication->getAddress2());
+            FrameBody *assRequestFrameBody = mod->createFrameBody(assRequest);
+            assRequest->encapsulate(assRequestFrameBody);
+            mod->outputQueue->insertFrame(assRequest, mod->simTime());
 
-      // Start the association timeout timer
-      cTimerMessage* assTmr = mod->getTmrMessage(TMR_ASSTIMEOUT);
-      assert(assTmr);
-      if(assTmr->isScheduled())
-      {
-        assTmr->cancel();
-      }
-      assTmr->reschedule(mod->simTime() + (mod->associationTimeout * TU ));
+            // Stop the authentication timeout timer
+            if (mod->authTimeoutNotifier->isScheduled())
+                mod->cancelEvent(mod->authTimeoutNotifier);
+
+            // Start the association timeout timer
+            mod->reschedule(mod->assTimeoutNotifier, mod->simTime() + (mod->associationTimeout * TU));
+        }
+        delete aFrameBody;
     }
-    delete aFrameBody;
-  }
 }
 
-void WEAuthenticationReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
+void WEAuthenticationReceiveMode::handleProbeResponse(WirelessEtherModule *mod, WESignalData *signal)
 {
-  WirelessEtherManagementFrame* probeResponse =
-  	check_and_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
+    WirelessEtherManagementFrame *probeResponse =
+        check_and_cast<WirelessEtherManagementFrame *>(signal->encapsulatedMsg());
 
-  if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
-  {
-  	ProbeResponseFrameBody* probeResponseBody =
-      static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
-
-    assert(probeResponseBody);
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-         << mod->fullPath() << "\n"
-         << " ----------------------------------------------- \n"
-         << " Probe Response received by: " << mod->macAddressString() << "\n"
-         << " from " << probeResponse->getAddress2() << " \n"
-         << " SSID: " << probeResponseBody->getSSID() << "\n"
-         << " channel: " << probeResponseBody->getDSChannel() << "\n"
-         << " rxpower: " << signal->power() << "\n"
-         << " ----------------------------------------------- \n");
-
-    // send ACK
-    WirelessEtherBasicFrame* ack = mod->
-      createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
-                  probeResponse->getAddress2());
-    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    scheduleAck(mod, ackSignal);
-    changeState = false;
-
-    delete probeResponseBody;
-  } // endif
-}
-
-void WEAuthenticationReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
-{
-  WirelessEtherBasicFrame* ack =
-      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
-
-  if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
-  {
-    // Since both interfaces have the same MAC Address in a dual interface node, you may
-    // process an ACK which is meant for the other interface. Condition checks that you
-    // are expecting an ACK before processing it.
-    if( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+    if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
     {
-      mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
+        ProbeResponseFrameBody *probeResponseBody =
+            static_cast<ProbeResponseFrameBody *>(probeResponse->decapsulate());
 
-      finishFrameTx(mod);
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-           << mod->fullPath() << "\n"
-           << " ----------------------------------------------- \n"
-           << " ACK received by: " << mod->macAddressString() << "\n"
-           << " ----------------------------------------------- \n");
+        assert(probeResponseBody);
+        wEV  << mod->fullPath() << "\n"
+             << " ----------------------------------------------- \n"
+             << " Probe Response received by: " << mod->macAddressString() << "\n"
+             << " from " << probeResponse->getAddress2() << " \n"
+             << " SSID: " << probeResponseBody->getSSID() << "\n"
+             << " channel: " << probeResponseBody->getDSChannel() << "\n"
+             << " rxpower: " << signal->power() << "\n"
+             << " ----------------------------------------------- \n";
 
-      changeState = false;
+        // send ACK
+        WirelessEtherBasicFrame *ack =
+            mod->createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
+                             AC_VO, probeResponse->getAddress2());
+        scheduleAck(mod, ack);
+        changeState = false;
+
+        delete probeResponseBody;
     }
-  }
+}
 
-  if ( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
-    changeState = false;
+void WEAuthenticationReceiveMode::handleAck(WirelessEtherModule *mod, WESignalData *signal)
+{
+    WirelessEtherBasicFrame *ack = static_cast<WirelessEtherBasicFrame *>(signal->encapsulatedMsg());
+
+    if (ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
+    {
+        // Since both interfaces have the same MAC Address in a dual interface node, you may
+        // process an ACK which is meant for the other interface. Condition checks that you
+        // are expecting an ACK before processing it.
+        if (mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+        {
+            mod->cancelEvent(mod->awaitAckTimer);
+
+            finishFrameTx(mod);
+            wEV  << mod->fullPath() << "\n"
+                 << " ----------------------------------------------- \n"
+                 << " ACK received by: " << mod->macAddressString() << "\n"
+                 << " ----------------------------------------------- \n";
+
+            changeState = false;
+        }
+    }
+
+    if (mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+        changeState = false;
 }

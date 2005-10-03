@@ -70,6 +70,8 @@ using HierarchicalMIPv6::HMIPv6NDStateHost;
 #include "EHCDSMobileNode.h"
 #endif //EDGEHANDOVER
 
+#include <boost/cast.hpp>
+
 
 #if defined __GNUC__ && __GNUC__ < 3
 template <typename T>

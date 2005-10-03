@@ -50,7 +50,7 @@ class TCPDump : public cSimpleModule
   protected:
     TCPDumper tcpdump;
   public:
-    TCPDump(const char *name, cModule *parent);
+    TCPDump(const char *name=NULL, cModule *parent=NULL);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 };

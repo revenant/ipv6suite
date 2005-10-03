@@ -100,6 +100,10 @@ message WirelessEtherBasicFrame
         FrameControl frameControl;
         DurationID durationID;
         MACAddress6 address1;
+	// SWOON HACK: To find achievable throughput
+	int appType;
+	double probTxInSlot;
+	int avgFrameSize;
 };
 
 //

@@ -45,8 +45,9 @@ class WirelessEtherInterface
 
   ReceiveMode receiveMode;
 
-    // consecutive failed transmission (dropped frames)
-    int consecFailedTrans;
+  // consecutive failed transmission (dropped frames)
+  int consecFailedTrans;
+  int currentSequence;
 
   // this is updated
   double expire;
@@ -57,6 +58,22 @@ class WirelessEtherInterface
   // enumerations can be found in WirelessEtherFrameBody.msg
   StatusCode statusCode;
 };
+
+// SWOON HACK: To find achievable throughput
+typedef struct mobileStats
+{
+    std::string name;
+    int appType;
+    double lastUpdateTime;
+    double probTxInSlot;
+    cOutVector* achievableThroughput;
+    cOutVector* probOfTxInSlotVec;
+    cStdDev* avgAchievableThroughput;
+    double avgFrameSize;
+    double probSuccessfulTx;
+    double probSuccessfulTxVI;
+    double probSuccessfulTxVO;
+} MobileStats;
 
 bool operator==(const WirelessEtherInterface& lhs,
                 const WirelessEtherInterface& rhs);
@@ -86,30 +103,33 @@ class WirelessAccessPoint : public WirelessEtherModule
 public:
   Module_Class_Members(WirelessAccessPoint, WirelessEtherModule, 0);
 
+  ~WirelessAccessPoint();
   virtual void initialize(int stage);
   virtual void handleMessage(cMessage* msg);
   virtual void finish(void);
   virtual int  numInitStages() const  {return 2;}
-
-  virtual void idleNetworkInterface(void);
 
   // frames from bridge module
   virtual void receiveData(std::auto_ptr<cMessage> msg);
   virtual FrameBody* createFrameBody(WirelessEtherBasicFrame* f);
 
   WirelessEtherInterface findIfaceByMAC(MACAddress6 mac);
-  void updateConsecutiveFailedCount();
+  void updateConsecutiveFailedCount(WirelessEtherBasicFrame*);
   double getEstAvailBW(void) { return estAvailBW; }
 
-
-
 private:
-  void addIface(MACAddress6 mac, ReceiveMode receiveMode);
+  void addIface(MACAddress6 mac, ReceiveMode receiveMode, int sequenceNo);
   void setIfaceStatus(MACAddress6 mac, StatusCode);
-  void sendBeacon(void);
+  virtual void sendBeacon(void);
+  // SWOON HACK: To find achievable throughput
+  void estimateThroughput(double&, double&, double&);
+  void updateMStats(std::string, int, double, double);
 
 private:
   ExpiryEntryList<WirelessEtherInterface> *ifaces;
+
+  // SWOON HACK: To find achievable throughput
+  std::list<MobileStats*> mStats;
 
   int consecFailedTransLimit; //consecutive failed tranmission limit b4 entry is removed
   double beaconPeriod;
@@ -121,12 +141,63 @@ private:
   // Storing values for statistics
   virtual void updateStats(void);
   TimeAverageReading usedBW; // average stored in bytes/sec
+  double RxDataBWBE;
+  double RxDataBWVI;
+  double RxDataBWVO;
+  double TxDataBWBE;
+  double TxDataBWVI;
+  double TxDataBWVO;
+  double collDurationBE;
+  double durationBE;
+  double durationVI;
+  double durationVO;
+  double durationDataBE;
+  double durationDataVI;
+  double durationDataVO;
+  double currentCollDurationBE;
+  double currentDurationBE;
+  double currentDurationVI;
+  double currentDurationVO;
   double estAvailBW; //Mbit/sec
+  double newNoOfVI;
+  double newNoOfVO;
 
   cOutVector *estAvailBWVec;
+  cOutVector *avgCollDurationVec;
+  cOutVector *achievableThroughputBEVec;
+  cOutVector *achievableThroughputVIVec;
+  cOutVector *achievableThroughputVOVec;
+  cOutVector *achievableTpTotalVec;
+  cOutVector *collisionVec;
+  cOutVector *idleVec;
+  cOutVector *probOfTxInSlotBEVec;
+  cOutVector *probOfTxInSlotVIVec;
+  cOutVector *probOfTxInSlotVOVec;
+  cOutVector *noOfVIVec;
+  cOutVector *noOfVOVec;
 
+  cStdDev* predUsedBWVIStat;
+  cStdDev* predUsedBWVOStat;
+  cStdDev* predCollBWVIStat;
+  cStdDev* predCollBWVOStat;
+
+  cStdDev* noOfVIStat;
+  cStdDev* noOfVOStat;
+  cStdDev* idleBWStat;
+  cStdDev* collisionBWStat;
+  cStdDev* successBWStat;
+  cStdDev* dataTpBWStat;
+  cStdDev* avgTxDataBWBE;
+  cStdDev* avgTxDataBWVI;
+  cStdDev* avgTxDataBWVO;
+  cStdDev* avgDataBWBE;
+  cStdDev* avgDataBWVI;
+  cStdDev* avgDataBWVO;
+  cStdDev* avgAchievableThroughputBE;
+  cStdDev* avgAchievableThroughputVI;
+  cStdDev* avgAchievableThroughputVO;
+  cStdDev* avgCollDurationStat;
   cStdDev* usedBWStat;
-  cStdDev* outputBuffSizeStat;
   cStdDev* frameSizeTxStat;     //average frame size tx
   cStdDev* frameSizeRxStat;     //average frame size rx
   cStdDev* avgFrameSizeTxStat;  //average frame size tx for whole sim

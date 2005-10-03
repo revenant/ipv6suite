@@ -40,6 +40,7 @@ class BRSink : public cSimpleModule
         std::string srcName;
         unsigned int numReceived;
         unsigned int numLost;
+        unsigned int numPrevious;
         unsigned int expectedSeq;
         cStdDev* delayStat;
         cOutVector* numReceivedVec;

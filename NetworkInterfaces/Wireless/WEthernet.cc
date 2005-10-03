@@ -33,12 +33,12 @@ const int WE_SELF_BACKOFF = 2001;
 const int WE_SELF_INTERFRAMEGAP = 2002;
 
 // speed
-const int WE_BANDWIDTH = 10000000; // 100 Mbps
-//const int WE_BANDWIDTH = 500000; // 500kbps
+const int WE_BANDWIDTH = 10000000;      // 100 Mbps
+// const int WE_BANDWIDTH = 500000; // 500kbps
 
-const char* WE_BROADCAST_ADDRESS="ff:ff:ff:ff:ff:ff";
+const char *WE_BROADCAST_ADDRESS = "ff:ff:ff:ff:ff:ff";
 
-const int WE_MIN_FRAMESIZE = 512; // bits
+const int WE_MIN_FRAMESIZE = 512;       // bits
 
 const int WE_AP_NOTIFY_MAC = -4001;
 

@@ -92,7 +92,7 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
 
   // and convert it to a string, for llAddrStr
   char buf[32];
-  sprintf(buf, "%8.8dx:%8.8dx", token.normal(), token.low());
+  sprintf(buf, "%8.8lx:%8.8lx", token.normal(), token.low());
   e->setLLAddrStr(buf);
 
   // MTU: typical values are 576 (Internet de facto), 1500 (Ethernet-friendly),
@@ -106,8 +106,6 @@ InterfaceEntry *IPv6PPPInterface::registerInterface()
   // add
   InterfaceTable *ift = InterfaceTableAccess().get();
   ift->addInterface(e);
-
-  printf("DBG: %s as '%s' on %d\n", fullPath().c_str(), e->name(), outputPort);
 
   return e;
 }

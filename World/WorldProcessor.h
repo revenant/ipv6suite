@@ -70,7 +70,7 @@ class WorldProcessor : public cSimpleModule
 
  public:
   // OMNeT++ functions
-  WorldProcessor(const char *name, cModule *parent, unsigned stacksize=0);
+  WorldProcessor(const char *name=NULL, cModule *parent=NULL, unsigned stacksize=0);
 
   ///Place code here that to be done once only before all other initialize
   ///functions

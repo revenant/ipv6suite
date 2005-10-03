@@ -20,8 +20,8 @@
 */
 
 
-#include <sys.h> // Dout
-#include "debug.h" // Dout
+#include <sys.h>
+#include "debug.h"
 
 #include "WirelessEtherPScanReceiveMode.h"
 #include "WirelessEtherState.h"
@@ -38,53 +38,50 @@
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherStateBackoff.h"
 
-WEPScanReceiveMode* WEPScanReceiveMode::_instance = 0;
+WEPScanReceiveMode *WEPScanReceiveMode::_instance = 0;
 
-WEPScanReceiveMode* WEPScanReceiveMode::instance()
+WEPScanReceiveMode *WEPScanReceiveMode::instance()
 {
-  if (_instance == 0)
-    _instance = new WEPScanReceiveMode;
+    if (_instance == 0)
+        _instance = new WEPScanReceiveMode;
 
-  return _instance;
+    return _instance;
 }
 
-void WEPScanReceiveMode::handleBeacon(WirelessEtherModule* mod, WESignalData* signal)
+void WEPScanReceiveMode::handleBeacon(WirelessEtherModule *mod, WESignalData *signal)
 {
-    WirelessEtherManagementFrame* beacon =
-         static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
+    WirelessEtherManagementFrame *beacon =
+        static_cast<WirelessEtherManagementFrame *>(signal->encapsulatedMsg());
 
-    if(mod->isFrameForMe(static_cast<WirelessEtherBasicFrame*>(beacon)))
+    if (mod->isFrameForMe(static_cast<WirelessEtherBasicFrame *>(beacon)))
     {
-      BeaconFrameBody* beaconBody =
-        static_cast<BeaconFrameBody*>(beacon->decapsulate());
+        BeaconFrameBody *beaconBody = static_cast<BeaconFrameBody *>(beacon->decapsulate());
 
         assert(beaconBody);
 
-        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-         << mod->fullPath() << "\n"
-         << " ----------------------------------------------- \n"
-         << " Beacon received by: "
-         << mod->macAddressString() << "\n"
-         << " from " << beacon->getAddress2() << " \n"
-         << " rx power: " << signal->power() << "\n"
-         << " ----------------------------------------------- \n");
+        wEV  << mod->fullPath() << "\n"
+             << " ----------------------------------------------- \n"
+             << " Beacon received by: "
+             << mod->macAddressString() << "\n"
+             << " from " << beacon->getAddress2() << " \n"
+             << " rx power: " << signal->power() << "\n"
+             << " ----------------------------------------------- \n";
 
-    //TODO: need to check supported rates
+        // TODO: need to check supported rates
         WirelessEtherModule::APInfo apInfo =
-          {
-            beacon->getAddress2(),
-            beaconBody->getDSChannel(),
-            signal->power(),
-            0,
-            false,
-            (beaconBody->getHandoverParameters()).estAvailBW,
-            (beaconBody->getHandoverParameters()).avgErrorRate,
-            (beaconBody->getHandoverParameters()).avgBackoffTime,
-            (beaconBody->getHandoverParameters()).avgWaitTime
-          };
+        {
+        beacon->getAddress2(),
+                beaconBody->getDSChannel(),
+                0,
+                signal->power(),
+                0,
+                false,
+                (beaconBody->getHandoverParameters()).estAvailBW,
+                (beaconBody->getHandoverParameters()).avgErrorRate,
+                (beaconBody->getHandoverParameters()).avgBackoffTime,
+                (beaconBody->getHandoverParameters()).avgWaitTime};
         mod->insertToAPList(apInfo);
 
         delete beaconBody;
-    } // endif
+    }
 }
-

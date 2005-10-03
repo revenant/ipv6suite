@@ -25,8 +25,8 @@
             Eric Wu
 */
 
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 
 #include <iostream>
 #include <iomanip>
@@ -41,168 +41,134 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateReceive.h"
 #include "WirelessEtherStateBackoff.h"
+#include "WEQueue.h"
 
 #include "cTimerMessageCB.h"
 
+WirelessEtherStateIdle *WirelessEtherStateIdle::_instance = 0;
 
-WirelessEtherStateIdle* WirelessEtherStateIdle::_instance = 0;
-
-WirelessEtherStateIdle* WirelessEtherStateIdle::instance()
+WirelessEtherStateIdle *WirelessEtherStateIdle::instance()
 {
-  if (_instance == 0)
-    _instance = new WirelessEtherStateIdle;
+    if (_instance == 0)
+        _instance = new WirelessEtherStateIdle;
 
-  return _instance;
+    return _instance;
 }
 
-std::auto_ptr<cMessage> WirelessEtherStateIdle::processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg)
+std::auto_ptr<cMessage> WirelessEtherStateIdle::processSignal(WirelessEtherModule *mod,
+                                                                 std::auto_ptr<cMessage> msg)
 {
-  return WirelessEtherState::processSignal(mod, msg);
+    return WirelessEtherState::processSignal(mod, msg);
 }
 
-std::auto_ptr<WESignalIdle> WirelessEtherStateIdle::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
+std::auto_ptr<WESignalIdle> WirelessEtherStateIdle::processIdle(WirelessEtherModule *mod,
+                                                                   std::auto_ptr<WESignalIdle> idle)
 {
-  mod->decNoOfRxFrames();
-  return idle;
+    mod->decNoOfRxFrames();
+    return idle;
 }
 
-std::auto_ptr<WESignalData> WirelessEtherStateIdle::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
+std::auto_ptr<WESignalData> WirelessEtherStateIdle::processData(WirelessEtherModule *mod,
+                                                                   std::auto_ptr<WESignalData> data)
 {
-  mod->incNoOfRxFrames();
-  mod->frameSource = data->sourceName();
+    mod->incNoOfRxFrames();
+    mod->frameSource = data->sourceName();
 
-  // Probe wait time extensions only apply to mobile nodes
-  if(!mod->isAP())
-  {
-    if(mod->activeScan)
+    // Probe wait time extensions only apply to mobile nodes
+    if (!mod->isAP())
     {
-      cTimerMessage* tmrEnergy = mod->getTmrMessage(TMR_PRBENERGYSCAN);
-      assert(tmrEnergy);
-      cTimerMessage* tmrResp = mod->getTmrMessage(TMR_PRBRESPSCAN);
-      assert(tmrResp);
+        if (mod->activeScan)
+        {
+            if (mod->prbEnergyScanNotifier->isScheduled())
+            {
+                assert(!mod->prbRespScanNotifier->isScheduled());
 
-      if(tmrEnergy->isScheduled())
-      {
-        assert(!tmrResp->isScheduled());
+                mod->cancelEvent(mod->prbEnergyScanNotifier);
 
-        tmrEnergy->cancel();
+                // Extend probe wait time since there is traffic in the channel
+                double nextSchedTime = mod->simTime() + mod->probeResponseTimeout;
 
-        // Extend probe wait time since there is traffic in the channel
-        double nextSchedTime = mod->simTime() + mod->probeResponseTimeout;
-
-        mod->scheduleAt(nextSchedTime, tmrResp);
-      }
+                mod->scheduleAt(nextSchedTime, mod->prbRespScanNotifier);
+            }
+        }
     }
-  }
 
-  // check that we are not in backoff state
-  assert(!mod->getTmrMessage(WIRELESS_SELF_AWAITMAC) ||
-         !mod->getTmrMessage(WIRELESS_SELF_AWAITMAC)->isScheduled());
+    // check that we are not in backoff state
+    assert(!mod->backoffTimer->isScheduled());
 
-  // make sure the inputFrame is empty to store new frame
-  assert(!mod->inputFrame);
+    // make sure the inputFrame is empty to store new frame
+    assert(!mod->inputFrame);
 
-  // XXX has to duplicate the data because the auto_ptr will delete the
-  // instance afterwards
-  mod->inputFrame = (WESignalData*)data->dup();
+    // XXX has to duplicate the data because the auto_ptr will delete the
+    // instance afterwards
+    mod->inputFrame = (WESignalData *) data->dup();
 
-  // entering receive state and waiting to finish receiving the frame
-  mod->changeState(WirelessEtherStateReceive::instance());
+    mod->outputQueue->startIdleReceive(mod->simTime());
 
-  return data;
+    mod->outputQueue->endIdleCount(mod->simTime());
+    mod->outputQueue->startBusyCount(mod->simTime());
+
+    // entering receive state and waiting to finish receiving the frame
+    mod->changeState(WirelessEtherStateReceive::instance());
+
+    return data;
 }
 
-void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule* mod)
+void WirelessEtherStateIdle::chkOutputBuffer(WirelessEtherModule *mod)
 {
     // SW HACK: When a MS's entry expires in the AP, there could still be
     // frames destined for that MS in the AP's buffer. This removes data
     // destined for MSs no longer associated with the AP. It will prevent
     // the channel being used uneccesarily.
-    if(mod->isAP())
+    if (mod->isAP())
     {
-        while(mod->outputBuffer.size())
+        while (mod->outputQueue->size())
         {
-            WESignalData* a = *(mod->outputBuffer.begin());
-            
-            WirelessEtherBasicFrame* outputFrame =
-                dynamic_cast<WirelessEtherBasicFrame*>(a->encapsulatedMsg());
-
+            WirelessEtherBasicFrame *outputFrame = mod->outputQueue->getReadyFrame();
             FrameControl frameControl = outputFrame->getFrameControl();
-            
+
             // Only remove data frames
-            if(frameControl.subtype == ST_DATA)
+            if (frameControl.subtype == ST_DATA)
             {
-                WirelessAccessPoint* ap =
-                    check_and_cast<WirelessAccessPoint*>(mod);
-                
+                WirelessAccessPoint *ap = check_and_cast<WirelessAccessPoint *>(mod);
                 WirelessEtherInterface dest = ap->findIfaceByMAC(outputFrame->getAddress1());
-                
+
                 // Remove if its a unicast address not in the list of associated MS
-                if(    (outputFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS)) ||
-                       (dest != UNSPECIFIED_WIRELESS_ETH_IFACE)    )
+                if ((outputFrame->getAddress1() == MACAddress6(WE_BROADCAST_ADDRESS)) ||
+                    (dest != UNSPECIFIED_WIRELESS_ETH_IFACE))
                     break;
                 else
-                    mod->outputBuffer.pop_front();
+                    mod->outputQueue->prepareNextFrame(mod->simTime());
             }
             else
                 break;
         }
     }
-    
-    if (mod->outputBuffer.size())
+
+    // Attempt to send if there is something in the queue
+    if (mod->outputQueue->size())
     {
-        // switch to backoff state and schedule backoff time for minimum
-        // contention window
-        
-        mod->changeState(WirelessEtherStateBackoff::instance());
+        WirelessEtherBasicFrame *frame = mod->outputQueue->getReadyFrame();
+        assert(frame);          // check if the frame is ok
 
-        cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
-        if (!a)
-        {
-            Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>* tmr;
-            
-            tmr = new Loki::cTimerMessageCB<void, TYPELIST_1(WirelessEtherModule*)>
-                (WIRELESS_SELF_AWAITMAC, mod,
-                 static_cast<WirelessEtherStateBackoff*>(mod->currentState()),
-                 &WirelessEtherStateBackoff::readyToSend, "readyToSend");
-            
-            Loki::Field<0> (tmr->args) = mod;
-            mod->addTmrMessage(tmr);
-            a = tmr;
-        }
-        
-        int numSlots=0, cw=0;
-
-        //check if output frame is a probe req/resp and fast active scan is enabled
-        WESignalData* outData = *(mod->outputBuffer.begin());
-        assert(outData); // check if the frame is ok
-        if( ((WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBEREQUEST)||(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_PROBERESPONSE))&& mod->fastActiveScan())
-        {
-            cw = CW_MIN;
-            numSlots = intuniform(0,cw);
-            mod->backoffTime = numSlots * SLOTTIME + SIFS;
-        }
-        else
-        {
-            cw = (1 << mod->contentionWindowPower()) - 1;
-            numSlots = intuniform(0, cw);
-            mod->backoffTime = numSlots * SLOTTIME + DIFS;
-        }
-        
-        if(WEBASICFRAME_IN(outData)->getFrameControl().subtype == ST_DATA)
+        // Update stats if its a DATA frame
+        if (frame->getFrameControl().subtype == ST_DATA)
         {
             mod->dataReadyTimeStamp = mod->simTime();
-            mod->CWStat->collect(cw);
-            mod->avgCWStat->collect(cw);    
-            mod->backoffSlotsStat->collect(numSlots);
-            mod->avgBackoffSlotsStat->collect(numSlots);
+            mod->CWStat->collect(mod->outputQueue->getCW());
+            mod->avgCWStat->collect(mod->outputQueue->getCW());
+            mod->backoffSlotsStat->collect(mod->outputQueue->getBackoffSlots());
+            mod->avgBackoffSlotsStat->collect(mod->outputQueue->getBackoffSlots());
         }
-        
-        double nextSchedTime = mod->simTime() + mod->backoffTime;
-        
-        Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds"<< " cw: "<<cw<<" numSlots: "<<numSlots);
-        
-        assert(!a->isScheduled());
-        a->reschedule(nextSchedTime);
+
+        // set timer for backoff
+        double nextSchedTime = mod->simTime() + mod->outputQueue->getTimeToSend();
+        assert(!mod->backoffTimer->isScheduled());
+        mod->reschedule(mod->backoffTimer, nextSchedTime);
+
+        mod->outputQueue->startingContention(mod->simTime());
+        mod->changeState(WirelessEtherStateBackoff::instance());
+
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": start backing off and scheduled to cease backoff in " << mod->outputQueue->getTimeToSend() << " seconds"<< " cw: "<<mod->outputQueue->getCW()<<" numSlots: "<<mod->outputQueue->getBackoffSlots() << "\n";
     }
 }

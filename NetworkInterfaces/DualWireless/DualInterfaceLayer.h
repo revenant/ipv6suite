@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004 CTIE, Monash University 
+// Copyright (C) 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,6 +40,13 @@ class IPDatagram;
 class WESignalData;
 class InterfaceEntry;
 
+extern const int TMR_HANDOVERWAIT;
+extern const intTMR_SETMONITORMODE;
+extern const int TMR_MONITORCHANNEL;
+extern const int TMR_APLISTENTRYTIMEOUT;
+extern const int TMR_OBTAINSTATS;
+
+
 /*
   @class AccessPointEntry
  This will allow the DualInterface to keep track of surrouding APs
@@ -52,16 +59,16 @@ class AccessPointEntry
     // Needed to use ExpiryEntryList
     double expiryTime(void) const { return expire; }
     MACAddress6 identifier(void) { return address; }
-    
-    MACAddress6 address;  
+
+    MACAddress6 address;
     int DSChannel;
-    // this is updated 
+    // this is updated
     double expire;
     AveragingList signalStrength;
     AveragingList estAvailBW;
     AveragingList errorPercentage;
     AveragingList avgBackoffTime;
-    AveragingList avgWaitTime;  
+    AveragingList avgWaitTime;
 };
 
 bool operator==(const AccessPointEntry& lhs,
@@ -75,14 +82,16 @@ bool lessThan(AccessPointEntry&, AccessPointEntry&);
  @brief Receive input from all interfaces and forward to IP processing module
         Manages which LL interface connects to the network and responsible for handover
  */
- 
+
 class DualInterfaceLayer: public cSimpleModule
 {
 public:
   Module_Class_Members(DualInterfaceLayer, cSimpleModule, 0);
-  
+
+
+
   ~DualInterfaceLayer();
-  
+
   virtual void initialize(int);
   virtual void handleMessage(cMessage*);
   virtual void finish();
@@ -91,7 +100,7 @@ public:
   void readConfiguration();
   // adds interface entry into InterfaceTable
   InterfaceEntry *registerInterface();
-  
+
   // Functions called within handleMessage
   void handleLinkLayerMessage(cMessage*);
   void handleNetworkLayerMessage(cMessage*);
@@ -105,27 +114,28 @@ public:
   bool handoverRequired(void);
   void handoverDecision(void);
   void processMonitorFrames(WESignalData*);
-  
+
 private:
 
-  double handoverWaitTime;
-  double monitorChannelTime;
-  double obtainStatsTime;
-  
   // buffer messages from upper layer
   std::list<cMessage*> buffer;
-  
+
   MACAddress6 address; // MAC address which should be the same for both interfaces
   // keep track of which interface is associated and which is monitoring
   int connectedLL;
   int monitoringLL;
+
+  //update parameters
+  double handoverWaitTime;
+  double monitorChannelTime;
+  double obtainStatsTime;
 
   // details of current association
   double connectedSignalStrength;
   double connectedErrorPercentage;
   double connectedAvgBackoffTime;
   double connectedAvgWaitTime;
-  
+
   cOutVector* errorPercentageVec;
   cOutVector* avgBackoffTimeVec;
   cOutVector* avgWaitTimeVec;
@@ -138,7 +148,7 @@ private:
 
   // channel monitored on monitoring interface
   int monitoringChannel;
-  
+
   Loki::cTimerMessageCB<void>* handoverWaitTimer;
   Loki::cTimerMessageCB<void>* monitorChannelTimer;
   Loki::cTimerMessageCB<void,TYPELIST_1(int)>* settingMonitorMode;

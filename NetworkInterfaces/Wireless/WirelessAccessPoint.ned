@@ -48,7 +48,9 @@ simple WirelessAccessPoint
         activeScan: bool,
         channelScanTime: numeric,
 	bufferSize: numeric,
-	registerInterface: bool;
+	registerInterface: bool,
+	queueType: string,
+	errorRate: numeric const;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

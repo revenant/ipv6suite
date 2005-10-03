@@ -30,40 +30,36 @@
 
 #include <memory> //auto_ptr
 
-#ifndef BOOST_CAST_HPP
-#include <boost/cast.hpp>
-#endif //BOOST_CAST_HPP
-
 #include <omnetpp.h>
 #include "WEthernet.h"
 #include "WirelessEtherState.h"
 
 class WirelessEtherModule;
-
+class WirelessEtherBasicFrame;
 class WESignalIdle;
 class WESignalData;
 class WESignalACK;
 
 class WirelessEtherStateReceive : public WirelessEtherState
 {
-  friend class WirelessEtherStateIdle;
+    friend class WirelessEtherStateIdle;
 
-public:
-  static WirelessEtherStateReceive* instance();
+  public:
+    static WirelessEtherStateReceive* instance();
 
-  virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
+    virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
-  void sendAck(WirelessEtherModule* mod, WESignalData* ack);
+    void sendAck(WirelessEtherModule* mod, WirelessEtherBasicFrame* ack);
 
-  void endSendingAck(WirelessEtherModule* mod);
+    void endSendingAck(WirelessEtherModule* mod);
 
-  virtual void changeNextState(WirelessEtherModule* mod);
-protected:
-  WirelessEtherStateReceive(void) {}
+    virtual void changeNextState(WirelessEtherModule* mod);
+  protected:
+    WirelessEtherStateReceive(void) {}
 
-  virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
-  virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);
+    virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
+    virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);
 
-  static WirelessEtherStateReceive* _instance;
+    static WirelessEtherStateReceive* _instance;
 };
 #endif

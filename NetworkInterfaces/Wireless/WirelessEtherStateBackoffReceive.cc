@@ -26,8 +26,8 @@
 */
 
 
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 
 #include <iostream>
 #include <iomanip>
@@ -38,58 +38,56 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WirelessEtherStateIdle.h"
 #include "WirelessEtherAScanReceiveMode.h"
+#include "WEQueue.h"
 
-WirelessEtherStateBackoffReceive* WirelessEtherStateBackoffReceive::_instance = 0;
+WirelessEtherStateBackoffReceive *WirelessEtherStateBackoffReceive::_instance = 0;
 
-WirelessEtherStateBackoffReceive* WirelessEtherStateBackoffReceive::instance()
+WirelessEtherStateBackoffReceive *WirelessEtherStateBackoffReceive::instance()
 {
-  if (_instance == 0)
-    _instance = new WirelessEtherStateBackoffReceive;
+    if (_instance == 0)
+        _instance = new WirelessEtherStateBackoffReceive;
 
-  return _instance;
+    return _instance;
 }
 
-std::auto_ptr<cMessage> WirelessEtherStateBackoffReceive::processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg)
+std::auto_ptr<cMessage> WirelessEtherStateBackoffReceive::processSignal(WirelessEtherModule *mod,
+                                                                           std::auto_ptr<cMessage> msg)
 {
-  return WirelessEtherStateReceive::processSignal(mod, msg);
+    return WirelessEtherStateReceive::processSignal(mod, msg);
 }
 
-std::auto_ptr<WESignalIdle> WirelessEtherStateBackoffReceive::processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle)
+std::auto_ptr<WESignalIdle> WirelessEtherStateBackoffReceive::processIdle(WirelessEtherModule *mod,
+                                                                             std::auto_ptr<WESignalIdle> idle)
 {
-/*  if (mod->currentReceiveMode() == WEAScanReceiveMode::instance())
-  {
-    mod->scanNextChannel();
-    return idle;
-    }*/
-
-  return WirelessEtherStateReceive::processIdle(mod, idle);
+    return WirelessEtherStateReceive::processIdle(mod, idle);
 }
 
-std::auto_ptr<WESignalData> WirelessEtherStateBackoffReceive::processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data)
+std::auto_ptr<WESignalData> WirelessEtherStateBackoffReceive::processData(WirelessEtherModule *mod,
+                                                                             std::auto_ptr<WESignalData> data)
 {
-  return   WirelessEtherStateReceive::processData(mod, data);
+    return WirelessEtherStateReceive::processData(mod, data);
 }
 
-void WirelessEtherStateBackoffReceive::changeNextState(WirelessEtherModule* mod)
+void WirelessEtherStateBackoffReceive::changeNextState(WirelessEtherModule *mod)
 {
-  cTimerMessage* a = mod->getTmrMessage(WIRELESS_SELF_AWAITMAC);
-  assert(a);
+    mod->outputQueue->endBusyCount(mod->simTime());
+    mod->outputQueue->startIdleCount(mod->simTime());
 
-  if ( mod->getTmrMessage(TMR_PRBENERGYSCAN) &&
-       mod->getTmrMessage(TMR_PRBENERGYSCAN)->isScheduled())
-  {
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": handover triggered! go back to idle state");
+    // If frame received causes a handover, go to idle state and ditch current planned tx
+    if (mod->prbEnergyScanNotifier && mod->prbEnergyScanNotifier->isScheduled())
+    {
+        wEV << currentTime() << " sec, " << mod->fullPath() << ": handover triggered! go back to idle state\n";
 
-    mod->changeState(WirelessEtherStateIdle::instance());
-    return;
-  }
+        mod->changeState(WirelessEtherStateIdle::instance());
+        return;
+    }
 
+    // Resume backoff
+    assert(!mod->backoffTimer->isScheduled());
+    mod->scheduleAt(mod->simTime() + mod->outputQueue->getTimeToSend(), mod->backoffTimer);
 
-  assert(a && !a->isScheduled());
+    wEV << currentTime() << " sec, " << mod->fullPath() << ": resume backing off and scheduled to cease backoff in " << mod->outputQueue->getTimeToSend() << " seconds\n";
 
-  mod->scheduleAt(mod->simTime() + mod->backoffTime, a);
-
-  Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: " << std::fixed << std::showpoint << std::setprecision(12) << mod->simTime() << " sec, " << mod->fullPath() << ": resume backing off and scheduled to cease backoff in " << mod->backoffTime << " seconds");
-  
-  mod->changeState(WirelessEtherStateBackoff::instance());
+    mod->outputQueue->startingContention(mod->simTime());
+    mod->changeState(WirelessEtherStateBackoff::instance());
 }

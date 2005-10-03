@@ -230,6 +230,8 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
     new cPointerMapWatcher<KeyT,ValueT,CmpT>(varname, m);
 }
 
+#ifndef WATCH_VECTOR   /* it's already included in omnetpp-3.2 */
+
 #define WATCH_VECTOR(v)      createVectorWatcher(#v,(v))
 
 #define WATCH_PTRVECTOR(v)   createPointerVectorWatcher(#v,(v))
@@ -241,6 +243,8 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
 #define WATCH_MAP(m)         createMapWatcher(#m,(m))
 
 #define WATCH_PTRMAP(m)      createPointerMapWatcher(#m,(m))
+
+#endif
 
 #endif
 

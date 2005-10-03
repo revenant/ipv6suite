@@ -30,10 +30,6 @@
 
 #include <memory> //auto_ptr
 
-#ifndef BOOST_CAST_HPP
-#include <boost/cast.hpp>
-#endif //BOOST_CAST_HPP
-
 #include <omnetpp.h>
 #include "WEthernet.h"
 #include "WirelessEtherState.h"
@@ -59,8 +55,9 @@ protected:
   virtual std::auto_ptr<WESignalIdle> processIdle(WirelessEtherModule* mod, std::auto_ptr<WESignalIdle> idle);
   virtual std::auto_ptr<WESignalData> processData(WirelessEtherModule* mod, std::auto_ptr<WESignalData> data);
 
-  void endAwaitACK(WirelessEtherModule* mod);
-
   static WirelessEtherStateAwaitACK* _instance;
+
+public:
+  void endAwaitACK(WirelessEtherModule* mod);
 };
 #endif

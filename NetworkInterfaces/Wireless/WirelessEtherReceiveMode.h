@@ -31,7 +31,7 @@
 class WESignalData;
 class WirelessEtherModule;
 class WirelessAccessPoint;
-class WESignalData;
+class WirelessEtherBasicFrame;
 
 class WEReceiveMode
 {
@@ -64,7 +64,7 @@ protected:
   static WEReceiveMode* _instance;
   WEReceiveMode(void) {}
 
-  void scheduleAck(WirelessEtherModule* mod, WESignalData* ack);
+  void scheduleAck(WirelessEtherModule* mod, WirelessEtherBasicFrame* ack);
 };
 
 

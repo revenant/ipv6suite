@@ -23,8 +23,8 @@
   Eric Wu
 */
 
-#include "sys.h" // Dout
-#include "debug.h" // Dout
+#include "sys.h"
+#include "debug.h"
 
 
 #include "WirelessEtherAScanReceiveMode.h"
@@ -45,122 +45,110 @@
 
 
 
-WEAScanReceiveMode* WEAScanReceiveMode::_instance = 0;
+WEAScanReceiveMode *WEAScanReceiveMode::_instance = 0;
 
-WEAScanReceiveMode* WEAScanReceiveMode::instance()
+WEAScanReceiveMode *WEAScanReceiveMode::instance()
 {
-  if (_instance == 0)
-    _instance = new WEAScanReceiveMode;
+    if (_instance == 0)
+        _instance = new WEAScanReceiveMode;
 
-  return _instance;
+    return _instance;
 }
 
-void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule* mod, WESignalData *signal)
+void WEAScanReceiveMode::handleProbeResponse(WirelessEtherModule *mod, WESignalData *signal)
 {
-  WirelessEtherManagementFrame* probeResponse =
-      static_cast<WirelessEtherManagementFrame*>(signal->encapsulatedMsg());
+    WirelessEtherManagementFrame *probeResponse =
+        static_cast<WirelessEtherManagementFrame *>(signal->encapsulatedMsg());
 
-  if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
-  {
-      ProbeResponseFrameBody* probeResponseBody =
-      static_cast<ProbeResponseFrameBody*>(probeResponse->decapsulate());
-
-    assert(probeResponseBody);
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
-    double avail_bw = (probeResponseBody->getHandoverParameters()).estAvailBW;
-    double value = mod->calculateHOValue(signal->power(),avail_bw,mod->bWRequirements);
-
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-         << mod->fullPath() << "\n"
-         << " ----------------------------------------------- \n"
-         << " Probe Response received by: " << mod->macAddressString() << "\n"
-         << " from " << probeResponse->getAddress2() << " \n"
-         << " SSID: " << probeResponseBody->getSSID() << "\n"
-         << " channel: " << probeResponseBody->getDSChannel() << "\n"
-         << " rxpower: " << signal->power() << "\n"
-         << " bw req: "<< mod->bWRequirements << "\n"
-         << " hoValue: " << value << "\n"
-         << " ----------------------------------------------- \n");
-#else
-    Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-         << mod->fullPath() << "\n"
-         << " ----------------------------------------------- \n"
-         << " Probe Response received by: " << mod->macAddressString() << "\n"
-         << " from " << probeResponse->getAddress2() << " \n"
-         << " SSID: " << probeResponseBody->getSSID() << "\n"
-         << " channel: " << probeResponseBody->getDSChannel() << "\n"
-         << " rxpower: " << signal->power() << "\n"
-         << " ----------------------------------------------- \n");
-#endif // L2FUZZYHO
-    for ( size_t i = 0; i < probeResponseBody->getSupportedRatesArraySize(); i++ )
-      Dout(dc::wireless_ethernet|flush_cf,
-           " Supported Rates: \n "
-           << " [" << i << "] \t rate: "
-           << probeResponseBody->getSupportedRates(i).rate << " \n"
-           << " \t supported?" << probeResponseBody->getSupportedRates(i).supported
-           << "\n");
-
-      WirelessEtherModule::APInfo apInfo =
-      {
-          probeResponse->getAddress2(),
-        probeResponseBody->getDSChannel(),
-        signal->power(),
-#if L2FUZZYHO // (Layer 2 fuzzy logic handover)
-            value,
-#else
-            0,
-#endif // L2FUZZYHO
-        false,
-        (probeResponseBody->getHandoverParameters()).estAvailBW,
-        (probeResponseBody->getHandoverParameters()).avgErrorRate,
-        (probeResponseBody->getHandoverParameters()).avgBackoffTime,
-        (probeResponseBody->getHandoverParameters()).avgWaitTime
-      };
-      mod->insertToAPList(apInfo);
-
-    // send ACK
-    WirelessEtherBasicFrame* ack = mod->
-      createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()),
-                  probeResponse->getAddress2());
-    WESignalData* ackSignal = encapsulateIntoWESignalData(ack);
-    scheduleAck(mod, ackSignal);
-    //delete ack;
-    //GD:   Can we do early return here??
-    //Enough APs?? Signal Strength, SSID
-    //Prematch criteria??
-    changeState = false;
-
-    delete probeResponseBody;
-  } // endif
-}
-
-void WEAScanReceiveMode::handleAck(WirelessEtherModule* mod, WESignalData* signal)
-{
-  WirelessEtherBasicFrame* ack =
-      static_cast<WirelessEtherBasicFrame*>(signal->encapsulatedMsg());
-
-  if(ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
-  {
-    // Since both interfaces have the same MAC Address in a dual interface node, you may
-    // process an ACK which is meant for the other interface. Condition checks that you
-    // are expecting an ACK before processing it.
-    if( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+    if (probeResponse->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
     {
-      mod->getTmrMessage(WIRELESS_SELF_AWAITACK)->cancel();
+        ProbeResponseFrameBody *probeResponseBody =
+            static_cast<ProbeResponseFrameBody *>(probeResponse->decapsulate());
 
-      finishFrameTx(mod);
-      Dout(dc::wireless_ethernet|flush_cf, "MAC LAYER: (WIRELESS) "
-           << mod->fullPath() << "\n"
-           << " ----------------------------------------------- \n"
-           << " ACK received by: " << mod->macAddressString() << "\n"
-           << " ----------------------------------------------- \n");
+        assert(probeResponseBody);
+#if L2FUZZYHO                   // (Layer 2 fuzzy logic handover)
+        double avail_bw = (probeResponseBody->getHandoverParameters()).estAvailBW;
+        double value = mod->calculateHOValue(signal->power(), avail_bw, mod->bWRequirements);
 
-      changeState = false;
+        wEV  << mod->fullPath() << "\n"
+             << " ----------------------------------------------- \n"
+             << " Probe Response received by: " << mod->macAddressString() << "\n"
+             << " from " << probeResponse->getAddress2() << " \n"
+             << " SSID: " << probeResponseBody->getSSID() << "\n"
+             << " channel: " << probeResponseBody->getDSChannel() << "\n"
+             << " rxpower: " << signal->power() << "\n"
+             << " bw req: " << mod->bWRequirements << "\n"
+             << " hoValue: " << value << "\n"
+             << " ----------------------------------------------- \n";
+#else
+        wEV  << mod->fullPath() << "\n"
+             << " ----------------------------------------------- \n"
+             << " Probe Response received by: " << mod->macAddressString() << "\n"
+             << " from " << probeResponse->getAddress2() << " \n"
+             << " SSID: " << probeResponseBody->getSSID() << "\n"
+             << " channel: " << probeResponseBody->getDSChannel() << "\n"
+             << " rxpower: " << signal->power() << "\n"
+             << " ----------------------------------------------- \n";
+#endif // L2FUZZYHO
+        for (size_t i = 0; i < probeResponseBody->getSupportedRatesArraySize(); i++)
+            wEV  << " Supported Rates: \n "
+                 << " [" << i << "] \t rate: "
+                 << probeResponseBody->getSupportedRates(i).rate << " \n"
+                 << " \t supported?" << probeResponseBody->getSupportedRates(i).supported << "\n";
+
+        WirelessEtherModule::APInfo apInfo =
+        {
+            probeResponse->getAddress2(), probeResponseBody->getDSChannel(), 0, signal->power(),
+#if L2FUZZYHO                   // (Layer 2 fuzzy logic handover)
+                value,
+#else
+                0,
+#endif // L2FUZZYHO
+                false,
+                (probeResponseBody->getHandoverParameters()).estAvailBW,
+                (probeResponseBody->getHandoverParameters()).avgErrorRate,
+                (probeResponseBody->getHandoverParameters()).avgBackoffTime,
+                (probeResponseBody->getHandoverParameters()).avgWaitTime
+        };
+        mod->insertToAPList(apInfo);
+
+        // send ACK
+        WirelessEtherBasicFrame *ack = mod->
+            createFrame(FT_CONTROL, ST_ACK, MACAddress6(mod->macAddressString().c_str()), AC_VO,
+                        probeResponse->getAddress2());
+        scheduleAck(mod, ack);
+        // GD:   Can we do early return here??
+        // Enough APs?? Signal Strength, SSID
+        // Prematch criteria??
+        changeState = false;
+
+        delete probeResponseBody;
     }
-  }
-
-  if ( mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
-    changeState = false;
 }
 
+void WEAScanReceiveMode::handleAck(WirelessEtherModule *mod, WESignalData *signal)
+{
+    WirelessEtherBasicFrame *ack = static_cast<WirelessEtherBasicFrame *>(signal->encapsulatedMsg());
 
+    if (ack->getAddress1() == MACAddress6(mod->macAddressString().c_str()))
+    {
+        // Since both interfaces have the same MAC Address in a dual interface node, you may
+        // process an ACK which is meant for the other interface. Condition checks that you
+        // are expecting an ACK before processing it.
+        if (mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+        {
+            mod->cancelEvent(mod->awaitAckTimer);
+
+            finishFrameTx(mod);
+            wEV  << mod->fullPath() << "\n"
+                 << " ----------------------------------------------- \n"
+                 << " ACK received by: " << mod->macAddressString() << "\n"
+                 << " ----------------------------------------------- \n";
+
+            changeState = false;
+        }
+    }
+
+    if (mod->currentState() == WirelessEtherStateAwaitACKReceive::instance())
+        changeState = false;
+}

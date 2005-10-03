@@ -28,6 +28,8 @@
 #ifndef __WIRELESS_ETH_MISC_H
 #define __WIRELESS_ETH_MISC_H
 
+#include <sstream>
+#include <iomanip>
 #include "WEthernet.h"
 
 // constants
@@ -43,14 +45,15 @@ extern const int CW_MIN;
 
 extern const double TU;    // Time Unit
 
-
+extern const double PRECERROR;
+extern const double RXTXTURNAROUND; // 5 us?; time to switch from rx to tx state
 extern const double SLOTTIME; // 15 us; a slot time
 extern const double SIFS; // 20 us; Short Interframe Space
 extern const double DIFS; // 50 us; Distributed Interframe Space
 extern const double ACKLENGTH; // 112 bits
 extern const int MAX_CHANNELS; // 16 frequency bands in wireless LAN
 
-extern int BASE_SPEED; // pbs; for control/management frames
+extern double BASE_SPEED; // pbs; for control/management frames
 
 // specific 802.11 message kind, message name
 extern const int TMR_PRBENERGYSCAN;
@@ -64,12 +67,7 @@ extern const int TMR_REMOVEENTRY;
 extern const int TMR_AUTHTIMEOUT;
 extern const int TMR_ASSTIMEOUT;
 extern const int TMR_PRBRESPSCAN;
-extern const int TMR_HANDOVERWAIT;
-extern const int TMR_SETMONITORMODE;
-extern const int TMR_MONITORCHANNEL;
-extern const int TMR_APLISTENTRYTIMEOUT;
 extern const int TMR_STATS;
-extern const int TMR_OBTAINSTATS;
 extern const int TMR_CHANNELSCAN;
 
 // FieldLength
@@ -95,6 +93,13 @@ extern const short FL_SEQNUM;
 
 extern const short WE_MAX_PAYLOAD_BYTES;
 
+extern const double collOhDurationBE;
+extern const double collOhDurationVI;
+extern const double collOhDurationVO;
+extern const double successOhDurationBE;
+extern const double successOhDurationVI;
+extern const double successOhDurationVO;
+
 //Receive mode
 enum ReceiveMode
 {
@@ -109,5 +114,24 @@ enum ReceiveMode
   RM_ASSRSP_ACKWAIT = 8,
   RM_AUTHRSP_ACKWAIT = 9
 };
+
+//QoS queues
+enum
+{
+    AC_BK = 0,
+    AC_BE = 1,
+    AC_VI = 2,
+    AC_VO = 3
+};
+
+inline std::string formatTime(simtime_t t) {
+    std::stringstream out;
+    out << std::fixed << std::showpoint << std::setprecision(12) << t;
+    return out.str();
+}
+
+inline std::string currentTime() {
+    return formatTime(simulation.simTime());
+}
 
 #endif //__WIRELESS_ETH_MISC_H

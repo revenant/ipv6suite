@@ -48,6 +48,11 @@ extern const int WE_AP_NOTIFY_MAC;
 
 extern const int WE_MAC_BRIDGE_REGISTER;
 
+#ifndef wEV
+#define wEV (ev.disabled()) ? (std::ostream&)ev : ev << "Wireless MAC: "
+#endif
+
+
 // XXX FIXME temporarily thrown in here -- find a proper place for it! --AV
 #include "WirelessEtherSignal_m.h"
 inline WESignalData *encapsulateIntoWESignalData(cMessage *msg) {

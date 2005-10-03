@@ -92,7 +92,8 @@ void BRSink::updateList(BRMsg *msg)
 //
 void BRSink::updateStreamListEntry(BRStreamListIt it, BRMsg* msg)
 {
-    assert(msg->getSequenceNo() >= (*it)->expectedSeq);
+    if(msg->getSequenceNo() <(*it)->expectedSeq)
+        (*it)->numPrevious++;
     (*it)->numReceived++;
     //(*it)->numReceivedVec->record((*it)->numReceived); 
     (*it)->numLost += msg->getSequenceNo()-(*it)->expectedSeq;
@@ -112,6 +113,7 @@ void BRSink::newStreamListEntry(std::string srcName)
     newStream->srcName = srcName;
     newStream->numReceived = 0;
     newStream->numLost = 0;
+    newStream->numPrevious = 0;
     newStream->expectedSeq = 1;
     varName = "BRDelayStat"+srcName;
     newStream->delayStat = new cStdDev(varName.c_str());

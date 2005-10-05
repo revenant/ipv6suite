@@ -41,7 +41,7 @@ class WESignalData;
 class InterfaceEntry;
 
 extern const int TMR_HANDOVERWAIT;
-extern const intTMR_SETMONITORMODE;
+extern const int TMR_SETMONITORMODE;
 extern const int TMR_MONITORCHANNEL;
 extern const int TMR_APLISTENTRYTIMEOUT;
 extern const int TMR_OBTAINSTATS;

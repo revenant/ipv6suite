@@ -110,9 +110,6 @@ public:
 
   typedef std::map<IPv6Address, DestinationEntry > DestinationCache;
 
-#ifndef CXX
-protected:
-#endif //ifndef CXX
 
   typedef DestinationCache::iterator DCI;
 
@@ -125,9 +122,8 @@ protected:
     return it!=destCache.end();
   }
 
-#ifdef CXX
 protected:
-#endif //CXX
+
   DCI beginDC() { return destCache.begin(); }
 
   ///Returns the DestinationEntry at it and moves it forward by one.

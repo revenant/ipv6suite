@@ -19,5 +19,5 @@ endchannel
 
 channel homeLink
     delay 0.01;
-    datarate 10000000;
+    datarate 100000000;
 endchannel;

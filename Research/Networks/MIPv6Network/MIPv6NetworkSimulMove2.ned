@@ -27,7 +27,7 @@ import  //
 module MIPv6NetworkSimulMove2
     submodules:
         worldProcessor: WorldProcessor;
-            display: "p=52,304;i=misc/sun";
+            display: "p=548,40;i=misc/sun";
         mn1: MobileNode;
             parameters:
                 IPForward = false;
@@ -41,117 +41,117 @@ module MIPv6NetworkSimulMove2
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=110,810;i=laptop3";
+            display: "p=110,325;i=laptop3";
         coreRouter1: Router6;
             gatesizes:
                 in[11],
                 out[11];
-            display: "p=1139,364;i=router3";
+            display: "p=475,220;i=router3";
         coreRouter2: Router6;
             gatesizes:
                 in[11],
                 out[11];
-            display: "p=1139,458;i=router3";
+            display: "p=475,330;i=router3";
         router1: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1007,164;i=router2";
+            display: "p=95,100;i=router2";
         router2: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1105,594;i=router2";
+            display: "p=185,290;i=router2";
         router3: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1065,220;i=router2";
+            display: "p=185,180;i=router2";
         router4: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1105,650;i=router2";
+            display: "p=185,370;i=router2";
         router5: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1065,268;i=router2";
+            display: "p=185,260;i=router2";
         router6: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1055,594;i=router2";
+            display: "p=95,290;i=router2";
         router7: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1065,164;i=router2";
+            display: "p=185,100;i=router2";
         router8: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1155,594;i=router2";
+            display: "p=275,290;i=router2";
         router9: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1139,220;i=router2";
+            display: "p=275,180;i=router2";
         router10: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1155,650;i=router2";
+            display: "p=275,370;i=router2";
         router11: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1139,268;i=router2";
+            display: "p=275,260;i=router2";
         router12: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1105,706;i=router2";
+            display: "p=185,450;i=router2";
         router13: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1139,164;i=router2";
+            display: "p=275,100;i=router2";
         router14: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1213,594;i=router2";
+            display: "p=365,290;i=router2";
         router15: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1205,220;i=router2";
+            display: "p=365,180;i=router2";
         router16: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1213,650;i=router2";
+            display: "p=365,370;i=router2";
         router17: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1205,268;i=router2";
+            display: "p=365,260;i=router2";
         router18: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1155,706;i=router2";
+            display: "p=275,450;i=router2";
         router19: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1205,164;i=router2";
+            display: "p=365,100;i=router2";
         router20: Router6;
             gatesizes:
                 in[2],
                 out[2];
-            display: "p=1213,706;i=router2";
+            display: "p=365,450;i=router2";
         ap1: AccessPoint;
             gatesizes:
                 in[1],
@@ -161,27 +161,27 @@ module MIPv6NetworkSimulMove2
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=230,810;i=switch1_s";
+            display: "p=230,330;i=switch1_s";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=230,340;i=switch1_s";
+            display: "p=230,140;i=switch1_s";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=230,1090;i=switch1_s";
+            display: "p=230,410;i=switch1_s";
         ap5: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=230,620;i=switch1_s";
+            display: "p=230,220;i=switch1_s";
         ap6: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=150,810;i=switch1_s";
+            display: "p=150,330;i=switch1_s";
         ap7: AccessPoint;
             gatesizes:
                 in[1],
@@ -191,72 +191,72 @@ module MIPv6NetworkSimulMove2
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,810;i=switch1_s";
+            display: "p=320,330;i=switch1_s";
         ap9: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,340;i=switch1_s";
+            display: "p=320,140;i=switch1_s";
         ap10: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,1090;i=switch1_s";
+            display: "p=320,410;i=switch1_s";
         ap11: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,620;i=switch1_s";
+            display: "p=320,220;i=switch1_s";
         ap12: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=230,1370;i=switch1_s";
+            display: "p=230,490;i=switch1_s";
         ap13: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,60;i=switch1_s";
+            display: "p=320,60;i=switch1_s";
         ap14: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,810;i=switch1_s";
+            display: "p=410,330;i=switch1_s";
         ap15: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,340;i=switch1_s";
+            display: "p=410,140;i=switch1_s";
         ap16: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,1090;i=switch1_s";
+            display: "p=410,410;i=switch1_s";
         ap17: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,620;i=switch1_s";
+            display: "p=410,220;i=switch1_s";
         ap18: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=510,1370;i=switch1_s";
+            display: "p=320,490;i=switch1_s";
         ap19: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,60;i=switch1_s";
+            display: "p=410,60;i=switch1_s";
         ap20: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=790,1370;i=switch1_s";
+            display: "p=410,490;i=switch1_s";
         configurator6: FlatNetworkConfigurator6;
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode",
                 nonIPModuleTypes = "AccessPoint ";
-            display: "p=52,228;i=block/cogwheel";
+            display: "p=596,500;i=block/cogwheel";
     connections nocheck:
         coreRouter1.out[0] --> internetCable --> coreRouter2.in[0];
         coreRouter1.in[0] <-- internetCable <-- coreRouter2.out[0];

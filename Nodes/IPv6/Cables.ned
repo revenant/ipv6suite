@@ -14,10 +14,10 @@ endchannel
 //
 channel intranetCable 
     delay 0.01;
-    datarate 100000000; 
+    datarate 10000000; 
 endchannel 
 
 channel homeLink
     delay 0.01;
-    datarate 100000000;
+    datarate 10000000;
 endchannel;

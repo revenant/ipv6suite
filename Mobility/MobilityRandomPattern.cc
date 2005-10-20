@@ -98,8 +98,8 @@ void MobilityRandomPattern::initialize(int stage)
 
 void MobilityRandomPattern::handleMessage(cMessage* msg)
 {
-  int x = msg->par("x");
-  int y = msg->par("y");
+  double x = msg->par("x");
+  double y = msg->par("y");
 
   mobileEntity->setPosition(x + xOffset,
                             y + yOffset);

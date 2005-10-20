@@ -4,11 +4,11 @@
 
 //Define_Module_Like(RandomWP,Mobility);
 
-double RandomWP::randomWaypoint(int& x, int& y)
+double RandomWP::randomWaypoint(double& x, double& y)
 {
   double distance;//,angle;
         double speed;
-        int a,b,c,d;
+        double a,b,c,d;
         bool pause = false;
 
         a = x;

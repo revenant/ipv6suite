@@ -62,8 +62,8 @@ void MobilityRandomWalk::initialize(int stage)
     randomWalk->minY = minY;
     randomWalk->maxY = maxY;
 
-    int x = mobileEntity->position().x;
-    int y = mobileEntity->position().y;
+    double x = mobileEntity->position().x;
+    double y = mobileEntity->position().y;
 
     double time = randomWalk->randomWalk(x, y);
 
@@ -83,8 +83,8 @@ void MobilityRandomWalk::handleMessage(cMessage* msg)
   mobileEntity->setDispPosition(mobileEntity->position().x,
                                 mobileEntity->position().y);
 
-  int x = mobileEntity->position().x;
-  int y = mobileEntity->position().y;
+  double x = mobileEntity->position().x;
+  double y = mobileEntity->position().y;
 
   double time = randomWalk->randomWalk(x, y);
 

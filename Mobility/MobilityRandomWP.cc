@@ -74,8 +74,8 @@ void MobilityRandomWP::initialize(int stage)
     randomWP->maxY = maxY;
     randomWP->pauseTime = pauseTime;
 
-    int x = mobileEntity->position().x;
-    int y = mobileEntity->position().y;
+    double x = mobileEntity->position().x;
+    double y = mobileEntity->position().y;
 
 //    double time = randomWP->randomWaypoint(x, y);
 
@@ -95,8 +95,8 @@ void MobilityRandomWP::handleMessage(cMessage* msg)
   mobileEntity->setDispPosition(mobileEntity->position().x,
                                   mobileEntity->position().y);
 
-  int x = mobileEntity->position().x;
-  int y = mobileEntity->position().y;
+  double x = mobileEntity->position().x;
+  double y = mobileEntity->position().y;
 
   double time = randomWP->randomWaypoint(x, y);
 

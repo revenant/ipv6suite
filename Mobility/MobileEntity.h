@@ -85,7 +85,7 @@ class MobileEntity : public Entity
       _startMovingTime = t;
     }
 
-  void addMove(int x, int y, float speed, bool moveXFirst)
+  void addMove(double x, double y, float speed, bool moveXFirst)
     {
       MoveInfo info = { { x,y }, speed, moveXFirst};
       moves.push_back(info);

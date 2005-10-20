@@ -42,7 +42,7 @@ public:
   // use this function when obtaining the pointer to the RandomPatter
   static RandomPattern* instance() { return _instance; }
 
-  double wayPoint(int& x, int& y);
+  double wayPoint(double& x, double& y);
 
 private:
   RandomPattern();

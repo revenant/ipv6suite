@@ -37,8 +37,7 @@ enum MobileEntityType
 
 struct Position
 {
-  int x;
-  int y;
+  double x; double y;
 };
 
 extern bool operator==(Position& lhs, Position& rhs);
@@ -55,8 +54,8 @@ class Entity
 
   // return the position of the entity
   Position position(void) { return _pos; }
-
-  void setPosition(int x, int y)
+  
+  void setPosition(double x, double y)
     {
       _pos.x = x;
       _pos.y = y;
@@ -78,10 +77,10 @@ class Entity
   virtual void drawWirelessRange();
 
   // obtain position info from display string of the netnode module
-  void getDispPosition(int& x, int& y);
+  void getDispPosition(double& x, double& y);
 
   // update the position info to display string of the netnode module
-  void setDispPosition(int x, int y);
+  void setDispPosition(double x, double y);
 
  protected:
   cSimpleModule* _mod;

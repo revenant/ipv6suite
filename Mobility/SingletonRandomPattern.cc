@@ -48,7 +48,7 @@ RandomPattern* RandomPattern:: initializePattern()
   return _instance;
 }
 
-double RandomPattern::wayPoint(int& x, int& y)
+double RandomPattern::wayPoint(double& x, double& y)
 {
   if ( currentRefCounter == refCount - 1)
   {

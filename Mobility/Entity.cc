@@ -89,18 +89,18 @@ void Entity::drawWirelessRange()
   }
 }
 
-void Entity::getDispPosition(int& x, int& y)
+void Entity::getDispPosition(double& x, double& y)
 {
   cModule *nodemod = findNetNodeModule(_mod);
-  x = atoi(nodemod->displayString().getTagArg("p",0));
-  y = atoi(nodemod->displayString().getTagArg("p",1));
+  x = atod(nodemod->displayString().getTagArg("p",0));
+  y = atod(nodemod->displayString().getTagArg("p",1));
 }
 
-void Entity::setDispPosition(int x, int y)
+void Entity::setDispPosition(double x, double y)
 {
   cModule *nodemod = findNetNodeModule(_mod);
-  nodemod->displayString().setTagArg("p", 0, OPP_Global::ltostr(x).c_str());
-  nodemod->displayString().setTagArg("p", 1, OPP_Global::ltostr(y).c_str());
+  nodemod->displayString().setTagArg("p", 0, OPP_Global::ltostr((int)x).c_str());
+  nodemod->displayString().setTagArg("p", 1, OPP_Global::ltostr((int)y).c_str());
 
   drawWirelessRange(); // XXX FIXME move it out of here
 }

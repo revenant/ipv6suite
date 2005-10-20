@@ -7,7 +7,7 @@
 
 //Define_Module_Like(RandomWalk,Mobility);
 
-bool RandomWalk::rebound(int& x, int &y)
+bool RandomWalk::rebound(double& x, double &y)
 {
         bool update=false;
 
@@ -47,7 +47,7 @@ bool RandomWalk::rebound(int& x, int &y)
         }
         return update;
 }
-bool RandomWalk::torus(int &x, int &y)
+bool RandomWalk::torus(double &x, double &y)
 {
         bool update=false;
 //      d("toru");
@@ -74,7 +74,7 @@ bool RandomWalk::torus(int &x, int &y)
         return update;
 }
 
-double RandomWalk::randomWalk(int& x, int& y)
+double RandomWalk::randomWalk(double& x, double& y)
 {
         double step;
 

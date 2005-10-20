@@ -26,14 +26,14 @@ class RandomWalk : public RandomWP //: public cSimpleModule
 
    private:
         //implement the mvement that sims a torus
-        bool torus(int&, int&);
+        bool torus(double&, double&);
 
         // implement the rebound movement
-        bool rebound(int&, int&);
+        bool rebound(double&, double&);
 
         //returns the time intervall
         //to the next move
-        double randomWalk(int&, int&);
+        double randomWalk(double&, double&);
 
         bool moveKind;
 

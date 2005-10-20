@@ -29,7 +29,7 @@ class RandomWP // : public cSimpleModule
 
         //returns the time intervall
         //to the next move
-        double randomWaypoint(int&, int&);
+        double randomWaypoint(double&, double&);
 
         double moveInterval;
         double minSpeed;
@@ -52,7 +52,7 @@ class RandomWP // : public cSimpleModule
         int minX,maxX,minY,maxY;
 
         //direction flag
-        int dX, dY;
+        double dX, dY;
         //number of steps to reach
         //the destination
         int steps;

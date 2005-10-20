@@ -906,6 +906,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa,
                                       IPv6Mobility* mob)
 {
+//  if ( mob->simTime() > 122 )
+//    __asm int 3;
+
   OPP_Global::ContextSwitcher switchContext(mob);
   
   std::vector<ipv6_addr> addrs(2);

@@ -159,9 +159,9 @@ public:
 
   bool isEwuOutVectorHODelays() const { return ewuOutVectorHODelays; }
 
-  void recordHODelay(simtime_t t) 
-  { 
-    handoverLatency->record( t - linkUpTime ); 
+  void recordHODelay(simtime_t t)
+  {
+    handoverLatency->record( t - linkUpTime );
   }
 
   MobileIPv6::SignalingEnhance signalingEnhance();
@@ -274,11 +274,11 @@ private:
   // obtaining new CoA - link up time
   simtime_t linkUpTime; // time when establishing with new link
   MobileIPv6::SignalingEnhance _signalingEnhance;
-  
+
 public:
-  cOutVector* handoverLatency; 
+  cOutVector* handoverLatency;
   cOutVector* linkUpVector;
-  cOutVector* linkDownVector;  
+  cOutVector* linkDownVector;
   cOutVector* lbbuVector;
   cOutVector* lbbackVector;
 private:

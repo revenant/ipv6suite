@@ -214,8 +214,9 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
 
                 cMessage *linkUpTimeMsg = new cMessage;
                 linkUpTimeMsg->setTimestamp();
+                linkUpTimeMsg->setKind(LinkUP);
                 mod->sendDirect(linkUpTimeMsg,
-                                0, OPP_Global::findModuleByName(mod, "routingTable6"), "recordSimTime");
+                                0, OPP_Global::findModuleByName(mod, "mobility"), "l2TriggerIn");
 
                 mod->linkdownTime = 0;
             }

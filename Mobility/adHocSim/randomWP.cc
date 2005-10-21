@@ -30,8 +30,8 @@ double RandomWP::randomWaypoint(double& x, double& y)
 //              d("DISTANCE = "<<distance);
                 if ( speed !=0)
                 {
-                        steps = (int)( distance / speed);
-                        steps++;        //avoid 0!
+                        steps = (int)( (distance / speed ) / moveInterval);
+                        steps = steps > 0 ? steps : 1; // avoid 0!
                         dX =((c-a) / steps);
                         dY =((d-b) / steps);
 

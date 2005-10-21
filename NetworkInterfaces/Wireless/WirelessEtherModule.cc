@@ -271,8 +271,15 @@ void WirelessEtherModule::baseInit(int stage)
 
         // Timer to update statistics
         scheduleAt(simTime() + statsUpdatePeriod, updateStatsTimer);
-    }
 
+        cModule *nodemod = OPP_Global::findNetNodeModule(this);
+        nodemod->displayString().setTagArg("r",0,OPP_Global::dtostr(wirelessRange()).c_str());
+
+        if ( isAP() )
+          nodemod->displayString().setTagArg("r",2,"red");
+        else
+          nodemod->displayString().setTagArg("r",2,"blue");
+    }
 }
 
 void WirelessEtherModule::initialize(int stage)

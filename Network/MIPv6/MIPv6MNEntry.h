@@ -477,6 +477,14 @@ namespace MobileIPv6
         }
       }
 
+    void setCookie(const MIPv6MobilityHeaderType& ht, bit_64 cookie)
+      {
+        if ( ht == MIPv6MHT_HoT || ht == MIPv6MHT_HoTI)
+          hoti_cookie = cookie;
+        else if ( ht == MIPv6MHT_CoT || ht == MIPv6MHT_CoTI)
+          coti_cookie = cookie;
+      }
+
     double testInitTimeout(const MIPv6MobilityHeaderType& ht)
       {
         if ( ht == MIPv6MHT_HoTI || ht == MIPv6MHT_HoT )

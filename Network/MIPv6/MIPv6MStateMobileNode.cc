@@ -898,6 +898,8 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
 
+    bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);  
+    bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
     bule->isPerformingRR = false;
   }
 }
@@ -906,9 +908,6 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa,
                                       IPv6Mobility* mob)
 {
-//  if ( mob->simTime() > 122 )
-//    __asm int 3;
-
   OPP_Global::ContextSwitcher switchContext(mob);
   
   std::vector<ipv6_addr> addrs(2);
@@ -1082,6 +1081,10 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
   assert(outputMod);
 
   TIMsg* hoti = new TIMsg(MIPv6MHT_HoTI, bule->cookie(MIPv6MHT_HoTI));
+  hoti->cookie.high = rand();
+  hoti->cookie.low = rand();
+  bule->setCookie(MIPv6MHT_HoTI, hoti->cookie);
+
   IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
   dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   dgram_hoti->setTimestamp(timestamp);
@@ -1151,6 +1154,9 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
   assert(outputMod);
 
   TIMsg* coti = new TIMsg(MIPv6MHT_CoTI, bule->cookie(MIPv6MHT_CoTI));
+  coti->cookie.high = rand();
+  coti->cookie.low = rand();
+  bule->setCookie(MIPv6MHT_CoTI, coti->cookie);
 
   // Once the tunnel is established, the packet destinated for the
   // particular tunnel will be sent in tunnel. We want the CoTI to be

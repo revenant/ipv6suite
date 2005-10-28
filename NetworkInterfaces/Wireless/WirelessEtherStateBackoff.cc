@@ -83,7 +83,7 @@ std::auto_ptr<WESignalData> WirelessEtherStateBackoff::processData(WirelessEther
     // when an incoming frame is received
     // if( (a->remainingTime() >= SLOTTIME)||(uniform(0,1) > probSameSlot) )
     // {
-    simtime_t remainingTime = mod->simTime() - mod->backoffTimer->arrivalTime();
+    simtime_t remainingTime = mod->backoffTimer->arrivalTime() - mod->simTime();
     wEV << "remaining time: " << remainingTime << " \n";
     if (remainingTime >= RXTXTURNAROUND)
     {

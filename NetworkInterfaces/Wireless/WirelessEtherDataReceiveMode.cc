@@ -107,13 +107,13 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule *mod, WESi
             // Send upper layer signal of success
             mod->sendSuccessSignal();
 
-#ifdef EWU_L2TRIGGER            // Link up trigger ( movement detection for MIPv6 )
-            ////dc.precision(6);
-            assert(mod->getLayer2Trigger() && !mod->getLayer2Trigger()->isScheduled());
-            mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
-            Dout(dc::mipv6 | dc::mobile_move,
-                 mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
-#endif // EWU_L2TRIGGER
+            if ( mod->linkUpTrigger() )
+            {
+              assert(mod->getLayer2Trigger() && !mod->getLayer2Trigger()->isScheduled());
+              mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
+              Dout(dc::mipv6 | dc::mobile_move,
+                   mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
+            }
         }
         // TODO: need to check supported rates and status code
         delete aRFrameBody;

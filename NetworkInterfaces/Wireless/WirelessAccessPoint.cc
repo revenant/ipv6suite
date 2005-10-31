@@ -281,6 +281,7 @@ void WirelessAccessPoint::handleMessage(cMessage *msg)
         if (std::string(msg->name()) == "WE_AP_NOTIFY_MAC")     // XXX what's this?? -AV
         {
             address.set(static_cast<cPar *>(msg->parList().get(0))->stringValue());
+            par("address") = address;
 
             wEV  << fullPath() << "\n"
                  << " ====================== \n"

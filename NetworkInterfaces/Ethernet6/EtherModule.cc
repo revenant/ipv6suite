@@ -81,6 +81,7 @@ void EtherModule::initialize(int stage)
       addr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
       addr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
       _myAddr.set(addr);
+      par("address") = _myAddr.stringValue();
     }
     statsVec = par("recordStatisticVector").boolValue();
 

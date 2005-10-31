@@ -994,33 +994,29 @@ bool IPv6Forward::processReceived(IPv6Datagram& datagram)
         ipv6_addr_scope(datagram.srcAddress())  == ipv6_addr::Scope_Site)))
   {
     ctrIP6InAddrErrors++;
-    Debug(
-
-      if (!rt->isRouter())
-      {
-        Dout(dc::debug, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as this is a host");
-      }
-      else if (datagram.hopLimit() >= 255)
-      {
-        // TODO: The datagram could be a proxy NS sent by mobile node
-        // and the router could be CN's HA. Should we send proxy NA?
-        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as it is a ND packet");
-      }
-      else if (ipv6_addr_scope(datagram.srcAddress()) == ipv6_addr::Scope_Link ||
-               ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Link)
-      {
-        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()
+    if (!rt->isRouter())
+    {
+      Dout(dc::debug, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as this is a host");
+    }
+    else if (datagram.hopLimit() >= 255)
+    {
+      // TODO: The datagram could be a proxy NS sent by mobile node
+      // and the router could be CN's HA. Should we send proxy NA?
+      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded as it is a ND packet");
+    }
+    else if (ipv6_addr_scope(datagram.srcAddress()) == ipv6_addr::Scope_Link ||
+             ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Link)
+    {
+      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()
            <<" Packet discarded because the addresses src="<<datagram.srcAddress()<<" dest="
            <<datagram.destAddress()<< " have link local scope "<< dec <<datagram.hopLimit());
-      }
-      else if (!rt->routeSitePackets() &&
-               (ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Site ||
-                ipv6_addr_scope(datagram.srcAddress())  == ipv6_addr::Scope_Site))
-      {
-        Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded because the addresses have site scope and forward site packets is "<<(rt->routeSitePackets()?"true":"false"));
-      }
-
-    ); // end Debug()
+    }
+    else if (!rt->routeSitePackets() &&
+             (ipv6_addr_scope(datagram.destAddress()) == ipv6_addr::Scope_Site ||
+              ipv6_addr_scope(datagram.srcAddress())  == ipv6_addr::Scope_Site))
+    {
+      Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<":"<<datagram.inputPort()<<" Packet discarded because the addresses have site scope and forward site packets is "<<(rt->routeSitePackets()?"true":"false"));
+    }
 
     return false;
   }

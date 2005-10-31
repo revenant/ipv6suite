@@ -264,7 +264,7 @@ void WEDataReceiveMode::handleAck(WirelessEtherModule *mod, WESignalData *signal
 
 void WEDataReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
 {
-    WirelessEtherDataFrame *data = static_cast<WirelessEtherDataFrame *>(signal->encapsulatedMsg());
+  WirelessEtherDataFrame *data = static_cast<WirelessEtherDataFrame *>(signal->encapsulatedMsg());
 
     if ((mod->isFrameForMe(data))
         && (mod->associateAP.address == data->getAddress2()) && (mod->address != data->getAddress3())

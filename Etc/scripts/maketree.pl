@@ -4,12 +4,14 @@ $nnodes = shift || 50;
 $length = shift || sqrt($nnodes);
 $minrange = shift || 0.8;
 $maxrange = shift || 1.2;
+$chanrange = shift || $maxrange;
 
-@coords = ([0,0]);
+@coords = ([$length/2,$length/2]);
 foreach $x (1 .. $nnodes-1) {
 
 	CHOOSE: while (!keys %{$tree[$x]}) {
 		$coords[$x] = [ rand()*$length, rand()*$length ];
+		$chan[$x] = int(rand()*3)*5+1;
 		$tree[$x] = {};
 
 		foreach $y (0 .. $x-1) {
@@ -17,7 +19,10 @@ foreach $x (1 .. $nnodes-1) {
 			$dy = $coords[$x][1] - $coords[$y][1];
 			$dd = sqrt($dx*$dx + $dy*$dy);
 			
-			if ($b > 0 && $dd < $minrange) {
+			if ($y > 0 && (
+				($dd < $minrange) ||
+				($dd < $chanrange && $chan[$x] == $chan[$y])
+			)) {
 				$tree[$x] = {};
 				next CHOOSE;
 			}
@@ -30,12 +35,9 @@ foreach $x (1 .. $nnodes-1) {
 }
 
 foreach $x (1 .. $nnodes-1) {
-	print STDERR "$x: ";
-	foreach $y (keys %{$tree[$x]}) {
-		print "$x,$y, ";
-	}
-	print STDERR join ', ', keys %{$tree[$x]};
-	print STDERR "\n";
+	$y = (sort {$a <=> $b} keys %{$tree[$x]})[0];
+	print STDERR "$x: $y\n";
+	print "$x,$y, ";
 }
 print "\n";
 
@@ -44,7 +46,5 @@ foreach $x (1 .. $nnodes-1) {
 }
 print "\n";
 
-foreach $x (1 .. $nnodes-1) {
-	print int(rand()*11+1), ",";
-}
+print join ',', @chan[1 .. $nnodes-1];
 print "\n";

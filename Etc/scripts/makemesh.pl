@@ -6,7 +6,7 @@ $minrange = shift || 0.8;
 $maxrange = shift || 1.2;
 $chanrange = shift || $maxrange;
 
-@coords = ([0,0]);
+@coords = ([$length/2,$length/2]);
 foreach $x (1 .. $nnodes-1) {
 
 	CHOOSE: while (!keys %{$tree[$x]}) {

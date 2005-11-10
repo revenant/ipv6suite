@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.1 $"
-  REVISION_DATE = "$Date: 2005/11/09 08:23:24 $"
+  VERSION       = "$Revision: 1.2 $"
+  REVISION_DATE = "$Date: 2005/11/10 22:45:42 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -57,6 +57,7 @@ class NedFile
     @verbose  = false
     @quit     = false
     @mnCount  = 50
+    @apWidth  = 100
     @runCount = 20
     @mip6 = false
     @ping = false
@@ -103,6 +104,7 @@ class NedFile
       opt.on("-x", "parse arguments and show Usage") {|@quit|}
 
       opt.on("--mncount", "-m [Integer]", OptionParser::DecimalInteger, "Number of MNs to generate"){|@mnCount|}
+      opt.on("--width", "-w [Integer]", OptionParser::DecimalInteger, "Distance multiplier for APs"){|@apWidth|}
 
       opt.on("--runcount", "-r [Integer]", OptionParser::DecimalInteger, "Number of runs to generate in inifile"){|@runCount|}
 
@@ -178,8 +180,11 @@ class NedFile
     end
 
     g, @vs = genEHTopology(dg)
-    @pos, xcoords, ycoords = calculateAPPositions
-    open("#{modulename}.ned","w") {|x| x.puts generateNed(g, @mnCount)}
+    @pos, xcoords, ycoords = calculateAPPositions(@apWidth)
+    open("#{modulename}.ned","w") { |x|
+    	x.puts generateNed(g, @mnCount,
+		[xcoords.max+xcoords.min, ycoords.max+ycoords.min])
+    }
     xdoc = xmlHeader
     root = xdoc.root
     global = root.add_element("global")
@@ -683,7 +688,7 @@ endchannel
 EOF
 end
 
-def generateModule(g, mnCount = 10, dim = [700, 500])
+def generateModule(g, mnCount = 10, dim = [500, 500])
   var = <<EOF
 
 module #{modulename}
@@ -692,11 +697,6 @@ module #{modulename}
       display: "i=bwgen_s";
 EOF
 
-  #dimensions of 2 AP in a line derived from graphical ned representation
-  dim = [220,1080] 
-  #offset from x and y dimensions 
-  offset=[60, 80]
-
 #for each MN require generate MN e.g.
   1.upto mnCount do |i|
     var += <<EOF
@@ -704,10 +704,8 @@ EOF
     gatesizes:
         wlin[1],
         wlout[1];
-    display: "p=#{rand(dim[0])+offset[0]},#{rand(dim[1])+offset[1]};i=laptop3";
+    display: "p=#{rand(dim[0])},#{rand(dim[1])};i=laptop3";
 EOF
-#    display: "p=40,40;i=laptop3";
-#    display: "p=#{rand(dim[0])},#{rand(dim[1])};i=laptop3";
   end
 
 

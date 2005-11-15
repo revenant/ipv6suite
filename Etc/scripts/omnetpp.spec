@@ -1,11 +1,13 @@
 %{!?cvsdate: %{expand: %%define cvsdate %%(/bin/date +"%Y%m%d")}}
-%define cvsdate pre2
+#define cvsdate pre4
+%define cvsdate %nil
 %{!?libcwd: %define libcwd 0 }
 %{?l_prefix: %define openpkg 1}
 %{!?l_prefix: %define openpkg 0}
 %{!?shared_libs %define shared_libs 1}
 
-%define srcext tgz
+#define srcext tgz
+%define srcext tar.bz2
 
 #Fix FC3 and above unset of DISPLAY by saving it as configure test of wish needs it
 %{!?display: %{expand: %%define display %%(echo $DISPLAY)}}
@@ -34,15 +36,15 @@
   %define icctag %nil
 %endif
 
-%define myrelease 2
+%define myrelease 1
 #####################################################
 
 Summary: OMNeT++ is a discrete event simulation tool
 Name: omnetpp
 Version: 3.2
 #Version: 2.3_%{cvsdate}
-#Release: %{myrelease}%{cvsdate}%{icctag}
-Release: 0.%{cvsdate}_%{myrelease}%{icctag}
+Release: %{myrelease}%{cvsdate}%{icctag}
+#Release: 0.%{cvsdate}_%{myrelease}%{icctag}
 URL: www.omnetpp.org
 Source0: http://whale.hit.bme.hu/omnetpp/download/release/%{name}-%{version}%{cvsdate}.%{srcext}
 %if "%{no_graphviz}" == "0"
@@ -281,6 +283,12 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
+* Fri Oct 28 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-1%{cvsdate}%{icctag}
+- updated to 3.2 final
+
+* Thu Oct 13 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre4
+- Updated to 3.2pre4
+
 * Thu Jul 28 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre2
 - Updated to 3.2pre2
 

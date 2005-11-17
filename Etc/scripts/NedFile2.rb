@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.3 $"
-  REVISION_DATE = "$Date: 2005/11/17 02:21:45 $"
+  VERSION       = "$Revision: 1.4 $"
+  REVISION_DATE = "$Date: 2005/11/17 12:59:37 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -211,12 +211,7 @@ end
       le.add_attributes Hash[* %w|routePackets on| ] if start.kind_of? Router
 
       #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
-      #le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent map on hierarchicalMIPv6Support on | ] if start.kind_of? AR or start.kind_of? HA
-
-      # Someone's been at the crackpipe.
-      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent hierarchicalMIPv6Support on | ] if start.kind_of? HA
-      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent hierarchicalMIPv6Support on | ] if start.kind_of? Router
-      le.add_attributes Hash[* %w|map on | ] if start.kind_of? CR
+      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent map on hierarchicalMIPv6Support on | ] if start.kind_of? AR or start.kind_of? HA
 
       ifaces = %w|eth0 ppp0|
 
@@ -232,33 +227,30 @@ end
         ie.add_element("inetAddr").text = iface.address
 
         if start.kind_of? Router
-          #if not iface.remoteNode.kind_of? Router or start.kind_of? HA
-            ie.add_attributes Hash[* %w|AdvSendAdvertisements on HMIPAdvMAP on |]    #for APs or fixed cn
-          #end
+          if not iface.remoteNode.kind_of? Router or start.kind_of? HA
+            ie.add_attributes Hash[* %w|AdvSendAdvertisements on|]    #for APs or fixed cn
+          end
         
           #HA needs to have an adv prefix list otherwise
           #it will reject BUs as it checks hoa against prefix when using assigned HA
-          #if iface.remoteNode.kind_of? AP or start.kind_of? HA
-	  if start.kind_of? AR
+          if iface.remoteNode.kind_of? AP or start.kind_of? HA
 
             #We need all ARs to adv. as HA as MN do not have a preconfigured
             #HA. So first HA they see is primary HA will conflict with existing
             #C++ assumption that EH not active at home base
 
-            ie.add_attributes Hash[* %w|AdvHomeAgent on MIPv6MaxRtrAdvInterval 0.12 MIPv6MinRtrAdvInterval 0.08 MaxFastRAS 10|]
+            ie.add_attributes Hash[* %w|AdvHomeAgent on HMIPAdvMAP on MIPv6MaxRtrAdvInterval 0.12 MIPv6MinRtrAdvInterval 0.08 MaxFastRAS 10|]
 
             #Fixed nodes already have addresses assigned acc. to netmask via
             #this script so no need for routers to advertise unless of course
             #hub is used to connect to an AP too
 
-	    #if start.kind_of? HA
-               aple = ie.add_element("AdvPrefixList")
+            aple = ie.add_element("AdvPrefixList")
 
       #Only need 1 prefix to be advertised i.e. the links prefix and HA address.  Used by foreign nodes to form lcoa.
-               aple.add_element("AdvPrefix", Hash[*%w|AdvOnLinkFlag on AdvRtrAddrFlag on| ] ).text = "#{iface.address}/64"
+            aple.add_element("AdvPrefix", Hash[*%w|AdvOnLinkFlag on AdvRtrAddrFlag on| ] ).text = "#{iface.address}/64"
       #Map address is a fixed link address on the AR which is used to form MN's rcoa.
-               ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
-            #end
+            ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
 #"#{iface.address}"
           end
         end

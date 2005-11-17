@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-$size = shift;
+$size = shift || 7;
 
 for ($y=0; $y<$size; $y++) {
 	for ($x=0; $x<$size; $x++) {

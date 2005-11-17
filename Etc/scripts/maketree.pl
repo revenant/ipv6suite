@@ -1,10 +1,13 @@
 #!/usr/bin/perl -w
 
+$seed = shift || scalar time();
 $nnodes = shift || 50;
 $length = shift || sqrt($nnodes);
 $minrange = shift || 0.8;
 $maxrange = shift || 1.2;
 $chanrange = shift || $maxrange;
+
+srand($seed);
 
 @coords = ([$length/2,$length/2]);
 foreach $x (1 .. $nnodes-1) {

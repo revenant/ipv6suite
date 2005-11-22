@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.4 $"
-  REVISION_DATE = "$Date: 2005/11/17 12:59:37 $"
+  VERSION       = "$Revision: 1.5 $"
+  REVISION_DATE = "$Date: 2005/11/22 03:54:47 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -59,7 +59,9 @@ class NedFile
     @mnCount  = 50
     @apWidth  = 100
     @runCount = 20
-    @mip6 = false
+    @mip6 = true
+    @hmip = false
+    @eh = false
     @ping = false
     @video = false
     @netmaskunique = Array.new
@@ -109,6 +111,8 @@ class NedFile
       opt.on("--runcount", "-r [Integer]", OptionParser::DecimalInteger, "Number of runs to generate in inifile"){|@runCount|}
 
       opt.on("--mip6", "-M", "Add MIPv6 options to MN in xml file"){|@mip6|}
+      opt.on("--hmip", "-H", "Add HMIP scenario options to CR"){|@hmip|}
+      opt.on("--eh", "-E", "Add EH scenario options to ARs"){|@eh|}
 
       opt.on("--ping", "-p", "Add ping traffic sources for all MNs"){|@ping|}
 
@@ -199,7 +203,12 @@ end
     #MN entries
     1.upto(@mnCount) do |i|
   #eagerHandover (hands over when different router addr detected from current/primaryHA)
-      le = root.add_element("local", Hash["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on hierarchicalMIPv6Support on eagerHandover on edgeHandoverType Timed|])
+  	hash = Hash ["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on eagerHandover on |]
+	if @eh hash["edgeHandoverType"] = "Timed";
+	if @hmip hash["hierarchicalMIPv6Support"] = "on";
+
+        le = root.add_element("local", hash)
+      end
       le.add_element("interface", Hash[* %w|name wlan0 HostDupAddrDetectTransmits 1 MaxConsecMissRtrAdv 3|])
     end if @mip6
 

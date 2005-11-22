@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.5 $"
-  REVISION_DATE = "$Date: 2005/11/22 03:54:47 $"
+  VERSION       = "$Revision: 1.6 $"
+  REVISION_DATE = "$Date: 2005/11/22 04:58:39 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -203,12 +203,12 @@ end
     #MN entries
     1.upto(@mnCount) do |i|
   #eagerHandover (hands over when different router addr detected from current/primaryHA)
-  	hash = Hash ["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on eagerHandover on |]
-	if @eh hash["edgeHandoverType"] = "Timed";
-	if @hmip hash["hierarchicalMIPv6Support"] = "on";
+  	hash = Hash["node", "mn#{i}", * %w|mobileIPv6Support on mobileIPv6Role MobileNode routeOptimisation on eagerHandover on |]
+	hash["edgeHandoverType"] = "Timed" if @eh
+	hash["hierarchicalMIPv6Support"] = "on" if @hmip or @eh
 
         le = root.add_element("local", hash)
-      end
+      
       le.add_element("interface", Hash[* %w|name wlan0 HostDupAddrDetectTransmits 1 MaxConsecMissRtrAdv 3|])
     end if @mip6
 
@@ -220,7 +220,15 @@ end
       le.add_attributes Hash[* %w|routePackets on| ] if start.kind_of? Router
 
       #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
-      le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent map on hierarchicalMIPv6Support on | ] if start.kind_of? AR or start.kind_of? HA
+      if start.kind_of? AR or start.kind_of? HA
+        le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent |]
+        le.add_attributes Hash[* %w|map on |] if @eh
+        le.add_attributes Hash[* %w|hierarchicalMIPv6Support on |] if @hmip or @eh
+      end
+
+      if start.kind_of? CR and @hmip
+        le.add_attributes Hash[* %w|hierarchicalMIPv6Support on map on mobileIPv6Role HomeAgent |]
+      end 
 
       ifaces = %w|eth0 ppp0|
 
@@ -236,33 +244,32 @@ end
         ie.add_element("inetAddr").text = iface.address
 
         if start.kind_of? Router
-          if not iface.remoteNode.kind_of? Router or start.kind_of? HA
-            ie.add_attributes Hash[* %w|AdvSendAdvertisements on|]    #for APs or fixed cn
-          end
+          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|] if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR)
+          ie.add_attributes Hash[* %w|AdvHomeAgent on HMIPAdvMAP on |] if (@hmip and start.kind_of? CR) or @eh
+            
+          ie.add_attributes Hash[* %w|MIPv6MaxRtrAdvInterval 0.12 MIPv6MinRtrAdvInterval 0.08 MaxFastRAS 10|] if iface.remoteNode.kind_of? AP
         
           #HA needs to have an adv prefix list otherwise
           #it will reject BUs as it checks hoa against prefix when using assigned HA
-          if iface.remoteNode.kind_of? AP or start.kind_of? HA
-
             #We need all ARs to adv. as HA as MN do not have a preconfigured
             #HA. So first HA they see is primary HA will conflict with existing
             #C++ assumption that EH not active at home base
 
-            ie.add_attributes Hash[* %w|AdvHomeAgent on HMIPAdvMAP on MIPv6MaxRtrAdvInterval 0.12 MIPv6MinRtrAdvInterval 0.08 MaxFastRAS 10|]
 
             #Fixed nodes already have addresses assigned acc. to netmask via
             #this script so no need for routers to advertise unless of course
             #hub is used to connect to an AP too
 
+          if not iface.remoteNode.kind_of? Router
             aple = ie.add_element("AdvPrefixList")
-
-      #Only need 1 prefix to be advertised i.e. the links prefix and HA address.  Used by foreign nodes to form lcoa.
             aple.add_element("AdvPrefix", Hash[*%w|AdvOnLinkFlag on AdvRtrAddrFlag on| ] ).text = "#{iface.address}/64"
-      #Map address is a fixed link address on the AR which is used to form MN's rcoa.
+          end
+
+          if (@eh and not iface.remoteNode.kind_of? Router) or (@hmip and start.kind_of? CR)
             ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
 #"#{iface.address}"
           end
-        end
+	end
 
         #AdvRtrAddrFlag only needed for AP facing ifaces. in fact don't need
         #global addresses assigned to internal router but we'll keep program
@@ -890,246 +897,4 @@ end#NedFile
 #don't want different numbers from rand every time we run
 srand(0)
 n = NedFile.new("TestMe")
-unless $unittest
 n.run
-else
-
-##Unit test for this class/module
-require 'test/unit'
-
-class TC_NedFile < Test::Unit::TestCase
-  def test_NedOutput
-    require "gentopology2.rb"
-    g = RGL::AdjacencyGraph[1,2, 1,3, 1,4, 1,5]
-    @g,@vs = genEHTopology(g)
-#    puts "output written to " + Dir.pwd + g.write_to_graphic_file
-    @g.write_to_graphic_file("png", "/tmp/graph")
-    @n = NedFile.new("NedOutput")
-    open("/tmp/NedOutput.ned","w") {|x| x.puts @n.generateNed(@g,1)}
-    start = @vs[1]
-    @nhops, @bfs, testvalidate = routingTable(@g, start )
-
-expected = <<EOF
-1 -> 5
-1 -> 2
-1 -> 3
-1 -> 4
-5 -> 6
-5 -> 7
-5 -> 8
-2 -> 9
-2 -> 10
-2 -> 11
-3 -> 12
-3 -> 13
-3 -> 14
-4 -> 15
-4 -> 16
-4 -> 17
-EOF
-
-    assert_equal(expected, testvalidate,
-                 "Generated topology and expected should be same but are not
-                always due to g.each causing different ordering if extra debug
-                output lines added to block? or bfs traversal differing when statements are added")
-
-
-  end
-
-  def test_routeGeneration
-    require "gentopology.rb"
-    g = RGL::AdjacencyGraph[1,2, 1,3, 1,4, 1,5]
-    @g,@vs = genEHTopology(g)
-    @g.write_to_graphic_file("png", "/tmp/graph")
-    @n = NedFile.new("NedOutput")
-    open("/tmp/NedOutput.ned","w") {|x| x.puts @n.generateNed(@g,1)}
-
-    teststr = ""
-    @vs.each_value{|start|
-
-      next if not start.kind_of? Router
-
-    teststr << "routes for node #{start}\n"
-    @nhops, @bfs, testvalidate = routingTable(@g, start )
-
-    node = start
-
-    @n.edges.each{|e|
-      u,v = e.source, e.target
-
-      #routes to link netmask i.e. except when link joins two routers. (assuming
-      #no traffic sourced/destined to routers)
-
-      unless u.kind_of?(Router) and v.kind_of?(Router)
-
-        #v/u shouldn't matter? as nexthop should find the nexthop of either
-        #which should be the same assuming u/v lie on the shortest path back to
-        #node.
-        nexthop = @nhops[v]
-
-        #It only matters if one of the nodes is in fact us so we actually want
-        #to know which iface on us links to that node
-
-        #don't know why this works
-#        nexthop = u == node ?  @nhops[v] : @nhops[u]
-
-        nexthop = v if u == node
-        nexthop = u if v == node
-
-        iface = nil
-        node.ifaces.each{|iface|
-          break if iface.remoteNode == nexthop
-        }
-        teststr << "dest net=#{e.netmask}:#{} nextHop=#{nexthop.nodeName}:#{nexthop.ifaces[iface.remoteIfIndex].address} via #{iface.ifIndex}\n"
-      end #end unless
-      } #end @n.edges
-    } #end for each node
-        print teststr #if $DEBUG
-
-expected = <<EOF
-routes for node AR 5
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f8:0000:0000:0005: nextHop=ap8:30f8:0000:0000:0005:8000:0000:0000:0000 via 0
-dest net=30f3:0000:0000:000e: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f3:0000:0000:000c: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30f6:0000:0000:0005: nextHop=ap6:30f6:0000:0000:0005:6000:0000:0000:0000 via 1
-dest net=30f5:0000:0000:0007: nextHop=ap7:30f5:0000:0000:0007:7000:0000:0000:0000 via 2
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0002 via 3
-routes for node CR 1
-dest net=30fd:0000:0000:0003: nextHop=ar3:30f3:0000:0000:0001:3000:0000:0000:0002 via 0
-dest net=30f8:0000:0000:0005: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 2
-dest net=30f3:0000:0000:000e: nextHop=ar3:30f3:0000:0000:0001:3000:0000:0000:0002 via 0
-dest net=30f3:0000:0000:000c: nextHop=ar3:30f3:0000:0000:0001:3000:0000:0000:0002 via 0
-dest net=30fb:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 3
-dest net=30f4:0000:0000:000f: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0002 via 1
-dest net=30f4:0000:0000:0011: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0002 via 1
-dest net=30f4:0000:0000:0010: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0002 via 1
-dest net=30f6:0000:0000:0005: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 2
-dest net=30f5:0000:0000:0007: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 2
-dest net=30f9:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 3
-dest net=30fa:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 3
-routes for node AR 2
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f3:0000:0000:000e: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f3:0000:0000:000c: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30fb:0000:0000:0002: nextHop=ap11:30fb:0000:0000:0002:b000:0000:0000:0000 via 0
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f5:0000:0000:0007: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0003 via 2
-dest net=30f9:0000:0000:0002: nextHop=ap9:30f9:0000:0000:0002:9000:0000:0000:0000 via 1
-dest net=30fa:0000:0000:0002: nextHop=ap10:30fa:0000:0000:0002:a000:0000:0000:0000 via 3
-routes for node AR 3
-dest net=30fd:0000:0000:0003: nextHop=ap13:30fd:0000:0000:0003:d000:0000:0000:0000 via 0
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f3:0000:0000:000e: nextHop=ap14:30f3:0000:0000:000e:e000:0000:0000:0000 via 1
-dest net=30f3:0000:0000:000c: nextHop=ap12:30f3:0000:0000:000c:c000:0000:0000:0000 via 3
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f5:0000:0000:0007: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f3:0000:0000:0001:1000:0000:0000:0000 via 2
-routes for node AR 4
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f3:0000:0000:000e: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f3:0000:0000:000c: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f4:0000:0000:000f: nextHop=ap15:30f4:0000:0000:000f:f000:0000:0000:0000 via 0
-dest net=30f4:0000:0000:0011: nextHop=ap17:30f4:0000:0000:0011:1100:0000:0000:0000 via 1
-dest net=30f4:0000:0000:0010: nextHop=ap16:30f4:0000:0000:0010:1000:0000:0000:0000 via 3
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f5:0000:0000:0007: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0001 via 2
-routes for node AR 5
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30fe:0000:0000:0003: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30f6:0000:0000:0005: nextHop=ap6:30f6:0000:0000:0005:6000:0000:0000:0000 via 0
-dest net=30f7:0000:0000:0005: nextHop=ap7:30f7:0000:0000:0005:7000:0000:0000:0000 via 1
-dest net=30f8:0000:0000:0005: nextHop=ap8:30f8:0000:0000:0005:8000:0000:0000:0000 via 2
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30fc:0000:0000:0003: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f5:0000:0000:0001:1000:0000:0000:0001 via 3
-routes for node CR 1
-dest net=30fb:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 2
-dest net=30f4:0000:0000:000f: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0003 via 0
-dest net=30f4:0000:0000:0010: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0003 via 0
-dest net=30f4:0000:0000:0011: nextHop=ar4:30f4:0000:0000:0001:4000:0000:0000:0003 via 0
-dest net=30fe:0000:0000:0003: nextHop=ar3:30f1:0000:0000:0003:3000:0000:0000:0001 via 3
-dest net=30f6:0000:0000:0005: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 1
-dest net=30f7:0000:0000:0005: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 1
-dest net=30f8:0000:0000:0005: nextHop=ar5:30f5:0000:0000:0001:5000:0000:0000:0003 via 1
-dest net=30f9:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 2
-dest net=30fc:0000:0000:0003: nextHop=ar3:30f1:0000:0000:0003:3000:0000:0000:0001 via 3
-dest net=30fa:0000:0000:0002: nextHop=ar2:30f1:0000:0000:0002:2000:0000:0000:0002 via 2
-dest net=30fd:0000:0000:0003: nextHop=ar3:30f1:0000:0000:0003:3000:0000:0000:0001 via 3
-routes for node AR 2
-dest net=30fb:0000:0000:0002: nextHop=ap11:30fb:0000:0000:0002:b000:0000:0000:0000 via 0
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30fe:0000:0000:0003: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f7:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30f9:0000:0000:0002: nextHop=ap9:30f9:0000:0000:0002:9000:0000:0000:0000 via 1
-dest net=30fc:0000:0000:0003: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-dest net=30fa:0000:0000:0002: nextHop=ap10:30fa:0000:0000:0002:a000:0000:0000:0000 via 3
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f1:0000:0000:0002:1000:0000:0000:0002 via 2
-routes for node AR 3
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f4:0000:0000:000f: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f4:0000:0000:0010: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f4:0000:0000:0011: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30fe:0000:0000:0003: nextHop=ap14:30fe:0000:0000:0003:e000:0000:0000:0000 via 0
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f7:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30fc:0000:0000:0003: nextHop=ap12:30fc:0000:0000:0003:c000:0000:0000:0000 via 2
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f1:0000:0000:0003:1000:0000:0000:0003 via 1
-dest net=30fd:0000:0000:0003: nextHop=ap13:30fd:0000:0000:0003:d000:0000:0000:0000 via 3
-routes for node AR 4
-dest net=30fb:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30f4:0000:0000:000f: nextHop=ap15:30f4:0000:0000:000f:f000:0000:0000:0000 via 0
-dest net=30f4:0000:0000:0010: nextHop=ap16:30f4:0000:0000:0010:1000:0000:0000:0000 via 1
-dest net=30f4:0000:0000:0011: nextHop=ap17:30f4:0000:0000:0011:1100:0000:0000:0000 via 2
-dest net=30fe:0000:0000:0003: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30f6:0000:0000:0005: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30f7:0000:0000:0005: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30f8:0000:0000:0005: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30f9:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30fc:0000:0000:0003: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30fa:0000:0000:0002: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-dest net=30fd:0000:0000:0003: nextHop=cr1:30f4:0000:0000:0001:1000:0000:0000:0000 via 3
-EOF
-
-    assert_equal(expected, teststr,
-                 "Routes may be the same unless we change the code again")
-
-  end
-
-end #end test class
-
-if $0 != __FILE__ then
-  ##Fix Ruby debugger to allow debugging of test code
-  require 'test/unit/ui/console/testrunner'
-  Test::Unit::UI::Console::TestRunner.run(TC_NedFile)
-end
-
-end

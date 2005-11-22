@@ -11,8 +11,6 @@ for ($y=0; $y<$size; $y++) {
 		print "$n,$ny, " unless $y==$size-1;
 	}
 }
-print $size*int($size/2) + int($size/2) + 1;
-print ",0\n";
 
 for ($y=0; $y<$size; $y++) {
 	for ($x=0; $x<$size; $x++) {

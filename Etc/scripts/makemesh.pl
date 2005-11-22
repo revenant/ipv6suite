@@ -9,7 +9,12 @@ $chanrange = shift || $maxrange;
 
 srand($seed);
 
+# Start by placing a node in the center and on channel 1.
+
 @coords = ([$length/2,$length/2]);
+@tree = ();
+@chan = (1);
+
 foreach $x (1 .. $nnodes-1) {
 
 	CHOOSE: while (!keys %{$tree[$x]}) {
@@ -47,10 +52,10 @@ foreach $x (1 .. $nnodes-1) {
 }
 print "\n";
 
-foreach $x (1 .. $nnodes-1) {
+foreach $x (0 .. $nnodes-1) {
 	printf "%.3f,%.3f, ", @{$coords[$x]};
 }
 print "\n";
 
-print join ',', @chan[1 .. $nnodes-1];
+print join ',', @chan;
 print "\n";

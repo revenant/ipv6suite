@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.6 $"
-  REVISION_DATE = "$Date: 2005/11/22 04:58:39 $"
+  VERSION       = "$Revision: 1.7 $"
+  REVISION_DATE = "$Date: 2005/11/22 05:57:53 $"
   AUTHOR        = "Johnny Lai"
 
   #
@@ -177,10 +177,10 @@ class NedFile
     require "gentopology2.rb"
 
     adjacency=gets.chomp.split(/[,\s]+/)
-    dg=RGL::AdjacencyGraph[3,1, 3,2]
+    dg=RGL::AdjacencyGraph[3,1, 3,2, 3,4]
     while adjacency.length > 0
     	    foo = adjacency.slice!(0,2)
-            dg.add_edge(foo[0].to_i + 3, foo[1].to_i + 3)
+            dg.add_edge(foo[0].to_i + 4, foo[1].to_i + 4)
     end
 
     g, @vs = genEHTopology(dg)

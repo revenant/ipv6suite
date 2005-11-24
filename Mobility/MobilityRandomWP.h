@@ -66,7 +66,6 @@ protected:
 
   double pauseTime;
   double startTime;
-
 private:
   RandomWP* randomWP;
 };

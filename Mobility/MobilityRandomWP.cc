@@ -73,6 +73,7 @@ void MobilityRandomWP::initialize(int stage)
     randomWP->minY = minY;
     randomWP->maxY = maxY;
     randomWP->pauseTime = pauseTime;
+    randomWP->generateMovements();
 
     double x = mobileEntity->position().x;
     double y = mobileEntity->position().y;

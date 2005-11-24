@@ -5,6 +5,8 @@
 #ifndef MOBILITY_H
 #define MOBILITY_H
 
+#define MAX_MOVEMENTS 500000
+
 // #include <omnetpp.h>
 #include "costants.h"
 
@@ -30,7 +32,8 @@ class RandomWP // : public cSimpleModule
         //returns the time intervall
         //to the next move
         double randomWaypoint(double&, double&);
-
+        void generateMovements(void);
+        
         double moveInterval;
         double minSpeed;
         double maxSpeed;
@@ -60,6 +63,12 @@ class RandomWP // : public cSimpleModule
         //statistics vars
         int stepsNum;
         double partial;
+
+        double destX[MAX_MOVEMENTS];
+        double destY[MAX_MOVEMENTS];
+        double speed[MAX_MOVEMENTS];
+
+        int moveIndex;
 };
 
 #endif

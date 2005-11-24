@@ -7,7 +7,7 @@
 double RandomWP::randomWaypoint(double& x, double& y)
 {
   double distance;//,angle;
-        double speed;
+        double currentSpeed;
         double a,b,c,d;
         bool pause = false;
 
@@ -19,18 +19,16 @@ double RandomWP::randomWaypoint(double& x, double& y)
         if(steps == 0)
         {
                 pause = true;
-                //choose the speed of the node
-                speed = uniform(minSpeed, maxSpeed);
-                //choose the destination point
-                c = (int) intuniform(minX,maxX);
-                d = (int) intuniform(minY,maxY);
+                currentSpeed = speed[moveIndex];
+                c = destX[moveIndex];
+                d = destY[moveIndex];
 
                 distance = sqrt((double)((c-a)*(c-a))+((d-b)*(d-b))) ;
 
 //              d("DISTANCE = "<<distance);
-                if ( speed !=0)
+                if ( currentSpeed !=0 && moveIndex < MAX_MOVEMENTS )
                 {
-                        steps = (int)( (distance / speed ) / moveInterval);
+                        steps = (int)( (distance / currentSpeed ) / moveInterval);
                         steps = steps > 0 ? steps : 1; // avoid 0!
                         dX =((c-a) / steps);
                         dY =((d-b) / steps);
@@ -44,8 +42,8 @@ double RandomWP::randomWaypoint(double& x, double& y)
                 }
 
                 stepsNum += steps;
-                partial += steps * speed;
-
+                partial += steps * currentSpeed;
+                moveIndex++;
         }
 
         //define new <x,y>
@@ -70,6 +68,15 @@ double RandomWP::randomWaypoint(double& x, double& y)
 
 }
 
+void RandomWP::generateMovements(void)
+{
+  for (int i = 0; i < MAX_MOVEMENTS; i++)
+  {
+    destX[i] = intuniform(minX, maxX);
+    destY[i] = intuniform(minY, maxY);
+    speed[i] = uniform(minSpeed, maxSpeed);
+  }
+}
 
 RandomWP::RandomWP()
 {
@@ -104,7 +111,7 @@ RandomWP::RandomWP()
         //statistical variables
         stepsNum =0;
         partial =0;
-
+        moveIndex = 0;
 }
 
 

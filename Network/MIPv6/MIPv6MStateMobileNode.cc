@@ -121,7 +121,7 @@ public:
         bule->problem = true;
         bule->state = 0;
         if (mipv6cdsMN->primaryHA()->addr() == dgram->destAddress())
-          cerr<<"Waiting for bind ack failed for primary homeAgent "<<
+          cerr<<nodeName<<" Waiting for bind ack failed for primary homeAgent "<<
             dgram->destAddress()<<".  No more BUs will be sent What to do?\n";
         Dout(dc::warning|dc::notice|dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()<<" timeout="<<timeout
              <<" > MAX_BINDACKK_TIMEOUT="<<MAX_BINDACK_TIMEOUT<<" for homeAgent "

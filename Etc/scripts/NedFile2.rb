@@ -35,10 +35,10 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.7 $"
-  REVISION_DATE = "$Date: 2005/11/22 05:57:53 $"
+  VERSION       = "$Revision: 1.8 $"
+  REVISION_DATE = "$Date: 2005/11/25 05:25:05 $"
   AUTHOR        = "Johnny Lai"
-
+  @@IPv6SuiteWithINET = "../../.."
   #
   # Returns a version string similar to:
   #  <app_name>:  Version: 1.2 Created on: 2002/05/08 by Jim Freeze
@@ -222,8 +222,7 @@ end
       #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
       if start.kind_of? AR or start.kind_of? HA
         le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent |]
-        le.add_attributes Hash[* %w|map on |] if @eh
-        le.add_attributes Hash[* %w|hierarchicalMIPv6Support on |] if @hmip or @eh
+        le.add_attributes Hash[* %w|map on hierarchicalMIPv6Support on|] if @eh
       end
 
       if start.kind_of? CR and @hmip
@@ -339,7 +338,7 @@ EOF
 EOF
     end 
 
-    defaultini = "IPv6SuiteWithINET/Etc/default.ini"
+    defaultini = "#{@IPv6SuiteWithINET}/Etc/default.ini"
     #defaultini.insert(0, "../") if not $noINET
 
     var2 += <<EOF
@@ -391,7 +390,7 @@ end
   include REXML
 
   def xmlHeader
-   dtd = "IPv6SuiteWithINET/Etc/netconf2.dtd"
+    dtd = "#{@@IPv6SuiteWithINET}/Etc/netconf2.dtd"
    #dtd.insert(0, "../") if not $noINET
   #create xmldoc header
     xmldecl = <<EOF
@@ -409,7 +408,7 @@ EOF
 [General]
 
 network = #{netName}
-preload-ned-files=*.ned @IPv6SuiteWithINET/nedfiles.lst
+      preload-ned-files=*.ned @#{@@IPv6SuiteWithINET}/nedfiles.lst
 
 total-stack-kb=17535
 ini-warnings = no
@@ -586,7 +585,7 @@ output-scalar-file = #{scalarfile}
 EOF
   end 
 
-      defaultini = "IPv6SuiteWithINET/Etc/default.ini"
+      defaultini = "#{@@IPv6SuiteWithINET}/Etc/default.ini"
       #defaultini.insert(0, "../") if not $noINET
 
 var += <<EOF

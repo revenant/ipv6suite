@@ -387,10 +387,15 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
       tmrs.erase(startRemove);
 
 
-    //remove the DC entry so that subsequent transmissions reinitiate the
-    //nexthop determination
-    rt->cds->removeDestEntryByNeighbour(nextHop);
 
+    //remove bad routes only after autoconfiguration period otherwise static routes
+    //are deleted too!!
+    if (simTime() > 5 ) 
+    {
+      //remove the DC entry so that subsequent transmissions reinitiate the   
+      //nexthop determination 
+      rt->cds->removeDestEntryByNeighbour(nextHop);
+    }
     //Send the packets in map and remove entries from queue
     pair<PPQI, PPQI> rng = ppq.equal_range(nextHop);
 

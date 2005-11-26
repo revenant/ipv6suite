@@ -20,9 +20,18 @@ output-vector-file = MN-MNComms_${1}-${setRun}.vec
 seed_lcg32 = ${seed}
 include ../../../Etc/default.ini
 EOF
-     ../../../bin/INET -u Cmdenv -f SimulMove2_${1}.ini -r ${setRun} &> output-${setRun}
-     cat "MN-MNComms_${1}-${setRun}.vec" >> MN-MNComms_${1}.vec
+     cat <<EOF >>SimulMove2_${1}-run${setRun}
+#! /bin/sh
+#PBS -S /bin/sh
+#PBS -N ${1}
+$PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_${1}.ini -r ${setRun}
+EOF
+chmod 744 SimulMove2_${1}-run${setRun}
+qsub -q dque SimulMove2_${1}-run${setRun}
+rm SimulMove2_${1}-run${setRun}
 #     rm omnetpp-${setRun}.ini
      setRun=`expr $setRun + 1`
-done     
-cp MN-MNComms_${1}.vec ~/data
+done
+#(cd ~/data; mkdir MN-MNComms_${1}; cd MN-MNComms_${1};)
+#mv MN-MNComms_${1}-${setRun}.vec ~/data/MN-MNComms_${1}
+#rm SimulMove2_${1}.ini

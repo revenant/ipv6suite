@@ -25,7 +25,8 @@ EOF
      cat <<EOF >>SimulMove2_${1}-run${setRun}
 #! /bin/sh
 #PBS -S /bin/sh
-#PBS -m e eric.wu@eng.monash.edu.au
+#PBS -M eric.wu@eng.monash.edu.au
+#PBS -m e
 #PBS -N ${1}
 $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_${1}.ini -r ${setRun}
 mv MN-MNComms_${1}-${setRun}.vec ~/data/MN-MNComms_${1}

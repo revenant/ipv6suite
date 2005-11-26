@@ -31,6 +31,6 @@ mv MN-MNComms_${1}-${setRun}.vec ~/data/MN-MNComms_${1}
 EOF
      chmod 744 SimulMove2_${1}-run${setRun}
      qsub -q dque SimulMove2_${1}-run${setRun}
-     rm SimulMove2_${1}-run${setRun}
+#     rm SimulMove2_${1}-run${setRun}
      setRun=`expr $setRun + 1`
 done

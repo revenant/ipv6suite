@@ -35,6 +35,7 @@ EOF
      cat <<EOF >>SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
 #! /bin/sh
 #PBS -N MN${1}CN${i}ms${2}
+#PBS -k n
 $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}CN${i}ms${2}.ini -r ${setRun}
 mv $PWD/MN-MNComms_MN${1}CN${i}ms${2}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}CN${i}ms${2}
 EOF

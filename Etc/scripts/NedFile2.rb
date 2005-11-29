@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.8 $"
-  REVISION_DATE = "$Date: 2005/11/25 05:25:05 $"
+  VERSION       = "$Revision: 1.9 $"
+  REVISION_DATE = "$Date: 2005/11/29 10:20:51 $"
   AUTHOR        = "Johnny Lai"
   @@IPv6SuiteWithINET = "../../.."
   #
@@ -212,6 +212,10 @@ end
       le.add_element("interface", Hash[* %w|name wlan0 HostDupAddrDetectTransmits 1 MaxConsecMissRtrAdv 3|])
     end if @mip6
 
+    ha = g.vertices.detect{|i| i.kind_of? HA}
+    haIface = ha.ifaces[0]
+    #assuming HA is always at vs[1]
+    throw "ifaces should match using both methods to find HA" if not haIface.address == @vs[1].ifaces[0].address
     #everything else
     g.each{|start|
       next if start.kind_of? AP
@@ -219,7 +223,6 @@ end
 
       le.add_attributes Hash[* %w|routePackets on| ] if start.kind_of? Router
 
-      #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
       if start.kind_of? AR or start.kind_of? HA
         le.add_attributes Hash[* %w|mobileIPv6Role HomeAgent |]
         le.add_attributes Hash[* %w|map on hierarchicalMIPv6Support on|] if @eh
@@ -231,7 +234,6 @@ end
 
       ifaces = %w|eth0 ppp0|
 
-      mapIface = start.ifaces.detect {|i| not i.remoteNode.kind_of? AP}
       start.ifaces.each_index {|index|
         iface = start.ifaces[index]
         ie = le.add_element("interface")
@@ -243,13 +245,14 @@ end
         ie.add_element("inetAddr").text = iface.address
 
         if start.kind_of? Router
-          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|] if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR)
+          #HA needs to have an adv prefix list otherwise
+          #it will reject BUs as it checks hoa against prefix when using assigned HA
+          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|] if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR) or start.kind_of? HA
+          #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
           ie.add_attributes Hash[* %w|AdvHomeAgent on HMIPAdvMAP on |] if (@hmip and start.kind_of? CR) or @eh
             
           ie.add_attributes Hash[* %w|MIPv6MaxRtrAdvInterval 0.12 MIPv6MinRtrAdvInterval 0.08 MaxFastRAS 10|] if iface.remoteNode.kind_of? AP
         
-          #HA needs to have an adv prefix list otherwise
-          #it will reject BUs as it checks hoa against prefix when using assigned HA
             #We need all ARs to adv. as HA as MN do not have a preconfigured
             #HA. So first HA they see is primary HA will conflict with existing
             #C++ assumption that EH not active at home base
@@ -259,12 +262,18 @@ end
             #this script so no need for routers to advertise unless of course
             #hub is used to connect to an AP too
 
-          if not iface.remoteNode.kind_of? Router
+          #HA needs to have an adv prefix list otherwise
+          #it will reject BUs as it checks hoa against prefix when using assigned HA
+          if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR) or start.kind_of? HA
             aple = ie.add_element("AdvPrefixList")
             aple.add_element("AdvPrefix", Hash[*%w|AdvOnLinkFlag on AdvRtrAddrFlag on| ] ).text = "#{iface.address}/64"
           end
 
           if (@eh and not iface.remoteNode.kind_of? Router) or (@hmip and start.kind_of? CR)
+            #assuming HA node occurs before map node and HA cannot be a MAP for static assigned homeagent case
+            mapIface = start.ifaces.detect {|i| not i.remoteNode.kind_of? AP}
+
+            mapIface = start.ifaces[index+1] if prefixMatches(mapIface.address, haIface.address)
             ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
 #"#{iface.address}"
           end
@@ -527,7 +536,7 @@ if not $noINET
 #{netName}.**.networkInterface.linkDownTrigger = true
 #{netName}.**.networkLayer.proc.mobility.homeAgent = "#{@vs[1].ifaces[0].address}"
 ;;Can't use name yet as resolver complains about unable to resolve at initialise
-#{netName}.**.networkLayer.proc.mobility.homeAgent = "ha1"
+;#{netName}.**.networkLayer.proc.mobility.homeAgent = "ha1"
 
 EOF
 end
@@ -891,6 +900,10 @@ def createIPv6Address
 end
 
 end#NedFile
+
+def prefixMatches(lhs, rhs)
+  lhs.scan(/[^:]+:/).collect[0,4].eql? rhs.scan(/[^:]+:/).collect[0,4]
+end
 
 #main
 #don't want different numbers from rand every time we run

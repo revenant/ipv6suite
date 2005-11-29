@@ -230,6 +230,74 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
     new cPointerMapWatcher<KeyT,ValueT,CmpT>(varname, m);
 }
 
+//
+// Internal class
+//
+template<class KeyT, class ValueT, class CmpT>
+class cMultiMapWatcher : public cVectorWatcherBase
+{
+  protected:
+    std::multimap<KeyT,ValueT,CmpT>& m;
+    mutable typename std::multimap<KeyT,ValueT,CmpT>::iterator it;
+    mutable int itPos;
+    std::string classname;
+  public:
+    cMultiMapWatcher(const char *name, std::multimap<KeyT,ValueT,CmpT>& var) : cVectorWatcherBase(name), m(var) {
+        itPos=-1;
+        classname = std::string("std::multimap<")+opp_typename(typeid(KeyT))+","+opp_typename(typeid(ValueT))+">";
+    }
+    const char *className() const {return classname.c_str();}
+    virtual const char *elemTypeName() const {return "struct pair<*,*>";}
+    virtual int size() const {return m.size();}
+    virtual std::string at(int i) const {
+        // std::multimap doesn't support random access iterator and iteration is slow,
+        // so we have to use a trick, knowing that Tkenv will call this function with
+        // i=0, i=1, etc...
+        if (i==0) {
+            it=m.begin(); itPos=0;
+        } else if (i==itPos+1 && it!=m.end()) {
+            ++it; ++itPos;
+        } else {
+            it=m.begin();
+            for (int k=0; k<i && it!=m.end(); k++) ++it;
+            itPos=i;
+        }
+        if (it==m.end()) {
+            return std::string("out of bounds");
+        }
+        return atIt();
+    }
+    virtual std::string atIt() const {
+        std::stringstream out;
+        out << "{" << it->first << "}  ==>  {" << it->second << "}";
+        return out.str();
+    }
+};
+
+template <class KeyT, class ValueT, class CmpT>
+void createMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT,CmpT>& m)
+{
+    new cMultiMapWatcher<KeyT,ValueT,CmpT>(varname, m);
+}
+
+template<class KeyT, class ValueT, class CmpT>
+class cPointerMultiMapWatcher : public cMultiMapWatcher<KeyT,ValueT,CmpT>
+{
+  public:
+    cPointerMultiMapWatcher(const char *name, std::multimap<KeyT,ValueT,CmpT>& var) : cMultiMapWatcher<KeyT,ValueT,CmpT>(name, var) {}
+    virtual std::string atIt() const {
+        std::stringstream out;
+        out << "{" << this->it->first << "}  ==>  {" << *(this->it->second) << "}";
+        return out.str();
+    }
+};
+
+template<class KeyT, class ValueT, class CmpT>
+void createPointerMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT,CmpT>& m)
+{
+    new cPointerMultiMapWatcher<KeyT,ValueT,CmpT>(varname, m);
+}
+
 #ifndef WATCH_VECTOR   /* it's already included in omnetpp-3.2 */
 
 #define WATCH_VECTOR(v)      createVectorWatcher(#v,(v))
@@ -245,6 +313,10 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
 #define WATCH_PTRMAP(m)      createPointerMapWatcher(#m,(m))
 
 #endif
+
+#define WATCH_MULTIMAP(m)   createMultiMapWatcher(#m,(m))
+
+#define WATCH_PTRMULTIMAP(m)   createPointerMultiMapWatcher(#m,(m))
 
 #endif
 

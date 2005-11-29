@@ -46,6 +46,7 @@
 #include "IPv6CDS.h"
 #include "IPv6Output.h"
 #include "LL6ControlInfo_m.h"
+#include "stlwatch.h"
 
 using std::string;
 using IPv6NeighbourDiscovery::NDHOPLIMIT;
@@ -71,6 +72,8 @@ void AddressResolution::initialize(int stage)
 {
   if (stage==1)
   {
+    WATCH_PTRMULTIMAP(ppq);
+
     // we have to postpone initialization to stage 1, because interfaces
     // get registered in stage 0 and we need them.
 

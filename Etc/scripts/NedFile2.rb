@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.9 $"
-  REVISION_DATE = "$Date: 2005/11/29 10:20:51 $"
+  VERSION       = "$Revision: 1.10 $"
+  REVISION_DATE = "$Date: 2005/11/29 14:50:37 $"
   AUTHOR        = "Johnny Lai"
   @@IPv6SuiteWithINET = "../../.."
   #
@@ -66,6 +66,7 @@ class NedFile
     @video = false
     @netmaskunique = Array.new
     @configs = false
+    @mapprefixunique = Array.new
 
     self.modulename = modulename
 
@@ -233,7 +234,7 @@ end
       end 
 
       ifaces = %w|eth0 ppp0|
-
+      sameMapPrefixPermitted = false
       start.ifaces.each_index {|index|
         iface = start.ifaces[index]
         ie = le.add_element("interface")
@@ -272,7 +273,32 @@ end
           if (@eh and not iface.remoteNode.kind_of? Router) or (@hmip and start.kind_of? CR)
             #assuming HA node occurs before map node and HA cannot be a MAP for static assigned homeagent case
             mapIface = start.ifaces.detect {|i| not i.remoteNode.kind_of? AP}
+            
+            if (not sameMapPrefixPermitted) then
+              print "\n#{@mapprefixunique.join("\n")}"
 
+              #When map prefix are not unique it is possible in EH mode to
+              #actually have both coa and hoa to have same prefix and so MAP
+              #will try to deregister a non existant BCE
+         
+              while @mapprefixunique.include?(prefix(mapIface.address)) do
+                prefix = permutePrefix(prefix(mapIface.address))
+                mapIface.address = prefix + ADDRDELIM + suffix(mapIface.address)
+              end
+              @mapprefixunique<<prefix(mapIface.address) 
+              sameMapPrefixPermitted = true
+            end
+
+            while prefixMatches(mapIface.address, haIface.address) do
+                while @mapprefixunique.include?(prefix(mapIface.address)) do
+                  prefix = permutePrefix(prefix(mapIface.address))
+                  mapIface.address = prefix + ADDRDELIM + suffix(mapIface.address)
+                end
+              if not prefixMatches(mapIface.address, haIface.address) then
+                @mapprefixunique<<prefix(mapIface.address) 
+                break
+              end
+            end
             mapIface = start.ifaces[index+1] if prefixMatches(mapIface.address, haIface.address)
             ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
 #"#{iface.address}"
@@ -284,7 +310,8 @@ end
         #simple
 
         ifname.succ!
-      }
+      } # end each iface
+      sameMapPrefixPermitted = false
 
       next if not start.kind_of? Router
       nhops, bfs, testvalidate = routingTable(g, start )
@@ -902,9 +929,36 @@ end
 end#NedFile
 
 def prefixMatches(lhs, rhs)
-  lhs.scan(/[^:]+:/).collect[0,4].eql? rhs.scan(/[^:]+:/).collect[0,4]
+  prefix(lhs).eql? prefix(rhs)
 end
 
+def suffix(addr)
+  prefix(addr.reverse).reverse
+end
+
+def prefix(addr)
+  addr.scan(/[^:]+:/).collect[0,4].join.chop!
+end
+
+def permutePrefix(s)
+  pos = rand(s.size-1)
+
+  #do not want to overwrite 30f global prefix
+  pos = pos + 3 if (pos <= 2) 
+
+  # do not want to overwrite ADDRDELIM otherwise not valid address
+  while s[pos].eql? NedFile::ADDRDELIM[0] do
+     pos = rand(s.size-1)
+    pos = pos + 3 if (pos <= 2) #do not want to overwrite 30f global prefix
+  end
+
+  e = toHex(rand(15))
+  while s[pos].eql? e[0]
+    e = toHex(rand(15))                   
+  end
+  s[pos] = e
+  s
+end
 #main
 #don't want different numbers from rand every time we run
 srand(0)

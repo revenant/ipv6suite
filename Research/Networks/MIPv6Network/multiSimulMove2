@@ -20,6 +20,7 @@ for seed in `cat seeds.txt`;
 do
      cat <<EOF >>SimulMove2_${1}.ini
 [Run ${setRun}]
+mipv6NetworkSimulMove2.*.IPv6routingFile = xmldoc("MIPv6NetworkSimulMove2.xml")
 network = mipv6NetworkSimulMove2
 output-vector-file = MN-MNComms_${1}-${setRun}.vec
 seed_lcg32 = ${seed}

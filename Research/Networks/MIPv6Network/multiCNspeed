@@ -1,7 +1,7 @@
 #! /bin/sh
 
-DEST="/home/ewu/data"
-#DEST="/short/ewu/data"
+#DEST="/home/ewu/data"
+DEST="/short/ewu/data"
 
 if [ $# -ne 3 ]
 then

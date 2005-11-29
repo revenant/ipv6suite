@@ -13,7 +13,7 @@ let "numberOfSeeds=${3}"
 
 # for loop here
 
-for i in `seq 1 10`;
+for i in `seq 0 9`;
 do
 
 cp SimulMove2.ini SimulMove2_MN${1}CN${i}ms${2}.ini
@@ -40,8 +40,8 @@ $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}CN${i}ms${2}.ini -r ${
 mv $PWD/MN-MNComms_MN${1}CN${i}ms${2}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}CN${i}ms${2}
 EOF
      chmod 744 SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
-#     qsub SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
-#     rm SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
+     qsub SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
+     rm SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
      setRun=`expr $setRun + 1`
 done # end runs
 

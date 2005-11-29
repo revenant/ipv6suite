@@ -27,7 +27,6 @@ include ../../../Etc/default.ini
 EOF
      cat <<EOF >>SimulMove2_${1}-run${setRun}
 #! /bin/sh
-#PBS -S /bin/sh
 #PBS -N ${1}
 $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_${1}.ini -r ${setRun}
 mv $PWD/MN-MNComms_${1}-${setRun}.vec ${DEST}/MN-MNComms_${1}

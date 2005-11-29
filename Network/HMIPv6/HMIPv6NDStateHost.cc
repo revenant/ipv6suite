@@ -77,7 +77,6 @@ static const  HMIPv6MAPEntry invalidMAP;
 std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 {
   //Do it here for now to get lcoa autoconf'ed and router added to MRL
-  //rtrAdv.reset(MIPv6NDStateHost::processRtrAd(rtrAdv).release());
   rtrAdv = MIPv6NDStateHost::processRtrAd(rtrAdv);
 
   assert(rtrAdv.get() != 0);
@@ -110,22 +109,27 @@ std::auto_ptr<RA> HMIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       //handover due to absence of map option from same router or even different
       //router in same subnet?
     }
-    Dout(dc::hmip," Set no map as no map option in RA");
-    hmipv6cdsMN.setNoCurrentMap();
+
+    if (!rtrAdv->hasMapOptions())
+    {
+      Dout(dc::hmip," Set no map as no map option in RA");
+      hmipv6cdsMN.setNoCurrentMap();
+    }
     //Prob. should send BU to MAP i.e. tell it to deregister us?
     //Prob. should delete entry from BUL too or implement lifetimes for bule to
     //remove them automatically
 
     //Remove rcoa and bind with pHA with lcoa? (guess this is a new movement
     //detection method because we can detect movement here too)
-
     //Assuming 0 because multihomed hosts would be problematic I mean should we
     //check which RA comes from which ifIndex before doing this?
-    rt->removeAddress(hmipv6cdsMN.remoteCareOfAddr(), dgram->inputPort());
+    if (hmipv6cdsMN.remoteCareOfAddr()!= IPv6_ADDR_UNSPECIFIED)
+      rt->removeAddress(hmipv6cdsMN.remoteCareOfAddr(), dgram->inputPort());
     const ipv6_addr& ll_addr = dgram->srcAddress();
     boost::shared_ptr<MIPv6RouterEntry> accessRouter = mipv6cdsMN->findRouter(ll_addr);
     //bind to pHA with coa of lcoa?
-    MIPv6NDStateHost::handover(accessRouter);
+    if (mipv6cdsMN->currentRouter() != accessRouter)
+      MIPv6NDStateHost::handover(accessRouter);
     return rtrAdv;
   }
 

@@ -5,7 +5,7 @@ DEST="/short/ewu/data"
 
 if [ $# -ne 3 ]
 then
-  echo "Please enter the name of scenario and the number of runs required (eg. <name> <no. of runs>)" 
+  echo "Please enter the MN's speed including the unit, ms, and signaling method, and the number of runs required (eg. 2ms Indir 25)" 
   exit 1
 fi
 

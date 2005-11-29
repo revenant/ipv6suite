@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.10 $"
-  REVISION_DATE = "$Date: 2005/11/29 14:50:37 $"
+  VERSION       = "$Revision: 1.11 $"
+  REVISION_DATE = "$Date: 2005/11/29 22:12:33 $"
   AUTHOR        = "Johnny Lai"
   @@IPv6SuiteWithINET = "../../.."
   #
@@ -299,11 +299,10 @@ end
                 break
               end
             end
-            mapIface = start.ifaces[index+1] if prefixMatches(mapIface.address, haIface.address)
             ie.add_element("AdvMAPList").add_element("AdvMAPEntry").text = "#{mapIface.address}/64"
 #"#{iface.address}"
-          end
-	end
+          end #end eh and hmip+CR
+	end #end Router
 
         #AdvRtrAddrFlag only needed for AP facing ifaces. in fact don't need
         #global addresses assigned to internal router but we'll keep program

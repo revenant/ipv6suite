@@ -35,8 +35,8 @@ $noINET = false
 # Many things are hard coded including many implicit assumptions.
 #
 class NedFile
-  VERSION       = "$Revision: 1.11 $"
-  REVISION_DATE = "$Date: 2005/11/29 22:12:33 $"
+  VERSION       = "$Revision: 1.12 $"
+  REVISION_DATE = "$Date: 2005/11/30 05:28:18 $"
   AUTHOR        = "Johnny Lai"
   @@IPv6SuiteWithINET = "../../.."
   #
@@ -248,7 +248,7 @@ end
         if start.kind_of? Router
           #HA needs to have an adv prefix list otherwise
           #it will reject BUs as it checks hoa against prefix when using assigned HA
-          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|] if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR) or start.kind_of? HA
+          ie.add_attributes Hash[* %w|AdvSendAdvertisements on|] if not iface.remoteNode.kind_of? Router or @hmip or start.kind_of? HA
           #AdvHomeAgent Needs to be on for all ARs if MNs are to take first AR seen as HA
           ie.add_attributes Hash[* %w|AdvHomeAgent on HMIPAdvMAP on |] if (@hmip and start.kind_of? CR) or @eh
             
@@ -265,7 +265,7 @@ end
 
           #HA needs to have an adv prefix list otherwise
           #it will reject BUs as it checks hoa against prefix when using assigned HA
-          if not iface.remoteNode.kind_of? Router or (@hmip and start.kind_of? CR) or start.kind_of? HA
+          if not iface.remoteNode.kind_of? Router or @hmip or start.kind_of? HA
             aple = ie.add_element("AdvPrefixList")
             aple.add_element("AdvPrefix", Hash[*%w|AdvOnLinkFlag on AdvRtrAddrFlag on| ] ).text = "#{iface.address}/64"
           end

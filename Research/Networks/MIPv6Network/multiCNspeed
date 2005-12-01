@@ -3,45 +3,67 @@
 #DEST="/home/ewu/data"
 DEST="/short/ewu/data"
 
-if [ $# -ne 3 ]
+if [ $# -ne 5 ]
 then
-  echo "Please enter the MN's speed including the unit, ms, and signaling method, and the number of runs required (eg. 2ms Indir 25)" 
+  echo ""
+  echo "multiCNspeed MN CN_MIN CN_MAX SIG RUNS" 
+  echo " "
+  echo "Description -"
+  echo " "
+  echo "multiCNspeed copies SimulMove2.ini into multiple .ini files,"
+  echo "and creates batches files for each of the scenarios, according"
+  echo "to the MN's speed, ranges of CN speed increments, signaling" 
+  echo "method, and total number of runs. It then runs the simulation"
+  echo "through PBS to distribute the jobs onto available nodes"
+  echo " "
+  echo "Arguments - "
+  echo " "
+  echo "   MN - MN's speed incremet"
+  echo "   CNMIN - CN's minimum speed increment"
+  echo "   CNMAX - CN's maximum speed increment"
+  echo "   SIG - Signaling method"
+  echo "   RUNS Number of runs"
+  echo " "
+  echo "Example - "
+  echo " "
+  echo "multiCNspeed 2 0 9 Indir 25"
+  echo ""
   exit 1
 fi
 
-let "numberOfSeeds=${3}"
+let "numberOfSeeds=${5}"
 
 # for loop here
 
-for i in `seq 0 9`;
+for i in `seq ${2} ${3}`;
 do
 
-cp SimulMove2.ini SimulMove2_MN${1}CN${i}ms${2}.ini
-(cd ${DEST}; mkdir MN-MNComms_MN${1}CN${i}ms${2};)
+cp SimulMove2.ini SimulMove2_MN${1}msCN${i}ms${4}.ini
+(cd ${DEST}; mkdir MN-MNComms_MN${1}msCN${i}ms${4};)
 
 seedtool g 1 10000000 $numberOfSeeds > seeds.txt
 
 setRun=1
 for seed in `cat seeds.txt`;
 do
-     cat <<EOF >>SimulMove2_MN${1}CN${i}ms${2}.ini
+     cat <<EOF >>SimulMove2_MN${1}msCN${i}ms${4}.ini
 [Run ${setRun}]
 mipv6NetworkSimulMove2.*.IPv6routingFile = xmldoc("MIPv6NetworkSimulMove2_CN${i}ms.xml")
 network = mipv6NetworkSimulMove2
-output-vector-file = MN-MNComms_MN${1}CN${i}ms${2}-${setRun}.vec
+output-vector-file = MN-MNComms_MN${1}msCN${i}ms${4}-${setRun}.vec
 seed_lcg32 = ${seed}
 include ../../../Etc/default.ini
 EOF
-     cat <<EOF >>SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
+     cat <<EOF >>SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
 #! /bin/sh
-#PBS -N MN${1}CN${i}ms${2}
 #PBS -k n
-$PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}CN${i}ms${2}.ini -r ${setRun}
-mv $PWD/MN-MNComms_MN${1}CN${i}ms${2}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}CN${i}ms${2}
+#PBS -N MN${1}msCN${i}ms${4}
+$PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}msCN${i}ms${4}.ini -r ${setRun}
+mv $PWD/MN-MNComms_MN${1}msCN${i}ms${4}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}msCN${i}ms${4}
 EOF
-     chmod 744 SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
-     qsub SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
-     rm SimulMove2_MN${1}CN${i}ms${2}-run${setRun}
+     chmod 744 SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
+     qsub SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
+     rm SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
      setRun=`expr $setRun + 1`
 done # end runs
 

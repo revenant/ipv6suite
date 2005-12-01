@@ -880,7 +880,9 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     if (missedTmr && missedTmr->isScheduled())
       missedTmr->cancel();
     else if (!missedTmr)
-      cout<<"Where is missedTmr "<<nd->simTime()<<" tmr "<<tmr<<endl;
+    {
+      //cout<<"Where is missedTmr "<<nd->simTime()<<" tmr "<<tmr<<endl; 
+    }
   }
 
   if (mipv6cdsMN->currentRouter())

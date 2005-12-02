@@ -38,7 +38,7 @@ let "numberOfSeeds=${5}"
 for i in `seq ${2} ${3}`;
 do
 
-xsltproc -o MIPv6NetworkSimulMove2_MN${1}msCN${i}ms${4}.xml ----stringparam signaling ${4} --stringparam mnSpeed ${1} --stringparam cnSpeed ${i} signalingScenario.xsl MIPv6NetworkSimulMove2.xml
+xsltproc -o MIPv6NetworkSimulMove2_MN${1}msCN${i}ms${4}.xml --stringparam signaling ${4} --stringparam mnSpeed ${1} --stringparam cnSpeed ${i} signalingScenario.xsl MIPv6NetworkSimulMove2.xml
 
 cp SimulMove2.ini SimulMove2_MN${1}msCN${i}ms${4}.ini
 (cd ${DEST}; mkdir MN-MNComms_MN${1}msCN${i}ms${4};)

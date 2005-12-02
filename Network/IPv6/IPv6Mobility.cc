@@ -310,13 +310,6 @@ MobileIPv6::SignalingEnhance IPv6Mobility::signalingEnhance()
 
 void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
 {
-  // All signaling enhancement requires the use of route
-      // optimization
-  if ( !_returnRoutability && s!= MobileIPv6::None )
-  {
-    std::cerr<<"Error:"<<fullPath()<<" Signaling Enhancement is on while Route Optimisation is off"<<endl;
-    abort_ipv6suite();
-  }
   _signalingEnhance = s;
 }
 

@@ -1,3 +1,15 @@
+<!--
+  Description: Automatically copies base MIPv6NetworkSimulMove2.xml into another
+              xml file, with changes of MN's, CN's speeds and signaling method
+
+  paramstring: signaling, mnspeed, cnspeed
+
+  Author: Eric Wu
+
+  p.s. This file is to be used with multiCNspeed. However, user may also wish
+       to use this file independently.
+-->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   
 <xsl:output indent="yes"/>
@@ -26,9 +38,9 @@
 
 
     <!-- Output the <!DOCTYPE -->
-    <xsl:value-of disable-output-escaping="yes"
-          select="concat('&#60;','!DOCTYPE ',name(/*[1]),
-                  ' SYSTEM',$q,$f,$q,'>')"/>
+<!--    <xsl:value-of disable-output-escaping="yes"
+          select="concat('&#60;','netconf','>')"/> -->
+          
     <xsl:apply-templates 
          select="@*|*|processing-instruction()|comment()"/>
          

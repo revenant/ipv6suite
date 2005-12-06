@@ -40,24 +40,26 @@
     <!-- Output the <!DOCTYPE -->
 <!--    <xsl:value-of disable-output-escaping="yes"
           select="concat('&#60;','netconf','>')"/> -->
-          
-    <xsl:apply-templates 
-         select="@*|*|processing-instruction()|comment()"/>
-         
+
+
+  <xsl:apply-templates select="node()|@*"/>
+
+<!--  <xsl:apply-templates select="@*|*|processing-instruction()|comment()"/> -->
+     
+        
     <xsl:apply-templates select="@signalingEnhance"/>
     <xsl:apply-templates select="RandomMovement"/>
         
   </xsl:template>
 
   <!--
-   | Identity Transformation. XT doesn't seem to support the
-   | more terse "@*|node()" at present, so this is the long form.
+   | Identity Transformation. 
    +-->
-  <xsl:template 
-	match="@*|*|processing-instruction()|comment()">
+<!--  <xsl:template match="@*|*|processing-instruction()|comment()"> -->
+<xsl:template match="node()|@*">
     <xsl:copy>
-      <xsl:apply-templates
-select="@*|*|processing-instruction()|comment()"/>
+<!--      <xsl:apply-templates select="@*|*|processing-instruction()|comment()"> -->
+          <xsl:apply-templates select="node()|@*"/>    
     </xsl:copy>
   </xsl:template>
 

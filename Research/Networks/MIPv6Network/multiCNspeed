@@ -1,7 +1,7 @@
 #! /bin/sh
 
-DEST="/home/ewu/data"
-#DEST="/short/ewu/data"
+#DEST="/home/ewu/data"
+DEST="/short/ewu/data"
 
 if [ $# -ne 5 ]
 then
@@ -59,7 +59,7 @@ EOF
      cat <<EOF >>SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
 #! /bin/sh
 #PBS -k n
-#PBS -N MN${1}msCN${i}ms${4}
+#PBS -N M${1}C${i}${4}${setRun}
 $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}msCN${i}ms${4}.ini -r ${setRun}
 mv $PWD/MN-MNComms_MN${1}msCN${i}ms${4}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}msCN${i}ms${4}
 rm MIPv6NetworkSimulMove2_MN${1}msCN${i}ms${4}.xml

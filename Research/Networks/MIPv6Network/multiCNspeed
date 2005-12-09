@@ -1,7 +1,10 @@
 #! /bin/sh
 
-#DEST="/home/ewu/data"
-DEST="/short/ewu/data"
+DEST="${HOME}/data"
+#DEST="/short/ewu/data"
+
+#Queue =""
+Queue="-q dque"
 
 if [ $# -ne 5 ]
 then
@@ -65,7 +68,7 @@ mv $PWD/MN-MNComms_MN${1}msCN${i}ms${4}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}m
 rm MIPv6NetworkSimulMove2_MN${1}msCN${i}ms${4}.xml
 EOF
      chmod 744 SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
-     qsub SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
+     qsub ${Queue} SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
      rm SimulMove2_MN${1}msCN${i}ms${4}-run${setRun}
      setRun=`expr $setRun + 1`
 done # end runs

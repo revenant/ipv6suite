@@ -4,7 +4,7 @@ DEST="${HOME}/data"
 #DEST="/short/ewu/data"
 
 #Queue =""
-Queue="-q dque"
+Queue="-q run_1_hour"
 
 if [ $# -ne 5 ]
 then
@@ -63,6 +63,7 @@ EOF
 #! /bin/sh
 #PBS -k n
 #PBS -N M${1}C${i}${4}${setRun}
+#PBS -l walltime=00:20:00
 $PWD/../../../bin/INET -u Cmdenv -f $PWD/SimulMove2_MN${1}msCN${i}ms${4}.ini -r ${setRun}
 mv $PWD/MN-MNComms_MN${1}msCN${i}ms${4}-${setRun}.vec ${DEST}/MN-MNComms_MN${1}msCN${i}ms${4}
 rm MIPv6NetworkSimulMove2_MN${1}msCN${i}ms${4}.xml

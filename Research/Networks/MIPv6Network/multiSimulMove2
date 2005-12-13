@@ -1,7 +1,9 @@
 #! /bin/sh
 
-#DEST="~/data"
+#DEST=${PWD}
+#DEST="${HOME}/data"
 DEST="/short/ewu/data"
+#DEST="/short_term/ewu/data"
 
 if [ $# -ne 2 ]
 then

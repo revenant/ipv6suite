@@ -22,6 +22,7 @@ import  //
     "WorldProcessor",
     "WirelessAccessPoint",
     "WirelessMobileNode",
+    "DynamicBRLoader",
     "Cables";
 
 module MIPv6NetworkSimulMove2
@@ -252,11 +253,13 @@ module MIPv6NetworkSimulMove2
                 in[1],
                 out[1];
             display: "p=410,586;i=switch1_s";
+        loadGenerator: DynamicIPv6CBRLoader;
+            display: "p=612,164;i=block/users";
         configurator6: FlatNetworkConfigurator6;
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode",
                 nonIPModuleTypes = "AccessPoint ";
-            display: "p=620,92;i=block/cogwheel";
+            display: "p=612,92;i=block/cogwheel";
     connections nocheck:
         coreRouter1.out[0] --> internetCable --> coreRouter2.in[0];
         coreRouter1.in[0] <-- internetCable <-- coreRouter2.out[0];

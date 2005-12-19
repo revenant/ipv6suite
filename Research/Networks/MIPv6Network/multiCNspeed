@@ -1,12 +1,12 @@
 #! /bin/sh
 
 #DEST=${PWD}
-#DEST="${HOME}/data"
-DEST="/short/ewu/data"
+DEST="${HOME}/data"
+#DEST="/short/ewu/data"
 #DEST="/short_term/ewu/data"
 
-Queue=""
-#Queue="-q run_1_hour"
+#Queue=""
+Queue="-q run_1_hour"
 
 if [ $# -ne 5 ]
 then

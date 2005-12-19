@@ -227,9 +227,9 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
 */
 
             // Link up trigger ( movement detection for MIPv6 )
-            if (mod->linkUpTrigger())
+            if (mod->linkUpTrigger() && mod->getLayer2Trigger(LinkUP))
             {
-                assert(mod->getLayer2Trigger(LinkUP) && !mod->getLayer2Trigger(LinkUP)->isScheduled());
+                assert(!mod->getLayer2Trigger(LinkUP)->isScheduled());
                 mod->getLayer2Trigger(LinkUP)->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
                 Dout(dc::mipv6 | dc::mobile_move,
                      mod->fullPath() << "Link-Up trigger signalled (Assoc) " << mod->associateAP.channel);

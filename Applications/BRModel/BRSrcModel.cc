@@ -54,15 +54,24 @@ void BRSrcModel::sendFragment(unsigned long size, int msgType)
     pkt->setSrcName(fullPath().c_str());
     pkt->setSequenceNo(sequenceNo);
     sequenceNo++;
-    
-    // Attach destination addr to control info, which
-    // can be processed by link layer
-    LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
-    const char* addr = resolveMACAddress(destAddr);
-    assert(addr);
-    ctrlInfo->setDestLLAddr(addr);
+
+    cMessage* ctrlInfo = createControlInfo(pkt);
     pkt->setControlInfo(ctrlInfo);
     send(pkt, "brOut");  
+}
+
+cMessage* BRSrcModel::createControlInfo(BRMsg*)
+{
+  BRMsg* pkt;
+
+  // Attach destination addr to control info, which
+  // can be processed by link layer
+  LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
+  const char* addr = resolveMACAddress(destAddr);
+  assert(addr);
+  ctrlInfo->setDestLLAddr(addr);
+
+  return ctrlInfo;
 }
 
 const char* BRSrcModel::resolveMACAddress(std::string destName)

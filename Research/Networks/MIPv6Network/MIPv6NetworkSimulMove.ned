@@ -25,6 +25,7 @@ import  //
     "WirelessAccessPoint",
     "WirelessMobileNode",
     "Cables",
+    "WirelessIPv6TestNode",
     "FlatNetworkConfigurator6";
 
 
@@ -103,9 +104,25 @@ module MIPv6NetworkSimulMove
                 in[1],
                 out[1];
             display: "p=32,296;i=device/pc2";
+        trafficgen: WirelessIPv6TestNode;
+            parameters:
+                brModelType = "IPv6CBRSrcModel",
+                IPForward = false;
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=352,160;i=device/palm";
+        trafficsink: WirelessIPv6TestNode;
+            parameters:
+                brModelType = "IPv6CBRSrcModel",
+                IPForward = false;
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=344,344;i=device/palm";
         configurator6: FlatNetworkConfigurator6;
             parameters:
-                moduleTypes = "Router6 MobileNode UDPNode",
+                moduleTypes = "Router6 MobileNode UDPNode WirelessIPv6TestNode",
                 nonIPModuleTypes = "AccessPoint ";
             display: "p=396,396;i=block/cogwheel";
     connections nocheck:

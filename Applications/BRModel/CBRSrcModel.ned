@@ -34,3 +34,14 @@ simple CBRSrcModel
         out: brOut;
 endsimple
 
+simple IPv6CBRSrcModel
+    parameters:
+	msgType: numeric,	// msg type
+	destAddr: string,	// destination IPv6 address
+	tStart: numeric const,	// time to start
+	bitRate: numeric,	// bit rate to achieve (bits/s)
+	fragmentLen: numeric;	// fragment length (bytes)
+    gates:
+        out: brOut;
+endsimple
+

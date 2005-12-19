@@ -21,7 +21,7 @@
 //
 // @author Andras Varga
 //
-class LL6ControlInfo
+class LL6ControlInfo extends cMessage
 {
   fields:
     string destLLAddr;

@@ -17,6 +17,8 @@
 #include <omnetpp.h>
 #include "MACAddress6.h"
 
+class BRMsg;
+
 /**
  * Base class for BR applications.
  * Contains functionality common to all Bit Rate models, namely sendFragment and fragmentAndSend
@@ -32,6 +34,10 @@ class BRSrcModel : public cSimpleModule
     void sendFragment(unsigned long, int msgType);
     void fragmentAndSend(unsigned long, int msgType);
     const char* resolveMACAddress(std::string);
+
+    // create control packet for MAC layer - can be redefined suitably
+    // for various other layer protocol
+    virtual cMessage* createControlInfo(BRMsg*);
     
     cMessage* timer;
     unsigned long sequenceNo;

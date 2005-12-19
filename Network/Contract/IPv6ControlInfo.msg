@@ -45,7 +45,7 @@ cplusplus {{
 // - srcAddr: it will be set to the address of the outgoing interface
 // - timeToLive
 //
-class IPv6ControlInfo
+class IPv6ControlInfo extends cMessage
 {
     properties:
         omitGetVerb=true;

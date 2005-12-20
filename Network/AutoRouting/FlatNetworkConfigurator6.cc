@@ -59,6 +59,13 @@ void FlatNetworkConfigurator6::initialize(int stage)
 
             // find interface table and assign address to all (non-loopback) interfaces
             cModule *mod = topo.node(i)->module();
+
+            // only assign address when it is a router. host can
+            // obtain addresses through mannual address configuration
+            // or auto address configuration
+            if (mod->submodule("networkLayer")->par("IPForward").boolValue() == false)
+              continue;
+
             InterfaceTable *ift = IPAddressResolver().interfaceTableOf(mod);
 
             for (unsigned int k = 0; k < ift->numInterfaces(); k++)

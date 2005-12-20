@@ -29,8 +29,9 @@ class DynamicBRLoader : public cSimpleModule
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, std::string dest) {}
-
+    virtual void createModule(std::string src) {}
+    virtual int numInitStages() const  {return 3;}
+    
     int numNodes;
 };
 
@@ -41,7 +42,8 @@ class DynamicIPv6CBRLoader : public DynamicBRLoader
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, std::string dest);
+    virtual void createModule(std::string src);
+    
 };
 
 

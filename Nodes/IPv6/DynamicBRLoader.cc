@@ -38,19 +38,36 @@ void DynamicIPv6CBRLoader::initialize(int stage)
 {
   DynamicBRLoader::initialize(stage);
 
-  for (int i = 0; i < numNodes; i++)
+  if (stage == 0)
   {
-    std::stringstream src, dest;
-    src << "node_" << i << "A";
-    dest << "node_" << i << "B";
+    for (int i = 0; i < numNodes; i++)
+    {      
+      std::stringstream peerA, peerB;
+      peerA << "node_" << i << "A";
+      peerB << "node_" << i << "B";
 
-    // create communicating peers
-    createModule(src.str(), dest.str());
-    createModule(dest.str(), src.str());    
+      // create communicating peers
+      createModule(peerA.str());
+      createModule(peerB.str());    
+    }
+  }
+  else if (stage == 2)
+  {
+    for (int i = 0; i < numNodes; i++)
+    {      
+      std::stringstream peerA, peerB;
+      peerA << "node_" << i << "A";
+      peerB << "node_" << i << "B";
+
+      simulation.systemModule()->submodule(peerA.str().c_str())->
+        submodule("brSrcModel")->par("destAddr") = peerB.str().c_str();
+      simulation.systemModule()->submodule(peerB.str().c_str())->
+        submodule("brSrcModel")->par("destAddr") = peerA.str().c_str();
+    }
   }
 }
 
-void DynamicIPv6CBRLoader::createModule(std::string src, std::string dest)
+void DynamicIPv6CBRLoader::createModule(std::string src)
 {
   cModuleType *moduleType = findModuleType("WirelessIPv6TestNode");
 
@@ -58,11 +75,11 @@ void DynamicIPv6CBRLoader::createModule(std::string src, std::string dest)
   cModule* peer = moduleType->create(src.c_str(), parentModule());
 
   // TODO: pretty bad.. these positions are only for MIPv6NetworkSimulMove2.xml only
-  posX << intuniform(190, 440);
+  posX << intuniform(130, 510);
   if ( src.find("A") != std::string::npos )
-    posY << intuniform(40, 240);  
+    posY << intuniform(20, 260);  
   else if ( src.find("B") != std::string::npos )
-    posY << intuniform(390, 610); 
+    posY << intuniform(370, 630); 
 
   cDisplayString peerdisp;
   peerdisp.setTagArg("p", 0, posX.str().c_str());
@@ -79,5 +96,4 @@ void DynamicIPv6CBRLoader::createModule(std::string src, std::string dest)
   peer->submodule("brSrcModel")->par("tStart") = par("tStart");
   peer->submodule("brSrcModel")->par("bitRate") = par("bitRate");
   peer->submodule("brSrcModel")->par("fragmentLen") =par("fragmentLen");
-  peer->submodule("brSrcModel")->par("destAddr") = dest.c_str();
 }

@@ -257,7 +257,7 @@ module MIPv6NetworkSimulMove2
             display: "p=612,164;i=block/users";
         configurator6: FlatNetworkConfigurator6;
             parameters:
-                moduleTypes = "Router6 MobileNode UDPNode",
+                moduleTypes = "Router6 MobileNode UDPNode WirelessIPv6TestNode",
                 nonIPModuleTypes = "AccessPoint ";
             display: "p=612,92;i=block/cogwheel";
     connections nocheck:

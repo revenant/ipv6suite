@@ -49,7 +49,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
     // since topology may depend on them.
     std::vector<std::string> nonIPTypes = cStringTokenizer(par("nonIPModuleTypes"), " ").asVector();
 
-    if (stage == 1)
+    if (stage == 2)
     {
         for (int i = 0; i < topo.nodes(); i++)
         {
@@ -104,7 +104,7 @@ void FlatNetworkConfigurator6::initialize(int stage)
         }
     }
 
-    if (stage != 2)
+    if (stage != 3)
         return;
 
     int numIPNodes = 0;

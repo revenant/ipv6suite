@@ -130,39 +130,6 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   std::fill(rtrSolicited, rtrSolicited + ift->numInterfaceGates(), false);
 
 
-#ifdef USE_MOBILITY
-  //GD: Do we want to check for Link-Layer triggers?
-
-  // Copied from MIPv6 NDStateHost
-  for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
-  {
-    InterfaceEntry *ie = ift->interfaceByPortNo(i);
-
-    if (ie->_linkMod->className() == std::string("WirelessEtherModule"))
-    {
-      WirelessEtherModule* wlanMod =
-        static_cast<WirelessEtherModule*>(ie->_linkMod);
-
-      assert(wlanMod != 0);
-
-      //We can make a subclass fo this type and add ifIndex as part of the
-      //message so movementDetected knows which iface has changed.  Although
-      //this is more useful for multihomed hosts for now just assume first iface
-      //is mobile
-// GD Hack: replaces MIPv6 specific trigger (works, but not tested with MIPv6)
-#if 0
-      wlanMod->setLayer2Trigger(new cTTimerMessageCBA<cTimerMessage, void>
-                                (Tmr_L2Trigger, mod, makeCallback
-                                 (this, &NDStateHost::TriggerCallback),
-                                 ///Should pass this tmr as the argument
-                                 //to callback as default arg of 0
-                                 "Tmr_L2Trigger"));
-#endif
-    }
-  }
-
-#endif //USE_MOBILITY
-
   nd->scheduleAt(0,
                  new cTTimerMessage<void, NDStateHost>
                  (Ctrl_NodeInitialise, static_cast<NDStateHost*>(this),
@@ -1069,7 +1036,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
              <<nd->simTime());
         rt->assignAddress(addrObj, ifIndex);
       }
-      else 
+      else
         detectDupAddress(ifIndex, addrObj);
       }
 #ifdef USE_MOBILITY

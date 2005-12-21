@@ -109,7 +109,8 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule *mod, WESi
 
             if ( mod->linkUpTrigger() )
             {
-              assert(mod->getLayer2Trigger() && !mod->getLayer2Trigger()->isScheduled());
+              assert ( mod->getLayer2Trigger() );
+              assert ( !mod->getLayer2Trigger()->isScheduled() );
               mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
               Dout(dc::mipv6 | dc::mobile_move,
                    mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));

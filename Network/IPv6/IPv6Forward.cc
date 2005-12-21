@@ -187,12 +187,13 @@ void IPv6Forward::endService(cMessage* theMsg)
          <<simTime()<<" received packet from "<<datagram->srcAddress()
          <<" dest="<<datagram->destAddress());
 
+    IPv6Datagram* copy = datagram->dup();
+
     //This condition can occur when upper layer originates packets without
     //specifying a src address destined for a multicast destination or local
     //destination so the packet is missing the src address. This is a bit
     //dodgy but the only other solution would be to enforce the app layer to
     //choose a src address.
-    IPv6Datagram* copy = datagram->dup();
     if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
         datagram->inputPort() == -1)
       copy->setSrcAddress(ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0]);

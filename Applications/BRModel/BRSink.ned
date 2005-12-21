@@ -22,6 +22,8 @@
 // for each individual source it receives from.
 //
 simple BRSink
+    parameters:
+        recordStats: bool;
     gates:
         in: brIn;
 endsimple

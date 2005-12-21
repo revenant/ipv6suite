@@ -260,7 +260,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
                                    ///Should pass this tmr as the argument
                                    //to callback as default arg of 0
                                    "Tmr_L2Trigger"));
-    }    
+    }
   }
 
   assert(rt->mipv6cds != 0);
@@ -561,7 +561,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 
   if (!mipv6cdsMN->currentRouter())
   {
-    if (rt->cds->defaultRouter().lock()->state() == NeighbourEntry::INCOMPLETE 
+    if (rt->cds->defaultRouter().lock()->state() == NeighbourEntry::INCOMPLETE
         && rt->cds->routerCount() == 2)
     {
         Dout(dc::mipv6, " hack to get starting away from home working");
@@ -881,7 +881,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
       missedTmr->cancel();
     else if (!missedTmr)
     {
-      //cout<<"Where is missedTmr "<<nd->simTime()<<" tmr "<<tmr<<endl; 
+      //cout<<"Where is missedTmr "<<nd->simTime()<<" tmr "<<tmr<<endl;
     }
   }
 
@@ -1222,7 +1222,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
     //rt->cds->removePrefixEntry((*it));
     PrefixEntry* ppe = rt->cds->getPrefixEntry(IPv6Address(*it));
     assert(ppe);
-    
+
     rt->removePrefixEntry(ppe);
     it = oldRtr->prefixes.erase(it);
 
@@ -1389,6 +1389,12 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 
   IPv6Datagram* tunPacket =
     check_and_cast<IPv6Datagram*>(dgram->encapsulatedMsg());
+
+
+  // could be an ICMPv6 message sent to MN's HoA
+  if (tunPacket->transportProtocol() == IP_PROT_IPv6_ICMP )
+    return;
+
 
   // check if the BU has already been created
 

@@ -96,6 +96,9 @@ void FlatNetworkConfigurator6::initialize(int stage)
                     {
                         // add in global address
                         ie->ipv6()->tentativeAddrs.push_back(IPv6Address(addr, 64));
+                        ev << "tentative global address, "<< IPv6Address(addr, 64) 
+                           <<" assigned to "<< mod->name() 
+                           << ", interface ID: "<< ie->outputPort() << "\n";
                     }
 
                     if (!linkLocalAddrAssigned)
@@ -105,6 +108,10 @@ void FlatNetworkConfigurator6::initialize(int stage)
                         linklocalAddr.extreme = 0xfe800000;
                         linklocalAddr.high = 0x0;
                         ie->ipv6()->tentativeAddrs.push_back(IPv6Address(linklocalAddr, 128));
+
+                        ev << "link local address, "<< IPv6Address(linklocalAddr, 128) 
+                           <<" assigned to "<< mod->name() 
+                           << ", interface ID: "<< ie->outputPort() << "\n";
                     }
                 }
             }

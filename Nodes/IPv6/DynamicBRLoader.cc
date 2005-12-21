@@ -75,7 +75,7 @@ void DynamicIPv6CBRLoader::createModule(std::string src)
   cModule* peer = moduleType->create(src.c_str(), parentModule());
 
   // TODO: pretty bad.. these positions are only for MIPv6NetworkSimulMove2.xml only
-  posX << intuniform(130, 510);
+  posX << intuniform(130, 430);
   if ( src.find("A") != std::string::npos )
     posY << intuniform(20, 260);  
   else if ( src.find("B") != std::string::npos )

@@ -39,7 +39,14 @@ cMessage* IPv6CBRSrcModel::createControlInfo(BRMsg*)
   ctrlInfo->setProtocol(IP_PROT_UDP);
   ctrlInfo->setTimeToLive(64);
 
-  IPvXAddress destAddr = IPAddressResolver().resolve(par("destAddr"));
+
+
+  IPvXAddress destAddr;
+  if (destAddr.tryParse(par("destAddr")))
+    destAddr.set(par("destAddr"));
+  else
+    destAddr = IPAddressResolver().resolve(par("destAddr"));
+  
   ASSERT(!destAddr.isNull());
   ctrlInfo->setDestAddr(destAddr.get6());
 

@@ -29,15 +29,17 @@ module MIPv6NetworkSimulMove2
     submodules:
         worldProcessor: WorldProcessor;
             display: "p=540,88;i=misc/sun";
-        mn1: MobileNode;
+        mn1: WirelessIPv6TestNode;
             parameters:
+                brModelType = "IPv6CBRSrcModel",
                 IPForward = false;
             gatesizes:
                 wlin[1],
                 wlout[1];
             display: "p=110,55;i=laptop3";
-        mn2: MobileNode;
+        mn2: WirelessIPv6TestNode;
             parameters:
+                brModelType = "IPv6CBRSrcModel",
                 IPForward = false;
             gatesizes:
                 wlin[1],

@@ -60,6 +60,8 @@ class BRSink : public cSimpleModule
     void updateList(BRMsg *msg);
     void updateStreamListEntry(BRStreamListIt it, BRMsg* msg);
     void newStreamListEntry(std::string srcName);
+
+    bool recordStats;
 };
 
 

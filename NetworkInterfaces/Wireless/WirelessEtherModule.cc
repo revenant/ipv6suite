@@ -413,17 +413,19 @@ void WirelessEtherModule::readConfiguration()
 
     if (!apMode)
     {
-        if (!addr.empty())
-            address.set(addr.c_str());
-        // Only want to initialise the MN mac address once otherwise routing tables
-        // are wrong if we generate another random number from the stream
-        else if (address == MACAddress6())
-        {
-            MAC_address macAddr;
-            macAddr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-            macAddr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
-            address.set(macAddr);
-        }
+      if (!addr.empty())
+        address.set(addr.c_str());
+      // Only want to initialise the MN mac address once otherwise routing tables
+      // are wrong if we generate another random number from the stream
+      else if (address == MACAddress6())
+      {
+        MAC_address macAddr;
+        macAddr.high = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+        macAddr.low = OPP_Global::generateInterfaceId() & 0xFFFFFF;
+        address.set(macAddr);
+      }
+
+      par("address") = address;
     }
 
     bWRequirements = par("bandwidthRequirements");

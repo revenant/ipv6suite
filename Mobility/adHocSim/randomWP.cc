@@ -48,12 +48,12 @@ double RandomWP::randomWaypoint(double& x, double& y)
 
         //define new <x,y>
         x = (x + dX) ;
-        x = x > maxX ? maxX : x;
-        x = x < minX ? minX : x;
+        x = x > maxX ? minX : x;
+        x = x < minX ? maxX : x;
 
         y = (y + dY);
-        y = y > maxY ? maxY : y;
-        y = y < minY ? minY : y;
+        y = y > maxY ? minY : y;
+        y = y < minY ? maxY : y;
 
 
         //do not go outside the map

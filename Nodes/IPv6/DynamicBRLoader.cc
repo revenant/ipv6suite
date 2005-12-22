@@ -34,6 +34,14 @@ void DynamicBRLoader::initialize(int stage)
   maxY = par("rangeMaxY");
   srcPrefix = par("srcPrefix").stringValue();
   destPrefix = par("destPrefix").stringValue();  
+
+  for (int i = 0; i < numNodes; i++)
+  {     
+    Position pos;
+    pos.x = intuniform(minX, maxX);
+    pos.y = intuniform(minY, maxY);
+    positions.push_back(pos);
+  }
 }
 
 ///////////
@@ -50,8 +58,7 @@ void DynamicIPv6CBRLoader::initialize(int stage)
     {      
       std::stringstream src, dest;
       src << srcPrefix << i;
-
-      createModule(src.str(), minX, minY, maxX, maxY);
+      createModule(src.str(), positions[i]);
     }
   }
   else if (stage == 2)
@@ -68,15 +75,15 @@ void DynamicIPv6CBRLoader::initialize(int stage)
   }
 }
 
-void DynamicIPv6CBRLoader::createModule(std::string src, int minx, int miny, int maxx, int maxy)
+void DynamicIPv6CBRLoader::createModule(std::string src, Position pos)
 {
   cModuleType *moduleType = findModuleType("WirelessIPv6TestNode");
 
   std::stringstream posX, posY;
   cModule* peer = moduleType->create(src.c_str(), parentModule());
 
-  posX << intuniform(minx, maxx);
-  posY << intuniform(miny, maxy); 
+  posX << pos.x;
+  posY << pos.y; 
 
   cDisplayString peerdisp;
   peerdisp.setTagArg("p", 0, posX.str().c_str());

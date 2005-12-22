@@ -22,6 +22,12 @@
 
 #include <omnetpp.h>
 
+struct Position
+{
+  int x;
+  int y;
+};
+
 class DynamicBRLoader : public cSimpleModule
 {
   public:
@@ -29,13 +35,14 @@ class DynamicBRLoader : public cSimpleModule
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, int minx, int miny, int maxx, int maxy) {}
+    virtual void createModule(std::string src, Position pos) {}
     virtual int numInitStages() const  {return 3;}
     
     int numNodes;
     std::string srcPrefix;
     std::string destPrefix;
     int minX, minY, maxX, maxY;
+    std::vector<Position> positions;
 };
 
 class DynamicIPv6CBRLoader : public DynamicBRLoader
@@ -45,7 +52,7 @@ class DynamicIPv6CBRLoader : public DynamicBRLoader
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, int minx, int miny, int maxx, int maxy);
+    virtual void createModule(std::string src, Position pos);
     
 };
 

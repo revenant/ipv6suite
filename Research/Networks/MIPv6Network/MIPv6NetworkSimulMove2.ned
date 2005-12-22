@@ -255,8 +255,6 @@ module MIPv6NetworkSimulMove2
                 in[1],
                 out[1];
             display: "p=410,586;i=switch1_s";
-        loadGenerator: DynamicIPv6CBRLoader;
-            display: "p=612,164;i=block/users";
         configurator6: FlatNetworkConfigurator6;
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode WirelessIPv6TestNode",

@@ -28,6 +28,12 @@ Define_Module(DynamicBRLoader);
 void DynamicBRLoader::initialize(int stage)
 {
   numNodes = par("numNodes");
+  minX = par("rangeMinX");
+  minY = par("rangeMinY");
+  maxX = par("rangeMaxX");
+  maxY = par("rangeMaxY");
+  srcPrefix = par("srcPrefix").stringValue();
+  destPrefix = par("destPrefix").stringValue();  
 }
 
 ///////////
@@ -42,44 +48,35 @@ void DynamicIPv6CBRLoader::initialize(int stage)
   {
     for (int i = 0; i < numNodes; i++)
     {      
-      std::stringstream peerA, peerB;
-      peerA << "node_" << i << "A";
-      peerB << "node_" << i << "B";
+      std::stringstream src, dest;
+      src << srcPrefix << i;
 
-      // create communicating peers
-      createModule(peerA.str());
-      createModule(peerB.str());    
+      createModule(src.str(), minX, minY, maxX, maxY);
     }
   }
   else if (stage == 2)
   {
     for (int i = 0; i < numNodes; i++)
     {      
-      std::stringstream peerA, peerB;
-      peerA << "node_" << i << "A";
-      peerB << "node_" << i << "B";
+      std::stringstream src, dest;
+      src << srcPrefix << i;
+      dest << destPrefix << i;
 
-      simulation.systemModule()->submodule(peerA.str().c_str())->
-        submodule("brSrcModel")->par("destAddr") = peerB.str().c_str();
-      simulation.systemModule()->submodule(peerB.str().c_str())->
-        submodule("brSrcModel")->par("destAddr") = peerA.str().c_str();
+      simulation.systemModule()->submodule(src.str().c_str())->
+        submodule("brSrcModel")->par("destAddr") = dest.str().c_str();
     }
   }
 }
 
-void DynamicIPv6CBRLoader::createModule(std::string src)
+void DynamicIPv6CBRLoader::createModule(std::string src, int minx, int miny, int maxx, int maxy)
 {
   cModuleType *moduleType = findModuleType("WirelessIPv6TestNode");
 
   std::stringstream posX, posY;
   cModule* peer = moduleType->create(src.c_str(), parentModule());
 
-  // TODO: pretty bad.. these positions are only for MIPv6NetworkSimulMove2.xml only
-  posX << intuniform(130, 430);
-  if ( src.find("A") != std::string::npos )
-    posY << intuniform(20, 260);  
-  else if ( src.find("B") != std::string::npos )
-    posY << intuniform(370, 630); 
+  posX << intuniform(minx, maxx);
+  posY << intuniform(miny, maxy); 
 
   cDisplayString peerdisp;
   peerdisp.setTagArg("p", 0, posX.str().c_str());

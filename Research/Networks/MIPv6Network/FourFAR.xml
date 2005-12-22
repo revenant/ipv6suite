@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf>
+<!--  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="CellResidency" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off" ewuOutVectorHODelays="on"> -->
+  <local node="mn1" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="on"> 
+    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
+      <inetAddr>3001:0:0:1:aabb:ccff:fedd:ee01/64</inetAddr>
+    </interface>
+  </local>
+<!--  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="CellResidency" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off" ewuOutVectorHODelays="on"> -->
+  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="off">
+    <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
+      <inetAddr>3002:0:0:3:aabb:ccff:fedd:ee02/64</inetAddr>
+    </interface>
+  </local>
+
+<!-- routing table configuration -->
+  <local node="coreRouter1" routePackets="on" />
+  <local node="coreRouter2" routePackets="on" />
+
+  <local node="router1" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3001:0:0:1:7eef:81ff:fe7a:ec2/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:1:7eef:81ff:fe7a:ec2/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router2" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3002:0:0:3:90eb:67ff:fef2:dfcf/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:3:90eb:67ff:fef2:dfcf/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="ppp0">
+      <inetAddr>3002:0:0:3:a84d:d43f:5d2b:9544/64</inetAddr>
+    </interface>
+  </local>
+  <local node="router3" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3001:0:0:2:1685:72ff:fed8:ae94/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:2:1685:72ff:fed8:ae94/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router4" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3002:0:0:2:d008:dbff:fea0:2a3f/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:2:d008:dbff:fea0:2a3f/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router5" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3001:0:0:3:acd6:a2ff:fe26:f349/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:3:acd6:a2ff:fe26:f349/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router6" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3001:0:0:8:2a3a:29ff:fe28:e6a4/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:8:2a3a:29ff:fe28:e6a4/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router7" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3001:0:0:4:9600:fdff:fe49:1484/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:4:9600:fdff:fe49:1484/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router8" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3002:0:0:4:1b74:6bff:fe14:cc47/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:4:1b74:6bff:fe14:cc47/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router9" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3001:0:0:5:6a85:75ff:fefa:bd4/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:5:6a85:75ff:fefa:bd4/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+  <local node="router10" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3002:0:0:5:345e:74ff:fe59:a0bc/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:5:345e:74ff:fe59:a0bc/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+<!-- miscellaneous configuration -->
+  <misc>
+    <ObjectMovement>
+      <RandomMovement RWNodeName="mn1"
+       RWMinX="165"
+       RWMaxX="325"
+       RWMinY="135"
+       RWMaxY="312"
+       RWMoveInterval="0.1"
+       RWMinSpeed="5"
+       RWMaxSpeed="5.9"
+       RWDistance="100"
+       RWStartTime="25"
+       RWPauseTime="0"/>
+      <RandomMovement RWNodeName="mn2"
+       RWMinX="600"
+       RWMaxX="760"
+       RWMinY="165"
+       RWMaxY="325"
+       RWMoveInterval="0.1"
+       RWMinSpeed="0"
+       RWMaxSpeed="0.9"
+       RWDistance="100"
+       RWStartTime="25"
+       RWPauseTime="0"/>
+    </ObjectMovement>
+  </misc>
+</netconf>

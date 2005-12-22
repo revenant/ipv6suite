@@ -25,12 +25,24 @@
 //
 simple DynamicBRLoader
     parameters:
-        numNodes: numeric;
+        numNodes: numeric,
+	srcPrefix: string,
+	destPrefix: string,
+	rangeMinX: numeric,
+	rangeMinY: numeric,
+	rangeMaxX: numeric,
+	rangeMaxY: numeric;
 endsimple
 
 simple DynamicIPv6CBRLoader
     parameters:
         numNodes: numeric,
+	srcPrefix: string,
+	destPrefix: string,
+	rangeMinX: numeric,
+	rangeMinY: numeric,
+	rangeMaxX: numeric,
+	rangeMaxY: numeric,
 
 	msgType: numeric,	// msg type
 	tStart: numeric const,	// time to start

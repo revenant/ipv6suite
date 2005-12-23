@@ -121,15 +121,20 @@ public:
         bule->problem = true;
         bule->state = 0;
         if (mipv6cdsMN->primaryHA()->addr() == dgram->destAddress())
-          cerr<<nodeName<<" Waiting for bind ack failed for primary homeAgent "<<
-            dgram->destAddress()<<".  No more BUs will be sent What to do?\n";
-        Dout(dc::warning|dc::notice|dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()<<" timeout="<<timeout
-             <<" > MAX_BINDACKK_TIMEOUT="<<MAX_BINDACK_TIMEOUT<<" for homeAgent "
-             <<dgram->destAddress()<<".  "<<
-             " (we can send at this rate continually)");
-        //stateMN->removeBURetranTmr(this);
-        //return;
+        {
+          cerr<< " **************************************** " << endl;
+          cerr<< nodeName <<" at " << module()->simTime() 
+              << " sec, MAX_BINDACK_TIMEOUT! Unable to receive BACK from HA "<< endl << endl;
+          cerr<<" Suggestion: check Router IPv6 address and advertising prefix in XML" << endl << endl;
+          cerr<< " **************************************** " << endl;
+        }
+        
+        stateMN->removeBURetranTmr(this, (IPv6Mobility*) mod);
+        return;
       }
+
+      std::cout << mod->name() << ", at " <<  mod->simTime() << " sec, transmit BU with CoA: "
+                << mipv6cdsMN->careOfAddr() << ", next timeout: "<< timeout << endl;
 
       //Update binding entry with this retransmission
       bu_entry* bule = mipv6cdsMN->findBU(dgram->destAddress());
@@ -515,7 +520,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility*
 
       if ( mob->isEwuOutVectorHODelays() )
       {
-        assert( dgram->timestamp() ); 
+        assert( dgram->timestamp() );
         bue->regDelay->record(now - dgram->timestamp() );
       }
     }
@@ -844,7 +849,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
   {
     // successful transmission when the signaling packets via direct
     // route reach to the destination first time
-    if ( isDirectRoute && 
+    if ( isDirectRoute &&
          bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT)
       bule->setTestSuccess(testMsg->header_type());
 
@@ -898,7 +903,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram, I
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
 
-    bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);  
+    bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);
     bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
     bule->isPerformingRR = false;
   }
@@ -909,7 +914,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       IPv6Mobility* mob)
 {
   OPP_Global::ContextSwitcher switchContext(mob);
-  
+
   std::vector<ipv6_addr> addrs(2);
   addrs[0] = dest;
   addrs[1] = coa;
@@ -917,7 +922,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   // for signaling enhancement schemes, we need one more address just
   // to obtain binding update list entry for the cn with its home
   // address
-  if ( mob->signalingEnhance() != None )  
+  if ( mob->signalingEnhance() != None )
   {
     addrs.resize(3);
     addrs[2] = dest; // dest is currently cn's hoa
@@ -964,7 +969,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   bule->isPerformingRR = true;
 
   simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
-  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;  
+  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
 
   /*** SIGNALING ENHANCEMENT SCHEMES ***/
 
@@ -977,7 +982,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   else if ( mob->signalingEnhance() == CellResidency )
   {
     boost::weak_ptr<bc_entry> bce = mipv6cdsMN->findBinding(dest);
-    
+
     if(bce.lock()) // when CN is also mobile
     {
       simtime_t elapsedTime = mob->simTime() - bce.lock()->buArrivalTime;
@@ -1001,18 +1006,18 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
         bule->incDirSignalCount();
       }
     }
-    else 
+    else
     {
       assert(bce.lock());
 
       double probSuccess = (double)bule->successDirSignalCount() / bule->dirSignalCount();
-      
+
       bool dirSignalDecider = ( probSuccess >= uniform(0,1) );
-      
+
       if ( dirSignalDecider )
       {
         addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
-        bule->incDirSignalCount();        
+        bule->incDirSignalCount();
       }
       // we are facing high rate of signaling loss, fall back to
       // indirect signaling
@@ -1069,7 +1074,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs,  IPv6Mo
 
   bule->increaseHotiTimeout();
 
-  if (mob->signalingEnhance() != None && 
+  if (mob->signalingEnhance() != None &&
       bule->testInitTimeout(MIPv6MHT_HoTI) != INITIAL_BINDACK_TIMEOUT)
   {
     // only if the dest is CN's CoA, we then revert this address back
@@ -1142,7 +1147,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mob
 
   bule->increaseCotiTimeout();
 
-  if (mob->signalingEnhance() != None && 
+  if (mob->signalingEnhance() != None &&
       bule->testInitTimeout(MIPv6MHT_CoTI) != INITIAL_BINDACK_TIMEOUT)
   {
     // only if the dest is CN's CoA, we then revert this address back
@@ -1480,7 +1485,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 
-  if (homeReg 
+  if (homeReg
 #ifdef USE_HMIP
       || mapReg
 #endif //USE_HMIP

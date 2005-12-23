@@ -80,7 +80,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEther
         return idle;
     }
 
-    if (mod->frameSource == idle->sourceName())
+   if (mod->frameSource == idle->sourceName())
     {
         assert(mod->inputFrame);
 

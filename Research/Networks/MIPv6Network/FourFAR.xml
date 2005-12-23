@@ -11,7 +11,7 @@
 <!--  <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="CellResidency" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="off" earlyBU="off" ewuOutVectorHODelays="on"> -->
   <local node="mn2" mobileIPv6Support="on" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" earlyBU="off" ewuOutVectorHODelays="off">
     <interface name="wlan0" HostDupAddrDetectTransmits="0" HostMaxRtrSolDelay="0">
-      <inetAddr>3002:0:0:3:aabb:ccff:fedd:ee02/64</inetAddr>
+      <inetAddr>3002:0:0:1:aabb:ccff:fedd:ee02/64</inetAddr>
     </interface>
   </local>
 
@@ -29,13 +29,10 @@
   </local>
   <local node="router2" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
     <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on">
-      <inetAddr>3002:0:0:3:90eb:67ff:fef2:dfcf/64</inetAddr>
+      <inetAddr>3002:0:0:1:90eb:67ff:fef2:dfcf/64</inetAddr>
       <AdvPrefixList>
-	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:3:90eb:67ff:fef2:dfcf/64</AdvPrefix>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:1:90eb:67ff:fef2:dfcf/64</AdvPrefix>
       </AdvPrefixList>
-    </interface>
-    <interface name="ppp0">
-      <inetAddr>3002:0:0:3:a84d:d43f:5d2b:9544/64</inetAddr>
     </interface>
   </local>
   <local node="router3" routePackets="on" mobileIPv6Support="on">
@@ -64,9 +61,9 @@
   </local>
   <local node="router6" routePackets="on" mobileIPv6Support="on">
     <interface name="eth0" AdvSendAdvertisements="on">
-      <inetAddr>3001:0:0:8:2a3a:29ff:fe28:e6a4/64</inetAddr>
+      <inetAddr>3002:0:0:3:2a3a:29ff:fe28:e6a4/64</inetAddr>
       <AdvPrefixList>
-	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3001:0:0:8:2a3a:29ff:fe28:e6a4/64</AdvPrefix>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:3:2a3a:29ff:fe28:e6a4/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
   </local>

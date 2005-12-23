@@ -302,6 +302,7 @@ void WirelessEtherModule::initialize(int stage)
 
         channel = 0;
         WATCH(channel);
+        WATCH(noOfRxFrames);
 
         associateAP.address = MAC_ADDRESS_UNSPECIFIED_STRUCT;
         associateAP.channel = INVALID_CHANNEL;
@@ -660,7 +661,7 @@ void WirelessEtherModule::setLayer2Trigger(cTimerMessage * trig, enum TrigVals v
     l2Trigger[v] = trig;
 
     // dc::wireless_ethernet.precision(6);
-    wEV << "Set Layer 2 Trigger: (WIRELESS) " << fullPath() << " #: " << v << "\n";;
+    wEV << "Set Layer 2 Trigger: (WIRELESS) " << fullPath() << " #: " << v << "\n";
 
 }
 

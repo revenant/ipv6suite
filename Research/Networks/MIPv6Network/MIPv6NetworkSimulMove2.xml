@@ -66,9 +66,6 @@
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3002:0:0:3:90eb:67ff:fef2:dfcf/64</AdvPrefix>
       </AdvPrefixList>
     </interface>
-    <interface name="ppp0">
-      <inetAddr>3002:0:0:3:a84d:d43f:5d2b:9544/64</inetAddr>
-    </interface>
   </local>
   <local node="router7" routePackets="on" mobileIPv6Support="on">
     <interface name="eth0" AdvSendAdvertisements="on">

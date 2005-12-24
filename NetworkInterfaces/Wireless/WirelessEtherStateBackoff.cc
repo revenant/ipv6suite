@@ -123,7 +123,12 @@ void WirelessEtherStateBackoff::readyToSend(WirelessEtherModule *mod)
 
     // Calculate tx time
     double d = (double) frame->length();
-    simtime_t transmTime = d / BASE_SPEED;
+
+    simtime_t transmTime;
+    if (frame->getFrameControl().type == FT_DATA)
+       transmTime = d / mod->getDataRate();
+    else
+       transmTime = d / BASE_SPEED;
 
     // tx time should not be smaller than a slot
     assert(transmTime > SLOTTIME);

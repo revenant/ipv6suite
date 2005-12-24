@@ -23,6 +23,10 @@
 #include <sstream>
 #include <string>
 
+const double SERVCE_INITIATION = 5.0;
+const double SERVCE_INITIATION_COMPLETE = 5.0;
+const int CREATE_RATE = 1;
+
 Define_Module(DynamicBRLoader);
 
 void DynamicBRLoader::initialize(int stage)
@@ -52,52 +56,71 @@ void DynamicIPv6CBRLoader::initialize(int stage)
 {
   DynamicBRLoader::initialize(stage);
 
-  if (stage == 0)
-  {
-    for (int i = 0; i < numNodes; i++)
-    {      
-      std::stringstream src, dest;
-      src << srcPrefix << i;
-      createModule(src.str(), positions[i]);
-    }
-  }
-  else if (stage == 2)
-  {
-    for (int i = 0; i < numNodes; i++)
-    {      
-      std::stringstream src, dest;
-      src << srcPrefix << i;
-      dest << destPrefix << i;
+  index = 0;
+  parameterMessage = new cMessage;  
 
-      simulation.systemModule()->submodule(src.str().c_str())->
-        submodule("brSrcModel")->par("destAddr") = dest.str().c_str();
-    }
-  }
+  // start operating one node/sec to avoid heavy congestions due to
+  // IEEE 802.11 active scanning by many nodes in one time
+  scheduleAt(index, parameterMessage);
 }
 
-void DynamicIPv6CBRLoader::createModule(std::string src, Position pos)
+void DynamicIPv6CBRLoader::handleMessage(cMessage* msg)
+{
+  std::stringstream src, dest;
+  src << srcPrefix << index;
+  dest << destPrefix << index;
+
+  cModule* module = createModule(src.str(), positions[index]);  
+  module->submodule("brSrcModel")->par("destAddr") = dest.str().c_str();
+  module->scheduleStart(simTime());
+  module->callInitialize();
+
+  index++;
+  
+  if ( index < numNodes )
+  {
+    scheduleAt(index*CREATE_RATE, msg);
+    return;
+  }
+
+  // all modes are created, clear temporary use of memory
+  positions.clear();
+  delete msg;
+}
+
+cModule* DynamicIPv6CBRLoader::createModule(std::string src, Position pos)
 {
   cModuleType *moduleType = findModuleType("WirelessIPv6TestNode");
 
   std::stringstream posX, posY;
-  cModule* peer = moduleType->create(src.c_str(), parentModule());
+  cModule* node = moduleType->create(src.c_str(),parentModule());
 
   posX << pos.x;
   posY << pos.y; 
 
-  cDisplayString peerdisp;
-  peerdisp.setTagArg("p", 0, posX.str().c_str());
-  peerdisp.setTagArg("p", 1, posY.str().c_str());
-  peerdisp.setTagArg("i", 0, "old/ball2_s");
+  cDisplayString nodedisp;
+  nodedisp.setTagArg("p", 0, posX.str().c_str());
+  nodedisp.setTagArg("p", 1, posY.str().c_str());
+  nodedisp.setTagArg("i", 0, "old/ball2_s");
 
-  peer->setDisplayString(peerdisp.getString());
-  peer->par("brModelType") = "IPv6CBRSrcModel";
-  peer->setGateSize("wlin", 1);
-  peer->setGateSize("wlout", 1);
+  node->setDisplayString(nodedisp.getString());
+  node->par("brModelType") = "IPv6CBRSrcModel";
+  node->setGateSize("wlin", 1);
+  node->setGateSize("wlout", 1);
 
-  peer->buildInside();
-  peer->submodule("brSrcModel")->par("msgType") = par("msgType");
-  peer->submodule("brSrcModel")->par("tStart") = par("tStart");
-  peer->submodule("brSrcModel")->par("bitRate") = par("bitRate");
-  peer->submodule("brSrcModel")->par("fragmentLen") =par("fragmentLen");
+  node->buildInside();
+  node->submodule("brSrcModel")->par("msgType") = par("msgType");
+  node->submodule("brSrcModel")->par("bitRate") = par("bitRate");
+  node->submodule("brSrcModel")->par("fragmentLen") =par("fragmentLen");
+
+  // This is a load generator, we don't need to make tStart a
+  // configurable parameter. Service starts some time after the module
+  // has been created to allow the node is connected to the network
+  // (e.g. IEEE 802.11)
+  simtime_t rndBegin = SERVCE_INITIATION + numNodes * CREATE_RATE;
+  simtime_t rndEnd = rndBegin + SERVCE_INITIATION_COMPLETE;
+  simtime_t tStart = uniform( rndBegin, rndEnd );
+  node->submodule("brSrcModel")->par("tStart") = tStart;
+
+  return node;
 }

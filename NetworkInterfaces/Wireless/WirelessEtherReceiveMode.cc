@@ -141,21 +141,20 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule *mod)
             WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
             if (frame->getAppType() == AC_BE)
             {
-                // BASE_SPEED can be substituted for AP to MS tx BW
-                apMod->durationBE += (double) frame->length() / BASE_SPEED + successOhDurationBE;
-                apMod->durationDataBE += (double) frame->length() / BASE_SPEED;
+                apMod->durationBE += (double) frame->length() / apMod->getDataRate() + apMod->successOhDurationBE();
+                apMod->durationDataBE += (double) frame->length() / apMod->getDataRate();
                 apMod->TxDataBWBE += (double) frame->length() / 1000000;
             }
             else if (frame->getAppType() == AC_VI)
             {
-                apMod->durationVI += (double) frame->length() / BASE_SPEED + successOhDurationVI;
-                apMod->durationDataVI += (double) frame->length() / BASE_SPEED;
+                apMod->durationVI += (double) frame->length() / apMod->getDataRate() + apMod->successOhDurationVI();
+                apMod->durationDataVI += (double) frame->length() / apMod->getDataRate();
                 apMod->TxDataBWVI += (double) frame->length() / 1000000;
             }
             else
             {
-                apMod->durationVO += (double) frame->length() / BASE_SPEED + successOhDurationVO;
-                apMod->durationDataVO += (double) frame->length() / BASE_SPEED;
+                apMod->durationVO += (double) frame->length() / apMod->getDataRate() + apMod->successOhDurationVO();
+                apMod->durationDataVO += (double) frame->length() / apMod->getDataRate();
                 apMod->TxDataBWVO += (double) frame->length() / 1000000;
             }
 

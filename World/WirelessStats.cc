@@ -38,8 +38,8 @@ void WirelessStats::initialize()
 {
     // XXX A bit of a hack
     //BASE_SPEED is in wirelessEthernet.h/cc unit
-    BASE_SPEED = int(par("wlan_speed").doubleValue() * 1000 * 1000);
-    Dout(dc::notice, " 802.11b wlan is at rate of "<<BASE_SPEED<<" bps");
+//    BASE_SPEED = int(par("wlan_speed").doubleValue() * 1000 * 1000);
+    Dout(dc::notice, " 802.11b wlan is at rate of "<<par("wlan_speed").longValue()<<" bps");
 
     balanceIndexVec.setName("balanceIndex");
 
@@ -80,7 +80,7 @@ void WirelessStats::updateStats()
       if (std::string(linkLayer->par("NWIName")) == "WirelessAccessPoint")
       {
         WirelessAccessPoint* a = static_cast<WirelessAccessPoint*>(linkLayer->submodule("networkInterface"));
-        usedBW = (BASE_SPEED/(1024*1024))-a->getEstAvailBW();
+        usedBW = (par("wlan_speed").longValue()/1000000)-a->getEstAvailBW();
         loadSum += usedBW;
         loadSquaredSum += usedBW*usedBW;
         n++;

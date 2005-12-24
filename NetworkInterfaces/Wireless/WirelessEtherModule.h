@@ -140,6 +140,11 @@ class WirelessEtherModule : public LinkLayerModule
     void reset(void);
 
     // attributes
+    int getDataRate(void){ return dataRate; }
+
+    const double successOhDurationBE() {return _successOhDurationBE;}
+    const double successOhDurationVI() {return _successOhDurationVI;};
+    const double successOhDurationVO() {return _successOhDurationVO;};
 
     int getChannel(void){ return channel; }
     double getPower(void) { return txpower; } // mW
@@ -179,6 +184,7 @@ class WirelessEtherModule : public LinkLayerModule
     WirelessEtherState* currentState() const { return _currentState; }
     WEReceiveMode* currentReceiveMode() const { return _currentReceiveMode; }
     void changeState(WirelessEtherState* state) { _currentState = state; }
+    void changeReceiveMode(WEReceiveMode* mode);
 
     void scanNextChannel(void);
     void sendSuccessSignal(void);
@@ -264,6 +270,7 @@ class WirelessEtherModule : public LinkLayerModule
     // configuration
     //
     MACAddress6 address;
+    int dataRate;
     bool apMode;
     bool adhocMode;
     std::string ssid;
@@ -290,6 +297,10 @@ class WirelessEtherModule : public LinkLayerModule
     unsigned int bufferSize;
     bool regInterface;
     double errorRate;
+
+    double _successOhDurationBE;
+    double _successOhDurationVI;
+    double _successOhDurationVO;
 
     //
     // state information and statistics
@@ -512,8 +523,6 @@ class WirelessEtherModule : public LinkLayerModule
       bool valid;
       APInfo target;
     } handoverTarget;
-
-    ReceiveMode receiveMode;
 
     // temporaroy access point list during the scan process
     AccessPointList tempAPList;

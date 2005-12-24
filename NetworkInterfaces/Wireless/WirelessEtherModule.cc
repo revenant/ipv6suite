@@ -302,7 +302,6 @@ void WirelessEtherModule::initialize(int stage)
 
         channel = 0;
         WATCH(channel);
-        WATCH(noOfRxFrames);
 
         associateAP.address = MAC_ADDRESS_UNSPECIFIED_STRUCT;
         associateAP.channel = INVALID_CHANNEL;
@@ -336,12 +335,12 @@ void WirelessEtherModule::initialize(int stage)
         // perform active scanning..
         if (activeScan)
         {
-            _currentReceiveMode = WEAScanReceiveMode::instance();
+            changeReceiveMode(WEAScanReceiveMode::instance());
             scheduleAt(simTime() + randomStart, prbEnergyScanNotifier);
         }
         else
         {
-            _currentReceiveMode = WEPScanReceiveMode::instance();
+            changeReceiveMode(WEPScanReceiveMode::instance());
             scheduleAt(simTime() + randomStart, channelScanNotifier);
         }
 
@@ -392,6 +391,7 @@ void WirelessEtherModule::finish()
 void WirelessEtherModule::readConfiguration()
 {
     // XXX this code was created from  XMLOmnetParser::parseWEInfo() --AV
+    dataRate = par("dataRate");
     ssid = par("ssid").stringValue();
     pLExp = par("pathLossExponent");
     pLStdDev = par("pathLossStdDev");
@@ -411,6 +411,10 @@ void WirelessEtherModule::readConfiguration()
     sSMaxSample = par("signalStrengthMaxSample");
 
     std::string addr = par("address").stringValue();
+
+    _successOhDurationBE = SIFS + ACKLENGTH / dataRate + collOhDurationBE;
+    _successOhDurationVI = SIFS + ACKLENGTH / dataRate + collOhDurationVI;
+    _successOhDurationVO = SIFS + ACKLENGTH / dataRate + collOhDurationVO;
 
     if (!apMode)
     {
@@ -587,10 +591,10 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
             static_cast<WirelessEtherStateIdle *>(_currentState)->chkOutputBuffer(this);
     }
     else
-        // Note that since no association with an AP exists in DataReceiveMode,
-        // there will be no address for the AP destination. Hence, this should
-        // be filled in before sending.  It should be added in address1.
-        offlineOutputBuffer.push_back(frame);
+      // Note that since no association with an AP exists in DataReceiveMode,
+      // there will be no address for the AP destination. Hence, this should
+      // be filled in before sending.  It should be added in address1.
+      offlineOutputBuffer.push_back(frame);
 }
 
 void WirelessEtherModule::handleMessage(cMessage *msg)
@@ -936,7 +940,7 @@ void WirelessEtherModule::startMonitorMode(void)
     associateAP.channel = INVALID_CHANNEL;
     associateAP.rxpower = INVALID_POWER;
     associateAP.associated = false;
-    _currentReceiveMode = WEMonitorReceiveMode::instance();
+    changeReceiveMode(WEMonitorReceiveMode::instance());
     changeState(WirelessEtherStateIdle::instance());
 
     // flush input and output buffer
@@ -1027,7 +1031,7 @@ void WirelessEtherModule::restartScanning(void)
 
     if (activeScan)
     {
-        _currentReceiveMode = WEAScanReceiveMode::instance();
+        changeReceiveMode(WEAScanReceiveMode::instance());
         nextSchedTime += SELF_SCHEDULE_DELAY;
         assert(!prbEnergyScanNotifier->isScheduled());
         wEV << currentTime() << " " << fullPath() << " Scheduled time for active scan is: " << nextSchedTime << "\n";
@@ -1035,7 +1039,7 @@ void WirelessEtherModule::restartScanning(void)
     }
     else
     {
-        _currentReceiveMode = WEPScanReceiveMode::instance();
+        changeReceiveMode(WEPScanReceiveMode::instance());
         nextSchedTime += SELF_SCHEDULE_DELAY;
         assert(!channelScanNotifier->isScheduled());
         wEV << currentTime() << " " << fullPath() << " Scheduled time for passive scan is: " << nextSchedTime << "\n";
@@ -1215,7 +1219,7 @@ void WirelessEtherModule::probeChannel(void)
                      << " operating channel: " << associateAP.channel << "\n"
                      << " ---------------------------------------------------- \n";
 
-                _currentReceiveMode = WEAuthenticationReceiveMode::instance();
+                changeReceiveMode(WEAuthenticationReceiveMode::instance());
                 assert(_currentState == WirelessEtherStateIdle::instance());
 
                 channel = associateAP.channel;
@@ -1340,7 +1344,7 @@ void WirelessEtherModule::passiveChannelScan(void)
                      << " operating channel: " << associateAP.channel << "\n"
                      << " ---------------------------------------------------- \n";
 
-                _currentReceiveMode = WEAuthenticationReceiveMode::instance();
+                changeReceiveMode(WEAuthenticationReceiveMode::instance());
                 assert(_currentState == WirelessEtherStateIdle::instance());
 
                 channel = associateAP.channel;
@@ -1898,6 +1902,12 @@ void WirelessEtherModule::updateStats(void)
     // reschedule next update
     scheduleAt(simTime() + statsUpdatePeriod, updateStatsTimer);
 }
+
+void WirelessEtherModule::changeReceiveMode(WEReceiveMode* mode)
+{
+  _currentReceiveMode = mode;
+}
+
 
 #if L2FUZZYHO                   // (Layer 2 fuzzy logic handover)
 double WirelessEtherModule::calculateHOValue(double rxpower, double ap_avail_bw, double bw_req)

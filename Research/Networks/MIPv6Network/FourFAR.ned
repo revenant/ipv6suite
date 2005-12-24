@@ -156,9 +156,13 @@ module FourFAR
                 out[1];
             display: "p=290,188;i=device/accesspoint_s";
         loadGenerator1: DynamicIPv6CBRLoader;
-            display: "p=284,60;i=block/users";
+            display: "p=188,44;i=block/users";
         loadGenerator2: DynamicIPv6CBRLoader;
-            display: "p=604,52;i=block/users";
+            display: "p=676,44;i=block/users";
+        homeloadGenerator1: DynamicIPv6CBRLoader;
+            display: "p=68,380;i=block/users";
+        homeloadGenerator2: DynamicIPv6CBRLoader;
+            display: "p=780,380;i=block/users";
         configurator6: FlatNetworkConfigurator6;
             parameters:
                 moduleTypes = "Router6 MobileNode UDPNode WirelessIPv6TestNode",

@@ -227,8 +227,7 @@ void WEDataReceiveMode::handleDisAssociation(WirelessEtherModule *mod, WESignalD
         if (mod->associateAP.address == disAssociation->getAddress3())
         {
             mod->associateAP.associated = false;
-
-            mod->_currentReceiveMode = WEAuthenticationReceiveMode::instance();
+            mod->changeReceiveMode(WEAuthenticationReceiveMode::instance());
             // may need to initiate association again or re-scan
         }
 

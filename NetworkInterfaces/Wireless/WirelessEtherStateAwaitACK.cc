@@ -119,13 +119,13 @@ void WirelessEtherStateAwaitACK::endAwaitACK(WirelessEtherModule *mod)
     {
         WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
         if (apMod->outputQueue->getQueueType() == AC_VO)
-            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationVO);
+            apMod->avgCollDurationStat->collect((double) frame->length() / apMod->getDataRate() + collOhDurationVO);
         else if (mod->outputQueue->getQueueType() == AC_VI)
-            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationVI);
+            apMod->avgCollDurationStat->collect((double) frame->length() / apMod->getDataRate() + collOhDurationVI);
         else
         {
-            apMod->collDurationBE += (double) frame->length() / BASE_SPEED + collOhDurationBE;
-            apMod->avgCollDurationStat->collect((double) frame->length() / BASE_SPEED + collOhDurationBE);
+            apMod->collDurationBE += (double) frame->length() / apMod->getDataRate() + collOhDurationBE;
+            apMod->avgCollDurationStat->collect((double) frame->length() / apMod->getDataRate() + collOhDurationBE);
         }
 
     }

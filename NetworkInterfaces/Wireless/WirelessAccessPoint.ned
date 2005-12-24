@@ -43,6 +43,7 @@ simple WirelessAccessPoint
         channelsNotToScan: string,
         signalStrengthMaxSample: numeric const,
         address: string,
+	dataRate: numeric,
         bandwidthRequirements: numeric const,
         recordStatisticVector: bool,
         activeScan: bool,

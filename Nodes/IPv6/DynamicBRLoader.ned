@@ -45,7 +45,6 @@ simple DynamicIPv6CBRLoader
 	rangeMaxY: numeric,
 
 	msgType: numeric,	// msg type
-	tStart: numeric const,	// time to start
 	bitRate: numeric,	// bit rate to achieve (bits/s)
 	fragmentLen: numeric;	// fragment length (bytes)
 endsimple

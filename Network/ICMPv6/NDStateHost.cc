@@ -130,7 +130,7 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   std::fill(rtrSolicited, rtrSolicited + ift->numInterfaceGates(), false);
 
 
-  nd->scheduleAt(0,
+  nd->scheduleAt(nd->simTime(),
                  new cTTimerMessage<void, NDStateHost>
                  (Ctrl_NodeInitialise, static_cast<NDStateHost*>(this),
                   &NDStateHost::nodeInitialise, "InitialiseNode"));

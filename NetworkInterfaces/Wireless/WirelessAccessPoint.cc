@@ -188,7 +188,7 @@ void WirelessAccessPoint::initialize(int stage)
         durationDataVI = 0;
         durationDataVO = 0;
 
-        estAvailBW = BASE_SPEED / (1000000);
+        estAvailBW = dataRate / (1000000);
         estAvailBWVec = new cOutVector("estAvailBW");
 
         avgCollDurationVec = new cOutVector("avgCollDurationVec");
@@ -738,11 +738,10 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
     double frameSizeVI = 6000, frameSizeVO = 1580;
     double frameRateVI = 27, frameRateVO = 43;
 
-    // Can substitute BASE_SPEED for different rates
-    double typDurVI = (frameSizeVI / BASE_SPEED) + successOhDurationVI;
-    double typDurVO = (frameSizeVO / BASE_SPEED) + successOhDurationVO;
-    double typBWVI = ((frameSizeVI / BASE_SPEED) + successOhDurationVI) * frameRateVI * BASE_SPEED / 1000000;
-    double typBWVO = ((frameSizeVO / BASE_SPEED) + successOhDurationVO) * frameRateVO * BASE_SPEED / 1000000;
+    double typDurVI = (frameSizeVI / dataRate) + _successOhDurationVI;
+    double typDurVO = (frameSizeVO / dataRate) + _successOhDurationVO;
+    double typBWVI = ((frameSizeVI / dataRate) + _successOhDurationVI) * frameRateVI * dataRate / 1000000;
+    double typBWVO = ((frameSizeVO / dataRate) + _successOhDurationVO) * frameRateVO * dataRate / 1000000;
 
     // Set probTx values for extra VI and VO
     /*for(msit=mStats.begin(); msit!=mStats.end(); msit++)
@@ -823,11 +822,11 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
         // totalProbSuccessVO += (*msit)->probSuccessfulTxVO;
 
         if ((*msit)->appType == AC_VO)
-            duration = (*msit)->avgFrameSize / BASE_SPEED + successOhDurationVO;
+            duration = (*msit)->avgFrameSize / dataRate + _successOhDurationVO;
         else if ((*msit)->appType == AC_VI)
-            duration = (*msit)->avgFrameSize / BASE_SPEED + successOhDurationVI;
+            duration = (*msit)->avgFrameSize / dataRate + _successOhDurationVI;
         else
-            duration = (*msit)->avgFrameSize / BASE_SPEED + successOhDurationBE;
+            duration = (*msit)->avgFrameSize / dataRate + _successOhDurationBE;
 
         successDuration += (*msit)->probSuccessfulTx * duration;
         // successDurationVI += (*msit)->probSuccessfulTxVI*duration;
@@ -839,42 +838,42 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
     probSuccessBE = probTxBE * probSlotIdle / (1 - probTxBE);
     probSuccess += probSuccessBE;
     successDuration +=
-        probSuccessBE * ((double) outputQueue->getAvgFrameSize(AC_BE) / BASE_SPEED + successOhDurationBE);
+        probSuccessBE * ((double) outputQueue->getAvgFrameSize(AC_BE) / dataRate + _successOhDurationBE);
     successBits += probSuccessBE * ((double) outputQueue->getAvgFrameSize(AC_BE));
 
     probSuccessVI = probTxVI * probSlotIdle / (1 - probTxVI);
     probSuccess += probSuccessVI;
     successDuration +=
-        probSuccessVI * ((double) outputQueue->getAvgFrameSize(AC_VI) / BASE_SPEED + successOhDurationVI);
+        probSuccessVI * ((double) outputQueue->getAvgFrameSize(AC_VI) / dataRate + _successOhDurationVI);
     successBits += probSuccessVI * ((double) outputQueue->getAvgFrameSize(AC_VI));
 
     probSuccessVO = probTxVO * probSlotIdle / (1 - probTxVO);
     probSuccess += probSuccessVO;
     successDuration +=
-        probSuccessVO * ((double) outputQueue->getAvgFrameSize(AC_VO) / BASE_SPEED + successOhDurationVO);
+        probSuccessVO * ((double) outputQueue->getAvgFrameSize(AC_VO) / dataRate + _successOhDurationVO);
     successBits += probSuccessVO * ((double) outputQueue->getAvgFrameSize(AC_VO));
 
     // Calculate probSuccess and successDuration for extra VO and VI predictions
     /*double probSuccessBEVI = probTxBE*probSlotIdleVI/(1-probTxBE);
        totalProbSuccessVI += probSuccessBEVI;
-       successDurationVI += probSuccessBEVI*((double)outputQueue->getAvgFrameSize(AC_BE)/BASE_SPEED + successOhDurationBE);
+       successDurationVI += probSuccessBEVI*((double)outputQueue->getAvgFrameSize(AC_BE)/dataRate + successOhDurationBE);
        double probSuccessBEVO = probTxBE*probSlotIdleVO/(1-probTxBE);
        totalProbSuccessVO += probSuccessBEVO;
-       successDurationVO += probSuccessBEVO*((double)outputQueue->getAvgFrameSize(AC_BE)/BASE_SPEED + successOhDurationBE);
+       successDurationVO += probSuccessBEVO*((double)outputQueue->getAvgFrameSize(AC_BE)/dataRate + successOhDurationBE);
 
        double probSuccessVIVI = probTxVI*probSlotIdleVI/(1-probTxVI);
        totalProbSuccessVI += probSuccessVIVI;
-       successDurationVI += probSuccessVIVI*((double)outputQueue->getAvgFrameSize(AC_VI)/BASE_SPEED + successOhDurationVI);
+       successDurationVI += probSuccessVIVI*((double)outputQueue->getAvgFrameSize(AC_VI)/dataRate + successOhDurationVI);
        double probSuccessVIVO = probTxVI*probSlotIdleVO/(1-probTxVI);
        totalProbSuccessVO += probSuccessVIVO;
-       successDurationVO += probSuccessVIVO*((double)outputQueue->getAvgFrameSize(AC_VI)/BASE_SPEED + successOhDurationVI);
+       successDurationVO += probSuccessVIVO*((double)outputQueue->getAvgFrameSize(AC_VI)/dataRate + successOhDurationVI);
 
        double probSuccessVOVI = probTxVO*probSlotIdleVI/(1-probTxVO);
        totalProbSuccessVI += probSuccessVOVI;
-       successDurationVI += probSuccessVOVI*((double)outputQueue->getAvgFrameSize(AC_VO)/BASE_SPEED + successOhDurationVO);
+       successDurationVI += probSuccessVOVI*((double)outputQueue->getAvgFrameSize(AC_VO)/dataRate + successOhDurationVO);
        double probSuccessVOVO = probTxVO*probSlotIdleVO/(1-probTxVO);
        totalProbSuccessVO += probSuccessVOVO;
-       successDurationVO += probSuccessVOVO*((double)outputQueue->getAvgFrameSize(AC_VO)/BASE_SPEED + successOhDurationVO);
+       successDurationVO += probSuccessVOVO*((double)outputQueue->getAvgFrameSize(AC_VO)/dataRate + successOhDurationVO);
 
        probOfSuccessVI = probOfTxVI*probSlotIdleVI/(1-probOfTxVI);
        totalProbSuccessVI += probOfSuccessVI;
@@ -906,15 +905,15 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
     if (denom > 0)
     {
         double occupiedBW =
-            ((successDuration + probCollision * avgCollDurationStat->mean()) / denom) * BASE_SPEED / 1000000;
+            ((successDuration + probCollision * avgCollDurationStat->mean()) / denom) * dataRate / 1000000;
 
         // Idle bandwidth with saturation offset
-        double idleBW = ((probSlotIdle * SLOTTIME / denom) * BASE_SPEED / 1000000) - 0.15;
+        double idleBW = ((probSlotIdle * SLOTTIME / denom) * dataRate / 1000000) - 0.15;
         if (idleBW < 0)
             idleBW = 0;
 
         double durationBW =
-            (currentDurationBE + currentDurationVI + currentDurationVO) * BASE_SPEED / 1000000;
+            (currentDurationBE + currentDurationVI + currentDurationVO) * dataRate / 1000000;
         double collisionBW = occupiedBW - durationBW;
         if (collisionBW < 0)
             collisionBW = 0;
@@ -931,14 +930,14 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
         oneVI = predUsedBWVI + predCollBWVI;
         oneVO = predUsedBWVO + predCollBWVO;
 
-        newNoOfVI = (int)(((idleBW+(currentDurationBE+currentCollDurationBE)*BASE_SPEED/1000000)/oneVI)*0.6 + newNoOfVI*0.4);
-        newNoOfVO = (int)(((idleBW+(currentDurationBE+currentCollDurationBE)*BASE_SPEED/1000000)/oneVO)*0.6 + newNoOfVO*0.4);
+        newNoOfVI = (int)(((idleBW+(currentDurationBE+currentCollDurationBE)*dataRate/1000000)/oneVI)*0.6 + newNoOfVI*0.4);
+        newNoOfVO = (int)(((idleBW+(currentDurationBE+currentCollDurationBE)*dataRate/1000000)/oneVO)*0.6 + newNoOfVO*0.4);
         // Bandwidth and overhead incured by adding one VI MS
-        // oneVI = (collDiffVI/denom)*BASE_SPEED/1000000 + 2*typBWVI;
+        // oneVI = (collDiffVI/denom)*dataRate/1000000 + 2*typBWVI;
         // Bandwidth and overhead incured by adding one VO MS
-        // oneVO = (collDiffVO/denom)*BASE_SPEED/1000000 + 2*typBWVO;
-        // oneVI = ((probSlotIdle*SLOTTIME/denom)-(probSlotIdleVI*SLOTTIME/denomVI))*BASE_SPEED/1000000;
-        // oneVO = ((probSlotIdle*SLOTTIME/denom)-(probSlotIdleVO*SLOTTIME/denomVO))*BASE_SPEED/1000000;
+        // oneVO = (collDiffVO/denom)*dataRate/1000000 + 2*typBWVO;
+        // oneVI = ((probSlotIdle*SLOTTIME/denom)-(probSlotIdleVI*SLOTTIME/denomVI))*dataRate/1000000;
+        // oneVO = ((probSlotIdle*SLOTTIME/denom)-(probSlotIdleVO*SLOTTIME/denomVO))*dataRate/1000000;
 
         /*if((probOfTxVO == 1)&&(probOfTxVI == 1))
            {
@@ -1026,9 +1025,9 @@ void WirelessAccessPoint::updateStats(void)
         avgTxDataBWVI->collect(TxDataBWVI / statsUpdatePeriod);
         avgTxDataBWVO->collect(TxDataBWVO / statsUpdatePeriod);
 
-        avgDataBWBE->collect(durationDataBE * BASE_SPEED / 1000000);
-        avgDataBWVI->collect(durationDataVI * BASE_SPEED / 1000000);
-        avgDataBWVO->collect(durationDataVO * BASE_SPEED / 1000000);
+        avgDataBWBE->collect(durationDataBE * dataRate / 1000000);
+        avgDataBWVI->collect(durationDataVI * dataRate / 1000000);
+        avgDataBWVO->collect(durationDataVO * dataRate / 1000000);
     }
 
     RxDataBWBE = 0;

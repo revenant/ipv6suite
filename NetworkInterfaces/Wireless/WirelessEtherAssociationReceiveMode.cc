@@ -148,9 +148,9 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule *mod, 
             mod->associateAP.rxpower = INVALID_POWER;
             mod->associateAP.associated = false;
             if (mod->activeScan)
-                mod->_currentReceiveMode = WEAScanReceiveMode::instance();
+                mod->changeReceiveMode(WEAScanReceiveMode::instance());
             else
-                mod->_currentReceiveMode = WEPScanReceiveMode::instance();
+                mod->changeReceiveMode(WEPScanReceiveMode::instance());
             // TODO: call the function inside the WAScanReceiveMode
         }
     }
@@ -197,7 +197,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
             mod->associateAP.channel = signal->channelNum();
             mod->associateAP.rxpower = signal->power();
             mod->associateAP.associated = true;
-            mod->_currentReceiveMode = WEDataReceiveMode::instance();
+	    mod->changeReceiveMode(WEDataReceiveMode::instance());
             mod->makeOfflineBufferAvailable();
             mod->handoverTarget.valid = false;
 
@@ -278,7 +278,7 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule *
             mod->associateAP.channel = signal->channelNum();
             mod->associateAP.rxpower = signal->power();
             mod->associateAP.associated = true;
-            mod->_currentReceiveMode = WEDataReceiveMode::instance();
+            mod->changeReceiveMode(WEDataReceiveMode::instance());
             mod->makeOfflineBufferAvailable();
         }
 

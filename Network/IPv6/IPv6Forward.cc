@@ -625,8 +625,8 @@ void IPv6Forward::endService(cMessage* theMsg)
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(vIfIndex);
       send(copy, "tunnelEntry");
-      datagram.release(); // XXX take over the ownership from auto_ptr
-      return;  // XXX CRASH CRASH,  STILL CRASH AT DELETEING DATAGRAM
+//      delete datagram.release(); // XXX take over the ownership from auto_ptr
+      return;  
     }
 
 // }}}

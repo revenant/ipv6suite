@@ -133,9 +133,6 @@ public:
         return;
       }
 
-      std::cout << mod->name() << ", at " <<  mod->simTime() << " sec, transmit BU with CoA: "
-                << mipv6cdsMN->careOfAddr() << ", next timeout: "<< timeout << endl;
-
       //Update binding entry with this retransmission
       bu_entry* bule = mipv6cdsMN->findBU(dgram->destAddress());
       if (!bule)

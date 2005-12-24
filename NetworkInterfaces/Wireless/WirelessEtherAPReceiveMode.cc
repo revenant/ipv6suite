@@ -437,21 +437,20 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
             apMod->RxDataBWStat += (double) data->length() / 1000000;
             if (data->getAppType() == AC_BE)
             {
-                // BASE_SPEED can be substituted for MS to AP tx BW
-                apMod->durationBE += (double) data->length() / BASE_SPEED + successOhDurationBE;
-                apMod->durationDataBE += (double) data->length() / BASE_SPEED;
+                apMod->durationBE += (double) data->length() / apMod->getDataRate() + apMod->successOhDurationBE();
+                apMod->durationDataBE += (double) data->length() / apMod->getDataRate();
                 apMod->RxDataBWBE += (double) data->length() / 1000000;
             }
             else if (data->getAppType() == AC_VI)
             {
-                apMod->durationVI += (double) data->length() / BASE_SPEED + successOhDurationVI;
-                apMod->durationDataVI += (double) data->length() / BASE_SPEED;
+                apMod->durationVI += (double) data->length() / apMod->getDataRate() + apMod->successOhDurationVI();
+                apMod->durationDataVI += (double) data->length() / apMod->getDataRate();
                 apMod->RxDataBWVI += (double) data->length() / 1000000;
             }
             else
             {
-                apMod->durationVO += (double) data->length() / BASE_SPEED + successOhDurationVO;
-                apMod->durationDataVO += (double) data->length() / BASE_SPEED;
+                apMod->durationVO += (double) data->length() / apMod->getDataRate() + apMod->successOhDurationVO();
+                apMod->durationDataVO += (double) data->length() / apMod->getDataRate();
                 apMod->RxDataBWVO += (double) data->length() / 1000000;
             }
             apMod->usedBW.sampleTotal += (data->length() / 1000000);

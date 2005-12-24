@@ -53,8 +53,6 @@ extern const double DIFS; // 50 us; Distributed Interframe Space
 extern const double ACKLENGTH; // 112 bits
 extern const int MAX_CHANNELS; // 16 frequency bands in wireless LAN
 
-extern double BASE_SPEED; // pbs; for control/management frames
-
 // specific 802.11 message kind, message name
 extern const int TMR_PRBENERGYSCAN;
 extern const int WIRELESS_SELF_AWAITMAC;
@@ -96,9 +94,8 @@ extern const short WE_MAX_PAYLOAD_BYTES;
 extern const double collOhDurationBE;
 extern const double collOhDurationVI;
 extern const double collOhDurationVO;
-extern const double successOhDurationBE;
-extern const double successOhDurationVI;
-extern const double successOhDurationVO;
+
+extern const int BASE_SPEED;
 
 //Receive mode
 enum ReceiveMode

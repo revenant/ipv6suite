@@ -41,8 +41,6 @@ const double ACKLENGTH = 112;
 
 const double TU = 0.001024;
 
-double BASE_SPEED = 2 * 1000000;        // 11 * 1000 * 1000 bps
-
 const int MAX_CHANNELS = 16;
 
 const int TMR_PRBENERGYSCAN = 3001;
@@ -84,6 +82,5 @@ const short WE_MAX_PAYLOAD_BYTES = 2312;
 const double collOhDurationBE = 7 * SLOTTIME + SIFS;
 const double collOhDurationVI = 4 * SLOTTIME + SIFS;
 const double collOhDurationVO = 2 * SLOTTIME + SIFS;
-const double successOhDurationBE = SIFS + ACKLENGTH / BASE_SPEED + collOhDurationBE;
-const double successOhDurationVI = SIFS + ACKLENGTH / BASE_SPEED + collOhDurationVI;
-const double successOhDurationVO = SIFS + ACKLENGTH / BASE_SPEED + collOhDurationVO;
+
+const int BASE_SPEED = 1000000; 

@@ -28,6 +28,10 @@ struct Position
   int y;
 };
 
+extern const double SERVCE_INITIATION;
+extern const double SERVCE_INITIATION_COMPLETE;
+extern const int CREATE_RATE; // time/module
+
 class DynamicBRLoader : public cSimpleModule
 {
   public:
@@ -35,8 +39,7 @@ class DynamicBRLoader : public cSimpleModule
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, Position pos) {}
-    virtual int numInitStages() const  {return 3;}
+    virtual cModule* createModule(std::string src, Position pos) {return 0;}
     
     int numNodes;
     std::string srcPrefix;
@@ -52,8 +55,12 @@ class DynamicIPv6CBRLoader : public DynamicBRLoader
 
   protected:
     virtual void initialize(int stage);
-    virtual void createModule(std::string src, Position pos);
-    
+    virtual cModule* createModule(std::string src, Position pos);
+    virtual void handleMessage(cMessage* msg);
+
+ private:
+    int index;
+    cMessage* parameterMessage;
 };
 
 

@@ -82,7 +82,7 @@ void WEAuthenticationReceiveMode::handleAuthentication(WirelessEtherModule *mod,
             mod->associateAP.channel = signal->channelNum();
             mod->associateAP.rxpower = signal->power();
             mod->associateAP.associated = false;
-            mod->_currentReceiveMode = WEAssociationReceiveMode::instance();
+            mod->changeReceiveMode(WEAssociationReceiveMode::instance());
 
             // send ACK to confirm the transmission has been sucessful
             WirelessEtherBasicFrame *ack = mod->createFrame(FT_CONTROL, ST_ACK,

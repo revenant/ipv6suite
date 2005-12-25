@@ -108,8 +108,8 @@
        RWMinY="135"
        RWMaxY="312"
        RWMoveInterval="0.1"
-       RWMinSpeed="5"
-       RWMaxSpeed="5.9"
+       RWMinSpeed="10.1"
+       RWMaxSpeed="11"
        RWDistance="100"
        RWStartTime="50"
        RWPauseTime="0"/>
@@ -119,10 +119,10 @@
        RWMinY="165"
        RWMaxY="325"
        RWMoveInterval="0.1"
-       RWMinSpeed="0"
-       RWMaxSpeed="0.9"
+       RWMinSpeed="10.1"
+       RWMaxSpeed="11"
        RWDistance="100"
-       RWStartTime="50"
+       RWStartTime="55"
        RWPauseTime="0"/>
     </ObjectMovement>
   </misc>

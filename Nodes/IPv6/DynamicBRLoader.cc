@@ -32,6 +32,9 @@ Define_Module(DynamicBRLoader);
 void DynamicBRLoader::initialize(int stage)
 {
   numNodes = par("numNodes");
+  if ( numNodes == 0 )
+    return;
+
   minX = par("rangeMinX");
   minY = par("rangeMinY");
   maxX = par("rangeMaxX");
@@ -39,22 +42,22 @@ void DynamicBRLoader::initialize(int stage)
   srcPrefix = par("srcPrefix").stringValue();
   destPrefix = par("destPrefix").stringValue();  
 
+  // random number generations to make sure same values are generated
+  // for different source code compliations
   for (int i = 0; i < numNodes; i++)
   {     
     Position pos;
     pos.x = intuniform(minX, maxX);
     pos.y = intuniform(minY, maxY);
     positions.push_back(pos);
+
+    // Service starts some time after the module has been created to
+    // allow the node is connected to the network (e.g. IEEE 802.11)
+    simtime_t rndBegin = SERVCE_INITIATION + numNodes * CREATE_RATE;
+    simtime_t rndEnd = rndBegin + SERVCE_INITIATION_COMPLETE;
+    simtime_t tStart = uniform( rndBegin, rndEnd );
+    startTimes.push_back(tStart);
   }
-}
-
-///////////
-
-Define_Module(DynamicIPv6CBRLoader);
-
-void DynamicIPv6CBRLoader::initialize(int stage)
-{
-  DynamicBRLoader::initialize(stage);
 
   index = 0;
   parameterMessage = new cMessage;  
@@ -64,6 +67,10 @@ void DynamicIPv6CBRLoader::initialize(int stage)
   scheduleAt(index, parameterMessage);
 }
 
+///////////
+
+Define_Module(DynamicIPv6CBRLoader);
+
 void DynamicIPv6CBRLoader::handleMessage(cMessage* msg)
 {
   std::stringstream src, dest;
@@ -72,6 +79,7 @@ void DynamicIPv6CBRLoader::handleMessage(cMessage* msg)
 
   cModule* module = createModule(src.str(), positions[index]);  
   module->submodule("brSrcModel")->par("destAddr") = dest.str().c_str();
+  module->submodule("brSrcModel")->par("tStart") = startTimes[index];
   module->scheduleStart(simTime());
   module->callInitialize();
 
@@ -83,8 +91,9 @@ void DynamicIPv6CBRLoader::handleMessage(cMessage* msg)
     return;
   }
 
-  // all modes are created, clear temporary use of memory
+  // all nodes are created, clear temporary use of memory
   positions.clear();
+  startTimes.clear();
   delete msg;
 }
 
@@ -102,25 +111,18 @@ cModule* DynamicIPv6CBRLoader::createModule(std::string src, Position pos)
   nodedisp.setTagArg("p", 0, posX.str().c_str());
   nodedisp.setTagArg("p", 1, posY.str().c_str());
   nodedisp.setTagArg("i", 0, "old/ball2_s");
-
   node->setDisplayString(nodedisp.getString());
   node->par("brModelType") = "IPv6CBRSrcModel";
   node->setGateSize("wlin", 1);
   node->setGateSize("wlout", 1);
 
+  // create submodules contained in the node
   node->buildInside();
+
+  // parse parameters into CBR source model
   node->submodule("brSrcModel")->par("msgType") = par("msgType");
   node->submodule("brSrcModel")->par("bitRate") = par("bitRate");
   node->submodule("brSrcModel")->par("fragmentLen") =par("fragmentLen");
-
-  // This is a load generator, we don't need to make tStart a
-  // configurable parameter. Service starts some time after the module
-  // has been created to allow the node is connected to the network
-  // (e.g. IEEE 802.11)
-  simtime_t rndBegin = SERVCE_INITIATION + numNodes * CREATE_RATE;
-  simtime_t rndEnd = rndBegin + SERVCE_INITIATION_COMPLETE;
-  simtime_t tStart = uniform( rndBegin, rndEnd );
-  node->submodule("brSrcModel")->par("tStart") = tStart;
 
   return node;
 }

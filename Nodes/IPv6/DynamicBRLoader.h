@@ -46,6 +46,10 @@ class DynamicBRLoader : public cSimpleModule
     std::string destPrefix;
     int minX, minY, maxX, maxY;
     std::vector<Position> positions;
+    std::vector<simtime_t> startTimes;
+
+    int index;
+    cMessage* parameterMessage;
 };
 
 class DynamicIPv6CBRLoader : public DynamicBRLoader
@@ -54,13 +58,8 @@ class DynamicIPv6CBRLoader : public DynamicBRLoader
     Module_Class_Members(DynamicIPv6CBRLoader, DynamicBRLoader, 0);
 
   protected:
-    virtual void initialize(int stage);
     virtual cModule* createModule(std::string src, Position pos);
     virtual void handleMessage(cMessage* msg);
-
- private:
-    int index;
-    cMessage* parameterMessage;
 };
 
 

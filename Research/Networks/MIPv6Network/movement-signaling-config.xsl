@@ -70,17 +70,17 @@
 
   <xsl:template match="@signalingEnhance">
     <xsl:choose>          
-      <xsl:when test="$signaling='Indir'">
+      <xsl:when test="$signaling='indir'">
        <xsl:attribute name="signalingEnhance">
          <xsl:value-of select="'None'"/>
        </xsl:attribute>
       </xsl:when>
-      <xsl:when test="$signaling='Dir'">
+      <xsl:when test="$signaling='dir'">
        <xsl:attribute name="signalingEnhance">
          <xsl:value-of select="'Direct'"/>
        </xsl:attribute>
       </xsl:when>
-      <xsl:when test="$signaling='Cell'">
+      <xsl:when test="$signaling='cell'">
        <xsl:attribute name="signalingEnhance">
          <xsl:value-of select="'CellResidency'"/>
        </xsl:attribute>

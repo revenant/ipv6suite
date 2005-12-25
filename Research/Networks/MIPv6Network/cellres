@@ -1,0 +1,89 @@
+#! /bin/sh
+
+DEST=${PWD}
+#DEST="${HOME}/data"
+#DEST="/short/ewu/data"
+#DEST="/short_term/ewu/data"
+
+#DURATION="4:00:00"
+
+#Queue=""
+Queue="-q run_12_hours"
+
+if [ $# -ne 6 ]
+then
+  echo ""
+  echo "cellres-load MN CN_MIN CN_MAX SIG RUNS LOAD" 
+  echo " "
+  echo "Description -"
+  echo " "
+  echo "cellres-load copies FourFAR.ini into multiple .ini files,"
+  echo "and creates batches files for each of the scenarios, according"
+  echo "to the MN's speed, ranges of CN speed increments, signaling" 
+  echo "method, and total number of runs. It then runs the simulation"
+  echo "through PBS to distribute the jobs onto available nodes"
+  echo " "
+  echo "Arguments - "
+  echo " "
+  echo "   MN - MN's speed incremet"
+  echo "   CNMIN - CN's minimum speed increment"
+  echo "   CNMAX - CN's maximum speed increment"
+  echo "   SIG - signaling method (indir/dir/cell)"
+  echo "   RUNS - number of runs"
+  echo "   LOAD - number of nodes per access network"
+  echo " "
+  echo "Example - "
+  echo " "
+  echo "multiCNspeed 2 0 9 indir 25 (case sensitive)"
+  echo ""
+  exit 1
+fi
+
+let "numberOfSeeds=${5}"
+
+NODES=`echo "${6} * 4"|bc`
+
+# for loop here
+
+for i in `seq ${2} ${3}`;
+do
+
+SIMNAME=cellres-mn${1}cn${i}${4}-load${6}
+
+xsltproc -o ${SIMNAME}.xml --stringparam signaling ${4} --stringparam mnSpeed ${1} --stringparam cnSpeed ${i} movement-signaling-config.xsl FourFAR.xml
+
+cp FourFAR.ini ${SIMNAME}.ini
+(cd ${DEST}; mkdir ${SIMNAME};)
+
+seedtool g 1 10000000 $numberOfSeeds > seeds.txt
+
+setRun=1
+for seed in `cat seeds.txt`;
+do
+     cat <<EOF >>${SIMNAME}.ini
+[Run ${setRun}]
+**.loadGenerator?.numNodes = ${NODES}
+**.homeloadGenerator?.numNodes = ${6}
+
+fourFAR.*.IPv6routingFile = xmldoc("${SIMNAME}.xml")
+network = fourFAR
+output-vector-file = ${SIMNAME}-run${setRun}.vec
+seed_lcg32 = ${seed}
+include ../../../Etc/default.ini
+EOF
+     cat <<EOF >>${SIMNAME}-run${setRun}
+#! /bin/sh
+#PBS -k n
+#PBS -N M${1}C${i}${4}${setRun}
+#PBS -l walltime=${DURATION}
+$PWD/../../../bin/INET -u Cmdenv -f $PWD/${SIMNAME}.ini -r ${setRun}
+mv $PWD/${SIMNAME}-run${setRun}.vec ${DEST}/${SIMNAME}
+rm ${SIMNAME}.xml
+EOF
+     chmod 744 ${SIMNAME}-run${setRun}
+     qsub ${Queue} ${SIMNAME}-run${setRun}
+     rm ${SIMNAME}-run${setRun}
+     setRun=`expr $setRun + 1`
+done # end runs
+
+done # end CN speed increment

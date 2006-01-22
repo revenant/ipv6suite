@@ -1062,9 +1062,18 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         returnHome();
       }
       else
+        if (!mipv6cdsMN->eagerHandover())
         Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" went back home and"
              <<" no BUL entries so must have never moved i.e. false movement"
              <<" detection from missedRtrAdv not sending BU to HA at all");
+        else
+        {
+          Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" eager handover triggers handover "
+               <<" when no router to a router. At initialisation for no static HA case, this"
+               "happens to first router we use as HA, so we used to try sending a BU to it with coa =="
+               "hoa) fix bug by setting awayFromHome false)");
+          mipv6cdsMN->setAwayFromHome(false);
+        };
     }
     else if (mipv6cdsMN->primaryHA())
     {

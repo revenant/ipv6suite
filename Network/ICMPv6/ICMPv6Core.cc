@@ -429,6 +429,7 @@ void ICMPv6Core::sendEchoRequest(cMessage *msg)
   IPv6ControlInfo *ctrl = check_and_cast<IPv6ControlInfo*>(msg->removeControlInfo());
   ICMPv6Message *request = createICMPv6Message(msg->name(), ICMPv6_ECHO_REQUEST, 0, msg);
   sendToIPv6(request, mkIpv6_addr(ctrl->destAddr()), mkIpv6_addr(ctrl->srcAddr()), ctrl->timeToLive());
+  delete ctrl;
 }
 
 void ICMPv6Core::sendToIPv6(ICMPv6Message *msg, const ipv6_addr& dest,

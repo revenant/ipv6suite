@@ -234,7 +234,7 @@ void PingApp::finish()
     cout << "\t" << fullPath() << endl;
     cout << "--------------------------------------------------------" << endl;
 
-    cout << "sent: " << sendSeqNo
+    cout << "sent: " << (double)sendSeqNo
          << "   drop rate (%): " << (100 * dropCount / (double)sendSeqNo) << endl;
     cout << "round-trip min/avg/max (ms): "
          << (delayStat.min()*1000.0) << "/"

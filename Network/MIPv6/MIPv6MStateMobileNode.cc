@@ -124,7 +124,7 @@ public:
         {
           cerr<< " **************************************** " << endl;
           cerr<< nodeName <<" at " << module()->simTime() 
-              << " sec, MAX_BINDACK_TIMEOUT! Unable to receive BACK from HA "<< endl << endl;
+              << " sec, MAX_BINDACK_TIMEOUT! Unable to receive BAck from HA "<< endl << endl;
           cerr<<" Suggestion: check Router IPv6 address and advertising prefix in XML" << endl << endl;
           cerr<< " **************************************** " << endl;
         }

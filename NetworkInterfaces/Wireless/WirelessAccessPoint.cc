@@ -113,7 +113,7 @@ WirelessAccessPoint::~WirelessAccessPoint()
     delete avgAchievableThroughputVO;
 
     delete predUsedBWVIStat;
-    delete predUsedBWVIStat;
+    delete predUsedBWVOStat;
     delete predCollBWVIStat;
     delete predCollBWVOStat;
 

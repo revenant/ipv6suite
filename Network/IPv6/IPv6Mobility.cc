@@ -141,8 +141,9 @@ void IPv6Mobility::initialize(int stage)
         buVector = new cOutVector("BU sent");
         lbuVector = new cOutVector("LBU sent");
         lbackVector = new cOutVector("LBAck recv");
+        //BU to Bound map
         lbbuVector = new cOutVector("LBBU sent");
-        lbbackVector = new cOutVector("LBBAck sent");
+        lbbackVector = new cOutVector("LBBAck recv");
 #ifdef USE_HMIP
         if (!rt->hmipSupport())
 #endif //USE_HMIP

@@ -562,10 +562,12 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   if (!mipv6cdsMN->currentRouter())
   {
     if (rt->cds->defaultRouter().lock()->state() == NeighbourEntry::INCOMPLETE
-        && rt->cds->routerCount() == 2)
+        && mipv6cdsMN->primaryHA()->re.lock() == rt->cds->defaultRouter().lock()
+        && rt->cds->routerCount() == 2 && bha->re.lock() != rt->cds->defaultRouter().lock())
     {
-        Dout(dc::mipv6, " hack to get starting away from home working");
-        rt->cds->setDefaultRouter(bha->re);
+      //should check on separate variable i.e. mobility's par(homeAgent) != IPv6_ADDR_UNSPECIFIED
+      Dout(dc::mipv6, " hack to get starting away from home working");
+      rt->cds->setDefaultRouter(bha->re);
     }
     if ((mipv6cdsMN->movementDetected() || mipv6cdsMN->eagerHandover()) &&
         mipv6cdsMN->primaryHA())
@@ -795,11 +797,7 @@ void MIPv6NDStateHost::initiateSendRtrSol(unsigned int ifIndex)
 
 void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
 {
-#ifdef USE_HMIP
-  ///Invoked directly by discoverMAP now
-  if (!rt->hmipSupport())
-#endif //USE_HMIP
-    assert(tmr != 0);
+  assert(tmr != 0);
 
   if (mipv6cdsMN->currentRouter())
     mipv6cdsMN->previousDefaultRouter() = mipv6cdsMN->currentRouter();
@@ -811,22 +809,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   if (!ifStats[0].initStarted || !globalAddrAssigned(0))
     return;
 
-  //check what type of message i.e. what mechanism triggered a movement detected
-  //invocation
-  if (!tmr)
-  {
-    ///@note Assuming direct invocation from discoverMAP if tmr == 0
-    Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "<<setprecision(6)
-         <<nd->simTime()<<" MAP algorithm detected movement");
-
-    mipv6cdsMN->setAwayFromHome(true);
-
-    //hmip knows movement is detected based on changing map options. Exception
-    //is detecting first map which may be either at home or foreign
-    //subnet(Always assuming the latter case for now).
-
-  }
-  else if (tmr->kind() == Tmr_RtrAdvMissed)
+  if (tmr->kind() == Tmr_RtrAdvMissed)
   {
     mipv6cdsMN->setMovementDetected(true);
     mipv6cdsMN->setAwayFromHome(true);
@@ -874,7 +857,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     initiateSendRtrSol(ifIndex);
   }
 
-  if (tmr && tmr->kind() != Tmr_RtrAdvMissed || !tmr)
+  if (tmr->kind() != Tmr_RtrAdvMissed)
   {
     //not scheduled when MN moves through no coverage zones
     if (missedTmr && missedTmr->isScheduled())
@@ -906,17 +889,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
       Dout(dc::mipv6|dc::mobile_move|flush_cf, rt->nodeName()
            <<" Detected movement and received rtrAdv from new router already");
 
-#ifdef USE_HMIP
-      ///Invoked directly by discoverMAP now
-      if (rt->hmipSupport())
-        ///@note Assuming direct invocation from discoverMAP if tmr == 0
-        if (!tmr)
-        {
-          relinquishRouter(mipv6cdsMN->currentRouter(), (*mipv6cdsMN->mrl.rbegin()));
-          return;
-        }
-#endif //USE_HMIP
-
       //We'll let the latest MIPv6 Router be the current Router let handover
       //take care of returning home case too.  processRtrAdv can detect that
       //we are returning home firsthand (although in handover is also
@@ -933,20 +905,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     //This case occurs only when we detect movement before a new rtradv received
     else
     {
-      ///Because of the staged manner in which macro to local handover occurs
-      ///through 2 stages i.e. macro depends on L2/missed tmr to elapse and uses
-      ///cached info in mrl for macro handover we may have to wait for second
-      ///RtrAdv before we actually switch to map since it was not cached the
-      ///first time it was received because we did not think we were away from
-      ///home. If we don't return now will kill off our current router. Todo
-      ///remove this limitation and have it store map options always even when
-      ///at home and practice the eager/lazy policy in hmip spec.
-#ifdef USE_HMIP
-      ///Invoked directly by discoverMAP now
-      if (rt->hmipSupport())
-        if (!tmr)
-          return;
-#endif //USE_HMIP
 
       Dout(dc::mobile_move|dc::mipv6|flush_cf, rt->nodeName()
            <<" Moved to foreign subnet and  have not received rtrAds yet. curRtr.prefix="
@@ -974,22 +932,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
     }
     else
     {
-#ifdef USE_HMIP
-      //because hmip defers everything to itself no one sets the currentRouter
-      //when moving to new subnet after moving to a no coverage zone. As a
-      //result the defaultRouter still points to the previous one and nothing
-      //works. So we need to relinquish to new router if invoked from hmip
-      //directly.
-      if (rt->hmipSupport())
-      {
-        if (!tmr && mipv6cdsMN->previousDefaultRouter()->prefix() != (*mipv6cdsMN->mrl.rbegin())->prefix())
-        {
-          relinquishRouter(mipv6cdsMN->currentRouter(), (*mipv6cdsMN->mrl.rbegin()));
-          Dout(dc::hmip, " hmip invoked relinquishRouter from null to "<<(*mipv6cdsMN->mrl.rbegin())->prefix());
-        }
-      }
-      else
-#endif //USE_HMIP
         Dout(dc::notice|dc::mipv6|dc::mobile_move|flush_cf, rt->nodeName()<<" Moved to another "
              <<"subnet and still waiting for new currentRouter");
 

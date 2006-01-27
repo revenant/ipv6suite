@@ -4,7 +4,8 @@
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
   <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
   mobileIPv6Role="MobileNode" routeOptimisation="on"
-  hierarchicalMIPv6Support="on" edgeHandoverType="Timed">
+  hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
+	eagerHandover="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="1">
     </interface>
   </local>
@@ -115,6 +116,13 @@
       <inetAddr>FEC0:0:0:11:89d6:9cff:fe7e:83d2</inetAddr>
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">FEC0:0:0:11:89d6:9cff:fe7e:83d2/64</AdvPrefix>
+<!--     Can screw things up since we do not currently add more than one mip6 re -->
+<!--     so we end up creating a NE for it when trying to send since the Prefix -->
+<!--     matches on link and so first BU goes no where when our lcoa under DAD however -->
+<!--     once we get NA from router it says it is a router so we end up sending -->
+<!--     BU however CDS is invalid as a NE with router bit set but is not a router entry object-->
+<!-- <AdvPrefix AdvOnLinkFlag="on" 
+	AdvRtrAddrFlag="on">3011:0:0:1:89d6:9cff:fe7e:83d2/64</AdvPrefix> -->
       </AdvPrefixList>
       <AdvMAPList>
         <AdvMAPEntry>3011:0:0:1:89d6:9cff:fe7e:83d2</AdvMAPEntry>

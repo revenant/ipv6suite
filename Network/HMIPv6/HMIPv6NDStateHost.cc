@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002, 2003, 2004 CTIE, Monash University
+// Copyright (C) 2002, 2003, 2004, 2006 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -48,8 +48,9 @@
 #if EDGEHANDOVER
 #include "EHCDSMobileNode.h"
 #endif //EDGEHANDOVER
-#include <memory>
 
+#include <memory>
+#include <iostream>
 
 using MobileIPv6::MIPv6RouterEntry;
 using MobileIPv6::bu_entry;
@@ -213,12 +214,15 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   boost::shared_ptr<MIPv6RouterEntry> accessRouter = mipv6cdsMN->findRouter(ll_addr);
   assert(accessRouter);
 
-
-  if (!mipv6cdsMN->currentRouter())
+  if (mipv6cdsMN->currentRouter() != accessRouter)
   {
-    //Do this here rather than in MIPv6NDStateHost so we can do map handover rather than
-    //just AR handover.
+    Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "//<<setprecision(6)
+         <<nd->simTime()<<" MAP algorithm detected movement");
+
+    //Make sure we use the latest router as default router otherwise LBUs are
+    //sent via old router
     relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
+    mipv6cdsMN->setAwayFromHome(true);
   }
 
   typedef Loki::cTimerMessageCB<void, TYPELIST_1(ArgMapHandover)> cbSendMapBU;
@@ -385,9 +389,6 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   ///so requires storing the arg tuple in some other place besides
   ///addressCallbacks, because that has race conditions between RtrAdvInt and
   ///DAD timeout)
-
-  //if (curMapCopy != invalidMAP)
-  movementDetectedCallback(static_cast<cTimerMessage*>(0));
 
   ///Rest of this section should really be called handover() but then we'd
   ///have to have data members for bestMap/accessRouter||ifindex and forward
@@ -569,6 +570,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                             static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
                             ifIndex, mob);
 
+        mob->lbbuVector->record(mob->simTime());
+
         HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
 
         //trigger on bound map so that we get this reverse tunnel lcoa->best MAP encapsulation
@@ -658,33 +661,9 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
 }
 
 /*
-
-///Override base handover because we are trying to use HMIP always. Only when no
-///map options exist do we use MIPv6. However HMIPv6NDStateHost::discoverMAP
-///only hands over when map options have changed thus moving between ARs
-///connected to same MAP will not trigger handover and requires
-///MIPv6NDStateHost::movementDetectedCallback's RtrAdvMissedTmr to do so. That
-///will calls us but how do we know it called us so we can forward it back to
-///MIPv6NDStateHost::handover
-HMIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
-{
-  //If we don't have a mip6 router then we definitely have not received a MAP
-  //option because if we did currentRouter would be set already.
-  if (!mipv6cdsMN->currentRouter())
-    MIPv6NDStateHost::handover(newRtr);
-
-
-  //Set some flag to see if map options exist and if they do then do not forward
-  //to MIPv6::Handover as we'll handover to map first if/when we are in
-  //processRtrAd()
-}
-
-*/
-
-/*
   @brief sends BU to map when handoff between ARs
 
-  Called from sendBU of MIPv6NDStateHost base class. Forwards from PAR to NAR if
+  Also called from sendBU of MIPv6NDStateHost base class. Forwards from PAR to NAR if
   ARs have HA func.
   Assumes lcoa is assigned already
   @callgraph

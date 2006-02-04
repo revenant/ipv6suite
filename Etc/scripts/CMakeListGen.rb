@@ -97,12 +97,16 @@ def writeCMakeList(dir, outputName, projName = nil)
       # set_dir_props generated from customCommands requires this
       x.puts %{CMAKE_MINIMUM_REQUIRED(VERSION 2.0)} 
       x.puts "SET(CMAKEFILES_PATH #{File.dirname(File.dirname($0))+"/CMake"})"
-      
+
+      x.puts "SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)"
+      x.puts "SET(SCRIPTDIR ${MISCDIR}/scripts)"
+
       x.puts %{OPTION(BUILD_SHARED_LIBS "Build with shared libraries." ON)}
       x.puts %{SET(ONE_BIG_EXE ON)}
 			#SET(IPv6Suite_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 			#INCLUDE(${CMAKEFILES_PATH}/Main.cmake)
-      x.puts("INCLUDE(${CMAKEFILES_PATH}/FindOmnet.cmake)")  
+      x.puts "INCLUDE(${CMAKEFILES_PATH}/FindOmnet.cmake)" 
+      x.puts "INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)"
       x.puts %{ADD_DEFINITIONS(-DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
  
       x.puts("INCLUDE_DIRECTORIES(${OPP_INCLUDE_PATH})") 

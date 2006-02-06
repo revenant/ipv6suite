@@ -120,10 +120,10 @@ void EtherLLC::handleMessage(cMessage *msg)
 void EtherLLC::updateDisplayString()
 {
     char buf[80];
-    sprintf(buf, "passed up: %d\nsent: %d", totalPassedUp, totalFromHigherLayer);
+    sprintf(buf, "passed up: %ld\nsent: %ld", totalPassedUp, totalFromHigherLayer);
     if (droppedUnknownDSAP>0)
     {
-        sprintf(buf+strlen(buf), "\ndropped (wrong DSAP): %d", droppedUnknownDSAP);
+        sprintf(buf+strlen(buf), "\ndropped (wrong DSAP): %ld", droppedUnknownDSAP);
     }
     displayString().setTagArg("t",0,buf);
 }

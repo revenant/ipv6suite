@@ -88,7 +88,7 @@ public:
     virtual int getCollided(int);
     virtual double getProbTxInSlot(int, double, WirelessEtherModule*);
     virtual double getLambda(int);
-    virtual int getAvgFrameSize(int);
+    virtual double getAvgFrameSize(int);
     virtual int size();
     virtual int sizeOfQ(int);
 

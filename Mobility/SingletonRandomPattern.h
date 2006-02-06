@@ -50,7 +50,7 @@ private:
   static int refCount;
   static int currentRefCounter;
 
-  int _x, _y;
+  double _x, _y;
   double _nextInterval;
 
   static RandomPattern* _instance;

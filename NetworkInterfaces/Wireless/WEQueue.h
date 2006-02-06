@@ -47,7 +47,7 @@ public:
     virtual int getCollided(int) { return 0; }
     virtual double getProbTxInSlot(int, double, WirelessEtherModule*) { return 0; }
     virtual double getLambda(int) { return 1; }
-    virtual int getAvgFrameSize(int) { return 0; }
+    virtual double getAvgFrameSize(int) { return 0; }
     virtual int size() { return 0; }
     virtual int sizeOfQ(int) { return size(); }
 

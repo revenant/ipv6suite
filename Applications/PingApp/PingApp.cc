@@ -97,7 +97,7 @@ void PingApp::sendPing()
     ev << "Sending ping #" << sendSeqNo << "\n";
 
     char name[32];
-    sprintf(name,"ping%d", sendSeqNo);
+    sprintf(name,"ping%ld", sendSeqNo);
 
     PingPayload *msg = new PingPayload(name);
     msg->setOriginatorId(id());

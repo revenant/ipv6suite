@@ -33,8 +33,6 @@ void IPv6CBRSrcModel::handleMessage(cMessage* msg)
 
 cMessage* IPv6CBRSrcModel::createControlInfo(BRMsg*)
 {
-  BRMsg* pkt;
-
   IPv6ControlInfo *ctrlInfo = new IPv6ControlInfo;
   ctrlInfo->setProtocol(IP_PROT_UDP);
   ctrlInfo->setTimeToLive(64);

@@ -954,8 +954,6 @@ void WirelessEtherModule::startMonitorMode(void)
 
     outputQueue->reset();
 
-    double nextSchedTime = simTime();
-
     // cancel all timer message except for sending the end of frames
     cancelEvent(awaitAckTimer);
     cancelEvent(backoffTimer);

@@ -168,7 +168,7 @@ double WEQoSQueue::getLambda(int queue)
     return acQ[queue].lambda;
 }
 
-int WEQoSQueue::getAvgFrameSize(int queue)
+double WEQoSQueue::getAvgFrameSize(int queue)
 {
     return (int) acQ[queue].avgFrameSize->mean();
 }
@@ -607,7 +607,7 @@ int WEQoSQueue::soonestToSendQ()
 // Assuming AC has the smallest timeToSend, returns resloved queue to send next
 int WEQoSQueue::resolveCollisionsWithQ(int AC)
 {
-    double probSameSlot;
+//    double probSameSlot;
     if (AC < 0)
         return AC;
     assert(acQ[AC].readyFrame != NULL);

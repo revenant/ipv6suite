@@ -738,8 +738,8 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
     double frameSizeVI = 6000, frameSizeVO = 1580;
     double frameRateVI = 27, frameRateVO = 43;
 
-    double typDurVI = (frameSizeVI / dataRate) + _successOhDurationVI;
-    double typDurVO = (frameSizeVO / dataRate) + _successOhDurationVO;
+//    double typDurVI = (frameSizeVI / dataRate) + _successOhDurationVI;
+//    double typDurVO = (frameSizeVO / dataRate) + _successOhDurationVO;
     double typBWVI = ((frameSizeVI / dataRate) + _successOhDurationVI) * frameRateVI * dataRate / 1000000;
     double typBWVO = ((frameSizeVO / dataRate) + _successOhDurationVO) * frameRateVO * dataRate / 1000000;
 

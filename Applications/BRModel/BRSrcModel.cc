@@ -62,8 +62,6 @@ void BRSrcModel::sendFragment(unsigned long size, int msgType)
 
 cMessage* BRSrcModel::createControlInfo(BRMsg*)
 {
-  BRMsg* pkt;
-
   // Attach destination addr to control info, which
   // can be processed by link layer
   LL6ControlInfo *ctrlInfo = new LL6ControlInfo();
@@ -79,7 +77,7 @@ const char* BRSrcModel::resolveMACAddress(std::string destName)
     cModule *mod = simulation.moduleByPath(destName.c_str());
     assert(mod != NULL);
     InterfaceTable *ift = IPAddressResolver().interfaceTableOf(mod);
-    for (int i=0; i<ift->numInterfaces(); i++)
+    for (unsigned int i=0; i<ift->numInterfaces(); i++)
     {
         InterfaceEntry *ie = ift->interfaceAt(i);
         if(!ie->isLoopback())

@@ -105,7 +105,7 @@ int WESingleQueue::getCollided(int queue)
     return collided;
 }
 
-int WESingleQueue::getAvgFrameSize(int queue)
+double WESingleQueue::getAvgFrameSize(int queue)
 {
     return avgFrameSize->mean();
 }

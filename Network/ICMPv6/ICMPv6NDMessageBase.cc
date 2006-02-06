@@ -76,6 +76,7 @@ bool ICMPv6NDMessageBase<n_addrs, n_opts>::operator==(const ICMPv6NDMessageBase<
     return true;
 
   opp_error("ICMPv6NDMessageBase op== not implemented!");
+  return false;
 /* XXX
   if (!ICMPv6Message::operator==(rhs))  <--- missing
     return false;

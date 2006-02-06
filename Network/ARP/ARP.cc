@@ -104,7 +104,7 @@ void ARP::handleMessage(cMessage *msg)
 void ARP::updateDisplayString()
 {
     char buf[80];
-    sprintf(buf, "%d cache entries\nsent req:%d repl:%d fail:%d",
+    sprintf(buf, "%d cache entries\nsent req:%ld repl:%ld fail:%ld",
                  arpCache.size(), numRequestsSent, numRepliesSent, numFailedResolutions);
     displayString().setTagArg("t",0,buf);
 }

@@ -1355,8 +1355,8 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   // data traffic. But we should allow it for ping payloads TODO
 
   // could be an ICMPv6 message sent to MN's HoA
-  if (tunPacket->transportProtocol() == IP_PROT_IPv6_ICMP )
-    return;
+//  if (tunPacket->transportProtocol() == IP_PROT_IPv6_ICMP )
+//    return;
 
 
   // Not in RFC

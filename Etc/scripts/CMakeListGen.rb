@@ -80,7 +80,7 @@ def writeCMakeList(dir, outputName, projName = nil)
 #Contract requires IPv4
 #ARP|IPv4|TCP|FlatNetwork|Queue
   commonIgnore =
-	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|MPLS|RSVP|RTP|Scenario"
+	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|MPLS|RSVP|RTP|Scenario|Tests"
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   
@@ -103,11 +103,25 @@ def writeCMakeList(dir, outputName, projName = nil)
 
       x.puts %{OPTION(BUILD_SHARED_LIBS "Build with shared libraries." ON)}
       x.puts %{SET(ONE_BIG_EXE ON)}
-			#SET(IPv6Suite_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-			#INCLUDE(${CMAKEFILES_PATH}/Main.cmake)
-      x.puts "INCLUDE(${CMAKEFILES_PATH}/FindOmnet.cmake)" 
-      x.puts "INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)"
-      x.puts %{ADD_DEFINITIONS(-DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
+
+xvar = <<EOF
+
+INCLUDE(${CMAKEFILES_PATH}/Options.cmake)
+
+#INCLUDE(${CMAKEFILES_PATH}/IntelICCOptions.cmake)
+
+#INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
+
+INCLUDE(${CMAKEFILES_PATH}/Configure.cmake)
+
+INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
+
+INCLUDE(${CMAKEFILES_PATH}/LinkLibraries.cmake)
+
+EOF
+
+      x.puts xvar
+     x.puts %{ADD_DEFINITIONS(-DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
  
       x.puts("INCLUDE_DIRECTORIES(${OPP_INCLUDE_PATH})") 
       x.puts("INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})")
@@ -149,7 +163,8 @@ def writeCMakeList(dir, outputName, projName = nil)
     x.puts ")\n\n"
 
     if not @customise
-      outputdir = projName == "INET" ? "bin" : "."
+#      outputdir = projName == "INET" ? "bin" : "."
+      outputdir = "."
       x.puts %{SET(OUTPUTDIR #{outputdir}) } 
             
       x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))

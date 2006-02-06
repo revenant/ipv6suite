@@ -1200,20 +1200,21 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
 }
 
 /**
- * Send BU to src of tunneled/encapsulated packet (CN) if outer header src addr
- * is a registered HA to which we have sent BU to before.  Sec. 10.9 has details
- * on exact checks
+ * Route Optimisation (RO) checks. Will send BU to src of tunneled/encapsulated
+ * packet (CN) if outer header src addr is a registered HA to which we have sent
+ * BU to before.  Sec. 11.7.2 has more details
  *
  * Invoked at IPv6Encapsulation module.
  *
  * @param dgram is the outer tunnel packet including the inner dgram that has
  * not been modified
  *
+ * @todo handle multiple home addresses
  */
 
 void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 {
-  if (!mipv6cdsMN->primaryHA())
+  if (!mob->routeOptimise() || !mipv6cdsMN->primaryHA())
     return;
 
   //packet must have been encapsulated to end up here (this is a protected
@@ -1245,7 +1246,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   if (!valid)
   {
     Dout(dc::mipv6, rt->nodeName()<<" encapsulated datagram with outer dest="
-        <<dgram->destAddress()<<" does not qualify as a care of address");
+        <<dgram->destAddress()<<" does not qualify as a care of address. Not doing RO");
     return;
   }
 
@@ -1276,7 +1277,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   if (!valid)
   {
     Dout(dc::mipv6, rt->nodeName()<<" encapsulated datagram with tunDest="
-         <<tunDest<<" does not qualify as a home address in BU");
+         <<tunDest<<" does not qualify as a home address in BUL. Not doing RO");
     return;
   }
 
@@ -1289,7 +1290,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   if (!valid)
   {
     Dout(dc::mipv6|dc::notice, rt->nodeName()
-         <<" outer and inner src addresses are equal not valid CN correspondence");
+         <<" outer and inner src addresses are equal not valid CN correspondence. Not doing RO");
     return;
   }
 
@@ -1341,25 +1342,24 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   IPv6Datagram* tunPacket =
     check_and_cast<IPv6Datagram*>(dgram->encapsulatedMsg());
 
+  //Check if packet contains HOT/I or /COT/I 
+
+  if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY && 
+      check_and_cast<MIPv6MobilityHeaderBase*>(tunPacket->encapsulatedMsg()) != 0)
+  {
+    Dout(dc::mipv6, rt->nodeName()<<" encapsulated datagram contains a RR message. Not doing RO");
+    return;
+  }
+
+  // Makes sense not to send BU to an ICMP error message since it is not
+  // data traffic. But we should allow it for ping payloads TODO
 
   // could be an ICMPv6 message sent to MN's HoA
   if (tunPacket->transportProtocol() == IP_PROT_IPv6_ICMP )
     return;
 
 
-  // check if the BU has already been created
-
-  for (MIPv6CDSMobileNode::BULI it = mipv6cdsMN->bul.begin();
-       it != mipv6cdsMN->bul.end(); it++)
-  {
-    if ( tunPacket->srcAddress() == (*it)->addr())
-    {
-      mipv6cdsMN->removeBU(tunPacket->srcAddress());
-      break;
-
-    }
-  }
-
+  // Not in RFC
   // The peer node may also be a mn. When the peer node moves to a
   // foreign link, it may send the packets in tunnel. The source
   // address of the packet may be the coa of the peer node. We need to
@@ -1375,20 +1375,24 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
          it != mipv6cdsMN->bul.end(); it++)
     {
       if ( bce.lock()->home_addr == (*it)->addr())
+      {
+        //Don't think this block is valid simply because if peer was a MN and
+        //away from home it will not send us tunnelled packets anyway. We get
+        //packets in tunnel only because our HA tunnels them to us. Just because
+        //we have a binding for the cn does not mean cn has binding for us. I
+        //think if this assert occurs should remove this check totally as it
+        //will prevent RO occurring for CNs that have sent BUs to us. 
+        opp_error("Speak to Johnny if assert occurs");
+        assert(false);
         return;
+      }
     }
   }
 
-  MIPv6MobilityHeaderBase* ms = 0;
-  if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-    ms = check_and_cast<MIPv6MobilityHeaderBase*>(
-      tunPacket->encapsulatedMsg());
 
   // It could be HoTI that is reverse tunneled by the sender's HA
   // and gets tunneled again by the receiver's HA
 
-  if (mob->routeOptimise() && ms == 0)
-  {
     // In simultaneous movement, if the correspondent node completes
     // route optimization with the mobile node before the mobile node
     // does, the mobile node would use the care-of address of the
@@ -1434,14 +1438,26 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     // OR
 
     // to look up the destination cache entry
-    boost::weak_ptr<bc_entry> bce =
-      mipv6cdsMN->findBindingByCoA(tunPacket->srcAddress());
-    if (bce.lock())
-      cna = bce.lock()->home_addr;
 
-    Dout(dc::mipv6|flush_cf, "At " << rt->simTime() << "," << rt->nodeName()<<" receiving packet in tunnel, " << *tunPacket);
+  //Use hoa of CN if we have a binding for it
+  if (bce.lock())
+    cna = bce.lock()->home_addr;
 
-    ///////
+  Dout(dc::mipv6|flush_cf, "At " << rt->simTime() << "," << rt->nodeName()<<" receiving packet in tunnel, " << *tunPacket);
+
+
+  // check if RO is happening already  
+  for (MIPv6CDSMobileNode::BULI it = mipv6cdsMN->bul.begin();
+       it != mipv6cdsMN->bul.end(); it++)
+  {
+    if ( tunPacket->srcAddress() == (*it)->addr())
+    {
+      //removeBU not implemented! 
+      //mipv6cdsMN->removeBU(tunPacket->srcAddress());
+      Dout(dc::mipv6|flush_cf, rt->nodeName()<<" "<<rt->simTime()<<" BU in progress. Not doing RO again");
+      return;
+    }
+  }
 
     if (mob->returnRoutability())
         mstateMN->sendInits(cna, coa, mob);
@@ -1451,10 +1467,10 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
       //registered with primaryHA. What if there are multiple home addresses?
       mstateMN->sendBU(cna, coa, mipv6cdsMN->homeAddr(),
                      rt->minValidLifetime(), false, 0, mob);
+      assert(mipv6cdsMN->homeAddr() == tunPacket->destAddress());
       Dout(dc::debug|flush_cf, rt->nodeName()<<" sending BU to CN (Route Optimisation) "
            <<cna);
-    }
-  }
+    }  
 }
 
 /**

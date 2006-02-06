@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
-<netconf>
-  <local node="client1" mobileIPv6Support="on" routeOptimisation="off" returnRoutability="off" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
+<netconf debugChannel="HMIPv6Simple.log:rcfile:MobileMove:notice">
+  <local node="client1" mobileIPv6Support="on" routeOptimisation="on" returnRoutability="off" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <inetAddr>3018:ffff:0:0:2580:ebff:fe8c:1448/64</inetAddr>
     </interface>
   </local>
-  <local node="server4" mobileIPv6Support="on"/>
+  <local node="server4" mobileIPv6Support="on">
+					<interface name="eth0">
+									<inetAddr>3000:0:0:0:1:2:3:4</inetAddr>
+					</interface>
+	</local>
 
 <!-- routing table configuration -->
 

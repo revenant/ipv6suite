@@ -95,6 +95,49 @@ namespace
   const unsigned int MIPv6_PERIOD = 1 ; //seconds
 };
 
+IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
+    :cSimpleModule(name, parent, 0), 
+     buRetranTmrs(BURetranTmrs()), schedSendBU(0),
+     ift(InterfaceTableAccess().get()),
+     rt(RoutingTable6Access().get()), mipv6cds(0),
+     _MobilityState(0), periodTmr(0), _routeOptimise(false),
+     _returnRoutability(false), _isEBU(false),
+     ewuOutVectorHODelays(false),
+     linkUpTime(0),
+     _signalingEnhance(MobileIPv6::SignalingEnhance()),
+     l2LinkDownTime(0),
+     prevLinkUpTime(0),
+     avgCellResidenceTime(0),
+     handoverCount(0),
+     linkDownTime(0),
+     handoverDelay(0),
+     handoverLatency(0),
+     linkUpVector(0),
+     linkDownVector(0),
+     backVector(0),
+     buVector(0),
+     lbuVector(0),
+     lbackVector(0),
+     lbbuVector(0),
+     lbbackVector(0),
+     ehType(""), 
+     ehCallback()
+{
+}
+
+IPv6Mobility::~IPv6Mobility()
+{
+#ifdef USE_MOBILITY
+  if (periodTmr && !periodTmr->isScheduled())
+    delete periodTmr;
+  periodTmr = 0;
+  delete mipv6cds;
+  mipv6cds = 0;
+  delete schedSendBU;
+  schedSendBU = 0;
+#endif  
+}
+
 
 /**
  * @todo simulation parameter for periodic interval to clean up expired entries
@@ -103,6 +146,7 @@ namespace
 
 void IPv6Mobility::initialize(int stage)
 {
+/*
   if (stage == 0)
   {
     ift = InterfaceTableAccess().get();
@@ -124,15 +168,16 @@ void IPv6Mobility::initialize(int stage)
 #if EDGEHANDOVER
     ehCallback = 0;
     //This overwrites the value assigned by XML and I thought this was run before parsing !
-    //ehType = "";
 #endif // EDGEHANDOVER
 #endif // USE_MOBILITY
   }
-  else if (stage == 1)
+*/
+  if (!rt->mobilitySupport())
+    return;
+
+  if (stage == 1)
   {
 #ifdef USE_MOBILITY
-    if (rt->mobilitySupport())
-    {
       if (isHomeAgent())
         mipv6cds = new MIPv6CDSHomeAgent(ift->numInterfaceGates());
       else if (isMobileNode())
@@ -171,12 +216,12 @@ void IPv6Mobility::initialize(int stage)
       periodTmr = new MIPv6PeriodicCB(this, mipv6cds->setupLifetimeManagement(),
                                       MIPv6_PERIOD);
 
-      parseXMLAttributes();
-    }
+      parseXMLAttributes();    
 #endif // USE_MOBILITY
   }
   else if (stage == 2)
   {
+
 #ifdef USE_MOBILITY
     if ( ewuOutVectorHODelays )
       handoverLatency = new cOutVector("L3 handover delay");
@@ -221,23 +266,17 @@ void IPv6Mobility::initialize(int stage)
 
 void IPv6Mobility::finish()
 {
-  // XXX cleanup stuff must be moved to dtor!
-  // finish() is NOT for cleanup -- that must be done in destructor, and
-  // additionally, ptrs must be NULL'ed in constructor so that it won't crash
-  // if initialize() hasn't run because of an error during startup! --AV
-#ifdef USE_MOBILITY
-  if (periodTmr && !periodTmr->isScheduled())
-    delete periodTmr;
-  periodTmr = 0;
-  delete mipv6cds;
-  mipv6cds = 0;
-  delete schedSendBU;
-  schedSendBU = 0;
-#endif
 }
 
 void IPv6Mobility::handleMessage(cMessage* msg)
 {
+
+  if (!rt->mobilitySupport())
+  {
+    //Todo send ICMP Parameter Problem Code 0 as do not understand header 
+    delete msg;
+    return;
+  }
 
 #ifdef USE_MOBILITY
   if (!msg->isSelfMessage())

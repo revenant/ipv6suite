@@ -129,6 +129,7 @@ void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
 
     default:
       error("at %f sec, invalid protocol code %d in datagram", simTime(), protocol);
+      //Todo send ICMP Parameter Problem Code 0 as do not understand header
   } // end switch
 }
 

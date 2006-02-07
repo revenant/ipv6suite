@@ -104,8 +104,9 @@ public:
 
   //@name constructors, destructors and operators
   //@{
-  Module_Class_Members(IPv6Mobility, cSimpleModule, 0);
-
+  //Module_Class_Members(IPv6Mobility, cSimpleModule, 0);
+  IPv6Mobility(const char *name=NULL, cModule *parent=NULL);
+  ~IPv6Mobility();
   //@}
 
   //@name reimplemented cSimpleModule functions
@@ -122,7 +123,6 @@ public:
       _MobilityState = s;
     }
 
-#ifdef USE_MOBILITY // calling the MOBILITY define module in RoutingTable6
   bool isMobileNode();
 
   bool isHomeAgent();
@@ -167,13 +167,6 @@ public:
   MobileIPv6::SignalingEnhance signalingEnhance();
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
 
-  // parameters for cell resdiency signaling
-  simtime_t handoverDelay;
-  simtime_t linkDownTime;
-  simtime_t prevLinkUpTime; // Internet link up
-  simtime_t avgCellResidenceTime;
-  int handoverCount;
-
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
 
   const simtime_t getl2LinkDownTime()
@@ -188,21 +181,6 @@ public:
 
   void parseXMLAttributes();
 
-
-  // TODO: it would probably make more sense to add buRetransTmr in
-  // each of the BUL entry instead of storing a list of buRetransTmrs
-  // in the state class.
-
-  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
-  typedef BURetranTmrs::iterator BURTI;
-
-  BURetranTmrs buRetranTmrs;
-
-  Loki::cTimerMessageCB
-  <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
-  schedSendBU;
-
-#endif // USE_MOBILITY
 
 #ifdef USE_HMIP
   bool isMAP() const;
@@ -236,19 +214,23 @@ public:
 
   const char* nodeName() const;
 
-  cOutVector* backVector;
-  cOutVector* buVector;
-  cOutVector* lbuVector;
-  cOutVector* lbackVector;
+  // TODO: it would probably make more sense to add buRetransTmr in
+  // each of the BUL entry instead of storing a list of buRetransTmrs
+  // in the state class.
+
+  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
+  typedef BURetranTmrs::iterator BURTI;
+
+  BURetranTmrs buRetranTmrs;
+
+  Loki::cTimerMessageCB
+  <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
+  schedSendBU;
 
   InterfaceTable *ift;
   RoutingTable6 *rt;
 
   MobileIPv6::MIPv6CDS* mipv6cds;
-protected:
-#ifdef USE_MOBILITY
-  simtime_t l2LinkDownTime;
-#endif // USE_MOBILITY
 
 private:
 
@@ -256,7 +238,6 @@ private:
   IPv6Mobility& operator=(IPv6Mobility& src);
 
   void processLinkLayerTrigger(cMessage* msg);
-private:
 
   MobileIPv6::MIPv6MobilityState* _MobilityState;
 
@@ -274,13 +255,29 @@ private:
   // obtaining new CoA - link up time
   simtime_t linkUpTime; // time when establishing with new link
   MobileIPv6::SignalingEnhance _signalingEnhance;
+  simtime_t l2LinkDownTime;
+
+  simtime_t prevLinkUpTime; // Internet link up
+  simtime_t avgCellResidenceTime;
+  int handoverCount;
 
 public:
+
+  simtime_t linkDownTime;
+
+  // parameters for cell resdiency signaling
+  simtime_t handoverDelay;
+
   cOutVector* handoverLatency;
   cOutVector* linkUpVector;
   cOutVector* linkDownVector;
+  cOutVector* backVector;
+  cOutVector* buVector;
+  cOutVector* lbuVector;
+  cOutVector* lbackVector;
   cOutVector* lbbuVector;
   cOutVector* lbbackVector;
+
 private:
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created

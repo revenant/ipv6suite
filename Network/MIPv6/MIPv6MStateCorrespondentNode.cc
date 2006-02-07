@@ -80,6 +80,8 @@ processMobilityMsg(IPv6Datagram* dgram,
     break;
     default:
       cerr << "Mobile IPv6 Mobility Header not recognised ... " << endl;
+      //Todo
+      //Send binding error message with status set to 2 for unrecognised MH types
     break;
   }
 }

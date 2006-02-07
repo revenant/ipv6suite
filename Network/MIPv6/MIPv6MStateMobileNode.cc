@@ -1604,6 +1604,8 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
     if ( homeReg && mob->isEwuOutVectorHODelays() )
       bule->regDelay = new cOutVector("home reg");
+    else if (mob->isEwuOutVectorHODelays())
+      bule->regDelay = new cOutVector("CN reg (without RR)");
   }
   else
   {

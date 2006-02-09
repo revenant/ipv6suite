@@ -242,6 +242,15 @@ namespace OPP_Global
 
     return unknown;
   }
+  
+  bool lessThanEqualsModulo(unsigned int x, unsigned int y, unsigned int modulo)
+  {
+    int upper = ((int)y - (2<<(modulo-2))) + (2<<(modulo-1));
+    if (x <= y || x >= (unsigned int)upper)
+      return true;
+    else
+      return false;
+  }
 
   XMLConfiguration::XMLOmnetParser* getParser()
   {

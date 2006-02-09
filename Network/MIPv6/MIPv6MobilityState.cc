@@ -78,7 +78,7 @@ MIPv6MobilityState::~MIPv6MobilityState(void)
   MState::instance which can create a new instance when we don't want it
   to. E.g. When we want a MN to be a peer node i.e. CN role too then we have to
   be careful we call MStateMobileNode::instance otherwise we'll end up with two
-  BC. TODO fix this misleading State pattern
+  BCs. TODO fix this misleading function name suggestting change of state when there is none
  */
 bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
 {
@@ -114,10 +114,10 @@ bool MIPv6MobilityState::nextState(IPv6Datagram* dgram, IPv6Mobility* mod)
             )
         {
 #ifdef USE_HMIP
-          if ( mod->isMAP() && bu->mapreg())
+          if ( mod->isMAP())
             mod->changeState(HierarchicalMIPv6::HMIPv6MStateMAP::instance());
           else
-#endif //USE_HMIP`
+#endif //USE_HMIP
             mod->changeState(MIPv6MStateHomeAgent::instance());
         }
         else if (mod->isMobileNode())
@@ -186,13 +186,16 @@ void MIPv6MobilityState::processMobilityMsg(IPv6Datagram* dgram,
   mhb = check_and_cast<MIPv6MobilityHeaderBase*>(pkt);
 
   if (!mhb)
-    delete pkt;
+    {
+      opp_error("Unknown packet received in MIPv6MobilityState::processMobilityMsg");
+      delete pkt;
+    }
 }
 
 // private functions
 
 /**
- *
+ *  Checks for valid BU see Sec. 9.5.1 in mip6 rfc
  *
  */
 
@@ -229,19 +232,17 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
     }
   }
 
-  if (hoa.isMulticast() ||
-      // pg 86 of rev. 24 seems to test this condition later but it sounds
-      // like it should be tested much earlier otherwise BU is already processed
-      dgram->srcAddress().isMulticast())
+  if (hoa.isMulticast())
   {
     Dout(dc::mipv6, mod->nodeName()<<" BU has non unicast home address");
     return false;
   }
+
   if (ipv6_addr_scope(hoa) == ipv6_addr::Scope_None ||
       ipv6_addr_scope(hoa) == ipv6_addr::Scope_Node ||
       ipv6_addr_scope(hoa) == ipv6_addr::Scope_Link)
   {
-    Dout(dc::mipv6, mod->nodeName()<<" BU has non routable address");
+    Dout(dc::mipv6, mod->nodeName()<<" BU has non routable home address");
     return false;
   }
 
@@ -260,7 +261,7 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
   // binding update
 
   boost::weak_ptr<bc_entry> bce = mod->mipv6cds->findBinding(hoa);
-  if (bce.lock().get() != 0 && bu->sequence() < bce.lock()->seq_no )
+  if (bce.lock().get() != 0 && OPP_Global::lessThanEqualsModulo(bu->sequence(), bce.lock()->seq_no))
   {
     BA* ba = new BA(BA::BAS_SEQ_OUT_OF_WINDOW, bce.lock()->seq_no,
                     bce.lock()->expires, UNDEFINED_REFRESH);
@@ -268,18 +269,6 @@ bool MIPv6MobilityState::preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility*
     sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
     Dout(dc::mipv6|dc::warning, " BU seq="<<bu->sequence()<<" < BC entry seq="<<bce.lock()->seq_no);
     return false;
-  }
-
-  if (!bu->homereg())
-  {
-    //Pg. 83 rev. 24
-    // nonce indices mob opt present
-    //regnerate home keygen token and coa token. generate kBM and verify authenticator in bu
-    //binding authorizatino data mob opt must be present and last opt and no padding
-  }
-  else
-  {
-    //nonce indices mob opt not present
   }
 
   if (bce.lock().get() != 0 && bce.lock()->is_home_reg != bu->homereg())

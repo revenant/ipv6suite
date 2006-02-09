@@ -141,6 +141,9 @@ namespace OPP_Global
     return std::auto_ptr<Target>(static_cast<Target*>(r.release()));
   }
 
+  ///Do modulo comparison arithmetic according to rfc 3775 sec. 9.5.1
+  bool lessThanEqualsModulo(unsigned int x, unsigned int y, unsigned int modulo=16);
+
   ///Returns the omnet++ parser for use by other classes to parse their own attributes
   XMLConfiguration::XMLOmnetParser* getParser();
 }

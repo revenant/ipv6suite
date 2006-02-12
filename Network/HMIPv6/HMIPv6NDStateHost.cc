@@ -60,8 +60,7 @@ namespace HierarchicalMIPv6
 {
 
 HMIPv6NDStateHost::HMIPv6NDStateHost(NeighbourDiscovery* mod)
-  :MIPv6NDStateHost(mod),
-   hmipv6cdsMN(*(boost::polymorphic_downcast<HMIPv6CDSMobileNode*> (mipv6cdsMN)))
+  :MIPv6NDStateHost(mod), hmipv6cdsMN(*rt->mipv6cds->hmipv6cdsMN)
 {}
 
 HMIPv6NDStateHost::~HMIPv6NDStateHost()
@@ -466,7 +465,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                       rcoa,
                       //This may not be exact lifetime as DAD delay will have reduced this
                       lifetime,
-                      ifIndex, mob);
+                      ifIndex);
   mob->lbuVector->record(nd->simTime());
 
   IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
@@ -551,8 +550,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
       //However using lcoa means BAcks from HA to brcoa are lost as we move away
       //from the previous MAP/AR.
-      EdgeHandover::EHCDSMobileNode* ehcds =
-        boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
+      EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
       assert(ehcds);
       if (ehcds->boundMapAddr() != IPv6_ADDR_UNSPECIFIED)
         assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
@@ -568,9 +566,9 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
              <<rcoa);
         mstateMN->sendMapBU(ehcds->boundMapAddr(), rcoa, bcoa,
                             static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
-                            ifIndex, mob);
+                            ifIndex);
 
-        mob->lbbuVector->record(mob->simTime());
+        mob->bbuVector->record(mob->simTime());
 
         HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
 
@@ -619,7 +617,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     mstateMN->sendMapBU(curMapCopy.addr(), rcoa, oldRcoa,
                         //need a floor round down func
                         static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()),
-                        ifIndex, mob);
+                        ifIndex);
 
     //create tunnel from lcoa to old map
 
@@ -726,9 +724,9 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
                         hmipv6cdsMN.remoteCareOfAddr(),
                         //This may not be exact lifetime as DAD delay will have reduced this
                         hmipv6cdsMN.currentMap().lifetime(),
-                        ifIndex,
-                        //newRtr->re.lock()->ifIndex(),
-                        mob);
+                        ifIndex
+                        //newRtr->re.lock()->ifIndex())
+                        );
     mob->lbuVector->record(nd->simTime());
 /*
 #if EDGEHANDOVER
@@ -736,7 +734,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
     {
 #endif // EDGEHANDOVER
 //make pcoaf an xml option
-    mstateMN->previousCoaForward(lcoa, oldcoa, mob);
+    mstateMN->previousCoaForward(lcoa, oldcoa);
 #if EDGEHANDOVER
     }
 #endif // EDGEHANDOVER

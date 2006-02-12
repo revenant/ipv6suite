@@ -46,10 +46,6 @@ struct ipv6_addr;
 #include <list>
 #endif //LIST
 
-#ifndef CTIMERMESSAGECB_H
-#include "cTimerMessageCB.h" //schedSendBU
-#endif //  CTIMERMESSAGECB_H
-
 #endif
 
 
@@ -78,7 +74,6 @@ namespace MobileIPv6
   class MIPv6MStateMobileNode;
   class MIPv6MStateHomeAgent;
   class MIPv6MobilityState;
-  class BURetranTmr;
 }
 
 class cTimerMessage;
@@ -117,11 +112,6 @@ public:
   virtual void handleMessage(cMessage* msg);
 
   //@}
-
-  void changeState(MobileIPv6::MIPv6MobilityState* s)
-    {
-      _MobilityState = s;
-    }
 
   bool isMobileNode();
 
@@ -214,23 +204,12 @@ public:
 
   const char* nodeName() const;
 
-  // TODO: it would probably make more sense to add buRetransTmr in
-  // each of the BUL entry instead of storing a list of buRetransTmrs
-  // in the state class.
-
-  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
-  typedef BURetranTmrs::iterator BURTI;
-
-  BURetranTmrs buRetranTmrs;
-
-  Loki::cTimerMessageCB
-  <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
-  schedSendBU;
-
   InterfaceTable *ift;
   RoutingTable6 *rt;
 
-  MobileIPv6::MIPv6CDS* mipv6cds;
+  ///should renmae to MobilityRole
+  MobileIPv6::MIPv6MobilityState* role;
+//  MobileIPv6::MIPv6CDS* mipv6cds;
 
 private:
 
@@ -238,10 +217,6 @@ private:
   IPv6Mobility& operator=(IPv6Mobility& src);
 
   void processLinkLayerTrigger(cMessage* msg);
-
-  MobileIPv6::MIPv6MobilityState* _MobilityState;
-
-  cTimerMessage* periodTmr;
 
   ///Enable route optimisation?
   bool _routeOptimise;
@@ -273,10 +248,14 @@ public:
   cOutVector* linkDownVector;
   cOutVector* backVector;
   cOutVector* buVector;
+  //local BU to MAP
   cOutVector* lbuVector;
+  //local BA to MAP  
   cOutVector* lbackVector;
-  cOutVector* lbbuVector;
-  cOutVector* lbbackVector;
+  //BU to Bound Map in Edge Handover
+  cOutVector* bbuVector;
+  //BA from Bound Map Edge Handover
+  cOutVector* bbackVector;
 
 private:
 #if EDGEHANDOVER

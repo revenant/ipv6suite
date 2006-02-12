@@ -54,22 +54,16 @@ class HMIPv6MStateMAP: public MobileIPv6::MIPv6MStateHomeAgent
 {
  public:
 
-  static HMIPv6MStateMAP* instance();
-
+  //@name constructors, destructors and operators   
+  //@{
+  HMIPv6MStateMAP(IPv6Mobility* mob);
   virtual ~HMIPv6MStateMAP();
+  //@}
+
 
 protected:
 
-  virtual bool processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu,
-                         IPv6Mobility* mod);
-
-  static HMIPv6MStateMAP* _instance;
-
-  //@name constructors, destructors and operators
-  //@{
-   HMIPv6MStateMAP();
-
-  //@}
+  virtual bool processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu);
 
  private:
 

@@ -100,8 +100,7 @@ namespace
 
 namespace MobileIPv6
 {
-  typedef Loki::cTimerMessageCB<void, TYPELIST_3(std::vector<ipv6_addr>,
-                                                 IPv6Mobility*,
+  typedef Loki::cTimerMessageCB<void, TYPELIST_2(std::vector<ipv6_addr>,
                                                  simtime_t)> TIRetransTmr;
 
   class bu_entry;

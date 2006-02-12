@@ -109,7 +109,11 @@ public:
   void sendBU(const ipv6_addr& ncoa);
 protected:
 
+  //Do not delete (belongs to Mobility)
+  MIPv6MStateMobileNode* mnRole;
+  //Do not delete (belongs to Mobility)
   MIPv6CDSMobileNode* mipv6cdsMN;
+
   bool awayCheckDone;
   ///Timer that will trigger whenever a router adv is missed according to
   ///router adv. interval option

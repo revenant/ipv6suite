@@ -40,61 +40,68 @@
 #include "RoutingTable6.h" //setHopLimit
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
+#include "MIPv6Timers.h"
+
 
 namespace MobileIPv6
 {
 
-MIPv6MStateCorrespondentNode* MIPv6MStateCorrespondentNode::_instance = 0;
-
-MIPv6MStateCorrespondentNode* MIPv6MStateCorrespondentNode::instance(void)
+MIPv6MStateCorrespondentNode::MIPv6MStateCorrespondentNode(IPv6Mobility* mod):
+  MIPv6MobilityState(mod),
+  periodTmr((mob->isMobileNode()?
+             0:
+//TODO allow chaining of callbacks right now we can only set one or another.
+             new MIPv6PeriodicCB(mob, mipv6cds->setupLifetimeManagement(),
+                                 MIPv6_PERIOD)))
 {
-  if(_instance == 0)
-    _instance = new MIPv6MStateCorrespondentNode;
-
-  return _instance;
+  mob->rt->mipv6cds = mipv6cds;
 }
 
-void MIPv6MStateCorrespondentNode::
-processMobilityMsg(IPv6Datagram* dgram,
-                   MIPv6MobilityHeaderBase*& mhb,
-                   IPv6Mobility* mod)
+MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
 {
-  MIPv6MobilityState::processMobilityMsg(dgram, mhb, mod);
+  if (periodTmr && !periodTmr->isScheduled())
+    delete periodTmr;
+  periodTmr = 0;
+}
+
+
+bool MIPv6MStateCorrespondentNode::processMobilityMsg(IPv6Datagram* dgram)
+{
+  MIPv6MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
 
   if (!mhb)
-    return;
+    return false;
 
   switch ( mhb->header_type() )
   {
     case MIPv6MHT_BU:
     {
       BU* bu = check_and_cast<BU*>(mhb);
-      processBU(dgram, bu, mod);
+      processBU(dgram, bu);
     }
     break;
     case MIPv6MHT_CoTI: case MIPv6MHT_HoTI:
     {
       TIMsg* ti = check_and_cast<TIMsg*>(mhb);
-      processTI(ti, dgram, mod);
+      processTI(ti, dgram);
     }
     break;
     default:
-      cerr << "Mobile IPv6 Mobility Header not recognised ... " << endl;
-      //Todo
-      //Send binding error message with status set to 2 for unrecognised MH types
+      defaultResponse(dgram, mhb);
+      return false;
     break;
   }
+
+  return true;
 }
 
 // protected member functions
 
-bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
-                                             BU* bu,
-                                             IPv6Mobility* mod)
+bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
 {
   ipv6_addr hoa, coa;
 
-  if (!preprocessBU(dgram, bu, mod, hoa, coa))
+  if (!preprocessBU(dgram, bu, hoa, coa))
     return false;
 
   // BU in which H bit is set to the CN, we should send the BA back to
@@ -105,11 +112,16 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
     BA* ba = new BA(BA::BAS_HR_NOT_SUPPORTED, UNDEFINED_SEQ,
                     UNDEFINED_EXPIRES, UNDEFINED_REFRESH);
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod);
-    Dout(dc::warning|dc::mipv6, mod->nodeName()<<" BU received with homereg bit set but in"
+    sendBA(dgram->destAddress(), dgram->srcAddress(), ba);
+    Dout(dc::warning|dc::mipv6, mob->nodeName()<<" BU received with homereg bit set but in"
          <<"CN mode so check config BA sent with seq no "<<UNDEFINED_SEQ);
     return false;
   }
+
+  //Pg. 83 rev. 24
+  // home nonce indices mob opt present
+  //regnerate home keygen token and coa token. generate kBM and verify authenticator in bu
+  //binding authorizatino data mob opt must be present and last opt and no padding
 
   // if the lifetime of BU is zero OR the MN returns to its home
   // subnet, delete the its binding update, accordingly
@@ -119,43 +131,53 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
     // address option without existing binding; NOTE that the home
     // address option has already checked for its existence by calling
     // MIPv6MobilityState::processBU()
-    if(!deregisterBCE(bu, 0, mod))
+    if(!MIPv6MobilityState::deregisterBCE(bu, 0))
     {
       BM* bm = new BM(bu->ha());
-      sendBM(dgram->destAddress(), dgram->srcAddress(), bm, mod);
-      Dout(dc::warning, mod->nodeName()<<" CN deregistration failed from hoa="
+      sendBM(dgram->destAddress(), dgram->srcAddress(), bm);
+      Dout(dc::warning, mob->nodeName()<<" CN deregistration failed from hoa="
            <<hoa);
       return false;
     }
     return true;
   }
 
-  if (mod->earlyBindingUpdate())
+/*
+   check for coa nonce index exists too
+   check both coa/hoa nonce indices are recent!
+
+   If the receiving node no longer recognizes the Home Nonce Index
+   value, Care-of Nonce Index value, or both values from the Binding
+   Update, then the receiving node MUST send back a Binding
+   Acknowledgement with status code 136, 137, or 138, respectively.
+*/
+
+  if (mob->earlyBindingUpdate())
   {
     boost::weak_ptr<bc_entry> bce =
-      mod->mipv6cds->findBinding(hoa);
+      mipv6cds->findBinding(hoa);
 
     // binding cache entry has already been created
     if (bce.lock() &&  bce.lock()->care_of_addr == coa)
     {
       bce.lock()->expires = bu->expires();
-      bce.lock()->seq_no = bu->sequence();
+      bce.lock()->setSeqNo(bu->sequence());
 
       if ( bu->ack() )
       {
         BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
                         bu->expires());
 
-        sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
+        sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
       }
       
-      check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime()-dgram->timestamp(), dgram->destAddress());
+      check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
       return true;
     }
   }
 
-  registerBCE(dgram, bu, mod);
-  Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mod->simTime() << ", " << mod->nodeName()
+  MIPv6MobilityState::registerBCE(dgram, bu);
+  Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mob->simTime() << ", " << mob->nodeName()
        <<" CN registering BU from src="<<dgram->srcAddress()
        <<" hoa="<<hoa<<" coa="<<coa);
   // bu is legal, if bu in which A bit is set, send the BA back to the
@@ -165,18 +187,18 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram,
     BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
                     bu->expires());
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, mod, dgram->timestamp());
+    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
   }
 
-  if (!mod->earlyBindingUpdate())
+  if (!mob->earlyBindingUpdate())
   {
     assert( dgram->timestamp() );
-    check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mod->simTime()-dgram->timestamp(), dgram->destAddress());
+    check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
   }
   return true;
 }
 
-void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv6Mobility* mod)
+void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram)
 {
   // MUST NOT carry destination option
   // check if the packet contains home address option
@@ -188,7 +210,7 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv
       getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
     if (opt)
     {
-      Dout(dc::rrprocedure|flush_cf, "At "<< mod->simTime() << ", RR procedure ERROR: " << mod->nodeName()<<" receives a "<< ti->className() << ", which contains an home address destination option");
+      Dout(dc::rrprocedure|flush_cf, "At "<< mob->simTime() << ", RR procedure ERROR: " << mob->nodeName()<<" receives a "<< ti->className() << ", which contains an home address destination option");
       return;
     }
   }
@@ -200,29 +222,29 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram, IPv
 
   // send back the HoT to the mobile node
   // TODO: not implement the token for now
-  TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mod->mipv6cds->generateToken(replyType));
+  TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mipv6cds->generateToken(replyType));
   IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
-  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+  reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   
   assert(dgram->timestamp());
   reply->setTimestamp(dgram->timestamp());
 
-  Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mod->simTime() << "sec, " << mod->nodeName()<<" sending " << testMsg->className() << " src= " << dgram->destAddress() <<" to "<<dgram->srcAddress());
+  Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mob->simTime() << "sec, " << mob->nodeName()<<" sending " << testMsg->className() << " src= " << dgram->destAddress() <<" to "<<dgram->srcAddress());
 
-  mod->send(reply, "routingOut");
+  mob->send(reply, "routingOut");
 }
 
 void MIPv6MStateCorrespondentNode::sendBM(const ipv6_addr& srcAddr,
                                           const ipv6_addr& destAddr,
-                                          BM* bm, IPv6Mobility* mod)
+                                          BM* bm)
 {
   IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, bm);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  reply->setHopLimit(mod->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+  reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   // TODO: include routing header
 
-  mod->send(reply, "routingOut");
+  mob->send(reply, "routingOut");
 }
 
 

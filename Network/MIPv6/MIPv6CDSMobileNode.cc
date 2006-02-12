@@ -325,7 +325,7 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
   void MIPv6CDSMobileNode::expireLifetimes(cTimerMessage* tmr)
   {
     unsigned int dec = static_cast<MIPv6PeriodicCB*> (tmr)->interval;
-    MIPv6CDS::expireLifetimes(tmr);
+//    MIPv6CDS::expireLifetimes(tmr);
 
     Dout(dc::custom, OPP_Global::nodeName(simulation.contextModule())
          <<" "<< simulation.simTime()<< " expireLifetime bul: "<<*this);

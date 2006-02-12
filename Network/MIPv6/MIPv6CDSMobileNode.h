@@ -63,7 +63,7 @@ namespace MobileIPv6
  * detailed description
  */
 
-  class MIPv6CDSMobileNode: public MIPv6CDS
+  class MIPv6CDSMobileNode
   {
 
     friend class MIPv6NDStateHost;
@@ -271,7 +271,7 @@ namespace MobileIPv6
 
     ///Returns the preferred lifetime management function to be called at every
     ///period
-    virtual TFunctorBaseA<cTimerMessage>* setupLifetimeManagement();
+    TFunctorBaseA<cTimerMessage>* setupLifetimeManagement();
 
     ///lifetime for registrations with HAs for previous coa forwarding purposes
     simtime_t pcoaLifetime(){ return _pcoaLifetime; }

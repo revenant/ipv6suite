@@ -44,6 +44,8 @@
 #include "HMIPv6CDSMobileNode.h"
 #include "EHCDSMobileNode.h"
 #include "MIPv6MStateMobileNode.h"
+#include "RoutingTable6.h"
+
 namespace EdgeHandover
 {
 
@@ -107,8 +109,8 @@ void EHTimedAlgorithm::mapAlgorithm()
     }
     else
     {
-      MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
-        hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
+      mnRole->sendBUToAll(
+        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
       Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" mapAlgorithm sent bu to all based on BA from bue: "<<*bue);
     }
@@ -124,8 +126,8 @@ void EHTimedAlgorithm::mapAlgorithm()
     
       MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
 
-      MobileIPv6::MIPv6MStateMobileNode::instance()->sendBUToAll(
-        hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime(), mob);
+      mnRole->sendBUToAll(
+        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
       Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" First binding with HA so doing it straight away from bue: "<<*bue);
       //mob->edgeHandoverCallback()->cancel();

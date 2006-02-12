@@ -38,6 +38,12 @@
 
 class IPv6Mobility;
 class IPv6Datagram;
+class cTimerMessage;
+
+namespace
+{
+  const unsigned int MIPv6_PERIOD = 1 ; //seconds
+};
 
 namespace MobileIPv6
 {
@@ -51,6 +57,7 @@ class MIPv6MHTest;
 class MIPv6MHBindingUpdate;
 class MIPv6MHBindingAcknowledgement;
 class MIPv6MHBindingMissing;
+  class MIPv6CDS;
 
 // typedef
 
@@ -64,7 +71,7 @@ typedef MIPv6MHBindingMissing         BM;
 /**
    @class MIPv6MobilityState
    @brief Base class for IPv6Mobility simple module behaviour
-   @ingroup MobilityStates
+   @ingroup MobilityRoles
 
    Classes in this group do not contain any data local data members other than
    the static instance of themselves. The actual data is stored inside
@@ -83,48 +90,47 @@ class MIPv6MobilityState
  public:
   virtual ~MIPv6MobilityState(void);
 
-  /**
-   * We want MIPv6MobilityHeaderBase*& (2nd argument) because we need to also
-   * delete the instance of mobility message after use. It is best to delete the
-   * mobility message from the top function that calls this function so this
-   * virtual function does not hold responsiblity to delete the instance for
-   * extension purpose.  process mobility message
-   *
-   */
-  virtual void processMobilityMsg(IPv6Datagram* dgram,
-                                  MIPv6MobilityHeaderBase*& mhb,
-                                  IPv6Mobility* mod);
+  ///Pass some stage specific initialisation code here
+  virtual void initialize(int stage = 0);
 
-  // go to next state according to the mobility message in the
-  // datagram; return true if the datagram contains mobility message
-  // or of the correct type
-  static bool nextState(IPv6Datagram* dgram, IPv6Mobility* mod);
+  //@return true if it processed the message false otherwise
+  virtual bool processMobilityMsg(IPv6Datagram* dgram) = 0;
 
  protected:
-  MIPv6MobilityState(void);
+  MIPv6MobilityState(IPv6Mobility* mod);
 
   ///@name process specificy type of mobility message
   //@{
   /// process binding update
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod) = 0;
+  virtual bool processBU(IPv6Datagram* dgram, BU* bu) = 0;
 
-  bool preprocessBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod,
+  bool preprocessBU(IPv6Datagram* dgram, BU* bu,
                     ipv6_addr& hoa, ipv6_addr& coa);
 
   /// send binding acknowledgement
   void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
-              BA* ba,  IPv6Mobility* mod, simtime_t timestamp = 0);
+              BA* ba, simtime_t timestamp = 0);
   //@}
 
   ///@name handle management of binding cache
   //@{
   /// add or update binding cache entry in binding cache
-  virtual void registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod);
+  virtual void registerBCE(IPv6Datagram* dgram, BU* bu);
 
   /// delete binding update (CN) or primary care-of address
   /// de-registration (HA);
-  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex, IPv6Mobility* mod);
+  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex);
   //@}
+
+  MIPv6MobilityHeaderBase* mobilityHeaderExists(IPv6Datagram* dgram);
+  virtual void defaultResponse(IPv6Datagram* dgram, MIPv6MobilityHeaderBase* mhb);
+
+
+  IPv6Mobility* mob;
+  MIPv6CDS* mipv6cds;
+
+private:
+  MIPv6MobilityState(void);
 };
 
 } // end namespace MobileIPv6

@@ -32,25 +32,16 @@
 
 #include "IPv6Mobility.h"
 #include "IPv6Datagram.h"
-#include "HdrExtDestProc.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h"
 
 #ifdef USE_MOBILITY
-#include "MIPv6MobilityState.h"
-#include "MIPv6MessageBase.h"
-#include "MIPv6CDS.h"
-#include "MIPv6CDSHomeAgent.h"
-#include "MIPv6CDSMobileNode.h"
-#include "MIPv6Timers.h"
+
 #include "MIPv6MobilityState.h"
 #include "MIPv6MStateMobileNode.h"
+#include "MIPv6MStateHomeAgent.h"
 
 #include "WirelessEtherModule.h" // for linklayer trigger enum values
-
-#ifndef __MIPv6ENTRY_H__
-#include "MIPv6Entry.h"
-#endif // __MIPv6ENTRY_H__
 
 #if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #include "opp_utils.h" //getParser()
@@ -58,19 +49,10 @@
 #include "XMLCommon.h"
 #endif
 
-#include "IPvXAddress.h"
-#include "IPAddressResolver.h"
-#include "MIPv6MNEntry.h"
-#include "IPv6CDS.h"
-#include "MIPv6CDSMobileNode.h"
 #endif //USE_MOBILITY
 
-#ifdef USE_HMIP
-#include "HMIPv6CDSMobileNode.h"
-#if EDGEHANDOVER
-#include "EHCDSMobileNode.h"
-#endif
-#endif
+
+#include "cTimerMessage.h"
 
 Define_Module(IPv6Mobility);
 
@@ -90,17 +72,11 @@ namespace MobileIPv6
   const int Sched_SendCoTI = 9003;
 }
 
-namespace
-{
-  const unsigned int MIPv6_PERIOD = 1 ; //seconds
-};
-
 IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
-    :cSimpleModule(name, parent, 0), 
-     buRetranTmrs(BURetranTmrs()), schedSendBU(0),
+    :cSimpleModule(name, parent, 0),
      ift(InterfaceTableAccess().get()),
-     rt(RoutingTable6Access().get()), mipv6cds(0),
-     _MobilityState(0), periodTmr(0), _routeOptimise(false),
+     rt(RoutingTable6Access().get()),
+     role(0), _routeOptimise(false),
      _returnRoutability(false), _isEBU(false),
      ewuOutVectorHODelays(false),
      linkUpTime(0),
@@ -118,25 +94,15 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
      buVector(0),
      lbuVector(0),
      lbackVector(0),
-     lbbuVector(0),
-     lbbackVector(0),
+     bbuVector(0),
+     bbackVector(0),
      ehType(""), 
-     ehCallback()
+     ehCallback(0)
 {
 }
 
 IPv6Mobility::~IPv6Mobility()
-{
-#ifdef USE_MOBILITY
-  if (periodTmr && !periodTmr->isScheduled())
-    delete periodTmr;
-  periodTmr = 0;
-  delete mipv6cds;
-  mipv6cds = 0;
-  delete schedSendBU;
-  schedSendBU = 0;
-#endif  
-}
+{}
 
 
 /**
@@ -146,119 +112,31 @@ IPv6Mobility::~IPv6Mobility()
 
 void IPv6Mobility::initialize(int stage)
 {
-/*
-  if (stage == 0)
-  {
-    ift = InterfaceTableAccess().get();
-    rt = RoutingTable6Access().get();
-
-    mipv6cds = 0;
-    _MobilityState = 0;
-    periodTmr = 0;
-#ifdef USE_MOBILITY
-    schedSendBU = 0;
-    linkDownTime = 0;
-    handoverDelay = 0;
-    prevLinkUpTime = 0; 
-    avgCellResidenceTime = 0;
-    handoverCount = 0;
-    ewuOutVectorHODelays = false;
-    linkUpTime = 0;
-
-#if EDGEHANDOVER
-    ehCallback = 0;
-    //This overwrites the value assigned by XML and I thought this was run before parsing !
-#endif // EDGEHANDOVER
-#endif // USE_MOBILITY
-  }
-*/
   if (!rt->mobilitySupport())
     return;
 
   if (stage == 1)
   {
-#ifdef USE_MOBILITY
       if (isHomeAgent())
-        mipv6cds = new MIPv6CDSHomeAgent(ift->numInterfaceGates());
+        role = new MIPv6MStateHomeAgent(this);
       else if (isMobileNode())
-      {
-        backVector = new cOutVector("BAck recv");
-        buVector = new cOutVector("BU sent");
-        lbuVector = new cOutVector("LBU sent");
-        lbackVector = new cOutVector("LBAck recv");
-        //BU to Bound map
-        lbbuVector = new cOutVector("LBBU sent");
-        lbbackVector = new cOutVector("LBBAck recv");
-#ifdef USE_HMIP
-        if (!rt->hmipSupport())
-#endif //USE_HMIP
-          mipv6cds = new MIPv6CDSMobileNode(ift->numInterfaceGates());
-#ifdef USE_HMIP
-        else
-        {
-#if EDGEHANDOVER
-          if (edgeHandover())
-            {
-              Dout(dc::eh, nodeName()<<" Edgehandover instance created");
-              mipv6cds = new EdgeHandover::EHCDSMobileNode(ift->numInterfaceGates());
-            }
-          else
-#endif //EDGEHANDOVER
-          mipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(ift->numInterfaceGates());
-        }
-#endif //USE_HMIP
-      }
+        role = new MIPv6MStateMobileNode(this);
       else
-        mipv6cds = new MIPv6CDS;
+        role = new MIPv6MStateCorrespondentNode(this);
 
-      rt->mipv6cds = mipv6cds;
-
-      periodTmr = new MIPv6PeriodicCB(this, mipv6cds->setupLifetimeManagement(),
-                                      MIPv6_PERIOD);
-
-      parseXMLAttributes();    
-#endif // USE_MOBILITY
+      role->initialize(stage);
+      //does nothing currently
+      parseXMLAttributes();
   }
   else if (stage == 2)
   {
-
+    role->initialize(stage);
 #ifdef USE_MOBILITY
     if ( ewuOutVectorHODelays )
       handoverLatency = new cOutVector("L3 handover delay");
     linkUpVector = new cOutVector("L2 Up");
     linkDownVector = new cOutVector("L2 Down");
     
-    if (rt->mobilitySupport() && isMobileNode() && par("homeAgent").stringValue()[0])
-    { 
-      ipv6_addr haAddr = IPv6_ADDR_UNSPECIFIED;
-      IPvXAddress destAddr = IPAddressResolver().resolve(par("homeAgent"));
-      if (destAddr.isNull())
-        haAddr = c_ipv6_addr(par("homeAgent"));
-      else
-        haAddr = c_ipv6_addr(destAddr.get6().str().c_str());
-
-      if (haAddr == IPv6_ADDR_UNSPECIFIED)
-        return;
-      Dout(dc::mipv6, nodeName()<<" using assigned homeAgent "<<haAddr
-           <<" from par(homeAgent) "<<par("homeAgent"));
-      IPv6NeighbourDiscovery::RouterEntry* re = new IPv6NeighbourDiscovery::RouterEntry(haAddr);
-      re->setState(NeighbourEntry::INCOMPLETE);
-      rt->cds->insertRouterEntry(re, false);
-      boost::weak_ptr<IPv6NeighbourDiscovery::RouterEntry> bre = rt->cds->router(haAddr);
-      MIPv6RouterEntry* ha = new MIPv6RouterEntry(bre, true, ipv6_prefix(haAddr, 64), VALID_LIFETIME_INFINITY);
-      MIPv6CDSMobileNode* mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mipv6cds);
-      mipv6cdsMN->insertHomeAgent(ha);
-      boost::shared_ptr<MIPv6RouterEntry> bha = mipv6cdsMN->findHomeAgent(haAddr);
-      mipv6cdsMN->primaryHA() = bha;
-      //Todo assuming HA is on ifIndex of 0
-      bool primaryHoa = true;
-      ipv6_prefix hoa = mipv6cdsMN->formHomeAddress(
-        mipv6cdsMN->primaryHA(), ift->interfaceByPortNo(0), primaryHoa);
-      rt->assignAddress(IPv6Address(hoa), 0);
-      mipv6cdsMN->setAwayFromHome(true);
-      mipv6cdsMN->currentRouter() = boost::shared_ptr<MIPv6RouterEntry>();
-      rt->cds->removeDestEntryByNeighbour(haAddr);
-    }
 #endif // USE_MOBILITY
 
   }
@@ -288,29 +166,18 @@ void IPv6Mobility::handleMessage(cMessage* msg)
       return;
     }
 
-    IPv6Datagram* dgram = static_cast<IPv6Datagram*>(msg);
-    //assert(_MobilityState);
-    //bool success = _MobilityState->nextState(dgram, this);
-    bool success = MIPv6MobilityState::nextState(dgram, this);
-    assert(_MobilityState);
-    if (!success)
-    {
-      delete dgram;
+    IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(msg);
+    assert(dgram);
+    if (!dgram)
       return;
-    }
 
-    MIPv6MobilityHeaderBase* mhb = 0;
+    if (role->processMobilityMsg(dgram))
+      delete dgram;
 
-    _MobilityState->processMobilityMsg(dgram, mhb, this);
-
-    if (mhb)
-    delete mhb;
-
-    delete msg;
   }
   else
   {
-    (check_and_cast<cTimerMessage *> (msg) )->callFunc();
+    (check_and_cast< cTimerMessage *> (msg) )->callFunc();
   }
 
 #endif
@@ -338,8 +205,8 @@ void IPv6Mobility::recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr)
 {
   if ( isMobileNode() && isEwuOutVectorHODelays() )
   {
-    boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(_MobilityState)->
-      recordHODelay(buRecvTime, addr, this);
+    boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(role)->
+      recordHODelay(buRecvTime, addr);
   }
 }
 
@@ -354,17 +221,7 @@ void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
 }
 
 void IPv6Mobility::parseXMLAttributes()
-{
-#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
-  if (isMobileNode())
-  {
-    XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
-    MIPv6CDSMobileNode* mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*>(mipv6cds);
-    mipv6cdsMN->setEagerHandover(p->getNodePropBool(p->getNetNode(nodeName()), "eagerHandover"));
-  }
-#endif
-
-}
+{}
 
 void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 {
@@ -421,7 +278,7 @@ cTimerMessage* IPv6Mobility::setEdgeHandoverCallback(cTimerMessage* ehcb)
 {
   Dout(dc::eh, nodeName()<<" "<<simTime()<<" callback set to "<<ehcb->name()<<" and old one was "
        <<(ehCallback?ehCallback->name():"none"));
-  cTimerMessage* oldcb = ehCallback;
+  ::cTimerMessage* oldcb = ehCallback;
   if (oldcb && oldcb->isScheduled())
     oldcb->cancel();
   ehCallback = ehcb;

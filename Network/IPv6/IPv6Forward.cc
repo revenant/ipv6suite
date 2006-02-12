@@ -268,6 +268,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
+//  mob->role->cnSendPacketCheck();
 // {{{ If we have a binding for dest then swap dest==hoa to coa
 
 #ifdef USE_MOBILITY
@@ -286,7 +287,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     // check if the packet is encapsulated with another IPv6 header.
 
     MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
-    IPv6Datagram* tunPacket = false;
+    IPv6Datagram* tunPacket = 0;
     if (datagram->transportProtocol() == IP_PROT_IPv6)
       tunPacket = check_and_cast<IPv6Datagram*>(datagram->encapsulatedMsg());
 
@@ -355,10 +356,10 @@ void IPv6Forward::endService(cMessage* theMsg)
         if ((datagram->srcAddress() != IPv6_ADDR_UNSPECIFIED &&
              ie->ipv6()->tentativeAddrAssigned(datagram->srcAddress()))
 #ifdef USE_MOBILITY
-            || (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome() &&
+            || (rt->mobilitySupport() && rt->isMobileNode() && 
+                rt->mipv6cds->mipv6cdsMN->awayFromHome() &&
                 ie->ipv6()->tentativeAddrAssigned(
-                  boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>
-                  (rt->mipv6cds)->careOfAddr(true)))
+                  rt->mipv6cds->mipv6cdsMN->careOfAddr(true)))
 #endif //USE_MOBILITY
             )
         {
@@ -401,6 +402,7 @@ void IPv6Forward::endService(cMessage* theMsg)
                               datagram->destAddress(), info->ifIndex()));
   }
 
+//  mob->role->mnSendPacketCheck();
 // {{{ away from home (MIPv6)
 
 #ifdef USE_MOBILITY
@@ -412,16 +414,12 @@ void IPv6Forward::endService(cMessage* theMsg)
   bool pcoa = false;
   //Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
   if (rt->mobilitySupport() && rt->isMobileNode() &&
-      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-      ->awayFromHome() &&
-      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-      ->primaryHA().get() != 0 &&
+      rt->mipv6cds->mipv6cdsMN->awayFromHome() &&
+      rt->mipv6cds->mipv6cdsMN->primaryHA().get() != 0 &&
       datagram->srcAddress() ==
-      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-      ->homeAddr())
+      rt->mipv6cds->mipv6cdsMN->homeAddr())
   {
-    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN =
-      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds);
+    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
 
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
@@ -483,8 +481,7 @@ void IPv6Forward::endService(cMessage* theMsg)
       datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
 //#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
       Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-           <<boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-           ->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
+           <<rt->mipv6cds->mipv6cdsMN->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
            <<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
@@ -492,8 +489,7 @@ void IPv6Forward::endService(cMessage* theMsg)
       if (rt->mobilitySupport() && rt->hmipSupport())
       {
         docheck = true;
-        HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN =
-          boost::polymorphic_downcast<HierarchicalMIPv6::HMIPv6CDSMobileNode*>(rt->mipv6cds);
+        HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = rt->mipv6cds->hmipv6cdsMN;
 
         InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
 
@@ -516,8 +512,7 @@ void IPv6Forward::endService(cMessage* theMsg)
           assert(mob != 0);
           if (mob->edgeHandover())
           {
-            EdgeHandover::EHCDSMobileNode* ehcds =
-              boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(mipv6cdsMN);
+            EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
             assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
             Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<" nrcoa="<<hmipv6cdsMN->remoteCareOfAddr()); 
 
@@ -869,19 +864,19 @@ ipv6_addr IPv6Forward::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex
 {
   ipv6_addr::SCOPE destScope = ipv6_addr_scope(dest);
 
+//  mob->role->mnSrcAddrDetetermination();
 #ifdef USE_MOBILITY
   //We don't care which outgoing iface dest is on because it is determined by
   //default router ifIndex anyway (preferably iface on link with Internet
   //connection after translation to care of addr)
   if (rt->mobilitySupport() && rt->isMobileNode() &&
-      boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-      ->primaryHA().get() != 0 && destScope == ipv6_addr::Scope_Global)
+      rt->mipv6cds->mipv6cdsMN->primaryHA().get() != 0 &&
+      destScope == ipv6_addr::Scope_Global)
   {
     Dout(dc::mipv6, rt->nodeName()<<" using homeAddress "
-         <<boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
+         <<rt->mipv6cds->mipv6cdsMN
          ->homeAddr()<<" for destination "<<dest);
-    return boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-      ->homeAddr();
+    return rt->mipv6cds->mipv6cdsMN->homeAddr();
   }
 
 #endif //USE_MOBILITY

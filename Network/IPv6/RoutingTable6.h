@@ -101,7 +101,9 @@ class RoutingTable6: public cSimpleModule
   friend class IPv6NeighbourDiscovery::NDStateHost;
 
 public:
-  Module_Class_Members(RoutingTable6, cSimpleModule, 0);
+
+  RoutingTable6(const char *name=NULL, cModule *parent=NULL);
+  ~RoutingTable6();  
 
   ///@name Redefined cSimpleModule funcs
   //@{
@@ -145,8 +147,6 @@ public:
       assert(mobilitySupport());
       return role == MOBILE_NODE;
     }
-
-  bool awayFromHome() const;
 
 #endif //USE_MOBILITY
 

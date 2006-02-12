@@ -77,6 +77,15 @@ namespace
 
 Define_Module( RoutingTable6 );
 
+RoutingTable6::RoutingTable6(const char *name, cModule *parent):
+  cSimpleModule(name, parent, 0)
+{
+}
+
+RoutingTable6::~RoutingTable6()
+{
+}
+
 void RoutingTable6::initialize(int stage)
 {
   if(stage == 0)
@@ -379,21 +388,10 @@ void RoutingTable6::removeRouterEntry(RouterEntry* re)
   cds->removeRouterEntry(re->addr());
 }
 
-#ifdef USE_MOBILITY
-bool RoutingTable6::awayFromHome() const
-{
-  assert(mobilitySupport());
-  MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN =
-    boost::polymorphic_downcast<MobileIPv6::MIPv6CDSMobileNode*>(mipv6cds);
-  return mipv6cdsMN->awayFromHome();
-}
-
 void RoutingTable6::setMobilitySupport(bool mipv6)
 {
   mipv6Support = mipv6;
 }
-
-#endif //USE_MOBILITY
 
 // --------------
 //  Print tables

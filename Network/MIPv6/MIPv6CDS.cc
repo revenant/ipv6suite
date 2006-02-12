@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
   return mipv6cds.operator<<(os);
 }
 
-  MIPv6CDS::MIPv6CDS():tunMod(0)
+  MIPv6CDS::MIPv6CDS():tunMod(0), mipv6cdsMN(0), ha(0)
   {
     home_token.high = rand();
     home_token.low = rand();

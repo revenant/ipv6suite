@@ -54,9 +54,21 @@ class cTimerMessage;
 struct ipv6_addr;
 class IPv6Encapsulation;
 
+namespace HierarchicalMIPv6
+{
+  class HMIPv6CDSMobileNode;
+}
+
+namespace EdgeHandover
+{
+  class EHCDSMobileNode;
+}
+
 namespace MobileIPv6
 {
   struct bc_entry;
+  class MIPv6CDSMobileNode;
+  class MIPv6CDSHomeAgent;
 
   /**
    * @class MIPv6CDS
@@ -116,6 +128,15 @@ namespace MobileIPv6
 
     typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
     typedef BindingCache::iterator  BCI;
+
+    //do not delete
+    MIPv6CDSMobileNode* mipv6cdsMN;
+    //do not delete
+    HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN;
+    //do not delete
+    MIPv6CDSHomeAgent* ha;
+    //do not delete
+    EdgeHandover::EHCDSMobileNode* ehcds;
 
   protected:
     ///Decrement by elapsed time in tmr for all entities with managed lifetimes

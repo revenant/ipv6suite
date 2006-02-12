@@ -32,32 +32,22 @@
 
 namespace HierarchicalMIPv6
 {
-  HMIPv6MStateMAP* HMIPv6MStateMAP::_instance = 0;
-
-  HMIPv6MStateMAP* HMIPv6MStateMAP::instance()
-  {
-    if (_instance == 0)
-      _instance = new HMIPv6MStateMAP;
-
-    return _instance;
-  }
-
   HMIPv6MStateMAP::~HMIPv6MStateMAP()
   {}
 
-  HMIPv6MStateMAP::HMIPv6MStateMAP()
+  HMIPv6MStateMAP::HMIPv6MStateMAP(IPv6Mobility* mob):MIPv6MStateHomeAgent(mob)
   {
     //MobileIPv6::MIPv6MStateHomeAgent::MIPv6MStateHomeAgent();
   }
 
-  bool HMIPv6MStateMAP::processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu,
-                                  IPv6Mobility* mod)
+  bool HMIPv6MStateMAP::processBU(IPv6Datagram* dgram, MIPv6MHBindingUpdate* bu)
   {
-    if ( MobileIPv6::MIPv6MStateHomeAgent::processBU(dgram, bu, mod) == false)
+    if ( MobileIPv6::MIPv6MStateHomeAgent::processBU(dgram, bu) == false)
       return false;
     else
     {
       // process the 'M' bit
+      //bu->mapreg()
     }
     return true;
   }

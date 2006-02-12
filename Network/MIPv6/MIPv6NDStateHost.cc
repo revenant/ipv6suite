@@ -203,7 +203,7 @@ private:
  */
 
 MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
-  : NDStateHost(mod), mipv6cdsMN(0), awayCheckDone(false), missedTmr(0), mob(0),
+  : NDStateHost(mod), mnRole(0), mipv6cdsMN(0), awayCheckDone(false), missedTmr(0), mob(0),
     mstateMN(0), schedSendRtrSolCB(
       new cTTimerMessageCBA<NDTimer, void>
       //(Sched_SendRtrSol, nd, makeCallback(this, &MIPv6NDStateHost::sendRtrSol),
@@ -234,7 +234,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   //differ by return type) and we referencing a static func by the correct
   //class itself.
   mstateMN = boost::polymorphic_downcast<MIPv6MStateMobileNode*>
-    (MIPv6MStateMobileNode::instance());
+    (mob->role);
   assert(mstateMN != 0);
 
   for (unsigned int i = 0; i < ift->numInterfaceGates(); i++)
@@ -264,8 +264,8 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   }
 
   assert(rt->mipv6cds != 0);
-
-  mipv6cdsMN = boost::polymorphic_downcast<MIPv6CDSMobileNode*> (rt->mipv6cds);
+  mnRole = boost::polymorphic_downcast<MIPv6MStateMobileNode*>(mob->role);
+  mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
 
 #endif //USE_MOBILITY
 
@@ -1311,8 +1311,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 //     return;
 //   }
 
-  HMIPv6CDSMobileNode* hmipv6cds =
-    boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(mipv6cdsMN);
+  HMIPv6CDSMobileNode* hmipv6cds = rt->mipv6cds->hmipv6cdsMN;
 
   //Also check if CN is on same link as us and send BU to it with our lcoa as
   //coa if MAP option flags allow this
@@ -1367,7 +1366,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   // node. If it does, we don't need to do correspondent registration
 
   boost::weak_ptr<bc_entry> bce =
-    mipv6cdsMN->findBindingByCoA(tunPacket->srcAddress());
+    rt->mipv6cds->findBindingByCoA(tunPacket->srcAddress());
 
   if (bce.lock())
   {
@@ -1460,13 +1459,13 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   }
 
     if (mob->returnRoutability())
-        mstateMN->sendInits(cna, coa, mob);
+        mstateMN->sendInits(cna, coa);
     else
     {
       //What happens if home_addr is really our previous coa? so use the one
       //registered with primaryHA. What if there are multiple home addresses?
       mstateMN->sendBU(cna, coa, mipv6cdsMN->homeAddr(),
-                     rt->minValidLifetime(), false, 0, mob);
+                     rt->minValidLifetime(), false, 0);
       assert(mipv6cdsMN->homeAddr() == tunPacket->destAddress());
       Dout(dc::debug|flush_cf, rt->nodeName()<<" sending BU to CN (Route Optimisation) "
            <<cna);
@@ -1498,8 +1497,7 @@ void MIPv6NDStateHost::returnHome()
 
   //send BU to HA A and H bit set coa = hoa and no home address option
 
-  mstateMN->sendBUToAll(mipv6cdsMN->homeAddr(), mipv6cdsMN->homeAddr(), 0,
-                        mob);
+  mstateMN->sendBUToAll(mipv6cdsMN->homeAddr(), mipv6cdsMN->homeAddr(), 0);
 
   //unsolicited NA to advertise our Link layer address for each on-link
   //prefix (just home addr for now) after BU sent.
@@ -1529,16 +1527,15 @@ void MIPv6NDStateHost::returnHome()
 #ifdef USE_HMIP
   if (rt->hmipSupport())
   {
-    HMIPv6CDSMobileNode* hmipv6cds =
-      boost::polymorphic_downcast<HMIPv6CDSMobileNode*>(rt->mipv6cds);
+
+    HMIPv6CDSMobileNode* hmipv6cds = rt->mipv6cds->hmipv6cdsMN;
     assert(hmipv6cds);
     hmipv6cds->setNoCurrentMap();
 
 #if EDGEHANDOVER
     if (mob->edgeHandover())
     {
-      (boost::polymorphic_downcast<EdgeHandover::EHCDSMobileNode*>(hmipv6cds))
-        ->setNoBoundMap();
+      rt->mipv6cds->ehcds->setNoBoundMap();
     }
   }
 #endif //EDGEHANDOVER
@@ -1572,8 +1569,7 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   //We use minimum valid lifetime since that's guaranteed to be <=
   //both home addr and coa
-  mstateMN->sendBUToAll(ncoa, mipv6cdsMN->homeAddr(), rt->minValidLifetime(),
-                        mob);
+  mstateMN->sendBUToAll(ncoa, mipv6cdsMN->homeAddr(), rt->minValidLifetime());
 
 #ifdef USE_HMIP
   }

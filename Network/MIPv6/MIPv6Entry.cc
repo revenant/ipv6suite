@@ -21,10 +21,18 @@
 namespace MobileIPv6
 {
 
+  void bc_entry::setSeqNo(unsigned int seq)
+  {
+    if (seq > (2<<15) - 1)
+      seq_no = seq % (2<<15);
+    else
+      seq_no = seq;
+  }
+
   std::ostream& operator<< (std::ostream& os, const bc_entry& bce)
   {
     os<<" hoa="<<bce.home_addr<<" coa="<<bce.care_of_addr<<(bce.is_home_reg?" home_reg ":"")
-      <<" expires="<<bce.expires<<" seq.no="<<bce.seq_no;
+      <<" expires="<<bce.expires<<" seq.no="<<bce.seqNo();
     return os;
   }
 

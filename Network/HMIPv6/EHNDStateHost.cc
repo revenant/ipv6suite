@@ -65,7 +65,7 @@ namespace EdgeHandover
 
   EHNDStateHost::EHNDStateHost(NeighbourDiscovery* mod):
     HMIPv6NDStateHost(mod),
-    ehcds(boost::polymorphic_downcast<EHCDSMobileNode*>(&hmipv6cdsMN))
+    ehcds(rt->mipv6cds->ehcds)
 {
 
   cTimerMessage* tmr = new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,

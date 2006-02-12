@@ -79,11 +79,14 @@ namespace MobileIPv6
     /// remaining lifetime
     unsigned long expires;
 
+    void setSeqNo(unsigned int s);
+    unsigned int seqNo() const
+    {
+      return seq_no;
+    }
+
     /// a flag to indicate if the entry is a home registration entry
     bool is_home_reg;
-
-    ///maximum received Sequence Number in previous binding update
-    unsigned int seq_no;
 
     ///Placeholder for the BSA for authenticating BU and calculating BA
     int bsa;
@@ -108,6 +111,13 @@ namespace MobileIPv6
 
     cOutVector* cellResidenceTimeVec;
     //@}
+
+
+  private:
+    
+    ///maximum received Sequence Number in previous binding update
+    unsigned int seq_no;
+
   };
 
   std::ostream& operator<< (std::ostream& os, const bc_entry& bce);

@@ -48,6 +48,8 @@
 #include "cTimerMessage.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
+#include "MIPv6CDS.h"
+#include "MIPv6CDSMobileNode.h"
 #include "cTTimerMessageCB.h"
 
 #if defined USE_HMIP
@@ -401,7 +403,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
 #ifdef USE_MOBILITY
     //last paragraph of 11.5.2 of mipv6 revision 24  says should not delay
-    if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome())
+    if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
       delay = 0;
     else
     {
@@ -418,7 +420,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     tmr->msg = new HostTmrMsg(Tmr_DupAddrSolTimeout,
                               static_cast<NDStateHost*>(this),
-                              &NDStateHost::dupAddrDetection, tmr, false /*FIXME causes memory leak!*/,
+                              &NDStateHost::dupAddrDetection, tmr, true,
                               "DupAddrDet");
 
     timerMsgs.push_back(tmr->msg);
@@ -495,7 +497,7 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
   }
 
 #if USE_MOBILITY
-  if (rt->mobilitySupport() && rt->isMobileNode() && rt->awayFromHome())
+  if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
   {
     ipv6_addr potentialCoa = ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1];
     MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
@@ -720,14 +722,23 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 
     if (!(*rt->cds)[srcAddr].neighbour.lock().get()->isRouter())
     {
-      DoutFatal(dc::core|error_cf|flush_cf,  FILE_LINE
+
+//      DoutFatal(dc::core|error_cf|flush_cf,  FILE_LINE
+      Dout(dc::warning|flush_cf,  FILE_LINE
                 <<rt->nodeName()<<":"<<ifIndex<<" isRouter Assumption "
                 <<"was wrong for router "<<srcAddr<<" ngbr="
                 <<(*rt->cds)[srcAddr].neighbour.lock()->addr());
-
+      cerr<<FILE_LINE<<rt->nodeName()<<":"<<ifIndex<<" isRouter Assumption "
+          <<"was wrong for router "<<srcAddr<<" ngbr="
+          <<(*rt->cds)[srcAddr].neighbour.lock()->addr()<<endl;
       //This can happen if a host becomes a router
       //create router entry for it and remove old neighbour entry
       //Done already in insertRouterEntry
+
+//HACK (FIXME do not know why this occurs since we do not have hosts changing to routers)
+      (*rt->cds)[srcAddr].neighbour.lock().get()->setIsRouter(true);
+      //boost::polymorphic_downcast<RouterEntry*> ((*rt->cds)[srcAddr].neighbour.lock().get());
+
     }
   }
   else
@@ -880,7 +891,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       {
         Dout(dc::notice|dc::router_disc|flush_cf, rt->nodeName()<<":"<<ifIndex
              <<" "<<nd->simTime()<<"RtrAdv received from "<<dgram->srcAddress()
-             <<"Interface not ready or "
+             <<" -  Unable to autoconf addr from prefix: Interface not ready or "
              <<"irreconcilable prefix length"<<prefOpt.prefixLen);
       }
     }
@@ -1002,7 +1013,7 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
     //Doing DAD always not just when away from home as trend is to do it always
     //even in home subnet I guess
     if (rt->mobilitySupport() && rt->isMobileNode())
-      Dout(dc::debug, rt->nodeName()<<" awayfromHom="<<(rt->awayFromHome()?"away":"home"));
+      Dout(dc::debug, rt->nodeName()<<" awayfromHom="<<(rt->mipv6cds->mipv6cdsMN->awayFromHome()?"away":"home"));
 
     if (rt->mobilitySupport() && rt->isMobileNode())// && rt->awayFromHome())
     {

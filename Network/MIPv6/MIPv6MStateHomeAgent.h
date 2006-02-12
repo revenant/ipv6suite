@@ -29,11 +29,9 @@
 #ifndef __MIPV6MSTATEHOMEAGENT_H__
 #define __MIPV6MSTATEHOMEAGENT_H__
 
-#include <omnetpp.h>
-
-#ifndef __MIPV6MOBILTIYSTATE_H__
-#include "MIPv6MobilityState.h"
-#endif // __MIPV6MOBILTIYSTATE_H__
+#ifndef __MIPV6MSTATECORRESPONDENTNODE_H
+#include "MIPv6MStateCorrespondentNode.h"
+#endif // __MIPV6MSTATECORRESPONDENTNODE_H
 
 class IPv6Mobility;
 class IPv6Datagram;
@@ -42,29 +40,31 @@ class MIPv6MobilityHeaderBase;
 namespace MobileIPv6
 {
 
-class MIPv6MStateHomeAgent : public MIPv6MobilityState
+/**
+ * @class MIPv6MStateHomeAgent
+ * @brief Handling of mobility messages from HA perspective
+ * @ingroup MobilityRoles
+ */
+
+class MIPv6MStateHomeAgent : public MIPv6MStateCorrespondentNode
 {
  public:
-  static MIPv6MobilityState* instance(void);
-
+  MIPv6MStateHomeAgent(IPv6Mobility* mob);
   virtual ~MIPv6MStateHomeAgent(void);
 
-  virtual void processMobilityMsg(IPv6Datagram* dgram,
-                                  MIPv6MobilityHeaderBase*& mhb,
-                                  IPv6Mobility* mod);
+  virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
  protected:
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod);
+  virtual bool processBU(IPv6Datagram* dgram, BU* bu);
 
-  virtual void registerBCE(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mob);
+  virtual void registerBCE(IPv6Datagram* dgram, BU* bu);
 
-  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex, IPv6Mobility* mob);
+  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex);
 
-  static MIPv6MStateHomeAgent* _instance;
 
   ///Returns global address on certain interface used as HA's address
-  ipv6_addr globalAddr(unsigned int ifIndex,  IPv6Mobility* mod) const;
-
+  ipv6_addr globalAddr(unsigned int ifIndex) const;
+private:
   MIPv6MStateHomeAgent(void);
 };
 

@@ -28,12 +28,32 @@
 #ifndef MIPV6MSTATEMOBILENODE_H
 #define MIPV6MSTATEMOBILENODE_H
 
+#ifdef USE_MOBILITY
+struct ipv6_addr;
+
+#ifndef LIST
+#define LIST
+#include <list>
+#endif //LIST
+
+#endif
+
 #ifndef MIPV6MSTATECORRESPONDENTNODE_H
 #include "MIPv6MStateCorrespondentNode.h"
 #endif //MIPV6MSTATECORRESPONDENTNODE_H
 
 class IPv6Datagram;
 class IPv6Mobility;
+
+namespace HierarchicalMIPv6
+{
+  class HMIPv6CDSMobileNode;
+}
+
+namespace EdgeHandover
+{
+  class EHCDSMobileNode;
+}
 
 namespace MobileIPv6
 {
@@ -44,50 +64,49 @@ namespace MobileIPv6
 extern const simtime_t CELL_RESI_THRESHOLD;
 
 class BURetranTmr;
+class  MIPv6CDSMobileNode;
 
 /**
  * @class MIPv6MStateMobileNode
  * @brief Handling of mobility messages from MN perspective
- * @ingroup MobilityStates
+ * @ingroup MobilityRoles
  */
 
 class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 {
  public:
-  static MIPv6MStateMobileNode* instance(void);
+  MIPv6MStateMobileNode(IPv6Mobility* mob);
 
   virtual ~MIPv6MStateMobileNode(void);
 
-  virtual void processMobilityMsg(IPv6Datagram* dgram,
-                                  MIPv6MobilityHeaderBase*& mhb,
-                                  IPv6Mobility* mod);
+  virtual void initialize(int stage = 0);
+
+  virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
   ///@name Implementation details
   //@{
-  void removeBURetranTmr(BURetranTmr* buTmr, IPv6Mobility* mob);
+  void removeBURetranTmr(BURetranTmr* buTmr);
   //@}
 
   ///Sends a binding update to primary HA and HA/CN in BUL too
-  void sendBUToAll(const ipv6_addr& coa, const ipv6_addr hoa, size_t lifetime,
-                   IPv6Mobility* mob);
+  void sendBUToAll(const ipv6_addr& coa, const ipv6_addr hoa, size_t lifetime);
 
   ///Send a binding update to dest for homeAddr with coa as the care of addr
   bool sendBU(const ipv6_addr& dest, const ipv6_addr& coa, const ipv6_addr& hoa,
-              size_t lifetime, bool homeReg, size_t ifIndex, IPv6Mobility* mod
+              size_t lifetime, bool homeReg, size_t ifIndex
 #ifdef USE_HMIP
               , bool mapReg = false
 #endif //USE_HMIP
               , simtime_t timestamp = 0);
 
-  void sendInits(const ipv6_addr& dest, const ipv6_addr& coa,
-                 IPv6Mobility* mod);
+  void sendInits(const ipv6_addr& dest, const ipv6_addr& coa);
 
 #ifdef USE_HMIP
   bool sendMapBU(const ipv6_addr& dest, const ipv6_addr& coa, const ipv6_addr& hoa,
-                 size_t lifetime, size_t ifIndex, IPv6Mobility* mod);
+                 size_t lifetime, size_t ifIndex);
 #endif //USE_HMIP
 
-  bool previousCoaForward(const ipv6_addr& coa, const ipv6_addr& hoa, IPv6Mobility* mob);
+  bool previousCoaForward(const ipv6_addr& coa, const ipv6_addr& hoa);
 
   // Loki cannot accept a TypeList with the same argument type because
   // TYPE_LIST works on GenScatterHierarchy. This class creates a
@@ -97,35 +116,48 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   // addrs[0] = dest
   // addrs[1] = coa
-  void sendHoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t);
-  void sendCoTI(const std::vector<ipv6_addr> addrs, IPv6Mobility* mob, simtime_t);
+  void sendHoTI(const std::vector<ipv6_addr> addrs, simtime_t);
+  void sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t);
 
-  void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr, IPv6Mobility* mob);
+  void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr);
 
  protected:
   ///handle Binding Acks according to draft 16 10.14
-  void processBA(BA* ba, IPv6Datagram* dgram, IPv6Mobility* mod);
+  void processBA(BA* ba, IPv6Datagram* dgram);
 
-  void processBM(BM* bm, IPv6Datagram* dgram, IPv6Mobility* mod);
+  void processBM(BM* bm, IPv6Datagram* dgram);
+                                             
+  void processBR(BR* br, IPv6Datagram* dgram);
 
-  void processBR(BR* br, IPv6Datagram* dgram, IPv6Mobility* mod);
-
-  void processTestMsg(TMsg* t, IPv6Datagram* dgram, IPv6Mobility* mod);
+  void processTestMsg(TMsg* t, IPv6Datagram* dgram);
 
   ///Update the BU list with this recently sent BU
-  bool updateBU(const BU* bu, IPv6Mobility* mod);
+  bool updateBU(const BU* bu);
 
   ///Called by layer 2 whenever movement is detected there
   void l2MovementDetectionCB(cMessage* msg);
 
 
-  static MIPv6MStateMobileNode* _instance;
-  MIPv6MStateMobileNode(void);
+  // TODO: it would probably make more sense to add buRetransTmr in
+  // each of the BUL entry instead of storing a list of buRetransTmrs
+  // in the state class.
+
+  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
+  typedef BURetranTmrs::iterator BURTI;
+
+  BURetranTmrs buRetranTmrs;
+
+  MIPv6CDSMobileNode* mipv6cdsMN;
+  HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cds;
+  EdgeHandover::EHCDSMobileNode* ehcds;
 
 private:
   ///Schedule a self message to send BU from any module
-  void scheduleSendBU(IPv6Datagram* dgram, IPv6Mobility* mob);
+  void scheduleSendBU(IPv6Datagram* dgram);
 
+  void  parseXMLAttributes();
+
+  MIPv6MStateMobileNode();
 };
 
 } // end namespace MobileIPv6

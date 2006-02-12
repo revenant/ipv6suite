@@ -38,34 +38,36 @@ class IPv6Datagram;
 namespace MobileIPv6
 {
 
+  class MIPv6CDS;
+
 /**
    @class MIPv6MStateCorrespondentNode
-   @brief Defines behaviour of MNs in IPv6Mobility module
-   @ingroup MobilityStates
+   @brief Define behaviour of CN role in IPv6Mobility module
+   @ingroup MobilityRoles
 */
 
 
 class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
 {
  public:
-  static MIPv6MStateCorrespondentNode* instance(void);
 
-  virtual void processMobilityMsg(IPv6Datagram* dgram,
-                                  MIPv6MobilityHeaderBase*& mhb,
-                                  IPv6Mobility* mod);
+  MIPv6MStateCorrespondentNode(IPv6Mobility* mod);
+  ~MIPv6MStateCorrespondentNode();
+
+  virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
  protected:
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu, IPv6Mobility* mod);
+  virtual bool processBU(IPv6Datagram* dgram, BU* bu);
 
-  void processTI(TIMsg* timsg, IPv6Datagram* dgram, IPv6Mobility* mod);
+  void processTI(TIMsg* timsg, IPv6Datagram* dgram);
 
   // send binding missing
-  void sendBM(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, BM* bm,
-              IPv6Mobility* mod);
+  void sendBM(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, BM* bm);
 
-  static MIPv6MStateCorrespondentNode* _instance;
+  cTimerMessage* periodTmr;
 };
 
 } // end namespace MobileIPv6
 
 #endif
+

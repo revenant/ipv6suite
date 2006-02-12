@@ -113,6 +113,7 @@ NDState::NDState(NeighbourDiscovery* mod)
   :nd(mod), nextState(0)
 {}
 
+///Unused should remove along with enter/leavestate and nextstate data member
 NDState* NDState::changeState()
 {
   if (!nextState)

@@ -42,6 +42,7 @@ class IPv6PPPInterface: public LinkLayerModule
 public:
   Module_Class_Members(IPv6PPPInterface, LinkLayerModule, 0);
 
+  ~IPv6PPPInterface();
   virtual void initialize();
   virtual void handleMessage(cMessage* theMsg);
 

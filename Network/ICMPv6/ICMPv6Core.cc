@@ -54,6 +54,12 @@ static const char* MLDGATE = "MLDOut";
 
 Define_Module( ICMPv6Core );
 
+ICMPv6Core::~ICMPv6Core()
+{
+  delete pingDelay;
+  delete pingDrop;
+}
+
 void ICMPv6Core::initialize()
 {
   QueueBase::initialize();

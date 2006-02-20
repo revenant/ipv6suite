@@ -46,6 +46,8 @@ class ICMPv6Core : public QueueBase
 public:
   Module_Class_Members(ICMPv6Core, QueueBase, 0);
 
+  ~ICMPv6Core();
+
   virtual void initialize();
   virtual void endService(cMessage* msg);
   virtual void finish();

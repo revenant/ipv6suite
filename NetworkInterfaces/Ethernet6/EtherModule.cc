@@ -221,6 +221,11 @@ void EtherModule::reset(void)
 
 void EtherModule::finish()
 {
+  delete RxDataBWVec;
+  delete TxDataBWVec;
+  delete noOfRxVec;
+  delete noOfTxVec;
+
 }
 
 EtherModule::~EtherModule()

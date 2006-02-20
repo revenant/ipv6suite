@@ -25,14 +25,14 @@ The next two hops to reach Router C are router B and D. On Router D the reverse 
 is set up using the same mechanism so that the flow of packets follows a figure of 8
 pattern through the four routers.
 
-Latest result now. 
+
+Latest gcc 3.4.4
 --------------------------------------------------------
-        tunnelNet.client.ping6App
+        tunnelNet.client.pingApp
 --------------------------------------------------------
-Ping: deadline reached at 100s
-tunnelNet.client.ping6App %drop rate 0.000%
-round-trip min/avg/max = 0.032ms/0.033ms/0.058ms
-stddev=0.003ms variance=0.000ms
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.0344/0.0347771/0.0608
+stddev (ms): 0.0031554   variance:9.95657e-12
 --------------------------------------------------------
 
 Using ODAD option will make all nodes do an unsolicited NA
@@ -47,16 +47,6 @@ round-trip min/avg/max = 0.032ms/0.032ms/0.032ms
 stddev=0.000ms variance=0.000ms
 --------------------------------------------------------
 
-Previous results from a year ago
---------------------------------------------------------
-        tunnelNet.client.ping6App
---------------------------------
-Ping: deadline reached at 100s
-tunnelNet.client.ping6App %drop rate 0.000%
-round-trip min/avg/max = 0.024ms/0.025ms/0.043ms
-stddev=0.002ms variance=0.000ms
----------------------------------
-
 Using Intel compiler
 --------------------------------------------------------
         tunnelNet.client.ping6App
@@ -67,25 +57,15 @@ round-trip min/avg/max = 0.0244ms/0.0247ms/0.0426ms
 stddev=0.00218ms variance=4.73e-09ms
 --------------------------------------------------------
 
+
 Run 2 has Prefixed Tunnel triggers instead of destination triggers
 
 --------------------------------------------------------
-        prefixedTunnelNet.client1.ping6App
+        prefixedTunnelNet.client1.pingApp
 --------------------------------------------------------
-Ping: deadline reached at 100s
-prefixedTunnelNet.client1.ping6App %drop rate 0.000%
-round-trip min/avg/max = 0.683ms/0.691ms/1.223ms
-stddev=0.065ms variance=0.000ms
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.67048/0.675309/1.00848
+stddev (ms): 0.0403987   variance:1.63206e-09
 --------------------------------------------------------
 
-Result from a year ago
-
---------------------------------------------------------
-        prefixedTunnelNet.client1.ping6App
---------------------------------------------------------
-Ping: deadline reached at 100s
-prefixedTunnelNet.client1.ping6App %drop rate 0.000%
-round-trip min/avg/max = 0.165ms/0.167ms/0.316ms
-stddev=0.018ms variance=0.000ms
---------------------------------------------------------
 

@@ -42,8 +42,6 @@
 #include "EtherModuleAP.h"
 #include "WirelessAccessPoint.h"
 #include "WirelessEtherSignal_m.h"
-#include "IPv6PPPAPInterface.h" // XXX ??? --AV
-#include "PPP6Frame.h"          // XXX ??? --AV
 #include "BRMsg_m.h"
 
 Define_Module(WirelessEtherBridge);
@@ -142,28 +140,6 @@ void WirelessEtherBridge::handleMessage(cMessage *msg)
             }
             break;
 
-        case PR_PPP:
-            {
-
-                IPv6PPPAPInterface *macMod = check_and_cast<IPv6PPPAPInterface *>(llmod);
-                assert(macMod);
-
-                PPP6Frame *frame = check_and_cast<PPP6Frame *>(msg);
-                LinkLayerModule *destMod = findMacByAddress(frame->destAddr);
-
-                if (destMod || frame->destAddr == WE_BROADCAST_ADDRESS)
-                {
-                    // send to wireless access point
-                    cMessage *destMessage = translateFrame(frame, PR_WETHERNET);
-                    send(destMessage, "apOut");
-
-//          if ( destMod && frame->destAddr != WE_BROADCAST_ADDRESS )
-//            macMod->addMacEntry(frame->srcAddr);
-                }
-
-
-            }
-            break;
         }
     }
 
@@ -228,9 +204,7 @@ cMessage *WirelessEtherBridge::translateFrame(cMessage * frame, int destProtocol
     cMessage *signal = 0;
 
     int frameProtocol;
-    if (dynamic_cast<PPP6Frame *>(frame))
-        frameProtocol = PR_PPP;
-    else if (dynamic_cast<EtherFrame6 *>(frame))
+    if (dynamic_cast<EtherFrame6 *>(frame))
         frameProtocol = PR_ETHERNET;
     else if (dynamic_cast<WirelessEtherDataFrame *>(frame))
         frameProtocol = PR_WETHERNET;
@@ -269,16 +243,6 @@ cMessage *WirelessEtherBridge::translateFrame(cMessage * frame, int destProtocol
 
                     ///@warning Dodgy WESignalData dups frames in ctor
                     // delete destFrame;
-                }
-                break;
-            case PR_PPP:
-                {
-                    signal = new PPP6Frame;
-                    cMessage *data = srcFrame->decapsulate();
-                    cMessage *dupData = data;
-                    signal->encapsulate(dupData);
-                    signal->setName(dupData->name());
-                    wEV << fullPath() << " \n" << " Packet forward from WirelessEthernet to PPP: \n";;
                 }
                 break;
             default:
@@ -352,51 +316,6 @@ cMessage *WirelessEtherBridge::translateFrame(cMessage * frame, int destProtocol
         }
         break;
 
-    case PR_PPP:
-        {
-            PPP6Frame *srcFrame = static_cast<PPP6Frame *>(frame);
-
-            switch (destProtocol)
-            {
-            case PR_WETHERNET:
-                {
-                    WirelessEtherDataFrame *destFrame = new WirelessEtherDataFrame;
-                    destFrame->setAddress1(MACAddress6(srcFrame->destAddr.c_str()));    // dest addr
-                    destFrame->setAddress2(MACAddress6(address));       // ap addr
-                    destFrame->getFrameControl().protocolVer = 0;
-                    destFrame->getFrameControl().type = FT_DATA;
-                    destFrame->getFrameControl().subtype = ST_DATA;
-                    destFrame->getFrameControl().toDS = false;
-                    destFrame->getFrameControl().fromDS = true;
-                    destFrame->getFrameControl().retry = false;
-                    destFrame->setLength(FL_FRAMECTRL + FL_DURATIONID + FL_ADDR1 +
-                                         FL_ADDR2 + FL_ADDR3 + FL_ADDR4 + FL_SEQCTRL + FL_FCS);
-                    // XXX destFrame->setProtocol(PR_WETHERNET);
-
-                    cMessage *data = srcFrame->decapsulate();
-                    destFrame->encapsulate(static_cast<cPacket *>(data->dup()));
-                    delete data;
-
-                    signal = encapsulateIntoWESignalData(destFrame);
-
-                    wEV  << fullPath() << " \n"
-                         << " ---------------------------------------------------- \n"
-                         << " Packet forward from PPP to Wireless Ethernet: \n"
-                         << " Address1 (DEST): " << destFrame->getAddress1() << "\n"
-                         << " Address2 (AP): " << destFrame->getAddress2() << "\n"
-                         << " No Address3 (SRC) as PPP : "
-                         << " ---------------------------------------------------- \n";
-
-                    // delete destFrame;
-                }
-                break;
-            default:
-                assert(false);
-                break;
-            }
-            break;
-        }
-        break;
     default:
         assert(false);
         break;

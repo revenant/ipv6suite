@@ -29,6 +29,7 @@ class AbstractQueue : public cSimpleModule
   public:
     Module_Class_Members(AbstractQueue,cSimpleModule,0);
 
+    virtual ~AbstractQueue();
   private:
     cMessage *msgServiced;
     cMessage *endServiceMsg;

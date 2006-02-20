@@ -21,6 +21,11 @@
 #include "AbstractQueue.h"
 
 
+AbstractQueue::~AbstractQueue()
+{
+  delete endServiceMsg;
+}
+
 void AbstractQueue::initialize()
 {
     msgServiced = NULL;

@@ -244,7 +244,7 @@ void XMLOmnetParser::tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt)
   else
     Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in tunnelConfiguration");
 
-  cXMLElementList tunList = netNode->getChildrenByTagName("tunnelEntry");
+  cXMLElementList tunList = ntun->getChildrenByTagName("tunnelEntry");
 
   for (NodeIt it = tunList.begin();it != tunList.end();it++)
   {

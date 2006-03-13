@@ -343,8 +343,8 @@ string longToBinary(unsigned long long no)
         ss<<":";
       ss<<(no&(1<<i-1)?"1":"0");
     }
-    return ss.str();
     assert(ss.str().size() == IPv6_ADDR_BITLENGTH/2+3);
+    return ss.str();
   }
 //@}
 

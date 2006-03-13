@@ -68,7 +68,7 @@ void MIPv6MobilityState::initialize(int stage)
 MIPv6MobilityHeaderBase* MIPv6MobilityState::mobilityHeaderExists(IPv6Datagram* dgram)
 {
   MIPv6MobilityHeaderBase* mhb = 0;
-  cMessage *pkt = dgram->decapsulate();
+  cMessage *pkt = dgram->encapsulatedMsg();
   mhb = check_and_cast<MIPv6MobilityHeaderBase*>(pkt);
 
   if (!mhb)
@@ -84,11 +84,10 @@ MIPv6MobilityHeaderBase* MIPv6MobilityState::mobilityHeaderExists(IPv6Datagram* 
 
 void MIPv6MobilityState::defaultResponse(IPv6Datagram* dgram, MIPv6MobilityHeaderBase* mhb)
 {
-  Dout(dc::mip6, "TODO send ICMP Error message for unrecognised Mobility Header"<<mhb->header_type());
-  delete dgram;
-  delete mhb;
+  Dout(dc::mipv6, "TODO send ICMP Error message for unrecognised Mobility Header"<<mhb->header_type());
   DoutFatal(dc::core|dc::warning,
                 " Mobile IPv6 Mobility Header not recognised ... "<< mhb->header_type());
+  delete dgram;
 }
 
 /**

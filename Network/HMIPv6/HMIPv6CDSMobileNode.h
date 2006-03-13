@@ -30,10 +30,6 @@
 #ifndef HMIPV6CDSMOBILENODE_H
 #define HMIPV6CDSMOBILENODE_H 1
 
-#ifndef MIPV6CDSMOBILENODE_H
-#include "MIPv6CDSMobileNode.h"
-#endif //MIPV6CDSMOBILENODE_H
-
 #ifndef HMIPV6ENTRY_H
 #include "HMIPv6Entry.h"
 #endif //HMIPV6ENTRY_H
@@ -42,6 +38,16 @@
 #define CASSERT
 #include <cassert>
 #endif //CASSERT
+
+#ifndef MAP
+#define MAP
+#include <map>
+#endif
+
+namespace MobileIPv6
+{
+  class MIPv6CDS;
+}
 
 namespace HierarchicalMIPv6
 {
@@ -54,7 +60,7 @@ namespace HierarchicalMIPv6
  *
  */
 
-class HMIPv6CDSMobileNode: public MobileIPv6::MIPv6CDSMobileNode
+  class HMIPv6CDSMobileNode
 {
 public:
   typedef std::map<ipv6_addr, HMIPv6MAPEntry> Maps;
@@ -62,7 +68,7 @@ public:
 
   //@name constructors, destructors and operators
   //@{
-  HMIPv6CDSMobileNode(size_t interfaceCount);
+  HMIPv6CDSMobileNode(MobileIPv6::MIPv6CDS* mipv6cds, size_t interfaceCount);
 
   ~HMIPv6CDSMobileNode();
   //@}
@@ -124,6 +130,9 @@ public:
 protected:
 
 private:
+
+  MobileIPv6::MIPv6CDS* mipv6cds;
+
   Maps maps;
 
   ipv6_addr mapAddr;

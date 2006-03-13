@@ -41,6 +41,7 @@
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
 #include "MIPv6Timers.h"
+#include "HdrExtRteProc.h"
 
 
 namespace MobileIPv6
@@ -93,6 +94,53 @@ bool MIPv6MStateCorrespondentNode::processMobilityMsg(IPv6Datagram* dgram)
   }
 
   return true;
+}
+
+bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
+{
+  //Could possibly place this into sendCore
+
+  boost::weak_ptr<bc_entry> bce;
+
+  // In MN-MN communications, it is possible that the mobility
+  // messages are sent in reverse tunnel. Therefore, we need to
+  // check if the packet is encapsulated with another IPv6 header.
+
+  MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
+  IPv6Datagram* tunPacket = 0;
+  if (dgram.transportProtocol() == IP_PROT_IPv6)
+    tunPacket = check_and_cast<IPv6Datagram*>(dgram.encapsulatedMsg());
+
+  if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+    ms = check_and_cast<MIPv6MobilityHeaderBase*>(
+      tunPacket->encapsulatedMsg());
+  else if (dgram.transportProtocol() == IP_PROT_IPv6_MOBILITY)
+    ms = check_and_cast<MIPv6MobilityHeaderBase*>(dgram.encapsulatedMsg());
+
+  // no mobility message is allowed to have type 2 rh except BA
+  if (ms == 0 || (ms && ms->header_type() ==  MIPv6MHT_BA))
+  {
+    bce = mipv6cds->findBinding(dgram.destAddress());
+
+    if (bce.lock().get())
+    {
+      assert(bce.lock()->home_addr == dgram.destAddress());
+      dgram.setDestAddress(bce.lock()->care_of_addr);
+
+      HdrExtRteProc* rtProc = dgram.acquireRoutingInterface();
+      //Should only be one t2 header per datagram (except for inner
+      //tunneled packets)
+      assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
+      MIPv6RteOpt* rt2 = new MIPv6RteOpt(bce.lock()->home_addr);
+      rtProc->addRoutingHeader(rt2);
+      dgram.addLength(rtProc->lengthInUnits()*BITS);
+      Dout(dc::mipv6, mob->nodeName()<<" Found binding for destination "
+           <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);
+
+      return true;
+    }
+  }
+  return false;
 }
 
 // protected member functions

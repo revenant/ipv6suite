@@ -32,6 +32,8 @@
 
 #include "HMIPv6CDSMobileNode.h"
 #include "MIPv6MNEntry.h"
+#include "MIPv6CDS.h"
+#include "MIPv6CDSMobileNode.h"
 
 using MobileIPv6::bu_entry;
 
@@ -39,9 +41,8 @@ using MobileIPv6::bu_entry;
 namespace HierarchicalMIPv6
 {
 
-HMIPv6CDSMobileNode::HMIPv6CDSMobileNode(size_t interfaceCount)
-  :MIPv6CDSMobileNode(interfaceCount), mapAddr(IPv6_ADDR_UNSPECIFIED),
-   rcoa(IPv6_ADDR_UNSPECIFIED)
+HMIPv6CDSMobileNode::HMIPv6CDSMobileNode(MobileIPv6::MIPv6CDS* mipv6cds, size_t interfaceCount)
+    :mipv6cds(mipv6cds), mapAddr(IPv6_ADDR_UNSPECIFIED), rcoa(IPv6_ADDR_UNSPECIFIED)
 {
   Dout(dc::custom, "HMIPv6CDSMobileNode ctor");
 }
@@ -53,7 +54,7 @@ const ipv6_addr& HMIPv6CDSMobileNode::localCareOfAddr() const
 {
   if (isMAPValid())
   {
-    bu_entry* bule = findBU(currentMap().addr());
+    bu_entry* bule = mipv6cds->mipv6cdsMN->findBU(currentMap().addr());
     if (bule)
       return bule->careOfAddr();
   }
@@ -65,7 +66,7 @@ const ipv6_addr& HMIPv6CDSMobileNode::remoteCareOfAddr() const
 {
   if (isMAPValid())
   {
-    bu_entry* bule = findBU(currentMap().addr());
+    bu_entry* bule = mipv6cds->mipv6cdsMN->findBU(currentMap().addr());
     if (bule)
     {
         return bule->homeAddr();

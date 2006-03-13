@@ -48,6 +48,7 @@
 #include "RoutingTable6.h"
 #include "IPv6Mobility.h"
 #include "HMIPv6ICMPv6NDMessage.h"
+#include "MIPv6CDS.h"
 
 namespace EdgeHandover
 {
@@ -64,8 +65,7 @@ namespace EdgeHandover
   //@}
 
   EHNDStateHost::EHNDStateHost(NeighbourDiscovery* mod):
-    HMIPv6NDStateHost(mod),
-    ehcds(rt->mipv6cds->ehcds)
+    HMIPv6NDStateHost(mod), ehcds(rt->mipv6cds->ehcds)
 {
 
   cTimerMessage* tmr = new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,

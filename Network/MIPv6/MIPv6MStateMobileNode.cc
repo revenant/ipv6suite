@@ -341,12 +341,12 @@ MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
   mipv6cds->mipv6cdsMN = mipv6cdsMN;
   if (mod->rt->hmipSupport())
   {
-    hmipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(ift->numInterfaceGates());
+    hmipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(mipv6cds, ift->numInterfaceGates());
     mipv6cds->hmipv6cdsMN = hmipv6cds;
   }
   if (mob->edgeHandover())
   {
-    ehcds = new EdgeHandover::EHCDSMobileNode(ift->numInterfaceGates());
+    ehcds = new EdgeHandover::EHCDSMobileNode(mipv6cds, ift->numInterfaceGates());
     mipv6cds->ehcds = ehcds;
   }
   if (!periodTmr)
@@ -623,7 +623,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
           mob->rt->assignAddress(addrObj, dgram->inputPort());
         }
 
-        if (hmipv6cds->careOfAddr() != hmipv6cds->remoteCareOfAddr())
+        if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
         {
 #if EDGEHANDOVER
           if (!mob->edgeHandover() ||
@@ -650,7 +650,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
               //since we do not want to bind with HA using a coa from a previous MAP.
 
               Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
-                   <<" coa="<<hmipv6cds->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
+                   <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
                    <<" bcoa "<<ehcds->boundCoa());
               Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
                               (mob->edgeHandoverCallback()))->args) = dgram->dup();

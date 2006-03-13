@@ -31,24 +31,32 @@
 #ifndef ROUTINGTABLE6_H
 #define ROUTINGTABLE6_H
 
+#ifndef CASSERT
+#define CASSERT
 #include <cassert>
-#include <string>
+#endif
+
+#ifndef VECTOR
+#define VECTOR
 #include <vector>
-#include <list>
-#include <map>
+#endif
 
+#ifndef __OMNETPP_H
 #include <omnetpp.h>
+#endif
+
+#ifndef IPV6_ADDR_H
 #include "ipv6_addr.h"
-#include "IPv6InterfaceData.h"
+#endif //IPV6_ADDR_H
 
-
-using IPv6NeighbourDiscovery::RouterEntry;
-using IPv6NeighbourDiscovery::PrefixEntry;
-using IPv6NeighbourDiscovery::NeighbourEntry;
+#ifndef EXPIRYENTRYLIST_H
+#include "ExpiryEntryList.h"
+#endif //EXPIRYENTRYLIST_H
 
 class InterfaceTable;
 class InterfaceEntry;
 class cTimerMessage;
+class IPv6Address;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -56,7 +64,14 @@ namespace IPv6NeighbourDiscovery
   class RouterExpiryTmr;
   class IPv6CDS;
   class NDStateHost;
+  class RouterEntry;
+  class PrefixEntry;
+  class NeighbourEntry;
 }
+
+using IPv6NeighbourDiscovery::RouterEntry;
+using IPv6NeighbourDiscovery::PrefixEntry;
+using IPv6NeighbourDiscovery::NeighbourEntry;
 
 namespace XMLConfiguration
 {
@@ -66,20 +81,12 @@ namespace XMLConfiguration
   class XMLOmnetParser;
 }
 
-#ifndef IPV6_ADDR_H
-#include "ipv6_addr.h"
-#endif //IPV6_ADDR_H
-
 #ifdef USE_MOBILITY
 namespace MobileIPv6
 {
   class MIPv6CDS;
 }
 #endif //USE_MOBILITY
-
-#ifndef EXPIRYENTRYLIST_H
-#include "ExpiryEntryList.h"
-#endif //EXPIRYENTRYLIST_H
 
 /**
  * @class RoutingTable6

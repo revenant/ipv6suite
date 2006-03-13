@@ -56,6 +56,9 @@ class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
 
   virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
+  //returns true if packet was modified
+  bool cnSendPacketCheck(IPv6Datagram& dgram);
+
  protected:
   virtual bool processBU(IPv6Datagram* dgram, BU* bu);
 

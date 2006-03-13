@@ -50,6 +50,7 @@
 #include "IPv6Forward.h"
 #include "IPv6CDS.h"
 #include "MLD.h"
+#include "IPv6InterfaceData.h"
 
 #ifdef USE_MOBILITY
 #include "MIPv6CDSMobileNode.h"
@@ -78,7 +79,7 @@ namespace
 Define_Module( RoutingTable6 );
 
 RoutingTable6::RoutingTable6(const char *name, cModule *parent):
-  cSimpleModule(name, parent, 0)
+    cSimpleModule(name, parent, 0), mipv6cds(0)
 {
 }
 

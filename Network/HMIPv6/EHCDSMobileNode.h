@@ -25,19 +25,31 @@
  *
  * @brief Definition of class EHCDSMobileNode
  *
- * @test see EHCDSMobileNodeTest
- *
- * @todo Remove template text
  */
 
 #ifndef EHCDSMOBILENODE_H
 #define EHCDSMOBILENODE_H
 
-#ifndef HMIPV6CDSMOBILENODE
-#include "HMIPv6CDSMobileNode.h"
-#endif //HMIPV6CDSMOBILENODE
+#ifndef IPv6_ADDR_H
+#include "ipv6_addr.h"
+#endif
+
+#ifndef BOOST_SHARED_PTR_HPP
+#include <boost/shared_ptr.hpp>
+#endif
 
 class cTimerMessage;
+
+namespace MobileIPv6
+{
+  class MIPv6CDS;
+  class MIPv6RouterEntry;
+}
+
+namespace HierarchicalMIPv6
+{
+  class HMIPv6MAPEntry;
+}
 
 namespace EdgeHandover
 {
@@ -50,7 +62,7 @@ namespace EdgeHandover
  * Contains the bcoa and bmap and associated functions
  */
 
-class EHCDSMobileNode: public HierarchicalMIPv6::HMIPv6CDSMobileNode
+  class EHCDSMobileNode
 {
  public:
   friend class EHNDStateHost;
@@ -60,7 +72,7 @@ class EHCDSMobileNode: public HierarchicalMIPv6::HMIPv6CDSMobileNode
 
   //@name constructors, destructors and operators
   //@{
-  EHCDSMobileNode(unsigned int iface_count);
+  EHCDSMobileNode(MobileIPv6::MIPv6CDS* mipv6cds, unsigned int iface_count);
 
   ~EHCDSMobileNode();
 
@@ -84,6 +96,8 @@ class EHCDSMobileNode: public HierarchicalMIPv6::HMIPv6CDSMobileNode
 
   bool operator==(const EHCDSMobileNode& rhs);
   //@}
+
+  MobileIPv6::MIPv6CDS* mipv6cds;
 
  /**
      @brief bound care-of-address (coa)

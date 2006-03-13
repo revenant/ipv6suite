@@ -48,9 +48,10 @@
 #if EDGEHANDOVER
 #include "EHCDSMobileNode.h"
 #endif //EDGEHANDOVER
+#include "MIPv6CDS.h"
+#include "MIPv6CDSMobileNode.h"
+#include "IPv6InterfaceData.h"
 
-#include <memory>
-#include <iostream>
 
 using MobileIPv6::MIPv6RouterEntry;
 using MobileIPv6::bu_entry;
@@ -551,14 +552,15 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
       //However using lcoa means BAcks from HA to brcoa are lost as we move away
       //from the previous MAP/AR.
       EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
+      HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = rt->mipv6cds->hmipv6cdsMN;
       assert(ehcds);
       if (ehcds->boundMapAddr() != IPv6_ADDR_UNSPECIFIED)
-        assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
+        assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
 
       ipv6_addr bcoa = ehcds->boundCoa();
       if (bcoa != IPv6_ADDR_UNSPECIFIED &&
           ehcds->boundMapAddr() != bestMap.addr() &&
-          ehcds->mapEntries()[ehcds->boundMapAddr()].distance() == 1)
+          hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()].distance() == 1)
       {
 //        Dout(dc::eh, rt->nodeName()<<" Forwarding from bmap="<<ehcds->boundMapAddr()<<" to lcoa="
 //             <<lcoa);
@@ -570,7 +572,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
         mob->bbuVector->record(mob->simTime());
 
-        HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
+        HMIPv6MAPEntry& bmap = hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()];
 
         //trigger on bound map so that we get this reverse tunnel lcoa->best MAP encapsulation
         tunMod->tunnelDestination(bmap.addr(), vIfIndex);

@@ -34,14 +34,17 @@
 #include "EHCDSMobileNode.h"
 #include "MIPv6MNEntry.h"
 #include "EHTimers.h"
+#include "MIPv6CDS.h"
+#include "HMIPv6CDSMobileNode.h"
+#include "MIPv6CDSMobileNode.h"
 
 namespace EdgeHandover
 {
 
 ///For non omnetpp csimplemodule derived classes
-  EHCDSMobileNode::EHCDSMobileNode(unsigned int iface_count):
-    HierarchicalMIPv6::HMIPv6CDSMobileNode(iface_count), bcoa(IPv6_ADDR_UNSPECIFIED),
-    bmap(IPv6_ADDR_UNSPECIFIED), bcoaChangedNotifier(0)
+EHCDSMobileNode::EHCDSMobileNode(MobileIPv6::MIPv6CDS* mipv6cds, unsigned int iface_count)
+    :mipv6cds(mipv6cds), bcoa(IPv6_ADDR_UNSPECIFIED),
+     bmap(IPv6_ADDR_UNSPECIFIED), bcoaChangedNotifier(0)
 {
 }
 
@@ -55,7 +58,7 @@ boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> EHCDSMobileNode::boundMap()
 {
   if (bmap != IPv6_ADDR_UNSPECIFIED)
   {
-    return findHomeAgent(bmap);
+    return mipv6cds->mipv6cdsMN->findHomeAgent(bmap);
   }
   return boost::shared_ptr<MobileIPv6::MIPv6RouterEntry>();
 }
@@ -77,9 +80,9 @@ boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> EHCDSMobileNode::boundMap()
 {
   ///I think when at home you would not bind to a map although I think that
   ///would be a good idea too so you reduce the very first handover time
-  if (awayFromHome())
+  if (mipv6cds->mipv6cdsMN->awayFromHome())
   {
-    assert(mapEntries().count(map.addr()));
+    assert(mipv6cds->hmipv6cdsMN->mapEntries().count(map.addr()));
     //invoke callback to notify EHState that boundMap was changed and help us
     //to find the new bcoa
     BoundMapChangedCB* bmcb = check_and_cast<BoundMapChangedCB*>(bcoaChangedNotifier);
@@ -96,7 +99,7 @@ boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> EHCDSMobileNode::boundMap()
 
 void EHCDSMobileNode::setNoBoundMap()
 {
-    assert(!awayFromHome());
+    assert(!mipv6cds->mipv6cdsMN->awayFromHome());
     bmap = IPv6_ADDR_UNSPECIFIED;
     bcoa = IPv6_ADDR_UNSPECIFIED;
 }

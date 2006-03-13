@@ -37,7 +37,7 @@
 #include "IPv6CDS.h"
 #include "cTTimerMessageCB.h"
 #include "stlwatch.h"
-#include <memory>
+#include "IPv6InterfaceData.h"
 
 using IPv6NeighbourDiscovery::NeighbourEntry;
 using std::auto_ptr;

@@ -66,6 +66,8 @@
 #include "MIPv6MNEntry.h" //bu_entry
 #include "IPv6Encapsulation.h"
 #include "MIPv6MessageBase.h"
+#include "MIPv6MStateCorrespondentNode.h"
+#include "MIPv6MStateMobileNode.h"
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
 #ifdef EDGEHANDOVER
@@ -102,6 +104,10 @@ void IPv6Forward::initialize(int stage)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
+    mob = boost::polymorphic_downcast<IPv6Mobility*>
+      (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
+    assert(mob != 0);
+
     ctrIP6InAddrErrors = 0;
     ctrIP6OutNoRoutes = 0;
 
@@ -110,7 +116,7 @@ void IPv6Forward::initialize(int stage)
     tunMod = check_and_cast<IPv6Encapsulation*>
       (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
     assert(tunMod != 0);
-    mob = 0;
+
 #endif //USE_MOBILITY
   }
   //numInitStages needs to be after creation of ND state in NeighbourDiscovery
@@ -268,59 +274,16 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
-//  mob->role->cnSendPacketCheck();
 // {{{ If we have a binding for dest then swap dest==hoa to coa
 
-#ifdef USE_MOBILITY
-  //Could possibly place this into sendCore
-  using MobileIPv6::bc_entry;
-  using MobileIPv6::MIPv6RteOpt;
-
-  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
-
-  boost::weak_ptr<bc_entry> bce;
+//  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
 
   if (rt->mobilitySupport() && datagram->inputPort() == -1)
   {
-    // In MN-MN communications, it is possible that the mobility
-    // messages are sent in reverse tunnel. Therefore, we need to
-    // check if the packet is encapsulated with another IPv6 header.
+    (boost::polymorphic_downcast<MobileIPv6::MIPv6MStateCorrespondentNode*>(
+    mob->role))->cnSendPacketCheck(*datagram);
 
-    MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
-    IPv6Datagram* tunPacket = 0;
-    if (datagram->transportProtocol() == IP_PROT_IPv6)
-      tunPacket = check_and_cast<IPv6Datagram*>(datagram->encapsulatedMsg());
-
-    if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-        ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(
-          tunPacket->encapsulatedMsg());
-    else if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-      ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
-
-    // no mobility message is allowed to have type 2 rh except BA
-    if (ms == 0 || (ms && ms->header_type() ==  MobileIPv6::MIPv6MHT_BA))
-    {
-      bce = rt->mipv6cds->findBinding(datagram->destAddress());
-
-      if (bce.lock().get())
-        {
-          assert(bce.lock()->home_addr == datagram->destAddress());
-          datagram->setDestAddress(bce.lock()->care_of_addr);
-
-          HdrExtRteProc* rtProc = datagram->acquireRoutingInterface();
-          //Should only be one t2 header per datagram (except for inner
-          //tunneled packets)
-          assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
-          MIPv6RteOpt* rt2 = new MIPv6RteOpt(bce.lock()->home_addr);
-          rtProc->addRoutingHeader(rt2);
-          datagram->addLength(rtProc->lengthInUnits()*BITS);
-//#if defined TESTMIPv6 || defined DEBUG_BC
-          Dout(dc::mipv6, rt->nodeName()<<" Found binding for destination "
-               <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);
-      }
-    }
   }
-#endif //USE_MOBILITY
 
 // }}}
 
@@ -443,7 +406,8 @@ void IPv6Forward::endService(cMessage* theMsg)
     // home address as a key to obtain the binding update
 
     MobileIPv6::bu_entry* bule = 0;
-
+    using MobileIPv6::bc_entry;
+    boost::weak_ptr<bc_entry> bce;
     if (bce.lock().get() != 0)
       bule = mipv6cdsMN->findBU(bce.lock()->home_addr);
     else
@@ -506,21 +470,17 @@ void IPv6Forward::endService(cMessage* theMsg)
           }
 
 #ifdef EDGEHANDOVER
-          if (!mob)
-            mob = boost::polymorphic_downcast<IPv6Mobility*>
-              (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
-          assert(mob != 0);
           if (mob->edgeHandover())
           {
             EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
-            assert(ehcds->mapEntries().count(ehcds->boundMapAddr()));
-            Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<" nrcoa="<<hmipv6cdsMN->remoteCareOfAddr()); 
+	    assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
+	    Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<
+		 " nrcoa="<<hmipv6cdsMN->remoteCareOfAddr());
 
             if (hmipv6cdsMN->remoteCareOfAddr() != ehcds->boundCoa() && 
                 ehcds->boundCoa() == datagram->srcAddress())
             {
-
-              HierarchicalMIPv6::HMIPv6MAPEntry& bmap = ehcds->mapEntries()[ehcds->boundMapAddr()];
+              HierarchicalMIPv6::HMIPv6MAPEntry& bmap = hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()];
               if (bmap.v())
               {
                 size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->remoteCareOfAddr(), bmap.addr());
@@ -630,8 +590,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 
     else
     {
-      if (dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>(rt->mipv6cds)
-          ->currentRouter().get() == 0)
+      if (mipv6cdsMN->currentRouter().get() == 0)
       {
         //FMIP just set to PCoA here and hope for the best right.
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
@@ -641,8 +600,7 @@ void IPv6Forward::endService(cMessage* theMsg)
       else
       {
         InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
-        ipv6_addr unready = dynamic_cast<MobileIPv6::MIPv6CDSMobileNode*>
-          (rt->mipv6cds)->careOfAddr(false);
+        ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
         if (ie->ipv6()->tentativeAddrs.size())
           unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
         Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()

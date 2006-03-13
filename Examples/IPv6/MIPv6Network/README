@@ -35,3 +35,6 @@ round-trip min/avg/max (ms): 100.79/151.789/202.524
 stddev (ms): 22.3869   variance:0.000501173
 --------------------------------------------------------
 
+No idea why this is slightly better perf in terms of packet loss than for no
+RO. Need to investigate further.
+

@@ -245,7 +245,7 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
 
   if (na->isRouter() && na->isRouter() != isRouter())
   {
-    Dout(dc::notice, "Should really convert this whole object into a RouterEntry instead "<<*na);
+    Dout(dc::notice, "Should really convert NE into a RouterEntry instead. Neighbour Adv. was "<<*na);
     setIsRouter(true);
   }
   else if (!na->isRouter() && na->isRouter() != isRouter())

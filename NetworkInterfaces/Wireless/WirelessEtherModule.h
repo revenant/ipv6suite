@@ -33,8 +33,6 @@
 #include <string>
 #include <vector> // for supported rates
 
-#include "cTimerMessageCB.h"
-
 #include <omnetpp.h>
 #include <list>
 
@@ -67,6 +65,7 @@ class WirelessAccessPoint;
 class MobilityHandler;
 class WorldProcessor;
 class InterfaceEntry;
+class cTimerMessage;
 
 // support rates of the wireless network interface
 typedef std::vector<SupportedRatesElement> SupportedRates;
@@ -109,7 +108,7 @@ class WirelessEtherModule : public LinkLayerModule
     friend class WirelessEtherStateIdle;
     friend class WEQoSQueue;
 
-  public:
+public:
     Module_Class_Members(WirelessEtherModule, LinkLayerModule, 0);
 
     ~WirelessEtherModule();
@@ -129,11 +128,8 @@ class WirelessEtherModule : public LinkLayerModule
     // layer or peer layer
     virtual void receiveData(std::auto_ptr<cMessage> msg);
 
-    //void setLayer2Trigger(TFunctorBaseA<cTimerMessage>* cb);
-    //virtual void setLayer2Trigger(cTimerMessage* trig);
     virtual void setLayer2Trigger( cTimerMessage* trig, enum TrigVals v=LinkUP);
 
-    //cTimerMessage* getLayer2Trigger(void){ return l2Trigger[0]; }
     cTimerMessage* getLayer2Trigger(enum TrigVals v=LinkUP){ return l2Trigger[v]; }
 
     // reset all current CSMA/CA-related values back to initial state
@@ -324,8 +320,6 @@ class WirelessEtherModule : public LinkLayerModule
     WorldProcessor* wproc; // aware of all mobile nodes
 
     WESignalData* tempOutputFrame; // frame in process of sending
-
-    //std::list<cTimerMessage*> tmrs;
 
     // timers
     cMessage *awaitAckTimer;    // WIRELESS_SELF_AWAITACK

@@ -32,7 +32,7 @@
 
 #include "WirelessEtherStateBackoff.h"
 
-#include "cTimerMessageCB.h"
+#include "cTimerMessage.h"
 
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"

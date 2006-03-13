@@ -37,7 +37,7 @@
 #include <string>
 
 #include "cTTimerMessageCB.h"
-#include "cTimerMessageCB.h"
+#include "cTimerMessage.h"
 
 #if MLDV2
 #include "IPv6Datagram.h"
@@ -91,6 +91,13 @@
 #include "BRMsg_m.h"
 
 Define_Module(WirelessEtherModule);
+
+/*
+WirelessEtherModule::WirelessEtherModule(const char *name, cModule *parent):
+  cSimpleModule(name, parent, 0), channelToScan(new bool[MAX_CHANNEL + 1])
+{
+}
+*/
 
 WirelessEtherModule::~WirelessEtherModule()
 {
@@ -150,8 +157,8 @@ WirelessEtherModule::~WirelessEtherModule()
         delete InstTxFrameSizeVec;
 
     delete outputQueue;
-    delete[]channelToScan;
-    delete signalStrength;
+//    delete[]channelToScan;
+//    delete signalStrength;
 }
 
 void WirelessEtherModule::baseInit(int stage)
@@ -1772,7 +1779,7 @@ bool WirelessEtherModule::isProbeReq(WESignalData *signal)
 void WirelessEtherModule::initialiseChannelToScan(void)
 {
     // Initialise all channels for scanning except channel 0
-    channelToScan = new bool[MAX_CHANNEL + 1];
+  channelToScan = new bool[MAX_CHANNEL + 1];
     channelToScan[0] = false;
     for (int i = 1; i <= MAX_CHANNEL; i++)
     {

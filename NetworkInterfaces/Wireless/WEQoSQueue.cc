@@ -24,7 +24,7 @@
 #include "WEQoSQueue.h"
 #include "wirelessethernet.h"
 #include "WirelessEtherFrame_m.h"
-#include "cTimerMessageCB.h"
+#include "cTimerMessage.h"
 
 Register_Class(WEQoSQueue);
 

@@ -167,7 +167,9 @@ EOF
       outputdir = "."
       x.puts %{SET(OUTPUTDIR #{outputdir}) } 
             
-      x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
+      if not projName == "INET" then
+        x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
+      end
       x.puts "SET(#{projName} ${OUTPUTDIR}/#{projName})"
       x.puts "ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})"  
       x.puts %{TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_LIBRARIES} -lstdc++)} # abstract libs

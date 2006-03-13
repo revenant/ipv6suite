@@ -76,23 +76,23 @@ that it does not decapsulate and send off an lcoa sourced datagram for us?
 -f HMIPSait.ini
 
 without ro
+
 --------------------------------------------------------
-        hmipv6SaitNet.client1.ping6App
+        hmipv6SaitNet.client1.pingApp
 --------------------------------------------------------
-Ping: deadline 700s NOT reached at 400s
-hmipv6SaitNet.client1.ping6App %drop rate 3.347%
-round-trip min/avg/max = 40.434ms/98.941ms/102.683ms
-stddev=11.832ms variance=0.140ms
+sent: 7200   drop rate (%): 2.25
+round-trip min/avg/max (ms): 40.5399/99.0305/103.448
+stddev (ms): 11.7911   variance:0.00013903
 --------------------------------------------------------
+
 
 with ro
 --------------------------------------------------------
-        hmipv6SaitNet.client1.ping6App
+        hmipv6SaitNet.client1.pingApp
 --------------------------------------------------------
-Ping: deadline 700s NOT reached at 550s
-hmipv6SaitNet.client1.ping6App %drop rate 2.402%
-round-trip min/avg/max = 40.434ms/60.730ms/101.986ms
-stddev=3.097ms variance=0.010ms
+sent: 7200   drop rate (%): 2.51389
+round-trip min/avg/max (ms): 40.5399/60.4755/102.447
+stddev (ms): 4.04861   variance:1.63913e-05
 --------------------------------------------------------
 
 -f SaitEHCal.ini

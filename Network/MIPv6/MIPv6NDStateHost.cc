@@ -1368,7 +1368,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   boost::weak_ptr<bc_entry> bce =
     rt->mipv6cds->findBindingByCoA(tunPacket->srcAddress());
 
-  if (bce.lock())
+/*  if (bce.lock())
   {
     for (MIPv6CDSMobileNode::BULI it = mipv6cdsMN->bul.begin();
          it != mipv6cdsMN->bul.end(); it++)
@@ -1387,7 +1387,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
       }
     }
   }
-
+*/
 
   // It could be HoTI that is reverse tunneled by the sender's HA
   // and gets tunneled again by the receiver's HA

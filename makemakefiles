@@ -46,7 +46,7 @@ all:
 	: # dependency on Application/PingApp is not too nice
 	cd Network/ICMPv6 && $(MAKEMAKE) $(OPTS) -n -r -I. -I../IPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/PPP6 -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless  -I../HMIPv6  -I../MIPv6 -I../../Util -I../../Util/Loki -I../../World -I../../Mobility -I../.. -I../IPv4 -I../Contract -I../IPv6 -I../../Base -I../../Applications/PingApp
 	: #FIXME try to eliminate MIP dependency on HMIP and on Wireless!
-	cd Network/MIPv6 && $(MAKEMAKE) $(OPTS) -n -r -I../IPv6 -I../ICMPv6 -I../HMIPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless -I../../Util -I../../Util/Loki -I../../World -I../../PHY -I. -I../.. -I../IPv4 -I../Contract  -I../../Base
+	cd Network/MIPv6 && $(MAKEMAKE) $(OPTS) -n -r -I../IPv6 -I../ICMPv6 -I../HMIPv6 -I../../NetworkInterfaces -I../../NetworkInterfaces/Ethernet6 -I../../NetworkInterfaces/Wireless -I../../Util -I../../Util/Loki  -I../../Util/XML -I../../World -I../../PHY -I. -I../.. -I../IPv4 -I../Contract  -I../../Base
 	cd Network/HMIPv6 && $(MAKEMAKE) $(OPTS) -n -r -I../IPv6 -I../ICMPv6 -I../MIPv6 -I../../Util -I../../Util/Loki -I../../World -I../../PHY -I. -I../.. -I../IPv4 -I../Contract  -I../../Base
 	cd Network/RIP && $(MAKEMAKE) $(OPTS) -n -r
 

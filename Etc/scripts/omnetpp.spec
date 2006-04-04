@@ -1,13 +1,14 @@
 %{!?cvsdate: %{expand: %%define cvsdate %%(/bin/date +"%Y%m%d")}}
+%define cvsdate p1
 #define cvsdate pre4
-%define cvsdate %nil
+#define cvsdate %nil
 %{!?libcwd: %define libcwd 0 }
 %{?l_prefix: %define openpkg 1}
 %{!?l_prefix: %define openpkg 0}
 %{!?shared_libs %define shared_libs 1}
 
-#define srcext tgz
-%define srcext tar.bz2
+%define srcext tgz
+#define srcext tar.bz2
 
 #Fix FC3 and above unset of DISPLAY by saving it as configure test of wish needs it
 %{!?display: %{expand: %%define display %%(echo $DISPLAY)}}
@@ -283,7 +284,10 @@ ldconfig
 
 %if "%{openpkg}" == "0"
 %changelog
-* Fri Oct 28 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-1%{cvsdate}%{icctag}
+* Fri Mar 25 2006 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2p1-1
+- updated to 3.2p1
+
+* Fri Oct 28 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-1
 - updated to 3.2 final
 
 * Thu Oct 13 2005 Johnny Lai <johnny.lai@eng.monash.edu.au> - 3.2-2pre4

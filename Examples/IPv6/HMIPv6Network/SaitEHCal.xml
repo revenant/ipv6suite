@@ -131,6 +131,7 @@
     <route>
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:1:568b:d78a:b491:4c36"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:1:0:0:0:0/64" />
     </route>
 </local>
 
@@ -153,6 +154,7 @@
     <route>
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:2:87f:92b3:5e66:4962"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:2:0:0:0:0/64" />
     </route>
   </local>
 
@@ -166,15 +168,6 @@
       <inetAddr>3011:0:0:3:d6f7:bcff:fefd:d06e</inetAddr>
       <inetAddr>fec0:0:0:33:d6f7:bcff:fefd:d06e</inetAddr>
       <AdvPrefixList>
-<!-- Map needs global addr and so does AdvRtrAddrFlag. They have to have
-        different prefix otherwise BU looks like a return home deregistration.
-
-	For hmip suppose to be able to use something that's only routable within
-        map domain
-	
-	This would not happen for MAPs that are not at ARs as they would  
-	MAP options only.
--->
         <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">fec0:0:0:33:d6f7:bcff:fefd:d06e/64</AdvPrefix>
       </AdvPrefixList>
       <AdvMAPList>
@@ -184,6 +177,7 @@
     <route>
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:3:6c48:ade:96d4:5948"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:3:0:0:0:0/64" />
     </route>
 </local>
 
@@ -215,16 +209,17 @@
     <route>
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:5:27c:8bff:fe8f:8c3d"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:4:0:0:0:0/64" />
     </route>
 </local>
 
   <misc>
     <ObjectMovement>
       <MovingNode NodeName="mn" startTime="0">
-        <move moveToX="40" moveToY="245" moveSpeed="1.5"/>
-        <move moveToX="80" moveToY="325" moveSpeed="1.5"/>
-        <move moveToX="216" moveToY="325" moveSpeed="1.5"/>
-        <move moveToX="530" moveToY="325" moveSpeed="1.5"/>
+        <move moveToX="40" moveToY="245" moveSpeed="5"/>
+        <move moveToX="80" moveToY="325" moveSpeed="5"/>
+        <move moveToX="216" moveToY="325" moveSpeed="5"/>
+        <move moveToX="530" moveToY="325" moveSpeed="5"/>
       </MovingNode>
     </ObjectMovement>
   </misc>

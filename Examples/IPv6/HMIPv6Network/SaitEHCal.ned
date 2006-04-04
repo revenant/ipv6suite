@@ -40,7 +40,8 @@ import
                           
  
 channel SaitEHCalIntranetCable 
-    datarate 100e6; 
+    datarate 100e6;
+    delay 100e-3;
 endchannel 
 
 channel SaitEHCalInternetCable 

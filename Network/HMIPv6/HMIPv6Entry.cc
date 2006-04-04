@@ -38,8 +38,7 @@ namespace HierarchicalMIPv6
   std::ostream& operator<<(std::ostream& os, const HMIPv6MAPEntry& me)
   {
     return os<<me.addr()<<" pref="<<me.preference()<<" dist="
-             <<me.distance()<<" RMITPV="<<me.r()<<me.m()<<me.i()<<me.t()
-             <<me.p()<<me.v()<<" lifetime="<<me.lifetime()
+	     <<me.distance()<<" R="<<me.r()<<" lifetime="<<me.lifetime()
              <<" option="<<me.options<<endl;
 
   }
@@ -51,12 +50,6 @@ namespace HierarchicalMIPv6
     setPreference(src.pref());
 
     setR(src.r());
-    setM(src.m());
-    setI(src.i());
-    setT(src.t());
-    setP(src.p());
-    setV(src.v());
-
     setLifetime(src.lifetime());
     setAddr(src.addr());
   }

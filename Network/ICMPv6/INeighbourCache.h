@@ -78,6 +78,7 @@ protected:
   //@}
 
 private:
+
   /**
    * @typedef NeighbourCache
    *
@@ -89,6 +90,9 @@ private:
 
   typedef std::map<ipv6_addr, boost::shared_ptr<NeighbourEntry> > NeighbourCache;
   typedef NeighbourCache::iterator NCI;
+
+  friend std::ostream& operator<<
+    (std::ostream& os, const INeighbourCache::NeighbourCache::value_type & p);
 
   /**
      keyed on ipv6_addr of neighbour.
@@ -102,6 +106,12 @@ private:
    */
   NeighbourCache neighbourCache;
 };
+
+std::ostream& operator<<
+  (std::ostream& os, const INeighbourCache::NeighbourCache::value_type & p);
+
+std::ostream& operator<<
+  (std::ostream& os, const std::pair<ipv6_addr, boost::shared_ptr<NeighbourEntry> > & p);
 
 } //namespace IPv6NeighbourDiscovery
 

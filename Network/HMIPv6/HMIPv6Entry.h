@@ -105,24 +105,10 @@ public:
       options = (options & 0xF0FF) | (pref<<8);
     }
 
+  //must form rcoa based on map prefix
   bool r() const { return (options & 1<<7); }
-  bool m() const { return (options & 1<<6); }
-  bool i() const { return (options & 1<<5); }
-  bool t() const { return (options & 1<<4); }
-  bool p() const { return (options & 1<<3); }
-  bool v() const { return (options & 1<<2); }
 
   void setR(bool r) { r?options |= 1<<7:options &= ~(1<<7); }
-
-  void setM(bool m) { m?options |= 1<<6:options &= ~(1<<6); }
-
-  void setI(bool i) { i?options |= 1<<5:options &= ~(1<<5); }
-
-  void setT(bool t) { t?options |= 1<<4:options &= ~(1<<4); }
-
-  void setP(bool p) { p?options |= 1<<3:options &= ~(1<<3); }
-
-  void setV(bool v) { v?options |= 1<<2:options &= ~(1<<2); }
 
   ///minimum lifetime of map addr/prefix in seconds
   unsigned int lifetime() const  { return expires; }

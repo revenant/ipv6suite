@@ -107,6 +107,11 @@ public:
       assert(it != maps.end());
       return it->second;
     }
+  
+  ipv6_addr currentMapAddr() const
+  {
+    return mapAddr;
+  }
 
   /**
    * @par addr address of MAP assumed to be in the list of MAPS already

@@ -34,6 +34,20 @@
 namespace IPv6NeighbourDiscovery
 {
 
+std::ostream& operator<<
+  (std::ostream& os, const INeighbourCache::NeighbourCache::value_type & p)
+{
+  os<<" neighbour="<<p.first<<" "<<*(p.second);
+  return os;
+}
+
+std::ostream& operator<<
+  (std::ostream& os, const std::pair<ipv6_addr, boost::shared_ptr<NeighbourEntry> > & p)
+{
+  os<<" neighbour="<<p.first<<" "<<*(p.second);
+  return os;
+}
+
 INeighbourCache::INeighbourCache()
 {
   WATCH_PTRMAP(neighbourCache);
@@ -44,8 +58,6 @@ INeighbourCache::INeighbourCache()
  * @param entry Insert a newly constructed NeighbourEntry or RouterEntry into
  * the NeighbourCache
  *
- * Will also insert create the corresponding DestinationEntry for this
- * NeighbourEntry.
  *
  * @warning It is assumed that you want to replace the existing neighbour if one
  * exists with the same address

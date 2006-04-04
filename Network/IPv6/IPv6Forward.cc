@@ -469,11 +469,17 @@ void IPv6Forward::endService(cMessage* theMsg)
             return;
           }
 
+	  //TODO use bce's coa to check if it belongs to a MAPs prefix
+	  //i.e. check if it is hoa in map binding and if so find reverse tunnel
+	  //from that map's lcoa to that rcoa and encapsulate. This will
+	  //eliminate both blocks of code below but will still need to do
+	  //srcaddr = primary home addr to trigger ha reverse tunnel
 #ifdef EDGEHANDOVER
           if (mob->edgeHandover())
           {
             EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
-	    assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
+	    //assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
+/*
 	    Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<
 		 " nrcoa="<<hmipv6cdsMN->remoteCareOfAddr());
 
@@ -481,43 +487,55 @@ void IPv6Forward::endService(cMessage* theMsg)
                 ehcds->boundCoa() == datagram->srcAddress())
             {
               HierarchicalMIPv6::HMIPv6MAPEntry& bmap = hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()];
-              if (bmap.v())
-              {
-                size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->remoteCareOfAddr(), bmap.addr());
-                assert(vIfIndex);
+	      size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->remoteCareOfAddr(), bmap.addr());
+	      assert(vIfIndex);
 
-                Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-                     <<" reverse tunnelling to BMAP vIfIndex="<<hex<<vIfIndex<<dec
-                     <<" for dest="<<datagram->destAddress());
-                IPv6Datagram* copy = datagram->dup();
-                copy->setOutputPort(vIfIndex);
-                send(copy, "tunnelEntry");
-                return;
-              }
+	      Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+		   <<" reverse tunnelling to BMAP vIfIndex="<<hex<<vIfIndex<<dec
+		   <<" for dest="<<datagram->destAddress());
+	      IPv6Datagram* copy = datagram->dup();
+	      copy->setOutputPort(vIfIndex);
+	      send(copy, "tunnelEntry");
+	      return;
             }
-          } 
+*/
+	    if (ehcds->boundCoa() == datagram->srcAddress())
+	    {
+	      docheck = false;
+	      //Reverse tunnel to map always TODO unless bu to cn with lcoa
+	      size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(),
+						   ehcds->boundMapAddr());
+	      //assert(vIfIndex);
+	      if (!vIfIndex)
+		breakpoint("vifIndex not exist");
+	      Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+		   <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
+		   <<" for dest="<<datagram->destAddress());
+	      IPv6Datagram* copy = datagram->dup();
+	      copy->setOutputPort(vIfIndex);
+	      send(copy, "tunnelEntry");
+	      return;
+	    }
+          }
+
+
 #endif //EDGEHANDOVER
 
           if (hmipv6cdsMN->remoteCareOfAddr() == datagram->srcAddress())
           {
             docheck = false;
 
-            //Reverse tunnel to map always in latest hmip draft. reverse tunnels
-            //when not doing RO because we set a dest trigger on HA so that it
-            //tunnels automatically from MN->MAP.
-            if (hmipv6cdsMN->currentMap().v())
-            {
-              size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(), hmipv6cdsMN->currentMap().addr());
-              assert(vIfIndex);
+            //Reverse tunnel to map always TODO unless bu to cn with lcoa
+	    size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(), hmipv6cdsMN->currentMap().addr());
+	    assert(vIfIndex);
 
-              Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-                   <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
-                   <<" for dest="<<datagram->destAddress());
-              IPv6Datagram* copy = datagram->dup();
-              copy->setOutputPort(vIfIndex);
-              send(copy, "tunnelEntry");
-              return;
-            }
+	    Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+		 <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
+		 <<" for dest="<<datagram->destAddress());
+	    IPv6Datagram* copy = datagram->dup();
+	    copy->setOutputPort(vIfIndex);
+	    send(copy, "tunnelEntry");
+	    return;
           }
           else
           {

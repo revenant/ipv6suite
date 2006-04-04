@@ -1368,27 +1368,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   boost::weak_ptr<bc_entry> bce =
     rt->mipv6cds->findBindingByCoA(tunPacket->srcAddress());
 
-/*  if (bce.lock())
-  {
-    for (MIPv6CDSMobileNode::BULI it = mipv6cdsMN->bul.begin();
-         it != mipv6cdsMN->bul.end(); it++)
-    {
-      if ( bce.lock()->home_addr == (*it)->addr())
-      {
-        //Don't think this block is valid simply because if peer was a MN and
-        //away from home it will not send us tunnelled packets anyway. We get
-        //packets in tunnel only because our HA tunnels them to us. Just because
-        //we have a binding for the cn does not mean cn has binding for us. I
-        //think if this assert occurs should remove this check totally as it
-        //will prevent RO occurring for CNs that have sent BUs to us. 
-        opp_error("Speak to Johnny if assert occurs");
-        assert(false);
-        return;
-      }
-    }
-  }
-*/
-
   // It could be HoTI that is reverse tunneled by the sender's HA
   // and gets tunneled again by the receiver's HA
 
@@ -1466,10 +1445,11 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
       //registered with primaryHA. What if there are multiple home addresses?
       mstateMN->sendBU(cna, coa, mipv6cdsMN->homeAddr(),
                      rt->minValidLifetime(), false, 0);
+
       assert(mipv6cdsMN->homeAddr() == tunPacket->destAddress());
       Dout(dc::debug|flush_cf, rt->nodeName()<<" sending BU to CN (Route Optimisation) "
            <<cna);
-    }  
+    }
 }
 
 /**

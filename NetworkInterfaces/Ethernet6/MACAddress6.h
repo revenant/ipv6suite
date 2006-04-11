@@ -60,7 +60,6 @@ class MACAddress6 : public boost::equality_comparable<MACAddress6>
   MACAddress6(const MAC_address& addr);
   MACAddress6(const MACAddress6& obj);
 
-/*
   ///@name cObject functions redefined
   //@{
   virtual const char* className() const { return "MACAdress"; }
@@ -68,7 +67,7 @@ class MACAddress6 : public boost::equality_comparable<MACAddress6>
   virtual std::string info();
   virtual void writeContents(std::ostream& os);
   //@}
-  */
+
   friend std::ostream& operator<<(std::ostream& os, const MACAddress6& obj);
 
   // operator functions

@@ -36,7 +36,6 @@ class WirelessEtherBasicFrame;
 class WEReceiveMode
 {
 public:
-  
   virtual void decodeFrame(WirelessEtherModule* mod, WESignalData* signal);
 
   // handled by mobile station
@@ -64,7 +63,7 @@ protected:
   bool changeState;
   static WEReceiveMode* _instance;
   WEReceiveMode(void) {}
-  virtual ~WEReceiveMode();
+
   void scheduleAck(WirelessEtherModule* mod, WirelessEtherBasicFrame* ack);
 };
 

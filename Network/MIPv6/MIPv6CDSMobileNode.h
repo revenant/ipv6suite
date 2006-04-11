@@ -278,8 +278,6 @@ namespace MobileIPv6
 
     bool eagerHandover() { return eagerHO; }
     void setEagerHandover(bool eager) { eagerHO = eager; }
-    bool sendBUAckFlag() { return buAckFlag; }
-    void setSendBUAckFlag(bool ack) { buAckFlag = ack; }
 
     std::ostream& operator<<(std::ostream& os) const;
 
@@ -355,11 +353,10 @@ namespace MobileIPv6
     */
     bool eagerHO;
 
-    /**
-       @brief determines state of ack flag in BUs to CNs
-     */
-    bool buAckFlag;
+    ///@name MIPv6MStateMobileNode members transported here to allow multiple MNs to work
+    //@{
 
+    //@}
   };
 
   std::ostream& operator<<(std::ostream& os, const MIPv6CDSMobileNode& cds);

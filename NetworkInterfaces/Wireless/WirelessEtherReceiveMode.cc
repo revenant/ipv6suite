@@ -62,7 +62,6 @@ WEReceiveMode *WEReceiveMode::instance()
     return _instance;
 }
 
-WEReceiveMode::~WEReceiveMode(){}
 void WEReceiveMode::decodeFrame(WirelessEtherModule *mod, WESignalData *signal)
 {
     WirelessEtherBasicFrame *frame = check_and_cast<WirelessEtherBasicFrame *>(signal->encapsulatedMsg());

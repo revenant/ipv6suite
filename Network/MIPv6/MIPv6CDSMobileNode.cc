@@ -52,7 +52,7 @@ namespace MobileIPv6
 
   MIPv6CDSMobileNode::MIPv6CDSMobileNode(size_t interfaceCount)
     :futureCoa(IPv6_ADDR_UNSPECIFIED), away(false), moved(false), _pcoaLifetime(5),
-     eagerHO(false), buAckFlag(false)
+     eagerHO(false)
   {
     WATCH_PTRLIST(bul);
   }

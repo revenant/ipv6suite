@@ -1,0 +1,10 @@
+CMakeCCompiler.cmake
+CMakeCXXCompiler.cmake
+CMakeCache.txt
+CMakeSystem.cmake
+CMakeTmp
+Makefile
+cmake.check_cache
+cmake.check_depends
+cmake.depends
+CMakeOutput.log

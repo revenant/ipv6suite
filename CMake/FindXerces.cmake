@@ -1,0 +1,33 @@
+FIND_PATH(XERCESROOT include/xercesc/dom/DOM.hpp
+		     $ENV{XERCESCROOT}
+		     /usr
+		     /usr/local
+		     /opt
+		     ${PROJECT_SOURCE_DIR}/../xerces-c
+		     PATH "Path to xerces-c base directory")
+
+FIND_PATH(TEST_XERCES_PATH include/xercesc/dom/DOM.hpp
+	${XERCESROOT}
+        /usr/local
+	/usr
+	/opt
+)
+
+IF(NOT TEST_XERCES_PATH)
+  MESSAGE(SEND_ERROR "Please set the option XERCESROOT correctly")
+ELSE(NOT TEST_XERCES_PATH)
+  IF(XERCESROOT)
+    IF(TEST_XERCES_PATH MATCHES ${XERCESROOT})
+    ELSE(TEST_XERCES_PATH MATCHES ${XERCESROOT})
+      MESSAGE("Option XERCESROOT=${XERCESROOT} is incorrect, replaced with ${TEST_XERCES_PATH}")
+      SET(XERCESROOT ${TEST_XERCES_PATH} CACHE INTERNAL "Path to xerces-c directory")
+    ENDIF(TEST_XERCES_PATH MATCHES ${XERCESROOT})
+  ELSE(XERCESROOT)
+    MESSAGE(SEND_ERROR "Please set XERCESROOT to ${TEST_XERCES_PATH}")
+  ENDIF(XERCESROOT)  
+ENDIF(NOT TEST_XERCES_PATH)
+MARK_AS_ADVANCED(TEST_XERCES_PATH)
+
+FIND_LIBRARY(XERCES_LIBRARY
+  NAMES xerces-c1_7_0 xerces-c
+  PATHS ${XERCESROOT}/lib)

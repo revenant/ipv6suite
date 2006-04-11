@@ -53,7 +53,7 @@ class EtherState
 {
 public:
   EtherState(void) {}
-  virtual ~EtherState();
+
   virtual std::auto_ptr<cMessage> processSignal(EtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:

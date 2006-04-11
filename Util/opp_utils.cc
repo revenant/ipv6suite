@@ -38,8 +38,7 @@
 
 namespace OPP_Global
 {
-#if OMNETPP_VERSION >= 0x300
-#else
+
   ContextSwitcher::ContextSwitcher(const cModule* to):mod(simulation.contextModule())
   {
     simulation.setContextModule(const_cast<cModule*>(to));
@@ -49,7 +48,6 @@ namespace OPP_Global
   {
     simulation.setContextModule(mod);
   }
-#endif 
 
   ///Goes into all submodules looking for one with name instanceName
   cModule* findModuleByName(cModule* curmod, const char* instanceName)

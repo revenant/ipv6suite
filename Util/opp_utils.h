@@ -50,9 +50,6 @@ namespace XMLConfiguration
 namespace OPP_Global
 {
 
-#if OMNETPP_VERSION >= 0x300
-  typedef ::cContextSwitcher ContextSwitcher;
-#else
   /**
      @class ContextSwitcher
      @brief Switch running module context
@@ -74,7 +71,7 @@ namespace OPP_Global
     ContextSwitcher& operator=(const ContextSwitcher&);
     cModule* mod;
   };
-#endif
+
 
   cModule* findModuleByName(cModule* curmod, const char* instanceName);
 

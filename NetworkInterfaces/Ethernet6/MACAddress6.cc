@@ -77,20 +77,7 @@ MACAddress6& MACAddress6::operator=(const MACAddress6& obj)
 
 inline std::ostream& operator<<(std::ostream& os, MACAddress6& obj)
 {
-  obj.writeContents(os);
-  return os;
-}
-
-void MACAddress6::writeContents(std::ostream& os)
-{
-  os << stringValue();
-}
-
-std::string MACAddress6::info()
-{
-  ostringstream os;
-  os << *this ;
-  return os.str();
+  return os << obj.stringValue();
 }
 
 void MACAddress6::set(const char* addr)

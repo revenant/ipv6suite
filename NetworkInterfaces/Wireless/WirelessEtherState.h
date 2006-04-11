@@ -43,7 +43,7 @@ class WirelessEtherState
 {
 public:
   WirelessEtherState(void) {}
-
+  virtual ~WirelessEtherState();
   virtual std::auto_ptr<cMessage> processSignal(WirelessEtherModule* mod, std::auto_ptr<cMessage> msg);
 
 protected:

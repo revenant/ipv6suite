@@ -48,6 +48,7 @@
 #include "WirelessEtherStateAwaitACKReceive.h"
 #include "WirelessEtherStateBackoff.h"
 
+WirelessEtherState::~WirelessEtherState(){}
 std::auto_ptr<cMessage> WirelessEtherState::processSignal(WirelessEtherModule *mod,
                                                              std::auto_ptr<cMessage> msg)
 {

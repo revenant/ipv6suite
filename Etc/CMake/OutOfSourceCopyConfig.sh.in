@@ -1,5 +1,0 @@
-pushd ${IPv6Suite_BINARY_DIR} > /dev/null
-cmake ${IPv6Suite_SOURCE_DIR} -DConfigCopy:STRING=do -DMakeExample:STRING=do
-cmake ${IPv6Suite_SOURCE_DIR} -DConfigCopy:STRING=done -DMakeExample:STRING=done
-echo simulation configuration files have been copied
-popd >/dev/null

@@ -48,6 +48,8 @@
 
 using std::string;
 
+EtherState::~EtherState(){}
+
 std::auto_ptr<cMessage> EtherState::processSignal(EtherModule* mod, std::auto_ptr<cMessage> msg)
 {
   // a packet from upper layer

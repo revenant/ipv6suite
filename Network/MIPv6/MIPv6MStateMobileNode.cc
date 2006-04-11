@@ -215,7 +215,7 @@ public:
 /**
  * @class sendBUs
  *
- * @brief functor to update every CN/HA in BUL whenever we do a handoever
+ * @brief functor to update every CN/HA in BUL whenever we do a handoever with same hoa
  *
  * @todo lifetime of bindings currently is fixed to the minimum current lifetime
  * of all prefixes rather than just min(home prefix, foreign prefix)
@@ -252,13 +252,14 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
              <<" in sendBUs");
         return;
       }
+#endif //USE_HMIP
 
       if (bule->homeAddr() != hoa)
       {
          Dout(dc::hmip, mob->nodeName()<<" skipping binding "<<bule->addr()
               <<"with different hoa="<<bule->homeAddr() <<" in sendBUs");
+	 return;
       }
-#endif //USE_HMIP
 
       bool homeReg = bule->homeReg();
 
@@ -278,47 +279,6 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
                          //primaryHA and only the very first BU to it
                          mipv6cdsMN->primaryHA()->re.lock()->ifIndex());
       }
-/*
-
-  //This rate limiting is not correct because we should not stop it if the
-  //binding is different we never send same binding to node again as the check
-  //above shows so this is no problem.
-
-      //We're implementing the simple bit.  The other bit (slow update rate
-      //after max_fast updates) just requires an additional consecutive counter
-      //increment on an additional variable to bule.  and resending of BU until
-      //the other node gets it (only applicable if Ack was set)
-
-      simtime_t updateInterval = mob->simTime() - bule->last_time_sent;
-
-      if ((bule->state < MAX_FAST_UPDATES && updateInterval >= (double)MAX_UPDATE_RATE) ||
-          (bule->state >= MAX_FAST_UPDATES && updateInterval >= (double)SLOW_UPDATE_RATE))
-      {
-
-        mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(),
-                         //we should really be using this instead but as timers
-                         //on binding updates not implemented yet we will use
-                         //the min lifetime of all addr
-
-                         //bule->expires(),
-                         lifetime,
-                         homeReg,
-                         //don't care about ifIndex as dad only done on
-                         //primaryHA and only the very first BU to it
-                         mipv6cdsMN->primaryHA()->re.get()->ifIndex());
-      }
-      else
-      {
-        cout<<" Rate limited BU to "<<bule->addr()<<" as only "<<updateInterval
-            <<" seconds have passed";
-        Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()
-             <<" Rate limited BU to "<<bule->addr()<<" as only "<<updateInterval
-             <<" seconds have passed");
-        //reschedule a once off timer to sendBU after enough time has elapsed
-        //and send again.  If that fails then continue trying according to 10.14
-
-      }
-*/
     }
 
 private:
@@ -512,10 +472,9 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   if (ba->sequence() != bue->sequence())
   {
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
-         <<dgram->srcAddress()<<" with sequence "<< ba->sequence()
+         <<dgram->srcAddress()<<" IGNORED. With sequence "<< ba->sequence()
          <<" instead of "<< bue->sequence());
-    //11.6.1 p113 r18
-    bue->setSequence(ba->sequence()+1);
+    //11.7.3 
     return;
   }
 
@@ -563,14 +522,15 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   {
 #if EDGEHANDOVER
     if (mob->edgeHandover() && dgram->srcAddress() == ehcds->boundMapAddr())
-        {
-          mob->bbackVector->record(now);
-        } else
+    {
+      mob->bbackVector->record(now);
+    } 
+    else
 #endif //EDGEHANDOVER
-          if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
-          {
-            mob->lbackVector->record(now);
-          }
+      if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
+      {
+	mob->lbackVector->record(now);
+      }
   }
 #endif //USE_HMIP
 
@@ -1408,9 +1368,10 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 {
   //Can be called from NDStateHost(IPv6NeighbourDiscovery) or
   //itself(IPv6Mobility)
+  // 2 lines equiv to Enter_Method except that uses this pointer implicitly
   OPP_Global::ContextSwitcher switchContext(mob);
+  //switchContext.methodCall("sendBU(%s)", ipv6_addr_toString(dest).c_str());
 
-  // TODO: parse these two info through XML
   bool dad = false;
   bool ack = homeReg;
 
@@ -1444,6 +1405,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   if (mapReg)
     ack = mapReg;
+
+  if (!ack && mipv6cdsMN->sendBUAckFlag())
+    ack = true;
 
   //In case we do forwarding from previous MAP we don't need to redo DAD on MAP
   //that has already been registered with old RCOA.
@@ -1536,18 +1500,12 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   destProc->addOption(new MIPv6TLVOptHomeAddress(hoa));
 
-  //assert((dad && ack && homeReq) || !dad)
-
   if (mipv6cdsMN->primaryHA().get() && dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
     mob->buVector->record(mob->simTime());
   scheduleSendBU(dgram);
 
-  ///Create timer only when ack is set i.e for homeReg in this impln
-  if (homeReg
-#ifdef USE_HMIP
-      || mapReg
-#endif //USE_HMIP
-      )
+  //Create BU retransmission timer
+  if (ack)
   {
     double timeout = INITIAL_BINDACK_TIMEOUT_FIRSTREG + SELF_SCHEDULE_DELAY;
 
@@ -1585,7 +1543,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
         }
       }
       //assert(found);
-	    if (!found)
+      if (!found)
       {
         Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()<<" unable to find BU retrans timer for BU "<<*bu
 						<<" dgram"<<*dgram);
@@ -1616,7 +1574,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                         " CN")<<" reg"<<(ack?" ack":"")
        <<" lifetime="<<dec<<lifetime);
 
-  //Update BU or create BU and add to BUL and start/reschedule lifetime of entry
+  //Update or create bule and add to BUL and start/reschedule lifetime of entry
   if (!bule)
   {
     bule = new bu_entry(dest, hoa, coa, lifetime, seq,
@@ -1625,7 +1583,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                         , mapReg
 #endif //USE_HMIP
                         );
-    //Increment every time we send.  Only when we get back BA do we set it to 0
+    //Increment every time we send.  Only when we get back BA do we decrement
     if (ack)
       bule->state++;
     mipv6cdsMN->addBU(bule);
@@ -1716,5 +1674,7 @@ void MIPv6MStateMobileNode::parseXMLAttributes()
 {
   XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
   mipv6cdsMN->setEagerHandover(p->getNodePropBool(p->getNetNode(mob->nodeName()), "eagerHandover"));
+
+  mipv6cdsMN->setSendBUAckFlag(p->getNodePropBool(p->getNetNode(mob->nodeName()), "mnSendBUAckFlag"));
 }
 } //namespace MobileIPv6

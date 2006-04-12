@@ -24,7 +24,7 @@ the class RTPMpegPacket.
 
 Register_Class(RTPMpegPacket);
 
-RTPMpegPacket::RTPMpegPacket(const char *name = NULL) : cPacket(name) {
+RTPMpegPacket::RTPMpegPacket(const char *name) : cPacket(name) {
     _mzb = 0;
     _two = 0;
     _temporalReference = 0;

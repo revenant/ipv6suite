@@ -79,8 +79,10 @@ def writeCMakeList(dir, outputName, projName = nil)
 				#EtherSwitch
 #Contract requires IPv4
 #ARP|IPv4|TCP|FlatNetwork|Queue
+##Scenario|RSVP|MPLS (RTP depends on these)
+#RTP because SocketInterface does not yet exist
   commonIgnore =
-	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|MPLS|RSVP|Tests|IPv4d"
+	"CMake|Unsupported|_m\.|test|Topology|RTP|PPP/|LDP|Tests|IPv4d"
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   

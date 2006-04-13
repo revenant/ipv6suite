@@ -28,8 +28,6 @@
 #if !defined CTIMERMESSAGE_H
 #define CTIMERMESSAGE_H
 
-#include <omnetpp.h>
-
 #ifndef CASSERT
 #define CASSERT
 #include <cassert>
@@ -48,6 +46,10 @@
 #include <boost/noncopyable.hpp>
 #endif
 
+
+#ifndef __OMNETPP_H
+#include <omnetpp.h>
+#endif //__OMNETPP_H
 
 /**
    @class cTimerMessage
@@ -100,7 +102,7 @@ class cTimerMessage: public cMessage, boost::noncopyable
   ///schedule msg for arrival at interval seconds from now
   void rescheduleDelay(simtime_t interval)
     {
-      cContextSwitcher context(mod);
+      //setOwner(mod);
       reschedule(mod->simTime()+interval);
     }
 

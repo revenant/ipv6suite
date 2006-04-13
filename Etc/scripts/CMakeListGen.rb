@@ -123,7 +123,7 @@ INCLUDE(${CMAKEFILES_PATH}/LinkLibraries.cmake)
 EOF
 
       x.puts xvar
-     x.puts %{ADD_DEFINITIONS(-DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
+     x.puts %{ADD_DEFINITIONS(-DBOOST_WITH_LIBS -DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -DUSE_HMIP -DEDGEHANDOVER=1)}
  
       x.puts("INCLUDE_DIRECTORIES(${OPP_INCLUDE_PATH})") 
       x.puts("INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})")
@@ -168,17 +168,20 @@ EOF
 #      outputdir = projName == "INET" ? "bin" : "."
       outputdir = "."
       x.puts %{SET(OUTPUTDIR #{outputdir}) } 
-            
-      if not projName == "INET" then
-        x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
-      end
+ 
+# No longer works cause simplemodules don't export their type no more in gcc output
+#      if not projName == "INET" then
+#        x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
+#      end
       x.puts "SET(#{projName} ${OUTPUTDIR}/#{projName})"
       x.puts "ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})"  
-      x.puts %{TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_LIBRARIES} -lstdc++)} # abstract libs
-      
+      x.puts %{TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_CMDLIBRARIES} -lstdc++)} # abstract libs
+
+      x.puts "IF(NOT LIBCWD_DEBUG)"      
       x.puts "SET(tk#{projName} ${OUTPUTDIR}/tk#{projName})"
       x.puts "ADD_EXECUTABLE(${tk#{projName}} ${#{projName}_SRCS})"
       x.puts %{TARGET_LINK_LIBRARIES(${tk#{projName}} ${OPP_TKGUILIBRARIES} -lstdc++)}
+      x.puts "ENDIF(NOT LIBCWD_DEBUG)"
     end
   }
 end

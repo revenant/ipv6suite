@@ -387,15 +387,14 @@ void IPv6Forward::endService(cMessage* theMsg)
     bool coaAssigned = false;
     if (mipv6cdsMN->currentRouter().get() != 0 &&
         mipv6cdsMN->careOfAddr(pcoa) != mipv6cdsMN->homeAddr() &&
-        ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
+
+        (ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
           mipv6cdsMN->careOfAddr(pcoa))
         ||
         (rt->odad() &&
-         //for tentative true is a misnomer because the newcoa should have been
-         //assigned to tentative addr anyway
          ift->interfaceByPortNo(info->ifIndex())->ipv6()->tentativeAddrAssigned(
            mipv6cdsMN->careOfAddr(pcoa))
-         )
+	 ))
         )
       coaAssigned = true;
 
@@ -408,6 +407,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     MobileIPv6::bu_entry* bule = 0;
     using MobileIPv6::bc_entry;
     boost::weak_ptr<bc_entry> bce;
+    bce = rt->mipv6cds->findBinding(datagram->destAddress());
     if (bce.lock().get() != 0)
       bule = mipv6cdsMN->findBU(bce.lock()->home_addr);
     else
@@ -422,7 +422,6 @@ void IPv6Forward::endService(cMessage* theMsg)
     // sent from upper layer. The mobility messages do not contain the
     // home address option TODO: maybe an extra check of where the
     // message is sent should be done?
-
     MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
     if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
       ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
@@ -449,6 +448,7 @@ void IPv6Forward::endService(cMessage* theMsg)
            <<" for destination "<<datagram->destAddress());
 
       bool docheck = false;
+
 #ifdef USE_HMIP
       if (rt->mobilitySupport() && rt->hmipSupport())
       {
@@ -459,9 +459,6 @@ void IPv6Forward::endService(cMessage* theMsg)
 
         if (hmipv6cdsMN->isMAPValid())
         {
-            //This is too restrictive especially when EdgeHandover is on no
-            //packets go out until we update HA
-            //mipv6cdsMN->careOfAddr(pcoa) != hmipv6cdsMN->remoteCareOfAddr())
           if (!ie->ipv6()->addrAssigned(hmipv6cdsMN->remoteCareOfAddr()))
           {
             Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
@@ -550,12 +547,12 @@ void IPv6Forward::endService(cMessage* theMsg)
               return;
             }
           }
-        }
+        } //end if map valid
 
 
 
-      }
-#endif
+      } //end if hmip support
+#endif //USE_HMIP
       if (docheck)
       {
         Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()

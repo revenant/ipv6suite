@@ -434,7 +434,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
   //Need to wait for BA from new MAP before setting it to currentMAP?
   //Also registering with the HA and perhaps CN too.
-  hmipv6cdsMN.setCurrentMap(bestMap.addr());
+  assert(hmipv6cdsMN.setCurrentMap(bestMap.addr()));
   assert(hmipv6cdsMN.currentMap().addr() == bestMap.addr());
 
   //sendBU to new/better MAP initially. (inter AR handover is done by by mip handover)
@@ -488,10 +488,10 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   if (!vIfIndex)
   {
     //assuming single mobile interface at 0
-    vIfIndex = tunMod->createTunnel(lcoa, bestMap.addr(), 0); //mipv6cdsMN->primaryHA()->prefix().prefix);
+    vIfIndex = tunMod->createTunnel(lcoa, bestMap.addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
     Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" (mapHandover) reverse tunnel created entry lcoa="
-	 <<lcoa<<" exit map="<< bestMap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-//	 <<" triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
+	 <<lcoa<<" exit map="<< bestMap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec
+	 <<" triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
 
   }
   else

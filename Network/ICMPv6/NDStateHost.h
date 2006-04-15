@@ -43,10 +43,6 @@
 #include <map>
 #endif //MAP
 
-#ifndef CONFIG_H
-
-#endif //CONFIG_H
-
 
 class RoutingTable6;
 class InterfaceTable;
@@ -54,11 +50,6 @@ class IPv6Datagram;
 struct ipv6_addr;
 class cTimerMessage;
 
-template<class Arg>
-class TFunctorBaseA;
-
-template<class Arg, class Result>
-class cTTimerMessageCBA;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -169,7 +160,7 @@ namespace IPv6NeighbourDiscovery
     ///other classes even if those classes inherit from this one.
   public:
     ///Sec 6.3.7
-    void sendRtrSol(NDTimer* tmr);
+    void sendRtrSol(NDTimer* tmr, unsigned int ifIndex = 0);
   protected:
     void sendUnsolNgbrAd(size_t ifIndex,const ipv6_addr& target);
 
@@ -182,8 +173,7 @@ namespace IPv6NeighbourDiscovery
     void invokeCallback(const ipv6_addr& tentativeAddr);
     void addCallbackToAddress(const ipv6_addr& tentativeAddr, cTimerMessage*);
     bool callbackAdded(const ipv6_addr& tentativeAddr, int message_id);
-    // GD inserted
-    void TriggerCallback(cTimerMessage* tmr);
+
   protected:
     std::vector<InterfaceStatus> ifStats;
 
@@ -204,16 +194,13 @@ namespace IPv6NeighbourDiscovery
     typedef std::list<cTimerMessage*> TimerMsgs;
     TimerMsgs timerMsgs;
     typedef TimerMsgs::iterator TMI;
-    typedef TFunctorBaseA<NDTimer> NDTimerCB;
-    NDTimerCB* cbRetrySol;
+
     ///Whenever DAD completes on an address it should check here for callbacks
     ///that it should invoke. (Alternative was adding it to each
     ///cTimerMessage for chaining purposes but would mostly be unused so inefficient waste of memory)
     //std::map<ipv6_addr, TimerMsgs> addressCallbacks;
     std::map<ipv6_addr, cTimerMessage*> addressCallbacks;
   };
-
-  typedef cTTimerMessageCBA<IPv6NeighbourDiscovery::NDTimer, void> RtrSolRetryMsg;
 
 }
 #endif //NDSTATEHOST_H

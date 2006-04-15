@@ -204,12 +204,8 @@ private:
 
 MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   : NDStateHost(mod), mnRole(0), mipv6cdsMN(0), awayCheckDone(false), missedTmr(0), mob(0),
-    mstateMN(0), schedSendRtrSolCB(
-      new cTTimerMessageCBA<NDTimer, void>
-      //(Sched_SendRtrSol, nd, makeCallback(this, &MIPv6NDStateHost::sendRtrSol),
-      (Sched_SendRtrSol, nd, makeCallback((NDStateHost*) this, &NDStateHost::sendRtrSol),
-       0, false, "schedSendRtrSol", true)), schedSendUnsolNgbrAd(0)
-    ,potentialNewInterval(0), ignoreInitiall2trigger(true)
+    mstateMN(0), schedSendUnsolNgbrAd(0),
+    potentialNewInterval(0), ignoreInitiall2trigger(true)
 
 {
 #ifdef USE_MOBILITY
@@ -275,110 +271,7 @@ MIPv6NDStateHost::~MIPv6NDStateHost(void)
 {
   if (missedTmr && !missedTmr->isScheduled())
     delete missedTmr;
-  delete schedSendRtrSolCB;
 }
-
-void MIPv6NDStateHost::scheduleSendRtrSol(NDTimer* tmr)
-{
-//   if (schedSendRtrSolCB == 0)
-//   {
-//     schedSendRtrSolCB = new cTTimerMessageCBA<NDTimer, void>
-//       (Sched_SendRtrSol, nd, makeCallback(this, &MIPv6NDStateHost::sendRtrSol),
-//        0, false, "schedSendRtrSol", true);
-//   }
-  schedSendRtrSolCB->setArg(tmr);
-  nd->scheduleAt(nd->simTime() + SELF_SCHEDULE_DELAY, schedSendRtrSolCB);
-}
-
-/**
- * Sec. 6.6
- *
- * Binary exponential backoff (double interval between consecutive rtr sol)
- * after MAX_RTR_SOLICITATIONS.  Increase rate after obtain new care of
- * address. Don't send rtr sol when node has valid care of address.
-
- * Stop sending solicitations when interval is > maximum (configurable)
-
- * Configurable minimum RTR_SOL_INTERVAL (default is 1 sec)
-
- * Movement Detection algorithm should reinitiate this again.
- *
- * @deprecated Draft 24 has no changes to sending Router Solicitations only Rtr
- * Advertisements
- * @todo remove this func and see if using plain ND sendRtrSol is alright or not
- */
-/*
-void MIPv6NDStateHost::sendRtrSol(NDTimer* tmr)
-{
-  bool away = awayFromHome();
-
-  if (!away )
-  {
-    //Use old algorithm if at home
-    return NDStateHost::sendRtrSol(tmr);
-  }
-  else
-  {
-    //Use new exponential backoff if not at home
-    InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
-
-    if (tmr->counter < tmr->max_sends - 1)
-      tmr->timeout = ie->ipv6()->mipv6Var.minRtrSolInterval;
-    else
-      tmr->timeout = tmr->timeout*2;
-
-    ///The logic in this block below is necessary when movement detection
-    ///returns positive and the home router is unreachable.  It is also
-    ///applicable when MN starts up in a foreign network
-    ///when it has a configured home subnet.  It
-
-    if (tmr->dgram == 0)
-    {
-      //Don't do initial delay
-      InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
-      tmr->dgram = new IPv6Datagram(
-        ie->ipv6()->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->ipv6()->inetAddrs[0],
-        IPv6Address(ALL_ROUTERS_LINK_ADDRESS));
-
-      tmr->dgram->setHopLimit(NDHOPLIMIT);
-
-      RS* rs = new RS;
-
-      if (!ie->ipv6()->inetAddrs.empty())
-        rs->setSrcLLAddr(ie->llAddrStr());
-
-      tmr->dgram->encapsulate(rs);
-
-      tmr->msg = new RtrSolRetryMsg(Tmr_RtrSolTimeout, nd, cbRetrySol, tmr, true, "RtrSol");
-
-      timerMsgs.push_back(tmr->msg);
-
-    }
-
-    if (tmr->timeout > ie->ipv6()->mipv6Var.maxInterval)
-    {
-      //Give up sending of Rtr solicitations
-      Dout(dc::mipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
-           <<" - exp. backoff excceded no router responded to solicitations");
-
-      timerMsgs.remove(tmr->msg);
-      delete tmr->msg;
-      return;
-    }
-
-    Dout(dc::ipv6|dc::router_disc, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
-         <<" MIPv6 RtrSol "<<" timeout:"<< setprecision(4)
-         << tmr->timeout<<" max:"<<ie->ipv6()->mipv6Var.maxInterval);
-    nd->send(tmr->dgram->dup(), "outputOut", tmr->ifIndex);
-
-    ///Schedule a timeout
-    nd->scheduleAt(nd->simTime() + tmr->timeout, tmr->msg);
-
-    tmr->counter++;
-  }
-
-}
-*/
 
 /**
  *  Sec 10.5 handling of Router Advertisement from Home Agent
@@ -779,20 +672,14 @@ void MIPv6NDStateHost::initiateSendRtrSol(unsigned int ifIndex)
   //are no outstanding ones.
   for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
     if ((*it)->kind() == Tmr_RtrSolTimeout &&
-        check_and_cast<RtrSolRetryMsg*>(*it)->arg()->ifIndex == ifIndex)
+        ((NDTimer*)((*it)->contextPointer()))->ifIndex == ifIndex)
     {
       return;
     }
 
   //reset this back to unsolicited as we believe we may be on new subnet
   rtrSolicited[ifIndex] = false;
-  NDTimer* tmr = new NDTimer;
-  tmr->max_sends = MAX_RTR_SOLICITATIONS;
-  tmr->counter = 0;
-  tmr->ifIndex = ifIndex;
-  scheduleSendRtrSol(tmr);
-  Dout(dc::mipv6|dc::mobile_move|dc::router_disc, rt->nodeName()<<" rtr Sol sent on ifIndex="<<tmr->ifIndex
-       <<" in response to movement detected");
+  sendRtrSol(0, ifIndex);
 }
 
 void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
@@ -855,6 +742,8 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     initiateSendRtrSol(ifIndex);
+    Dout(dc::mipv6|dc::mobile_move|dc::router_disc, rt->nodeName()<<" rtr Sol sent on ifIndex="<<ifIndex
+	 <<" in response to movement detected");
   }
 
   if (tmr->kind() != Tmr_RtrAdvMissed)

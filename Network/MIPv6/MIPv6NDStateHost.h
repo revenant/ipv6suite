@@ -84,9 +84,6 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   ///Implementation of callback invoked by IPv6Encapsulation
   void checkDecapsulation(IPv6Datagram* dgram);
 
-  ///Used by modules != NeighbourDiscovery to initiate a sendRtrSol
-  void scheduleSendRtrSol(NDTimer* tmr);
-
   ///Check that no outstanding rtrSol is already happening before starting one
   void initiateSendRtrSol(unsigned int ifIndex);
 
@@ -121,8 +118,6 @@ protected:
   IPv6Mobility* mob;
   MIPv6MStateMobileNode* mstateMN;
 
-  ///Used by other modules to schedule a sendRtrSol from ND
-  cTTimerMessageCBA<NDTimer, void>* schedSendRtrSolCB;
   cTimerMessage* schedSendUnsolNgbrAd;
 private:
   ///missedRtrAdv variable to store interval from new router advertisement when

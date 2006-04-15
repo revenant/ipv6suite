@@ -34,6 +34,8 @@
 #include <cassert>
 #include <iostream>
 #include <boost/cast.hpp>
+#include <boost/bind.hpp>
+#include "cSignalMessage.h"
 
 #include "NDStateHost.h"
 #include "NDTimers.h"
@@ -72,11 +74,11 @@
 const int Tmr_L2Trigger = 8009;
 
 
-//Use static qualifier if anonymous namespace doesn't compile
 namespace
 {
   const size_t ADDR_CONF_TIME = 2*3600; //2 hours 5.5.3 e-1
   typedef cTTimerMessageA<void, IPv6NeighbourDiscovery::NDStateHost, IPv6NeighbourDiscovery::NDTimer> HostTmrMsg;
+  typedef cSignalMessage RtrSolRetry;
 }
 
 namespace IPv6NeighbourDiscovery
@@ -99,7 +101,7 @@ size_t NDStateHost::addrResGate = UINT_MAX;
 */
 NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   :NDState(mod), rt(mod->rt), stateEntered(false), addrResln(0),
-   rtrSolicited(0), managedFlag(false), otherFlag(false), cbRetrySol(makeCallback(this, &NDStateHost::sendRtrSol))
+   rtrSolicited(0), managedFlag(false), otherFlag(false)
 {
   //Node is already initialised
   if (nextState != 0)
@@ -141,7 +143,6 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
 NDStateHost::~NDStateHost()
 {
   delete [] rtrSolicited;
-  delete cbRetrySol;
 
   //Shouldn't need to cancel messages as we are quiting --> YES you need (Andras)
   for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
@@ -225,15 +226,7 @@ void NDStateHost::initialiseInterface(size_t ifIndex)
     //Rtr Ad as those may be incomplete. But in this sim it is always
     //complete. Change if sim becomes more realistic.
     if (!rtrSolicited[ifIndex]) //rt->getPrefixesByIndex(ifIndex).empty())
-    {
-      NDTimer* tmr = new NDTimer;
-      tmr->max_sends = MAX_RTR_SOLICITATIONS;
-      tmr->counter = 0;
-      tmr->ifIndex = ifIndex;
-
-      sendRtrSol(tmr);
-    }
-
+      sendRtrSol(0, ifIndex);
   }
   //Unnecessary to do prefix assignments at this time because processing of
   //router adv. will do that anyway
@@ -512,33 +505,33 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
 }
 
 ///Send initial & subsequent retries of router solicitations
-void NDStateHost::sendRtrSol(NDTimer* tmr)
+void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
 {
-  InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
+  OPP_Global::ContextSwitcher switchContext(nd);
+
   double delay = 0;
 
-#if FASTRS
-  tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
-    ie->ipv6()->maxRtrSolDelay;
-#else
-  tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
-    MAX_RTR_SOLICITATION_DELAY;
-#endif //FASTRS
+  InterfaceEntry *ie = ift->interfaceByPortNo(tmr?tmr->ifIndex:ifIndex);
 
-  if (tmr->dgram == 0)
+  if (!tmr)
   {
+    tmr = new NDTimer;
+    tmr->max_sends = MAX_RTR_SOLICITATIONS;
+    tmr->counter = 0;
+    tmr->ifIndex = ifIndex;
+
+    //Don't need initial delay if already did a random delay for dupAddrDet
 #if FASTRS
-    if (ie->ipv6()->dupAddrDetectTrans < 1)
+    if (ie->ipv6()->dupAddrDetectTrans >= 1)
       delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
 #else
-    //Don't need initial delay if already did a random delay for dupAddrDet
-    if (ie->ipv6()->dupAddrDetectTrans < 1)
+    if (ie->ipv6()->dupAddrDetectTrans >= 1)
       delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
 #endif // FASTRS
 
     tmr->dgram = new IPv6Datagram(
       ie->ipv6()->inetAddrs.empty()?IPv6Address(IPv6_ADDR_UNSPECIFIED):ie->ipv6()->inetAddrs[0],
-      IPv6Address(ALL_ROUTERS_LINK_ADDRESS));
+      IPv6Address(ALL_ROUTERS_LINK_ADDRESS), 0, "RtrSol");
 
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
@@ -551,11 +544,20 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
     tmr->dgram->encapsulate(rs);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
     tmr->dgram->setName(rs->name());
-
-    tmr->msg = new RtrSolRetryMsg(Tmr_RtrSolTimeout, nd, cbRetrySol, tmr, true, "RtrSol");
+    tmr->msg = new RtrSolRetry("RtrSolRetry", Tmr_RtrSolTimeout);
+    ((RtrSolRetry*)(tmr->msg))->connect(boost::bind(&NDStateHost::sendRtrSol, this, tmr, 0));
+    tmr->msg->setContextPointer(tmr);
 
     timerMsgs.push_back(tmr->msg);
   }
+
+#if FASTRS
+    tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
+      ie->ipv6()->maxRtrSolDelay;
+#else
+    tmr->timeout = tmr->counter < tmr->max_sends - 1 ? RTR_SOLICITATION_INTERVAL:
+      MAX_RTR_SOLICITATION_DELAY;
+#endif //FASTRS
 
   if (tmr->counter < tmr->max_sends)
   {
@@ -564,14 +566,14 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(6) << tmr->timeout
          <<" initial delay:"<<delay);
 
+    //Delay is non-zero for first rtrsol i.e. initial rtr sol
     nd->sendDelayed(tmr->dgram->dup(), delay, "outputOut", tmr->ifIndex);
 
     nd->ctrIcmp6OutRtrSol++;
     rt->ctrIcmp6OutMsgs++;
 
     ///Schedule a timeout
-    nd->scheduleAt(nd->simTime() + tmr->timeout, tmr->msg);
-
+    tmr->msg->rescheduleDelay(tmr->timeout);
     tmr->counter++;
     return;
   }
@@ -581,6 +583,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr)
         <<" - No Routers responded to Solicitations");
     timerMsgs.remove(tmr->msg);
     delete tmr->msg;
+    delete tmr;
   }
 
 
@@ -639,10 +642,11 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     rtrSolicited[ifIndex] = true;
     for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
       if ((*it)->kind() == Tmr_RtrSolTimeout &&
-          check_and_cast<RtrSolRetryMsg*>(*it)->arg()->ifIndex ==
+          ((NDTimer*)(check_and_cast<RtrSolRetry*>(*it)->contextPointer()))->ifIndex ==
           ifIndex)
       {
         nd->cancelEvent(*it);
+	delete ((NDTimer*)(check_and_cast<RtrSolRetry*>(*it)->contextPointer()));
         delete *it;
         timerMsgs.erase(it);
         break;
@@ -1350,13 +1354,6 @@ void NDStateHost::invokeCallback(const ipv6_addr& tentativeAddr)
   }
 }
 
-void NDStateHost::TriggerCallback(cTimerMessage *tmr){
-
-     cerr<<rt->nodeName()<<" "<<nd->simTime()
-             <<" Received L2 Trigger "<<tmr->kind()<<endl;
-     Dout(dc::neighbour_disc|dc::notice|flush_cf, rt->nodeName()<<" "<<nd->simTime()
-             <<" Received L2 Trigger "<< tmr->kind());
-}
 } //namespace IPv6NeighbourDiscovery
 
 //  LocalWords:  multicast sim addr

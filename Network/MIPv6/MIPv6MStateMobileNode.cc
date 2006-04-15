@@ -710,10 +710,6 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
   //for every bu_entry send it the new details of the new BU and update the
   //binding entry in the process
 
-  Dout(dc::mipv6|dc::debug|flush_cf, " in send bu to all hoa "<<hoa<<" coa "
-       <<coa<<" and bul is "<<(mipv6cdsMN->bulEmpty()?"empty":" not empty")
-       <<" ");
-
 #ifdef USE_HMIP
   if (mob->hmipSupport())
   {

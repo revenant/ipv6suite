@@ -98,6 +98,9 @@ void IPv6Encapsulation::initialize(int stageNo)
 size_t IPv6Encapsulation::createTunnel(const ipv6_addr& src, const ipv6_addr& dest,
                                      size_t ifIndex, const ipv6_addr& destTrigger, bool forOnePkt)
 {
+  Enter_Method("createTunnel %s %s ifIndex=%d %s", ipv6_addr_toString(src).c_str(),
+	      ipv6_addr_toString(dest).c_str(), ifIndex, 
+	      ipv6_addr_toString(destTrigger).c_str());
   assert(findTunnel(src, dest) == 0);
 
   //Test for entry and exit point node pointing to same node i.e. localDeliver
@@ -128,6 +131,7 @@ size_t IPv6Encapsulation::createTunnel(const ipv6_addr& src, const ipv6_addr& de
  */
 bool IPv6Encapsulation::tunnelDestination(const ipv6_addr& dest, size_t vIfIndex)
 {
+  Enter_Method("tunnelDestination %s %x", ipv6_addr_toString(dest).c_str(), vIfIndex);
   if (tunnels.count(vIfIndex) > 0)
   {
     Tunnel& tun = tunnels[vIfIndex];
@@ -168,11 +172,23 @@ bool IPv6Encapsulation::tunnelDestination(const IPv6Address& dest,
   return false;
 }
 
-///Returns the vIfIndex of tunnel if found, 0 otherwise
+///Src can be IPv6_ADDR_UNSPECIFIED 
 size_t IPv6Encapsulation::findTunnel(const ipv6_addr& src, const ipv6_addr& dest)
 {
+  Enter_Method("findTunnel %s %s", ipv6_addr_toString(src).c_str(),
+	       ipv6_addr_toString(dest).c_str());
   Dout(dc::debug|flush_cf, "findTunnel entry="<<src<<" exit="<<dest);
-  //Check that no existing tunnel has the same value i.e. src/dest address equivalent
+
+  if (src == IPv6_ADDR_UNSPECIFIED)
+  {
+    for (TI it = tunnels.begin(); it != tunnels.end(); ++it)
+    {
+      if (it->second.exit == dest)
+	return it->first;
+    }
+    return 0;
+  }
+
   TI it = find_if(tunnels.begin(), tunnels.end(),
                   bind1st(equalTunnel(),
                           make_pair((size_t) 0, Tunnel(src, dest)) ));

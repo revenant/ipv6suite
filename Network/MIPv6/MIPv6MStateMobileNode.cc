@@ -1,4 +1,5 @@
 // -*- C++ -*-
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -35,7 +36,6 @@
 
 #include "MIPv6MStateMobileNode.h"
 #include "cTTimerMessageCB.h"
-#include "cTimerMessageCB.h"
 #include "IPv6Datagram.h"
 #include "IPv6Mobility.h"
 #include "MIPv6MobilityHeaders.h"
@@ -73,10 +73,6 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 #include "XMLOmnetParser.h"
 #include "XMLCommon.h"
 #endif
-
-#ifndef CTIMERMESSAGECB_H
-#include "cTimerMessageCB.h" //schedSendBU
-#endif //  CTIMERMESSAGECB_H
 
 namespace MobileIPv6
 {
@@ -1498,7 +1494,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   if (mipv6cdsMN->primaryHA().get() && dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
     mob->buVector->record(mob->simTime());
-  scheduleSendBU(dgram);
+  //scheduleSendBU(dgram);
+  //mob->send(static_cast<cMessage*>(msg->dup()), gate);
+  mob->send(dgram, "routingOut");
 
   //Create BU retransmission timer
   if (ack)
@@ -1552,11 +1550,11 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       Dout(dc::mipv6, mob->nodeName()<<" Waiting for BU ack timeout="
            <<setprecision(4)<<timeout);
     }
-  }
+  } //if ack
 
 #ifdef USE_HMIP
   if (mapReg)
-    Dout(dc::hmip, mob->rt->nodeName()<<" "<<setprecision(4)<<mob->simTime() + SELF_SCHEDULE_DELAY
+    Dout(dc::hmip, mob->nodeName()<<" "<<setprecision(4)<<mob->simTime() + SELF_SCHEDULE_DELAY
        <<" BU to "<<dgram->destAddress()<<" hoa="<<hoa<<" coa="<<coa
        <<" seq="<<seq<<(homeReg?" home":
                         mapReg?" map":
@@ -1599,6 +1597,111 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
 
+  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
+    (OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
+  assert(tunMod != 0);
+
+  if (homeReg || mapReg)
+  {
+    //delete reverse tunnels with exit point of ha/map
+    size_t delIndex = tunMod->findTunnel(IPv6_ADDR_UNSPECIFIED,
+					 dgram->destAddress());
+    size_t vIfIndex = tunMod->findTunnel(coa, dgram->destAddress());
+
+    if (vIfIndex != delIndex)
+    {
+      mob->bubble("Destroy tunnel delIndex");
+      tunMod->destroyTunnel(delIndex);
+    }
+
+  ///Returns the vIfIndex of tunnel if found
+//  size_t findTunnelWithExitPoint(const ipv6_addr& exit);
+
+    //Create reverse tunnel to HA/Map
+    assert(!vIfIndex);
+    if (!vIfIndex)
+    {
+      vIfIndex = tunMod->createTunnel(coa, dgram->destAddress(), ifIndex);
+      Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, mob->nodeName()
+	   <<" reverse tunnel created entry coa="<<coa<<" exit "
+	   <<(homeReg?"ha=":"map=")
+	   <<dgram->destAddress()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+    }
+    else
+    {
+      Dout(dc::warning|flush_cf, mob->nodeName()
+	   <<" reverse tunnel exists already coa="<<coa<<" exit "
+	   <<(homeReg?"ha=":"map=")
+	   <<dgram->destAddress()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+    }
+
+    if (!mob->hmipSupport())
+      return true;
+
+    HMIPv6CDSMobileNode* hmipv6cds = mipv6cds->hmipv6cdsMN;
+
+    if (homeReg)
+    {
+      //trigger on HA to lcoa tunnel if coa was formed from map prefix
+
+      //list of maps in here may be smaller or bigger than in bul depends on
+      //whether the map list tracks the actual maps in current domain @see 
+      //hmipv6ndstatehost::discoverMap
+      ipv6_addr map = hmipv6cds->findMapOwnsCoa(coa);
+      if (map != IPv6_ADDR_UNSPECIFIED)
+      {
+	bu_entry* bue = mipv6cdsMN->findBU(map);
+	if (bue)
+	{
+	  vIfIndex = tunMod->findTunnel(bue->careOfAddr(), map);
+	  assert(vIfIndex);
+	  //trigger on ha only after BA for maximum correctness but nonoptimal
+	  //operation?
+	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->addr(), vIfIndex);
+	}
+      }
+    }
+    else
+    {
+      //trigger on HA to different lcoa tunnel as we moved to different AR only
+      //if this map is registered at HA
+      if (mipv6cdsMN->primaryHA().get())
+      {
+	bu_entry* bue = mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr());
+	if (bue && ipv6_prefix(dgram->destAddress(), EUI64_LENGTH).matchPrefix(
+	      bue->careOfAddr()))
+	{
+	  mob->bubble("trigger on HA for lcoa -> MAP during map reg");
+	  // vIfIndex points to tunnel lcoa -> map
+	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->addr(), vIfIndex);
+	}
+      }
+    }
+  }
+  else //not (home or map reg)
+  {
+    //trigger on cn address to lcoa tunnel if coa formed from map prefix
+
+    if (!mob->hmipSupport())
+      return true;
+
+    HMIPv6CDSMobileNode* hmipv6cds = mipv6cds->hmipv6cdsMN;
+
+    //list of maps in here may be smaller or bigger than in bul depends on
+    //whether the map list tracks the actual maps in current domain @see 
+    //hmipv6ndstatehost::discoverMap
+    ipv6_addr map = hmipv6cds->findMapOwnsCoa(coa);
+    if (map != IPv6_ADDR_UNSPECIFIED)
+    {
+      bu_entry* bue = mipv6cdsMN->findBU(map);
+      if (bue)
+      {
+	size_t vIfIndex = tunMod->findTunnel(bue->careOfAddr(), map);
+	assert(vIfIndex);
+	tunMod->tunnelDestination(dgram->destAddress(), vIfIndex);
+      }
+    }
+  }
   return true;
 }
 
@@ -1614,57 +1717,6 @@ bool MIPv6MStateMobileNode::updateBU(const BU* bu)
 
 void MIPv6MStateMobileNode::l2MovementDetectionCB(cMessage* msg)
 {}
-
-/**
- * @brief little helper func to duplicate message before sending it off.
- * @note msg is deleted
- * @todo this function is extremely inefficient
- */
-
-void dupSend(cMessage* msg, const char* gate, cSimpleModule* mob, cTimerMessage* schedSendBU)
-{
-  delete schedSendBU;
-  mob->send(static_cast<cMessage*>(msg->dup()), gate);
-  delete msg;
-}
-
-/**
- * @todo eliminate duplication in dupSend
- * @param dgram pointer ownership taken ( removed )
- * @param mob Mobility module
- */
-
-  ///Schedule a self message to send BU from any module
-void MIPv6MStateMobileNode::scheduleSendBU(IPv6Datagram* dgram)
-{
-//This doesn't work because the message was created within this module.  We have
-//to duplicate it at the new module before sending it.
-
-  //typedef required to disambiguate overloaded send func
-//     typedef int (IPv6Mobility::*sendPtr)(cMessage*, const char*, int);
-//     schedSendBU =
-//       new Loki::cTimerMessageCB< int, TYPELIST_2(cMessage*, const char*)>
-//       (Sched_SendBU, mob, mob, static_cast<sendPtr>(&IPv6Mobility::send), "Sched_SendBU");
-
-
-  Loki::cTimerMessageCB
-    <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>*
-    schedSendBU =
-    new Loki::cTimerMessageCB
-    <void, TYPELIST_4(cMessage*, const char*, cSimpleModule*, cTimerMessage*)>
-    (Sched_SendBU, mob, &dupSend, "Sched_SendBU");
-  Loki::Field<1> (schedSendBU->args) = "routingOut";
-  Loki::Field<2> (schedSendBU->args) = mob;
-  Loki::Field<3> (schedSendBU->args) = schedSendBU;  
-
-  Loki::Field<0> (schedSendBU->args) = dgram;
-  mob->scheduleAt(mob->simTime() +  SELF_SCHEDULE_DELAY, schedSendBU);
-
-  //self message will be deleted by callback dupSend
-
-
-}
-
 
 void MIPv6MStateMobileNode::parseXMLAttributes()
 {

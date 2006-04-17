@@ -452,56 +452,6 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
   assert(tunMod != 0);
 
-
-  //Should only be done when we update HA and then using only the tunnel corresponding to coa in bu
-//(
-  //Create rcoa to HA tunnel
-  size_t vIfIndex = tunMod->findTunnel(rcoa, mipv6cdsMN->primaryHA()->prefix().prefix);
-  //assert(!vIfIndex);
-
-  if (!vIfIndex)
-  {
-  vIfIndex = tunMod->createTunnel(rcoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
-    Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" (mapHandover) reverse tunnel created entry rcoa="
-         <<rcoa<<" exit ha="<< mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-  }
-  else
-  {
-    Dout(dc::hmip|dc::encapsulation, "(mapHandover) reverse tunnel exists already rcoa="
-         <<rcoa<<" exit ha="<< mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-    Dout(dc::hmip|dc::encapsulation, *tunMod);
-  }
-//)
-
-
-
-  //Create lcoa to MAP tunnel 
-
-  //Should only trigger on HA when we update HA and then using only the tunnel
-  //corresponding to coa in bu. Make sure HA triggers on tunnel with entry point
-  //corresponding to COA! i.e. trigger on ha only after BA for maximum
-  //correctness?
-  vIfIndex = tunMod->findTunnel(lcoa, bestMap.addr());
-  //assert(!vIfIndex);
-  //Sometimes old tunnel is not removed so it may have been created already when
-  //we revisit past ARs
-  if (!vIfIndex)
-  {
-    //assuming single mobile interface at 0
-    vIfIndex = tunMod->createTunnel(lcoa, bestMap.addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
-    Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" (mapHandover) reverse tunnel created entry lcoa="
-	 <<lcoa<<" exit map="<< bestMap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec
-	 <<" triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
-
-  }
-  else
-  {
-    Dout(dc::hmip|dc::encapsulation, "(mapHandover) reverse tunnel exists already lcoa="
-	 <<lcoa<<" exit map="<< bestMap.addr()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-    Dout(dc::hmip|dc::encapsulation, *tunMod);
-  }
-
-
   if (oldMap == IPv6_ADDR_UNSPECIFIED)
   {
     Dout(dc::hmip, rt->nodeName()<<" Initial MAP "<<bestMap.addr()
@@ -566,58 +516,12 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                             ifIndex);
 
         mob->bbuVector->record(mob->simTime());
-
-    
-        //create lcoa to bmap reverse tunnel and trigger on primary HA (bc bmap is really just best MAP in HMIP6)
-
-	vIfIndex = tunMod->findTunnel(lcoa, ehcds->boundMapAddr());
-	assert(!vIfIndex);
-	//Sometimes old tunnel is not removed so it may have been created already when
-	//we revisit past ARs
-	if (!vIfIndex)
-	{
-
-	  //assuming single mobile interface at 0
-	  vIfIndex = tunMod->createTunnel(lcoa, ehcds->boundMapAddr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
-	  Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-	       <<" (mapHandover) reverse tunnel created entry lcoa="<<lcoa
-	       <<" exit bmap="<< ehcds->boundMapAddr()<<" vIfIndex="<<hex<<vIfIndex<<dec
-	       <<" triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
-
-	}
-	else
-	{
-	  Dout(dc::eh|dc::encapsulation, "(mapHandover) reverse tunnel exists already nrcoa="
-	       <<rcoa<<" exit bmap="<< ehcds->boundMapAddr()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-	  Dout(dc::hmip|dc::encapsulation, *tunMod);
-	  //trigger on bestmap in case not done
-	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->prefix().prefix, vIfIndex);
-	}      
-
-
-	//Create rcoa to HA tunnel
-	size_t vIfIndex = tunMod->findTunnel(bcoa, mipv6cdsMN->primaryHA()->prefix().prefix);
-	//assert(!vIfIndex);
-
-	if (!vIfIndex)
-	{
-	  vIfIndex = tunMod->createTunnel(bcoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
-	  Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" (mapHandover) reverse tunnel created entry bcoa="
-	       <<bcoa<<" exit ha="<< mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-	}
-
-	if (oldRcoa != bcoa)
-	  tunMod->destroyTunnel(oldRcoa, mipv6cdsMN->primaryHA()->prefix().prefix);
       }
     }
 #endif // EDGEHANDOVER
 
     if (oldBULE && oldBULE->careOfAddr() != lcoa)
       tunMod->destroyTunnel(oldBULE->careOfAddr(), oldMap);
-    //Destroy tunnel to HA from oldRcoa
-    //EDGEHANDOVER
-    if (!mob->edgeHandover())
-      tunMod->destroyTunnel(oldRcoa, mipv6cdsMN->primaryHA()->prefix().prefix);
 
   }
 
@@ -719,44 +623,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
                         //newRtr->re.lock()->ifIndex())
                         );
     mob->lbuVector->record(nd->simTime());
-/*
-#if EDGEHANDOVER
-    if (mob->edgeHandover()) //and previous map distance > 1 then do pcoaf otherwise we would be in mapHandover anyway.
-    {
-#endif // EDGEHANDOVER
-//make pcoaf an xml option
-    mstateMN->previousCoaForward(lcoa, oldcoa);
-#if EDGEHANDOVER
-    }
-#endif // EDGEHANDOVER
 
-*/
-
-    //Set up reverse tunnelled link from LCOA to map here as we update lcoa and remove old one
-    IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
-      (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
-    assert(tunMod != 0);
-
-    tunMod->destroyTunnel(oldcoa, hmipv6cdsMN.currentMap().addr());
-
-    size_t vIfIndex = tunMod->findTunnel(lcoa, hmipv6cdsMN.currentMap().addr());
-    //assert(!vIfIndex);
-    if (!vIfIndex)
-    {
-      //assuming single mobile interface at 0
-      vIfIndex = tunMod->createTunnel(lcoa, hmipv6cdsMN.currentMap().addr(), 0, mipv6cdsMN->primaryHA()->prefix().prefix);
-
-      Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()<<" (arhandover) reverse tunnel created entry lcoa="
-	   <<lcoa<<" exit map="<< hmipv6cdsMN.currentMap().addr()<<" vIfIndex="<<hex<<vIfIndex<<dec
-	   <<" V flag set so triggering on HA="<<mipv6cdsMN->primaryHA()->prefix().prefix);
-    }
-    else
-    {
-      Dout(dc::hmip|dc::encapsulation, "(arhandover) reverse tunnel exists already lcoa="
-	   <<lcoa<<" exit map="<< hmipv6cdsMN.currentMap().addr()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-      Dout(dc::hmip|dc::encapsulation, *tunMod);
-    }
-  
   }
   return true;
 }

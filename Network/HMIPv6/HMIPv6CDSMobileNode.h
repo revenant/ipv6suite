@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2002, 2006 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -131,6 +131,18 @@ public:
     {
       mapAddr = IPv6_ADDR_UNSPECIFIED;
     }
+/**
+   @brief find MAP that coa was formed from
+   @param coa is the care of address
+
+   @return address of MAP or IPv6_ADDR_UNSPECIFIED if coa was not formed from
+   any map that we know of
+
+   list of maps in here may be smaller or bigger than in bul depends on
+   whether the map list tracks the actual maps in current domain @see 
+   hmipv6ndstatehost::discoverMap
+*/
+  ipv6_addr findMapOwnsCoa(const ipv6_addr& coa) const;
 
 protected:
 

@@ -75,5 +75,16 @@ const ipv6_addr& HMIPv6CDSMobileNode::remoteCareOfAddr() const
   return IPv6_ADDR_UNSPECIFIED;
 }
 
+ipv6_addr HMIPv6CDSMobileNode::findMapOwnsCoa(const ipv6_addr& coa) const
+{
+  typedef Maps::const_iterator MapsIt;
+  for (MapsIt it = maps.begin(); it != maps.end(); ++it)
+  {
+    if (ipv6_prefix(it->first, EUI64_LENGTH).matchPrefix(coa))
+      return it->first;
+  }
+  return IPv6_ADDR_UNSPECIFIED;
+}
+
 };
 

@@ -1445,41 +1445,6 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 #endif //USE_HMIP
   mipv6cdsMN->setFutureCoa(IPv6_ADDR_UNSPECIFIED);
 
-#ifdef USE_HMIP
-  if (handoverDone)
-    return;
-#endif //USE_HMIP
-
-  //Cannot put this after sendBUToAll as careOfAddr asserts
-  //Set up reverse tunnelled link from MN to HA here and tear down old tunnel
-  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
-    (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
-  assert(tunMod != 0);
-  if (ocoa != IPv6_ADDR_UNSPECIFIED && ocoa != ncoa)
-    tunMod->destroyTunnel(ocoa, mipv6cdsMN->primaryHA()->prefix().prefix);
-
-  Dout(dc::debug|flush_cf, "finding tunnel entry="<<mipv6cdsMN->careOfAddr(pcoa)
-       <<" exit="<<mipv6cdsMN->primaryHA()->prefix().prefix);
-  size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
-                                     mipv6cdsMN->primaryHA()->prefix().prefix);
-
-  //assert(!vIfIndex);
-  //Sometimes old tunnel is not removed so it may have been created already when
-  //we revisit past ARs
-  if (!vIfIndex)
-  {
-  //assuming single mobile interface at 0
-  vIfIndex = tunMod->createTunnel(ncoa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
-
-  Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, " reverse tunnel created entry="
-         <<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-  }
-  else
-  {
-    Dout(dc::mipv6|dc::encapsulation, " reverse tunnel exists already "<<ncoa<<" exit="<<mipv6cdsMN->primaryHA()->prefix()<<" vIfIndex="<<hex<<vIfIndex<<dec);
-    Dout(dc::mipv6|dc::encapsulation, *tunMod);
-  }
-
 }
 // void MIPv6NDStateHost::enterState(void)
 // {}

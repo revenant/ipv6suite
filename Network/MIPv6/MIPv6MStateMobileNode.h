@@ -152,8 +152,6 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   EdgeHandover::EHCDSMobileNode* ehcds;
 
 private:
-  ///Schedule a self message to send BU from any module
-  void scheduleSendBU(IPv6Datagram* dgram);
 
   void  parseXMLAttributes();
 

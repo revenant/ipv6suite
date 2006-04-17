@@ -180,6 +180,45 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   assert(datagram->inputPort() < (int)ift->numInterfaceGates());
 
+// {{{ If we have a binding for dest then swap dest==hoa to coa
+
+//  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
+
+  if (rt->mobilitySupport() && datagram->inputPort() == -1)
+  {
+// {{{  mob->role->mnSrcAddrDetetermination();
+
+    ipv6_addr::SCOPE destScope = ipv6_addr_scope(datagram->destAddress());
+
+    //We don't care which outgoing iface dest is on because it is determined by
+    //default router ifIndex anyway (preferably iface on link with Internet
+    //connection after translation to care of addr)
+    if (rt->mobilitySupport() && rt->isMobileNode() &&
+	datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
+	rt->mipv6cds->mipv6cdsMN->primaryHA().get() != 0 &&
+	destScope == ipv6_addr::Scope_Global)
+    {
+      Dout(dc::mipv6, rt->nodeName()<<" using homeAddress "
+	   <<rt->mipv6cds->mipv6cdsMN
+	   ->homeAddr()<<" for destination "<<datagram->destAddress());
+      datagram->setSrcAddress(rt->mipv6cds->mipv6cdsMN->homeAddr());
+    }
+// }}}
+
+    if (rt->isMobileNode())
+    {
+      if (!(boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(
+	      mob->role))->mnSendPacketCheck(*datagram, this))
+	return;
+    }
+
+    (boost::polymorphic_downcast<MobileIPv6::MIPv6MStateCorrespondentNode*>(
+      mob->role))->cnSendPacketCheck(*datagram);
+  }
+
+// }}}
+
+
 // {{{ localdeliver
 
   //Disabled for now. Don't know why some packets when they leave this function
@@ -216,15 +255,19 @@ void IPv6Forward::endService(cMessage* theMsg)
 
 #if !defined NOINGRESSFILTERING
   //Cannot use the result of conceptual sending i.e. ifIndex because at that
-  //stage dgrams with link local addresses are dropped.  Thus this disables
-  //a form of "IP Masq" via tunneling at the gateways.  Otherwise this check
-  //is not required here at all and a test for vIfIndex from result of
-  //conceptual sending is sufficient to trigger a tunnel.
+  //stage dgrams with link local addresses are dropped.  Thus this disables a
+  //form of "IP Masq" via tunneling at the gateways.  Otherwise this check is
+  //not required here at all and a test for vIfIndex from result of conceptual
+  //sending is sufficient to trigger a tunnel. (Actually is it required for
+  //prefixed tunnel matches see TunnelNet example with prefixed dest trigger?)
   IPv6NeighbourDiscovery::IPv6CDS::DCI it;
-  // ifIndex is the virtual tunnel interface to send on.
-  if (rt->cds->findDestEntry(datagram->destAddress(), it))
+  //Want to do this for received packets only otherwise the trigger on cn
+  //address will prevent hoa option from been attached to packets sent to CN
+  if (datagram->inputPort() != -1 &&
+      rt->cds->findDestEntry(datagram->destAddress(), it))
   {
     NeighbourEntry* ne = it->second.neighbour.lock().get();
+/*
     Dout(dc::debug|dc::encapsulation|dc::forwarding|flush_cf, rt->nodeName()
          <<" possible tunnel index="<<(ne?
                                        OPP_Global::ltostr(ne->ifIndex()):
@@ -233,7 +276,7 @@ void IPv6Forward::endService(cMessage* theMsg)
             std::string(" state=") + OPP_Global::ltostr(ne->state()):
             "")
          <<" dgram="<<*datagram);
-
+*/
     //-1 is used to indicate promiscuous addr res so INCOMPLETE test
     //required
     if (ne && ne->state() != NeighbourEntry::INCOMPLETE &&
@@ -274,19 +317,6 @@ void IPv6Forward::endService(cMessage* theMsg)
     return;
   }
 
-// {{{ If we have a binding for dest then swap dest==hoa to coa
-
-//  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
-
-  if (rt->mobilitySupport() && datagram->inputPort() == -1)
-  {
-    (boost::polymorphic_downcast<MobileIPv6::MIPv6MStateCorrespondentNode*>(
-    mob->role))->cnSendPacketCheck(*datagram);
-
-  }
-
-// }}}
-
   Dout(dc::forwarding|dc::debug|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()
        <<" sending/forwarding dgram="<<*datagram);
 
@@ -326,7 +356,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 #endif //USE_MOBILITY
             )
         {
-          //forward via router
+          //TODO forward via router
           Dout (dc::custom|dc::forwarding|flush_cf, rt->nodeName()<<":"<<simTime()
                 <<" ODAD would forward to router for unknown neighbour LL addr. (once I get more time)");
           foundTentative = true;
@@ -365,273 +395,65 @@ void IPv6Forward::endService(cMessage* theMsg)
                               datagram->destAddress(), info->ifIndex()));
   }
 
-//  mob->role->mnSendPacketCheck();
-// {{{ away from home (MIPv6)
 
-#ifdef USE_MOBILITY
-  //Check to see if we have sent a BU to the peer (bule exists) and if so use a hoa dest
-  //opt and send packet via route optimised path. Otherwise send via reverse tunnel to HA
-
-  //Perhaps this goes into send too as only for non forwarded packets. But would
-  //need the ifIndex hint unless we assumed single interface (which some other places in code do)
-  bool pcoa = false;
-  //Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
-  if (rt->mobilitySupport() && rt->isMobileNode() &&
-      rt->mipv6cds->mipv6cdsMN->awayFromHome() &&
-      rt->mipv6cds->mipv6cdsMN->primaryHA().get() != 0 &&
-      datagram->srcAddress() ==
-      rt->mipv6cds->mipv6cdsMN->homeAddr())
+// {{{ Drop packets with src addresses that are not ready yet
+  MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
+  if (rt->mobilitySupport() && mipv6cdsMN &&
+      mipv6cdsMN->currentRouter().get() != 0 &&
+      datagram->srcAddress() != mipv6cdsMN->homeAddr()
+      )
   {
-    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
-
-    bool coaAssigned = false;
-    if (mipv6cdsMN->currentRouter().get() != 0 &&
-        mipv6cdsMN->careOfAddr(pcoa) != mipv6cdsMN->homeAddr() &&
-
-        (ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
-          mipv6cdsMN->careOfAddr(pcoa))
-        ||
-        (rt->odad() &&
-         ift->interfaceByPortNo(info->ifIndex())->ipv6()->tentativeAddrAssigned(
-           mipv6cdsMN->careOfAddr(pcoa))
-	 ))
-        )
-      coaAssigned = true;
-
-    // In MN-MN communications, there are times when the MN has the
-    // care-of address of the CN in its binding cache entry. Since the
-    // dest address of the packet got swapped to the care-of address
-    // from the home address of the CN, it is important that we use
-    // home address as a key to obtain the binding update
-
-    MobileIPv6::bu_entry* bule = 0;
-    using MobileIPv6::bc_entry;
-    boost::weak_ptr<bc_entry> bce;
-    bce = rt->mipv6cds->findBinding(datagram->destAddress());
-    if (bce.lock().get() != 0)
-      bule = mipv6cdsMN->findBU(bce.lock()->home_addr);
-    else
-      bule = mipv6cdsMN->findBU(datagram->destAddress());
-
-    if (bule)
-      Dout(dc::debug|flush_cf, "bule "<<*bule);
-
-// {{{ add home address option if bule contains this mn's coa and perhaps reverse tunnel to map
-
-    // The following section of the code only applies to data packet
-    // sent from upper layer. The mobility messages do not contain the
-    // home address option TODO: maybe an extra check of where the
-    // message is sent should be done?
-    MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
-    if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-      ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
-    if (ms == 0 && bule && !bule->isPerformingRR &&
-        bule->homeAddr() == datagram->srcAddress() &&
-        coaAssigned && mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
-        //state 0 means ba received or assumed to be received > 0 means
-        //outstanding BUs
-        (!bule->problem && bule->state == 0) && bule->expires() > 0)
+    if (
+	(ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
+	  datagram->srcAddress())
+	 ||
+	 (rt->odad() &&
+	  ift->interfaceByPortNo(info->ifIndex())->ipv6()->tentativeAddrAssigned(
+	    datagram->srcAddress())
+	  ))
+	)
     {
-      //Do route optimisation when BU to cn exists already
-      HdrExtDestProc* destProc = datagram->acquireDestInterface();
-      //Should only ever have one home addr destOpt.
-      assert(destProc->getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT)
-             == 0);
-
-      bool test = destProc->addOption(
-        new MobileIPv6::MIPv6TLVOptHomeAddress(datagram->srcAddress()));
-      assert(test);
-      datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
-//#if defined TESTMIPv6 || defined DEBUG_DESTHOMEOPT
-      Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-           <<rt->mipv6cds->mipv6cdsMN->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
-           <<" for destination "<<datagram->destAddress());
-
-      bool docheck = false;
-
-#ifdef USE_HMIP
-      if (rt->mobilitySupport() && rt->hmipSupport())
+      Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
+	   <<" checking coa "<<datagram->srcAddress()
+	   <<" is onlink at correct ifIndex "<<info->ifIndex());
+      unsigned int ifIndexTest;
+      //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
+      //link prefix
+      //assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
+      //assert(ifIndexTest == info->ifIndex());
+      if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
       {
-        docheck = true;
-        HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = rt->mipv6cds->hmipv6cdsMN;
-
-        InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
-
-        if (hmipv6cdsMN->isMAPValid())
-        {
-          if (!ie->ipv6()->addrAssigned(hmipv6cdsMN->remoteCareOfAddr()))
-          {
-            Dout(dc::hmip, " rcoa "<<hmipv6cdsMN->remoteCareOfAddr()
-                 <<" from new MAP not ready yet(awaiting BA from MAP), dropping packet");
-            return;
-          }
-
-	  //TODO use bce's coa to check if it belongs to a MAPs prefix
-	  //i.e. check if it is hoa in map binding and if so find reverse tunnel
-	  //from that map's lcoa to that rcoa and encapsulate. This will
-	  //eliminate both blocks of code below but will still need to do
-	  //srcaddr = primary home addr to trigger ha reverse tunnel
-#ifdef EDGEHANDOVER
-          if (mob->edgeHandover())
-          {
-            EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
-	    //assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
-/*
-	    Dout(dc::eh, "checking if tunnel to bmap bcoa="<<ehcds->boundCoa()<<
-		 " nrcoa="<<hmipv6cdsMN->remoteCareOfAddr());
-
-            if (hmipv6cdsMN->remoteCareOfAddr() != ehcds->boundCoa() && 
-                ehcds->boundCoa() == datagram->srcAddress())
-            {
-              HierarchicalMIPv6::HMIPv6MAPEntry& bmap = hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()];
-	      size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->remoteCareOfAddr(), bmap.addr());
-	      assert(vIfIndex);
-
-	      Dout(dc::eh|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-		   <<" reverse tunnelling to BMAP vIfIndex="<<hex<<vIfIndex<<dec
-		   <<" for dest="<<datagram->destAddress());
-	      IPv6Datagram* copy = datagram->dup();
-	      copy->setOutputPort(vIfIndex);
-	      send(copy, "tunnelEntry");
-	      return;
-            }
-*/
-	    if (ehcds->boundCoa() == datagram->srcAddress())
-	    {
-	      docheck = false;
-	      //Reverse tunnel to map always TODO unless bu to cn with lcoa
-	      size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(),
-						   ehcds->boundMapAddr());
-	      //assert(vIfIndex);
-	      if (!vIfIndex)
-		breakpoint("vifIndex not exist");
-	      Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-		   <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
-		   <<" for dest="<<datagram->destAddress());
-	      IPv6Datagram* copy = datagram->dup();
-	      copy->setOutputPort(vIfIndex);
-	      send(copy, "tunnelEntry");
-	      return;
-	    }
-          }
-
-
-#endif //EDGEHANDOVER
-
-          if (hmipv6cdsMN->remoteCareOfAddr() == datagram->srcAddress())
-          {
-            docheck = false;
-
-            //Reverse tunnel to map always TODO unless bu to cn with lcoa
-	    size_t vIfIndex = tunMod->findTunnel(hmipv6cdsMN->localCareOfAddr(), hmipv6cdsMN->currentMap().addr());
-	    assert(vIfIndex);
-
-	    Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-		 <<" reverse tunnelling to MAP vIfIndex="<<hex<<vIfIndex<<dec
-		 <<" for dest="<<datagram->destAddress());
-	    IPv6Datagram* copy = datagram->dup();
-	    copy->setOutputPort(vIfIndex);
-	    send(copy, "tunnelEntry");
-	    return;
-          }
-          else
-          {
-            unsigned int ifIndexTest;
-            //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
-            //link prefix
-            if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
-            {
-              Dout(dc::eh, rt->nodeName()<<" "<<simTime()<<" dgram dropped as src="
-                   <<datagram->srcAddress()<<" is no longer onlink (BU to HA not sent "
-                   <<"yet so coa is not current rcoa)");
-              return;
-            }
-          }
-        } //end if map valid
-
-
-
-      } //end if hmip support
-#endif //USE_HMIP
-      if (docheck)
-      {
-        Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
-             <<" checking coa "<<datagram->srcAddress()
-             <<" is onlink at correct ifIndex "<<info->ifIndex());
-        unsigned int ifIndexTest;
-        //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
-        //link prefix
-        assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
-        assert(ifIndexTest == info->ifIndex());
+	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	     <<"No suitable src address available on foreign network as "
+	     <<"coa is old one "<<datagram->srcAddress()
+	     <<"and BA from HA not received packet dropped");
+	datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
       }
-
     }
-
-// }}}
-
-// {{{reverse tunnel (mipv6)
-
-    else if (coaAssigned)
-    {
-      //Reverse Tunnel
-      size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
-                                           mipv6cdsMN->primaryHA()->prefix().prefix);
-#ifndef USE_HMIP
-      assert(vIfIndex);
-#else
-      if (rt->hmipSupport() && !vIfIndex)
-      {
-        Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
-             <<" is the old one and we have handed to new MAP, awaiting BA "
-             <<"from HA to use rcoa, dropping packet");
-        Dout(dc::mipv6, " tunnels "<<*tunMod);
-        return;
-      }
-#endif //USE_HMIP
-
-      Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
-           <<" reverse tunnelling vIfIndex="<<hex<<vIfIndex<<dec
-           <<" for dest="<<datagram->destAddress());
-      IPv6Datagram* copy = datagram->dup();
-      copy->setOutputPort(vIfIndex);
-      send(copy, "tunnelEntry");
-//      delete datagram.release(); // XXX take over the ownership from auto_ptr
-      return;  
-    }
-
-// }}}
-
-// {{{ assign unspecified src address
-
     else
     {
       if (mipv6cdsMN->currentRouter().get() == 0)
       {
-        //FMIP just set to PCoA here and hope for the best right.
-        Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-             <<" No suitable src address available on foreign network as no "
-             <<"routers recorded so far to form coa");
+	//FMIP just set to PCoA here and hope for the best right.
+	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	     <<" No suitable src address available on foreign network as no "
+	     <<"routers recorded so far to form coa so packet dropped");
       }
       else
       {
-        InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
-        ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
-        if (ie->ipv6()->tentativeAddrs.size())
-          unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
-        Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-             <<"No suitable src address available on foreign network as "
-             <<"ncoa in not ready from DAD or BA from HA/MAP not received "
-             <<unready<<" packet dropped");
+	InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
+	ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
+	if (ie->ipv6()->tentativeAddrs.size())
+	  unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
+	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	     <<"No suitable src address available on foreign network as "
+	     <<"ncoa in not ready from DAD or BA from HA/MAP not received "
+	     <<unready<<" packet dropped");
       }
       datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }
-
-// }}}
-
   }
-#endif //USE_MOBILITY
-
-// }}} away from home (MIPv6)
+// }}}
 
 // {{{ unspecified src addr so drop
 
@@ -836,23 +658,6 @@ int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
 ipv6_addr IPv6Forward::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex)
 {
   ipv6_addr::SCOPE destScope = ipv6_addr_scope(dest);
-
-//  mob->role->mnSrcAddrDetetermination();
-#ifdef USE_MOBILITY
-  //We don't care which outgoing iface dest is on because it is determined by
-  //default router ifIndex anyway (preferably iface on link with Internet
-  //connection after translation to care of addr)
-  if (rt->mobilitySupport() && rt->isMobileNode() &&
-      rt->mipv6cds->mipv6cdsMN->primaryHA().get() != 0 &&
-      destScope == ipv6_addr::Scope_Global)
-  {
-    Dout(dc::mipv6, rt->nodeName()<<" using homeAddress "
-         <<rt->mipv6cds->mipv6cdsMN
-         ->homeAddr()<<" for destination "<<dest);
-    return rt->mipv6cds->mipv6cdsMN->homeAddr();
-  }
-
-#endif //USE_MOBILITY
 
   assert(dest != IPv6_ADDR_UNSPECIFIED);
   if (dest == IPv6_ADDR_UNSPECIFIED)

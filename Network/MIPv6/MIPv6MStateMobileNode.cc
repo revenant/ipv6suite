@@ -33,6 +33,7 @@
 #include <string>
 #include <iostream>
 #include <boost/cast.hpp>
+#include <boost/bind.hpp>
 
 #include "MIPv6MStateMobileNode.h"
 #include "cTTimerMessageCB.h"
@@ -43,8 +44,9 @@
 #include "MIPv6Entry.h"
 #include "MIPv6MNEntry.h"
 #include "MIPv6DestOptMessages.h" //MIPv6OptHomeAddress
-#include "opp_utils.h" //ContextSwitcher
-#include "IPv6Encapsulation.h" // for sendHoTI
+#include "opp_utils.h"
+#include "IPv6Encapsulation.h"
+#include "IPv6Forward.h" //for mnSendPacketCheck
 #include "RoutingTable6.h" // for sendBU
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
@@ -290,7 +292,7 @@ private:
 
 MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
   MIPv6MStateCorrespondentNode(mod), buRetranTmrs(BURetranTmrs()),
-  mipv6cdsMN(0), hmipv6cds(0), ehcds(0)
+  mipv6cdsMN(0), hmipv6cds(0), ehcds(0), tunMod(0)
 {
   InterfaceTable *ift = mod->ift;
   mipv6cdsMN = new MIPv6CDSMobileNode(ift->numInterfaceGates());
@@ -316,6 +318,11 @@ MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
 	//BU to Bound map
 	mob->bbuVector = new cOutVector("BBU sent");
     mob->bbackVector = new cOutVector("BBAck recv");
+
+    tunMod = check_and_cast<IPv6Encapsulation*>(
+      OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
+    assert(tunMod);
+
 }
 
 MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
@@ -1097,9 +1104,6 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
 
   if (coa != mipv6cdsMN->homeAddr())
   {
-    IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>(OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
-    assert(tunMod);
-
     size_t vIfIndex = tunMod->findTunnel(coa,
                                          mipv6cdsMN->primaryHA()->prefix().prefix);
     if(!vIfIndex)
@@ -1597,10 +1601,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
 
-  IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
-    (OPP_Global::findModuleByType(mob, "IPv6Encapsulation"));
-  assert(tunMod != 0);
-
   if (homeReg || mapReg)
   {
     //delete reverse tunnels with exit point of ha/map
@@ -1676,6 +1676,16 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->addr(), vIfIndex);
 	}
       }
+      //Find all cn entries and trigger them to new lcoa tunnel if their coa
+      //belongs to this map's prefix (if there was a map handover then will need
+      //to wait for bu to cn b4 trigger to diff map)
+      vector<ipv6_addr> addrs =
+	mipv6cdsMN->findBUToCNCoaMatchPrefix(dgram->destAddress());
+      for (vector<ipv6_addr>::iterator it = addrs.begin(); it != addrs.end();
+	   ++it)
+      {       
+	tunMod->tunnelDestination(*it, vIfIndex);
+      }
     }
   }
   else //not (home or map reg)
@@ -1705,18 +1715,115 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   return true;
 }
 
-/**
- * Sec. 10.9
- *
- */
-
-bool MIPv6MStateMobileNode::updateBU(const BU* bu)
+bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* frwd)
 {
-  return false;
-}
 
-void MIPv6MStateMobileNode::l2MovementDetectionCB(cMessage* msg)
-{}
+  //Check to see if we have sent a BU to the peer (bule exists) and if so use a hoa dest
+  //opt and send packet via route optimised path. Otherwise send via reverse tunnel to HA
+
+  //Perhaps this goes into send too as only for non forwarded packets.
+  RoutingTable6* rt = mob->rt;
+  IPv6Datagram* datagram = &dgram;
+  //Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
+  if (!rt->isMobileNode())
+    return true;
+  if (!mipv6cdsMN->awayFromHome() ||
+      mipv6cdsMN->primaryHA().get() == 0)
+    return true;
+  if (datagram->srcAddress() != mipv6cdsMN->homeAddr())
+    return true;
+
+/*
+    // In MN-MN communications, there are times when the MN has the
+    // care-of address of the CN in its binding cache entry. Since the
+    // dest address of the packet got swapped to the care-of address
+    // from the home address of the CN, it is important that we use
+    // home address as a key to obtain the binding update
+
+    MobileIPv6::bu_entry* bule = 0;
+    using MobileIPv6::bc_entry;
+    boost::weak_ptr<bc_entry> bce;
+    bce = rt->mipv6cds->findBinding(datagram->destAddress());
+    if (bce.lock().get() != 0)
+      bule = mipv6cdsMN->findBU(bce.lock()->home_addr);
+    else
+      bule = mipv6cdsMN->findBU(datagram->destAddress());
+
+*/
+
+  //above no longer applies because we do not swap dest address until after this fn
+  MobileIPv6::bu_entry* bule = 0;
+  bule = mipv6cdsMN->findBU(datagram->destAddress());
+
+  if (bule)
+    Dout(dc::debug|flush_cf, "bule "<<*bule);
+
+  bool pcoa = false;
+
+// {{{ Do Route Optimisation (RO) if bule contains this mn's coa or reverse tunnel to HA
+
+  // The following section of the code only applies to data packet
+  // sent from upper layer. The mobility messages do not contain the
+  // home address option TODO: maybe an extra check of where the
+  // message is sent should be done?
+  MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
+  if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+    ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
+  if (ms == 0 && bule && !bule->isPerformingRR &&
+      bule->homeAddr() == datagram->srcAddress() &&
+      mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
+      //state 0 means ba received or assumed to be received > 0 means
+      //outstanding BUs
+      (!bule->problem && bule->state == 0) && bule->expires() > 0)
+  {
+    //Do route optimisation when BU to cn exists already
+    HdrExtDestProc* destProc = datagram->acquireDestInterface();
+    //Should only ever have one home addr destOpt.
+    assert(destProc->getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT)
+	   == 0);
+
+    bool test = destProc->addOption(
+      new MobileIPv6::MIPv6TLVOptHomeAddress(datagram->srcAddress()));
+    assert(test);
+    datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
+    Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
+	 <<rt->mipv6cds->mipv6cdsMN->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
+	 <<" for destination "<<datagram->destAddress());
+    return true;
+  }
+// }}}
+// {{{ reverse tunnel (mipv6)
+  else
+  {
+    //Reverse Tunnel
+    size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
+					 mipv6cdsMN->primaryHA()->prefix().prefix);
+#ifndef USE_HMIP
+    assert(vIfIndex);
+#else
+    if (rt->hmipSupport() && !vIfIndex)
+    {
+      Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
+	   <<" is the old one and we have handed to new MAP, awaiting BA "
+	   <<"from HA to use rcoa, packet dropped");
+      Dout(dc::mipv6, " tunnels "<<*tunMod);
+      return false;
+    }
+#endif //USE_HMIP
+
+    Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
+	 <<" reverse tunnelling vIfIndex="<<hex<<vIfIndex<<dec
+	 <<" for dest="<<datagram->destAddress());
+    IPv6Datagram* copy = datagram->dup();
+    copy->setOutputPort(vIfIndex);
+    frwd->send(copy, "tunnelEntry");
+    return false;
+  }
+
+// }}}
+
+  return true;
+}
 
 void MIPv6MStateMobileNode::parseXMLAttributes()
 {

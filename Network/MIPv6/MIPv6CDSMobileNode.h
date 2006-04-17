@@ -244,6 +244,8 @@ namespace MobileIPv6
     ///return the bul entry or 0 if no BUs were sent to destAddr
     bu_entry* findBU(const ipv6_addr& destAddr) const;
     bool removeBU(const ipv6_addr& addr);
+    ///returns addresses of CNs where coa registered prefix matches addr
+    std::vector<ipv6_addr> findBUToCNCoaMatchPrefix(const ipv6_addr& addr);
     //@}
 
     bool awayFromHome() const { return away; }

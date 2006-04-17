@@ -44,6 +44,8 @@ struct ipv6_addr;
 
 class IPv6Datagram;
 class IPv6Mobility;
+class IPv6Forward;
+class IPv6Encapsulation;
 
 namespace HierarchicalMIPv6
 {
@@ -121,22 +123,18 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr);
 
+  //return true if further processing of packet required
+  bool mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* frwd);
+
  protected:
   ///handle Binding Acks according to draft 16 10.14
   void processBA(BA* ba, IPv6Datagram* dgram);
 
   void processBM(BM* bm, IPv6Datagram* dgram);
-                                             
+
   void processBR(BR* br, IPv6Datagram* dgram);
 
   void processTestMsg(TMsg* t, IPv6Datagram* dgram);
-
-  ///Update the BU list with this recently sent BU
-  bool updateBU(const BU* bu);
-
-  ///Called by layer 2 whenever movement is detected there
-  void l2MovementDetectionCB(cMessage* msg);
-
 
   // TODO: it would probably make more sense to add buRetransTmr in
   // each of the BUL entry instead of storing a list of buRetransTmrs
@@ -150,6 +148,7 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   MIPv6CDSMobileNode* mipv6cdsMN;
   HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cds;
   EdgeHandover::EHCDSMobileNode* ehcds;
+  IPv6Encapsulation* tunMod;
 
 private:
 

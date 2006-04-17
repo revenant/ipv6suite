@@ -33,6 +33,8 @@
 
 #include <algorithm> //find_if
 #include <functional>
+#include <iterator> //back_inserter
+#include <boost/bind.hpp>
 
 #include "MIPv6MNEntry.h"
 #include "InterfaceTable.h"
@@ -312,6 +314,38 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
   bool MIPv6CDSMobileNode::removeBU(const ipv6_addr& addr)
   {
     return false;
+  }
+
+  struct findBUToCNMatchPrefix
+  {
+    findBUToCNMatchPrefix(ipv6_addr addr):addr(addr, EUI64_LENGTH)
+    {
+    }
+
+    bool operator()(boost::shared_ptr<bu_entry> bue)
+    {
+      if (bue->homeReg()  || bue->isMobilityAnchorPoint())
+	return false;
+      return addr.matchPrefix(bue->careOfAddr());
+    }
+    ipv6_prefix addr;
+  };
+  std::vector<ipv6_addr> MIPv6CDSMobileNode::findBUToCNCoaMatchPrefix(const ipv6_addr& addr)
+  {
+    typedef BindingUpdateList BUL;
+    BULI end = std::partition(bul.begin(), bul.end(), findBUToCNMatchPrefix(addr));
+    
+    std::vector<ipv6_addr> x;
+//    std::back_insert_iterator<std::vector<ipv6_addr> >  b = std::back_inserter(x);
+/*    std::for_each(bul.begin(), it,
+		  b(boost::bind(&MobileIPv6::bu_entry::addr,
+				boost::bind(&BUL::value_type, _1))));
+*/
+    for (BULI it = bul.begin(); it != end; ++it)
+    {
+      x.push_back((*it)->addr());
+    }
+    return x;
   }
 
   void MIPv6CDSMobileNode::setAwayFromHome(bool notAtHome)

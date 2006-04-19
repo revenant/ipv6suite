@@ -74,6 +74,8 @@ namespace MobileIPv6
       :IPv6TLVOptionBase(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT, (unsigned char) 16), opt(haddr)
       {}
 
+    virtual std::ostream& operator<<(std::ostream& os);
+
     virtual MIPv6TLVOptHomeAddress* dup() const
       {
         return new MIPv6TLVOptHomeAddress(opt.home_addr);

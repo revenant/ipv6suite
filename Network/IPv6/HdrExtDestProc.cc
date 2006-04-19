@@ -81,7 +81,13 @@ HdrExtDestProc& HdrExtDestProc::operator=(const HdrExtDestProc& rhs)
 
 ostream& HdrExtDestProc::operator<<(std::ostream& os)
 {
-  return HdrExtProc::operator<<(os);
+  IPv6TLVOptionBase* opt = getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
+  if (opt)
+    return opt->operator<<(os);
+  else
+  {
+    return os<<" Destination Extension Hdr type ="<<type();
+  }
 }
 
 bool HdrExtDestProc::processHeader(cSimpleModule* mod, IPv6Datagram* pdu)

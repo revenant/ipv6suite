@@ -28,6 +28,7 @@
 
 #include <omnetpp.h>
 #include "IPv6Datagram.h"
+#include "HdrExtProc.h"
 
 namespace IPv6Utils
 {
@@ -36,8 +37,23 @@ namespace IPv6Utils
     if (routingInfoDisplay)
     {
       cout<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-          <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes\n";
-      cout.flush();
+          <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes ";
+
+      HdrExtProc* proc = 0;
+
+      for ( proc = datagram->getNextHeader(0); proc != 0;
+	    proc = datagram->getNextHeader(proc))
+      {
+	proc->operator<<(cout);
+      }
+      if (datagram->transportProtocol() == IP_PROT_IPv6)
+      {
+	cout<<" encapsulating \n";
+	IPv6Datagram* dgram = 
+	  check_and_cast<IPv6Datagram*> (datagram->encapsulatedMsg());
+	printRoutingInfo(true, dgram, name, directionOut);
+      }
+      cout<<endl;
     }
   }
 }

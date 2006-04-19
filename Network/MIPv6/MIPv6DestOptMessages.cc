@@ -63,6 +63,11 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
   return true;
 }
 
+std::ostream& MIPv6TLVOptHomeAddress::operator<<(std::ostream& os)
+{
+  return os<<" destination option: home addr option hoa="<<homeAddr()<<"\n";
+}
+
 } //namespace MobileIPv6
 
 //Duplicated class !!!!

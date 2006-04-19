@@ -308,6 +308,11 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
       return;
     }
 
+    assert(origDgram->srcAddress() != IPv6_ADDR_UNSPECIFIED &&
+	   origDgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
+    assert(tun.entry != IPv6_ADDR_UNSPECIFIED &&
+	   tun.exit != IPv6_ADDR_UNSPECIFIED);
+
     //Set up hoplimit of original packet if necessary.  This is done
     //by fragmentation but since packet is encapsulated we need it here.
     if (origDgram->inputPort() == IMPL_INPUT_PORT_LOCAL_PACKET)

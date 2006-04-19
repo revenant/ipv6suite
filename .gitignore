@@ -9,3 +9,6 @@ omnetppconfig
 DartTestfile.txt
 cmake*
 \#*
+.tkenvrc
+core.*
+core

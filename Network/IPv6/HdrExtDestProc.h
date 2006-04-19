@@ -71,7 +71,7 @@ public:
 
   // force a "real" destination option to override this function
   virtual bool processOption(cSimpleModule* mod, IPv6Datagram* pdu) = 0;
-
+  virtual std::ostream& operator<<(std::ostream& os) = 0;
   TLVOptType type() { return _type; }
 
   /**

@@ -1498,8 +1498,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   if (mipv6cdsMN->primaryHA().get() && dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
     mob->buVector->record(mob->simTime());
-  //scheduleSendBU(dgram);
-  //mob->send(static_cast<cMessage*>(msg->dup()), gate);
   mob->send(dgram, "routingOut");
 
   //Create BU retransmission timer
@@ -1793,6 +1791,7 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
   }
 // }}}
 // {{{ reverse tunnel (mipv6)
+
   else
   {
     //Reverse Tunnel

@@ -42,7 +42,7 @@
 #include <iterator> //ostream_iterator
 #include <omnetpp.h>
 #include <boost/cast.hpp>
-#include <boost/functional.hpp>
+#include <boost/bind.hpp>
 
 #include "IPv6Forward.h"
 #include "InterfaceTableAccess.h"
@@ -51,7 +51,7 @@
 #include "IPv6Datagram.h"
 #include "ICMPv6Message_m.h"
 #include "ICMPv6MessageUtil.h"
-#include "opp_utils.h"
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include "NDEntry.h"
 #include "AddrResInfo_m.h"
 #include "HdrExtRteProc.h"
@@ -83,7 +83,6 @@
 #include "NDStateRouter.h"
 #include "NeighbourDiscovery.h"
 
-#include "opp_utils.h"  // for int/double <==> string conversions
 #ifdef CWDEBUG
 #include <cassert>
 #include <iostream>
@@ -141,32 +140,6 @@ void IPv6Forward::initialize(int stage)
 }
 
 /**
-   @class printRoutingInfo
-
-   @brief display some information when routingInfoDisplay parameter is set for
-   the IPv6Forward module.
-*/
-
-struct printRoutingInfo
-{
-  printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name):display(routingInfoDisplay),datagram(dgram),name(name)
-    {}
-
-  ///Display information only when IPv6Forward::handleMessage() returns
-  ~printRoutingInfo()
-    {
-      if (display)
-      {
-        cout<<name<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-            <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes\n";
-      }
-    }
-  bool display;
-  IPv6Datagram* datagram;
-  const char* name;
-};
-
-/**
    @brief huge function to handle forwarding of datagrams to lower layers
 
    @todo When src of outgoing dgram is a tentative address, ODAD would forward
@@ -180,11 +153,11 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   assert(datagram->inputPort() < (int)ift->numInterfaceGates());
 
-// {{{ If we have a binding for dest then swap dest==hoa to coa
+// {{{ Process outgoing packet for MIP6 e.g. If binding exists for dest then swap dest==hoa to coa
 
 //  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
 
-  if (rt->mobilitySupport() && datagram->inputPort() == -1)
+  if (rt->mobilitySupport() && datagram->inputPort() == IMPL_INPUT_PORT_LOCAL_PACKET)
   {
 // {{{  mob->role->mnSrcAddrDetetermination();
 
@@ -203,6 +176,7 @@ void IPv6Forward::endService(cMessage* theMsg)
 	   ->homeAddr()<<" for destination "<<datagram->destAddress());
       datagram->setSrcAddress(rt->mipv6cds->mipv6cdsMN->homeAddr());
     }
+
 // }}}
 
     if (rt->isMobileNode())
@@ -218,13 +192,9 @@ void IPv6Forward::endService(cMessage* theMsg)
 
 // }}}
 
+  insertSourceRoute(*datagram);
 
 // {{{ localdeliver
-
-  //Disabled for now. Don't know why some packets when they leave this function
-  //still display 0 source address when they shouldn't. Recording at prerouting
-  //and output
-  //printRoutingInfo(routingInfoDisplay, datagram.get(), rt->nodeName());
 
   if (rt->localDeliver(datagram->destAddress()))
   {
@@ -263,7 +233,7 @@ void IPv6Forward::endService(cMessage* theMsg)
   IPv6NeighbourDiscovery::IPv6CDS::DCI it;
   //Want to do this for received packets only otherwise the trigger on cn
   //address will prevent hoa option from been attached to packets sent to CN
-  if (datagram->inputPort() != -1 &&
+  if (datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET &&
       rt->cds->findDestEntry(datagram->destAddress(), it))
   {
     NeighbourEntry* ne = it->second.neighbour.lock().get();
@@ -296,11 +266,9 @@ void IPv6Forward::endService(cMessage* theMsg)
 
 // }}}
 
-  insertSourceRoute(*datagram);
+// {{{ Packet was received and not for us
 
-// {{{ Packet was received
-
-  if (datagram->inputPort() != -1 )
+  if (datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET )
   {
     if (!processReceived(*datagram))
       return;
@@ -371,6 +339,14 @@ void IPv6Forward::endService(cMessage* theMsg)
 
 // }}}
 
+  //Set src address here if upper layer protocols left it up
+  //to network layer
+  if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
+  {
+    datagram->setSrcAddress(determineSrcAddress(
+                              datagram->destAddress(), info->ifIndex()));
+  }
+
 // {{{ tunnel via dest address using conceptualSending (for prefixed dest addresses)
 
   //Required to enable triggering of prefix addresses instead of just a host
@@ -386,15 +362,6 @@ void IPv6Forward::endService(cMessage* theMsg)
   }
 
 // }}}
-
-  //Set src address here if upper layer protocols left it up
-  //to network layer
-  if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
-  {
-    datagram->setSrcAddress(determineSrcAddress(
-                              datagram->destAddress(), info->ifIndex()));
-  }
-
 
 // {{{ Drop packets with src addresses that are not ready yet
   if (rt->mobilitySupport())
@@ -480,12 +447,11 @@ void IPv6Forward::endService(cMessage* theMsg)
   // default: send datagram to fragmentation
   datagram->setOutputPort(info->ifIndex());
 
-// {{{ send redirect if on link neighbour
+// {{{ Router: send redirect if on link neighbour
 
-  if (rt->odad())
-  {
     ///Check for forwarding to on link neighbour and send back a redirect to host
-    if (datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET && info->ifIndex() == (unsigned int)datagram->inputPort() &&
+    if (rt->isRouter() && datagram->inputPort() != IMPL_INPUT_PORT_LOCAL_PACKET &&
+	info->ifIndex() == (unsigned int)datagram->inputPort() &&
         datagram->destAddress() == info->nextHop())
     {
       bool redirected = false;
@@ -498,7 +464,6 @@ void IPv6Forward::endService(cMessage* theMsg)
         return;
       }
     }
-  }
 
 // }}}
 
@@ -531,15 +496,6 @@ void IPv6Forward::addSrcRoute(const SrcRoute& route)
 {
   routes[*route->rbegin()] = route;
 }
-
-///Thought I almost had to do this.  If there is no supports for traits on
-///compiler will have to resort to using this
-struct addAddress : public unary_function<ipv6_addr, void>
-{
-  addAddress(HdrExtRte* obj) : mem(obj) {}
-  void operator() (const ipv6_addr& x) { mem->addAddress(x); }
-  HdrExtRte* mem;
-};
 
 /**
    Based on Conceptual Sending Algorithm described in Sec. 5.2 of RFC2461
@@ -742,8 +698,7 @@ bool IPv6Forward::insertSourceRoute(IPv6Datagram& datagram)
 
     const SrcRoute& route = srit->second;
     for_each(route->begin()+1, route->end(),
-             boost::bind1st(mem_fun(&HdrExtRte::addAddress), rt0));
-    //addAddress(rt0));
+	     boost::bind(&HdrExtRte::addAddress, rt0, _1));
     assert(datagram.destAddress() == *(route->rbegin()));
     datagram.setDestAddress(*(route->begin()));
     return true;

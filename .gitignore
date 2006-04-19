@@ -3,3 +3,9 @@ CMakeLists.txt
 Makefile
 nedfiles.lst
 omnetppconfig
+*.vec
+*.sca
+*.log
+DartTestfile.txt
+cmake*
+\#*

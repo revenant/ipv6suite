@@ -119,7 +119,11 @@ void UDPVideoStreamSvr::sendStreamData(cMessage *timer)
     }
     else
     {
-        delete timer;
-        // TBD find VideoStreamData in streamVector and delete it
+	VideoStreamVector::iterator vit = 
+	  std::find(streamVector.begin(), streamVector.end(),
+		  (VideoStreamData *) timer->contextPointer());
+	delete *vit;
+	streamVector.erase(vit);
+        delete timer;       
     }
 }

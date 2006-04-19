@@ -182,6 +182,12 @@ EOF
       x.puts "ADD_EXECUTABLE(${tk#{projName}} ${#{projName}_SRCS})"
       x.puts %{TARGET_LINK_LIBRARIES(${tk#{projName}} ${OPP_TKGUILIBRARIES} -lstdc++)}
       x.puts "ENDIF(NOT LIBCWD_DEBUG)"
+      x.puts "ENABLE_TESTING()"
+      x.puts "SUBDIRS("
+      x.puts "Research/Networks/"
+      x.puts "Examples/IPv6/HMIPv6Network"
+      x.puts ")"
+
     end
   }
 end

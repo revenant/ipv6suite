@@ -397,13 +397,14 @@ void IPv6Forward::endService(cMessage* theMsg)
 
 
 // {{{ Drop packets with src addresses that are not ready yet
-  MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
-  if (rt->mobilitySupport() && mipv6cdsMN &&
-      mipv6cdsMN->currentRouter().get() != 0 &&
-      datagram->srcAddress() != mipv6cdsMN->homeAddr()
-      )
+  if (rt->mobilitySupport())
   {
-    if (
+    MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
+    if (mipv6cdsMN && mipv6cdsMN->currentRouter().get() != 0 &&
+	datagram->srcAddress() != mipv6cdsMN->homeAddr()
+	)
+    {
+      if (
 	(ift->interfaceByPortNo(info->ifIndex())->ipv6()->addrAssigned(
 	  datagram->srcAddress())
 	 ||
@@ -412,45 +413,46 @@ void IPv6Forward::endService(cMessage* theMsg)
 	    datagram->srcAddress())
 	  ))
 	)
-    {
-      Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
-	   <<" checking coa "<<datagram->srcAddress()
-	   <<" is onlink at correct ifIndex "<<info->ifIndex());
-      unsigned int ifIndexTest;
-      //outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
-      //link prefix
-      //assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
-      //assert(ifIndexTest == info->ifIndex());
-      if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
       {
-	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-	     <<"No suitable src address available on foreign network as "
-	     <<"coa is old one "<<datagram->srcAddress()
-	     <<"and BA from HA not received packet dropped");
-	datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
-      }
-    }
-    else
-    {
-      if (mipv6cdsMN->currentRouter().get() == 0)
-      {
-	//FMIP just set to PCoA here and hope for the best right.
-	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-	     <<" No suitable src address available on foreign network as no "
-	     <<"routers recorded so far to form coa so packet dropped");
+	Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
+	     <<" checking coa "<<datagram->srcAddress()
+	     <<" is onlink at correct ifIndex "<<info->ifIndex());
+	unsigned int ifIndexTest;
+	//outgoing interface (ifIndex) MUST have src addr (care of Addr) as on
+	//link prefix
+	//assert(rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest));
+	//assert(ifIndexTest == info->ifIndex());
+	if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
+	{
+	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	       <<"No suitable src address available on foreign network as "
+	       <<"coa is old one "<<datagram->srcAddress()
+	       <<"and BA from HA not received packet dropped");
+	  datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
+	}
       }
       else
       {
-	InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
-	ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
-	if (ie->ipv6()->tentativeAddrs.size())
-	  unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
-	Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
-	     <<"No suitable src address available on foreign network as "
-	     <<"ncoa in not ready from DAD or BA from HA/MAP not received "
-	     <<unready<<" packet dropped");
+	if (mipv6cdsMN->currentRouter().get() == 0)
+	{
+	  //FMIP just set to PCoA here and hope for the best right.
+	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	       <<" No suitable src address available on foreign network as no "
+	       <<"routers recorded so far to form coa so packet dropped");
+	}
+	else
+	{
+	  InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
+	  ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
+	  if (ie->ipv6()->tentativeAddrs.size())
+	    unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
+	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	       <<"No suitable src address available on foreign network as "
+	       <<"ncoa in not ready from DAD or BA from HA/MAP not received "
+	       <<unready<<" packet dropped");
+	}
+	datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
       }
-      datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }
   }
 // }}}

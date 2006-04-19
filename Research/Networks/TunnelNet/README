@@ -34,6 +34,14 @@ sent: 70   drop rate (%): 0
 round-trip min/avg/max (ms): 0.0344/0.0347771/0.0608
 stddev (ms): 0.0031554   variance:9.95657e-12
 --------------------------------------------------------
+gcc 4.0.3
+--------------------------------------------------------
+        tunnelNet.client.pingApp
+--------------------------------------------------------
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.0344/0.0347143/0.0564
+stddev (ms): 0.0026295   variance:6.91429e-12
+--------------------------------------------------------
 
 Using ODAD option will make all nodes do an unsolicited NA
 and so ND does not occur and we will get a constant ping round trip time.

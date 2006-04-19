@@ -35,7 +35,7 @@
 */
 namespace IPv6Utils
 {
-  void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
+  std::ostream& printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* dgram, const char* name, bool directionOut);
 };
 
 #endif //__IPV6UTILS_H__

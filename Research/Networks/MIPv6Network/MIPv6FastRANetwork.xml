@@ -2,23 +2,23 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug1.log:MobileMove::notice:custom:Ping6:Statistic">
+<!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
   <global>
     <ObjectMovement>
-      <MovingNode NodeName="square" startTime="0">
+      <MovingNode NodeName="pingpong" startTime="0">
         <move moveToX="352" moveToY="118" moveSpeed="3"/>
         <move moveToX="100" moveToY="118" moveSpeed="3"/>
         <move moveToX="352" moveToY="118" moveSpeed="3"/>
         <move moveToX="90" moveToY="118" moveSpeed="3"/>
       </MovingNode>
-      <MovingNode NodeName="pingpong" startTime="0">
+      <MovingNode NodeName="square" startTime="0">
         <move moveToX="352" moveToY="378" moveSpeed="3"/>
         <move moveToX="88" moveToY="118" moveSpeed="3"/>
       </MovingNode>
     </ObjectMovement>
   </global>
-<!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
-  routeOptimisation="off" hierarchicalMIPv6Support="off">
+  routeOptimisation="on" hierarchicalMIPv6Support="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
@@ -77,10 +77,4 @@
 	routeDestination="3011:BBBB:3333:6666:0:0:0:0/64"/>
     </route>
   </local>
-
-  <misc>
-    <ObjectMovement>
-    </ObjectMovement>
-  </misc>
-
 </netconf>

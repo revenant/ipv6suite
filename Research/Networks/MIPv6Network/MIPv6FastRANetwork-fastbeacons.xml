@@ -3,8 +3,22 @@
 
 <netconf debugChannel="debug1.log:MobileMove::notice:Ping6:Statistic">
 <!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
+  <global>
+    <ObjectMovement>
+      <MovingNode NodeName="pingpong" startTime="0">
+        <move moveToX="352" moveToY="118" moveSpeed="3"/>
+        <move moveToX="100" moveToY="118" moveSpeed="3"/>
+        <move moveToX="352" moveToY="118" moveSpeed="3"/>
+        <move moveToX="90" moveToY="118" moveSpeed="3"/>
+      </MovingNode>
+      <MovingNode NodeName="square" startTime="0">
+        <move moveToX="352" moveToY="378" moveSpeed="3"/>
+        <move moveToX="88" moveToY="118" moveSpeed="3"/>
+      </MovingNode>
+    </ObjectMovement>
+  </global>
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
-  hierarchicalMIPv6Support="off">
+  routeOptimisation="off" hierarchicalMIPv6Support="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">

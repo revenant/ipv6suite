@@ -52,7 +52,7 @@ public:
 
   /*v*/ HdrExtRte& operator=(const HdrExtRte& rhs);
 
-  /*v*/ std::ostream& operator<<(std::ostream& os);
+  virtual std::ostream& operator<<(std::ostream& os);
 
   /*v*/ HdrExtRte* dup() const
     {
@@ -163,7 +163,7 @@ public:
       //setSegmentsLeft(1);
       //setHdrExtLen(2);
     }
-
+  virtual std::ostream& operator<<(std::ostream& os);
   virtual ~MIPv6RteOpt()
     {}
 

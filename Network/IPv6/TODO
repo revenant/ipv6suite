@@ -489,3 +489,7 @@ Look at Tkgui and ap.wirelessaccesspoint.networkinterface and you may see many
 Wireless IDLE red dot messages.
 Also can check counters of messages egressing interfaces via 
 ap3.networkinterface.ap3.ds[0].outputQueue.dqeHook.sent packets
+
+19/04/06
+Replace TFunctorBaseA with boost::function
+Replace all cTimer/cTTimerCB etc. messages with cSignalMessage

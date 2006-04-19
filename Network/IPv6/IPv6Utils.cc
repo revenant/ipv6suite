@@ -25,6 +25,7 @@
 #include "sys.h"
 #include "debug.h"
 #include <cstring>
+#include <fstream>
 
 #include <omnetpp.h>
 #include "IPv6Datagram.h"
@@ -32,28 +33,38 @@
 
 namespace IPv6Utils
 {
-  void printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* datagram, const char* name, bool directionOut)
+  std::ostream& printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* datagram, const char* name, bool directionOut)
   {
-    if (routingInfoDisplay)
+    static ostream* osp = 0;
+    if (!osp)
     {
-      cout<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
+//      if (!routingInfoDisplay)
+	osp = new ofstream("test.out", ios_base::out|ios_base::binary);
+//      else
+//	osp = &cout;
+    }
+    ostream& os = *osp;
+
+    if (!routingInfoDisplay)
+      return os;
+
+      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
           <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes ";
 
-      HdrExtProc* proc = 0;
-
-      for ( proc = datagram->getNextHeader(0); proc != 0;
+      for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
 	    proc = datagram->getNextHeader(proc))
       {
-	proc->operator<<(cout);
+	proc->operator<<(os);
       }
       if (datagram->transportProtocol() == IP_PROT_IPv6)
       {
-	cout<<" encapsulating \n";
+	os<<" encapsulating \n";
 	IPv6Datagram* dgram = 
 	  check_and_cast<IPv6Datagram*> (datagram->encapsulatedMsg());
 	printRoutingInfo(true, dgram, name, directionOut);
       }
-      cout<<endl;
-    }
+      os<<endl;
+
+      return os;
   }
 }

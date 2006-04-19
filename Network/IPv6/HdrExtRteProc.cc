@@ -268,6 +268,11 @@ bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
   return true;
 }
 
+std::ostream& MIPv6RteOpt::operator<<(std::ostream& os)
+{
+  return os<<" RteType2 hdr with home addres="<<rt0_hdr->addr[0];
+}
+
 } //namespace MobileIPv6
 
 // class HdrExtRteProc definition
@@ -330,7 +335,12 @@ HdrExtRteProc& HdrExtRteProc::operator=(const HdrExtRteProc& rhs)
 
 std::ostream& HdrExtRteProc::operator<<(std::ostream& os)
 {
-  return HdrExtProc::operator<<(os);
+  //HdrExtProc::operator<<(os);
+  for (RHIT it = rheads.begin(); it != rheads.end(); it++)
+  {
+    (*it)->operator<<(os);
+  }
+  return os;
 }
 
 bool HdrExtRteProc::addRoutingHeader(HdrExtRte* rh)

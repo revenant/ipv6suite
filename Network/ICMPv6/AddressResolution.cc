@@ -30,6 +30,7 @@
 #include <iomanip> //setprecision
 #include <string>
 #include <iostream>
+#include <boost/bind.hpp>
 
 #include "AddressResolution.h"
 #include "IPv6Datagram.h"
@@ -40,12 +41,14 @@
 #include "RoutingTable6Access.h"
 #include "IPv6Forward.h"
 #include "cTimerMessage.h"
+#include "cSignalMessage.h"
 #include "AddrResInfo_m.h"
 #include "NDTimers.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 #include "IPv6Output.h"
 #include "LL6ControlInfo_m.h"
+
 #include "stlwatch.h"
 
 using std::string;
@@ -60,9 +63,6 @@ static const string ICMPIn("ICMPIn");
 static const int Tmr_AddrReslnTimeout = 9000;
 static const int Tmr_AddrReslnTimeoutFail = 9001;
 static const size_t MAX_MULTICAST_SOLICIT = 3;
-
-typedef cTTimerMessageA<void, AddressResolution, NDARTimer> ARTmrMsg;
-
 
 Define_Module( AddressResolution );
 
@@ -304,8 +304,9 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
     tmr->dgram->setName(ns->name());
 
-    tmr->msg = new ARTmrMsg(Tmr_AddrReslnTimeout, this,
-                            &AddressResolution::sendNgbrSol, tmr, false);
+    tmr->msg = new cSignalMessage("AddrReslnTimeout", Tmr_AddrReslnTimeout);
+    ((cSignalMessage*) (tmr->msg))->connect(boost::bind(&AddressResolution::sendNgbrSol, this, tmr));
+
     tmrs.push_back(tmr);
 
   }

@@ -44,8 +44,7 @@ namespace IPv6Utils
 //	osp = &cout;
     }
     ostream& os = *osp;
-
-    if (!routingInfoDisplay)
+    if (!datagram || !routingInfoDisplay)
       return os;
 
       os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="

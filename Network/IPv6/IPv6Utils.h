@@ -25,6 +25,8 @@
 #ifndef __IPV6UTILS_H__
 #define __IPV6UTILS_H__
 
+class IPv6Datagram;
+
 /**
    @brief print packet header contents on stdout
    @arg routingInfoDisplay Display dgram's headers when true. Should pass

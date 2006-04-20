@@ -52,7 +52,6 @@
 #include "IPv6CDS.h"
 #include "MIPv6CDS.h"
 #include "MIPv6CDSMobileNode.h"
-#include "cTTimerMessageCB.h"
 
 #if defined USE_HMIP
 #include "HMIPv6ICMPv6NDMessage.h"
@@ -77,7 +76,7 @@ const int Tmr_L2Trigger = 8009;
 namespace
 {
   const size_t ADDR_CONF_TIME = 2*3600; //2 hours 5.5.3 e-1
-  typedef cTTimerMessageA<void, IPv6NeighbourDiscovery::NDStateHost, IPv6NeighbourDiscovery::NDTimer> HostTmrMsg;
+  typedef cSignalMessage HostTmrMsg;
   typedef cSignalMessage RtrSolRetry;
 }
 
@@ -133,11 +132,12 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   rtrSolicited = new bool[ift->numInterfaceGates()];
   std::fill(rtrSolicited, rtrSolicited + ift->numInterfaceGates(), false);
 
+  cSignalMessage* init = new cSignalMessage("InitialiseNode", Ctrl_NodeInitialise);
+  init->connect(boost::bind(&NDStateHost::nodeInitialise, this));
+  timerMsgs.push_back(init);
+  init->rescheduleDelay(0);
 
-  nd->scheduleAt(nd->simTime(),
-                 new cTTimerMessage<void, NDStateHost>
-                 (Ctrl_NodeInitialise, static_cast<NDStateHost*>(this),
-                  &NDStateHost::nodeInitialise, "InitialiseNode"));
+  cerr<<" sizeof cSignalMessage "<<sizeof(cSignalMessage)<<" cTTimerMessage"<<sizeof(cTTimerMessageA<void, IPv6NeighbourDiscovery::NDStateHost, IPv6NeighbourDiscovery::NDTimer>)<<" cTimerMessage"<<sizeof(cTimerMessage)<<" cMessage"<<sizeof(cMessage)<<" cObject"<<sizeof(cObject)<<endl;;
 }
 
 NDStateHost::~NDStateHost()
@@ -295,6 +295,13 @@ bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
  */
 void NDStateHost::nodeInitialise()
 {
+  //
+  for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); ++it)
+    if ((*it)->kind() ==  Ctrl_NodeInitialise)
+    {
+      delete *it;
+      timerMsgs.erase(it);
+    }
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     NDTimer* tmr = new NDTimer;
@@ -411,11 +418,9 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     tmr->max_sends = ie->ipv6()->dupAddrDetectTrans; //Max Dup addr retries
     tmr->timeout = ie->ipv6()->retransTimer/1000.0; //Dup addr det timeout
 
-    tmr->msg = new HostTmrMsg(Tmr_DupAddrSolTimeout,
-                              static_cast<NDStateHost*>(this),
-                              &NDStateHost::dupAddrDetection, tmr, true,
-                              "DupAddrDet");
-
+    tmr->msg = new cSignalMessage("DupAddrDet", Tmr_DupAddrSolTimeout);
+    ((cSignalMessage*)(tmr->msg))->connect(boost::bind(&NDStateHost::dupAddrDetection, this, tmr));
+    tmr->msg->setContextPointer(tmr);
     timerMsgs.push_back(tmr->msg);
   }
 
@@ -545,7 +550,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
     tmr->dgram->setName(rs->name());
     tmr->msg = new RtrSolRetry("RtrSolRetry", Tmr_RtrSolTimeout);
-    ((RtrSolRetry*)(tmr->msg))->connect(boost::bind(&NDStateHost::sendRtrSol, this, tmr, 0));
+    ((RtrSolRetry*)(tmr->msg))->connect(boost::bind(&NDStateHost::sendRtrSol, this, tmr, tmr->ifIndex));
     tmr->msg->setContextPointer(tmr);
 
     timerMsgs.push_back(tmr->msg);
@@ -1098,8 +1103,8 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
       {
         //cout << rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<(*it)->name()<<endl;
         if((*it)->kind() == Tmr_DupAddrSolTimeout && recDgram->inputPort() ==
-           static_cast<int> (check_and_cast<HostTmrMsg*>(*it)->arg()->ifIndex) &&
-           check_and_cast<HostTmrMsg*>(*it)->arg()->tentativeAddr == targetAddr)
+           static_cast<int> ((static_cast<NDTimer*>((*it)->contextPointer()))->ifIndex) &&
+           (static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr == targetAddr)
         {
           // cancel duplicate detect timer message
 
@@ -1108,7 +1113,8 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
           //timeout msg
           assert((*it)->isScheduled());
 
-          IPv6Address tentativeAddr = check_and_cast<HostTmrMsg*>(*it)->arg()->tentativeAddr;
+          IPv6Address tentativeAddr = 
+	    (static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr;
           ie->ipv6()->removeTentativeAddress(tentativeAddr);
 
           Dout(dc::warning|flush_cf, rt->nodeName()<<":"<<recDgram->inputPort()
@@ -1116,7 +1122,7 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
                <<targetAddr);
 
           delete nd->cancelEvent(*it);
-
+	  delete *it;
           timerMsgs.erase(it);
           //Found a duplicate tentative address and treated accordingly so
           //stop further processing

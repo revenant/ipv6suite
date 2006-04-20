@@ -27,6 +27,7 @@
 #include "debug.h"
 
 #include "WirelessEtherAssociationReceiveMode.h"
+#include <iostream>
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"
@@ -47,9 +48,10 @@
 #include "WEQueue.h"
 #include "cTimerMessage.h" //link up trigger
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
+#include "IPv6Utils.h"
 
 #include "opp_utils.h"
-#include <iostream>
+
 
 WEAssociationReceiveMode *WEAssociationReceiveMode::_instance = 0;
 
@@ -192,7 +194,11 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
             Dout(dc::mobile_move, mod->simTime() << " " << OPP_Global::nodeName(mod) << " associated to: "
                  << associationResponse->getAddress2() << " on chan: " << signal->channelNum()
                  << " sig strength: " << signal->power());
-            std::cout<<mod->simTime()<<" "<<mod->fullPath()<<" associated to: " <<associationResponse->getAddress2()<<" on chan: "<<signal->channelNum()<<" sig strength: "<<signal->power()<<std::endl;
+	    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+	    os <<OPP_Global::nodeName(mod) <<" "<<simulation.simTime()<< " associated to: "
+	       << associationResponse->getAddress2() << " on chan: " 
+	       << signal->channelNum()<< " sig strength: " << signal->power()<<"\n";
+            //std::cout<<mod->simTime()<<" "<<mod->fullPath()<<" associated to: " <<associationResponse->getAddress2()<<" on chan: "<<signal->channelNum()<<" sig strength: "<<signal->power()<<std::endl;
 
             mod->associateAP.address = associationResponse->getAddress2();
             mod->associateAP.channel = signal->channelNum();

@@ -37,7 +37,6 @@
 #include "EtherStateIdle.h"
 #include "EtherFrame6.h"
 #include "MACAddress6.h"
-#include "cTTimerMessageCB.h"
 #include "EtherStateWaitJam.h"
 
 

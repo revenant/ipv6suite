@@ -45,8 +45,9 @@
 #include "WirelessEtherAScanReceiveMode.h"
 #include "WirelessEtherPScanReceiveMode.h"
 #include "WEQueue.h"
+#include "cTimerMessage.h" //link up trigger
+#include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 
-#include "cTTimerMessageCB.h"
 #include "opp_utils.h"
 #include <iostream>
 

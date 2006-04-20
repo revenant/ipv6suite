@@ -24,8 +24,6 @@
 #include "wirelessethernet.h"
 #include "WirelessEtherFrame_m.h"
 
-#include "cTTimerMessageCB.h"
-
 Register_Class(WESingleQueue);
 
 WESingleQueue::WESingleQueue()

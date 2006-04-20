@@ -33,8 +33,6 @@
 
 #include "EtherState.h"
 
-#include "cTTimerMessageCB.h"
-
 #include "EtherModule.h"
 #include "EtherSignal_m.h"
 #include "EtherFrame6.h"

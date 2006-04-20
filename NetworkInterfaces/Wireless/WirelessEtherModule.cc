@@ -36,8 +36,8 @@
 #include <sstream>
 #include <string>
 
-#include "cTTimerMessageCB.h"
 #include "cTimerMessage.h"
+#include "TimerConstants.h"
 
 #if MLDV2
 #include "IPv6Datagram.h"

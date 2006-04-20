@@ -35,9 +35,6 @@
 
 #include "WirelessEtherBridge.h"
 
-#include "cTTimerMessageCB.h"
-
-
 #include "wirelessethernet.h"
 #include "WorldProcessor.h"
 #include "opp_utils.h"

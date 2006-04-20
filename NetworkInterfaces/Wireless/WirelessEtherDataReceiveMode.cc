@@ -31,7 +31,6 @@
 #include <omnetpp.h>
 
 #include "WirelessEtherDataReceiveMode.h"
-#include "cTTimerMessageCB.h"
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"
@@ -48,6 +47,8 @@
 
 #include "WirelessEtherAScanReceiveMode.h"
 #include "WirelessEtherAuthenticationReceiveMode.h"
+#include "cTimerMessage.h" //link up trigger
+#include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 
 WEDataReceiveMode *WEDataReceiveMode::_instance = 0;
 

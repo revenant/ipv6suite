@@ -31,8 +31,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include "cTTimerMessageCB.h"
-
 #include "WirelessEtherState.h"
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"

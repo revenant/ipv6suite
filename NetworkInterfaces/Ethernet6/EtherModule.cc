@@ -43,7 +43,6 @@
 #include "EtherStateReceiveWaitBackoff.h"
 #include "EtherSignal_m.h"
 #include "ethernet.h"
-#include "cTTimerMessageCB.h"
 #include "EtherFrame6.h"
 #include "LL6ControlInfo_m.h"
 #include "InterfaceTableAccess.h"

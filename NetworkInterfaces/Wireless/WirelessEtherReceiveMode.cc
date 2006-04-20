@@ -30,8 +30,6 @@
 #include <iomanip>
 
 
-#include "cTTimerMessageCB.h"
-
 #include "WirelessEtherReceiveMode.h"
 #include "WirelessAccessPoint.h"
 

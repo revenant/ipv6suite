@@ -34,7 +34,6 @@
 #include "EtherStateWaitBackoff.h"
 #include "EtherStateSend.h"
 #include "EtherModule.h"
-#include "cTTimerMessageCB.h"
 #include "EtherStateWaitJam.h"
 
 

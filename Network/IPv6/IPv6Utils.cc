@@ -47,8 +47,10 @@ namespace IPv6Utils
     if (!datagram || !routingInfoDisplay)
       return os;
 
-      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()<<" src="<<datagram->srcAddress()<<" dest="
-          <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<"bytes ";
+    os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()
+      <<" type="<<datagram->name()
+      <<" src="<<datagram->srcAddress()<<" dest="
+      <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes ";
 
       for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
 	    proc = datagram->getNextHeader(proc))

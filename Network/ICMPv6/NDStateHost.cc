@@ -297,11 +297,14 @@ void NDStateHost::nodeInitialise()
 {
   //
   for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); ++it)
+  {
     if ((*it)->kind() ==  Ctrl_NodeInitialise)
     {
       delete *it;
       timerMsgs.erase(it);
+      break;
     }
+  }
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     NDTimer* tmr = new NDTimer;

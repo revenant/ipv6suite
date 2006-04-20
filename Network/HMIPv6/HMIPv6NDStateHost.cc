@@ -51,7 +51,7 @@
 #include "MIPv6CDS.h"
 #include "MIPv6CDSMobileNode.h"
 #include "IPv6InterfaceData.h"
-
+#include "IPv6Utils.h"
 
 using MobileIPv6::MIPv6RouterEntry;
 using MobileIPv6::bu_entry;
@@ -233,7 +233,8 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   {
     Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "//<<setprecision(6)
          <<nd->simTime()<<" MAP algorithm detected movement");
-
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    os <<rt->nodeName() <<" "<<rt->simTime()<<" MAP algorithm detected movement"<<"\n";
     //Make sure we use the latest router as default router otherwise LBUs are
     //sent via old router
     relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);

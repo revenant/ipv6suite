@@ -30,6 +30,8 @@
 
 
 #include "MIPv6NDStateHost.h"
+#include <boost/cast.hpp>
+#include <iomanip> //setprecision
 #include "cTTimerMessageCB.h"
 #include "RoutingTable6.h"
 #include "NeighbourDiscovery.h"
@@ -54,7 +56,6 @@
 #include "MIPv6MStateMobileNode.h"
 #include "WirelessEtherModule.h" //l2 trigger set
 
-#include <iomanip> //setprecision
 
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
@@ -70,8 +71,7 @@ using HierarchicalMIPv6::HMIPv6NDStateHost;
 #include "EHCDSMobileNode.h"
 #endif //EDGEHANDOVER
 
-#include <boost/cast.hpp>
-
+#include "IPv6Utils.h"
 
 #if defined __GNUC__ && __GNUC__ < 3
 template <typename T>
@@ -706,6 +706,12 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
            ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv
            :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed()));
 
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    os << rt->nodeName()<<" "<<setprecision(6)<<nd->simTime()
+       <<" movedet: exceeded MaxConsecMissedRtrAdv of "
+       <<(mipv6cdsMN->currentRouter()?
+	  ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex())->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv
+	  :check_and_cast<RtrAdvMissedTmr*>(tmr)->maxMissed())<<"\n";
     //Can also do NUD to current Rtr to confirm unreachability (once that's
     //implemented (although handover() to a null router will also do that Not
     //done though according to MIPL kernel and
@@ -724,6 +730,9 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
 
     mipv6cdsMN->setMovementDetected(true);
 
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    os <<rt->nodeName() <<" "<<setprecision(6)
+       <<nd->simTime() <<" movedet: L2 connect Triggerred \n";
     Dout(dc::mipv6|dc::mobile_move, rt->nodeName()<<" "<<nd->simTime()<<" L2 connect Triggerred");
 
     //Retrieve ifIndex of triggered interface
@@ -769,6 +778,17 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
               :" next Router exists but same prefix")
              :" no next router after current router"):" Can't find current router!!")
          );
+
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    os <<rt->nodeName() <<" "<<setprecision(6)<<nd->simTime()
+       <<(mipv6cdsMN->findRouter(mipv6cdsMN->currentRouter()->re.lock()->addr(), it)?
+       (++it != mipv6cdsMN->mrl.end()?
+	(mipv6cdsMN->currentRouter()->prefix() != (*mipv6cdsMN->mrl.rbegin())->prefix()?
+	 " next router exists and has different prefix"
+	 :" next Router exists but same prefix")
+	:" no next router after current router"):" Can't find current router!!")
+       <<"\n";
+
     if (mipv6cdsMN->findRouter(mipv6cdsMN->currentRouter()->re.lock()->addr(), it) &&
         (++it != mipv6cdsMN->mrl.end()) &&
         //Do a simple check to make sure this next router is not another router
@@ -800,6 +820,10 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
            <<mipv6cdsMN->currentRouter()->prefix()<<" mrl.prefix="<<(*mipv6cdsMN->mrl.rbegin())->prefix());
 
       relinquishRouter(mipv6cdsMN->currentRouter(), boost::shared_ptr<MIPv6RouterEntry>());
+      std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+      os <<rt->nodeName()<<" "<<setprecision(6)<<nd->simTime()
+	 <<" movedet: Moved to foreign subnet and  have not received rtrAds yet. curRtr.prefix="
+	 <<mipv6cdsMN->currentRouter()->prefix()<<" mrl.prefix="<<(*mipv6cdsMN->mrl.rbegin())->prefix()<<"\n";
     }
 
     if (!mipv6cdsMN->primaryHA())

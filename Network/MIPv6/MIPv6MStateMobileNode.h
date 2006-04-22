@@ -124,7 +124,7 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr);
 
   //return true if further processing of packet required
-  bool mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* frwd);
+  bool mnSendPacketCheck(IPv6Datagram& dgram, ::IPv6Forward* frwd);
 
  protected:
   ///handle Binding Acks according to draft 16 10.14

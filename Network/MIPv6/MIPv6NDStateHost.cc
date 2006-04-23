@@ -34,6 +34,7 @@
 #include <iomanip> //setprecision
 #include <boost/bind.hpp>
 #include "cSignalMessage.h"
+#include "cCallbackMessage.h"
 #include "TimerConstants.h"
 #include "RoutingTable6.h"
 #include "NeighbourDiscovery.h"

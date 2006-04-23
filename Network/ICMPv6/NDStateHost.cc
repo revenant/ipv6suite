@@ -136,11 +136,12 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   init->connect(boost::bind(&NDStateHost::nodeInitialise, this));
   timerMsgs.push_back(init);
   init->rescheduleDelay(0);
-
+/*
   cerr<<" sizeof cSignalMessage "<<sizeof(cSignalMessage)
       <<" sizeof cCallbackMessage="<<sizeof(cCallbackMessage)
       <<" sizeof callback="<<sizeof(boost::function<void (void)>)
       <<" cTTimerMessage"<<sizeof(cTTimerMessageA<void, IPv6NeighbourDiscovery::NDStateHost, IPv6NeighbourDiscovery::NDTimer>)<<" cTimerMessage"<<sizeof(cTimerMessage)<<" cMessage"<<sizeof(cMessage)<<" cObject"<<sizeof(cObject)<<endl;;
+*/
 }
 
 NDStateHost::~NDStateHost()
@@ -604,7 +605,6 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
 */
 void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
 {
-//Not called from another module yet
   OPP_Global::ContextSwitcher switcher(nd);
 
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);

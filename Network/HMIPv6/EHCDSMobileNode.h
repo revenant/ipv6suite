@@ -38,6 +38,10 @@
 #include <boost/shared_ptr.hpp>
 #endif
 
+#ifndef EHTIMERS_H
+#include "EHTimers.h"
+#endif //EHTIMERS_H
+
 class cTimerMessage;
 
 namespace MobileIPv6
@@ -109,7 +113,7 @@ namespace EdgeHandover
   ///bound MAPs address
   ipv6_addr bmap;
 
-  cTimerMessage* bcoaChangedNotifier;
+  BoundMapChangedCB bcoaChangedNotifier;
 };
 
 }; //namespace EdgeHandover

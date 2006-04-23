@@ -34,12 +34,13 @@
 #include "debug.h"
 
 #include <boost/cast.hpp>
+#include <boost/bind.hpp>
 
-#include "cTTimerMessageCB.h"
 #include "EHNDStateHost.h"
 #include "MIPv6MNEntry.h"
 #include "HMIPv6CDSMobileNode.h"
 #include "EHCDSMobileNode.h"
+#include "cSignalMessage.h"
 #include "EHTimers.h"
 #include "EHTimedAlgorithm.h"
 #include "opp_utils.h" //OPP_Global::ContextSwitcher
@@ -68,28 +69,18 @@ namespace EdgeHandover
     HMIPv6NDStateHost(mod), ehcds(rt->mipv6cds->ehcds)
 {
 
-  cTimerMessage* tmr = new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,
-                   &EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
-                                      "EHInvokeMapAlgorithmCallback");
-  Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
-                  (tmr))->args) = 0;
+  cSignalMessage* tmr = 
+    new cSignalMessage("EHInvokeMapAlgorithmCallback", Tmr_EHCallback);
+  tmr->connect(boost::bind(&EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
+			   this));
+					  
   ///Create timer message with our callback (timer used if we want timed
   ///notification otherwise used as a callback pointer)
   mob->setEdgeHandoverCallback(tmr);
 
-    ///Bloody ridiculous spent over 2 hours doing diff things to figure out why
-    ///this did not work. Turned out NeighbourDiscovery was not an implicit
-    ///cSimpleModule when it should be(so much for type safety and this happened
-    ///on every bloody compiler gcc34/icc)!!!!
-
-//   new EHCallback(Tmr_EHCallback, (cSimpleModule*)nd, this,
-//                  &EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
-//                  "EHInvokeMapAlgorithmCallback"));
   check_and_cast<cSimpleModule*>(nd);
-  ehcds->bcoaChangedNotifier =
-    new BoundMapChangedCB(Tmr_EHBMapChangedCB, static_cast<cSimpleModule*>(nd), this,
-                          &EdgeHandover::EHNDStateHost::invokeBoundMapChangedCallback,
-                          "EHInvokedBoundMapChangedCallback");
+  ehcds->bcoaChangedNotifier = boost::bind(&EdgeHandover::EHNDStateHost::invokeBoundMapChangedCallback,
+					   this, _1, _2);
 }
 
 EHNDStateHost::~EHNDStateHost()
@@ -97,7 +88,6 @@ EHNDStateHost::~EHNDStateHost()
   if (mob->edgeHandoverCallback() && mob->edgeHandoverCallback()->isScheduled())
     mob->edgeHandoverCallback()->cancel();
   delete mob->edgeHandoverCallback();
-  delete ehcds->bcoaChangedNotifier;
 }
 
 /**
@@ -105,9 +95,10 @@ EHNDStateHost::~EHNDStateHost()
 
    Needed so subclasses can override the virtual mapAlgorithm and be invoked
    from here as only invokeMapAlgorithm is bound at compile time.
-
+   
+   Datagram is passed via context pointer in EHCallback
 */
-void EHNDStateHost::invokeMapAlgorithmCallback(IPv6Datagram* dgram)
+void EHNDStateHost::invokeMapAlgorithmCallback()
 {
   this->mapAlgorithm();
 }
@@ -124,7 +115,7 @@ void EHNDStateHost::invokeMapAlgorithmCallback(IPv6Datagram* dgram)
    into boundMapChanged.
 
  */
-ipv6_addr EHNDStateHost::invokeBoundMapChangedCallback(HierarchicalMIPv6::HMIPv6MAPEntry map,
+ipv6_addr EHNDStateHost::invokeBoundMapChangedCallback(const HierarchicalMIPv6::HMIPv6MAPEntry& map,
                                                   unsigned int ifIndex)
 {
   ehcds->bcoa = formRemoteCOA(map, ifIndex);

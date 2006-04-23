@@ -62,9 +62,9 @@ class EHNDStateHost: public HierarchicalMIPv6::HMIPv6NDStateHost
   ///creates the correct algorithm depending on handoverType
   static EHNDStateHost* create(NeighbourDiscovery* mod, const std::string& handoverType);
 
-  void invokeMapAlgorithmCallback(IPv6Datagram* dgram);
+  void invokeMapAlgorithmCallback();
 
-  ipv6_addr invokeBoundMapChangedCallback(HierarchicalMIPv6::HMIPv6MAPEntry map,
+  ipv6_addr invokeBoundMapChangedCallback(const HierarchicalMIPv6::HMIPv6MAPEntry& map,
                                           unsigned int ifIndex);
  protected:
 

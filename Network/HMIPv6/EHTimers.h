@@ -31,15 +31,25 @@
 #ifndef EHTIMERS_H
 #define EHTIMERS_H
 
+#if !defined BOOST_FUNCTION_HPP
+#include <boost/function.hpp>
+#endif
+
+#if !defined CSIGNALMESSAGE_H
+#include "cSignalMessage.h"
+#endif
+
+namespace HierarchicalMIPv6
+{
+  class HMIPv6MAPEntry;
+};
+
 namespace EdgeHandover
 {
 
-  typedef Loki::cTimerMessageCB<void, TYPELIST_1(IPv6Datagram*)> EHCallback;
-  typedef Loki::cTimerMessageCB<ipv6_addr,
-                                TYPELIST_2(HierarchicalMIPv6::HMIPv6MAPEntry,
-                                           unsigned int)>
-  BoundMapChangedCB;
-
+  typedef cSignalMessage EHCallback;
+  typedef boost::function<ipv6_addr (const HierarchicalMIPv6::HMIPv6MAPEntry&,
+				     unsigned int)> BoundMapChangedCB;
 };
 
 #endif //EHTIMERS_H

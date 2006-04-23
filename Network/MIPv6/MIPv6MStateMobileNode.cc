@@ -36,7 +36,7 @@
 #include <boost/bind.hpp>
 
 #include "MIPv6MStateMobileNode.h"
-#include "cTTimerMessageCB.h"
+#include "cSignalMessage.h"
 #include "IPv6Datagram.h"
 #include "IPv6Mobility.h"
 #include "MIPv6MobilityHeaders.h"
@@ -90,7 +90,7 @@ typedef BURetranTmrs::iterator BURTI;
    @brief Implement Binding Update retransmissions
 */
 
-class BURetranTmr: public cTTimerMessageCBA<void, void>
+class BURetranTmr: public cSignalMessage
 {
   friend class MIPv6MStateMobileNode;
 
@@ -99,11 +99,11 @@ public:
   // Constructor/destructor.
   BURetranTmr(unsigned int timeout, IPv6Datagram* dgram,
               MIPv6MStateMobileNode* mn, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
-    :cTTimerMessageCBA<void, void>
-  (Tmr_BURetransmission, mob, makeCallback(this, &BURetranTmr::retransmitBU),
-   "BURetransmissionTmr"), timeout(timeout), dgram(dgram), stateMN(mn),
-    mipv6cds(mipv6cds)
-    {}
+    :cSignalMessage("BURetransmissionTmr", Tmr_BURetransmission), timeout(timeout),
+     dgram(dgram), stateMN(mn), mipv6cds(mipv6cds)
+    {
+      connect(boost::bind(&BURetranTmr::retransmitBU, this));
+    }
   virtual ~BURetranTmr(void)
     {
 //stop it from dumping core at end run of sim
@@ -615,8 +615,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
               Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
                    <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
                    <<" bcoa "<<ehcds->boundCoa());
-              Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
-                              (mob->edgeHandoverCallback()))->args) = dgram->dup();
+	      mob->edgeHandoverCallback()->setContextPointer(dgram);
               assert(dgram->inputPort() == 0);
               mob->edgeHandoverCallback()->callFunc();
 

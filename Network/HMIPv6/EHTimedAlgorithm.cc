@@ -87,8 +87,7 @@ void EHTimedAlgorithm::mapAlgorithm()
   {
     //Possible that while we have set a valid MAP we have not actually received a BA from it yet 
     //so callback args are not set. This happens due to lossy property of wireless env.
-    if (!Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
-                         (mob->edgeHandoverCallback()))->args))
+    if (!((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer())))
     {
       Dout(dc::eh, " Unable to do anything as BA not received from Map yet");
       mob->edgeHandoverCallback()->rescheduleDelay(interval);
@@ -96,8 +95,7 @@ void EHTimedAlgorithm::mapAlgorithm()
     }
 
     //Called when timer expires
-    ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
-                                     (mob->edgeHandoverCallback()))->args)->srcAddress();
+    ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();
 
     MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
     if (!bue)
@@ -121,8 +119,7 @@ void EHTimedAlgorithm::mapAlgorithm()
     //Called directly from processBA
     if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
     {
-      ipv6_addr peerAddr = Loki::Field<0>((boost::polymorphic_downcast<EdgeHandover::EHCallback*>
-                                           (mob->edgeHandoverCallback()))->args)->srcAddress();
+      ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();
     
       MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
 

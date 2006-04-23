@@ -80,6 +80,7 @@ namespace MobileIPv6
   class MIPv6CDS: public boost::noncopyable
   {
   public:
+    friend class MIPv6MStateCorrespondentNode;
 
     //@name constructors, destructors and operators
     //@{
@@ -87,10 +88,6 @@ namespace MobileIPv6
     virtual ~MIPv6CDS();
 
     //@}
-
-    ///Returns the preferred lifetime management function to be called at every
-    ///period
-    virtual TFunctorBaseA<cTimerMessage>* setupLifetimeManagement();
 
     ///Remove the binding associated with homeAddr
     bool removeBinding(const ipv6_addr& homeAddr);
@@ -138,7 +135,10 @@ namespace MobileIPv6
     //do not delete
     EdgeHandover::EHCDSMobileNode* ehcds;
 
+
   protected:
+
+    ///Callback function
     ///Decrement by elapsed time in tmr for all entities with managed lifetimes
     void expireLifetimes(cTimerMessage* tmr);
 

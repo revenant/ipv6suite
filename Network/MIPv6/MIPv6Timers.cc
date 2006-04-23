@@ -33,19 +33,15 @@
 namespace MobileIPv6
 {
 
-MIPv6PeriodicCB::MIPv6PeriodicCB(IPv6Mobility* mob,
-                                 TFunctorBaseA<cTimerMessage>* cb,
-                                 unsigned int interval)
-  :cTTimerMessageCBA<cTimerMessage, void>(Tmr_MIPv6Lifetime, mob, cb,
-                                          "MIPv6Lifetime"),
-   interval(interval)
+MIPv6PeriodicCB::MIPv6PeriodicCB(IPv6Mobility* mob, unsigned int interval)
+  :cSignalMessage("MIPv6Lifetime", Tmr_MIPv6Lifetime), interval(interval)
 {
   rescheduleDelay(interval);
 }
 
 void MIPv6PeriodicCB::callFunc()
 {
-  cTTimerMessageCBA<cTimerMessage, void>::callFunc();
+  cSignalMessage::callFunc();
   ///chain another call for next period
   rescheduleDelay(interval);
 }

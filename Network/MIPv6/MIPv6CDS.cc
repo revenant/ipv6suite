@@ -27,7 +27,6 @@
 
 #include "MIPv6CDS.h"
 #include "MIPv6Entry.h"
-#include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
 #include "stlwatch.h"
 #include <iostream>
@@ -102,12 +101,6 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
 
     return false;
   }
-
-  TFunctorBaseA<cTimerMessage>* MIPv6CDS::setupLifetimeManagement()
-  {
-    return makeCallback(this, &MIPv6CDS::expireLifetimes);
-  }
-
 
   void MIPv6CDS::expireLifetimes(cTimerMessage* tmr)
   {

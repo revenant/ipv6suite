@@ -53,6 +53,7 @@
 #include "MIPv6MobilityOptions_m.h"
 #include "MIPv6Timers.h" //MIPv6PeriodicCB
 #include "MIPv6MessageBase.h" //MIPv6MobilityHeaderBase
+#include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 
 #ifdef USE_HMIP
 #include "HMIPv6CDSMobileNode.h"
@@ -307,9 +308,9 @@ MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
     ehcds = new EdgeHandover::EHCDSMobileNode(mipv6cds, ift->numInterfaceGates());
     mipv6cds->ehcds = ehcds;
   }
-  if (!periodTmr)
-    periodTmr = new MIPv6PeriodicCB(mob, mipv6cdsMN->setupLifetimeManagement(),
-                                    MIPv6_PERIOD);
+  
+  ((MIPv6PeriodicCB*)(periodTmr))->connect(boost::bind(&MIPv6CDSMobileNode::expireLifetimes,
+				mipv6cdsMN, periodTmr));
 
 	mob->backVector = new cOutVector("BAck recv");
 	mob->buVector = new cOutVector("BU sent");
@@ -615,7 +616,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
               Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
                    <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
                    <<" bcoa "<<ehcds->boundCoa());
-	      mob->edgeHandoverCallback()->setContextPointer(dgram);
+	      mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
               assert(dgram->inputPort() == 0);
               mob->edgeHandoverCallback()->callFunc();
 

@@ -31,7 +31,10 @@
 #define MIPV6TIMERS_H 1
 
 
-#include "cTTimerMessageCB.h"
+
+#if !defined CSIGNALMESSAGE_H
+#include "cSignalMessage.h"
+#endif
 
 class IPv6Mobility;
 
@@ -43,11 +46,10 @@ namespace MobileIPv6
    *
    */
 
-  class MIPv6PeriodicCB: public cTTimerMessageCBA<cTimerMessage, void>
+  class MIPv6PeriodicCB: public cSignalMessage
   {
   public:
-    MIPv6PeriodicCB(IPv6Mobility* mob, TFunctorBaseA<cTimerMessage>* cb,
-                    unsigned int interval);
+    MIPv6PeriodicCB(IPv6Mobility* mob, unsigned int interval);
 
     virtual void callFunc();
 

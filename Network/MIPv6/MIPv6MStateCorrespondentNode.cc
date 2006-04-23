@@ -29,6 +29,7 @@
 #include "debug.h"
 
 #include <boost/cast.hpp>
+#include <boost/bind.hpp>
 
 #include "MIPv6MStateCorrespondentNode.h"
 #include "IPv6Mobility.h"
@@ -43,19 +44,15 @@
 #include "MIPv6Timers.h"
 #include "HdrExtRteProc.h"
 
-
 namespace MobileIPv6
 {
 
 MIPv6MStateCorrespondentNode::MIPv6MStateCorrespondentNode(IPv6Mobility* mod):
   MIPv6MobilityState(mod),
-  periodTmr((mob->isMobileNode()?
-             0:
-//TODO allow chaining of callbacks right now we can only set one or another.
-             new MIPv6PeriodicCB(mob, mipv6cds->setupLifetimeManagement(),
-                                 MIPv6_PERIOD)))
+  periodTmr(new MIPv6PeriodicCB(mob, MIPv6_PERIOD))
 {
   mob->rt->mipv6cds = mipv6cds;
+  ((MIPv6PeriodicCB*)(periodTmr))->connect(boost::bind(&MIPv6CDS::expireLifetimes, mipv6cds, periodTmr));		       				 
 }
 
 MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()

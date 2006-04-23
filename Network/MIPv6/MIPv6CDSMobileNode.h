@@ -271,10 +271,6 @@ namespace MobileIPv6
     ipv6_prefix formHomeAddress(boost::weak_ptr<MIPv6RouterEntry> re,
                                 InterfaceEntry *ie, bool primaryHoa);
 
-    ///Returns the preferred lifetime management function to be called at every
-    ///period
-    TFunctorBaseA<cTimerMessage>* setupLifetimeManagement();
-
     ///lifetime for registrations with HAs for previous coa forwarding purposes
     simtime_t pcoaLifetime(){ return _pcoaLifetime; }
 

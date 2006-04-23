@@ -39,7 +39,6 @@
 #include "MIPv6MNEntry.h"
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
-#include "cTTimerMessageCB.h"
 #include "MIPv6Timers.h"
 #include "opp_utils.h" //nodeName
 #include "stlwatch.h"
@@ -351,11 +350,6 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
   void MIPv6CDSMobileNode::setAwayFromHome(bool notAtHome)
   { away = notAtHome; }
 
-  TFunctorBaseA<cTimerMessage>* MIPv6CDSMobileNode::setupLifetimeManagement()
-  {
-    return makeCallback(this, &MIPv6CDSMobileNode::expireLifetimes);
-  }
-
   void MIPv6CDSMobileNode::expireLifetimes(cTimerMessage* tmr)
   {
     unsigned int dec = static_cast<MIPv6PeriodicCB*> (tmr)->interval;
@@ -386,6 +380,7 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
       }
       else
       {
+	Dout(dc::custom, "mip6 route expired removing now "<<*(*it));
         it = mrl.erase(it);
       }
     }

@@ -96,6 +96,8 @@ void EHTimedAlgorithm::mapAlgorithm()
 
     //Called when timer expires
     ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();
+    delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+    mob->edgeHandoverCallback()->setContextPointer(0);
 
     MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
     if (!bue)
@@ -120,6 +122,8 @@ void EHTimedAlgorithm::mapAlgorithm()
     if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
     {
       ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();
+      delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+      mob->edgeHandoverCallback()->setContextPointer(0);
     
       MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
 
@@ -127,9 +131,12 @@ void EHTimedAlgorithm::mapAlgorithm()
         rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
       Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" First binding with HA so doing it straight away from bue: "<<*bue);
-      //mob->edgeHandoverCallback()->cancel();
-      //even with contextSwitcher still not able to reschedule message from diff module
-      //mob->edgeHandoverCallback()->rescheduleDelay(interval);
+
+      //Bind every x seconds from map ba
+      /*
+      mob->edgeHandoverCallback()->cancel();
+      mob->edgeHandoverCallback()->rescheduleDelay(interval);
+      */
       return;
     }
 
@@ -137,7 +144,11 @@ void EHTimedAlgorithm::mapAlgorithm()
          <<mob->edgeHandoverCallback()->arrivalTime());
 
     //Bind every x seconds from map ba
-    //mob->edgeHandoverCallback()->rescheduleDelay(interval);
+    /*
+    mob->edgeHandoverCallback()->cancel();
+    mob->edgeHandoverCallback()->rescheduleDelay(interval);
+    */
+
   }
 }
 

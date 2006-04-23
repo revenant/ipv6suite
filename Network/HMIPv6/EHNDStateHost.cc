@@ -100,6 +100,7 @@ EHNDStateHost::~EHNDStateHost()
 */
 void EHNDStateHost::invokeMapAlgorithmCallback()
 {
+  cContextSwitcher switchContext(nd);
   this->mapAlgorithm();
 }
 

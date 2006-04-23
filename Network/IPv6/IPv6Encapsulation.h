@@ -66,28 +66,29 @@
 #include "IPv6Address.h"
 #endif //IPV6ADDRESS_H
 
+#ifndef BOOST_FUNCTION_HPP
+#include <boost/function.hpp>
+#endif
 
 class RoutingTable6;
 class InterfaceTable;
 
-
-/**
-   @class IPv6Encapsulation
-   @brief Handles the encapsulation of IPv6 Datagrams within IPv6Datagrams
-
-   Allows multiple encapsulations (nested), it does not however do the extension
-   option to limit the number of encapsulations thus it is possible that a
-   packet loops forever if the tunnel enters back onto itself.
- */
 namespace IPv6NeighbourDiscovery
 {
   class NeighbourEntry;
 }
 
 class IPv6Datagram;
-template <class Arg> class TFunctorBaseA;
 
-//XXX this is in fact tunneling, not encapsulation as in IPv6Send... --AV
+/**
+   @class IPv6Encapsulation
+   @brief Handles the encapsulation of IPv6 Datagrams within IPv6Datagrams
+
+   Allows multiple encapsulations (nested)
+
+   //XXX this is in fact tunneling, not encapsulation as in IPv6Send... --AV
+
+ */
 class IPv6Encapsulation : public cSimpleModule
 {
   struct Tunnel;
@@ -165,6 +166,7 @@ public:
   /// called from modified XML parser, trying to support prefixes
   bool tunnelDestination(const IPv6Address& dest, size_t vIfIndex);
 
+  typedef boost::function<void (IPv6Datagram*)> MIPv6TunnelCallback;
   /**
    * @brief Register a callback required by MIPv6 to test if packets are been
    * encapsulated from HA or CN.
@@ -176,8 +178,7 @@ public:
    * object can be modified but not deleted. Ownership of cb is taken by this
    * class.
    */
-
-  void registerMIPv6TunnelCallback(TFunctorBaseA<IPv6Datagram>* cb);
+  void registerCB(MIPv6TunnelCallback cb);
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -241,9 +242,9 @@ private:
       }
   };
 
-  ///handle for callback function @see registerMIPv6TunnelCallback for more
+  ///handle for callback function @see registerCB for more
   ///information
-  TFunctorBaseA<IPv6Datagram>* mipv6CheckTunnelCB;
+  MIPv6TunnelCallback mipv6CheckTunnelCB;
 };
 
 std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation::Tunnel& tun);

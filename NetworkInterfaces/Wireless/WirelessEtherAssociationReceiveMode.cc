@@ -227,11 +227,13 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
 
                 mod->linkdownTime = 0;
             }
-/* XXX maybe something like this would be useful:
-            mod->bubble("Handover completed!");
-            mod->parentModule()->bubble("Handover completed!");
-            mod->parentModule()->parentModule()->bubble("Handover completed!");
-*/
+//* XXX maybe something like this would be useful:
+	    if (ev.isGUI())
+	    {
+	      mod->bubble("Handover completed!");
+	      mod->parentModule()->bubble("Handover completed!");
+	      mod->parentModule()->parentModule()->bubble("Handover completed!");
+	    }
 
             // Link up trigger ( movement detection for MIPv6 )
             if ( mod->linkUpTrigger() )

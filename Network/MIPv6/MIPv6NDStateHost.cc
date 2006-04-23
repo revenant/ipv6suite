@@ -35,7 +35,6 @@
 #include <boost/bind.hpp>
 #include "cSignalMessage.h"
 #include "TimerConstants.h"
-#include "cTTimerMessageCB.h"
 #include "RoutingTable6.h"
 #include "NeighbourDiscovery.h"
 #include "IPv6CDS.h"
@@ -46,7 +45,6 @@
 #include "MIPv6Entry.h"
 #include "MIPv6ICMPv6NDMessage.h"
 #include "MIPv6CDSMobileNode.h"
-#include "cTimerMessageCB.h" //schedSendUnsolNgbrAd
 #include "MIPv6MNEntry.h"
 #include "MIPv6DestOptMessages.h"
 
@@ -217,7 +215,7 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
   //down to anything
   assert(tunMod != 0);
 
-  tunMod->registerMIPv6TunnelCallback(makeCallback(this, &MIPv6NDStateHost::checkDecapsulation));
+  tunMod->registerCB(boost::bind(&MIPv6NDStateHost::checkDecapsulation,this, _1));
 
   mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
@@ -247,13 +245,10 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
       //this is more useful for multihomed hosts for now just assume first iface
       //is mobile
 
+      cCallbackMessage* cb = new cCallbackMessage("Tmr_L2Trigger", Tmr_L2Trigger);
+      (*cb) = boost::bind(&MIPv6NDStateHost::movementDetectedCallback, this, cb);
       if ( wlanMod->linkUpTrigger() )
-        wlanMod->setLayer2Trigger(new cTTimerMessageCBA<cTimerMessage, void>
-                                  (Tmr_L2Trigger, mod, makeCallback
-                                   (this, &MIPv6NDStateHost::movementDetectedCallback),
-                                   ///Should pass this tmr as the argument
-                                   //to callback as default arg of 0
-                                   "Tmr_L2Trigger"));
+	wlanMod->setLayer2Trigger(cb);
     }
   }
 
@@ -1396,11 +1391,9 @@ void MIPv6NDStateHost::returnHome()
   //prefix (just home addr for now) after BU sent.
 
   //delay by 2*SELF_SCHEDULE_DELAY to ensure after BU sent (1*SELF_SCHEDULE_DELAY)
-  //sendUnsolNgbrAd(mipv6cdsMN->primaryHA()->re->ifIndex(), mipv6cdsMN->homeAddr());
+  sendUnsolNgbrAd(mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mipv6cdsMN->homeAddr());
 
-//typedef required to disambiguate overloaded send func
-//     typedef int (IPv6Mobility::*sendPtr)(cMessage*, const char*, int);
-
+/*
   Loki::cTimerMessageCB
     <void, TYPELIST_2(unsigned int, ipv6_addr)>* schedUNA = 0;
   if (!schedSendUnsolNgbrAd)
@@ -1414,9 +1407,10 @@ void MIPv6NDStateHost::returnHome()
       (schedSendUnsolNgbrAd);
   Loki::Field<0> (schedUNA->args) = mipv6cdsMN->primaryHA()->re.lock()->ifIndex();
   Loki::Field<1> (schedUNA->args) = mipv6cdsMN->homeAddr();
+
   schedSendUnsolNgbrAd = schedUNA;
   nd->scheduleAt(nd->simTime() +  2*SELF_SCHEDULE_DELAY, schedSendUnsolNgbrAd);
-
+*/
 #ifdef USE_HMIP
   if (rt->hmipSupport())
   {

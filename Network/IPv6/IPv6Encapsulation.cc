@@ -35,7 +35,6 @@
 #include "NDEntry.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
-#include "cTTimerMessageCB.h"
 #include "stlwatch.h"
 #include "IPv6InterfaceData.h"
 
@@ -67,7 +66,6 @@ void IPv6Encapsulation::initialize(int stageNo)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
-    mipv6CheckTunnelCB = 0;
     delay = par("procDelay");
 
     trafficClass = 0; //Use the value of 0 which is protocol default
@@ -253,10 +251,8 @@ std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation& tunMod)
   return os;
 }
 
-void IPv6Encapsulation::registerMIPv6TunnelCallback(TFunctorBaseA<IPv6Datagram>* cb)
+void IPv6Encapsulation::registerCB(MIPv6TunnelCallback cb)
 {
-  if (mipv6CheckTunnelCB != cb)
-    delete mipv6CheckTunnelCB;
   mipv6CheckTunnelCB = cb;
 }
 
@@ -368,7 +364,7 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     ///callback for MIPv6: check for need to send BU to CN or HA for route
     ///Optimsation
     if (mipv6CheckTunnelCB && rt->isMobileNode())
-      (*mipv6CheckTunnelCB)(tunDgram.get());
+      mipv6CheckTunnelCB(tunDgram.get());
 #endif //USE_MOBILITY
 
     auto_ptr<IPv6Datagram> origDgram(
@@ -403,8 +399,5 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
 
 void IPv6Encapsulation::finish()
 {
-  // cleanup stuff must be moved to dtor! --AV
-  delete mipv6CheckTunnelCB;
-  mipv6CheckTunnelCB = 0;
 }
 

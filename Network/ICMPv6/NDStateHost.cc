@@ -295,16 +295,14 @@ bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
  */
 void NDStateHost::nodeInitialise()
 {
-  //
-  for (TMI it = timerMsgs.begin(); it != timerMsgs.end(); ++it)
-  {
-    if ((*it)->kind() ==  Ctrl_NodeInitialise)
+  TMI it = std::find_if(timerMsgs.begin(), timerMsgs.end(),
+			bind(&cTimerMessage::kind, _1) == Ctrl_NodeInitialise);
+  if (it != timerMsgs.end())
     {
       delete *it;
-      timerMsgs.erase(it);
-      break;
+      timerMsgs.erase(it);      
     }
-  }
+
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     NDTimer* tmr = new NDTimer;

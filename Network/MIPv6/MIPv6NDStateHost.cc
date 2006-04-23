@@ -32,6 +32,9 @@
 #include "MIPv6NDStateHost.h"
 #include <boost/cast.hpp>
 #include <iomanip> //setprecision
+#include <boost/bind.hpp>
+#include "cSignalMessage.h"
+#include "TimerConstants.h"
 #include "cTTimerMessageCB.h"
 #include "RoutingTable6.h"
 #include "NeighbourDiscovery.h"
@@ -92,9 +95,10 @@ namespace MobileIPv6
  * (forming coa from this)
  */
 
-class RtrAdvMissedTmr: public cTTimerMessageCBA<void, void>
+class RtrAdvMissedTmr: public cSignalMessage
 {
 public:
+  typedef boost::function<void (cTimerMessage*)> MissedConsecCB;
 
   /**
    * @param allowCount is a reference so that when interface has changed its
@@ -107,27 +111,21 @@ public:
    * @param missedConsecCB the callback to invoke when no. of consecutively
    * missed Rtr Adv has exceeded allowCount
    *
-   * @param mod this node's NeighbourDiscovery module to send the timer self
-   * message on
-   *
    * @param nodeName use to distinguish names of diff timers on per host basis
    */
 
   RtrAdvMissedTmr(const double& interval, const unsigned int& allowCount,
-                  TFunctorBaseA<cTimerMessage>* missedConsecCB,
-                  NeighbourDiscovery* mod, const string& nodeName)
-    :cTTimerMessageCBA<void, void> (Tmr_RtrAdvMissed, mod,
-                                    makeCallback(this,
-                                                 &RtrAdvMissedTmr::missedRtrAdv),
-                                    string(nodeName+"RtrAdvMissedTmr").c_str()),
+		  MissedConsecCB missedConsecCB,
+                  const string& nodeName)
+    :cSignalMessage(string(nodeName+"RtrAdvMissedTmr").c_str(), Tmr_RtrAdvMissed),
      consecCountMissed(0), allowCount(allowCount), interval(interval),
      cb(missedConsecCB)
-    {}
+    {
+      connect(boost::bind(&RtrAdvMissedTmr::missedRtrAdv, this));
+    }
 
   ~RtrAdvMissedTmr()
-  {
-    delete cb;
-  }
+  {}
 
   /**
    * callback function exercised when interval seconds have passed without
@@ -169,7 +167,7 @@ private:
   unsigned int consecCountMissed;
   const unsigned int& allowCount;
   double interval;
-  TFunctorBaseA<cTimerMessage>* cb;
+  MissedConsecCB cb;
 };
 
   /**
@@ -190,7 +188,7 @@ private:
 
     if (consecCountMissed > allowCount)
     {
-      (*cb)(this);
+      cb(this);
     }
     else
       rescheduleDelay(interval);
@@ -522,11 +520,12 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     if (missedTmr == 0 && mipv6cdsMN->currentRouter() == bha)
     {
       InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-      missedTmr =
-        new RtrAdvMissedTmr(newInterval, ie->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv,
-                            makeCallback(this,
-                                         &MIPv6NDStateHost::movementDetectedCallback),
-                            nd, rt->nodeName());
+      missedTmr = 
+	new RtrAdvMissedTmr(newInterval,
+			    ie->ipv6()->mipv6Var.maxConsecutiveMissedRtrAdv,
+			    boost::bind(&MIPv6NDStateHost::movementDetectedCallback, this, _1),
+			    rt->nodeName());
+
       newInterval = nd->simTime() + newInterval;
       nd->scheduleAt(newInterval , missedTmr);
       Dout(dc::mip_missed_adv|flush_cf, rt->nodeName()<<":"<<ifIndex
@@ -819,11 +818,12 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
            <<" Moved to foreign subnet and  have not received rtrAds yet. curRtr.prefix="
            <<mipv6cdsMN->currentRouter()->prefix()<<" mrl.prefix="<<(*mipv6cdsMN->mrl.rbegin())->prefix());
 
-      relinquishRouter(mipv6cdsMN->currentRouter(), boost::shared_ptr<MIPv6RouterEntry>());
       std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
       os <<rt->nodeName()<<" "<<setprecision(6)<<nd->simTime()
 	 <<" movedet: Moved to foreign subnet and  have not received rtrAds yet. curRtr.prefix="
 	 <<mipv6cdsMN->currentRouter()->prefix()<<" mrl.prefix="<<(*mipv6cdsMN->mrl.rbegin())->prefix()<<"\n";
+
+      relinquishRouter(mipv6cdsMN->currentRouter(), boost::shared_ptr<MIPv6RouterEntry>());
     }
 
     if (!mipv6cdsMN->primaryHA())

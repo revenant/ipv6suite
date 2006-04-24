@@ -20,18 +20,20 @@
 
 /**
  * @file cCallbackMessage.h
- * @author 
+ * @author Johnny Lai
  * @date 24 Apr 2006
  *
  * @brief Definition of class cCallbackMessage
  *
- * @test see cCallbackMessageTest
- *
- * @todo Remove template text
  */
 
 #ifndef CCALLBACKMESSAGE_H
 #define CCALLBACKMESSAGE_H
+
+
+#ifndef BOOST_FUNCTION_HPP
+#include <boost/function.hpp>
+#endif
 
 #if !defined CTIMERMESSAGE_H
 #include "cTimerMessage.h"

@@ -71,6 +71,8 @@ MACAddress::MACAddress(const char *hexstr)
     setAddress(hexstr);
 }
 
+MACAddress::~MACAddress(){}
+
 MACAddress& MACAddress::operator=(const MACAddress& other)
 {
     memcpy(address, other.address, MAC_ADDRESS_BYTES);

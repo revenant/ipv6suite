@@ -50,6 +50,8 @@ class MACAddress
      */
     MACAddress(const MACAddress& other) {operator=(other);}
 
+    virtual ~MACAddress();
+      
     /**
      * Assignment.
      */

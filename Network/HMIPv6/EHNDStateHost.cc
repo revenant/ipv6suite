@@ -69,11 +69,11 @@ namespace EdgeHandover
     HMIPv6NDStateHost(mod), ehcds(rt->mipv6cds->ehcds)
 {
 
-  cSignalMessage* tmr = 
-    new cSignalMessage("EHInvokeMapAlgorithmCallback", Tmr_EHCallback);
-  tmr->connect(boost::bind(&EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
-			   this));
-					  
+  EHCallback* tmr = 
+    new EHCallback("EHInvokeMapAlgorithmCallback", Tmr_EHCallback);
+  (*tmr)=boost::bind(&EdgeHandover::EHNDStateHost::invokeMapAlgorithmCallback,
+			   this);
+
   ///Create timer message with our callback (timer used if we want timed
   ///notification otherwise used as a callback pointer)
   mob->setEdgeHandoverCallback(tmr);

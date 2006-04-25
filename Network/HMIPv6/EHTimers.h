@@ -31,12 +31,8 @@
 #ifndef EHTIMERS_H
 #define EHTIMERS_H
 
-#if !defined BOOST_FUNCTION_HPP
-#include <boost/function.hpp>
-#endif
-
-#if !defined CSIGNALMESSAGE_H
-#include "cSignalMessage.h"
+#if !defined CCALLBACKMESSAGE_H
+#include "cCallbackMessage.h"
 #endif
 
 namespace HierarchicalMIPv6
@@ -47,7 +43,7 @@ namespace HierarchicalMIPv6
 namespace EdgeHandover
 {
 
-  typedef cSignalMessage EHCallback;
+  typedef cCallbackMessage EHCallback;
   typedef boost::function<ipv6_addr (const HierarchicalMIPv6::HMIPv6MAPEntry&,
 				     unsigned int)> BoundMapChangedCB;
 };

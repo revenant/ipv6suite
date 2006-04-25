@@ -67,6 +67,7 @@
 #endif //IPV6ADDRESS_H
 
 #ifndef BOOST_FUNCTION_HPP
+#define BOOST_FUNCTION_HPP
 #include <boost/function.hpp>
 #endif
 

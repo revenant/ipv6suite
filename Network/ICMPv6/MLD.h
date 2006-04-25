@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2001, 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -61,7 +62,7 @@ namespace
   const int Tmr_SendGenQuery = 1;
   const int Tmr_MulticastListenerInterval = 2;
   //Host Timer
-  typedef cTTimerMessageA<void, MLD, IPv6Address> ReportTmr;
+//  typedef cTTimerMessageA<void, MLD, IPv6Address> ReportTmr;
   const int Tmr_Report = 3;
 }
 

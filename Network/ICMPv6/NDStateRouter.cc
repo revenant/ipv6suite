@@ -335,10 +335,9 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
   {
     stringstream msgName;
     msgName <<"UnsolRA "<<rt->nodeName()<<":"<<tmr->ifIndex;
-
-    msg = ::createTmrMsg(Tmr_NextUnsolRtrAd, nd, this,
-                         &NDStateRouter::sendUnsolRtrAd, tmr,
-                         nd->simTime() + delay, false, msgName.str().c_str());
+    msg = new cCallbackMessage("msgName.str().c_str()", Tmr_NextUnsolRtrAd);
+    *((cCallbackMessage*)(msg))=boost::bind(&NDStateRouter::sendUnsolRtrAd, this, tmr);
+    nd->scheduleAt(nd->simTime() + delay, msg);
     advTmrs.push_back(tmr);
     return;
   }

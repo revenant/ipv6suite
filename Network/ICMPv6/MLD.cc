@@ -652,13 +652,13 @@ cTimerMessage* MLD::findTmr(int MLDTimerType, const ipv6_addr& multicast_addr)
           return *it;
           break;
         case Tmr_Report:
-          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
-            return *it;
+//          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
+//            return *it;
           continue;
           break;
         case Tmr_MulticastListenerInterval:
-          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
-            return *it;
+//          if ((*(check_and_cast<ReportTmr*>(*it))->arg()) == multicast_addr)
+//            return *it;
           break;
 
         default:
@@ -677,11 +677,12 @@ cTimerMessage* MLD::resetTmr(int MLDTimerType)
 
     if((*it)->kind() == MLDTimerType)
     {
-      if ((*(check_and_cast<ReportTmr*>(*it))->arg()) != IPv6_ADDR_UNSPECIFIED)
+/*      if ((*(check_and_cast<ReportTmr*>(*it))->arg()) != IPv6_ADDR_UNSPECIFIED)
       {
         return *it;
         break;
       }
+*/
     }
   }
   return (cTimerMessage*)0;

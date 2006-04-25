@@ -4,18 +4,12 @@
 <netconf debugChannel="debug.log:rcfile:MobileMove::notice:custom:Ping6:Statistic">
 <!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
   <global>
-  <WirelessEtherInfo>
-    <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
 </global>
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
   hierarchicalMIPv6Support="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">      
-      <WirelessEtherInfo>
-        <WEInfo WETxPower="1.5" />
-      </WirelessEtherInfo>
     </interface>
   </local>
   <local node="server" mobileIPv6Support="on">

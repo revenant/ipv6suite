@@ -40,6 +40,10 @@
 #include "cTimerMessage.h"
 #endif //CTIMERMESSAGE_H
 
+#if !defined IOSTREAM
+#define IOSTREAM
+#include <iostream>
+#endif
 
 typedef boost::function<void ()> Nullary;
 
@@ -79,7 +83,10 @@ class cCallbackMessage: public cTimerMessage, public Nullary
 
   virtual void callFunc()
   {
-    (*this)();
+    if (!*this)
+      std::cerr<<"Oh oh no function so why the hell r we scheduled "<<name()<<endl;
+    else
+      (*this)();
   }
 
  protected:

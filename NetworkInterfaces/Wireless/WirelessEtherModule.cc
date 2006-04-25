@@ -1461,6 +1461,10 @@ void WirelessEtherModule::printSelfMsg(const cMessage *msg)
         message = "WIRELESS_SELF_ENDSENDACK ( " + string(msg->name()) + string(" )");
     else if (messageID == WIRELESS_SELF_SCHEDULEACK)
         message = "WIRELESS_SELF_SCHEDULEACK ( " + string(msg->name()) + string(" )");
+    else if (messageID == 0)
+    {
+      //prob. ExpiryEntryListSignal
+    }
     else
         assert(false);          // notify any new message added
 

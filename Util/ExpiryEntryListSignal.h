@@ -296,7 +296,8 @@ private:
     pop_heap(begin(), end(), Comp());
       
     ///invoke callback assigned externally
-    (*this)(back());
+    if (*this)
+      (*this)(back());
     pop_back();
     if (!empty())
     {

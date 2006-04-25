@@ -42,3 +42,6 @@ Research/Networks/TunnelNet/tkTunnelNet
 general.ini
 tkINET
 *.out
+*.o
+CMakeTmp
+Testing

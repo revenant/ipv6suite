@@ -30,7 +30,7 @@
 
 
 #include <omnetpp.h>
-#include "ExpiryEntryList.h"
+#include <vector>
 #include "WirelessEtherModule.h"
 
 class WirelessEtherInterface
@@ -91,6 +91,7 @@ class MACAddress6;
 class WirelessEtherBridge;
 
 extern const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE;
+template<typename T> class ExpiryEntryListSignal;
 
 class WirelessAccessPoint : public WirelessEtherModule
 {
@@ -126,7 +127,8 @@ private:
   void updateMStats(std::string, int, double, double);
 
 private:
-  ExpiryEntryList<WirelessEtherInterface> *ifaces;
+  typedef ExpiryEntryListSignal<std::vector<WirelessEtherInterface> > WIL;
+  WIL*ifaces;
 
   // SWOON HACK: To find achievable throughput
   std::list<MobileStats*> mStats;

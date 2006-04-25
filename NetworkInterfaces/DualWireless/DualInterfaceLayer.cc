@@ -40,7 +40,7 @@
 #include "InterfaceTableAccess.h"
 #include "opp_utils.h"
 #include "cCallbackMessage.h"
-
+#include "ExpiryEntryListSignal.h"
 
 const int TMR_HANDOVERWAIT = 3011;
 const int TMR_SETMONITORMODE = 3012;
@@ -119,8 +119,9 @@ void DualInterfaceLayer::initialize(int stage)
       avgBackoffTimeVec = new cOutVector("avgBackoffTime");
       avgWaitTimeVec = new cOutVector("avgWaitTime");
 
-      apList = new ExpiryEntryList<AccessPointEntry>(this, TMR_APLISTENTRYTIMEOUT);
-
+      //apList = new ExpiryEntryList<AccessPointEntry>(this, TMR_APLISTENTRYTIMEOUT);
+      apList = new APL(false);
+      apList->startTimer();
   }
   else if(stage == 1)
   {
@@ -486,7 +487,7 @@ void DualInterfaceLayer::processMonitorFrames(WESignalData* signal)
           apList->findEntry(apEntry);
           apEntry.signalStrength.updateAverage(signal->power());
           apEntry.expire = simTime()+APEntryLifetime;
-          apList->addEntry(apEntry);
+          apList->addOrUpdate(apEntry);
 
           // Check for current signal strength reading for associated interface
           //if(connectedLL != -1)

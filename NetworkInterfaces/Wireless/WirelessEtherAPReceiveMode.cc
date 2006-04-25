@@ -44,6 +44,7 @@
 #include "WirelessEtherStateBackoffReceive.h"
 #include "WirelessEtherStateBackoff.h"
 #include "WEQueue.h"
+#include "ExpiryEntryListSignal.h"
 
 WEAPReceiveMode *WEAPReceiveMode::_instance = 0;
 
@@ -515,7 +516,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
                         WirelessEtherInterface dest = apMod->findIfaceByMAC(data->getAddress3());
                         assert(dest != UNSPECIFIED_WIRELESS_ETH_IFACE);
                         dest.expire += apMod->assEntryTimeout;
-                        apMod->ifaces->addEntry(dest);
+                        apMod->ifaces->addOrUpdate(dest);
                     }
                     apMod->outputQueue->insertFrame(sendFrame, apMod->simTime());
                     wEV  << apMod->fullPath() << "\n"

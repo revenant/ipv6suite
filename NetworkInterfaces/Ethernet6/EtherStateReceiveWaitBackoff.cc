@@ -32,7 +32,6 @@
 #include "EtherStateReceiveWaitBackoff.h"
 #include "ethernet.h"
 #include "EtherSignal_m.h"
-#include "cTimerMessageCB.h"
 #include "EtherModule.h"
 #include "EtherStateSend.h"
 #include "EtherStateWaitBackoff.h"

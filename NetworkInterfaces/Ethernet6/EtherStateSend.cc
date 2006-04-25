@@ -38,7 +38,6 @@
 #include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateIdle.h"
-#include "cTimerMessageCB.h"
 #include "EtherStateWaitBackoffJam.h"
 #include "EtherStateWaitBackoff.h"
 #include "EtherStateWaitJam.h"

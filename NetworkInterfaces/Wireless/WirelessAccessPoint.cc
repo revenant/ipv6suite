@@ -46,7 +46,7 @@
 #include "WirelessEtherAPReceiveMode.h"
 #include <memory>
 
-#include "ExpiryEntryList.h"
+#include "ExpiryEntryListSignal.h"
 #include "WEQueue.h"
 
 Define_Module(WirelessAccessPoint);
@@ -161,7 +161,8 @@ void WirelessAccessPoint::initialize(int stage)
         apMode = true;
         address.set(MAC_ADDRESS_UNSPECIFIED_STRUCT);
 
-        ifaces = new ExpiryEntryList<WirelessEtherInterface>(this, TMR_REMOVEENTRY);
+        ifaces = new WIL(false); //ExpiryEntryList<WirelessEtherInterface>(this, TMR_REMOVEENTRY);
+        ifaces->startTimer();
 
         usedBW.sampleTotal = 0;
         usedBW.sampleTime = 1;
@@ -380,7 +381,7 @@ void WirelessAccessPoint::receiveData(std::auto_ptr<cMessage> msg)
         WirelessEtherInterface dest = findIfaceByMAC(dataFrame->getAddress1());
         assert(dest != UNSPECIFIED_WIRELESS_ETH_IFACE);
         dest.expire += assEntryTimeout;
-        ifaces->addEntry(dest);
+        ifaces->addOrUpdate(dest);
     }
 
     dataFrame->getSequenceControl().fragmentNumber = 0;
@@ -526,7 +527,7 @@ FrameBody *WirelessAccessPoint::createFrameBody(WirelessEtherBasicFrame *f)
 
             // remove the wireless Ethernet interface off the list since
             // it is disassociated with the AP
-            ifaces->removeEntry(wie);
+            ifaces->remove(wie);
 
             frameBody->setLength(FL_REASONCODE);
         }
@@ -622,7 +623,7 @@ void WirelessAccessPoint::addIface(MACAddress6 mac, ReceiveMode receiveMode, int
          << " RM: " << iface.receiveMode
          << " EXP: " << iface.expire << "\n";
 
-    ifaces->addEntry(iface);
+    ifaces->addOrUpdate(iface);
 }
 
 void WirelessAccessPoint::setIfaceStatus(MACAddress6 mac, StatusCode)
@@ -659,12 +660,12 @@ void WirelessAccessPoint::updateConsecutiveFailedCount(WirelessEtherBasicFrame *
             if (dest.consecFailedTrans >= consecFailedTransLimit)
             {
                 wEV << fullPath() << " " << simTime() << " Entry removed: " << outputFrame->getAddress1() << "\n";
-                ifaces->removeEntry(dest);
+                ifaces->remove(dest);
             }
             else
             {
                 dest.consecFailedTrans++;
-                ifaces->addEntry(dest);
+                ifaces->addOrUpdate(dest);
             }
         }
         else

@@ -40,7 +40,6 @@
 #include "RoutingTable6.h"
 #include "IPv6Datagram.h"
 #include "opp_utils.h"
-#include "cTimerMessageCB.h"
 #include "IPv6CDS.h"
 
 //#define    DEBUG_MSG

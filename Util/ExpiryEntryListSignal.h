@@ -105,6 +105,7 @@ public:
   //allow only list/vector/deque i.e. seq containers. Can we enforce this?
   typedef typename Container::value_type value_type;
   typedef typename boost::call_traits<value_type>::param_type param_type;
+  typedef typename boost::call_traits<value_type>::reference reference;
   typedef boost::function<void (param_type)> selfcb;
   typedef struct greaterExpiryTime<typename Container::value_type> Comp;
 
@@ -144,7 +145,7 @@ public:
     assert(!sig);
     //contextModule is not ready yet when list default initialised in
     //cSimpleModule as a data member
-    sig = new cCallbackMessage("expiryEntryList");
+    sig = new cCallbackMessage("removeExpiredEntry");
     (*sig) = boost::bind(&ExpiryEntryListSignal::removeExpiredEntry, this);   
   }
 
@@ -241,6 +242,30 @@ public:
   }
 
   template <class E> friend std::ostream& operator<< (std::ostream&, const ExpiryEntryListSignal<E> &);
+
+  /// Suitable binary predicate (lessThan) function is needed as argument
+  bool findMaxEntry(reference max, bool (*lessThan)(param_type,param_type))
+  {
+    if(empty())
+      return false;
+    else
+      max = *(std::max_element(begin(), end(), lessThan));
+    return true;
+  }
+
+  /// Finds target in entry list and returns a copy of it in target.
+  /// @note operator== for Entry must be defined
+  bool findEntry(reference target)
+  {
+    iterator it = std::find(begin(), end(), target);
+
+    if (it != end())
+    {
+      target = *it;
+      return true;
+    }
+    return false;
+  }
 
 private:
 

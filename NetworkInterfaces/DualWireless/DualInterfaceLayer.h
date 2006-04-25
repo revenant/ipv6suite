@@ -28,11 +28,10 @@
 
 #include <omnetpp.h>
 #include <list>
-
+#include <vector>
 #include "WirelessEtherFrame_m.h"
 #include "MACAddress6.h"
 
-#include "ExpiryEntryList.h"
 #include "AveragingList.h"
 
 class IPDatagram;
@@ -76,6 +75,7 @@ bool operator==(const AccessPointEntry& lhs,
 bool lessThan(AccessPointEntry&, AccessPointEntry&);
 
 class cCallbackMessage;
+template<typename T> class ExpiryEntryListSignal;
 
 /**
  @class DualInterfaceLayer
@@ -156,7 +156,8 @@ private:
   cCallbackMessage* obtainStatsTimer;
 
   // Keep track of surroudning APs
-  ExpiryEntryList<AccessPointEntry> *apList;
+  typedef ExpiryEntryListSignal<std::vector<AccessPointEntry> > APL;
+  APL* apList;
   AccessPointEntry associatedAP;
 };
 

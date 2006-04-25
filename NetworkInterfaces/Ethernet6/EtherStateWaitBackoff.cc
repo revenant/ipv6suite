@@ -29,13 +29,14 @@
 #include <sys.h> // Dout
 #include "debug.h" // Dout
 
+#include <boost/bind.hpp>
 #include "EtherStateWaitBackoff.h"
 #include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateIdle.h"
 #include "EtherStateReceiveWaitBackoff.h"
 #include "EtherStateWaitBackoffJam.h"
-#include "cTimerMessageCB.h"
+#include "cCallbackMessage.h"
 
 // Ethernet State WaitBackoff
 
@@ -123,17 +124,12 @@ void EtherStateWaitBackoff::backoff(EtherModule* mod)
   cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_BACKOFF);
   if (!tmrMessage)
   {
-    Loki::cTimerMessageCB<void,
-      TYPELIST_1(EtherModule*)>* selfBackoff;
-
-    selfBackoff  = new Loki::cTimerMessageCB<void,
-      TYPELIST_1(EtherModule*)>
-      (SELF_BACKOFF, mod, static_cast<EtherStateWaitBackoff*>
-       (mod->currentState()), &EtherStateWaitBackoff::endBackoff,
-         "endBackoff");
-
-    Loki::Field<0> (selfBackoff->args) = mod;
-
+    cCallbackMessage* selfBackoff = new cCallbackMessage(
+      "endBackoff", SELF_BACKOFF);
+    *selfBackoff = boost::bind(
+      &EtherStateWaitBackoff::endBackoff,
+      static_cast<EtherStateWaitBackoff*> (mod->currentState()),
+      mod);
     mod->addTmrMessage(selfBackoff);
     tmrMessage = selfBackoff;
   }

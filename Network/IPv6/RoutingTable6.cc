@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2001, 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -116,19 +117,6 @@ void RoutingTable6::initialize(int stage)
     (*pel) = boost::bind(&RoutingTable6::prefixTimeout, this, _1);
     rel->startTimer();
     pel->startTimer();
-/*
-    rel = new ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> >
-      (new Loki::cTimerMessageCB<void>
-       (IPv6NeighbourDiscovery::Tmr_RouterLifetime, this, this,
-        &RoutingTable6::routerTimeout,
-        "RouterExpiryTmr"), true);
-
-    pel = new ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> >
-      (new Loki::cTimerMessageCB<void>
-       (IPv6NeighbourDiscovery::Tmr_PrefixLifetime, this, this,
-        &RoutingTable6::prefixTimeout,
-        "PrefixExpiryTmr"), true);
-*/
   }
   else if(stage == 1)
   {

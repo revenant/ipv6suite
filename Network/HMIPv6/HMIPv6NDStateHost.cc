@@ -33,7 +33,8 @@
 
 
 #include "HMIPv6NDStateHost.h"
-
+#include "cCallbackMessage.h"
+#include <boost/bind.hpp>
 #include "HMIPv6ICMPv6NDMessage.h"
 #include "HMIPv6Entry.h"
 #include "HMIPv6CDSMobileNode.h"
@@ -241,8 +242,6 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
     mipv6cdsMN->setAwayFromHome(true);
   }
 
-  typedef Loki::cTimerMessageCB<void, TYPELIST_1(ArgMapHandover)> cbSendMapBU;
-
   //Not in current MAP domain so handover to new map
   if ((!curMapFound) ||
       //Found map with better pref 
@@ -290,22 +289,25 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
     //of binding handover to dupAddrDetSuccess. 
     //But it is required otherwise we could send lcoa to MAP in diff domain when
     //we should be binding with new MAP although optimal would be do both anyway
-    typedef Loki::cTimerMessageCB<bool, TYPELIST_1(ipv6_addr)> cbSendMapBUAR;
+
+    typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* ocb = 0;
     if (callbackAdded(lcoa, 5445))
     {
-      ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallbacks[lcoa]);
-      if (ocb && Loki::Field<0>(ocb->args) == lcoa)
+      ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallback(lcoa));
+      if (ocb && *((ipv6_addr*)(ocb->contextPointer())) == lcoa)
         return rtrAdv;
       else
       {
         ocb->cancel();
+        delete ((ipv6_addr*)(ocb->contextPointer()));
         delete ocb;
       }
     }
 
-    ocb = new cbSendMapBUAR(5445, nd, this, &HMIPv6NDStateHost::arhandover, "SendMAPBUAR");
-    Loki::Field<0>(ocb->args) = lcoa;
+    ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
+    (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa);
+    ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak
     Dout(dc::hmip, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
          <<" iface="<<dgram->inputPort()<<" HMIP lcoa="<<lcoa<<" not assigned yet undergoing DAD "
          <<"doing arhandover as MAP not changed");
@@ -327,17 +329,18 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
 
   ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
-  typedef Loki::cTimerMessageCB<void, TYPELIST_1(ArgMapHandover)> cbSendMapBU;
+  typedef cCallbackMessage cbSendMapBU; 
   cbSendMapBU* ocb = 0;
   if (callbackAdded(lcoa, 5444))
-    ocb = boost::polymorphic_downcast<cbSendMapBU*>(addressCallbacks[lcoa]);
+    ocb = boost::polymorphic_downcast<cbSendMapBU*>(addressCallback(lcoa));
 
   //Checking for outstanding BU that are waiting on DAD of lcoa for the same
   //MAP. If MAP is different I guess we use this one?
 
   if (ocb)
   {
-    const HMIPv6MAPEntry& potentialMap =  boost::get<0>(Loki::Field<0>(ocb->args));
+    const HMIPv6MAPEntry& potentialMap =  boost::get<0>(
+      *((ArgMapHandover*)(ocb->contextPointer())));
     if (bestMap == potentialMap)
       return;
     else
@@ -350,7 +353,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   ipv6_addr rcoa = formRemoteCOA(bestMap, dgram->inputPort());
   assert(dgram->inputPort() > IMPL_INPUT_PORT_LOCAL_PACKET && (unsigned int)dgram->inputPort() == accessRouter->re.lock()->ifIndex());
 
-  ArgMapHandover arg = boost::make_tuple(bestMap, rcoa, lcoa, nd->simTime(), accessRouter->re.lock()->ifIndex());
+  ArgMapHandover* arg = new ArgMapHandover(boost::make_tuple(bestMap, rcoa, lcoa, nd->simTime(), accessRouter->re.lock()->ifIndex()));
   //requires tuple_io.hpp
   //cerr<<"arg is "<<arg;
   bool assigned = false;
@@ -389,16 +392,17 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
 
     //Then in processBA send BU to HA if map's bu hoa was different to coa of primaryha binding
     //oldrcoa is in pha
-    mapHandover(arg);
+    mapHandover(*arg);
+    delete arg;
   }
   else
   {
     Dout(dc::notice, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
          <<" iface="<<dgram->inputPort()<<" HMIP lcoa not assigned yet undergoing DAD");
 
-    cbSendMapBU* cb = new cbSendMapBU(5444, nd, this, &HMIPv6NDStateHost::mapHandover, "SendMAPBU-lcoa");
-    Loki::Field<0>(cb->args) = arg;
-
+    cbSendMapBU* cb = new cbSendMapBU("SendMAPBU-lcoa", 5444);
+    (*cb) = boost::bind(&HMIPv6NDStateHost::mapHandover, this, *arg);
+    cb->setContextPointer(arg);
     addCallbackToAddress(lcoa, cb);
 
   }
@@ -422,6 +426,13 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   simtime_t was = get<3>(t);
   unsigned int ifIndex = get<4>(t);
 
+  std::auto_ptr< ArgMapHandover > deleteMe;
+  if (addressCallback(lcoa))
+  {
+    typedef cCallbackMessage cbSendMapBU; 
+    cbSendMapBU* cb = check_and_cast<cbSendMapBU*>(addressCallback(lcoa));
+    deleteMe.reset((ArgMapHandover*) cb->contextPointer());
+  }
   //if map valid
   //ipv6_addr oldlcoa = hmipv6cdsMN.localCareOfAddr() != IPv6_ADDR_UNSPECIFIED;
 
@@ -564,6 +575,14 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
  */
 bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 {
+
+  std::auto_ptr< ipv6_addr > deleteMe;
+  if (addressCallback(lcoa))
+  {
+    typedef cCallbackMessage cbSendMapBUAR;
+    cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
+    deleteMe.reset((ipv6_addr*) cb->contextPointer());
+  }
 
 //instead of lcoa should really use this to get ifIndex too
 //boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> newRtr)

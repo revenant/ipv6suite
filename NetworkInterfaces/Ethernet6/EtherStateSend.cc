@@ -31,8 +31,10 @@
 
 #include <cmath>
 #include <memory>
+#include <boost/bind.hpp>
 
 #include "EtherStateSend.h"
+#include "cCallbackMessage.h"
 #include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateIdle.h"
@@ -129,16 +131,13 @@ void EtherStateSend::endSendingData(EtherModule* mod)
     cTimerMessage* tmrMessage = mod->getTmrMessage(SELF_INTERFRAMEGAP);
     if (!tmrMessage)
     {
-      Loki::cTimerMessageCB<void,
-        TYPELIST_1(EtherModule*)>* selfInterframeGap;
-
-      selfInterframeGap  = new Loki::cTimerMessageCB<void,
-        TYPELIST_1(EtherModule*)>
-        (SELF_INTERFRAMEGAP, mod, static_cast<EtherStateIdle*>
-         (EtherStateIdle::instance()), &EtherStateIdle::chkOutputBuffer,
-         "selfInterframeGap");
-
-      Loki::Field<0> (selfInterframeGap->args) = mod;
+      cCallbackMessage* selfInterframeGap = new cCallbackMessage(
+        "selfInterframeGap", SELF_INTERFRAMEGAP);
+      *selfInterframeGap =
+        boost::bind(
+          &EtherStateIdle::chkOutputBuffer,
+          static_cast<EtherStateIdle*>(EtherStateIdle::instance()),
+          mod);
 
       mod->addTmrMessage(selfInterframeGap);
       tmrMessage = selfInterframeGap;
@@ -207,17 +206,12 @@ void EtherStateSend::sendJam(EtherModule* mod)
   cTimerMessage* tmrMessage = mod->getTmrMessage(TRANSMIT_JAM);
   if (!tmrMessage)
   {
-    Loki::cTimerMessageCB<void,
-      TYPELIST_2(EtherModule*, cTimerMessage*)>* selfJamMsg;
-
-    selfJamMsg  = new Loki::cTimerMessageCB<void,
-      TYPELIST_2(EtherModule*, cTimerMessage*)>
-      (TRANSMIT_JAM, mod, static_cast<EtherStateSend*>
-       (EtherStateSend::instance()), &EtherStateSend::endSendingJam,
-       "endSendingJam");
-
-    Loki::Field<0> (selfJamMsg->args) = mod;
-    Loki::Field<1> (selfJamMsg->args) = selfJamMsg;
+    cCallbackMessage* selfJamMsg =
+      new cCallbackMessage("endSendingJam",TRANSMIT_JAM);
+    *selfJamMsg =
+      boost::bind(&EtherStateSend::endSendingJam,
+                  static_cast<EtherStateSend*>(EtherStateSend::instance()),
+                  mod, selfJamMsg);
 
     mod->addTmrMessage(selfJamMsg);
     tmrMessage = selfJamMsg;

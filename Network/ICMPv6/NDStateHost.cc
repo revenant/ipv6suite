@@ -1345,7 +1345,7 @@ void NDStateHost::addCallbackToAddress(const ipv6_addr& tentativeAddr, cTimerMes
   addressCallbacks[tentativeAddr] = cb;
 }
 
-bool NDStateHost::callbackAdded(const ipv6_addr& tentativeAddr, int message_id)
+bool NDStateHost::callbackAdded(const ipv6_addr& tentativeAddr, int message_id) 
 {
   if (addressCallbacks.count(tentativeAddr))
   {
@@ -1366,6 +1366,14 @@ void NDStateHost::invokeCallback(const ipv6_addr& tentativeAddr)
     delete cb;
     addressCallbacks.erase(tentativeAddr);
   }
+}
+
+///@todo TODO convert addressCallbacks to boost::function
+cTimerMessage*  NDStateHost::addressCallback(const ipv6_addr& tentativeAddr)
+{
+  if (!addressCallbacks.count(tentativeAddr))
+    return 0;
+  return addressCallbacks[tentativeAddr];
 }
 
 } //namespace IPv6NeighbourDiscovery

@@ -33,6 +33,7 @@
 #include "EtherStateWaitJam.h"
 #include "EtherSignal_m.h"
 #include "EtherStateIdle.h"
+#include "cTimerMessage.h"
 
 // Ethernet State WaitJam
 

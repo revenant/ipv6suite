@@ -36,7 +36,7 @@
 #include "math.h"
 
 #include <boost/cast.hpp>
-
+#include <boost/bind.hpp>
 
 #include <cpacket.h>
 
@@ -51,10 +51,10 @@
 #include "MLDMessage.h"
 #include "MLDv2Message.h"
 #include "MLDIface.h"
-#include "cTimerMessageCB.h"
+#include "cCallbackMessage.h"
 #include "IPv6CDS.h"
 
-typedef Loki::cTimerMessageCB<void, TYPELIST_1(ipv6_addr) > MLDListenIntTmr;
+typedef cCallbackMessage MLDListenIntTmr;
 
 Define_Module( MLD );
 
@@ -480,8 +480,8 @@ void MLD::processRouterMLDMessages(cMessage* msg)
       // add entry into RtTable
     {
       rt->cds->insertNeighbourEntry(new IPv6NeighbourDiscovery::NeighbourEntry(mldmsg->showAddress(), dgram->inputPort()));
-      MLDListenIntTmr* mliTmr = new MLDListenIntTmr(Tmr_MulticastListenerInterval, this, this, &MLD::removeRtEntry, "MLD Listener Interval Timer");
-      Loki::Field<0>(mliTmr->args) = mldmsg->showAddress();
+      MLDListenIntTmr* mliTmr = new MLDListenIntTmr("MLD Listener Interval Timer", Tmr_MulticastListenerInterval);
+      *mliTmr = boost::bind(&MLD::removeRtEntry, this, mldmsg->showAddress());
       tmrs.push_back(mliTmr);
       //       tmrs.push_back(createTmrMsg(Tmr_MulticastListenerInterval, this, &MLD::removeRtEntry, new IPv6Address(mldmsg->showAddress()), simTime()+mul_listener_Int, true, "Mul Listener Interval Timer"));
       cout<<rt->nodeName()<<" adds entry into routing table at "<<simTime()<<"\n"<<endl;

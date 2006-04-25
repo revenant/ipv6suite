@@ -28,6 +28,7 @@
 
 #include <iomanip>
 
+#include <boost/bind.hpp>
 #include "wirelessethernet.h"
 #include "DualInterfaceLayer.h"
 #include "IPv6Datagram.h"
@@ -38,6 +39,7 @@
 
 #include "InterfaceTableAccess.h"
 #include "opp_utils.h"
+#include "cCallbackMessage.h"
 
 
 const int TMR_HANDOVERWAIT = 3011;
@@ -124,30 +126,28 @@ void DualInterfaceLayer::initialize(int stage)
   {
       // timer to wait before making handover decision
       handoverWaitTimer  =
-          new Loki::cTimerMessageCB<void>
-          (TMR_HANDOVERWAIT, this, this, &DualInterfaceLayer::handoverDecision, "handoverWaitHandler");
-
-      // timer to wait before setting a particular interface to monitor mode
-      settingMonitorMode  =
-          new Loki::cTimerMessageCB<void, TYPELIST_1(int)>
-          (TMR_SETMONITORMODE, this, this,&DualInterfaceLayer::setMonitoringInterface, "setMonitoringInterface");
+        new cCallbackMessage("handoverWaitHandler", TMR_HANDOVERWAIT);
+      *handoverWaitTimer = boost::bind(&DualInterfaceLayer::handoverDecision, this);
 
       // timer to wait before changing the channel of monitoring interface
       monitorChannelTimer =
-          new Loki::cTimerMessageCB<void>
-          (TMR_MONITORCHANNEL, this, this, &DualInterfaceLayer::monitorNextChannel, "monitorNextChannel");
-
+        new cCallbackMessage("monitorNextChannel", TMR_MONITORCHANNEL);
+      *monitorChannelTimer = boost::bind(&DualInterfaceLayer::monitorNextChannel, this);
       // timer to obtain statistics about connected interface
       obtainStatsTimer =
-          new Loki::cTimerMessageCB<void>
-          (TMR_OBTAINSTATS, this, this, &DualInterfaceLayer::obtainStats, "obtainStats");
-
-      // set interface 1 to be in monitoring mode
-      Loki::Field<0> (settingMonitorMode->args) = 1;
-      scheduleAt(simTime() + SELF_SCHEDULE_DELAY, settingMonitorMode);
-
+        new cCallbackMessage("obtainStats", TMR_OBTAINSTATS);
+      *obtainStatsTimer = boost::bind(&DualInterfaceLayer::obtainStats, this);
       // start obtaining statistics
       scheduleAt(simTime() + SELF_SCHEDULE_DELAY, obtainStatsTimer);
+
+      // timer to wait before setting a particular interface to monitor mode
+      settingMonitorMode  =
+        new cCallbackMessage("setMonitoringInterface", TMR_SETMONITORMODE);
+      *settingMonitorMode = boost::bind(&DualInterfaceLayer::setMonitoringInterface,
+      // set interface 1 to be in monitoring mode
+                                        this, 1);
+      scheduleAt(simTime() + SELF_SCHEDULE_DELAY, settingMonitorMode);
+
 
       // set interface 1 to channel 1
       WirelessExternalSignalChannel* chanReq = new WirelessExternalSignalChannel;

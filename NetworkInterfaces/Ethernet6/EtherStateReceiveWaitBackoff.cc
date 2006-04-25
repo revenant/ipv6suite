@@ -29,8 +29,8 @@
 #include <sys.h> // Dout
 #include "debug.h" // Dout
 
-#include "ethernet.h"
 #include "EtherStateReceiveWaitBackoff.h"
+#include "ethernet.h"
 #include "EtherSignal_m.h"
 #include "cTimerMessageCB.h"
 #include "EtherModule.h"

@@ -42,7 +42,6 @@
 #include "LinkLayerModule.h"
 #include "ethernet.h"
 #include "MACAddress6.h"
-#include "cTimerMessageCB.h"
 #include <string>
 
 class EtherState;
@@ -136,7 +135,7 @@ class EtherModule: public LinkLayerModule
   /********* STATISTICS VARIABLES (start) ************/
 
   bool statsVec;
-  Loki::cTimerMessageCB<void>* updateStatsNotifier;
+  cTimerMessage* updateStatsNotifier;
   virtual void updateStats(void);
 
   double statsUpdatePeriod; //seconds

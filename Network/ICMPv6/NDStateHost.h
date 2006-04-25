@@ -173,6 +173,7 @@ namespace IPv6NeighbourDiscovery
     void invokeCallback(const ipv6_addr& tentativeAddr);
     void addCallbackToAddress(const ipv6_addr& tentativeAddr, cTimerMessage*);
     bool callbackAdded(const ipv6_addr& tentativeAddr, int message_id);
+    cTimerMessage* addressCallback(const ipv6_addr& tentativeAddr);
 
   protected:
     std::vector<InterfaceStatus> ifStats;
@@ -194,7 +195,7 @@ namespace IPv6NeighbourDiscovery
     typedef std::list<cTimerMessage*> TimerMsgs;
     TimerMsgs timerMsgs;
     typedef TimerMsgs::iterator TMI;
-
+  private:
     ///Whenever DAD completes on an address it should check here for callbacks
     ///that it should invoke. (Alternative was adding it to each
     ///cTimerMessage for chaining purposes but would mostly be unused so inefficient waste of memory)

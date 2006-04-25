@@ -28,6 +28,7 @@
 
 #include <memory>
 #include <boost/cast.hpp>
+#include <boost/bind.hpp>
 #include <memory>
 #include <cmath> //std::pow for random.hpp
 
@@ -46,7 +47,7 @@
 #include "EtherFrame6.h"
 #include "LL6ControlInfo_m.h"
 #include "InterfaceTableAccess.h"
-
+#include "cCallbackMessage.h"
 
 #include "opp_utils.h"
 #include <string>
@@ -123,9 +124,9 @@ void EtherModule::initialize(int stage)
 
     // Timer to update statistics
     updateStatsNotifier  =
-      new Loki::cTimerMessageCB<void>
-      (TMR_ETH_STATS, this, this, &EtherModule::updateStats, "updateStats");
-
+      new cCallbackMessage("updateStats", TMR_ETH_STATS);
+    *((cCallbackMessage*)updateStatsNotifier) = boost::bind(
+      &EtherModule::updateStats, this);
     scheduleAt(simTime()+statsUpdatePeriod, updateStatsNotifier);
   }
 }

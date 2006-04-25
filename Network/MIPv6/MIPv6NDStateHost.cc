@@ -1394,24 +1394,6 @@ void MIPv6NDStateHost::returnHome()
   //delay by 2*SELF_SCHEDULE_DELAY to ensure after BU sent (1*SELF_SCHEDULE_DELAY)
   sendUnsolNgbrAd(mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mipv6cdsMN->homeAddr());
 
-/*
-  Loki::cTimerMessageCB
-    <void, TYPELIST_2(unsigned int, ipv6_addr)>* schedUNA = 0;
-  if (!schedSendUnsolNgbrAd)
-  {
-    schedUNA = new Loki::cTimerMessageCB<void, TYPELIST_2(unsigned int, ipv6_addr)>
-       (Sched_SendUnsolNgbrAd, nd, this, &MobileIPv6::MIPv6NDStateHost::sendUnsolNgbrAd,
-        "Sched_SendUnsolNgbrAd");
-  }
-  else
-    schedUNA = static_cast<Loki::cTimerMessageCB<void, TYPELIST_2(unsigned int, ipv6_addr)>* >
-      (schedSendUnsolNgbrAd);
-  Loki::Field<0> (schedUNA->args) = mipv6cdsMN->primaryHA()->re.lock()->ifIndex();
-  Loki::Field<1> (schedUNA->args) = mipv6cdsMN->homeAddr();
-
-  schedSendUnsolNgbrAd = schedUNA;
-  nd->scheduleAt(nd->simTime() +  2*SELF_SCHEDULE_DELAY, schedSendUnsolNgbrAd);
-*/
 #ifdef USE_HMIP
   if (rt->hmipSupport())
   {

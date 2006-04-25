@@ -38,7 +38,7 @@
 #include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 #include "EtherStateIdle.h"
-
+#include "cTimerMessage.h"
 #include "MACAddress6.h"
 
 #ifdef USE_MOBILITY

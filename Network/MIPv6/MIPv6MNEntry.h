@@ -57,9 +57,9 @@
 #include "MIPv6MobilityHeaders.h"
 #endif // MIPv6MOBILITYHEADERS_H
 
-#ifndef CTIMERMESSAGECB_H
-#include "cTimerMessageCB.h"
-#endif //  CTIMERMESSAGECB_H
+#ifndef CCALLBACKMESSAGE_H
+#include "cCallbackMessage.h"
+#endif
 
 #ifndef IPV6MOBILITY_H
 #include "IPv6Mobility.h"
@@ -71,9 +71,7 @@
 #endif
 
 using std::rand;
-//#if !defined IPV6GLOBAL_H
-//#include "opp_utils.h" //OPP_Global::generateInterfaceId
-//#endif // IPV6GLOBAL_H
+
 
 namespace IPv6NeighbourDiscovery
 {
@@ -100,9 +98,8 @@ namespace
 
 namespace MobileIPv6
 {
-  typedef Loki::cTimerMessageCB<void, TYPELIST_2(std::vector<ipv6_addr>,
-                                                 simtime_t)> TIRetransTmr;
 
+  typedef cCallbackMessage TIRetransTmr;
   class bu_entry;
 
 /**

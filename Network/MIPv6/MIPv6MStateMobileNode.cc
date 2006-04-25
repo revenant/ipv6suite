@@ -954,13 +954,11 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     mipv6cdsMN->addBU(bule);
 
     TIRetransTmr* hotiTmr;
-    hotiTmr = new TIRetransTmr(Sched_SendHoTI, mob, this,
-                                 &MobileIPv6::MIPv6MStateMobileNode::sendHoTI, "Sched_SendHoTI");
+    hotiTmr = new TIRetransTmr("Sched_SendHoTI", Sched_SendHoTI);
     bule->hotiRetransTmr = hotiTmr;
 
     TIRetransTmr* cotiTmr;
-    cotiTmr = new TIRetransTmr(Sched_SendCoTI, mob, this,
-       &MobileIPv6::MIPv6MStateMobileNode::sendCoTI, "Sched_SendCoTI");
+    cotiTmr = new TIRetransTmr("Sched_SendCoTI", Sched_SendCoTI);
     bule->cotiRetransTmr = cotiTmr;
   }
   else
@@ -968,9 +966,6 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     if (bule->isPerformingRR || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) /*MAX_UPDATE_RATE*/  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
-
-  Loki::Field<1> (bule->hotiRetransTmr->args) = mob->simTime();
-  Loki::Field<1> (bule->cotiRetransTmr->args) = mob->simTime();
 
   bule->isPerformingRR = true;
 
@@ -1035,8 +1030,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       }      */
   }
 
-  Loki::Field<0> (bule->hotiRetransTmr->args) = addrs;
-  Loki::Field<0> (bule->cotiRetransTmr->args) = addrs;
+  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
+                                        addrs, mob->simTime());
+  *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
+                                        addrs, mob->simTime());
 
   if ( !mob->earlyBindingUpdate() && bule->hotiRetransTmr->isScheduled() )
   {

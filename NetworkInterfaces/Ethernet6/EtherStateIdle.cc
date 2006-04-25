@@ -29,8 +29,9 @@
 #include <sys.h> // Dout
 #include "debug.h" // Dout
 
+#include <boost/bind.hpp>
 #include "EtherStateIdle.h"
-#include "cTimerMessageCB.h"
+#include "cCallbackMessage.h"
 #include "EtherFrame6.h"
 #include "ethernet.h"
 #include "EtherModule.h"
@@ -82,15 +83,11 @@ void EtherStateIdle::chkOutputBuffer(EtherModule* mod)
 
     if (!tmrMessage)
     {
-      Loki::cTimerMessageCB<void, TYPELIST_1(EtherModule*)>* sendSig;
-
-      sendSig  = new Loki::cTimerMessageCB<void,
-        TYPELIST_1(EtherModule*)>
-        (TRANSMIT_SENDDATA, mod, static_cast<EtherStateSend*>
-         (mod->currentState()), &EtherStateSend::endSendingData,
-         "endSendingData");
-
-      Loki::Field<0> (sendSig->args) = mod;
+      cCallbackMessage* sendSig = new cCallbackMessage(
+        "endSendingData", TRANSMIT_SENDDATA);
+      *sendSig = boost::bind(
+        &EtherStateSend::endSendingData,
+        static_cast<EtherStateSend*> (mod->currentState()), mod);
 
       mod->addTmrMessage(sendSig);
       tmrMessage = sendSig;

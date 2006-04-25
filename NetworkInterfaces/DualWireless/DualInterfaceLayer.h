@@ -29,7 +29,6 @@
 #include <omnetpp.h>
 #include <list>
 
-#include "cTimerMessageCB.h"
 #include "WirelessEtherFrame_m.h"
 #include "MACAddress6.h"
 
@@ -75,6 +74,8 @@ bool operator==(const AccessPointEntry& lhs,
                 const AccessPointEntry& rhs);
 
 bool lessThan(AccessPointEntry&, AccessPointEntry&);
+
+class cCallbackMessage;
 
 /**
  @class DualInterfaceLayer
@@ -149,10 +150,10 @@ private:
   // channel monitored on monitoring interface
   int monitoringChannel;
 
-  Loki::cTimerMessageCB<void>* handoverWaitTimer;
-  Loki::cTimerMessageCB<void>* monitorChannelTimer;
-  Loki::cTimerMessageCB<void,TYPELIST_1(int)>* settingMonitorMode;
-  Loki::cTimerMessageCB<void>* obtainStatsTimer;
+  cCallbackMessage* handoverWaitTimer;
+  cCallbackMessage* monitorChannelTimer;
+  cCallbackMessage* settingMonitorMode;
+  cCallbackMessage* obtainStatsTimer;
 
   // Keep track of surroudning APs
   ExpiryEntryList<AccessPointEntry> *apList;

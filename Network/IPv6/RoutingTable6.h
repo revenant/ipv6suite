@@ -1,4 +1,5 @@
 // -*- C++ -*-
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2001, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -333,8 +334,6 @@ private:
   ///Callback function for RouterEntry lifetime expired
   void routerTimeout(RouterEntry* re);
 
-  //typedef ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> > REL;
-  //typedef ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> > PEL;
   typedef ExpiryEntryListSignal<std::vector<RouterEntry*> > REL;
   typedef ExpiryEntryListSignal<std::vector<PrefixEntry*> > PEL;
   REL* rel;
@@ -344,4 +343,3 @@ private:
 
 
 #endif //ROUTINGTABLE6_H
-

@@ -33,6 +33,7 @@
 #include <sstream>
 #include <iostream>
 #include <climits> //UINT_MAX
+#include <boost/bind.hpp>
 
 #include "NDStateRouter.h"
 #include "NDTimers.h"
@@ -44,6 +45,7 @@
 #include "IPv6Datagram.h"
 #include "ipv6_addr.h"
 #include "cTimerMessage.h"
+#include "cCallbackMessage.h"
 #include "IPv6CDS.h"
 #include "LL6ControlInfo_m.h"
 

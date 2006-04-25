@@ -29,7 +29,6 @@
 //Can't use forward dec of Entity because we still need definition of
 //MobileEntityType
 #include "Entity.h"
-#include "cTimerMessageCB.h"
 
 class BaseStation;
 

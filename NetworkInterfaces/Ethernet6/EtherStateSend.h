@@ -32,8 +32,8 @@
 #include <omnetpp.h>
 
 #include "EtherState.h"
-#include "cTimerMessage.h"
 
+class cTimerMessage;
 class EtherModule;
 
 // Ethernet State Send

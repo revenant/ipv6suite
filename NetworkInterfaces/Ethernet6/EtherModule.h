@@ -42,7 +42,6 @@
 #include "LinkLayerModule.h"
 #include "ethernet.h"
 #include "MACAddress6.h"
-#include "cTimerMessage.h"
 #include "cTimerMessageCB.h"
 #include <string>
 
@@ -51,6 +50,7 @@ class EtherSignal;
 class EtherSignalData;
 class EtherFrame6;
 class InterfaceEntry;
+class cTimerMessage;
 
 /**
  * FIXME documentation!

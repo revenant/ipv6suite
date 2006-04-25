@@ -43,6 +43,7 @@
 #include "ICMPv6Message_m.h"
 #include "ICMPv6NDMessage.h"
 #include "RoutingTable6.h"
+#include "ExpiryEntryListSignal.h" //rt->pel/rel
 #include "IPv6InterfaceData.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6Datagram.h"
@@ -685,7 +686,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
         //@todo Really should enforce that the two should occur together but
         //how without introducing RoutingTable into Prefix/RouterEntry.
         re->setInvalidTmr(rtrAdv->routerLifetime());
-        rt->rel->addEntry(re);
+        rt->rel->addOrUpdate(re);
         //update llAddr if necessary
         if (rtrAdv->hasSrcLLAddr() && rtrAdv->srcLLAddr() != re->linkLayerAddr())
         {
@@ -834,11 +835,14 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
           //how without introducing RoutingTable into Prefix/RouterEntry.
           prefix->setAdvValidLifetime(prefOpt.validLifetime);
           if (prefOpt.validLifetime < VALID_LIFETIME_INFINITY)
-            rt->pel->addEntry(prefix);
+            rt->pel->addOrUpdate(prefix);
         }
         else
+        {
+          cerr<<*(rt->pel)<<endl;
           // Timeout lifetime according to 6.3.4 immediately
           rt->removePrefixEntry(prefix);
+        }
       }
       else
       {

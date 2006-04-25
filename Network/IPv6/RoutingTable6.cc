@@ -36,12 +36,12 @@
 #include <functional>
 #include <algorithm>
 #include <boost/cast.hpp>
-#include "opp_utils.h"  // for int/double <==> string conversions
 #include <sstream> //stringstream
 
 #include "InterfaceTableAccess.h"
-#include "opp_utils.h"
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include "cTimerMessage.h"
+#include "ExpiryEntryListSignal.h"
 #include "NDTimers.h"
 #include "NDEntry.h"
 #include "IPv6Datagram.h"
@@ -79,7 +79,8 @@ namespace
 Define_Module( RoutingTable6 );
 
 RoutingTable6::RoutingTable6(const char *name, cModule *parent):
-    cSimpleModule(name, parent, 0), mipv6cds(0)
+    cSimpleModule(name, parent, 0), mipv6cds(0), rel(new REL(true)),
+    pel(new PEL(true))
 {
 }
 
@@ -110,7 +111,12 @@ void RoutingTable6::initialize(int stage)
     assert(ICMP);
     //Create here for now
     cds = new IPv6NeighbourDiscovery::IPv6CDS();
-
+    
+    (*rel) = boost::bind(&RoutingTable6::routerTimeout, this, _1);
+    (*pel) = boost::bind(&RoutingTable6::prefixTimeout, this, _1);
+    rel->startTimer();
+    pel->startTimer();
+/*
     rel = new ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> >
       (new Loki::cTimerMessageCB<void>
        (IPv6NeighbourDiscovery::Tmr_RouterLifetime, this, this,
@@ -122,7 +128,7 @@ void RoutingTable6::initialize(int stage)
        (IPv6NeighbourDiscovery::Tmr_PrefixLifetime, this, this,
         &RoutingTable6::prefixTimeout,
         "PrefixExpiryTmr"), true);
-
+*/
   }
   else if(stage == 1)
   {
@@ -173,8 +179,6 @@ void RoutingTable6::finish()
   addrExpiryTmr = 0;
 
   delete cds;
-  delete pel;
-  delete rel;
   cds = 0;
 }
 
@@ -310,10 +314,8 @@ void RoutingTable6::addRoute(unsigned int ifIndex, IPv6Address& nextHop,
     cds->setDefaultRouter(cds->router(re->addr()));
   }
 }
-
-void RoutingTable6::prefixTimeout()
+void RoutingTable6::prefixTimeout(PrefixEntry* ppe)
 {
-  PrefixEntry* ppe = pel->removeExpiredEntry(Loki::Int2Type<Loki::TypeTraits<PEL::ElementType>::isPointer>());
   assert(ppe);
   Dout(dc::prefix_timer|flush_cf, nodeName()<<" "<<*ppe<<" removed at "<<simTime());
   cds->removePrefixEntry(*ppe);
@@ -334,7 +336,7 @@ void RoutingTable6::insertPrefixEntry(const PrefixEntry& pe, size_t ifIndex)
   {
     Dout(dc::neighbour_disc|flush_cf, nodeName()<<" "<<simTime()
          <<" PE "<<pe<<" will be inserted into list->"<<*pel);
-    pel->addEntry(ppe);
+    pel->addOrUpdate(ppe);
   }
 }
 
@@ -345,14 +347,12 @@ void RoutingTable6::removePrefixEntry(PrefixEntry* ppe)
   Dout(dc::neighbour_disc|flush_cf, nodeName()<<" "<<simTime()
        <<" PE "<<*ppe<<" may be removed from list->"<<*pel);
   if (ppe->advValidLifetime() != VALID_LIFETIME_INFINITY)
-    pel->removeEntry(ppe);
+    pel->remove(ppe);
   cds->removePrefixEntry(*ppe);
 }
 
-void RoutingTable6::routerTimeout()
+void RoutingTable6::routerTimeout(RouterEntry* re)
 {
-  //RouterEntry* re = rel->removeExpiredEntry(Loki::Int2Type<true>());
-  RouterEntry* re = rel->removeExpiredEntry(Loki::Int2Type<Loki::TypeTraits<REL::ElementType>::isPointer>());
   assert(re);
   Dout(dc::router_timer|flush_cf, nodeName()<<" "<<*re<<" removed at "<<simTime());
   cds->removeRouterEntry(re->addr());
@@ -374,7 +374,7 @@ void RoutingTable6::insertRouterEntry(RouterEntry* re, bool setDefault)
   {
     Dout(dc::router_disc|flush_cf, nodeName()<<" "<<simTime()
          <<" RE="<<*re<<" will be inserted into list->"<<*rel);
-    rel->addEntry(re);
+    rel->addOrUpdate(re);
   }
 }
 
@@ -385,7 +385,7 @@ void RoutingTable6::removeRouterEntry(RouterEntry* re)
   Dout(dc::router_disc|flush_cf, nodeName()<<" "<<simTime()
         <<" RE="<<*re<<" may be removed from list->"<<*rel);
   if (re->invalidTime() != VALID_LIFETIME_INFINITY)
-    rel->removeEntry(re);
+    rel->remove(re);
   cds->removeRouterEntry(re->addr());
 }
 
@@ -677,9 +677,8 @@ void RoutingTable6::rescheduleAddrConfTimer(unsigned int minUpdatedLifetime)
     if (minUpdatedLifetime == VALID_LIFETIME_INFINITY)
       return;
 
-    addrExpiryTmr =  new Loki::cTimerMessageCB<void>
-      (IPv6NeighbourDiscovery::Tmr_AddrConfLifetime, (cSimpleModule*) simulation.contextModule(), this,
-       &RoutingTable6::lifetimeExpired, "AddrExpiryTmr");
+    addrExpiryTmr =  new cCallbackMessage("AddrExpiryTmr", IPv6NeighbourDiscovery::Tmr_AddrConfLifetime);
+    *((cCallbackMessage*)(addrExpiryTmr)) = boost::bind(&RoutingTable6::lifetimeExpired, this);
 
     Dout(dc::address_timer, nodeName()<<" Initial Shortest lifetime is "
          <<minUpdatedLifetime);

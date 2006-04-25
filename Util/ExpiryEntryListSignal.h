@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2005 Johnny Lai
+// Copyright (C) 2005, 2006 Johnny Lai
 //
 // This file is part of IPv6Suite
 //
@@ -30,16 +30,26 @@
 #ifndef EXPIRYENTRYLISTSIGNAL_H
 #define EXPIRYENTRYLISTSIGNAL_H
 
-#include <boost/call_traits.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/mpl/int.hpp>
+#ifndef BOOST_MPL_IF_HPP_INCLUDED
 #include <boost/mpl/if.hpp>
+#endif
 
-#ifndef CSIGNALMESSAGE_H
-#include "cSignalMessage.h"
-#endif //CSIGNALMESSAGE_H
+#ifndef BOOST_CALL_TRAITS_HPP
+#include <boost/call_traits.hpp>
+#endif
 
-namespace mpl = boost::mpl;
+#ifndef BOOST_TT_REMOVE_POINTER_HPP_INCLUDED
+#include <boost/type_traits/remove_pointer.hpp>
+#endif
+
+#ifndef BOOST_BIND_HPP_INCLUDED
+#include <boost/bind.hpp>
+#endif
+
+#ifndef CCALLBACKMESSAGE_H
+#include "cCallbackMessage.h"
+#endif
+
 
 /**
    @struct greaterExpiryTime
@@ -55,16 +65,15 @@ struct greaterExpiryTime : public std::binary_function<value_type, value_type, b
 
   ///Overloaded to handle pointer/non-pointer Entry types. Only one version
   ///will evaluate to the comparison function signature.
-  bool operator()(typename mpl::if_c< boost::is_pointer<value_type>::value, void*, param_type>::type lhs, param_type rhs) const
+  bool operator()(typename boost::mpl::if_c< boost::is_pointer<value_type>::value, void*, param_type>::type lhs, param_type rhs) const
   {
     return (lhs.expiryTime() > rhs.expiryTime());
   }
-  bool operator()(param_type lhs, typename mpl::if_c< boost::is_pointer<value_type>::value, param_type, void*>::type rhs) const
+  bool operator()(param_type lhs, typename boost::mpl::if_c< boost::is_pointer<value_type>::value, param_type, void*>::type rhs) const
   {
     return (lhs->expiryTime() > rhs->expiryTime());
   }
 };
-
 
 /**
  * @class ExpiryEntryListSignal
@@ -75,26 +84,29 @@ struct greaterExpiryTime : public std::binary_function<value_type, value_type, b
  * provide expiryTime() function that returns a simtime_t value denoting either
  * a relative time from simTime() or absolute time when element has expired
  *
- * @arg Comp is a comparison functor to sort the entries in chronological
- * order. The default greaterExpiryTime will sort correctly for a heap and
- * assumes Container::value_type::expiryTime is defined.
+ * @note Comp was a comparison functor to sort the entries in chronological
+ * order. Now a custom Comp can be specified at call time. The default
+ * greaterExpiryTime will sort correctly for a heap and assumes
+ * Container::value_type::expiryTime is defined.
  *
  * @ingroup Timer Framework
  */
 
-//  template<typename Container, typename Signature = void (*)(typename Container::value_type), typename Comp = greaterExpiryTime >
-template<typename Container,
-         typename Comp = greaterExpiryTime<typename Container::value_type>,
-         //Should not change to anything else really perhaps remove this template parameter?
-         typename Signature = void (typename boost::call_traits<typename Container::value_type>::param_type)
-  >
-class INET_API ExpiryEntryListSignal: public Container, public boost::signal<Signature>
-
+template<typename Container>
+class ExpiryEntryListSignal:
+  public Container,
+  public boost::function<
+  void (typename boost::call_traits<typename Container::value_type>::param_type)>
 {
+  //Was not able to use this otherwise value_type function
+  //name can be anything besides expiryTime and we could invoke it
+  typedef boost::function<simtime_t ()> ExpireCB;
 public:
   //allow only list/vector/deque i.e. seq containers. Can we enforce this?
   typedef typename Container::value_type value_type;
   typedef typename boost::call_traits<value_type>::param_type param_type;
+  typedef boost::function<void (param_type)> selfcb;
+  typedef struct greaterExpiryTime<typename Container::value_type> Comp;
 
   using Container::begin;
   using Container::end;
@@ -106,15 +118,24 @@ public:
   //@name constructors, destructors and operators
   //@{
 
-  ExpiryEntryListSignal(bool relative = false):_relative(relative), sig(0)
-  {
-  }
+  ExpiryEntryListSignal(bool relative = false):
+      sig(0), _relative(relative)
+  {}
 
   ~ExpiryEntryListSignal()
   {
-//    delete sig;
-    sig = 0;
+    clear();
+    delete sig;
   }
+
+  ///use Nullary's operator= to rebind new callback or args
+  ExpiryEntryListSignal& operator=(const selfcb& f)
+  {
+    (selfcb&)(*this)=f;
+    return *this;
+  }
+
+  //@}
 
   ///Called only once to start the timer internally for a collection of heap objects
   ///with expiryTime
@@ -123,8 +144,8 @@ public:
     assert(!sig);
     //contextModule is not ready yet when list default initialised in
     //cSimpleModule as a data member
-    sig = new cSignalMessage<void ()> ("expiryEntryList");
-    sig->connect(boost::bind(&ExpiryEntryListSignal::removeExpiredEntry, this));
+    sig = new cCallbackMessage("expiryEntryList");
+    (*sig) = boost::bind(&ExpiryEntryListSignal::removeExpiredEntry, this);   
   }
 
   
@@ -143,10 +164,49 @@ public:
       sig->cancel();
     reschedule();
   }
-  //@}
+
+  template <typename Comparator> void sortAndReset(const Comparator& c)
+  {
+    make_heap(begin(), end(), c());
+    if (sig->isScheduled())
+      sig->cancel();
+    reschedule();
+  }
+
+  void remove(param_type p)
+  {
+/* 
+//Don't ever do this (similar to ExpiryEntryList) because in client code we call
+//external callback (if we do then double deletion occurs since this functions
+//invokes on external callback which is different from ExpiryEntryList
+//behaviour!)
+
+    if (front() == p)
+    {
+      removeExpiredEntry();
+    }
+    else
+*/
+    erase(find(begin(), end(), p));
+  }
+
+  /// Add/Update an entry into the list
+  void addOrUpdate(param_type p)
+  {
+    // Remove any existing entry from the list 
+    Container::erase(std::find(begin(), end(), p), end());
+    push_back(p);
+  }
 
   //@name redefined std Sequence Container functions
   //@{
+
+  void clear()
+  {
+    Container::clear();
+    if (sig->isScheduled())
+      sig->cancel();    
+  }
 
   void push_back(param_type x)
   {
@@ -158,10 +218,11 @@ public:
   iterator erase(iterator p)
   {
     if (p == end())
-      return;
+      return end();
 
     Container::erase(p);
     sortAndReset();
+    return begin();
   }
 
   iterator
@@ -169,6 +230,7 @@ public:
   {
     Container::erase(first, last);
     sortAndReset();
+    return begin();
   }
 
   //@}
@@ -178,55 +240,109 @@ public:
     _relative = relative;
   }
 
+  template <class E> friend std::ostream& operator<< (std::ostream&, const ExpiryEntryListSignal<E> &);
+
 private:
 
   void reschedule()
   {
-    simtime_t t = expiryTime(front(), boost::mpl::int_<boost::is_pointer<value_type>::value >() );
-      if (_relative)
+    typedef typename boost::mpl::if_c< boost::is_pointer<value_type>::value,
+      typename boost::remove_pointer<value_type>::type,
+      value_type>::type realtype;
+    simtime_t t = boost::bind(&realtype::expiryTime, _1)(front());
+
+    if (_relative)
       sig->rescheduleDelay(t);
-      else
+    else
       sig->reschedule(t);
   }
 
   /**
-   *@name timer callback functions
+   *@name timer callback function to remove expired entry
+   *
+   * @todo create a template version like sortAndReset and also for startTimer
+   * if we want custom comparison
    */
   //@{
   void removeExpiredEntry()
   {
     assert(!empty());
       
-      pop_heap(begin(), end(), Comp());
+    pop_heap(begin(), end(), Comp());
       
-      (*this)(back());
-      pop_back();
-      if (!empty())
+    ///invoke callback assigned externally
+    (*this)(back());
+    pop_back();
+    if (!empty())
     {
-      assert(!sig->isScheduled());
+      assert(sig && !sig->isScheduled());
+      if (sig->isScheduled())
+        sig->cancel();
       reschedule();
     }
   }
   //@}
 
-  ///overloaded expiryTime to handle non-pointer Entry types
-  simtime_t expiryTime(param_type e, boost::mpl::int_<false>) const
-  {
-    return e.expiryTime();
-  }
-
-  ///overloaded expiryTime to handle pointer Entry types    
-  simtime_t expiryTime(param_type e, boost::mpl::int_<true>) const
-  {
-    return e->expiryTime();
-  }
-
-
+  cCallbackMessage* sig;
   bool _relative;
-  //timer callback
-  cSignalMessage<void ()>* sig;
+}; 
+
+
+/**
+   @struct HelpMePrint
+   @brief Helps to print out value_type  that may be pointers
+   @ingroup Timer Framework
+*/
+
+  template<typename value_type>
+    struct HelpMePrint : public std::unary_function<value_type, void>
+{
+  HelpMePrint(std::ostream& os):os(os){}
+
+  typedef typename boost::call_traits<value_type>::param_type param_type;
+
+  void operator()(typename boost::mpl::if_c< boost::is_pointer<value_type>::value, void*, param_type>::type lhs) const
+  {
+    os<<lhs;
+  }
+  void operator()(typename boost::mpl::if_c< boost::is_pointer<value_type>::value, param_type, void*>::type rhs) const
+  {
+    os<<*rhs;
+  }
+private:
+  std::ostream& os;
 };
+
+/**
+   @brief output operator for ExpiryEntryListSignal<Entry>	
+   @ingroup Timer Framework
+*/
+
+template <class Entry>
+std::ostream& operator<<(std::ostream& os, const ExpiryEntryListSignal<Entry>& list)
+{  
+  typedef ExpiryEntryListSignal<Entry> const EEL;
+  typedef typename EEL::value_type val;
+  typedef typename boost::mpl::if_c< boost::is_pointer<val>::value,
+    typename boost::remove_pointer<val>::type,
+    val>::type realtype;
+  os<<typeid(realtype).name()<<"\n";
+  typedef typename EEL::const_iterator ELCI;
+
+  HelpMePrint<val> helpMePrint(os);
+  typedef typename boost::call_traits<realtype>::param_type param_type;
+  for (ELCI cit = list.begin(); cit != list.end(); ++cit)
+  {
+    helpMePrint(*cit);
+//  Too bad not all types have member operator<<    
+//  boost::bind(&realtype::operator<<, *cit)(os);
+
+    os<<" expires at "<<
+      boost::bind(&realtype::expiryTime, _1)(*cit)
+      <<std::endl;
+  }
+  return os;
+}
 
 
 #endif /* EXPIRYENTRYLISTSIGNAL_H */
-

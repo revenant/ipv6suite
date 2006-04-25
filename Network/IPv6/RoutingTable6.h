@@ -41,17 +41,15 @@
 #include <vector>
 #endif
 
-#ifndef __OMNETPP_H
-#include <omnetpp.h>
+#ifndef __CSIMPLEMODULE_H
+#include <csimplemodule.h>
 #endif
 
 #ifndef IPV6_ADDR_H
 #include "ipv6_addr.h"
 #endif //IPV6_ADDR_H
 
-#ifndef EXPIRYENTRYLIST_H
-#include "ExpiryEntryList.h"
-#endif //EXPIRYENTRYLIST_H
+template<typename T> class ExpiryEntryListSignal;
 
 class InterfaceTable;
 class InterfaceEntry;
@@ -331,13 +329,14 @@ private:
   //@{
 
   ///Callback function for PrefixEntry lifetime expired
-  void prefixTimeout();
+  void prefixTimeout(PrefixEntry* pe);
   ///Callback function for RouterEntry lifetime expired
-  void routerTimeout();
+  void routerTimeout(RouterEntry* re);
 
-  typedef ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> > REL;
-  typedef ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> > PEL;
-
+  //typedef ExpiryEntryList<RouterEntry*, Loki::cTimerMessageCB<void> > REL;
+  //typedef ExpiryEntryList<PrefixEntry*, Loki::cTimerMessageCB<void> > PEL;
+  typedef ExpiryEntryListSignal<std::vector<RouterEntry*> > REL;
+  typedef ExpiryEntryListSignal<std::vector<PrefixEntry*> > PEL;
   REL* rel;
   PEL* pel;
   //@}

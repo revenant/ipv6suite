@@ -300,13 +300,19 @@ bool  NDStateHost::globalAddrAssigned(size_t ifIndex) const
  */
 void NDStateHost::nodeInitialise()
 {
-  TMI it = std::find_if(timerMsgs.begin(), timerMsgs.end(),
-			bind(&cTimerMessage::kind, _1) == Ctrl_NodeInitialise);
-  if (it != timerMsgs.end())
+  //fails to compile on some compilers !!!
+  //TMI it = std::find_if(timerMsgs.begin(), timerMsgs.end(),
+  //		boost::bind(&cTimerMessage::kind, _1) == Ctrl_NodeInitialise);
+
+  for (TMI it = timerMsgs.begin(); it != timerMsgs.end();++it )
+  {
+    if ((*it)->kind() == Ctrl_NodeInitialise)
     {
       delete *it;
       timerMsgs.erase(it);      
+      break;
     }
+  }
 
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {

@@ -198,6 +198,42 @@ int IDestinationCache::removeDestEntryByNeighbour(const ipv6_addr& addr)
   return deletedCount;
 }
 
+int IDestinationCache::removeDestEntryByTunnel(unsigned int vifIndex)
+{
+  DCI it, temp;
+  int deletedCount = 0;
+
+  Dout(dc::debug|continued_cf|flush_cf,
+       "DC before removing dest entries with tunnel "<<vifIndex<<"\n");
+#ifdef CWDEBUG
+  if (libcwd::channels::dc::debug.is_on())
+    copy(destCache.begin(), destCache.end(), ostream_iterator<IDestinationCache::DestinationCache::value_type>(*libcwd::libcw_do.get_ostream(), "\n"));
+#endif //CWDEBUG
+  for (it = destCache.begin(); it != destCache.end();   )
+  {
+    if (!it->second.neighbour.lock() ||
+        it->second.neighbour.lock()->ifIndex() == vifIndex)
+    {
+      temp = it;
+      it++;
+      deletedCount++;
+      Dout(dc::dest_cache_maint, " dcache removed dest entry: "<<*temp);
+      destCache.erase(temp);
+    }
+    else
+      it++;
+  }
+
+  Dout(dc::continued|flush_cf, "DC after");
+#ifdef CWDEBUG
+
+  if (libcwd::channels::dc::debug.is_on())
+    copy(destCache.begin(), destCache.end(), ostream_iterator<IDestinationCache::DestinationCache::value_type>(*libcwd::libcw_do.get_ostream(), "\n"));
+#endif //CWDEBUG
+  Dout(dc::finish|flush_cf, "-|");
+  return deletedCount;
+}
+
 namespace
 {
   struct updateDestEntry:public std::unary_function<IDestinationCache::DestinationCache::value_type, void>

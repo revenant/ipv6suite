@@ -236,11 +236,24 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
          <<nd->simTime()<<" MAP algorithm detected movement");
     std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
     os <<rt->nodeName() <<" "<<rt->simTime()<<" MAP algorithm detected movement"<<"\n";
+
+    if (mipv6cdsMN->primaryHA() == accessRouter && !mipv6cdsMN->bulEmpty())
+    {
+      Dout(dc::notice|dc::mipv6|dc::mobile_move,  rt->nodeName()<<" "<<nd->simTime()
+	   <<" Returning home case detected");
+      returnHome();
+      relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
+      return rtrAdv;     
+    }
+
     //Make sure we use the latest router as default router otherwise LBUs are
     //sent via old router
     relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
     mipv6cdsMN->setAwayFromHome(true);
   }
+
+  if (!mipv6cdsMN->awayFromHome())
+    return rtrAdv;
 
   //Not in current MAP domain so handover to new map
   if ((!curMapFound) ||

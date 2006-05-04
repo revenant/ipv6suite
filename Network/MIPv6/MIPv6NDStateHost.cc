@@ -383,6 +383,12 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
            <<(int)pref.prefixLen);
       ha->setPrefix(ipv6_prefix(pref.prefix, pref.prefixLen));
     }
+    else if (pe->advRtrAddr() && !globalFound)
+    {
+      cerr<<"Don't think router should have two global addresses advertised as "
+	  <<"we do not assign both to the same entry"<<endl;
+      assert(false);
+    }
   }
 
   if (!globalFound)
@@ -399,13 +405,34 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   assert((haCreated && ha != 0) || (!haCreated && ha != 0));
   if (haCreated)
   {
-    mipv6cdsMN->insertHomeAgent(ha);
+    //possible when it is the static HA since statc HA is given a ll_addr of
+    //global HA address
+    boost::shared_ptr<MIPv6RouterEntry> sha = mipv6cdsMN->findRouter(ha->addr());
+    if (sha.get() != 0)
+    {
+      if (sha == mipv6cdsMN->primaryHA())
+      {
+	//mipv6cdsMN->removeHomeAgent(mipv6cdsMN->primaryHA());
+	rt->cds->removeRouterEntry(sha->re.lock().get()->addr());
+	sha->re = rt->cds->router(ll_addr);
+	delete ha;
+	ha = sha.get();
+	Dout(dc::notice|flush_cf, nd->rt->nodeName()<<":"<<ifIndex<<" "
+	     <<setprecision(6)<<nd->simTime()<<" hack to fix static HA CDS entry ");
+	haCreated = false;
+      }
+      else
+	assert(false);
+    }
+    if (haCreated)
+      mipv6cdsMN->insertHomeAgent(ha);
     bha = mipv6cdsMN->findRouter(ll_addr);
-    Dout(dc::router_disc|flush_cf,  nd->rt->nodeName()<<":"<<ifIndex<<" "
-         <<setprecision(6)<<nd->simTime()<<" Mipv6 router "<<ha->prefix()
-         <<" added to list ");
+    if (haCreated)
+      Dout(dc::router_disc|flush_cf,  nd->rt->nodeName()<<":"<<ifIndex<<" "
+	   <<setprecision(6)<<nd->simTime()<<" Mipv6 router "<<ha->prefix()
+	   <<" added to list ");
   }
-  else
+  if (!haCreated)
   {
 
     ///@warning This is a real hack. Currently I detect new routers by looking
@@ -908,8 +935,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
     {
       if (!mipv6cdsMN->bulEmpty())
       {
-        Dout(dc::notice|dc::mipv6|dc::mobile_move,  rt->nodeName()<<" "<<nd->simTime()
-             <<" Returning home case detected");
         returnHome();
       }
       else
@@ -1368,6 +1393,8 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 
 void MIPv6NDStateHost::returnHome()
 {
+  Dout(dc::notice|dc::mipv6|dc::mobile_move,  rt->nodeName()<<" "<<nd->simTime()
+       <<" Returning home case detected");
   mipv6cdsMN->setAwayFromHome(false);
 
   //check home prefix is on link (rather silly when you consider that later on

@@ -97,6 +97,13 @@ public:
   int removeDestEntryByNeighbour(const ipv6_addr& addr);
 
   /**
+     
+     @param vifIndex is a tunnel index
+     @return number of destination entries removed
+   */
+  int removeDestEntryByTunnel(unsigned int vifIndex);
+
+  /**
    * @brief Update existing destination entries with neighbour of addr by
    * breaking that link and using ngbr as the next hop neighbour instead.
    *

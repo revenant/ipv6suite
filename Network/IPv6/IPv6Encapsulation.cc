@@ -208,6 +208,7 @@ bool IPv6Encapsulation::destroyTunnel(const ipv6_addr& src, const ipv6_addr& des
   }
 
   tunnels.erase(vIfIndex);
+  rt->cds->removeDestEntryByTunnel(vIfIndex);
   return true;
 }
 
@@ -221,7 +222,8 @@ bool IPv6Encapsulation::destroyTunnel(size_t vIfIndex)
   bool erased = tunnels.erase(vIfIndex);
   if (!erased)
     Dout(dc::warning|dc::encapsulation|flush_cf, "tunnel not found vIfIndex="<<hex<<vIfIndex<<dec);
-
+  else
+    rt->cds->removeDestEntryByTunnel(vIfIndex);
   return erased;
 }
 

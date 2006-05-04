@@ -92,8 +92,7 @@
 	routeNextHop="fec0:0:0:5:92f7:839a:4a7d:b041"/>
       <routeEntry routeIface="ppp3" routeDestination="0/0" 
 	routeNextHop="FEC0:0:0:4:38a6:4b65:71c6:a7fc"/>
-
-      <routeEntry routeIface="ppp0" routeDestination="FEC0:0:0:11:0:0:0:0/64"
+      <routeEntry routeIface="ppp0" routeDestination="301b:0:0:11:0:0:0:0/64"
       routeNextHop="fec0:0:0:1:b573:569d:74fb:2b75"/>
       <routeEntry 
 	routeIface="ppp1" routeDestination="FEC0:0:0:22:0:0:0:0/64"
@@ -110,22 +109,16 @@
     <interface name="ppp0">
       <inetAddr>fec0:0:0:1:b573:569d:74fb:2b75</inetAddr>
     </interface>
-    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
+    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on"
       MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
       <inetAddr>3011:0:0:1:89d6:9cff:fe7e:83d2</inetAddr>
-      <inetAddr>FEC0:0:0:11:89d6:9cff:fe7e:83d2</inetAddr>
+      <inetAddr>301b:0:0:11:89d6:9cff:fe7e:83d2</inetAddr>
       <AdvPrefixList>
-        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">FEC0:0:0:11:89d6:9cff:fe7e:83d2/64</AdvPrefix>
-<!--     Can screw things up since we do not currently add more than one mip6 re -->
-<!--     so we end up creating a NE for it when trying to send since the Prefix -->
-<!--     matches on link and so first BU goes no where when our lcoa under DAD however -->
-<!--     once we get NA from router it says it is a router so we end up sending -->
-<!--     BU however CDS is invalid as a NE with router bit set but is not a router entry object-->
-<!-- <AdvPrefix AdvOnLinkFlag="on" 
-	AdvRtrAddrFlag="on">3011:0:0:1:89d6:9cff:fe7e:83d2/64</AdvPrefix> -->
+ <AdvPrefix AdvOnLinkFlag="on" 
+	AdvRtrAddrFlag="on">3011:0:0:1:89d6:9cff:fe7e:83d2/64</AdvPrefix> 
       </AdvPrefixList>
       <AdvMAPList>
-        <AdvMAPEntry>3011:0:0:1:89d6:9cff:fe7e:83d2</AdvMAPEntry>
+        <AdvMAPEntry>301b:0:0:11:89d6:9cff:fe7e:83d2</AdvMAPEntry>
       </AdvMAPList>
     </interface>
     <route>

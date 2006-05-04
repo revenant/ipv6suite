@@ -1609,6 +1609,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       tunMod->destroyTunnel(delIndex);
     }
 
+    if (!mipv6cdsMN->awayFromHome())
+      return true;
+
   ///Returns the vIfIndex of tunnel if found
 //  size_t findTunnelWithExitPoint(const ipv6_addr& exit);
 
@@ -1689,6 +1692,14 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
     if (!mob->hmipSupport())
       return true;
+
+    if (!mipv6cdsMN->awayFromHome())
+    {
+      //remove tunnel to cn
+      //tunMod->untunnelDestination(dgram->destAddress());
+      // should not be necessary as action of removing tunnels removes associated triggers
+      return true;
+    }
 
     HMIPv6CDSMobileNode* hmipv6cds = mipv6cds->hmipv6cdsMN;
 

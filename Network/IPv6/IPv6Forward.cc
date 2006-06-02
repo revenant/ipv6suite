@@ -153,6 +153,34 @@ void IPv6Forward::endService(cMessage* theMsg)
 
   assert(datagram->inputPort() < (int)ift->numInterfaceGates());
 
+// {{{ localdeliver
+
+  if (rt->localDeliver(datagram->destAddress()))
+  {
+    Dout(dc::forwarding|flush_cf, rt->nodeName()<<":"<<hex<<datagram->inputPort()<<dec<<" "
+         <<simTime()<<" received packet from "<<datagram->srcAddress()
+         <<" dest="<<datagram->destAddress());
+
+    IPv6Datagram* copy = datagram->dup();
+
+    //This condition can occur when upper layer originates packets without
+    //specifying a src address destined for a multicast destination or local
+    //destination so the packet is missing the src address. This is a bit
+    //dodgy but the only other solution would be to enforce the app layer to
+    //choose a src address.
+    if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
+        datagram->inputPort() == -1)
+      copy->setSrcAddress(ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0]);
+
+    send(copy, "localOut");
+    //Check if it is a multicast packet that we need to forward
+    if (!datagram->destAddress().isMulticast())
+      return;
+  }
+
+// }}}
+
+
 // {{{ Process outgoing packet for MIP6 e.g. If binding exists for dest then swap dest==hoa to coa
 
 //  Dout(dc::mipv6, rt->nodeName()<<" datagram->inputPort = " << datagram->inputPort());
@@ -193,33 +221,6 @@ void IPv6Forward::endService(cMessage* theMsg)
 // }}}
 
   insertSourceRoute(*datagram);
-
-// {{{ localdeliver
-
-  if (rt->localDeliver(datagram->destAddress()))
-  {
-    Dout(dc::forwarding|flush_cf, rt->nodeName()<<":"<<hex<<datagram->inputPort()<<dec<<" "
-         <<simTime()<<" received packet from "<<datagram->srcAddress()
-         <<" dest="<<datagram->destAddress());
-
-    IPv6Datagram* copy = datagram->dup();
-
-    //This condition can occur when upper layer originates packets without
-    //specifying a src address destined for a multicast destination or local
-    //destination so the packet is missing the src address. This is a bit
-    //dodgy but the only other solution would be to enforce the app layer to
-    //choose a src address.
-    if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
-        datagram->inputPort() == -1)
-      copy->setSrcAddress(ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0]);
-
-    send(copy, "localOut");
-    //Check if it is a multicast packet that we need to forward
-    if (!datagram->destAddress().isMulticast())
-      return;
-  }
-
-// }}}
 
 // {{{ tunnel via dest addr using CDS::findDestEntry
 
@@ -304,9 +305,9 @@ void IPv6Forward::endService(cMessage* theMsg)
   // packet awaits addr res so put into queue
   if (status == -1 || status == -2)
   {
-    Dout(dc::forwarding|flush_cf," "<<rt->nodeName()<<":"<<info->ifIndex()<<
-         simTime()<<" "<<className()<<": addrRes pending packet dest="
-         <<datagram->destAddress()<<" nexthop="<<info->nextHop()<<" status"<<status);
+    Dout(dc::forwarding|flush_cf," "<<rt->nodeName()<<":"<<info->ifIndex()<<" "
+         <<simTime()<<" "<<className()<<": addrRes pending packet dest="
+         <<datagram->destAddress()<<" nexthop="<<info->nextHop()<<" status="<<status);
 
     if (rt->odad())
     {
@@ -540,8 +541,8 @@ int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
       {
         //Save this route to dest in DC
         (*rt->cds)[dgram->destAddress()].neighbour = ne;
-        Dout(dc::forwarding, " Using default router addr="<<ne.lock()->addr()<<" for dest="
-             <<dgram->destAddress());
+        Dout(dc::forwarding, rt->nodeName()<<" Using default router addr="<<ne.lock()->addr()<<" for dest="
+             <<dgram->destAddress()<<" ne="<<*(ne.lock().get())<<" ptr="<<ne.lock().get());
         if (ne.lock()->addr() == dgram->srcAddress())
         {
           cerr<< rt->nodeName()<<" default router of destination points back to source! "

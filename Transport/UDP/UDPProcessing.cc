@@ -128,7 +128,7 @@ void UDPProcessing::processMsgFromIP(UDPPacket *udpPacket)
 
     // get src/dest addresses
     IPvXAddress srcAddr, destAddr;
-    int inputPort;
+    int inputPort = -1;
     if (dynamic_cast<IPControlInfo *>(udpPacket->controlInfo())!=NULL)
     {
         IPControlInfo *controlInfo = (IPControlInfo *)udpPacket->removeControlInfo();

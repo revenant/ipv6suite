@@ -1,4 +1,5 @@
 // -*- C++ -*-
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -60,9 +61,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
   HMIPv6ICMPv6NDOptMAP(const int dist = 0, const int pref = 0,
                        const unsigned int expires = 0,
                        const ipv6_addr& map_addr = IPv6_ADDR_UNSPECIFIED,
-                       bool r = false,
-                       bool m = false, bool i = false, bool t = false,
-                       bool p = false, bool v = false);
+                       bool r = true);
 
   virtual HMIPv6ICMPv6NDOptMAP* dup() const
     {
@@ -71,7 +70,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
 
   std::ostream& operator<<(std::ostream& os) const
   {
-    return os<<" addr="<<addr()<<" lifetime="<<lifetime()<<" v="<<v()<<" dist="
+    return os<<" addr="<<addr()<<" lifetime="<<lifetime()<<" r="<<r()<<" dist="
              <<dist()<<" pref="<<pref()<<" ifaceIdx"<<ifaceIdx();
   }
 
@@ -79,22 +78,12 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
   void setPref(int pref);
 
   void setR(bool r);
-  void setM(bool m);
-  void setI(bool i);
-  void setT(bool t);
-  void setP(bool p);
-  void setV(bool v);
 
   size_t ifaceIdx() const { return iface_idx; }
 
   unsigned int dist(void) const { return _dist; }
   unsigned int pref(void) const { return _pref; }
   bool r(void) const { return _r; }
-  bool m(void) const { return _m; }
-  bool i(void) const { return _i; }
-  bool t(void) const { return _t; }
-  bool p(void) const { return _p; }
-  bool v(void) const { return _v; }
 
   /**
    * prefix length assumed to be 24
@@ -114,12 +103,7 @@ class HMIPv6ICMPv6NDOptMAP : public IPv6NeighbourDiscovery::ICMPv6_NDOptionBase
  private:
   unsigned int _dist;
   unsigned int _pref;
-  bool _r; // basic mode flag
-  bool _m; // extended mode flag
-  bool _i; // a flag indicates the MN MAY use its RCoA as source address
-  bool _t; // a flag indicates the on-link prefix is topogically incorrect
-  bool _p; // a flag indicates the MN MUST use its RCoA as source address
-  bool _v; // a flag indicates reverse tunnelling of outbound traffic to the MAP is allowed
+  bool _r; // a flag indicates the MN MUST use its RCoA as source address
   unsigned int expires;
   size_t iface_idx;
 

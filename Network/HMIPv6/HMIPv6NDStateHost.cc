@@ -143,9 +143,6 @@ bool isInvalidMAP(const MAPOptions::value_type& m)
 {
    assert(m.dist() > 0);
 
-   //No more m option in latest HMIP drafts as no more extended mode only basic
-   assert(!m.m());
-
    assert(m.addr() != IPv6_ADDR_UNSPECIFIED);
 
    assert(m.pref() <= 0xF);

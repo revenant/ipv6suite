@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2001, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -39,20 +40,13 @@ namespace HierarchicalMIPv6
 HMIPv6ICMPv6NDOptMAP::HMIPv6ICMPv6NDOptMAP(const int dist, const int pref,
                                            const unsigned int exp,
                                            const ipv6_addr& addr,
-                                           bool r, bool m, bool i, bool t,
-                                           bool p, bool v
-)
+                                           bool r)
   : ICMPv6_NDOptionBase(IPv6NeighbourDiscovery::NDO_MAP, 3), expires(exp), map_addr(addr)
 {
   assert(ipv6_addr_scope(addr) == ipv6_addr::Scope_Global);
   setDist(dist);
   setPref(pref);
   setR(r);
-  setM(m);
-  setI(i);
-  setT(t);
-  setP(p);
-  setV(v);
 }
 
 void HMIPv6ICMPv6NDOptMAP::setDist(int dist)
@@ -72,29 +66,5 @@ void HMIPv6ICMPv6NDOptMAP::setR(bool r)
   _r = r;
 }
 
-void HMIPv6ICMPv6NDOptMAP::setM(bool m)
-{
-  _m = m;
-}
-
-void HMIPv6ICMPv6NDOptMAP::setI(bool i)
-{
-  _i = i;
-}
-
-void HMIPv6ICMPv6NDOptMAP::setT(bool t)
-{
-  _t = t;
-}
-
-void HMIPv6ICMPv6NDOptMAP::setP(bool p)
-{
-  _p = p;
-}
-
-void HMIPv6ICMPv6NDOptMAP::setV(bool v)
-{
-  _v = v;
-}
 
 } // end namespace HierarchicalMIPv6

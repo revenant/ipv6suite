@@ -751,39 +751,10 @@ void XMLOmnetParser::parseMAPInfo(InterfaceTable *ift, RoutingTable6 *rt)
     Dout(dc::warning, rt->nodeName()<<" no XML configuration found");
   }
 
-  if (getNodeProperties(ne, "mapMode") == "Basic")
-    hmipRtr->mode = HierarchicalMIPv6::HMIPv6NDStateRouter::modeBasic;
-  else
-    hmipRtr->mode = HierarchicalMIPv6::HMIPv6NDStateRouter::modeExtended;
-
-  if (getNodeProperties(ne, "mapMNMAYSetRoCAAsSource") == XML_ON)
-  {
-    if (!hmipRtr->mode == HierarchicalMIPv6::HMIPv6NDStateRouter::modeBasic)
-    {
-      cerr << " Flag I MUST NOT be set if the R flag is not set -- section 4, hmipv6" << endl;
-      abort_ipv6suite();
-    }
-    hmipRtr->mnMAYSetRoCAAsSource = true;
-  }
-  else
-    hmipRtr->mnMAYSetRoCAAsSource = false;
-
   if (getNodeProperties(ne, "mapMNMUSTSetRoCAAsSource") == XML_ON)
-  {
-    if (hmipRtr->mode == HierarchicalMIPv6::HMIPv6NDStateRouter::modeExtended)
-    {
-      cerr << " Flag P MUST NOT be set if the M flag is set -- section 4, hmipv6" << endl;
-      abort_ipv6suite();
-    }
-    hmipRtr->mnMUSTSetRoCAAsSource = true;
-  }
+    hmipRtr->mnMUSTSetRCoAAsSource = true;
   else
-    hmipRtr->mnMUSTSetRoCAAsSource = false;
-
-  if (getNodeProperties(ne, "mapReverseTunnel") == XML_ON)
-    hmipRtr->reverseTunnel = true;
-  else
-    hmipRtr->reverseTunnel = false;
+    hmipRtr->mnMUSTSetRCoAAsSource = false;
 
   cXMLElementList ifaces = ne->getChildrenByTagName("interface");
   NodeIt startIf = ifaces.begin();

@@ -1,5 +1,6 @@
 // -*- C++ -*-
 //
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2002 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -66,15 +67,7 @@ public:
 
   virtual void print();
 
-  enum MAPMode
-  {
-    modeBasic = 0,
-    modeExtended = 1
-  } mode;
-
-  bool mnMAYSetRoCAAsSource;
-  bool mnMUSTSetRoCAAsSource;
-  bool reverseTunnel;
+  bool mnMUSTSetRCoAAsSource;
 
  protected:
   virtual ICMPv6NDMRtrAd* createRA(const IPv6InterfaceData::RouterVariables& rtr, size_t ifidx);

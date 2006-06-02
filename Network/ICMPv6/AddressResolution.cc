@@ -223,14 +223,23 @@ void AddressResolution::handleMessage(cMessage* msg)
       Dout(dc::addr_resln, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
            <<": creating new NC entry for nexthop="<<tmr->targetAddr);
     }
-    if (ngbr.lock().get()->state() != NeighbourEntry::INCOMPLETE)
-      Dout(dc::warning|flush_cf, rt->nodeName()<<setprecision(6)<<" "<<simTime()
-           <<" "<<tmr->ifIndex<<" mismatched ND State="<<ngbr.lock().get()->state()
-           <<" for "<<ngbr.lock().get()->addr());
-    assert(ngbr.lock().get()->addr() == tmr->targetAddr);
-    assert(ngbr.lock().get()->state() == NeighbourEntry::INCOMPLETE);
+
     //Check that targetAddr really is a neighbour
     assert(ngbr.lock().get()->addr() == tmr->targetAddr);
+
+    if (ngbr.lock().get()->state() != NeighbourEntry::INCOMPLETE)
+    {
+      Dout(dc::warning|flush_cf, rt->nodeName()<<setprecision(6)<<" "<<simTime()
+           <<" "<<tmr->ifIndex<<" mismatched ND State="<<ngbr.lock().get()->state()
+           <<" for "<<ngbr.lock().get()->addr()<< " "<<*(ngbr.lock().get())<<" ptr="<<ngbr.lock().get());
+
+      //TODO Cancel impending or outstanding addrResln (see processNgbrAdv) but
+      //how would ifIndex be set if incorrect?
+      assert(false);
+      return;
+    }
+
+
 
     //Sending solicitation to solicited node multicast dest addr
     tmr->dgram = new IPv6Datagram(dgram->srcAddress(), IPv6Address::solNodeAddr(tmr->targetAddr));
@@ -460,20 +469,25 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
     {
       NeighbourEntry* ne = rt->cds->neighbour(dgram->srcAddress()).lock().get();
       if (ne == 0)
-        {
-          rt->cds->insertNeighbourEntry(new NeighbourEntry(ngbrSol.get()));
-        }
+      {
+	if (rt->cds->router(dgram->srcAddress()).lock())
+	{
+	  (*rt->cds)[dgram->srcAddress()].neighbour = 
+	    rt->cds->router(dgram->srcAddress());
+	  (*rt->cds)[dgram->srcAddress()].neighbour.lock()->update(ngbrSol.get());
+	  //If outstanding addrResln, will need to cancel?  Actually should not
+	  //be required as ngbrSol cannot change NE state unless LLaddr
+	  //differs (also does not set ifIndex)
+	  assert(!ppq.count(dgram->srcAddress()));
+	}
+	else
+	  rt->cds->insertNeighbourEntry(new NeighbourEntry(ngbrSol.get()));
+      }
       else
         ne->update(ngbrSol.get());
     }
   }
 
-/*
-#ifdef TESTIPv6
-  cout << "NS Target Addr: "<< ngbrSol->targetAddr()
-       << " --- " << __FILE__ << endl;
-#endif
-*/
 
   //Reply with NA on interface that received NS
   //According to NDisc 7.2.3 reply only if address is assigned on receiving

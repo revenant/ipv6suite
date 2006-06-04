@@ -136,7 +136,7 @@ bool runUnitTests()
 #endif //defined USE_CPPUNIT
 
 #ifdef USE_MOBILITY
-Entity* WorldProcessor::findEntityByName(string entityName)
+Entity* WorldProcessor::findEntityByName(const std::string& entityName)
 {
   for ( size_t i = 0; i < modList.size(); i++)
   {
@@ -148,7 +148,21 @@ Entity* WorldProcessor::findEntityByName(string entityName)
   return 0;
 }
 
-Entity* WorldProcessor::registerEntity(string name,
+Entity* WorldProcessor::findEntityByNodeName(const std::string& nodeName)
+{
+  for ( size_t i = 0; i < modList.size(); i++)
+  {
+    cStringTokenizer tokenizer(modList[i]->entityName.c_str(), ".");
+    const char *token;
+    token = tokenizer.nextToken();
+    token = tokenizer.nextToken();
+    if (nodeName == token)
+      return modList[i];
+  }
+  return 0;
+}
+
+Entity* WorldProcessor::registerEntity(const std::string& name,
                                              MobileEntityType type,
                                              cSimpleModule* mod)
 {

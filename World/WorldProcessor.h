@@ -89,12 +89,17 @@ public:
    *
    * FIXME deregistration?
    */
-  Entity* registerEntity(std::string entityName, MobileEntityType, cSimpleModule* mod);
+  Entity* registerEntity(const std::string& entityName, MobileEntityType, cSimpleModule* mod);
 
   /**
    * Find entity by its name member.
    */
-  Entity* findEntityByName(std::string entityName);
+  Entity* findEntityByName(const std::string& entityName);
+
+  /**
+   * Find entity by its network node name 
+   */
+  Entity* findEntityByNodeName(const std::string& nodeName);
 
   /**
    * Get the list of Wireless Ethernet modules on a given channel.

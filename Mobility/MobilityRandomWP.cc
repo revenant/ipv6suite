@@ -30,9 +30,11 @@
   @author Eric Wu, Steve Woon
 */
 
-#include <cassert>
 #include "sys.h"
 #include "debug.h"
+
+#include <cassert>
+
 #include "opp_utils.h"
 #include "MobilityRandomWP.h"
 #include "WorldProcessor.h"
@@ -90,6 +92,7 @@ void MobilityRandomWP::initialize(int stage)
 
 void MobilityRandomWP::handleMessage(cMessage* msg)
 {
+  
   mobileEntity->setPosition(msg->par("x"),  msg->par("y"));
 
   // update the display string of the net node module

@@ -55,11 +55,7 @@ class Entity
   // return the position of the entity
   Position position(void) { return _pos; }
   
-  void setPosition(double x, double y)
-    {
-      _pos.x = x;
-      _pos.y = y;
-    }
+  void setPosition(double x, double y);
 
   // return the type of entity
   MobileEntityType entityType(void) { return _type; }
@@ -87,6 +83,7 @@ class Entity
   Position _pos;
   MobileEntityType _type;
   WorldProcessor* _mwp;
+  std::string simpleName;
 };
 
 #endif // __ENTITY__

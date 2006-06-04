@@ -29,15 +29,15 @@
 #include <cmath>
 #include <sstream>
 #include <string>
-#include "opp_utils.h"  // for int/double <==> string conversions
+#include <fstream>
 #include <boost/cast.hpp>
 
 #include "Entity.h"
 #include "WorldProcessor.h"
-#include "opp_utils.h"
+#include "opp_utils.h"  // for int/double <==> string conversions
 #include "LinkLayerModule.h"
 #include "WirelessEtherModule.h"   //XXX FIXME remove dependency!!!
-
+#include "MobilityHandler.h"
 
 using namespace::OPP_Global;
 
@@ -56,6 +56,29 @@ Entity::Entity(cSimpleModule* mod)
 
 Entity::~Entity()
 {}
+
+void Entity::setPosition(double x, double y)
+{
+  _pos.x = x;
+  _pos.y = y;
+
+  //Check containerMod to see if necessary to rec walk
+  if (!boost::polymorphic_downcast<MobilityHandler*>(containerModule())->recordMove())
+    return;
+
+  static std::ofstream recWalk("walk.txt");
+
+  if (simpleName.empty())
+  {
+    cStringTokenizer tokenizer(entityName.c_str(), ".");
+    const char *token;
+    token = tokenizer.nextToken();
+    token = tokenizer.nextToken();
+    simpleName.assign(token);
+  }
+  recWalk<<simpleName<<" "<<containerModule()->simTime()<<" "<<position().x<<" "<<position().y<<endl;
+}
+
 
 int Entity::distance(Entity* entity)
 {

@@ -45,6 +45,7 @@ void MobilityHandler::initialize(int stage)
   {
     selfMovingNotifier = 0;
     mobileEntity = 0;
+    _recordMove = par("recordMove").boolValue();
   }
   else if ( stage == 1)
   {

@@ -23,7 +23,8 @@
 
 simple MobilityHandler
     parameters:
-        moveXmlConfig: xml;
+        moveXmlConfig: xml,
+	recordMove: bool;
 endsimple
 
 module MobilityManager

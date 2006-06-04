@@ -30,9 +30,11 @@
   @author Eric Wu, Steve Woon
 */
 
-#include <cassert>
 #include "sys.h"
 #include "debug.h"
+
+#include <cassert>
+#include <fstream>
 #include "opp_utils.h"
 #include "MobilityStatic.h"
 #include "WorldProcessor.h"

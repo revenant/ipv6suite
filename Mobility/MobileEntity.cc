@@ -116,43 +116,45 @@ bool MobileEntity::moving(void)
     _currentMoveIdx++;
   }
 
+  Position curPos = _pos;
   // the mobile entity moves along the x-axis first then y-axis
 
   if ( moves[_currentMoveIdx].moveXFirst )
   {
-    if ( _pos.x != moves[_currentMoveIdx].destPos.x )
+    if ( curPos.x != moves[_currentMoveIdx].destPos.x )
     {
-      if ( _pos.x < moves[_currentMoveIdx].destPos.x )
-        _pos.x++;
+      if ( curPos.x < moves[_currentMoveIdx].destPos.x )
+        curPos.x++;
       else
-        _pos.x--;
+        curPos.x--;
     }
     else
     {
-      if ( _pos.y < moves[_currentMoveIdx].destPos.y )
-        _pos.y++;
+      if ( curPos.y < moves[_currentMoveIdx].destPos.y )
+        curPos.y++;
       else
-        _pos.y--;
+        curPos.y--;
     }
   }
   else
   {
-    if ( _pos.y != moves[_currentMoveIdx].destPos.y )
+    if ( curPos.y != moves[_currentMoveIdx].destPos.y )
     {
-      if ( _pos.y < moves[_currentMoveIdx].destPos.y )
-        _pos.y++;
+      if ( curPos.y < moves[_currentMoveIdx].destPos.y )
+        curPos.y++;
       else
-        _pos.y--;
+        curPos.y--;
     }
     else 
     {
-      if ( _pos.x < moves[_currentMoveIdx].destPos.x )
-        _pos.x++;
+      if ( curPos.x < moves[_currentMoveIdx].destPos.x )
+        curPos.x++;
       else
-        _pos.x--;
+        curPos.x--;
     }
   }
 
+  setPosition (curPos.x, curPos.y);
   return true;
 }
 

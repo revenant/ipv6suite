@@ -27,7 +27,9 @@
 #ifndef MOBILITY_HANDLER_H
 #define MOBILITY_HANDLER_H
 
+#ifndef __OMNETPP_H
 #include <omnetpp.h>
+#endif
 
 // timer message ID
 extern const int TMR_WIRELESSMOVE;
@@ -54,6 +56,8 @@ class MobilityHandler : public cSimpleModule
 
   virtual int  numInitStages() const  {return 2;}
 
+  bool recordMove(){ return _recordMove; }
+
  protected:
   void initiateMoveScheduler(void);
 
@@ -63,6 +67,8 @@ class MobilityHandler : public cSimpleModule
 
   WorldProcessor* wproc;
 
+private:
+  bool _recordMove;
 };
 
 #endif

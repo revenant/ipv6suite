@@ -59,10 +59,7 @@ void MobilityHandler::initialize(int stage)
 
 void MobilityHandler::handleMessage(cMessage* msg)
 {
-  assert(msg->isSelfMessage() && msg->kind() == TMR_WIRELESSMOVE);
-
-  if (mobileEntity->moving())
-    scheduleAt(simTime() + elapsedTime, msg);
+  assert(false);
 }
 
 void MobilityHandler::finish()

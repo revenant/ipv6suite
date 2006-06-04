@@ -153,8 +153,6 @@ bool MobileEntity::moving(void)
     }
   }
 
-  setDispPosition(_pos.x, _pos.y);
-
   return true;
 }
 

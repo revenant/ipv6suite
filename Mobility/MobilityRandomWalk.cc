@@ -88,12 +88,8 @@ void MobilityRandomWalk::handleMessage(cMessage* msg)
 
   double time = randomWalk->randomWalk(x, y);
 
-  delete msg;
-
-  selfMovingNotifier = new cMessage;
-  selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
-  selfMovingNotifier->addPar("x") = x;
-  selfMovingNotifier->addPar("y") = y;
+  selfMovingNotifier->par("x") = x;
+  selfMovingNotifier->par("y") = y;
 
   scheduleAt(simTime() + time, selfMovingNotifier);
 }

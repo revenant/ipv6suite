@@ -85,8 +85,9 @@ void MobilityRandomPattern::initialize(int stage)
       isRandomPatternParsed = true;
     }
 
-//    double time = randomPattern->randomWaypoint(x, y);
-    double time = 5; // dodgey! but we stick for now; we do this because we want to make sure that mn estbalishes connection with its ha
+    // dodgey! but we stick for now; we do this because we want to make sure
+    // that mn estbalishes connection with its ha
+    double time = 5;
 
     selfMovingNotifier = new cMessage;
     selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
@@ -110,12 +111,8 @@ void MobilityRandomPattern::handleMessage(cMessage* msg)
 
   double time = RandomPattern::instance()->wayPoint(x, y);
 
-  delete msg;
-
-  selfMovingNotifier = new cMessage("move");
-  selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
-  selfMovingNotifier->addPar("x") = x;
-  selfMovingNotifier->addPar("y") = y;
+  selfMovingNotifier->par("x") = x;
+  selfMovingNotifier->par("y") = y;
 
   scheduleAt(simTime() + time, selfMovingNotifier);
 }

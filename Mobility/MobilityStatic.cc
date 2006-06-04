@@ -59,19 +59,25 @@ void MobilityStatic::initialize(int stage)
     }
 
     wproc->xmlConfig()->parseMovementInfo(this);
-    if (mobileEntity->speed() && !selfMovingNotifier)
-    {
-      elapsedTime = (double)1 / mobileEntity->speed();
-      selfMovingNotifier = new cMessage("move");
-      selfMovingNotifier->setKind(TMR_WIRELESSMOVE);
-      scheduleAt(mobileEntity->startMovingTime() + elapsedTime, selfMovingNotifier);
-    }
+    initiateMoveScheduler();
   }
 }
 
 void MobilityStatic::handleMessage(cMessage* msg)
 {
-  MobilityHandler::handleMessage(msg);
+  assert(msg->isSelfMessage() && msg->kind() == TMR_WIRELESSMOVE);
+
+  if (mobileEntity->moving())
+  {
+    mobileEntity->setDispPosition(mobileEntity->position().x,
+				  mobileEntity->position().y);
+
+    //previous incarnation disregarded further speed changes after first !!!
+    if (mobileEntity->speed())
+      elapsedTime = (double)1 / mobileEntity->speed();
+
+    scheduleAt(simTime() + elapsedTime, msg);
+  }
 }
 
 void MobilityStatic::finish()

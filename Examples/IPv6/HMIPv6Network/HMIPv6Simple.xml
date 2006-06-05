@@ -107,8 +107,8 @@
   </local>
 <!-- routing table configuration for MAP -->
  <local node="map" routePackets="on" mobileIPv6Support="on"
-   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on"
-mapReverseTunnel="on">
+   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+
     <interface name="ppp0"  AdvSendAdvertisements="on">
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on">3011:BBBB:3333:6666:0:0:0:0/64</AdvPrefix>

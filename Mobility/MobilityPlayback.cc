@@ -35,8 +35,11 @@
 #include "MobilityPlayback.h"
 #include "MobileEntity.h"
 #include "WorldProcessor.h"
+#include "opp_utils.h" // abort_ipv6suite
 
 #include <boost/cast.hpp>
+#include <ios> //precision
+#include <cfloat> //DBL_DIG (significant digits stored in double == simtime_t)
 
 Define_Module_Like(MobilityPlayback, MobilityHandler);
 
@@ -51,36 +54,62 @@ void MobilityPlayback::initialize(int stage)
     return;
   
   if (moves.empty())
-    {
-  f.open("walk.txt");
-  //parse individual moves
-  double x=0,y=0;
-  std::string node;
-  char space;
-  simtime_t time;
-  static std::ofstream of("walkout.txt");
-  std::map<std::string, MobileEntity*> names;
-  while (f)
   {
-    f>>node>>space>>time>>space>>x>>space>>y;
-    of<<node<<" "<<time<<" "<<x<<" "<<y;
-    if (!names.count(node))
-    {
-      MobileEntity* me = boost::polymorphic_downcast<MobileEntity*> (wproc->findEntityByNodeName(node));
-      if (!me)
-	continue;
-      names[node] = me;
-    }
-    Move m = {time, x, y};
-    moves[names[node] ].push_back(m);
-  }
-    }
-  selfMovingNotifier = new cMessage("PlaybackMove", TMR_WIRELESSMOVE);
+    f.open("walk.txt");
+    if (!f)
+      abort_ipv6suite();
 
-  Move m = moves[mobileEntity].front();
-  selfMovingNotifier->addPar("x") = m.x;
-  selfMovingNotifier->addPar("y") = m.y;
+    double x=0,y=0;
+    std::string node;
+    simtime_t time;
+    static std::ofstream of("walkparse-compare.txt");
+    of.precision(DBL_DIG);
+    assert(sizeof(simtime_t) == sizeof(double));
+    std::map<std::string, MobileEntity*> names;
+    for (;;)
+    {
+      //previous f>>node>>space>>time ... does not work as space does not eat
+      //spaces but actual character's besides spaces. prob. some ios manip flag
+      //to tell space is also a valid char too
+
+      f>>node;
+      //need to read past eof before failure is indicated
+      if (!f)
+	break;
+      f.ignore();
+      f>>time;
+      f.ignore();
+      f>>x;
+      f.ignore();
+      f>>y;
+      of<<node<<" "<<time<<" "<<x<<" "<<y<<std::endl;
+      if (names.count(node) == 0)
+      {
+	MobileEntity* me = 
+	  boost::polymorphic_downcast<MobileEntity*> (wproc->findEntityByNodeName(node));
+	if (!me)
+	{
+	  std::cerr<<"Skipping walk playback of node "<<node
+		   <<" as it does not exist in scenario"<<std::endl;
+	  assert(false);
+	  continue;
+	}
+	names[node] = me;
+      }
+      Move m = {time, x, y};
+      moves[names[node] ].push_back(m);     
+    }
+    f.close();
+  }
+
+  if (selfMovingNotifier)
+    return;
+  selfMovingNotifier = new cMessage("PlaybackMove", TMR_WIRELESSMOVE);
+  Move& m = moves[mobileEntity].front();
   scheduleAt(m.time, selfMovingNotifier);
+
+  std::cout<<className()<<" for "<<OPP_Global::nodeName(this)<<" has "<<moves[mobileEntity].size()<<" steps\n";
+
 }
 
 void MobilityPlayback::finish()
@@ -89,78 +118,20 @@ void MobilityPlayback::finish()
 
 void MobilityPlayback::handleMessage(cMessage* msg)
 {
-  //search for entity matching name or actually
+  Move m = moves[mobileEntity].front();
   moves[mobileEntity].pop_front();
-  Move& m = moves[mobileEntity].front();
-  selfMovingNotifier->par("x") = m.x;
-  selfMovingNotifier->par("y") = m.y;
-  scheduleAt(simTime() + m.time, selfMovingNotifier);
+  mobileEntity->setPosition(m.x,  m.y);
+
+  // update the display string of the net node module
+  mobileEntity->setDispPosition(mobileEntity->position().x,
+				mobileEntity->position().y);
+
+  if (moves[mobileEntity].empty())
+  {
+    delete selfMovingNotifier;
+    selfMovingNotifier = 0;
+    return;
+  }
+  m = moves[mobileEntity].front();
+  scheduleAt(m.time, selfMovingNotifier);
 }
-
-#if defined USE_CPPUNIT
-#include <cppunit/extensions/HelperMacros.h>
-
-
-/**
-   @class MobilityPlaybackTest
-   @brief Unit test for	MobilityPlayback
-   @ingroup TestCases
-*/
-
-class MobilityPlaybackTest: public CppUnit::TestFixture
-{
-
-  CPPUNIT_TEST_SUITE( MobilityPlaybackTest );
-  CPPUNIT_TEST( testExample1 );
-  CPPUNIT_TEST( testExample2 );
-  CPPUNIT_TEST_SUITE_END();
-
- public:
-
-  // Constructor/destructor.
-  MobilityPlaybackTest();
-  virtual ~MobilityPlaybackTest();
-
-  void testExample1();
-  void testExample2();
-
-  void setUp();
-  void tearDown();
-
-private:
-
-  // Unused ctor and assignment op.
-  MobilityPlaybackTest(const MobilityPlaybackTest&);
-  MobilityPlaybackTest& operator=(const MobilityPlaybackTest&);
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION( MobilityPlaybackTest );
-
-MobilityPlaybackTest::MobilityPlaybackTest()
-{
-}
-
-MobilityPlaybackTest::~MobilityPlaybackTest()
-{
-}
-
-void MobilityPlaybackTest::setUp()
-{
-}
-
-void MobilityPlaybackTest::tearDown()
-{
-}
-
-void MobilityPlaybackTest::testExample1()
-{
-  CPPUNIT_ASSERT(1==1);
-}
-
-void MobilityPlaybackTest::testExample2()
-{
-  CPPUNIT_ASSERT((2+3)==5);
-}
-
-#endif //defined USE_CPPUNIT
-

@@ -31,6 +31,8 @@
 #include <string>
 #include <fstream>
 #include <boost/cast.hpp>
+#include <ios>
+#include <cfloat> //DBL_DIG
 
 #include "Entity.h"
 #include "WorldProcessor.h"
@@ -75,6 +77,8 @@ void Entity::setPosition(double x, double y)
     token = tokenizer.nextToken();
     token = tokenizer.nextToken();
     simpleName.assign(token);
+    recWalk.precision(DBL_DIG);
+    assert(sizeof(simtime_t) == sizeof(double));
   }
   recWalk<<simpleName<<" "<<containerModule()->simTime()<<" "<<position().x<<" "<<position().y<<endl;
 }

@@ -111,7 +111,7 @@ void IPv6Output::endService(cMessage* msg)
   }
   else
   {
-    // XXX when do we get here? --AV
+    // Fragmentation or ND unicast in
     // must already contain link layer control info
     assert(check_and_cast<LL6ControlInfo*>(datagram->controlInfo()));
   }

@@ -117,15 +117,9 @@ ENDIF(WCHEN_MLDV2)
 OPTION(BUILD_DEBUG "Build with support for debugging via gdb. make clean after toggling this option" ON)
 IF(BUILD_DEBUG)
   ADD_DEFINITIONS(-UNDEBUG)
-  IF(CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
-    #I think -O0 means no inlining but we want to make sure
-    #ADD_DEFINITIONS(-ggdb3 -O0 -fno-inline) 
-    ADD_DEFINITIONS(-g -O0 -fno-inline) 
-  ELSE(CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
-    ADD_DEFINITIONS(-g -O0)
-  ENDIF(CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
+    ADD_DEFINITIONS(-ggdb3 -Os -fno-inline) 
 ELSE(BUILD_DEBUG)
-  ADD_DEFINITIONS(-O3 -g0 -DNDEBUG)
+  ADD_DEFINITIONS(-O2 -DNDEBUG)
 ENDIF(BUILD_DEBUG)
 
 #Used to modify macros of RNG functions so we can use akaroa

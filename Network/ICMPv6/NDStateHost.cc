@@ -537,13 +537,14 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
     tmr->counter = 0;
     tmr->ifIndex = ifIndex;
 
-    //Don't need initial delay if already did a random delay for dupAddrDet
+    //Cannot be sure whether DAD was done b4 this step so just always delay. On
+    //node startup only after link local addr assigned is this fn
+    //called. However when moving to new subnet this gets called immediately and
+    //not after DAD as we need to confirm whether this is a new network via RA
 #if FASTRS
-    if (ie->ipv6()->dupAddrDetectTrans >= 1)
-      delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
+    delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
 #else
-    if (ie->ipv6()->dupAddrDetectTrans >= 1)
-      delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
+    delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
 #endif // FASTRS
 
     tmr->dgram = new IPv6Datagram(

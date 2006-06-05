@@ -231,7 +231,7 @@ void AddressResolution::handleMessage(cMessage* msg)
     {
       Dout(dc::warning|flush_cf, rt->nodeName()<<setprecision(6)<<" "<<simTime()
            <<" "<<tmr->ifIndex<<" mismatched ND State="<<ngbr.lock().get()->state()
-           <<" for "<<ngbr.lock().get()->addr()<< " "<<*(ngbr.lock().get())<<" ptr="<<ngbr.lock().get());
+           <<" for "<<ngbr.lock().get()->addr()<< " "<<*(ngbr.lock().get()));
 
       //TODO Cancel impending or outstanding addrResln (see processNgbrAdv) but
       //how would ifIndex be set if incorrect?

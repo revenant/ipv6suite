@@ -542,7 +542,7 @@ int IPv6Forward::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
         //Save this route to dest in DC
         (*rt->cds)[dgram->destAddress()].neighbour = ne;
         Dout(dc::forwarding, rt->nodeName()<<" Using default router addr="<<ne.lock()->addr()<<" for dest="
-             <<dgram->destAddress()<<" ne="<<*(ne.lock().get())<<" ptr="<<ne.lock().get());
+             <<dgram->destAddress()<<" ne="<<*(ne.lock().get()));
         if (ne.lock()->addr() == dgram->srcAddress())
         {
           cerr<< rt->nodeName()<<" default router of destination points back to source! "

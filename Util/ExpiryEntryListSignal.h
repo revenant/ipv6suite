@@ -291,7 +291,9 @@ private:
   //@{
   void removeExpiredEntry()
   {
-    assert(!empty());
+    //assert(!empty());
+    if (empty())
+      return;
       
     pop_heap(begin(), end(), Comp());
       

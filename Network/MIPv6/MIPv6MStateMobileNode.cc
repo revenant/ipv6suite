@@ -144,7 +144,12 @@ public:
               << " sec, MAX_BINDACK_TIMEOUT! Unable to receive BAck from HA "<< endl << endl;
           cerr<<" Suggestion: check Router IPv6 address and advertising prefix in XML" << endl << endl;
           cerr<< " **************************************** " << endl;
+	  Dout(dc::warning, nodeName <<" "<< module()->simTime()<<" MAX_BINDACK_TIMEOUT! Unable to receive BAck from primary HA bule="<<*bule);
         }
+	else
+	{
+	  Dout(dc::notice, nodeName <<" "<< module()->simTime()<<" MAX_BINDACK_TIMEOUT! Unable to receive BAck from bule="<<*bule);
+	}
         
         stateMN->removeBURetranTmr(this);
         return;
@@ -156,6 +161,7 @@ public:
       {
         Dout(dc::warning|dc::mipv6|flush_cf, nodeName<<" "<<module()->simTime()
              <<" bule missing very bad "<<dgram->destAddress());
+        stateMN->removeBURetranTmr(this);
         return;
       }
       assert(bule != 0);
@@ -196,7 +202,7 @@ public:
 
       assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
       Dout(dc::mipv6|flush_cf, nodeName<<" "<<now<<" Resending BU for the "
-           <<dgram->destAddress());
+           <<dgram->destAddress()<< " bu="<<*bu);
 
     }
 
@@ -478,6 +484,20 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" IGNORED. With sequence "<< ba->sequence()
          <<" instead of "<< bue->sequence());
+    /*
+    //possible that we miss BA from ha so we expect sequence no. that is 0 still?
+    if (ba->sequence() > bue->sequence())
+     
+      for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
+      {
+        if ((*it)->dgram->destAddress() == dgram->srcAddress())
+	{
+	  (*it)->cancel();
+	  removeBURetranTmr(*it);
+	  //prevent assertion at sendBU when we try to cancel timer and yet it was not scheduled?
+	}
+      }
+    */
     //11.7.3 
     return;
   }
@@ -590,9 +610,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
         if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
         {
 #if EDGEHANDOVER
-          if (!mob->edgeHandover() ||
-              ///can't use EH as MAP is not on edge anyway
-              hmipv6cds->currentMap().distance() > 1)
+          if (!mob->edgeHandover())
           {
 #endif //EDGEHANDOVER
           Dout(dc::hmip, " sending BU to all coa="
@@ -1520,7 +1538,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
         Dout(dc::mipv6, mob->nodeName()<<" bule "<<dgram->destAddress()<<" has problem flag set");
       bool found = false;
       Dout(dc::mipv6|dc::warning|flush_cf, mob->nodeName()<<" "<<bule->state
-           <<" outstanding BU transmission already");
+           <<" outstanding BU transmission already to "<<dgram->destAddress());
       for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
       {
         if ((*it)->dgram->destAddress() == dgram->destAddress())

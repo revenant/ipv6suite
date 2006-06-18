@@ -2,14 +2,6 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf version="0.0.5">
-  <global gAdvSendAdvertisements="on" gMaxRtrAdvInterval="1700"
-    gMinRtrAdvInterval="500" gAdvManagedFlag="on"
-    gAdvOtherConfigFlag="on" gAdvLinkMTU="5644"
-    gAdvReachableTime="33567" gAdvRetransTimer="5346"
-    gAdvCurHopLimit="457457" gAdvDefaultLifetime="8000"
-    gHostLinkMTU="1400" gHostCurHopLimit="2"
-    gHostBaseReachableTime="232" gHostRetransTimer="234"
-    gHostDupAddrDetectTransmits="3"/>
   <local node="client1">
     <interface name="eth0">
       <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>

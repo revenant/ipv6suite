@@ -3,25 +3,6 @@
 
 <netconf
 debugChannel="debug.log:notice:AddressTimer:RouterDisc:XMLAddresses:RouterTimer:UDPVidStrmSvr:Encapsulation:Routing:AddrResln:Forwarding">
-<!--
-  <global>
-    <gAdvSendAdvertisements>off</gAdvSendAdvertisements>
-    <gMaxRtrAdvInterval>1700</gMaxRtrAdvInterval>
-    <gMinRtrAdvInterval>500</gMinRtrAdvInterval>
-    <gAdvManagedFlag>on</gAdvManagedFlag>
-    <gAdvOtherConfigFlag>on</gAdvOtherConfigFlag>
-    <gAdvLinkMTU>5644</gAdvLinkMTU>
-    <gAdvReachableTime>33567</gAdvReachableTime>
-    <gAdvRetransTimer>5346</gAdvRetransTimer>
-    <gAdvCurHopLimit>457457</gAdvCurHopLimit>
-    <gAdvDefaultLifetime>8000</gAdvDefaultLifetime>
-    <gHostLinkMTU>1400</gHostLinkMTU>
-    <gHostCurHopLimit>2</gHostCurHopLimit>
-    <gHostBaseReachableTime>232</gHostBaseReachableTime>
-    <gHostRetransTimer>234</gHostRetransTimer>
-    <gHostDupAddrDetectTransmits>3</gHostDupAddrDetectTransmits>
-  </global>
--->
 <!-- 00000000000000000000000000000000000000000000000000 -->
   <local node="client1">
     <interface name="eth0">

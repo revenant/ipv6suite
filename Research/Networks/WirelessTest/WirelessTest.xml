@@ -2,7 +2,6 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug.log:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:xmlAddresses:WirelessEthernet">
-  <global gHostDupAddrDetectTransmits="2"/>
   <misc>
     <ObjectMovement>
       <MovingNode NodeName="ms0" startTime="0">

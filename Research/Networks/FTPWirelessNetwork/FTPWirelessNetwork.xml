@@ -2,5 +2,4 @@
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
 <netconf debugChannel="debug.log:notice:xmlAddresses">
-  <global gHostDupAddrDetectTransmits="2"/>
 </netconf>

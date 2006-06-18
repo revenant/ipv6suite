@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2004 Johnny Lai
+// Copyright (C) 2004, 2006 Johnny Lai
 //
 // This file is part of IPv6Suite
 //
@@ -50,7 +50,6 @@
 #include "MACAddress6.h"
 
 #ifdef USE_MOBILITY
-#include "WirelessEtherModule.h"
 #include "IPv6Mobility.h"
 #include "MobilityStatic.h"
 #include "MobilityRandomWP.h"

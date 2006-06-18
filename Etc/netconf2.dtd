@@ -1,5 +1,6 @@
 <?xml encoding="ISO-8859-1"?>
 <!--
+Copyright (C) 2006 by Johnny Lai
 Copyright (C) 2001, 2004 Eric Wu and Johnny Lai
 
 This file is part of IPv6Suite
@@ -21,46 +22,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 <!ELEMENT netconf (global?, local*, misc?)>
 <!ATTLIST netconf
-          version NMTOKEN "0.0.5"
+          version NMTOKEN "0.0.6"
           debugChannel NMTOKEN #IMPLIED
           >
 
-<!ELEMENT global (WirelessEtherInfo?, ObjectMovement?)>
-<!ATTLIST global
-          gAdvSendAdvertisements (on|off) "off"
-          gMaxRtrAdvInterval NMTOKEN #IMPLIED
-          gMinRtrAdvInterval NMTOKEN #IMPLIED
-          gAdvManagedFlag (on|off) "off"
-          gAdvOtherConfigFlag (on|off) "off"
-          gAdvLinkMTU NMTOKEN #IMPLIED
-          gAdvReachableTime NMTOKEN #IMPLIED
-          gAdvRetransTimer NMTOKEN #IMPLIED
-          gAdvCurHopLimit NMTOKEN #IMPLIED
-          gAdvDefaultLifetime NMTOKEN #IMPLIED
-          gHostLinkMTU NMTOKEN #IMPLIED
-          gHostCurHopLimit NMTOKEN #IMPLIED
-          gHostBaseReachableTime NMTOKEN #IMPLIED
-          gHostRetransTimer NMTOKEN #IMPLIED
-          gHostDupAddrDetectTransmits NMTOKEN #IMPLIED
-          >
-
-<!-- Should all these be attributes? If they can't why aren't the elements -->
-<!-- shared with the per interface ones? -->
-<!ELEMENT gAdvSendAdvertisements (#PCDATA)>
-<!ELEMENT gMaxRtrAdvInterval (#PCDATA)>
-<!ELEMENT gMinRtrAdvInterval (#PCDATA)>
-<!ELEMENT gAdvManagedFlag (#PCDATA)>
-<!ELEMENT gAdvOtherConfigFlag (#PCDATA)>
-<!ELEMENT gAdvLinkMTU (#PCDATA)>
-<!ELEMENT gAdvReachableTime (#PCDATA)>
-<!ELEMENT gAdvRetransTimer (#PCDATA)>
-<!ELEMENT gAdvCurHopLimit (#PCDATA)>
-<!ELEMENT gAdvDefaultLifetime (#PCDATA)>
-<!ELEMENT gHostLinkMTU (#PCDATA)>
-<!ELEMENT gHostCurHopLimit (#PCDATA)>
-<!ELEMENT gHostBaseReachableTime (#PCDATA)>
-<!ELEMENT gHostRetransTimer (#PCDATA)>
-<!ELEMENT gHostDupAddrDetectTransmits (#PCDATA)>
+<!-- Passed in via nedxml parameter mobilityManager.mobilityHandler.moveXmlConfig=xmldoc("") -->
+<!ELEMENT global (ObjectMovement?)>
 
 <!ELEMENT local (interface*, (route?| tunnel?| sourceRoute?|mobileConfig?)*)>
 <!ATTLIST local
@@ -123,7 +90,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           homeAgentAddr CDATA #REQUIRED
           >
 
-<!ELEMENT interface (inetAddr*, AdvPrefixList?, AdvMAPList?, WirelessEtherInfo?)>
+<!ELEMENT interface (inetAddr*, AdvPrefixList?, AdvMAPList?)>
 
 <!-- Require non ID type for name attribute as that requires each "interface
 name" to be unique across whole xml document not just inside interface
@@ -145,8 +112,6 @@ element. -->
           MaxConsecMissRtrAdv NMTOKEN "1"
           >
 
-<!-- Suggested additions to phase out elements (non conformant default values)
-UNPARSED -->
 <!-- Do not use hexadecimal values as XML parsing does not cater for this
 AdvDefaultLifetime NMTOKEN "0xFFFFFF"
 -->
@@ -187,23 +152,6 @@ AdvDefaultLifetime NMTOKEN "0xFFFFFF"
           AdvMAPValidLifetime NMTOKEN "2592"
           >
  
-<!-- These elements will be deprecated although there is no other alternative at this time -->
-<!ELEMENT AdvManagedFlag (#PCDATA)>
-<!ELEMENT AdvOtherConfigFlag (#PCDATA)>
-<!ELEMENT AdvLinkMTU (#PCDATA)>
-<!ELEMENT AdvReachableTime (#PCDATA)>
-<!ELEMENT AdvRetransTimer (#PCDATA)>
-<!ELEMENT AdvCurHopLimit (#PCDATA)>
-<!ELEMENT AdvDefaultLifetime (#PCDATA)>
-
-<!ELEMENT HostLinkMTU (#PCDATA)>
-<!ELEMENT HostCurHopLimit (#PCDATA)>
-<!ELEMENT HostBaseReachableTime (#PCDATA)>
-<!ELEMENT HostRetransTimer (#PCDATA)>
-<!ELEMENT HostDupAddrDetectTransmits (#PCDATA)>
-
-<!-- Misc. options. Any conditions preset for the behaviour -->
-<!-- the entire network. and they are part of IP configuration -->
 
 <!ELEMENT misc (ObjectMovement?)>
 

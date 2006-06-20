@@ -382,8 +382,9 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
            <<nd->simTime()<<" global router address found "<<pref.prefix<<"/"
            <<(int)pref.prefixLen);
       ha->setPrefix(ipv6_prefix(pref.prefix, pref.prefixLen));
+      (*rt->cds)[IPv6Address(ha->prefix().prefix, 128)].neighbour = ha->re;
     }
-    else if (pe->advRtrAddr() && !globalFound)
+    else if (pe->advRtrAddr() && globalFound)
     {
       cerr<<"Don't think router should have two global addresses advertised as "
 	  <<"we do not assign both to the same entry"<<endl;
@@ -419,6 +420,11 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 	ha = sha.get();
 	Dout(dc::notice|flush_cf, nd->rt->nodeName()<<":"<<ifIndex<<" "
 	     <<setprecision(6)<<nd->simTime()<<" hack to fix static HA CDS entry ");
+	//Need line below as sending packet to HA at global addr when at home
+	//will cause unnecessary addr res and creation of NE as host. This is
+	//due to prefix causing a match to on link host which needs to be
+	//resolved.
+	(*rt->cds)[IPv6Address(sha->prefix().prefix, 128)].neighbour = sha->re;
 	haCreated = false;
       }
       else

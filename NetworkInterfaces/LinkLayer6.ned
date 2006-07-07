@@ -51,7 +51,7 @@ module LinkLayer6
     submodules:
         networkInterface: NWIName like NetworkInterface6;
             parameters:
-                procdelay = nwi_delay;
+
             gatesizes:
                 extSignalIn[sizeof(extSignalIn)],
                 extSignalOut[sizeof(extSignalOut)];

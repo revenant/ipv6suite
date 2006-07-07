@@ -758,7 +758,10 @@ void WirelessEtherModule::sendFrame(WirelessEtherBasicFrame *frame)
                     msg->setPower(rxPower);
                     msg->setChannelNum(a->channel);
                     // propagation delay
-                    double propDelay = distance / 3e8;
+                    double propDelay = procdelay/1e9;
+		    if (!propDelay)
+		      propDelay = distance / 3e8;
+
 
                     // Mark the module which need the end of the frame
                     // Need to also remember the Rx Power
@@ -812,7 +815,10 @@ void WirelessEtherModule::sendEndOfFrame()
                 idle->setChannelNum((*it)->mod->channel);
 
                 // propagation delay
-                double propDelay = distance / (3 * pow((double) 10, (double) 8));
+                //double propDelay = distance / (3 * pow((double) 10, (double) 8));
+		double propDelay = procdelay/1e9;
+		if (!propDelay)
+		  propDelay = distance / 3e8;
 
                 cModule *interface = static_cast<cModule *>((*it)->mod->parentModule()->parentModule());
 

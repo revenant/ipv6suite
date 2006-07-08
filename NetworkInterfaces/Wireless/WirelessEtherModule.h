@@ -484,7 +484,10 @@ public:
   private:
 
     bool _linkUpTrigger;
-    cOutVector* l2HODelay;
+    bool _linkDownTrigger;
+    bool noAuth;
+
+  // used to calculate scalar totalDisconnectedTime
     simtime_t linkdownTime;
 
     // maximum number of signal strength readings

@@ -47,6 +47,7 @@ simple WirelessAccessPoint
         bandwidthRequirements: numeric const,
         recordStatisticVector: bool,
         activeScan: bool,
+	noAuth: bool,
         channelScanTime: numeric,
 	bufferSize: numeric,
 	registerInterface: bool,

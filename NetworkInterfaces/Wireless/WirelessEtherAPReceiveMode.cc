@@ -140,6 +140,13 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint * mod, WESign
         // delete ack;
         changeState = false;
 
+
+	if (mod->noAuth)
+	{
+	  mod->addIface(associationRequest->getAddress2(), RM_ASSOCIATION, 0);
+	  mod->setIfaceStatus(associationRequest->getAddress2(), SC_SUCCESSFUL);	  
+	}
+
         WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(associationRequest->getAddress2()));
         WirelessEtherBasicFrame *responseFrame;
 

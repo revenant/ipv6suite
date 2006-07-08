@@ -182,6 +182,8 @@ void WirelessEtherModule::baseInit(int stage)
         beginCollectionTime = OPP_Global::findNetNodeModule(this)->par("beginCollectionTime").doubleValue();
         endCollectionTime = OPP_Global::findNetNodeModule(this)->par("endCollectionTime").doubleValue();
 
+	noAuth = par("noAuth");
+
         // Most likely wouldn't want to register interface if using dual interface node
         if (regInterface)
             registerInterface();
@@ -294,7 +296,7 @@ void WirelessEtherModule::initialize(int stage)
     if (stage == 0)
     {
         _linkUpTrigger = false;
-        linkdownTime = 0;
+	_linkDownTrigger = false;
         totalDisconnectedTime = 0;
 
         LinkLayerModule::initialize();
@@ -330,8 +332,10 @@ void WirelessEtherModule::initialize(int stage)
     else if (stage == 1)
     {
         if (!apMode)
-            _linkUpTrigger = par("linkUpTrigger");
-
+	{
+	  _linkUpTrigger = par("linkUpTrigger");
+	  _linkDownTrigger = par("linkDownTrigger");
+	}
         // list to store signal strength readings
         signalStrength = new AveragingList(sSMaxSample);
 
@@ -669,6 +673,12 @@ void WirelessEtherModule::setLayer2Trigger(cTimerMessage * trig, enum TrigVals v
         return;
     }
 
+    if (v == LinkDOWN && !_linkDownTrigger)
+    {
+      delete trig;
+      return;
+    }
+
     l2Trigger[v] = trig;
 
     // dc::wireless_ethernet.precision(6);
@@ -1004,6 +1014,7 @@ void WirelessEtherModule::restartScanning(void)
         }
     }
 
+    //linkDOWN trigger
     associateAP.address = MAC_ADDRESS_UNSPECIFIED_STRUCT;
     associateAP.channel = INVALID_CHANNEL;
     associateAP.rxpower = INVALID_POWER;
@@ -1229,11 +1240,28 @@ void WirelessEtherModule::probeChannel(void)
                      << " AP MAC: " << associateAP.address.stringValue() << "\n"
                      << " operating channel: " << associateAP.channel << "\n"
                      << " ---------------------------------------------------- \n";
-
+		
                 changeReceiveMode(WEAuthenticationReceiveMode::instance());
                 assert(_currentState == WirelessEtherStateIdle::instance());
 
                 channel = associateAP.channel;
+
+		if (noAuth)
+		{
+		  changeReceiveMode(WEAssociationReceiveMode::instance());
+		  WirelessEtherBasicFrame *assRequest = 
+		    createFrame(FT_MANAGEMENT, ST_ASSOCIATIONREQUEST,
+				     MACAddress6(macAddressString().
+						 c_str()), AC_VO,
+				     associateAP.address);
+		  FrameBody *assRequestFrameBody = createFrameBody(assRequest);
+		  assRequest->encapsulate(assRequestFrameBody);
+		  outputQueue->insertFrame(assRequest, simTime());
+
+		  // Start the association timeout timer
+		  reschedule(assTimeoutNotifier, simTime() + (associationTimeout * TU));
+		  return;
+		}
 
                 // Create authentication frame and send it
                 WirelessEtherBasicFrame *authentication =

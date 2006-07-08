@@ -149,6 +149,7 @@ public:
 
   bool isEwuOutVectorHODelays() const { return ewuOutVectorHODelays; }
 
+  // handover in this case is time when obtaining new CoA - link up time
   void recordHODelay(simtime_t t)
   {
     handoverLatency->record( t - linkUpTime );
@@ -158,16 +159,6 @@ public:
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
 
   void recordHODelay(simtime_t buRecvTime, const ipv6_addr& addr);
-
-  const simtime_t getl2LinkDownTime()
-    {
-      return l2LinkDownTime;
-    }
-
-  void setl2LinkDownTime(const simtime_t linkdownTime)
-    {
-      l2LinkDownTime = linkdownTime;
-    }
 
   void parseXMLAttributes();
 
@@ -226,11 +217,8 @@ private:
   bool _isEBU;
 
   bool ewuOutVectorHODelays;
-  // handoverLatency is the L3 layer handover delay = time when
-  // obtaining new CoA - link up time
   simtime_t linkUpTime; // time when establishing with new link
   MobileIPv6::SignalingEnhance _signalingEnhance;
-  simtime_t l2LinkDownTime;
 
   simtime_t prevLinkUpTime; // Internet link up
   simtime_t avgCellResidenceTime;
@@ -243,6 +231,7 @@ public:
   // parameters for cell resdiency signaling
   simtime_t handoverDelay;
 
+  // handoverLatency is time when obtaining new CoA - link up time
   cOutVector* handoverLatency;
   cOutVector* linkUpVector;
   cOutVector* linkDownVector;

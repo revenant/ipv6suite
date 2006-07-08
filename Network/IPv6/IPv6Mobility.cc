@@ -81,7 +81,6 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
      ewuOutVectorHODelays(false),
      linkUpTime(0),
      _signalingEnhance(MobileIPv6::SignalingEnhance()),
-     l2LinkDownTime(0),
      prevLinkUpTime(0),
      avgCellResidenceTime(0),
      handoverCount(0),
@@ -223,6 +222,7 @@ void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
 void IPv6Mobility::parseXMLAttributes()
 {}
 
+//seperate from l2 trigger to force movement detection callback
 void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 {
   if ( msg->kind() == LinkDOWN)

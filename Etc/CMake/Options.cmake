@@ -117,9 +117,9 @@ ENDIF(WCHEN_MLDV2)
 OPTION(BUILD_DEBUG "Build with support for debugging via gdb. make clean after toggling this option" ON)
 IF(BUILD_DEBUG)
   ADD_DEFINITIONS(-UNDEBUG)
-    ADD_DEFINITIONS(-ggdb3 -Os -fno-inline) 
+    ADD_DEFINITIONS(-ggdb3 -Os -fno-inline -pipe) 
 ELSE(BUILD_DEBUG)
-  ADD_DEFINITIONS(-O2 -DNDEBUG)
+  ADD_DEFINITIONS(-O2 -DNDEBUG -pipe)
 ENDIF(BUILD_DEBUG)
 
 #Used to modify macros of RNG functions so we can use akaroa

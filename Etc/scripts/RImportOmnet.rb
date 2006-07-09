@@ -67,8 +67,8 @@ end
 # Imports omnetpp.vec files
 #
 class RImportOmnet
-  VERSION       = "$Revision: 1.2 $"
-  REVISION_DATE = "$Date: 2005/04/27 08:19:33 $"
+  VERSION       = "$Revision: 1.8 $"
+  REVISION_DATE = "$Date: 2005/03/11 18:38:25 $"
   AUTHOR        = "Johnny Lai"
 
   RSlave = "R --slave --quiet --vanilla --no-readline"
@@ -105,6 +105,10 @@ class RImportOmnet
     @restrict = nil
     @rsize    = 0 #no restriction on vector length
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
+    #Form data frame name from vector file label's nodename 
+    @nodename = false 
+    @aggFrames = nil #store aggframe names to remove them 
+    @printVectors = false #Print only vector names and quit
 
     get_options
 
@@ -138,32 +142,42 @@ class RImportOmnet
       opt.separator "Specific options:"
 
       
+      opt.on("-a", "Aggregate mode i.e. read from many vec files dir layout generated via graph-xx.sh"){|@agg|
+      }
+
+      opt.on("-n", "Use vector file label's nodename ",
+             "(assuming nodename is second component after network name)",
+             "to combine multinode vectors together into one frame with nodename column"){|@nodename|}
+
+      opt.on("--[no-]combine=[FLAG]", "-c", "load all results from variants subdirectories into",
+             "one big RData file in topdir"){ |@opt_combine|}
+
+      opt.on("--output=filename","-o", String, "Output R data to filename"){|@rdata|}
+
+      opt.on("--output=filename","-O", String, "Output super R data to filename"){|@srdata|}
+
+      # List of arguments.
+      opt.on("-f", "--filter x,y,z", Array, "list of vector indices to grab, other indexes are ignored") {|@filter|
+        self.filter.uniq!
+      }
+
+      opt.on("-c", "Collect all Rdata files in different subdirs into one with directory names as scheme. ",
+             "If -a given will aggregate runs first before collecting. Run from the top dir"){|@collect|}
+
+      opt.on("-r", "--restrict x,y,z", Array, "Restrict these vectors to at most size rows"){|@restrict|}
+
+      opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
+
+      opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
+      opt.separator ""
+      opt.separator "Common options:"
+
       #Try testing with this 
       #ruby __FILE__ -x -c -s test
       opt.on("-x", "parse arguments and show Usage") {|@quit|
         pp self
         (print ARGV.options; exit) 
       }
-
-      opt.on("-a", "Aggregate mode i.e. read from many vec files dir layout generated via graph-xx.sh"){|@agg|
-      }
-
-      opt.on("--[no-]combine=[FLAG]", "-c", "load all results from subdirectories into",
-             "one big RData file in topdir"){ |@opt_combine|}
-
-      opt.on("--output=filename","-o", String, "Output R data to filename"){|@rdata|}
-      opt.on("--output=filename","-O", String, "Output super R data to filename"){|@srdata|}
-      # List of arguments.
-      opt.on("-f", "--filter x,y,z", Array, "list of vector indices to grab, other indexes are ignored") {|@filter|
-        self.filter.uniq!
-      }
-      opt.on("-c", "Collect all Rdata files in different subdirs into one with directory names as scheme. ",
-             "If -a given will aggregate runs first before collecting. Run from the top dir"){|@collect|}
-
-      opt.on("-r", "--restrict x,y,z", Array, "Restrict these vectors to at most size rows"){|@restrict|}
-      opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
-      opt.separator ""
-      opt.separator "Common options:"
 
       opt.on("--doc=DIRECTORY", String, "Output rdoc (Ruby HTML documentation) into directory"){|dir|
         system("rdoc -a --webcvs=\"http://localhost/cgi-bin/viewcvs.cgi/\" --tab-width=2 --diagram --inline-source -N -o #{dir} #{__FILE__}")
@@ -235,7 +249,6 @@ class RImportOmnet
   def retrieveLabelsVectorSuffix(filename)
     vectors = Hash.new
     
-    #foreach less verbose than opening file and reading it
     IO::foreach(filename) {|l|
       case l
       when /^[^\d]/
@@ -245,7 +258,9 @@ class RImportOmnet
         s = l.split(/\s+/,4)[3]
         #Remove "" and last number
         s = s.split(/["]/,3)[1]
-        vectors[i]=s + "." + i
+        s += "." + l.split(/\s+/,4)[2].split(/\./)[1] if @nodename
+        s += "." + i if not @nodename
+        vectors[i] = s
       end
     }
     p vectors if @debug
@@ -255,7 +270,7 @@ class RImportOmnet
   #
   # Retrieve array of object names that match the R regular expression in pattern
   #
-  def retrieveRObjects(p, pattern)
+  def retrieveRObjects(p, pattern = "")
     p.puts %{cat(ls(pat="#{pattern}"),"\\n")}
     arrayCode =  %{%w[#{p.gets.chomp!}]}
     eval(arrayCode)
@@ -326,10 +341,13 @@ class RImportOmnet
       #start appears to be a float it is an R syntax error
       onerunframe = %{#{v}.#{n}}
       columnname = v.sub(%r{[.]\d+$},"")
-      p.puts %{tempscan <- scan(p<-pipe("grep ^#{k} #{vecFile}"), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
+      ncolumnname = columnname
+      ncolumnname = removeLastComponentFrom(columnname) if @nodename
+      restrictGrep = nlines > 0? "-m #{nlines}":""
+      p.puts %{tempscan <- scan(p<-pipe("grep #{restrictGrep} ^#{k} #{vecFile}"), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
       p.puts %{close(p)}
       p.puts %{attach(tempscan)}
-      p.puts %{#{onerunframe} <- data.frame(run=#{n}, time=time, #{columnname}=#{columnname})}
+      p.puts %{#{onerunframe} <- data.frame(run=#{n}, time=time, #{ncolumnname}=#{columnname})}
       p.puts %{detach(tempscan)}
       if @agg
         aggframe = %{#{@aggprefix}#{v}}
@@ -340,12 +358,39 @@ class RImportOmnet
         else
           p.puts %{#{aggframe} <- #{onerunframe}}
           @vectorStarted.push(k)
+          if @nodename
+            @aggFrames = Array.new if not @aggFrames
+            @aggFrames.push(aggframe)
+          end
         end
         p.puts %{rm(#{onerunframe})}
+      end
+      if @nodename
+        nodename = v.split(/\./).last
+        aggframe = onerunframe if not @agg
+        #assume nodename is last component
+        nodeframe = removeLastComponentFrom(aggframe)
+        nodeframe = removeLastComponentFrom(nodeframe) if not @agg #remove the run number and nodename
+        tempframe="tempframe"
+        p.puts %{tempframe <- data.frame(node="#{nodename}", #{aggframe})}
+        p.puts %{rm(#{aggframe})} if not @agg
+        
+        if @vectorStarted.include? nodeframe
+          p.puts %{#{nodeframe} <- rbind(#{nodeframe}, #{tempframe})}
+        else
+          p.puts %{#{nodeframe} <- #{tempframe}}
+          @vectorStarted.push(nodeframe)
+        end
+        p.puts %{rm(#{tempframe})}
+        #p.puts %{save.image("debug.Rdata")} if @debug
       end
       waitForR p
     }
     p.puts %{rm(tempscan, p)}
+  end
+
+  def removeLastComponentFrom(string, sep=/\./)
+    string.reverse.split(sep, 2)[1].reverse
   end
 
   #Collects stats for a singleVariant. Works with vector files in directory
@@ -383,11 +428,13 @@ class RImportOmnet
       end
 
     }
+    @aggFrames.each{|frame| p.puts %{rm(#{frame})} } if @nodename
     p.puts %{save.image("#{@rdata}")} if @agg
     p.puts %{rm(list=ls())}
   ensure
     Dir.chdir(pwd)
     p.puts %{setwd("#{pwd}")}
+    waitForR p
   end
 
   #Test whether dir or current dir if dir is nil is a single variant
@@ -486,32 +533,51 @@ class RImportOmnet
     #Run number
     n = 0    
 
-    IO.popen(RSlave, "w+") { |p|
+    #IO.popen(RSlave, "w+") { |p|
+    p = IO.popen(RSlave, "w+")
       if @collect
         collectVariants(p)
       elsif @agg
         @topdir = Dir.pwd
-        aggregateRuns(p, @topdir)     
+        aggregateRuns(p, @topdir)
       else
         raise ArgumentError, "No vector file specified", caller[0] if not @agg and ARGV.size < 1
 
         vecFile = ARGV.shift
+
+        if @printVectors
+          v = retrieveLabelsVectorSuffix(vecFile) 
+          v.each_pair { |k,name|
+            $defout.old_puts %{#{k} #{name}}
+          }
+          return
+        end
+
         singleRun(p, vecFile, n)
+        output = File.join(File.dirname(vecFile), @rdata)
+        p.puts %{save.image("#{output}")} 
       end
 
       p.puts %{q("no")}
 
-    }
+    #}
 
   rescue Errno::EPIPE => err
     $defout.old_puts err
     $defout.old_puts err.backtrace
     $defout.old_puts "last R command: #{$lastCommand.shift}"
+  rescue => err
+    $defout.old_puts err
+    $defout.old_puts err.backtrace
+    p.puts %{save.image("otherException.Rdata")}
+  ensure
+	  p.close if p
   end#run
   
 end#RImportOmnet
 
-app = RImportOmnet.new.run 
+#main
+app = RImportOmnet.new.run if not $test
 
 exit unless $test
 
@@ -571,8 +637,8 @@ TARGET
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}   
-    e = %w{IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 handoverLatency.5.3 pingEED.0.3}
-    r = @imp.retrieveRObjects(@p, "*")
+    e = %w{handoverLatency.5.3 IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 pingEED.0.3}
+    r = @imp.retrieveRObjects(@p, "")
     assert_equal(e, r, "singleRun test: list of matching R objects differ!")
     File.delete(@imp.rdata)
 
@@ -586,8 +652,8 @@ TARGET
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}
-    e = %w{IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 handoverLatency.5.3 }
-    r = @imp.retrieveRObjects(@p, "*")
+    e = %w{handoverLatency.5.3 IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 }
+    r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "filter test: list of matching R objects differ!")
     File.delete(@imp.rdata, TestFileName)
     
@@ -628,6 +694,7 @@ TARGET
      assert_equal(e.sort, r.sort, "dupVectorNames retrieveLabelsVectorSuffix failed")
   end
 
+  if false
   def test_collect    
     Dir.chdir(File.expand_path(%{~/src/phantasia/master/output/saiteh})){
       `ruby #{__FILE__} -o testcoll.Rdata -a -c -f 3,6,5 -O supertest.Rdata`
@@ -641,9 +708,12 @@ TARGET
     } if ENV["USER"] == "jmll"
   end
 
-  if false
-  def test_restrict
+  def testEquation
+
+#    i.e. vector rows like 31-32 and transcribe to below if one of them is bigger than other just by one in terms of row size otherwise give error
+# L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]
   end
+
   end
 
   def setup

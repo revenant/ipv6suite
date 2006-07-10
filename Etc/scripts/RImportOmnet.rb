@@ -524,6 +524,13 @@ class RImportOmnet
   end
   public
 
+  def printVectorNames(vecFile)
+    v = retrieveLabelsVectorSuffix(vecFile) 
+    v.each_pair { |k,name|
+      $defout.old_puts %{#{k} #{name}}
+    }
+  end
+
   #
   # Launches the application
   #  RImportOmnet.new.run
@@ -546,10 +553,7 @@ class RImportOmnet
         vecFile = ARGV.shift
 
         if @printVectors
-          v = retrieveLabelsVectorSuffix(vecFile) 
-          v.each_pair { |k,name|
-            $defout.old_puts %{#{k} #{name}}
-          }
+          printVectorNames(vecFile)
           return
         end
 
@@ -709,8 +713,12 @@ TARGET
   end
 
   def testEquation
+    equation = "3 + 5"
+    #substitute indices with vector names
+    equation ~ "\d"
 
 #    i.e. vector rows like 31-32 and transcribe to below if one of them is bigger than other just by one in terms of row size otherwise give error
+#  if length(vectors[
 # L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]
   end
 

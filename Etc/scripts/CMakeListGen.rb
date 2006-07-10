@@ -98,7 +98,7 @@ def writeCMakeList(dir, outputName, projName = nil)
       
       # set_dir_props generated from customCommands requires this
       x.puts %{CMAKE_MINIMUM_REQUIRED(VERSION 2.0)} 
-      x.puts "SET(CMAKEFILES_PATH #{File.dirname(File.dirname($0))+"/CMake"})"
+      x.puts "SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)"
 
       x.puts "SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)"
       x.puts "SET(SCRIPTDIR ${MISCDIR}/scripts)"
@@ -129,7 +129,7 @@ EOF
       x.puts("INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})")
     end
 
-    createNedFilesList(dir, commonIgnore)
+    createNedFilesList(dir, commonIgnore + "|Examples|Research")
     customCommandsLines = customCommands(dir, commonIgnore, projName)
     
     x.print customCommandsLines

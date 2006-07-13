@@ -1,14 +1,13 @@
 #! /usr/bin/env ruby
 #
 #  Author: Johnny Lai
-#  Copyright (c) 2004 Johnny Lai
+#  Copyright (c) 2006 Johnny Lai
 #
 # =DESCRIPTION
 # Imports omnetpp.vec files
-#
-# =REVISION HISTORY
-#  INI 2004-09-26 Changes
-#
+# 
+# Based on RImportOmnet.rb but simplified a lot
+# 
 
 require 'optparse'
 require 'pp'
@@ -96,12 +95,8 @@ class RImportOmnet
     @debug    = false 
     @verbose  = false
     @quit     = false
-    @agg      = false
-    @collect  = false
     @filter   = nil
-    @vectorStarted = nil
     @rdata    = "test2.Rdata"
-    @srdata   = "superCombined.Rdata"
     @restrict = nil
     @rsize    = 0 #no restriction on vector length
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
@@ -142,19 +137,11 @@ class RImportOmnet
       opt.separator "Specific options:"
 
       
-      opt.on("-a", "Aggregate mode i.e. read from many vec files dir layout generated via graph-xx.sh"){|@agg|
-      }
-
       opt.on("-n", "Use vector file label's nodename ",
              "(assuming nodename is second component after network name)",
              "to combine multinode vectors together into one frame with nodename column"){|@nodename|}
 
-      opt.on("--[no-]combine=[FLAG]", "-c", "load all results from variants subdirectories into",
-             "one big RData file in topdir"){ |@opt_combine|}
-
       opt.on("--output=filename","-o", String, "Output R data to filename"){|@rdata|}
-
-      opt.on("--output=filename","-O", String, "Output super R data to filename"){|@srdata|}
 
       # List of arguments.
       opt.on("-f", "--filter x,y,z", Array, "list of vector indices to grab, other indexes are ignored") {|@filter|
@@ -246,6 +233,9 @@ class RImportOmnet
   #Retrieve hash of vector index -> label from vec file filename (index is still
   #a numerical string) where label is the vector name in file. All labels have
   ##.#{index} appended
+
+  #probably better to return well formed columnname, nodename and index
+  #separately rather than encoded in one string
   def retrieveLabelsVectorSuffix(filename)
     vectors = Hash.new
     
@@ -258,8 +248,10 @@ class RImportOmnet
         s = l.split(/\s+/,4)[3]
         #Remove "" and last number
         s = s.split(/["]/,3)[1]
+        #add nodename to column name
         s += "." + l.split(/\s+/,4)[2].split(/\./)[1] if @nodename
-        s += "." + i if not @nodename
+        #add vector index to end
+        s += "." + i 
         vectors[i] = s
       end
     }
@@ -309,10 +301,10 @@ class RImportOmnet
   # rest of variants). To totally prevent any of this stuff happening we should
   # freeze vector numbers and make sure vector names are unique across whole sim
   # which may be unrealistic?
-  def singleRun(p, vecFile, n)
+  def singleRun(p, vecFile, n, scheme)
     vectors = retrieveLabelsVectorSuffix(vecFile)
-    @vectorStarted = Array.new if not @vectorStarted
-
+    @vectorStarted = Array.new if not defined? @vectorStarted
+ 
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
 
@@ -337,53 +329,41 @@ class RImportOmnet
     vectors.each_pair { |k,v|
       raise "logical error in determining common elements" if vectors[k].nil?
       nlines = !@restrict.nil? && @restrict.include?(k)?@rsize:0
-      #We'd like to have runnumber.vectorname.vectornumber i.e. #{n}.#{v} but as runnumber at the
-      #start appears to be a float it is an R syntax error
+      #We'd like to have runnumber.vectorname.vectornumber i.e. #{n}.#{v} but as
+      #runnumber at the start appears to be a float it is an R syntax error
       onerunframe = %{#{v}.#{n}}
+      #Remove vector index from column names
       columnname = v.sub(%r{[.]\d+$},"")
       ncolumnname = columnname
+      #remove nodename from vector name
       ncolumnname = removeLastComponentFrom(columnname) if @nodename
       restrictGrep = nlines > 0? "-m #{nlines}":""
-      p.puts %{tempscan <- scan(p<-pipe("grep #{restrictGrep} ^#{k} #{vecFile}"), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
+      p.puts %{tempscan <- scan(p<-pipe('grep #{restrictGrep} "^#{k}\\\\>" #{vecFile}'), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
       p.puts %{close(p)}
       p.puts %{attach(tempscan)}
-      p.puts %{#{onerunframe} <- data.frame(run=#{n}, time=time, #{ncolumnname}=#{columnname})}
+
+      p.puts %{#{onerunframe} <- data.frame(scheme = "#{scheme}", run=#{n}, time=time, #{ncolumnname}=#{columnname})}
+       nodename = v.split(/\./)[-2] #second last component is nodename
+#       $defout.print "nodenmae is ", nodename
+
+      #encode nodename into data frame now rather than later to save hassle of
+      #aggregating frames
+
       p.puts %{detach(tempscan)}
-      if @agg
-        aggframe = %{#{@aggprefix}#{v}}
-        if @vectorStarted.include? k
-          # @configName.v cannot be used as dataframe name as it may contain -
-          # which is illegal in R so use a instead
-          p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}
-        else
-          p.puts %{#{aggframe} <- #{onerunframe}}
-          @vectorStarted.push(k)
-          if @nodename
-            @aggFrames = Array.new if not @aggFrames
-            @aggFrames.push(aggframe)
-          end
-        end
-        p.puts %{rm(#{onerunframe})}
+
+#Aggregate runs of same node's vector
+      aggframe = %{#{@aggprefix}#{v}}
+
+      if not @vectorStarted.include? k
+        @vectorStarted.push(k)
+        p.puts %{#{aggframe} <- #{onerunframe}}
+      else
+        p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}        
+#        p.puts %{#{aggframe} <- merge(#{aggframe} , #{onerunframe})}
+
       end
-      if @nodename
-        nodename = v.split(/\./).last
-        aggframe = onerunframe if not @agg
-        #assume nodename is last component
-        nodeframe = removeLastComponentFrom(aggframe)
-        nodeframe = removeLastComponentFrom(nodeframe) if not @agg #remove the run number and nodename
-        tempframe="tempframe"
-        p.puts %{tempframe <- data.frame(node="#{nodename}", #{aggframe})}
-        p.puts %{rm(#{aggframe})} if not @agg
-        
-        if @vectorStarted.include? nodeframe
-          p.puts %{#{nodeframe} <- rbind(#{nodeframe}, #{tempframe})}
-        else
-          p.puts %{#{nodeframe} <- #{tempframe}}
-          @vectorStarted.push(nodeframe)
-        end
-        p.puts %{rm(#{tempframe})}
-        #p.puts %{save.image("debug.Rdata")} if @debug
-      end
+      p.puts %{rm(#{onerunframe})}
+
       waitForR p
     }
     p.puts %{rm(tempscan, p)}
@@ -393,135 +373,7 @@ class RImportOmnet
     string.reverse.split(sep, 2)[1].reverse
   end
 
-  #Collects stats for a singleVariant. Works with vector files in directory
-  #layout generated by graph-simple.sh.
-  def aggregateRuns(p, dir)
-    #Initialise list of vectors read from vector file for joining dataframes of multiple runs
-    @vectorStarted = nil
-    pwd = Dir.pwd
-    Dir.chdir(dir)
-    if not singleVariant?
-      $stderr.puts "Cannot aggregate runs when no vec files exist"
-      exit 1
-    end
 
-    if singleVariant? > 1
-      throw "Cannot aggregate runs when vector files are not one dir level below "
-    end
-
-    p.puts %{setwd("#{dir}")}
-    @configName = File.basename Dir.pwd
-    print "config name is ", @configName, "\n" if @verbose
-    Dir[SingleVariantTest].each{|f|
-      next if f =~ /bad/
-      n = File.dirname f 
-      puts "#{f} is in dir #{n}" if @verbose
-
-      #Save every runs own data frame too for later analysis
-
-      singleRun(p, f, n)
-      if not @agg 
-        #forget about resume function for now runs out of diskspace fairly
-        #quickly for large datasets (unless we know how to save just v.n)
-        output = File.join(File.dirname(f), @rdata)
-        p.puts %{save.image("#{output}")} 
-      end
-
-    }
-    @aggFrames.each{|frame| p.puts %{rm(#{frame})} } if @nodename
-    p.puts %{save.image("#{@rdata}")} if @agg
-    p.puts %{rm(list=ls())}
-  ensure
-    Dir.chdir(pwd)
-    p.puts %{setwd("#{pwd}")}
-    waitForR p
-  end
-
-  #Test whether dir or current dir if dir is nil is a single variant
-  #directory. i.e. subdirectoris with run number as name, each subdir only
-  #differing in random seed with all other params constant.
-  def singleVariant?(dir=nil)
-    pwd = Dir.pwd
-
-    Dir.chdir(dir) if not dir.nil?
-    singleVariantTestRec = "**/*.vec"
-    dirs = Dir[singleVariantTestRec]
-    return nil if dirs.nil? or dirs[0].nil?
-    dirs[0].count(File::Separator)
-  ensure
-    Dir.chdir(pwd)
-  end
-
-  # collect the different variants where each variant is a specific build or xml
-  # configuration for a similar network topology. Each variant will have many
-  # runs, with a different random seed for each run. The runs are collected by
-  # aggregateRuns. Each variant's data frame will have a scheme column added to
-  # it.  Besides scheme there could be other factors like macro/micro link
-  # delay. (This is not catered for yet).  Assumes vector files in directory
-  # layout generated by graph-simple.sh
-  def collectVariants(p, dir=nil)
-    if singleVariant?(dir).nil? and @agg
-      $stderr.puts "Cannot aggregate runs when no vec files exist"
-      exit 1
-    end
-
-    if singleVariant?(dir) > 1
-      pwdir=dir.nil? ? Dir.new(Dir.pwd) : Dir.new(dir)
-      Dir.chdir(dir) if dir
-      @configs = Array.new
-      pwdir.each{|d|
-        begin
-          next if d =~ /^[.]+$/
-          next unless File.directory?(d)
-          @configs.push d if singleVariant?(d) == 1
-        rescue SystemCallError
-          $stderr.print "cd to #{d} failed" + $! 
-          next
-        end
-      }
-
-      if @verbose
-        print %{configs found are }
-        p @configs
-      end
-
-      if @agg
-        @configs.each{|config|
-          aggregateRuns(p, File.join(pwdir.path,config))
-        }
-      end
-#      Dir.entries(dir).reject{|f| f =~/\A\./ or not File.directory?(f) }.each{|d| puts "in #{d}"; aggregateRuns(p, File.join(pwd,d)) }
-    end
-
-    #find all Rdatas (matching certain name as specified in output option)
-    done = Array.new
-    result = Dir["*/#{rdata}"].each{|rd|
-      p.puts  %{load("#{rd}")}
-      aggprefixre = @aggprefix.sub(".","[.]")
-      frames = retrieveRObjects(p, "^#{aggprefixre}.+")
-      #Can filter on this too if we specify a list of unwanted columns/framenames
-      frames.each{|df|
-        config = File.dirname rd
-        unless @configs.nil?
-          $stderr.puts "Unknown config dir #{config} not in @configs" unless @configs.empty? or not @agg or @configs.include? config
-        end
-        p.puts %{#{df} <- transform(#{df}, scheme="#{config}")}
-        #search for aggframe prefix and remove
-        frameName = df.sub(/^#{aggprefixre}/,"")
-        #search for other frames with same number of rows and matching time columns
-        #cbind the other frame's data column omitting repeated columns i.e. 
-        #transform(#{f}, #{oframe.split(.,2[1])}=#{oframe}$#{oframe.split(.,2[1])})
-
-        p.puts %{#{df} <- rbind(s.#{frameName}, #{df})} if done.include? df
-        p.puts %{s.#{frameName} <- #{df}}
-        done.push df unless done.include? df
-        p.puts %{rm(#{df})}
-        p.puts %{save.image("#{@srdata}")}
-        waitForR p
-      }
-    }
-    raise "Not even one file by the name of #{rdata} was found \nwhen doing collection of Rdata runs. \nPlease specify proper name with -o " if result.empty?
-  end
   public
 
   def printVectorNames(vecFile)
@@ -537,34 +389,35 @@ class RImportOmnet
   #
   def run
     return if $test
-    #Run number
-    n = 0    
 
-    #IO.popen(RSlave, "w+") { |p|
     p = IO.popen(RSlave, "w+")
-      if @collect
-        collectVariants(p)
-      elsif @agg
-        @topdir = Dir.pwd
-        aggregateRuns(p, @topdir)
-      else
-        raise ArgumentError, "No vector file specified", caller[0] if not @agg and ARGV.size < 1
+    raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1
 
-        vecFile = ARGV.shift
 
-        if @printVectors
-          printVectorNames(vecFile)
-          return
-        end
 
-        singleRun(p, vecFile, n)
-        output = File.join(File.dirname(vecFile), @rdata)
-        p.puts %{save.image("#{output}")} 
-      end
 
-      p.puts %{q("no")}
+    if @printVectors
+      printVectorNames(ARGV[0])
+      return
+    end
 
-    #}
+    modname = "EHAnalysism"
+    
+    while ARGV.size > 0 do
+      vecFile = ARGV.shift
+      raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"
+      encodedScheme = File.basename(vecFile, ".vec").sub(modname,"")
+      encodedScheme =~ /(\d+)$/
+      n = $1
+      scheme = $` 
+      singleRun(p, vecFile, n, scheme)
+
+    end
+
+    output = File.join(File.dirname(vecFile), @rdata)
+    p.puts %{save.image("#{output}")}     
+
+    p.puts %{q("no")}
 
   rescue Errno::EPIPE => err
     $defout.old_puts err
@@ -720,6 +573,9 @@ TARGET
 #    i.e. vector rows like 31-32 and transcribe to below if one of them is bigger than other just by one in terms of row size otherwise give error
 #  if length(vectors[
 # L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]
+
+    v = retrieveLabelsVectorSuffix(vecFile) 
+    #match (\s+\d+\s+)\
   end
 
   end

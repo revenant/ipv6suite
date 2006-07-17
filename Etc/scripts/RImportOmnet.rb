@@ -73,7 +73,6 @@ class RImportOmnet
   RSlave = "R --slave --quiet --vanilla --no-readline"
   #Doing **/*.ext would find all files with .ext recursively while with only one
   #* it is like only in one subdirectory deep
-  SingleVariantTest = "*/*.vec"
 
   attr_accessor :rdata, :filter
 
@@ -293,8 +292,7 @@ class RImportOmnet
   end
 
   # Read data from OMNeT++ vecFile and convert to dataframe using vector name as
-  # frame name prefix and n as suffix. n is the run number.  Adds to previous
-  # run if @agg is in effect and removes .n suffix in frame name. Vector names
+  # frame name prefix and n as suffix. n is the run number.  Vector names
   # may be duplicated so the last component of module path is used too if this
   # happens. I guess the best way is to append the vector number to frame name
   # (assuming users don't run half the runs and add new vectors and then run
@@ -343,7 +341,8 @@ class RImportOmnet
       p.puts %{attach(tempscan)}
 
       p.puts %{#{onerunframe} <- data.frame(scheme = "#{scheme}", run=#{n}, time=time, #{ncolumnname}=#{columnname})}
-       nodename = v.split(/\./)[-2] #second last component is nodename
+
+      nodename = v.split(/\./)[-2] #second last component is nodename
 #       $defout.print "nodenmae is ", nodename
 
       #encode nodename into data frame now rather than later to save hassle of
@@ -565,11 +564,34 @@ TARGET
     } if ENV["USER"] == "jmll"
   end
 
+  def vectorname(rvectorname)
+    
+  end
+
   def testEquation
     equation = "3 + 5"
     #substitute indices with vector names
     equation ~ "\d"
 
+    pairs = %w( a.BAck.recv.mn.311 a.BU.sent.mn.312 a.BBAck.recv.mn.316 a.BBU.sent.mn.315 a.L2.Up.mn.318 a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313)
+    0.upto(pairs.size/2 - 1) do |i|
+      lhs = pairs[i]
+      rhs = pairs[i+1]
+      if rhs == "a.BBAck.recv.mn.316"
+        var = "#{rhs}[#{rhs}$time > 1] #ignore initial link up trigger on sim startup"
+      end
+      var += <<TARGET
+if (dim(#{lhs})[1] == dim(#{rhs})[1])
+        {
+          diff = #{lhs}$time - #{rhs}$time
+          attach(#{rhs})
+          #{lhs} = cbind(#{lhs}, #{vectorname(rhs)}, diff)
+          detach(#{rhs})
+          remove(#{rhs})
+          dimnames(#{lhs})[[2]]
+        }
+TARGET
+    end
 #    i.e. vector rows like 31-32 and transcribe to below if one of them is bigger than other just by one in terms of row size otherwise give error
 #  if length(vectors[
 # L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]

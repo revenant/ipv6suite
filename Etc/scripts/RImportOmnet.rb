@@ -266,7 +266,19 @@ class RImportOmnet
     arrayCode =  %{%w[#{p.gets.chomp!}]}
     eval(arrayCode)
   end
-
+  
+  #
+  # array is returned from retrieveRObjects
+  def printRObjects(p, array)
+    results = Array.new
+    array.each {|e|
+      p.puts %{#{e}\n}
+      results.push(p.gets.chomp!)
+    }
+    results.each{|e|
+      p e
+    }
+  end
   #
   # Form safe column names from omnetpp vector names
   # p is pipe to R 
@@ -350,8 +362,8 @@ class RImportOmnet
 
       p.puts %{detach(tempscan)}
 
-#Aggregate runs of same node's vector
-      aggframe = %{#{@aggprefix}#{v}}
+      #Aggregate runs for same node's vector
+      aggframe = %{#{@aggprefix}#{v}} 
 
       if not @vectorStarted.include? k
         @vectorStarted.push(k)
@@ -368,11 +380,6 @@ class RImportOmnet
     p.puts %{rm(tempscan, p)}
   end
 
-  def removeLastComponentFrom(string, sep=/\./)
-    string.reverse.split(sep, 2)[1].reverse
-  end
-
-
   public
 
   def printVectorNames(vecFile)
@@ -380,6 +387,45 @@ class RImportOmnet
     v.each_pair { |k,name|
       $defout.old_puts %{#{k} #{name}}
     }
+  end
+
+  def removeLastComponentFrom(string, sep=/\./)
+    string.reverse.split(sep, 2)[1].reverse
+  end
+
+  def vectorname(rvectorname)
+    v = rvectorname.sub(@aggprefix, "")
+    #remove index
+    v = removeLastComponentFrom(v)
+    #remove nodename
+    removeLastComponentFrom(v)
+  end
+
+  def mergeVectorsWithRScript
+    pairs = %w( a.BAck.recv.mn.311 a.BU.sent.mn.312 a.BBAck.recv.mn.316 a.BBU.sent.mn.315 a.L2.Up.mn.318 a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313)
+    p pairs
+    var = ""
+    0.upto(pairs.size/2 - 1) do |i|
+      lhs = pairs[i]
+      rhs = pairs[i+1]
+      i = i + 2
+p lhs, rhs
+      if rhs == "a.BBAck.recv.mn.316"
+        var += "#{rhs}[#{rhs}$time > 1] #ignore initial link up trigger on sim startup\n"
+      end
+      var += <<TARGET
+if (dim(#{lhs})[1] == dim(#{rhs})[1])
+        {
+          diff = #{lhs}$time - #{rhs}$time
+          attach(#{rhs})
+          #{lhs} = cbind(#{lhs}, #{vectorname(rhs)}, diff)
+          detach(#{rhs})
+          remove(#{rhs})
+          dimnames(#{lhs})[[2]]
+        }
+TARGET
+    end
+    var
   end
 
   #
@@ -485,7 +531,7 @@ TARGET
 
      #vanilla singleRun
     @imp.rdata = TestFileName.gsub(/\.vec$/, ".Rdata")
-    @imp.singleRun(@p, TestFileName, 3)
+    @imp.singleRun(@p, TestFileName, 3, "dudscheme")
     @p.puts  %{save.image("#{@imp.rdata}")}
     # Race conditions exist so sync to R first otherwise may raise missing file exception
     @imp.waitForR(@p)
@@ -493,26 +539,33 @@ TARGET
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}   
-    e = %w{handoverLatency.5.3 IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 pingEED.0.3}
-    r = @imp.retrieveRObjects(@p, "")
+    e = %w{a.handoverLatency.5 a.IEEE.802.11.HO.Latency.6 a.Movement.Detection.Latency.3 a.pingEED.0}
+    r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "singleRun test: list of matching R objects differ!")
     File.delete(@imp.rdata)
 
-     #Filter test
+    #Filter test
     @p.puts %{rm(list=ls())}
+    #required to reset state of past read vectors otherwise it expects to join
+    #them to existing vectors (removed in previous line)
+    @imp = RImportOmnet.new
     @imp.filter = %w{3 6 5}
-    @imp.singleRun(@p, TestFileName, 3)
+    @imp.singleRun(@p, TestFileName, 4,"noscheme")
     @p.puts  %{save.image("#{@imp.rdata}")}
     @imp.waitForR(@p)
     raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.file? @imp.rdata)
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}
-    e = %w{handoverLatency.5.3 IEEE.802.11.HO.Latency.6.3 Movement.Detection.Latency.3.3 }
+    e = %w{a.handoverLatency.5 a.IEEE.802.11.HO.Latency.6 a.Movement.Detection.Latency.3 }
     r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "filter test: list of matching R objects differ!")
     File.delete(@imp.rdata, TestFileName)
-    
+
+    #problem with this is we do not know if pipe has more things to read from
+
+    @imp.printRObjects(@p, r)
+
   end
 
   def test_duplicateVectorNames
@@ -550,6 +603,18 @@ TARGET
      assert_equal(e.sort, r.sort, "dupVectorNames retrieveLabelsVectorSuffix failed")
   end
 
+  def test_vectorname
+    assert_equal("BAck.recv", @imp.vectorname("a.BAck.recv.mn.311"))
+    assert_equal("BBAck.recv", @imp.vectorname("a.BBAck.recv.mn.316"))
+    assert_equal("BU.sent", @imp.vectorname("a.BU.sent.mn.312"))
+    assert_equal("L2.Up", @imp.vectorname("a.L2.Up.mn.318"))
+#a.BBAck.recv.mn.316 a.BBU.sent.mn.315  a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313
+  end
+
+  def test_merge
+    puts @imp.mergeVectorsWithRScript
+  end
+
   if false
   def test_collect    
     Dir.chdir(File.expand_path(%{~/src/phantasia/master/output/saiteh})){
@@ -564,39 +629,14 @@ TARGET
     } if ENV["USER"] == "jmll"
   end
 
-  def vectorname(rvectorname)
-    
-  end
-
   def testEquation
     equation = "3 + 5"
     #substitute indices with vector names
     equation ~ "\d"
 
-    pairs = %w( a.BAck.recv.mn.311 a.BU.sent.mn.312 a.BBAck.recv.mn.316 a.BBU.sent.mn.315 a.L2.Up.mn.318 a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313)
-    0.upto(pairs.size/2 - 1) do |i|
-      lhs = pairs[i]
-      rhs = pairs[i+1]
-      if rhs == "a.BBAck.recv.mn.316"
-        var = "#{rhs}[#{rhs}$time > 1] #ignore initial link up trigger on sim startup"
-      end
-      var += <<TARGET
-if (dim(#{lhs})[1] == dim(#{rhs})[1])
-        {
-          diff = #{lhs}$time - #{rhs}$time
-          attach(#{rhs})
-          #{lhs} = cbind(#{lhs}, #{vectorname(rhs)}, diff)
-          detach(#{rhs})
-          remove(#{rhs})
-          dimnames(#{lhs})[[2]]
-        }
-TARGET
-    end
-#    i.e. vector rows like 31-32 and transcribe to below if one of them is bigger than other just by one in terms of row size otherwise give error
-#  if length(vectors[
 # L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]
 
-    v = retrieveLabelsVectorSuffix(vecFile) 
+#    v = retrieveLabelsVectorSuffix(vecFile) 
     #match (\s+\d+\s+)\
   end
 

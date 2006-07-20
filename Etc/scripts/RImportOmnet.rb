@@ -406,12 +406,13 @@ class RImportOmnet
     p pairs
     var = ""
     0.upto(pairs.size/2 - 1) do |i|
+      i = i*2
+      p i
       lhs = pairs[i]
       rhs = pairs[i+1]
-      i = i + 2
 p lhs, rhs
-      if rhs == "a.BBAck.recv.mn.316"
-        var += "#{rhs}[#{rhs}$time > 1] #ignore initial link up trigger on sim startup\n"
+      if lhs == "a.L2.Up.mn.318"
+        var += "#{lhs} = #{lhs}[#{lhs}$time > 1,] #ignore initial link up trigger on sim startup\n"
       end
       var += <<TARGET
 if (dim(#{lhs})[1] == dim(#{rhs})[1])
@@ -425,6 +426,7 @@ if (dim(#{lhs})[1] == dim(#{rhs})[1])
         }
 TARGET
     end
+    var += "rm(diff)\n"
     var
   end
 

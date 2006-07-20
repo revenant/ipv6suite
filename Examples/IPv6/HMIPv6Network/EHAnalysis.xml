@@ -274,6 +274,12 @@
         <move moveToX="80" moveToY="325" moveSpeed="5"/>
         <move moveToX="216" moveToY="325" moveSpeed="5"/>
         <move moveToX="530" moveToY="325" moveSpeed="5"/>
+        <move moveToX="216" moveToY="325" moveSpeed="5"/>
+        <move moveToX="530" moveToY="325" moveSpeed="5"/>
+        <move moveToX="216" moveToY="325" moveSpeed="5"/>
+        <move moveToX="530" moveToY="325" moveSpeed="5"/>
+        <move moveToX="216" moveToY="325" moveSpeed="5"/>
+        <move moveToX="530" moveToY="325" moveSpeed="5"/>
       </MovingNode>
     </ObjectMovement>
   </misc>

@@ -99,8 +99,6 @@ class RImportOmnet
     @restrict = nil
     @rsize    = 0 #no restriction on vector length
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
-    #Form data frame name from vector file label's nodename 
-    @nodename = false 
     @aggFrames = nil #store aggframe names to remove them 
     @printVectors = false #Print only vector names and quit
 
@@ -134,21 +132,13 @@ class RImportOmnet
       opt.separator "Usage: #{File.basename __FILE__} [options] [omnetpp.vec] "
       opt.separator ""
       opt.separator "Specific options:"
-
-      
-      opt.on("-n", "Use vector file label's nodename ",
-             "(assuming nodename is second component after network name)",
-             "to combine multinode vectors together into one frame with nodename column"){|@nodename|}
-
+ 
       opt.on("--output=filename","-o", String, "Output R data to filename"){|@rdata|}
 
       # List of arguments.
       opt.on("-f", "--filter x,y,z", Array, "list of vector indices to grab, other indexes are ignored") {|@filter|
         self.filter.uniq!
       }
-
-      opt.on("-c", "Collect all Rdata files in different subdirs into one with directory names as scheme. ",
-             "If -a given will aggregate runs first before collecting. Run from the top dir"){|@collect|}
 
       opt.on("-r", "--restrict x,y,z", Array, "Restrict these vectors to at most size rows"){|@restrict|}
 
@@ -248,7 +238,7 @@ class RImportOmnet
         #Remove "" and last number
         s = s.split(/["]/,3)[1]
         #add nodename to column name
-        s += "." + l.split(/\s+/,4)[2].split(/\./)[1] if @nodename
+        s += "." + l.split(/\s+/,4)[2].split(/\./)[1]
         #add vector index to end
         s += "." + i 
         vectors[i] = s
@@ -346,7 +336,7 @@ class RImportOmnet
       columnname = v.sub(%r{[.]\d+$},"")
       ncolumnname = columnname
       #remove nodename from vector name
-      ncolumnname = removeLastComponentFrom(columnname) if @nodename
+      ncolumnname = removeLastComponentFrom(columnname) 
       restrictGrep = nlines > 0? "-m #{nlines}":""
       p.puts %{tempscan <- scan(p<-pipe('grep #{restrictGrep} "^#{k}\\\\>" #{vecFile}'), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
       p.puts %{close(p)}
@@ -355,7 +345,6 @@ class RImportOmnet
       p.puts %{#{onerunframe} <- data.frame(scheme = "#{scheme}", run=#{n}, time=time, #{ncolumnname}=#{columnname})}
 
       nodename = v.split(/\./)[-2] #second last component is nodename
-#       $defout.print "nodenmae is ", nodename
 
       #encode nodename into data frame now rather than later to save hassle of
       #aggregating frames
@@ -421,12 +410,11 @@ if (dim(#{lhs})[1] == dim(#{rhs})[1])
           attach(#{rhs})
           #{lhs} = cbind(#{lhs}, #{vectorname(rhs)}, diff)
           detach(#{rhs})
-          remove(#{rhs})
+          remove(#{rhs}, diff)
           dimnames(#{lhs})[[2]]
         }
 TARGET
     end
-    var += "rm(diff)\n"
     var
   end
 
@@ -541,7 +529,7 @@ TARGET
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}   
-    e = %w{a.handoverLatency.5 a.IEEE.802.11.HO.Latency.6 a.Movement.Detection.Latency.3 a.pingEED.0}
+    e = %w{a.handoverLatency.mn.5 a.IEEE.802.11.HO.Latency.mn.6 a.Movement.Detection.Latency.mn.3 a.pingEED.mn.0}
     r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "singleRun test: list of matching R objects differ!")
     File.delete(@imp.rdata)
@@ -559,7 +547,7 @@ TARGET
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}
-    e = %w{a.handoverLatency.5 a.IEEE.802.11.HO.Latency.6 a.Movement.Detection.Latency.3 }
+    e = %w{a.handoverLatency.mn.5 a.IEEE.802.11.HO.Latency.mn.6 a.Movement.Detection.Latency.mn.3 }
     r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "filter test: list of matching R objects differ!")
     File.delete(@imp.rdata, TestFileName)
@@ -600,7 +588,7 @@ TARGET
      r = r.sort
      assert_equal(e, r, "dupVectorNames safeColumns: list of matching R objects differ!")
 
-     e = Hash["3", "Movement Detection Latency.3", "6", "IEEE 802.11 HO Latency.6", "5", "handoverLatency.5", "0", "pingEED.0", "2", "handoverLatency.2", "1", "handoverLatency.1"]
+     e = Hash["3", "Movement Detection Latency.mn.3", "6", "IEEE 802.11 HO Latency.mn.6", "5", "handoverLatency.mn.5", "0", "pingEED.mn.0", "2", "handoverLatency.mn.2", "1", "handoverLatency.mn.1"]
      r=@imp.retrieveLabelsVectorSuffix(TestFileName)
      assert_equal(e.sort, r.sort, "dupVectorNames retrieveLabelsVectorSuffix failed")
   end

@@ -252,24 +252,3 @@ jl.changeLevelName <- function(dataframe, factor, levels)
     return(dataframe)
   }
 
-
-w = boxplot(a.LBAck.recv.mn.314$diff~a.LBAck.recv.mn.314$scheme)
-#find out how many handovers captured in this
-subset(a.LBAck.recv.mn.314, scheme=="10ms" & run == "2")
-
- delta = a.BBAck.recv.mn.316$diff - subset(a.LBAck.recv.mn.314, time > 60)$diff
-a.BBAck.recv.mn.316 = cbind(a.BBAck.recv.mn.316, delta)
- boxplot(a.BBAck.recv.mn.316$delta ~ a.BBAck.recv.mn.316$scheme)
-
-#somehow there appears to be a 4*delta relationship and not 2. At this stage I believe
-#due to NS/NA of LMA to BMA but will need to get packet trace for sure. In real scenarios
-#does that mean LMA and BMA already have each other cached? And if I made the node
-#go back and forth between the 3 routers at least 5 times will I see this effect?
-
-up = subset(a.L2.Up.mn.318, time > 60) #(ignore 1st handoff)
-hotot = a.BBAck.recv.mn.316$time - (up$time -up$diff) #(l2 down)
-#dont' understand output of this stuff. thougth would give me slope and intercept
-summary(lm(hotot ~ a.BBAck.recv.mn.316$delta))
-plot(lm(hotot ~ a.BBAck.recv.mn.316$delta), las=1)
-summary(lm(hotot ~ a.BBAck.recv.mn.316$delta + subset(a.LBAck.recv.mn.314, time > 60)$diff))
-

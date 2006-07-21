@@ -101,6 +101,7 @@ class RImportOmnet
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
     @aggFrames = nil #store aggframe names to remove them 
     @printVectors = false #Print only vector names and quit
+    @relevelSchemeOrder = nil
 
     get_options
 
@@ -141,6 +142,11 @@ class RImportOmnet
       }
 
       opt.on("-r", "--restrict x,y,z", Array, "Restrict these vectors to at most size rows"){|@restrict|}
+
+      opt.on("--relevel x", String, "Relevel scheme order according to this space separate list of args"){|@relevelSchemeOrder|
+        @relevelSchemeOrder =  %{%w[#{@relevelSchemeOrder}]}
+        @relevelSchemeOrder = eval(@relevelSchemeOrder)
+}
 
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
@@ -293,6 +299,15 @@ class RImportOmnet
     rpipe.gets
   end
 
+  def relevelScheme(p)
+    @p = p
+    frames = retrieveRObjects(@p, pat="^a\.")    
+    @p.puts %|source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R")|
+    for f in frames do
+      @p.puts %|#{f}$scheme = jl.relevel(#{f}$scheme, c("#{@relevelSchemeOrder.join("\",\"")}"))|
+    end
+  end
+
   # Read data from OMNeT++ vecFile and convert to dataframe using vector name as
   # frame name prefix and n as suffix. n is the run number.  Vector names
   # may be duplicated so the last component of module path is used too if this
@@ -392,14 +407,11 @@ class RImportOmnet
 
   def mergeVectorsWithRScript
     pairs = %w( a.BAck.recv.mn.311 a.BU.sent.mn.312 a.BBAck.recv.mn.316 a.BBU.sent.mn.315 a.L2.Up.mn.318 a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313)
-    p pairs
     var = ""
     0.upto(pairs.size/2 - 1) do |i|
       i = i*2
-      p i
       lhs = pairs[i]
       rhs = pairs[i+1]
-p lhs, rhs
       if lhs == "a.L2.Up.mn.318"
         var += "#{lhs} = #{lhs}[#{lhs}$time > 1,] #ignore initial link up trigger on sim startup\n"
       end
@@ -449,6 +461,8 @@ TARGET
 
     end
 
+    relevelScheme(p) if not @relevelSchemeOrder.nil?
+
     output = File.join(File.dirname(vecFile), @rdata)
     p.puts %{save.image("#{output}")}     
 
@@ -469,7 +483,9 @@ TARGET
 end#RImportOmnet
 
 #main
-app = RImportOmnet.new.run if not $test
+
+$app = RImportOmnet.new #need to create to parse args otherwise never runs test
+$app.run if not $test
 
 exit unless $test
 
@@ -598,11 +614,18 @@ TARGET
     assert_equal("BBAck.recv", @imp.vectorname("a.BBAck.recv.mn.316"))
     assert_equal("BU.sent", @imp.vectorname("a.BU.sent.mn.312"))
     assert_equal("L2.Up", @imp.vectorname("a.L2.Up.mn.318"))
-#a.BBAck.recv.mn.316 a.BBU.sent.mn.315  a.L2.Down.mn.319 a.LBAck.recv.mn.314 a.LBU.sent.mn.313
   end
 
   def test_merge
-    puts @imp.mergeVectorsWithRScript
+#    puts @imp.mergeVectorsWithRScript
+  end
+
+  def test_relevel
+#     @inputRdata = "EHAnalysism.Rdata"
+#     @rdata = "out.Rdata"
+#     @p.puts %|load("#{@inputRdata}")|
+#     $app.relevelScheme(@p)
+#     @p.puts %|save.image("#{@rdata}")|
   end
 
   if false

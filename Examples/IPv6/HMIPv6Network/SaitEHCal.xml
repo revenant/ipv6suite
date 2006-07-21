@@ -5,7 +5,7 @@
   <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
   mobileIPv6Role="MobileNode" routeOptimisation="on"
   hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
-	eagerHandover="on"> 
+	eagerHandover="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
     </interface>
   </local>
@@ -202,7 +202,7 @@
     <route>
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:5:27c:8bff:fe8f:8c3d"/>
-      <routeEntry routeIface="eth1" routeDestination="3011:0:0:4:0:0:0:0/64" />
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:5:0:0:0:0/64" />
     </route>
 </local>
 

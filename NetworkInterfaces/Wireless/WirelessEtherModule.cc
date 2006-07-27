@@ -621,6 +621,12 @@ void WirelessEtherModule::handleMessage(cMessage *msg)
     {
         printSelfMsg(msg); // FIXME change/remove
 
+	// FIXME JOHNNY HACK to record mn bw because something is cancelling timer
+	// assumes statsUpdatePeriod is 1 hence ceil fn
+	if (statsVec && msg != updateStatsTimer &&
+	    !updateStatsTimer->isScheduled())	  
+	  scheduleAt(std::ceil(simTime()), updateStatsTimer);
+
         // FIXME TODO assert that state is really the one assumed
         if (msg==awaitAckTimer)
             WirelessEtherStateAwaitACK::instance()->endAwaitACK(this);

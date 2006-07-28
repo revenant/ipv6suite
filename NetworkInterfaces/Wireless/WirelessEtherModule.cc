@@ -559,7 +559,9 @@ void WirelessEtherModule::receiveData(std::auto_ptr<cMessage> msg)
 {
     if (msg->length() > WE_MAX_PAYLOAD_BYTES * 8)
     {
-        wEV << "message " << msg->name() << " too large (" << (msg->length() / 8) << " bytes), discarding\n";
+        wEV << "message " << msg->name() << " too large (" 
+	<<(msg->length() / 8) << " bytes), discarding limit is "
+	<<WE_MAX_PAYLOAD_BYTES<<"\n";
         return;
     }
 

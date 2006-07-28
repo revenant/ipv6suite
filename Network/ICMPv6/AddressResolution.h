@@ -49,6 +49,9 @@ class AddressResolution : public cSimpleModule
   virtual void handleMessage(cMessage* msg);
   virtual void finish();
 
+  void sendQueuedPackets(const ipv6_addr& src, unsigned int ifIndex,
+			 IPv6NeighbourDiscovery::NeighbourEntry* ne);
+
  private:
   ///Sec 7.2.5
   void processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* ngbrAdv);

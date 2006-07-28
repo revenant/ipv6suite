@@ -458,16 +458,16 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
 
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
-  bool dupDetectSource = false;
-
-  dupDetectSource = dgram->srcAddress() == IPv6_ADDR_UNSPECIFIED;
+  bool dupDetectSource = dgram->srcAddress() == IPv6_ADDR_UNSPECIFIED;
+  bool sendQueuedPacket = false;
+  NeighbourEntry* ne = 0;
 
   if (!dupDetectSource)
   {
     //Update Ngbr LL addr if necessary
     if (ngbrSol->hasSrcLLAddr())
     {
-      NeighbourEntry* ne = rt->cds->neighbour(dgram->srcAddress()).lock().get();
+      ne = rt->cds->neighbour(dgram->srcAddress()).lock().get();
       if (ne == 0)
       {
 	if (rt->cds->router(dgram->srcAddress()).lock())
@@ -479,12 +479,20 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
 	  //be required as ngbrSol cannot change NE state unless LLaddr
 	  //differs (also does not set ifIndex)
 	  assert(!ppq.count(dgram->srcAddress()));
+	  ne = (*rt->cds)[dgram->srcAddress()].neighbour.lock().get();
 	}
 	else
-	  rt->cds->insertNeighbourEntry(new NeighbourEntry(ngbrSol.get()));
+	{
+	  ne = new NeighbourEntry(ngbrSol.get());
+	  rt->cds->insertNeighbourEntry(ne);
+	}
       }
       else
+      {
+	if (ne->state() == NeighbourEntry::INCOMPLETE)
+	  sendQueuedPacket = true;
         ne->update(ngbrSol.get());
+      }
     }
   }
 
@@ -568,6 +576,72 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
 
     }
 
+  if (sendQueuedPacket)
+  {
+    sendQueuedPackets(dgram->srcAddress(), ifIndex, ne);
+  }
+}
+
+void AddressResolution::sendQueuedPackets(const ipv6_addr& src,
+					  unsigned int ifIndex,
+					  IPv6NeighbourDiscovery::NeighbourEntry* ne)
+{
+  //Send the packets in map and remove entries from queue
+  pair<PPQI, PPQI> rng = ppq.equal_range(src);
+
+  //rng.first->first has key > src if src not found or if > src doesn't
+  //exist then rng.first = ppq.end()
+  if (rng.first != ppq.end() && rng.first->first == src)
+  {
+    for (PPQI p = rng.first; p != rng.second; ++p)
+    {
+      p->second->setOutputPort(ifIndex);
+
+      //This lookup may not be necessary for every pending packet if the
+      //destination is the same as the next hop or if all packets are going
+      //to the same destination. However these cases are not typical
+      if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
+      {
+	p->second->setSrcAddress(
+				 fc->determineSrcAddress(
+							 p->second->destAddress(), ifIndex));
+	if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
+	{
+	  cerr<<rt->nodeName()<<" "<<simTime()<<" "<<className()<<" No suitable src Address for destination "
+	      <<p->second->destAddress()<<endl;
+	  Dout(dc::addr_resln|dc::notice|flush_cf, rt->nodeName()<<":"<<ifIndex
+	       <<" No suitable src Address for destination "<<p->second->destAddress());
+
+	  //TODO probably send error message about -EADDRNOTAVAIL
+	  delete p->second;
+	  continue;
+	}
+	if (rt->odad())
+	{
+	  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+	  if (ie->ipv6()->tentativeAddrAssigned(p->second->srcAddress()))
+	    Dout(dc::warning|dc::addr_resln|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
+		 <<" ODAD we're not supposed to do AddrResln on packet"
+		 <<" that would have been sent from tentative addr even though we do"
+		 <<" addrResln using different srcAddr?");
+	}
+      }
+
+      IPv6Datagram *dgram = p->second;
+      AddrResInfo *info = new AddrResInfo;
+      info->setNextHop(src);
+      info->setIfIndex(ifIndex);
+      assert(ne->linkLayerAddr() != "");
+      info->setLinkLayerAddr(ne->linkLayerAddr().c_str());
+      dgram->setControlInfo(info);
+
+      send(dgram, "fragmentationOut");
+    }
+    Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
+	 <<" Pending Packets sent to "<<src<<" as result of changing state from"
+	 <<" INCOMPLETE to "<<ne->state());
+    ppq.erase(src);
+  }
 }
 
 void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* thengbrAdv)
@@ -579,8 +653,7 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
   IPv6Datagram* dgram = check_and_cast<IPv6Datagram *>(ngbrAdv->encapsulatedMsg());
 
   ipv6_addr src = dgram->srcAddress();
-  int ifIndex = dgram->inputPort();
-  string destLLAddr = ngbrAdv->targetLLAddr();
+  int ifIndex = dgram->inputPort();  
 
   //Update the DC in RoutingTable6
   //Check if the NE exists already before creating a new one
@@ -589,7 +662,7 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
   {
     Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
 	 <<" Didn't initiate comm so don't care about NA from "<<src
-	 <<" to "<< destLLAddr);
+	 <<" to "<< ngbrAdv->targetLLAddr());
     return;
   }
   else
@@ -602,60 +675,7 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
       ne->setIfIndex(ifIndex);
 
 
-      //Send the packets in map and remove entries from queue
-      pair<PPQI, PPQI> rng = ppq.equal_range(src);
-
-      //rng.first->first has key > src if src not found or if > src doesn't
-      //exist then rng.first = ppq.end()
-      if (rng.first != ppq.end() && rng.first->first == src)
-      {
-        for (PPQI p = rng.first; p != rng.second; ++p)
-        {
-          p->second->setOutputPort(ifIndex);
-
-          //This lookup may not be necessary for every pending packet if the
-          //destination is the same as the next hop or if all packets are going
-          //to the same destination. However these cases are not typical
-          if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
-          {
-            p->second->setSrcAddress(
-              fc->determineSrcAddress(
-                p->second->destAddress(), ifIndex));
-            if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
-            {
-              cerr<<rt->nodeName()<<" "<<simTime()<<" "<<className()<<" No suitable src Address for destination "
-                  <<p->second->destAddress()<<endl;
-              Dout(dc::addr_resln|dc::notice|flush_cf, rt->nodeName()<<":"<<ifIndex
-                   <<" No suitable src Address for destination "<<p->second->destAddress());
-
-              //TODO probably send error message about -EADDRNOTAVAIL
-              delete p->second;
-              continue;
-            }
-            if (rt->odad())
-            {
-              InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
-              if (ie->ipv6()->tentativeAddrAssigned(p->second->srcAddress()))
-                Dout(dc::warning|dc::addr_resln|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
-                     <<" ODAD we're not supposed to do AddrResln on packet"
-                     <<" that would have been sent from tentative addr even though we do"
-                     <<" addrResln using different srcAddr?");
-            }
-          }
-
-          IPv6Datagram *dgram = p->second;
-          AddrResInfo *info = new AddrResInfo;
-          info->setNextHop(src);
-          info->setIfIndex(ifIndex);
-          info->setLinkLayerAddr(destLLAddr.c_str());
-          dgram->setControlInfo(info);
-
-          send(dgram, "fragmentationOut");
-        }
-	Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
-	     <<" Pending Packets sent as result of successful NS/NA exchange from "<<src);
-        ppq.erase(src);
-      }
+      sendQueuedPackets(src, ifIndex, ne);
 
 
       Dout(dc::addr_resln|flush_cf, rt->nodeName()<<":"<<ifIndex

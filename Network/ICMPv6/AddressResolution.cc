@@ -586,11 +586,17 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
   //Check if the NE exists already before creating a new one
   NeighbourEntry* ne = rt->cds->neighbour(src).lock().get();
   if (!ne)
-    //Didn't initiate comm so don't care about this adv
+  {
+    Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
+	 <<" Didn't initiate comm so don't care about NA from "<<src
+	 <<" to "<< destLLAddr);
     return;
+  }
   else
     if (ne->update(ngbrAdv.get()))
     {
+      Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
+	   <<" NA from "<<src<<" in response to our NS "<<src);
 
       // Explcitely update the interface index in the ne
       ne->setIfIndex(ifIndex);
@@ -646,7 +652,8 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
 
           send(dgram, "fragmentationOut");
         }
-
+	Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
+	     <<" Pending Packets sent as result of successful NS/NA exchange from "<<src);
         ppq.erase(src);
       }
 
@@ -704,8 +711,12 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
       tmrs.erase(startRemove, it);
       return;
     }
-    else //Not an addr Res response
+    else 
+    {
+      Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ifIndex
+	   <<" Not an addr Res response from "<<src);
       return;
+    }
 
   //Msg has to exist in tmrs when addrRes was successful
   assert(false);

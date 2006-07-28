@@ -191,14 +191,14 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
 {
   bool sendPending = false;
 
-  if (state() == INCOMPLETE && na->targetLLAddr() == "")
-  {
-    Dout(dc::addr_resln, "Ignoring NA as no LL address option included "<<*na);
-    return false;
-  }
-
   if (state() == INCOMPLETE)
   {
+    if (na->targetLLAddr() == "")
+    {
+      Dout(dc::addr_resln, "Ignoring NA as no LL address option included "<<*na);
+      return false;
+    }
+
     setLLAddr(na->targetLLAddr());
 
     if (na->solicited())
@@ -208,7 +208,7 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
 
     sendPending = true;
 
-    //Set the Router flag
+    //Set the Router flag later on in fn
   }
   else // state() != INCOMPLETE
   {
@@ -239,18 +239,23 @@ bool NeighbourEntry::update(const ICMPv6NDMNgbrAd* na)
       else if (updatedAddr)
         setState(STALE);
 
+      //Possible that while our state is not INCOMPLETE as we received NS from
+      //neighbour so we have a lladdr and state is set to stale. Thus when a
+      //solicited NA arrives we used to just change state to reachable but never
+      //sent the pending packets !!!
+      sendPending = state() == REACHABLE;
       //Check the isRouter flags like the case at the very beginning again
     }
   }
 
   if (na->isRouter() && na->isRouter() != isRouter())
   {
-    Dout(dc::notice, "Should really convert NE into a RouterEntry instead. Neighbour Adv. was "<<*na);
+    Dout(dc::warning, "Should really convert NE into a RouterEntry instead. Neighbour Adv. was "<<*na);
     setIsRouter(true);
   }
   else if (!na->isRouter() && na->isRouter() != isRouter())
   {
-    Dout(dc::notice, "Do the reverse RouterEntry->NeighbourEntry "<<*na);
+    Dout(dc::warning, "TODO Should really convert RouterEntry->NeighbourEntry. NA was"<<*na);
     setIsRouter(false);
     //remove from DRL and remove reference to this from all DE
   }

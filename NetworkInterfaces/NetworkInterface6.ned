@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
+// Copyright (C) 2006 Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,23 +20,13 @@
 
 //
 // Prototype module for Link Layer protocols.
-//# FIXME or at least it appears to be... (Andras)
-//
-// Responsibilities:
-// - stub version for test only,
-// - can be replaced later, possibly by compound module
-// - can be used as a "like"-module
-//
-//
-// Prototype module for Link Layer protocols.
 //
 // Responsibilities:
 // - can be used as a "like"-module
 //
 module NetworkInterface6
     parameters:
-        procdelay : numeric const,
-        nwiXmlConfig: xml;
+        procdelay : numeric const;
     gates:
         in: physIn, netwIn, extSignalIn[];
         out: physOut, netwOut, extSignalOut[];

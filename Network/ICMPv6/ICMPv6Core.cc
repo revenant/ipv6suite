@@ -328,11 +328,8 @@ void ICMPv6Core::updatePingStats(PingPayload *payload, const ipv6_addr& src)
   long seqNo = payload->seqNo();
   simtime_t sendingTime = payload->creationTime();
 
-  if (simTime() >= icmpRecordStart)
-  {
-    rec.pingDelay->record(simTime() -  sendingTime);
-    rec.stat->collect(simTime() - sendingTime);
-  }
+  rec.pingDelay->record(simTime() -  sendingTime);
+  rec.stat->collect(simTime() - sendingTime);  
 
   if (seqNo == rec.nextEstSeqNo)
   {
@@ -470,14 +467,20 @@ void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last)
     cout <<"--------------------------------------------------------" <<endl;
     cout <<"\t"<<rt->nodeName()<<" from "<<first->first<<endl;
     cout <<"--------------------------------------------------------" <<endl;
-    cout<<"eed min/avg/max = "<<stat->min()*1000.0<<"ms/"
-        <<stat->mean()*1000.0<<"ms/"<<stat->max()*1000.0<<"ms"<<endl;
+    cout<<" drop rate (%): "<<100 * rec.dropCount / (double)(rec.nextEstSeqNo-1)<<
+      " out of order rate (%): "<<100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo-1);
+    cout<<"eed of "<<stat->samples()<<" ping requests min/avg/max = "
+	<<stat->min()*1000.0<<"ms/"<<stat->mean()*1000.0<<"ms/"<<stat->max()*1000.0<<"ms"<<endl;
     cout<<"stddev="<<stat->stddev()*1000.0<<"ms variance="<<stat->variance()*1000.0<<"ms\n";
     cout <<"--------------------------------------------------------" <<endl;
     stat->recordScalar((ipv6_addr_toString(first->first) + " ping req eed").c_str());
 
     recordScalar((ipv6_addr_toString(first->first) + " ping req dropped").c_str(), rec.dropCount);
     recordScalar((ipv6_addr_toString(first->first) + " ping req outOfOrderArrival").c_str(), rec.outOfOrderArrivalCount);
+    recordScalar((ipv6_addr_toString(first->first) +  " ping req drop rate (%)").c_str(),
+		 100 * rec.dropCount / (double)(rec.nextEstSeqNo-1));
+    recordScalar((ipv6_addr_toString(first->first) + " ping req out-of-order rate (%)").c_str(),
+		 100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo-1));
 
     delete stat;
     delete rec.pingDrop;

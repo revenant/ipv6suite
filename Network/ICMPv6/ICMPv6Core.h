@@ -25,7 +25,8 @@
 #ifndef ICMPv6CORE_H
 #define ICMPv6CORE_H
 
-#include <omnetpp.h>
+#include <map>
+
 #include "QueueBase.h"
 #include "ipv6_addr.h"
 
@@ -34,7 +35,7 @@ class IPv6Datagram;
 class RoutingTable6;
 class InterfaceTable;
 class IPv6Forward;
-
+class PingPayload;
 
 /**
    @class ICMPv6Core
@@ -70,6 +71,8 @@ private:
                            const ipv6_addr& src,
                            const ipv6_addr& dest,
                            int hopLimit);
+  ///keep statistics
+  void updatePingStats(PingPayload *payload, const ipv6_addr& src);
   ///received echo replies are processed
   void processEchoReply (ICMPv6Message *reply,
                          const ipv6_addr& src,
@@ -84,18 +87,29 @@ private:
                            const ipv6_addr& src = IPv6_ADDR_UNSPECIFIED,
                            size_t hopLimit = 0);
 
+  template <class ForwardIterator>
+  void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last);
+
   ///@name Ned Parameters
   //@{
   bool icmpRecordStats;
   bool replyToICMPRequests;
   simtime_t icmpRecordStart;
-  cStdDev* stat;
   //@}
 
-  cOutVector* pingDelay;
-  cOutVector* pingDrop;
-  int dropCount;
-  unsigned short nextEstSeqNo;
+  struct PingRecord{
+    cOutVector* pingDelay;
+    //Differs from the ping apps drop count which is cumulative
+    cOutVector* pingDrop;
+    cStdDev* stat;
+    unsigned int dropCount;
+    unsigned short nextEstSeqNo;
+    unsigned int outOfOrderArrivalCount;
+  };
+
+  typedef std::map<ipv6_addr, PingRecord> PingRecords;
+  //Record statistics of all srcs that sent a ping request to us
+  PingRecords pingRecords;
 
   InterfaceTable *ift;
   RoutingTable6 *rt;

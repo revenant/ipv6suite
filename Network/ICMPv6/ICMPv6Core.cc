@@ -56,8 +56,7 @@ Define_Module( ICMPv6Core );
 
 ICMPv6Core::~ICMPv6Core()
 {
-  delete pingDelay;
-  delete pingDrop;
+
 }
 
 void ICMPv6Core::initialize()
@@ -69,9 +68,6 @@ void ICMPv6Core::initialize()
   icmpRecordStats = par("icmpRecordRequests");
   replyToICMPRequests = par("replyToICMPRequests");
   icmpRecordStart = par("icmpRecordStart");
-  stat = 0;
-  if (icmpRecordStats)
-    stat = new cStdDev("PingRequestReceived");
 
   fc = check_and_cast<IPv6Forward*> (
     OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
@@ -86,12 +82,6 @@ void ICMPv6Core::initialize()
   ctrIcmp6InDestUnreachable = ctrIcmp6InPacketTooBig = 0;
   ctrIcmp6InTimeExceeded = ctrIcmp6InParamProblem = 0;
 
-  pingDelay = new cOutVector("pingEED");
-  //Per handover
-  pingDrop = new cOutVector("pingDrop");
-
-  dropCount = 0;
-  nextEstSeqNo = 0;
 }
 
 void ICMPv6Core::endService(cMessage* msg)
@@ -137,22 +127,12 @@ void ICMPv6Core::finish()
   if (icmpRecordStats)
   {
     streamsize orig_prec = cout.precision(3);
-
-    cout <<"--------------------------------------------------------" <<endl;
-    cout <<"\t"<<fullPath()<<endl;
-    cout <<"--------------------------------------------------------" <<endl;
-    cout<<"eed min/avg/max = "<<stat->min()*1000.0<<"ms/"
-        <<stat->mean()*1000.0<<"ms/"<<stat->max()*1000.0<<"ms"<<endl;
-    cout<<"stddev="<<stat->stddev()*1000.0<<"ms variance="<<stat->variance()*1000.0<<"ms\n";
-    cout <<"--------------------------------------------------------" <<endl;
+    recordStats(pingRecords.begin(), pingRecords.end());
     cout.precision(orig_prec);
-
-    stat->recordScalar("ping stream eed");
-
-    // XXX cleanup stuff must be moved to dtor! --AV
-    delete stat;
-    stat = 0;
+    pingRecords.clear();
   }
+
+
   recordScalar("Icmp6InMsgs", ctrIcmp6InMsgs);
   recordScalar("Icmp6InEchos", ctrIcmp6InEchos);
   recordScalar("Icmp6InEchoReplies",ctrIcmp6InEchoReplies);
@@ -327,6 +307,60 @@ void ICMPv6Core::sendToErrorOut(ICMPv6Message *icmpmsg)
   send(icmpmsg, "errorOut");
 }
 
+
+//search in PingRecords
+//not found create vectors and initialise vars
+//update stats
+void ICMPv6Core::updatePingStats(PingPayload *payload, const ipv6_addr& src)
+{  
+  if (pingRecords.count(src) == 0)
+  {
+    PingRecord rec = {
+      new cOutVector((ipv6_addr_toString(src) + " pingReqEED").c_str()),
+      new cOutVector((ipv6_addr_toString(src) + " pingReqDrop").c_str()),
+      new cStdDev((ipv6_addr_toString(src) + " pingReqEED").c_str()),
+      0, 0, 0,
+    };
+    pingRecords[src] = rec;
+  }
+
+  PingRecord& rec = pingRecords[src];
+  long seqNo = payload->seqNo();
+  simtime_t sendingTime = payload->creationTime();
+
+  if (simTime() >= icmpRecordStart)
+  {
+    rec.pingDelay->record(simTime() -  sendingTime);
+    rec.stat->collect(simTime() - sendingTime);
+  }
+
+  if (seqNo == rec.nextEstSeqNo)
+  {
+    rec.nextEstSeqNo=seqNo+1;
+  }
+  else if (seqNo > rec.nextEstSeqNo)
+  {
+    unsigned int justDropped = (unsigned short)(seqNo - rec.nextEstSeqNo);
+    Dout(dc::ping6, rt->nodeName() <<" pingecho_req: "<<simTime()
+	 <<" dropCount="<<rec.dropCount<<" Jump in seq numbers, assuming pings since seq#" 
+	 << rec.nextEstSeqNo <<" got lost. Just dropped="<<justDropped);
+    rec.dropCount += justDropped;
+    if (simTime() >= icmpRecordStart)
+      rec.pingDrop->record(justDropped);
+    rec.nextEstSeqNo = seqNo + 1;
+  }
+  else if (seqNo < rec.nextEstSeqNo)
+  {
+    Dout(dc::statistic|flush_cf, rt->nodeName()<<" "<<simTime()<<" out of order ping echo_request (too late)"
+         <<" with seq="<<seqNo<<" when nextEstSeqNo="<<rec.nextEstSeqNo);
+    rec.outOfOrderArrivalCount ++;
+  }
+  else
+  {
+    assert(false);
+  }
+}
+
 /*  ----------------------------------------------------------
        Echo request and reply ICMPv6 messages
     ----------------------------------------------------------  */
@@ -340,43 +374,14 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
 
   if (payload && icmpRecordStats)
   {
-    long seqNo = payload->seqNo();
-    simtime_t sendingTime = payload->creationTime();
-
-    if (seqNo > nextEstSeqNo)
-    {
-      Dout(dc::ping6, rt->nodeName() <<" pingecho_req: "<<simTime()<<" expected seqNo mismatch, dropCount="
-           <<dropCount<<" echo_req.seqNo="<<seqNo<<" nextEstSeqNo="<<nextEstSeqNo
-           <<" just dropped="<<seqNo - nextEstSeqNo);
-      dropCount += (unsigned short)(seqNo - nextEstSeqNo);
-      if (simTime() >= icmpRecordStart)
-        pingDrop->record((unsigned short)(seqNo - nextEstSeqNo));
-    }
-
-    if (seqNo < nextEstSeqNo)
-    {
-      Dout(dc::statistic|flush_cf, rt->nodeName()<<" "<<simTime()<<" out of order ping echo_request"
-         <<" with seq="<<seqNo<<" when nextEstSeqNo="<<nextEstSeqNo);
-    }
-    else
-    {
-      nextEstSeqNo=seqNo+1;
-
-      if (simTime() >= icmpRecordStart)
-      {
-        pingDelay->record(simTime() -  sendingTime);
-        stat->collect(simTime() - sendingTime);
-      }
-    }
-
-    Dout(dc::statistic|flush_cf, rt->nodeName()<<" icmpCorePingReqEED \t"
-         <<simTime()<<"\t"<<simTime() - sendingTime);
+    updatePingStats(payload, src);
 
     Dout(dc::ping6, (request->length()/BITS)<<dec<<" bytes from " <<src
-         <<" icmp_seq="<<seqNo<<" ttl="<<hopLimit
-         <<" eed="<< (simTime() - sendingTime) * 1000 << " msec"
-         <<"  (ping request received at "<< rt->nodeName() << ")");
+	 <<" icmp_seq="<<payload->seqNo()<<" ttl="<<hopLimit
+	 <<" eed="<< (simTime() - payload->creationTime()) * 1000 << " msec"
+	 <<"  (ping request received at "<< rt->nodeName() << ")");
   }
+
 
   if (!replyToICMPRequests)
   {
@@ -384,7 +389,7 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
     return;
   }
 
-  // send echo reply to the source
+  // send echo reply to the source and reuse request packet
   ICMPv6Message *reply = request;
   reply->setName((std::string(request->name())+"-reply").c_str());
   reply->setType(ICMPv6_ECHO_REPLY);
@@ -392,7 +397,6 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
   //Use request->destAddress as src Address as there could be two addresses with
   //same scope when determineSrcAddress is used.
   int inputPort = -1; //FIXME where to get it from?????????????????????????!!!!!!!!!!!!!!!!!!!1
-//__asm int 3;
   ipv6_addr src1 = src;
   if (dest.isMulticast())
   {
@@ -454,3 +458,29 @@ void ICMPv6Core::sendToIPv6(ICMPv6Message *msg, const ipv6_addr& dest,
   send(msg, "sendOut");
 }
 
+///prints out summary ping  request statistics and records scalars and deletes vectors
+template <class ForwardIterator>
+void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last)
+{
+  for (;first != last; first++)
+  {
+    PingRecord& rec = first->second;
+    cStdDev* stat = rec.stat;
+
+    cout <<"--------------------------------------------------------" <<endl;
+    cout <<"\t"<<rt->nodeName()<<" from "<<first->first<<endl;
+    cout <<"--------------------------------------------------------" <<endl;
+    cout<<"eed min/avg/max = "<<stat->min()*1000.0<<"ms/"
+        <<stat->mean()*1000.0<<"ms/"<<stat->max()*1000.0<<"ms"<<endl;
+    cout<<"stddev="<<stat->stddev()*1000.0<<"ms variance="<<stat->variance()*1000.0<<"ms\n";
+    cout <<"--------------------------------------------------------" <<endl;
+    stat->recordScalar((ipv6_addr_toString(first->first) + " ping req eed").c_str());
+
+    recordScalar((ipv6_addr_toString(first->first) + " ping req dropped").c_str(), rec.dropCount);
+    recordScalar((ipv6_addr_toString(first->first) + " ping req outOfOrderArrival").c_str(), rec.outOfOrderArrivalCount);
+
+    delete stat;
+    delete rec.pingDrop;
+    delete rec.pingDelay;
+  }
+}

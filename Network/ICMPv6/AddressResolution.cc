@@ -753,9 +753,9 @@ void sequence_delete(ForwardIterator first, ForwardIterator last)
 template <class ForwardIterator>
 void map_delete(ForwardIterator first, ForwardIterator last)
 {
-  for (;first != last; first++)
-    delete first->second;
-    //sequence_delete( (*first).second.begin(), (*first).second.end());
+  //  for (;first != last; first++)
+  //  delete first->second;
+  sequence_delete( (*first).second.begin(), (*first).second.end());
 }
 
 void AddressResolution::finish()

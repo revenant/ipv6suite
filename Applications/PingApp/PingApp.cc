@@ -211,12 +211,11 @@ void PingApp::countPingResponse(int bytes, long seqNo, simtime_t rtt)
 
 void PingApp::finish()
 {
-    if (sendSeqNo==0)
-    {
-        ev << fullPath() << ": No pings sent, skipping recording statistics and printing results.\n";
-        recordScalar("Pings sent", sendSeqNo);
-        return;
-    }
+  if (sendSeqNo==0 || delayStat.samples() == 0)
+  {
+    EV << fullPath() << ": No pings sent, skipping recording statistics and printing results.\n";
+    return;
+  }
 
     // record statistics
     recordScalar("Pings sent", sendSeqNo);

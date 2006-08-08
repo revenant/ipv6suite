@@ -108,7 +108,8 @@ public:
   virtual ~BURetranTmr(void)
     {
 //stop it from dumping core at end run of sim
-//      delete dgram;
+//TODO LEAK
+      delete dgram;
     };
 
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT
@@ -667,8 +668,9 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
         if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
         {
           Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
+	       <<" perhaps due to BA not arriving to us previously? "
                <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
-          assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
+          //assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
         }
 
         Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
@@ -1600,9 +1602,17 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     mipv6cdsMN->addBU(bule);
 
     if ( homeReg && mob->isEwuOutVectorHODelays() )
+    {
+      //TODO bule gets recreated when when return home and go away again so
+      //previous vector wiped out
       bule->regDelay = new cOutVector("home reg");
+    }
     else if (mob->isEwuOutVectorHODelays())
-      bule->regDelay = new cOutVector("CN reg (without RR)");
+    {
+      ostringstream os;
+      os<<dest<<(mapReg?" MAP ": " CN ")<<" reg (without RR)";
+      bule->regDelay = new cOutVector(os.str().c_str());
+    }
   }
   else
   {
@@ -1853,8 +1863,14 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
 void MIPv6MStateMobileNode::parseXMLAttributes()
 {
   XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
-  mipv6cdsMN->setEagerHandover(p->getNodePropBool(p->getNetNode(mob->nodeName()), "eagerHandover"));
+  cXMLElement* ne = p->getNetNode(mob->nodeName());
+  if (!ne)
+    ne = mob->rt->par("baseSettings");
+  if (ne)
+  {
+    mipv6cdsMN->setEagerHandover(p->getNodePropBool(ne, "eagerHandover"));
 
-  mipv6cdsMN->setSendBUAckFlag(p->getNodePropBool(p->getNetNode(mob->nodeName()), "mnSendBUAckFlag"));
+    mipv6cdsMN->setSendBUAckFlag(p->getNodePropBool(ne, "mnSendBUAckFlag"));
+  }
 }
 } //namespace MobileIPv6

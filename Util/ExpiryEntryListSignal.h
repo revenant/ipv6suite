@@ -195,7 +195,7 @@ public:
   void addOrUpdate(param_type p)
   {
     // Remove any existing entry from the list 
-    Container::erase(std::find(begin(), end(), p), end());
+    Container::erase(std::remove(begin(), end(), p), end());
     push_back(p);
   }
 

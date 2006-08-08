@@ -356,8 +356,8 @@ void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
   cXMLElement* ne = getNetNode(rt->nodeName());
   if (!ne)
   {
-    Dout(dc::warning, rt->nodeName()<<" no XML configuration found");
-    return;
+    Dout(dc::notice, rt->nodeName()<<" base settings used");
+    ne = rt->par("baseSettings");
   }
   else
     Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in parseNetworkEntity");

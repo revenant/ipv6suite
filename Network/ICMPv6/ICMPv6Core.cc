@@ -468,8 +468,8 @@ void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last)
     cout <<"\t"<<rt->nodeName()<<" from "<<first->first<<endl;
     cout <<"--------------------------------------------------------" <<endl;
     cout<<" drop rate (%): "<<100 * rec.dropCount / (double)(rec.nextEstSeqNo-1)<<
-      " out of order rate (%): "<<100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo-1);
-    cout<<"eed of "<<stat->samples()<<" ping requests min/avg/max = "
+      " out of order rate (%): "<<100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo-1)<<endl;
+    cout<<"eed of "<<stat->samples()<<"/"<<rec.nextEstSeqNo-1<<" recorded/\"expected\" ping requests min/avg/max = "
 	<<stat->min()*1000.0<<"ms/"<<stat->mean()*1000.0<<"ms/"<<stat->max()*1000.0<<"ms"<<endl;
     cout<<"stddev="<<stat->stddev()*1000.0<<"ms variance="<<stat->variance()*1000.0<<"ms\n";
     cout <<"--------------------------------------------------------" <<endl;

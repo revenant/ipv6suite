@@ -744,18 +744,10 @@ void AddressResolution::processNgbrAd(IPv6NeighbourDiscovery::ICMPv6NDMNgbrAd* t
 }
 
 template <class ForwardIterator>
-void sequence_delete(ForwardIterator first, ForwardIterator last)
-{
-  while (first != last)
-    delete *first++;
-}
-
-template <class ForwardIterator>
 void map_delete(ForwardIterator first, ForwardIterator last)
 {
-  //  for (;first != last; first++)
-  //  delete first->second;
-  sequence_delete( (*first).second.begin(), (*first).second.end());
+  for (;first != last; first++)
+    delete first->second;  
 }
 
 void AddressResolution::finish()

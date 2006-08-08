@@ -308,19 +308,8 @@ void WEDataReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signa
         {
             wEV << currentTime() << " " << mod->fullPath() << " Active scan due to data threshold too low.\n";
             mod->restartScanning();
-            mod->linkdownTime = mod->simTime();
-	    sendLinkDownMsg(mod);
         }
     }
-}
-
-void sendLinkDownMsg(cSimpleModule* mod)
-{
-  cMessage *linkDownTimeMsg = new cMessage;
-  linkDownTimeMsg->setTimestamp();
-  linkDownTimeMsg->setKind(LinkDOWN);
-  mod->sendDirect(linkDownTimeMsg,
-                                0, OPP_Global::findModuleByName(mod, "mobility"), "l2TriggerIn");
 }
 
 // Handle beacon solely to monitor signal strength of currently associated AP
@@ -351,8 +340,6 @@ void WEDataReceiveMode::handleBeacon(WirelessEtherModule *mod, WESignalData *sig
         {
             wEV << currentTime() << " " << mod->fullPath() << " Active scan due to beacon threshold too low \n";
             mod->restartScanning();
-            mod->linkdownTime = mod->simTime();
-	    sendLinkDownMsg(mod);
         }
         delete beaconBody;
     }

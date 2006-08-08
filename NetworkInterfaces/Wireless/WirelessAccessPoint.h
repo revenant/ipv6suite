@@ -84,6 +84,8 @@ bool operator!=(const WirelessEtherInterface& lhs,
 bool operator<(const WirelessEtherInterface& lhs,
                              const WirelessEtherInterface& rhs);
 
+std::ostream& operator<<(std::ostream& os, const WirelessEtherInterface& wif);
+
 class WESignalData;
 class WirelessEtherBridge;
 class FrameBody;

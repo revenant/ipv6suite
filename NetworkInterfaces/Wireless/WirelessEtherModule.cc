@@ -628,7 +628,7 @@ void WirelessEtherModule::handleMessage(cMessage *msg)
 	if (statsVec && msg != updateStatsTimer &&
 	    !updateStatsTimer->isScheduled())	  
 	  scheduleAt(std::ceil(simTime()), updateStatsTimer);
-
+	
         // FIXME TODO assert that state is really the one assumed
         if (msg==awaitAckTimer)
             WirelessEtherStateAwaitACK::instance()->endAwaitACK(this);
@@ -1022,7 +1022,21 @@ void WirelessEtherModule::restartScanning(void)
         }
     }
 
-    //linkDOWN trigger
+    //record L2 down event by sending L2 down trigger
+    linkdownTime = simTime();
+    cMessage *linkDownTimeMsg = new cMessage;
+    linkDownTimeMsg->setTimestamp();
+    linkDownTimeMsg->setKind(LinkDOWN);
+    sendDirect(linkDownTimeMsg,
+	       0, OPP_Global::findModuleByName(this, "mobility"), "l2TriggerIn");
+
+    if (ev.isGUI())
+    {
+      bubble("Active scan!");
+      parentModule()->bubble("Active scan!");
+      parentModule()->parentModule()->bubble("Active scan!");
+    }
+
     associateAP.address = MAC_ADDRESS_UNSPECIFIED_STRUCT;
     associateAP.channel = INVALID_CHANNEL;
     associateAP.rxpower = INVALID_POWER;

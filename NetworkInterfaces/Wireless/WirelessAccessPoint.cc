@@ -76,6 +76,14 @@ bool operator<(const WirelessEtherInterface & lhs, const WirelessEtherInterface 
     return (lhs.expire < rhs.expire);
 }
 
+std::ostream& operator<<(std::ostream& os, const WirelessEtherInterface& wif)
+{
+  os<<" addr:"<<wif.address<<" recMode="<<wif.receiveMode<<" failed="
+    <<wif.consecFailedTrans<<" seq="<< wif.currentSequence<<" expire="
+    <<wif.expire<<" reason="<<wif.reasonCode<<" status="<<wif.statusCode;
+  return os;
+}
+
 WirelessAccessPoint::~WirelessAccessPoint()
 {
     delete avgCollDurationVec;
@@ -268,6 +276,8 @@ void WirelessAccessPoint::initialize(int stage)
              << " ASS ENTRY TIMEOUT: " << assEntryTimeout << "\n"
              << " FAST ACTIVE SCAN: " << fastActScan << "\n"
              << " CROSSTALK: " << crossTalk << "\n";
+
+	WATCH_VECTOR(*ifaces);
     }
     baseInit(stage);
 }

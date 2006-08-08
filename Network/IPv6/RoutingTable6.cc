@@ -117,6 +117,8 @@ void RoutingTable6::initialize(int stage)
     (*pel) = boost::bind(&RoutingTable6::prefixTimeout, this, _1);
     rel->startTimer();
     pel->startTimer();
+    WATCH_PTRVECTOR(*rel);
+    WATCH_PTRVECTOR(*pel);
   }
   else if(stage == 1)
   {

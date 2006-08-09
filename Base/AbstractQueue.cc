@@ -23,6 +23,8 @@
 
 AbstractQueue::~AbstractQueue()
 {
+  if (endServiceMsg->isScheduled())
+    cancelEvent(endServiceMsg);
   delete endServiceMsg;
 }
 

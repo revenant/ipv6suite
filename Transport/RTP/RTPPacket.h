@@ -1,210 +1,114 @@
-/***************************************************************************
-                          RTPPacket.h  -  description
-                             -------------------
-    begin                : Mon Oct 22 2001
-    copyright            : (C) 2001 by Matthias Oppitz
-    email                : Matthias.Oppitz@gmx.de
- ***************************************************************************/
+// -*- C++ -*-
+// Copyright (C) 2006 Johnny Lai
+//
+// This file is part of IPv6Suite
+//
+// IPv6Suite is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// IPv6Suite is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
-/*! \file RTPPacket.h
-This file declares the class RTPPacket.
-*/
+/**
+ * @file RTPPacket.h
+ * @author 
+ * @date 29 Jul 2006
+ *
+ * @brief Definition of class RTPPacket
+ *
+ * @test see RTPPacketTest
+ *
+ * @todo Remove template text
+ */
 
-#ifndef __RTPPACKET_H__
-#define __RTPPACKET_H__
+#ifndef RTPPACKET_H
+#define RTPPACKET_H
 
+#ifndef __OMNETPP_H
 #include <omnetpp.h>
+#endif //__OMNETPP_H
 
-#include "types.h"
+#include "RTPPacket_m.h"
 
-/*! \class RTPPacket
-This class represents an rtp data packet.
-Real data can either be encapsulated or simulated by
-adding length.
-Following rtp header fields exist but aren't used: padding, extension,
-csrcCount. The csrcList can't be used because csrcCount is always 0.
-*/
-class RTPPacket : public cPacket {
+/**
+ * @class RTPPacket
+ *
+ * @brief 
+ *
+ * detailed description
+ */
 
-    public:
-        /*!
-        Default constructor.
-        */
-        RTPPacket(const char *name = NULL);
+ class RTPPacket : public RTPPacket_Base
+ {
+   public:
+  //@name constructors, destructors and operators
+  //@{
+   RTPPacket(const char *name=NULL, int kind=0) : RTPPacket_Base(name,kind) 
+   {
+     setByteLength(12);
+   }
+   RTPPacket(const RTPPacket& other) : RTPPacket_Base(other.name()) {operator=(other);}
+   RTPPacket& operator=(const RTPPacket& other) {RTPPacket_Base::operator=(other); return *this;}
 
-        /*!
-        Copy constructor.
-        */
-        RTPPacket(const RTPPacket& packet);
+   ///@name Overidden cObject functions and pure virtual functions from RTPPacket_Base
+   //@{
 
-        /*!
-        Destructor.
-        */
-        virtual ~RTPPacket();
+   virtual cPolymorphic *dup() const {return new RTPPacket(*this);}
 
-        /*!
-        Assignment operator.
-        */
-        RTPPacket& operator=(const RTPPacket& packet);
+   virtual void setPayloadLength(unsigned int payloadLength_var)
+   {
+     // adjust message length
+     setByteLength(byteLength()-payloadLength() + payloadLength_var);
 
-        /*!
-        Duplicates the RTPPacket by calling the copy constructor.
-        */
-        virtual cObject *dup() const;
+     // set the new length
+     RTPPacket_Base::setPayloadLength(payloadLength_var);
+   }
 
-        /*!
-        Returns the class name "RTPPacket".
-        */
-        virtual const char *className() const;
+   //*}
 
-        /*!
-        Writes a one line info about this RTPPacket into the given string.
-        */
-        virtual std::string info();
-
-        /*!
-        Writes a longer description about this RTPPacket into the given stream.
-        */
-        virtual void writeContents(std::ostream& os);
-
-        /*!
-        Returns the value of the marker bit in this RTPPacket.
-        */
-        virtual int marker();
-
-        /*!
-        Sets the value of the marker bit in this RTPPacket.
-        */
-        virtual void setMarker(int marker);
-
-        /*!
-        Returns the payload type of this RTPPacket.
-        */
-        virtual int payloadType();
-
-        /*!
-        Sets the payload type of this RTPPacket.
-        */
-        virtual void setPayloadType(int payloadType);
-
-        /*!
-        Returns the sequence number of this RTPPacket.
-        */
-        virtual u_int16 sequenceNumber();
-
-        /*!
-        Sets the sequence number of this RTPPacket.
-        */
-        virtual void setSequenceNumber(u_int16 sequenceNumber);
-
-        /*!
-        Returns the rtp time stamp of this RTPPacket.
-        */
-        virtual u_int32 timeStamp();
-
-        /*!
-        Sets the rtp time stamp of this RTPPacket.
-        */
-        virtual void setTimeStamp(u_int32 timeStamp);
-
-        /*!
-        Returns the ssrc identifier of this RTPPacket.
-        */
-        virtual u_int32 ssrc();
-
-        /*!
-        Sets the ssrc identifier of this RTPPacket.
-        */
-        virtual void setSSRC(u_int32 ssrc);
-
-        /*!
-        Returns the length of the fixed header of an RTPPacket.
-        */
-        static int fixedHeaderLength();
-
-        /*!
-        Returns the length of the header (fixed plus variable part)
-        of this RTPPacket.
-        */
-        virtual int headerLength();
-
-        /*!
-        Returns the size of the payload stored in this RTPPacket.
-        */
-        virtual int payloadLength();
-
-        /*!
-        Compares two RTPPacket objects by comparing their
-        sequence numbers.
-        */
-        static int compareFunction(cObject *packet1, cObject *packet2);
-
-    protected:
-
-        /*!
-        The rtp version of this RTPPacket.
-        */
-        int _version;
-
-        /*!
-        Set to 1 if padding is used in this RTPPacket, 0 otherwise.
-        This implementation doesn't use padding bytes, so it is always 0.
-        */
-        int _padding;
-
-        /*!
-        Set to 1, if this RTPPacket contains an rtp header extension, 0 otherwise.
-        This implementation doesn't support rtp header extensions, so it is always 0.
-        */
-        int _extension;
-
-        /*!
-        Stores the number (0..31) of contributing sources for this RTPPacket.
-        It is always 0 because contributing sources are added by rtp mixers
-        which aren't implemented.
-        */
-        int _csrcCount;
-
-        /*!
-        The marker of this RTPPacket.
-        */
-        int _marker;
-
-        /*!
-        The type of payload carried in this RTPPacket.
-        */
-        int _payloadType;
-
-        /*!
-        The sequence number of this RTPPacket.
-        */
-        u_int16 _sequenceNumber;
-
-        /*!
-        The rtp time stamp of this RTPPacket.
-        */
-        u_int32 _timeStamp;
-
-        /*!
-        The ssrc identifier of the creator of this RTPPacket.
-        */
-        u_int32 _ssrc;
-
-        // no mixers, no contributing sources
-        //int _csrc[];
+ };
 
 
+
+
+/**
+ * @class RTCPPacket
+ *
+ * @brief 
+ *
+ * detailed description
+ */
+
+class RTCPPacket: public RTCPPacket_Base
+{
+ public:
+
+  //@name constructors, destructors and operators
+  //@{
+    RTCPPacket(const char *name=NULL, int kind=0) : RTCPPacket_Base(name,kind) 
+    {
+      setByteLength(8);
+    }
+    RTCPPacket(const RTCPPacket& other) : RTCPPacket_Base(other.name()) {operator=(other);}
+    RTCPPacket& operator=(const RTCPPacket& other) {RTCPPacket_Base::operator=(other); return *this;}
+  //@}
+
+    virtual cPolymorphic *dup() const {return new RTCPPacket(*this);}
+
+ protected:
+
+ private:
 
 };
 
-#endif
+#endif /* RTPPACKET_H */
 

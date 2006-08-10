@@ -78,14 +78,20 @@ class RTP: public UDPAppBase
   virtual void leaveSession();
   virtual void establishSession();
   virtual simtime_t calculateTxInterval();
-
+  virtual bool sendRTPPacket();
  protected:
 
  private:
 
+  void resolveAddresses();
+
+  //ned params storage
   unsigned short port;
   std::vector<IPvXAddress> destAddrs;
+  simtime_t startTime;
+
   cMessage* rtcpTimeout;
+  cMessage* rtpTimeout;
 
   //last time rtcp tx
   simtime_t tp;
@@ -104,6 +110,11 @@ class RTP: public UDPAppBase
   float meanRtcpSize; // avg_rtcp_size
   //true if no rtcp sent
   bool initial;
+
+  //watch these values for txtimeout calc
+  float C;
+  int n;
+
 
 };
 

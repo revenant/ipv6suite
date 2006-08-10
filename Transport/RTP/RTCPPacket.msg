@@ -20,7 +20,8 @@
 //Include any c++ code in these sections
 cplusplus 
 {{ 
-
+// abit round about but ...
+#include "RTPPacket.h"
 }};
 
 //report block 6 * 4 bytes
@@ -35,12 +36,6 @@ struct RTCPReportBlock
   unsigned int lastSR; //4
   unsigned int delaySinceLastSR; //4
 }
-
-cplusplus 
-{{ 
-// abit round about but ...
-#include "RTPPacket.h"
-}};
 
 class RTCPPacket;
 

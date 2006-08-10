@@ -59,7 +59,7 @@ void PingApp::initialize()
     WATCH(outOfOrderArrivalCount);
 
     // schedule first ping (use empty destAddr or stopTime<=startTime to disable)
-    if (par("destAddr").stringValue()[0] && (stopTime==0 || stopTime>=startTime))
+    if (startTime > 0 && par("destAddr").stringValue()[0] && (stopTime==0 || stopTime>startTime))
     {
         cMessage *msg = new cMessage("sendPing");
         scheduleAt(startTime, msg);
@@ -213,7 +213,8 @@ void PingApp::finish()
 {
   if (sendSeqNo==0 || delayStat.samples() == 0)
   {
-    EV << fullPath() << ": No pings sent, skipping recording statistics and printing results.\n";
+    //thought EV was print only when module messages=yes in ini file
+    //EV << fullPath() << ": No pings sent, skipping recording statistics and printing results.\n";
     return;
   }
 

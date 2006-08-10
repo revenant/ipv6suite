@@ -66,8 +66,8 @@ end
 # Imports omnetpp.vec files
 #
 class RImportOmnet
-  VERSION       = "$Revision: 1.8 $"
-  REVISION_DATE = "$Date: 2005/03/11 18:38:25 $"
+  VERSION       = "$Revision: 2.0 $"
+  REVISION_DATE = "$Date: 2006/07/21 $"
   AUTHOR        = "Johnny Lai"
 
   RSlave = "R --slave --quiet --vanilla --no-readline"
@@ -143,10 +143,10 @@ class RImportOmnet
 
       opt.on("-r", "--restrict x,y,z", Array, "Restrict these vectors to at most size rows"){|@restrict|}
 
-      opt.on("--relevel x", String, "Relevel scheme order according to this space separate list of args"){|@relevelSchemeOrder|
+      opt.on("--relevel x", String, "Relevel scheme order according to this string of space separated list of levels"){|@relevelSchemeOrder|
         @relevelSchemeOrder =  %{%w[#{@relevelSchemeOrder}]}
         @relevelSchemeOrder = eval(@relevelSchemeOrder)
-}
+      }
 
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
@@ -621,11 +621,13 @@ TARGET
   end
 
   def test_relevel
-#     @inputRdata = "EHAnalysism.Rdata"
-#     @rdata = "out.Rdata"
-#     @p.puts %|load("#{@inputRdata}")|
-#     $app.relevelScheme(@p)
-#     @p.puts %|save.image("#{@rdata}")|
+    return
+     @inputRdata = "EHAnalysism.Rdata"
+     @inputRdata = "repeatRun-collated.Rdata"
+     @rdata = "out.Rdata"
+     @p.puts %|load("#{@inputRdata}")|
+     $app.relevelScheme(@p)
+     @p.puts %|save.image("#{@rdata}")|
   end
 
   if false

@@ -43,11 +43,6 @@ module MultiBaselineNetwork
     submodules:
         worldProcessor: WorldProcessor;
             display: "p=260,264;i=bwgen_s";
-//	   mn: MobileNode[numOfClients];
-//	       gatesizes:
-//		   wlin[1],
-//		   wlout[1];
-//	       display: "p=50,70;i=laptop";
         mn:  MobileNode
             gatesizes:
                 wlin[1],

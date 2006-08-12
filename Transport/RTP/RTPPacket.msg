@@ -31,10 +31,9 @@ message RTPPacket
 
  fields:
   //size is 12 bytes assuming 0 csrc identifiers
-  unsigned int seqNo; //16 bits
-  //timestamp 32 bits (part of cmessage already)
-  //identifies the source of rtp stream (use module id? or some other method to
-  //map nodename to ssrc)
+  unsigned short seqNo; //16 bits
+  //rtp timestamp 32 bits (part of cmessage already) (we'll just use wallclock)
+  //identifies the source of rtp stream (use module id)
   unsigned int ssrc; //32 bits 
   unsigned int payloadLength; //in bytes
 };

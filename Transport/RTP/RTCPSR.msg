@@ -23,9 +23,16 @@ cplusplus
 #include "RTCPPacket.h"
 }};
 
-class RTCPRR;
+class RTCPReports;
 
-message RTCPSR extends RTCPRR
+message RTCPRR extends RTCPReports
+{
+ properties:
+  omitGetVerb=true;
+  customize = true;
+}
+
+message RTCPSR extends RTCPReports
 {
  properties:
   omitGetVerb=true;

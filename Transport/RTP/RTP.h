@@ -35,6 +35,20 @@
 #endif //__OMNETPP_H
 
 #include "UDPAppBase.h"
+#include <map>
+#include "RTCPPacket_m.h"
+
+struct RTPMemberEntry
+{
+  bool sender;
+  //transit time of last RTP data packet received i.e.
+  //time at arrival - packet's rtp timestamp
+  simtime_t transit;
+  unsigned int seqNo;
+  unsigned int received;
+  //last jitter calculated
+  simtime_t jitter;
+};
 
 /**
  * @class RTP
@@ -81,18 +95,29 @@ class RTP: public UDPAppBase
   virtual bool sendRTPPacket();
  protected:
 
- private:
-
   void resolveAddresses();
 
   //ned params storage
+  //@{
   unsigned short port;
   std::vector<IPvXAddress> destAddrs;
   simtime_t startTime;
+  //@}
+
+  //Keyed on SSRC
+  std::map<unsigned int, RTPMemberEntry> memberSet;
+  unsigned int _ssrc;
+  unsigned short _seqNo;
+  //no of rtp data packets sent
+  unsigned int packetCount;
+  //no. of rtp data octets sent
+  unsigned int octetCount;
 
   cMessage* rtcpTimeout;
   cMessage* rtpTimeout;
 
+  //variables for calculation of T i.e. RTCP Report transmission
+  //@{
   //last time rtcp tx
   simtime_t tp;
   //next schedule tx of rtcp
@@ -111,9 +136,12 @@ class RTP: public UDPAppBase
   //true if no rtcp sent
   bool initial;
 
+ private:
+
   //watch these values for txtimeout calc
   float C;
   int n;
+  //@}
 
 
 };

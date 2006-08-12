@@ -29,17 +29,18 @@ struct RTCPReportBlock
 {
  fields:
   unsigned int ssrc; //32 bits
-  unsigned short fractionLost; //1 byte
+  short fractionLost; //1 byte
   unsigned int cumPacketsLost; //3 bytes
   unsigned int seqNoReceived; //4
-  unsigned int jitter; //4
+  //supposed to be 4 bytes but we'll use float for easier calc
+  simtime_t jitter; //4
   unsigned int lastSR; //4
   unsigned int delaySinceLastSR; //4
 }
 
 class RTCPPacket;
 
-message RTCPRR extends RTCPPacket
+message RTCPReports extends RTCPPacket
 {
  properties:
   customize = true;

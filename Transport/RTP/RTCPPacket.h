@@ -49,14 +49,21 @@
 */
 
 
-class RTCPRR : public RTCPRR_Base
+class RTCPReports : public RTCPReports_Base
 {
   public:
-    RTCPRR(const char *name="RTCPRR", int kind=201) : RTCPRR_Base(name,kind) {}
-    RTCPRR(const RTCPRR& other) : RTCPRR_Base(other.name()) {operator=(other);}
-    RTCPRR& operator=(const RTCPRR& other) {RTCPRR_Base::operator=(other); return *this;}
-    virtual cPolymorphic *dup() const {return new RTCPRR(*this);}
-    // ADD CODE HERE to redefine and implement pure virtual functions from RTCPRR_Base
+    RTCPReports(const char *name="invalid", int kind=0) : RTCPReports_Base(name,kind){}
+    RTCPReports(const RTCPReports& other) : RTCPReports_Base(other.name()) {operator=(other);}
+    RTCPReports& operator=(const RTCPReports& other) {
+      RTCPReports_Base::operator=(other);
+      for (unsigned int i = 0; i < other.blocks.size(); ++i)
+      {
+	addBlock(other.blocks[i]);
+      }
+      return *this;
+    }
+    virtual cPolymorphic *dup() const {return new RTCPReports(*this);}
+    // ADD CODE HERE to redefine and implement pure virtual functions from RTCPReports_Base
     virtual void setReportBlocksArraySize(unsigned int size){}
     virtual unsigned int reportBlocksArraySize() const;
     virtual RTCPReportBlock& reportBlocks(unsigned int k);
@@ -69,9 +76,10 @@ protected:
 class RTCPGoodBye : public RTCPGoodBye_Base
 {
   public:
-    RTCPGoodBye(const char *name="RTCPBYE", int kind=203) : RTCPGoodBye_Base(name,kind) 
+    RTCPGoodBye(unsigned int ssrc, const char *name="RTCPBYE", int kind=203) : RTCPGoodBye_Base(name,kind) 
     {
       setByteLength(4 + byteLength());
+      setSsrc(ssrc);
     }
     RTCPGoodBye(const RTCPGoodBye& other) : RTCPGoodBye_Base(other.name()) {operator=(other);}
     RTCPGoodBye& operator=(const RTCPGoodBye& other) {RTCPGoodBye_Base::operator=(other); return *this;}
@@ -82,12 +90,18 @@ class RTCPGoodBye : public RTCPGoodBye_Base
 class RTCPSDES : public RTCPSDES_Base
 {
   public:
-    RTCPSDES(const char *name="RTCPSDES", int kind=202) : RTCPSDES_Base(name,kind) 
+    RTCPSDES(unsigned int ssrc, const char* cname, const char *name="RTCPSDES", int kind=202) : RTCPSDES_Base(name,kind) 
     {
       setByteLength(2 + byteLength());
+      setCname(cname);
+      setSsrc(ssrc);
     }
     RTCPSDES(const RTCPSDES& other) : RTCPSDES_Base(other.name()) {operator=(other);}
-    RTCPSDES& operator=(const RTCPSDES& other) {RTCPSDES_Base::operator=(other); return *this;}
+    RTCPSDES& operator=(const RTCPSDES& other) {
+      RTCPSDES_Base::operator=(other);
+      setCname(other.cname());
+      return *this;
+    }
     virtual cPolymorphic *dup() const {return new RTCPSDES(*this);}
     // ADD CODE HERE to redefine and implement pure virtual functions from RTCPSDES_Base
     // field getter/setter methods

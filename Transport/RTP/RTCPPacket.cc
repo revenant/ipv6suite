@@ -36,17 +36,17 @@
 #include "RTCPPacket.h"
 #include "RTPPacket.h"
 
-Register_Class(RTPPacket);
+//Register_Class(RTPPacket);
 Register_Class(RTCPPacket);
 
-unsigned int RTCPRR::reportBlocksArraySize() const
+unsigned int RTCPReports::reportBlocksArraySize() const
 {
   //limit imposed by rfc 3550
   assert(blocks.size() < 31); 
   return blocks.size();
 }
 
-RTCPReportBlock& RTCPRR::reportBlocks(unsigned int k)
+RTCPReportBlock& RTCPReports::reportBlocks(unsigned int k)
 {
   assert(k < blocks.size());
   if (k >= blocks.size())
@@ -54,13 +54,13 @@ RTCPReportBlock& RTCPRR::reportBlocks(unsigned int k)
   return blocks[k];
 }
 
-void RTCPRR::setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
+void RTCPReports::setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
 {
   assert(k < blocks.size());
   blocks[k] = reportBlocks_var;
 }
 
-void RTCPRR::addBlock(const RTCPReportBlock& b)
+void RTCPReports::addBlock(const RTCPReportBlock& b)
 {
   setByteLength(byteLength() + 6*4);
   blocks.push_back(b);

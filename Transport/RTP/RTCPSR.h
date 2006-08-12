@@ -40,7 +40,25 @@
 #include "RTCPSR_m.h"
 
 /**
-   @class RTCPSR_
+   @class RTCPRR
+   @brief RTCP Receiver Report 	
+   @ingroup RTCP
+*/
+
+class RTCPRR : public RTCPRR_Base
+{
+   public:
+    RTCPRR(unsigned int ssrc, const char *name="RTCPRR", int kind=201) : RTCPRR_Base(name,kind) {
+      setSsrc(ssrc);
+    }
+    RTCPRR(const RTCPRR& other) : RTCPRR_Base(other.name()) {operator=(other);}
+    RTCPRR& operator=(const RTCPRR& other) {RTCPRR_Base::operator=(other); return *this;}
+    virtual cPolymorphic *dup() const {return new RTCPRR(*this);}
+    // ADD CODE HERE to redefine and implement pure virtual functions from RTCPRR_Base
+};
+
+/**
+   @class RTCPSR
    @brief RTCP Sender Reports
    @ingroup RTCP
 */
@@ -48,9 +66,12 @@
 class RTCPSR : public RTCPSR_Base
 {
   public:
-    RTCPSR(const char *name="RTCPSR", int kind=200) : RTCPSR_Base(name,kind)
+    RTCPSR(unsigned int ssrc, unsigned int packetCount, unsigned int octetCount,  const char *name="RTCPSR", int kind=200) : RTCPSR_Base(name,kind)
     {
       setByteLength(5*4  + byteLength());
+      setSsrc(ssrc);
+      setPacketCount(packetCount);
+      setOctetCount(octetCount);
     }
     RTCPSR(const RTCPSR& other) : RTCPSR_Base(other.name()) {operator=(other);}
     RTCPSR& operator=(const RTCPSR& other) {RTCPSR_Base::operator=(other); return *this;}

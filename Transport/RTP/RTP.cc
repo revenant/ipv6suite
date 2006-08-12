@@ -34,8 +34,11 @@
 #include "debug.h"
 
 #include "RTP.h"
-#include "RTPPacket_m.h"
+#include "RTPPacket.h"
+#include "RTCPPacket.h"
 #include "IPAddressResolver.h"
+#include "UDPControlInfo_m.h"
+#include "opp_utils.h"
 #include "RTCPSR.h"
 
 Define_Module(RTP);
@@ -49,30 +52,87 @@ unsigned int dgramSize(cMessage* msg);
 	
 
 //Last section of rfc 3550 has jitter estimation
-
+//6.3.5 time out ssrc (ignore for now) perform at least once per rtcp tx interval
 //rtcp send/rec rules 6.3
 
 void RTP::processReceivedPacket(cMessage* msg)
 {
-  EV<<"hooray received msg "<<msg;
-  //ssrc not in member map then add 
-  //may wait for many before consider valid but we'll skip that
-  //update members+=1;
-  //if packet is rtp add ssrc to sender map
-  //senders += 1;
-  //else
-  //meanRtcpSize = (1/16)*dgram->length() + 15/16* meanRtcpSize;
-  //if bye received remove entry from members/senders map 
-  //ignore reverse reconsideration 6.3.4 (code in pg 93)
+  EV<<"received msg "<<msg;
   
+  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
+
+  IPvXAddress srcAddr = ctrl->getSrcAddr();
+  IPvXAddress destAddr = ctrl->getDestAddr();
+  //  int srcPort = ctrl->getSrcPort();
+  int destPort = ctrl->getDestPort();
+
+  if (destPort == port) //RTP
+  {
+    assert( dynamic_cast<RTPPacket*>(msg));
+    RTPPacket* rtpData = static_cast<RTPPacket*> (msg);
+    if (!memberSet.count(rtpData->ssrc()))
+    {
+      //may wait for many before consider valid but we'll skip that
+      members+=1;
+      memberSet[rtpData->ssrc()].sender = false;
+    }
+
+    RTPMemberEntry& me = memberSet[rtpData->ssrc()];
+    //add ssrc to sender map if not a sender
+    if (!me.sender)
+    {
+      me.sender = true;
+      senders += 1;
+    }
+
+    //further processing of RTP
+    //jitter calc (cheating as should be all ints i.e. rtp time units)
+    simtime_t transit = simTime() - rtpData->timestamp();
+    simtime_t instJitter = transit - me.transit;
+    me.transit = transit;
+    if (instJitter < 0) 
+      instJitter=-instJitter;
+    me.jitter += 1/16*(instJitter - me.jitter);
+    me.received+=1;
+    
+    //See A.3 for computing packet loss and A.1 for seqNo handling
+
+  } //RTP message
+  else //RTCP
+  {
+    assert(dynamic_cast< RTCPPacket*>(msg));
+    meanRtcpSize = (1/16)*dgramSize(msg) + 15/16*meanRtcpSize;
+    RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
+
+    if (!memberSet.count(rtcp->ssrc()))
+    {
+      //may wait for many before consider valid but we'll skip that
+      members+=1;
+      memberSet[rtcp->ssrc()].sender = false;
+    }
+
+    //further rtcp types like reports what to do etc.
+    //(Sec 6.4 for analysing reports)
+
+    if (dynamic_cast< RTCPGoodBye*> (msg))
+    {
+      //if bye received remove entry from members/senders map 
+      //ignore reverse reconsideration 6.3.4 (code in pg 93)
+      if (memberSet.count(rtcp->ssrc()))
+      {
+	members-=1;
+	if (memberSet[rtcp->ssrc()].sender)
+	  senders-=1;
+	memberSet.erase(rtcp->ssrc());
+      }
+    }
+  } //RTCP message
 }
 
-//6.3.5 time out ssrc (ignore for now) perform at least once per rtcp tx interval
-
+//send bye when finished
 void RTP::leaveSession()
 {
   //leaving session 6.3.7 (ignore part about members more than 50)
-  //send bye when finished
   simtime_t now = simTime();
   tp = now;
   members = pmembers = 1;
@@ -86,7 +146,7 @@ void RTP::leaveSession()
   if (tp + T <= now )
   {
     //create sendBye fn and do a sendonce etc.
-    RTCPPacket* bye = new RTCPGoodBye();
+    RTCPPacket* bye = new RTCPGoodBye(_ssrc);
     sendToUDP(bye, port+1, destAddrs[0], port+1);
     meanRtcpSize = dgramSize(bye);
   }
@@ -99,8 +159,11 @@ void RTP::leaveSession()
 //establish session for each dest?
 void RTP::establishSession()
 {
-  //send a cname packet (i.e. user@fullpath etc.) inside first rtcp packet
-  //so 
+  assert(!destAddrs.empty());
+  //send a cname packet (i.e. user@fullpath etc.) inside first rtcp packet  
+  for (unsigned int i =0; i < destAddrs.size(); ++i)
+    sendToUDP(new RTCPSDES(_ssrc, OPP_Global::nodeName(this)),
+	      port+1, destAddrs[i], port+1);
 }
 
 //hard coded 25% and 75% of rtcpBW (hence the factor of 0.75 and division by 4)
@@ -156,8 +219,10 @@ void RTP::initialize(int stageNo)
   rtpTimeout = 0;
 
   port = par("port");
+  //RTP port is always even so if specified odd port then
+  //the base port will be modified
   if (port%2 > 0)
-    port = port - 1;
+    port -= 1;
 
   startTime = par("startTime");
   
@@ -179,11 +244,14 @@ void RTP::initialize(int stageNo)
 
   //RTP port
   bindToPort(port);
-  //RTCP port?
+  //RTCP port
   bindToPort(port + 1);
   
 
   //initialise 6.3.2 (when joining session)
+  _ssrc = id();
+  _seqNo = 0; //supposed to be random to prevent encryption attacks
+  packetCount = octetCount = 0;
   initial = true;
   tp = 0; 
   tn = 0; 
@@ -197,16 +265,15 @@ void RTP::initialize(int stageNo)
   meanRtcpSize = 28 + 24;
   tn = calculateTxInterval();
   rtcpTimeout = new cMessage("rtcpTimeout");
-  //schedule RTCP tx at tn = T
   scheduleAt(tn, rtcpTimeout);
 
-  //add self ssrc to member table
+  memberSet[_ssrc].sender = false;
 
   if (startTime && sendRTPPacket() && !weSent)
   {
       weSent = true;
       senders+=1;
-      //add self to senders map
+      memberSet[_ssrc].sender = true;
   }
   
 }
@@ -220,6 +287,7 @@ void RTP::resolveAddresses()
   while ((token = tokenizer.nextToken())!=NULL)
     destAddrs.push_back(IPAddressResolver().resolve(token));
 }
+
 bool RTP::sendRTPPacket()
 {
   double packetisationInterval = 0.02;  //20ms
@@ -227,9 +295,6 @@ bool RTP::sendRTPPacket()
   //each frame encodes 2.5ms so for one 20ms packet requires 8*40 = 320 bytes
   //rtp payload and forms a 16kbs audio stream
   int payloadLength = 320;
-
-  unsigned int seqNo = 0;
-  unsigned int ssrc = 0; //retrieve interfaceId and use lower 32 bits
 
   if (!rtpTimeout)
   {
@@ -250,10 +315,11 @@ bool RTP::sendRTPPacket()
     establishSession();
 
   scheduleAt(simTime() + packetisationInterval, rtpTimeout);
-  RTPPacket* rtpData = new RTPPacket;
-  rtpData->setSeqNo(seqNo++);
-  rtpData->setSsrc(ssrc);
+  RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
+  rtpData->setTimestamp(simTime());
   rtpData->setPayloadLength(payloadLength);
+  octetCount += rtpData->payloadLength();
+  packetCount++;
   sendToUDP(rtpData, port+1, destAddrs[0], port+1);
   return true;
 }
@@ -265,6 +331,7 @@ void RTP::finish()
 unsigned int dgramSize(cMessage* msg)
 {
   //8 is UDP header and 40 is IPv6 header
+  //needs to include i.e. calculation of mobility headers and tunnelling etc.
   return msg->byteLength() + 8 + 40;
 }
 
@@ -277,16 +344,18 @@ void RTP::handleMessage(cMessage* msg)
     tn = tp + T;
     if (tn <= now) 
     {
-      //tx rtcp (Sec 6.4 for analysing reports)
-      RTCPRR* rtcpPayload = 0;
+      //tx rtcp 
+      RTCPReports* rtcpPayload = 0;
       if (weSent)
       {
-	rtcpPayload = new RTCPSR();
+	rtcpPayload = new RTCPSR(_ssrc, packetCount, octetCount);
       }
       else 
       {
-	rtcpPayload = new RTCPRR();
+	rtcpPayload = new RTCPRR(_ssrc);
       }
+      //ntp time
+      rtcpPayload->setTimestamp(simTime());
       //ssrc? what to use
       RTCPReportBlock b;
       //damn ctors in the msg generation prevents this
@@ -309,7 +378,6 @@ void RTP::handleMessage(cMessage* msg)
       scheduleAt(tn, msg);
     pmembers = members;
 
-    //self msg can also be a bye
   }
   else if (msg == rtpTimeout)
   {
@@ -317,7 +385,7 @@ void RTP::handleMessage(cMessage* msg)
     {
       weSent = true;
       senders+=1;
-      //add self to senders map
+      memberSet[_ssrc].sender = true;
     }
   }
   else if (!msg->isSelfMessage())
@@ -327,6 +395,8 @@ void RTP::handleMessage(cMessage* msg)
   }
   else
   {
+    //self msg can also be a bye
+
     //do callback
   }
 }

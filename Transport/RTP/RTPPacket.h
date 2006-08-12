@@ -52,9 +52,11 @@
    public:
   //@name constructors, destructors and operators
   //@{
-   RTPPacket(const char *name=NULL, int kind=0) : RTPPacket_Base(name,kind) 
+   RTPPacket(unsigned int ssrc, unsigned int seqNo, const char *name=NULL, int kind=0) : RTPPacket_Base(name,kind) 
    {
      setByteLength(12);
+     setSsrc(ssrc);
+     setSeqNo(seqNo);
    }
    RTPPacket(const RTPPacket& other) : RTPPacket_Base(other.name()) {operator=(other);}
    RTPPacket& operator=(const RTPPacket& other) {RTPPacket_Base::operator=(other); return *this;}

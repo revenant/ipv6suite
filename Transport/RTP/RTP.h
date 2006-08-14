@@ -37,18 +37,35 @@
 #include "UDPAppBase.h"
 #include <map>
 #include "RTCPPacket_m.h"
+#include <sys/types.h>
+
+typedef u_int16_t u_int16;
+typedef u_int32_t u_int32;
+typedef u_int64_t u_int64;
 
 struct RTPMemberEntry
 {
   bool sender;
+  //maximum seqNo seen so far
+  u_int16 maxSeq;
+  //baseSeq is 0 since we do not randomise starting seqNo
+  //shifted count of seqNo cycles
+  u_int32 cycles;
+  //last 'bad' seqNo + 1
+  u_int32 badSeq; 
+  u_int32 received;
+  u_int32 expectedPrior;
+  u_int32 receivedPrior;
   //transit time of last RTP data packet received i.e.
   //time at arrival - packet's rtp timestamp
   simtime_t transit;
-  unsigned int seqNo;
-  unsigned int received;
   //last jitter calculated
   simtime_t jitter;
+  //time when last SR was received from this sender
+  simtime_t lastSR;  
 };
+
+std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);
 
 /**
  * @class RTP
@@ -105,7 +122,11 @@ class RTP: public UDPAppBase
   //@}
 
   //Keyed on SSRC
-  std::map<unsigned int, RTPMemberEntry> memberSet;
+  typedef std::map<unsigned int, RTPMemberEntry> MemberSet;
+  MemberSet memberSet;
+  typedef MemberSet::iterator MSI;
+
+
   unsigned int _ssrc;
   unsigned short _seqNo;
   //no of rtp data packets sent

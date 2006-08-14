@@ -43,7 +43,26 @@
 
 Define_Module(RTP);
 
+#define RTP_SEQ_MOD (1<<16)
+
 unsigned int dgramSize(cMessage* msg);
+
+std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme)
+{
+  if (rme.sender && rme.badSeq == rme.maxSeq && rme.maxSeq == 0)
+  {
+    os <<" self";
+  }
+  else if (rme.sender)
+  {
+    os<<rme.maxSeq<<" cycles="<<rme.cycles<<" badSeq="<<rme.badSeq<<" received="
+      <<rme.received<<" transit="<<rme.transit<<" jitter="<<rme.jitter
+      <<" lastSR="<<rme.lastSR;
+  }
+  else
+    os<<" receiver only ";
+  return os;      
+}
 
 //keep no. of participants in map (keyed on ssrc) but really only one
 //until bye is received. but don't delete until x seconds after
@@ -51,9 +70,56 @@ unsigned int dgramSize(cMessage* msg);
 //Delete after 5 rtcp intervals no packet from ssrc
 	
 
-//Last section of rfc 3550 has jitter estimation
 //6.3.5 time out ssrc (ignore for now) perform at least once per rtcp tx interval
 //rtcp send/rec rules 6.3
+
+//From A.1 of rfc3550
+void init_seq(RTPMemberEntry *s, u_int16 seq)
+{
+  s->maxSeq = seq;
+  s->badSeq = RTP_SEQ_MOD + 1;   /* so seq == bad_seq is false */
+  s->cycles = 0;
+  s->received = 1;
+  s->receivedPrior = 0;
+  s->expectedPrior = 0;
+}
+
+//From A.1 of rfc3550 with probation removed
+int update_seq(RTPMemberEntry *s, u_int16 seq)
+{
+  u_int16 udelta = seq - s->maxSeq;
+  const int MAX_DROPOUT = 3000;
+  const int MAX_MISORDER = 100;
+
+  if (udelta < MAX_DROPOUT) {
+    /* in order, with permissible gap */
+    if (seq < s->maxSeq) {
+      /*
+       * Sequence number wrapped - count another 64K cycle.
+       */
+      s->cycles += RTP_SEQ_MOD;
+    }
+    s->maxSeq = seq;
+  } else if (udelta <= RTP_SEQ_MOD - MAX_MISORDER) {
+    /* the sequence number made a very large jump */
+    if (seq == s->badSeq) {
+      /*
+       * Two sequential packets -- assume that the other side
+       * restarted without telling us so just re-sync
+       * (i.e., pretend this was the first packet).
+       */
+      init_seq(s, seq);
+    }
+    else {
+      s->badSeq = (seq + 1) & (RTP_SEQ_MOD-1);
+      return 0;
+    }
+  } else {
+    /* duplicate or reordered packet */
+  }
+  s->received++;
+  return 1;
+}
 
 void RTP::processReceivedPacket(cMessage* msg)
 {
@@ -77,26 +143,28 @@ void RTP::processReceivedPacket(cMessage* msg)
       memberSet[rtpData->ssrc()].sender = false;
     }
 
-    RTPMemberEntry& me = memberSet[rtpData->ssrc()];
+    RTPMemberEntry& rme = memberSet[rtpData->ssrc()];
     //add ssrc to sender map if not a sender
-    if (!me.sender)
+    if (!rme.sender)
     {
-      me.sender = true;
+      rme.sender = true;
       senders += 1;
+      init_seq(&rme, rtpData->seqNo());
+    }
+    else if (!update_seq(&rme, rtpData->seqNo()))
+    {
+      EV<<"huge jump and bad sequence rec. should reset stats??";
     }
 
     //further processing of RTP
     //jitter calc (cheating as should be all ints i.e. rtp time units)
     simtime_t transit = simTime() - rtpData->timestamp();
-    simtime_t instJitter = transit - me.transit;
-    me.transit = transit;
+    simtime_t instJitter = transit - rme.transit;
+    rme.transit = transit;
     if (instJitter < 0) 
       instJitter=-instJitter;
-    me.jitter += 1/16*(instJitter - me.jitter);
-    me.received+=1;
-    
-    //See A.3 for computing packet loss and A.1 for seqNo handling
-
+    rme.jitter += 1/16*(instJitter - rme.jitter);
+       
   } //RTP message
   else //RTCP
   {
@@ -124,6 +192,14 @@ void RTP::processReceivedPacket(cMessage* msg)
 	if (memberSet[rtcp->ssrc()].sender)
 	  senders-=1;
 	memberSet.erase(rtcp->ssrc());
+      }
+    }
+    else if (dynamic_cast<RTCPReports*> (msg))
+    {
+      RTCPSR* sr = dynamic_cast<RTCPSR*> (msg);
+      if (sr)
+      {
+	memberSet[rtcp->ssrc()].lastSR = sr->timestamp();
       }
     }
   } //RTCP message
@@ -242,6 +318,8 @@ void RTP::initialize(int stageNo)
   WATCH(C);
   WATCH(n);
 
+  WATCH_MAP(memberSet);
+
   //RTP port
   bindToPort(port);
   //RTCP port
@@ -320,7 +398,7 @@ bool RTP::sendRTPPacket()
   rtpData->setPayloadLength(payloadLength);
   octetCount += rtpData->payloadLength();
   packetCount++;
-  sendToUDP(rtpData, port+1, destAddrs[0], port+1);
+  sendToUDP(rtpData, port, destAddrs[0], port);
   return true;
 }
 
@@ -356,11 +434,44 @@ void RTP::handleMessage(cMessage* msg)
       }
       //ntp time
       rtcpPayload->setTimestamp(simTime());
-      //ssrc? what to use
       RTCPReportBlock b;
-      //damn ctors in the msg generation prevents this
-      //RTCPReportBlock b = {0, 0, 0, 0, 0, 0, 0};
-      rtcpPayload->addBlock(b);
+      for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
+      {
+	if (!msi->second.sender)
+	  continue;
+	
+	RTPMemberEntry& rme = msi->second;
+	//don't send reception report for self
+	if (msi->first == _ssrc)
+	  continue;
+
+	b.ssrc = msi->first;
+
+	//See A.3 for computing packet loss 
+	u_int32 extended = rme.cycles + rme.maxSeq;
+	//expected = extended + 1 since baseSeq assumed to be 0 as we do not
+	//randomise seqNo
+	extended++;
+	b.cumPacketsLost = extended - rme.received;
+	b.seqNoReceived = extended;
+	u_int32 expectedInt = extended - rme.expectedPrior;
+	rme.expectedPrior = extended;
+	u_int32 receivedInt = rme.received - rme.receivedPrior;
+	rme.receivedPrior = rme.received;
+	u_int32 lostInt = expectedInt - receivedInt;
+	if (expectedInt == 0 || lostInt <= 0) 
+	  b.fractionLost = 0;
+	else
+	  b.fractionLost = (lostInt <<8)/ expectedInt;	
+
+	b.jitter = rme.jitter;
+	b.lastSR = rme.lastSR;
+	b.delaySinceLastSR = simTime() - b.lastSR;
+
+	//damn ctors in the msg generation prevents this
+	//RTCPReportBlock b = {0, 0, 0, 0, 0, 0, 0};
+	rtcpPayload->addBlock(b);
+      }
       if (destAddrs.empty())
 	resolveAddresses();
       //should send to all members and not just dests i.e. people that join with us

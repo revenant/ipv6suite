@@ -39,6 +39,11 @@
 //Register_Class(RTPPacket);
 Register_Class(RTCPPacket);
 
+void RTCPReports::setReportBlocksArraySize(unsigned int size)
+{
+  blocks.resize(size);
+}
+
 unsigned int RTCPReports::reportBlocksArraySize() const
 {
   //limit imposed by rfc 3550

@@ -34,8 +34,8 @@ struct RTCPReportBlock
   unsigned int seqNoReceived; //4
   //supposed to be 4 bytes but we'll use float for easier calc
   simtime_t jitter; //4
-  unsigned int lastSR; //4
-  unsigned int delaySinceLastSR; //4
+  simtime_t lastSR; //4
+  simtime_t delaySinceLastSR; //4
 }
 
 class RTCPPacket;

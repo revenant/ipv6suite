@@ -64,7 +64,7 @@ class RTCPReports : public RTCPReports_Base
     }
     virtual cPolymorphic *dup() const {return new RTCPReports(*this);}
     // ADD CODE HERE to redefine and implement pure virtual functions from RTCPReports_Base
-    virtual void setReportBlocksArraySize(unsigned int size){}
+    virtual void setReportBlocksArraySize(unsigned int size);
     virtual unsigned int reportBlocksArraySize() const;
     virtual RTCPReportBlock& reportBlocks(unsigned int k);
     virtual void setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var);
@@ -76,7 +76,7 @@ protected:
 class RTCPGoodBye : public RTCPGoodBye_Base
 {
   public:
-    RTCPGoodBye(unsigned int ssrc, const char *name="RTCPBYE", int kind=203) : RTCPGoodBye_Base(name,kind) 
+    RTCPGoodBye(unsigned int ssrc, const char *name="", int kind=203) : RTCPGoodBye_Base(name,kind) 
     {
       setByteLength(4 + byteLength());
       setSsrc(ssrc);
@@ -90,7 +90,7 @@ class RTCPGoodBye : public RTCPGoodBye_Base
 class RTCPSDES : public RTCPSDES_Base
 {
   public:
-    RTCPSDES(unsigned int ssrc, const char* cname, const char *name="RTCPSDES", int kind=202) : RTCPSDES_Base(name,kind) 
+    RTCPSDES(unsigned int ssrc, const char* cname, const char *name="", int kind=202) : RTCPSDES_Base(name,kind) 
     {
       setByteLength(2 + byteLength());
       setCname(cname);

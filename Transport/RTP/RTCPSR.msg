@@ -24,12 +24,15 @@ cplusplus
 }};
 
 class RTCPReports;
+struct RTCPReportBlock;
 
 message RTCPRR extends RTCPReports
 {
  properties:
   omitGetVerb=true;
   customize = true;
+ fields:
+  abstract RTCPReportBlock reportBlocks[]; 
 }
 
 message RTCPSR extends RTCPReports
@@ -47,4 +50,5 @@ message RTCPSR extends RTCPReports
   unsigned int packetCount; //4 bytes
   //payload octets not inc. header/padding
   unsigned int octetCount;  //4 bytes  
+  abstract RTCPReportBlock reportBlocks[]; 
 }

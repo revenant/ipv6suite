@@ -48,13 +48,29 @@
 class RTCPRR : public RTCPRR_Base
 {
    public:
-    RTCPRR(unsigned int ssrc, const char *name="RTCPRR", int kind=201) : RTCPRR_Base(name,kind) {
+    RTCPRR(unsigned int ssrc, const char *name="", int kind=201) : RTCPRR_Base(name,kind) {
       setSsrc(ssrc);
     }
     RTCPRR(const RTCPRR& other) : RTCPRR_Base(other.name()) {operator=(other);}
     RTCPRR& operator=(const RTCPRR& other) {RTCPRR_Base::operator=(other); return *this;}
     virtual cPolymorphic *dup() const {return new RTCPRR(*this);}
     // ADD CODE HERE to redefine and implement pure virtual functions from RTCPRR_Base
+    virtual void setReportBlocksArraySize(unsigned int size)
+    {
+      RTCPReports::setReportBlocksArraySize(size);
+    }
+    virtual unsigned int reportBlocksArraySize() const
+    {
+      return RTCPReports::reportBlocksArraySize();
+    }
+    virtual RTCPReportBlock& reportBlocks(unsigned int k)
+    {
+      return RTCPReports::reportBlocks(k);
+    }
+    virtual void setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
+    {
+      RTCPReports::setReportBlocks(k, reportBlocks_var);
+    }
 };
 
 /**
@@ -66,7 +82,7 @@ class RTCPRR : public RTCPRR_Base
 class RTCPSR : public RTCPSR_Base
 {
   public:
-    RTCPSR(unsigned int ssrc, unsigned int packetCount, unsigned int octetCount,  const char *name="RTCPSR", int kind=200) : RTCPSR_Base(name,kind)
+    RTCPSR(unsigned int ssrc, unsigned int packetCount, unsigned int octetCount,  const char *name="", int kind=200) : RTCPSR_Base(name,kind)
     {
       setByteLength(5*4  + byteLength());
       setSsrc(ssrc);
@@ -77,6 +93,22 @@ class RTCPSR : public RTCPSR_Base
     RTCPSR& operator=(const RTCPSR& other) {RTCPSR_Base::operator=(other); return *this;}
     virtual cPolymorphic *dup() const {return new RTCPSR(*this);}
     // ADD CODE HERE to redefine and implement pure virtual functions from RTCPSR_Base
+    virtual void setReportBlocksArraySize(unsigned int size)
+    {
+      RTCPReports::setReportBlocksArraySize(size);
+    }
+    virtual unsigned int reportBlocksArraySize() const
+    {
+      return RTCPReports::reportBlocksArraySize();
+    }
+    virtual RTCPReportBlock& reportBlocks(unsigned int k)
+    {
+      return RTCPReports::reportBlocks(k);
+    }
+    virtual void setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
+    {
+      RTCPReports::setReportBlocks(k, reportBlocks_var);
+    }
 };
 
 #endif /* RTCPSR_H */

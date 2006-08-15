@@ -38,8 +38,6 @@ endchannel
 // Network to test Wireless behaviour with Voip traffic
 //
 module MultiBaselineNetwork
-    parameters:
-        numOfClients : numeric;
     submodules:
         worldProcessor: WorldProcessor;
             display: "p=260,264;i=bwgen_s";

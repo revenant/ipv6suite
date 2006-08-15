@@ -46,6 +46,8 @@ typedef u_int64_t u_int64;
 struct RTPMemberEntry
 {
   bool sender;
+  //send reports to these guys
+  IPvXAddress addr;
   //maximum seqNo seen so far
   u_int16 maxSeq;
   //baseSeq is 0 since we do not randomise starting seqNo
@@ -62,7 +64,8 @@ struct RTPMemberEntry
   //last jitter calculated
   simtime_t jitter;
   //time when last SR was received from this sender
-  simtime_t lastSR;  
+  simtime_t lastSR;
+  cOutVector* transVector;
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);
@@ -162,10 +165,14 @@ class RTP: public UDPAppBase
   //watch these values for txtimeout calc
   float C;
   int n;
+
+  std::vector<RTCPReportBlock> incomingBlocks;
   //@}
 
-
+  
 };
+
+std::ostream& operator<<(std::ostream& os, const RTCPReportBlock& rb);
 
 #endif /* RTP_H */
 

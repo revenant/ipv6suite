@@ -33,6 +33,8 @@
 #include "sys.h"
 #include "debug.h"
 
+#include <iomanip>
+
 #include "RTP.h"
 #include "RTPPacket.h"
 #include "RTCPPacket.h"
@@ -47,21 +49,32 @@ Define_Module(RTP);
 
 unsigned int dgramSize(cMessage* msg);
 
+using std::setprecision;
+using std::ios_base;
+using std::setiosflags;
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme)
 {
-  if (rme.sender && rme.badSeq == rme.maxSeq && rme.maxSeq == 0)
+  if (rme.badSeq == rme.maxSeq && rme.maxSeq == 0)
   {
     os <<" self";
   }
   else if (rme.sender)
   {
     os<<rme.maxSeq<<" cycles="<<rme.cycles<<" badSeq="<<rme.badSeq<<" received="
-      <<rme.received<<" transit="<<rme.transit<<" jitter="<<rme.jitter
-      <<" lastSR="<<rme.lastSR;
+      <<rme.received<<" transit="<<setiosflags(ios_base::scientific)<<rme.transit
+      <<" jitter="<<rme.jitter<<" lastSR="<<rme.lastSR<<" addr:"<<rme.addr;
   }
   else
-    os<<" receiver only ";
+    os<<" receiver only "<<rme.addr;
   return os;      
+}
+
+std::ostream& operator<<(std::ostream& os, const RTCPReportBlock& rb)
+{
+  os << "ssrc="<<rb.ssrc<<" fraction="<<rb.fractionLost<<" lost="
+     <<rb.cumPacketsLost<<" seqNo="<<rb.seqNoReceived<<" jitter="<<rb.jitter
+     <<" lastSR="<<rb.lastSR<<" dlSR="<<rb.delaySinceLastSR;
+  return os;
 }
 
 //keep no. of participants in map (keyed on ssrc) but really only one
@@ -82,6 +95,11 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->received = 1;
   s->receivedPrior = 0;
   s->expectedPrior = 0;
+
+  s->jitter = 0;
+  s->transit = 0;
+  s->lastSR = 0;
+  s->transVector = 0;
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -141,6 +159,7 @@ void RTP::processReceivedPacket(cMessage* msg)
       //may wait for many before consider valid but we'll skip that
       members+=1;
       memberSet[rtpData->ssrc()].sender = false;
+      memberSet[rtpData->ssrc()].addr = srcAddr;
     }
 
     RTPMemberEntry& rme = memberSet[rtpData->ssrc()];
@@ -154,6 +173,7 @@ void RTP::processReceivedPacket(cMessage* msg)
     else if (!update_seq(&rme, rtpData->seqNo()))
     {
       EV<<"huge jump and bad sequence rec. should reset stats??";
+      return;
     }
 
     //further processing of RTP
@@ -162,14 +182,18 @@ void RTP::processReceivedPacket(cMessage* msg)
     simtime_t instJitter = transit - rme.transit;
     rme.transit = transit;
     if (instJitter < 0) 
-      instJitter=-instJitter;
-    rme.jitter += 1/16*(instJitter - rme.jitter);
-       
+      instJitter = -instJitter;
+    rme.jitter += ((double)1/16)*(instJitter - rme.jitter);
+
+    if (!rme.transVector)
+      rme.transVector = new cOutVector("transitTimes");
+    rme.transVector->record(transit);    
+    return;
   } //RTP message
   else //RTCP
   {
     assert(dynamic_cast< RTCPPacket*>(msg));
-    meanRtcpSize = (1/16)*dgramSize(msg) + 15/16*meanRtcpSize;
+    meanRtcpSize = (1/16)*dgramSize(msg) + (15/16)*meanRtcpSize;
     RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
 
     if (!memberSet.count(rtcp->ssrc()))
@@ -177,6 +201,7 @@ void RTP::processReceivedPacket(cMessage* msg)
       //may wait for many before consider valid but we'll skip that
       members+=1;
       memberSet[rtcp->ssrc()].sender = false;
+      memberSet[rtcp->ssrc()].addr = srcAddr;
     }
 
     //further rtcp types like reports what to do etc.
@@ -200,7 +225,18 @@ void RTP::processReceivedPacket(cMessage* msg)
       if (sr)
       {
 	memberSet[rtcp->ssrc()].lastSR = sr->timestamp();
+	incomingBlocks.resize(0);
+	for (u_int32 i = 0; i < sr->reportBlocksArraySize(); ++i)
+	  incomingBlocks.push_back(sr->reportBlocks(i));
       }
+      else
+      {
+	RTCPRR* rr = dynamic_cast<RTCPRR*>(msg);
+	incomingBlocks.resize(0);
+	for (u_int32 i = 0; i < rr->reportBlocksArraySize(); ++i)
+	  incomingBlocks.push_back(rr->reportBlocks(i));
+      }
+	
     }
   } //RTCP message
 }
@@ -245,6 +281,7 @@ void RTP::establishSession()
 //hard coded 25% and 75% of rtcpBW (hence the factor of 0.75 and division by 4)
 simtime_t RTP::calculateTxInterval()
 {
+  assert(rtcpBw);
   //alg for rtcp tx interval in 6.3 and A.7 of rfc3550
   //rtcp tx time alg Sec. 6.3.1
   if (senders > members/4)
@@ -319,6 +356,7 @@ void RTP::initialize(int stageNo)
   WATCH(n);
 
   WATCH_MAP(memberSet);
+  WATCH_VECTOR(incomingBlocks);  
 
   //RTP port
   bindToPort(port);
@@ -346,6 +384,9 @@ void RTP::initialize(int stageNo)
   scheduleAt(tn, rtcpTimeout);
 
   memberSet[_ssrc].sender = false;
+  //Identify ourselves as self for the operator<< fn
+  init_seq(&memberSet[_ssrc], 0);
+  memberSet[_ssrc].badSeq = 0;
 
   if (startTime && sendRTPPacket() && !weSent)
   {
@@ -391,6 +432,9 @@ bool RTP::sendRTPPacket()
   //later on add markovian modelling of on/off session
   if (!destAddrs.empty() && !weSent)
     establishSession();
+
+  if (destAddrs.empty())
+    return false;
 
   scheduleAt(simTime() + packetisationInterval, rtpTimeout);
   RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
@@ -468,18 +512,28 @@ void RTP::handleMessage(cMessage* msg)
 	b.lastSR = rme.lastSR;
 	b.delaySinceLastSR = simTime() - b.lastSR;
 
-	//damn ctors in the msg generation prevents this
-	//RTCPReportBlock b = {0, 0, 0, 0, 0, 0, 0};
 	rtcpPayload->addBlock(b);
       }
       if (destAddrs.empty())
 	resolveAddresses();
-      //should send to all members and not just dests i.e. people that join with us
-      sendToUDP(rtcpPayload, port+1, destAddrs[0], port+1);
-      meanRtcpSize = (1/16)*dgramSize(rtcpPayload) + 15/16* meanRtcpSize;
+
+      //should send to all members 
+      for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
+      {
+	RTPMemberEntry& rme = msi->second;
+	//don't send reception report for self
+	if (msi->first == _ssrc)
+	  continue;
+
+	sendToUDP(static_cast<cMessage*>(rtcpPayload->dup()), port+1, rme.addr, port+1);
+	meanRtcpSize = (1/16)*dgramSize(rtcpPayload) + (15/16)* meanRtcpSize;	
+      }
+      delete rtcpPayload;
+
       //pg. 42/43 - how to use sender reports to calculate loss rates/ no. of packets received
       //keep count of whether any RTP sent if after 2 intervals none sent set
       //weSent = false;
+
       initial = false;
       tp = now;
       T = calculateTxInterval();

@@ -252,3 +252,21 @@ jl.changeLevelName <- function(dataframe, factor, levels)
     return(dataframe)
   }
 
+smoothedJitter<-function(v)
+{
+  index = 1
+  o = c()
+for (i in v)
+  {
+    if (index == 1)
+      {
+        o[index] = (1/16)*v[index]
+      }
+    else
+      {
+        o[index] = o[index-1] + (1/16)*(v[index] - o[index-1])
+      }
+    index = index+1
+  }
+  return (o)
+}

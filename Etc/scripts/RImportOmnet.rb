@@ -457,6 +457,12 @@ TARGET
       encodedScheme =~ /(\d+)$/
       n = $1
       scheme = $` 
+
+      raise "Cannot parse run number from file name\n \
+      (run one file at a time if not a set of vector files\n \ 
+      and give different -o options for resultant R data files)" if ARGV.size > 0
+
+      n = 1 if n.nil?
       singleRun(p, vecFile, n, scheme)
 
     end

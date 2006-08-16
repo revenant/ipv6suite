@@ -52,6 +52,7 @@ simple WirelessAccessPoint
 	bufferSize: numeric,
 	registerInterface: bool,
 	queueType: string,
+	queueSize: numeric const,
 	errorRate: numeric const;
     gates:
         in: physIn, netwIn, extSignalIn[];

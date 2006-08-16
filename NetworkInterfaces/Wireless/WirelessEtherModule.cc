@@ -451,6 +451,7 @@ void WirelessEtherModule::readConfiguration()
     bufferSize = par("bufferSize");
     regInterface = par("registerInterface");
     outputQueue = check_and_cast<WEQueue *>(createOne(par("queueType")));
+    outputQueue->setMaxQueueSize(par("queueSize"));
     errorRate = par("errorRate");
 
     // TODO: parse supported rates

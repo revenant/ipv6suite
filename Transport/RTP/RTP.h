@@ -66,6 +66,10 @@ struct RTPMemberEntry
   //time when last SR was received from this sender
   simtime_t lastSR;
   cOutVector* transVector;
+  //recording likely loss just like ping app (which cannot accept out of order
+  //arrivals but rtp can up to playout buffer size).  Cumulative loss as
+  //determined by expected - received in reports is more accurate
+  cOutVector* lossVector;
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);

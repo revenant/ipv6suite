@@ -100,6 +100,7 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->transit = 0;
   s->lastSR = 0;
   s->transVector = 0;
+  s->lossVector = 0;
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -116,7 +117,19 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
        * Sequence number wrapped - count another 64K cycle.
        */
       s->cycles += RTP_SEQ_MOD;
+      //assuming no drops here when we wrap altough we should really test how far
+      //seq is from 0 or baseSeq etc.
+    } else if (udelta > 1)
+    {
+      //record this as no. of packets lost although in reality could just be out
+      //of order packet (at this stage we are simply recording likely
+      //drop. Actually cumulative loss as determined by expected - received is
+      //more accurate
+      if (!s->lossVector)
+	s->lossVector = new cOutVector((std::string("rtpDrop ") + s->addr.str()).c_str());
+      s->lossVector->record(udelta);
     }
+      
     s->maxSeq = seq;
   } else if (udelta <= RTP_SEQ_MOD - MAX_MISORDER) {
     /* the sequence number made a very large jump */
@@ -186,7 +199,7 @@ void RTP::processReceivedPacket(cMessage* msg)
     rme.jitter += ((double)1/16)*(instJitter - rme.jitter);
 
     if (!rme.transVector)
-      rme.transVector = new cOutVector("transitTimes");
+      rme.transVector = new cOutVector((std::string("transitTimes ") + rme.addr.str()).c_str());
     rme.transVector->record(transit);    
     return;
   } //RTP message
@@ -397,6 +410,7 @@ void RTP::initialize(int stageNo)
   
 }
 
+//remove self from destAddrs i.e. nodename matches
 void RTP::resolveAddresses()
 {
   assert(destAddrs.empty());
@@ -440,9 +454,19 @@ bool RTP::sendRTPPacket()
   RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
   rtpData->setTimestamp(simTime());
   rtpData->setPayloadLength(payloadLength);
+
+  //These should stay as they are because these operations are usually assumed
+  //to be multicast and even if they're unicast they should not be multiplied by
+  //number of receivers because that's not the number of packets sent to a
+  //recipient.
   octetCount += rtpData->payloadLength();
   packetCount++;
-  sendToUDP(rtpData, port, destAddrs[0], port);
+
+  for (unsigned int i =0; i < destAddrs.size(); ++i)
+  {
+    sendToUDP(static_cast<cMessage*>(rtpData->dup()), port, destAddrs[i], port);
+  }
+  delete rtpData;
   return true;
 }
 

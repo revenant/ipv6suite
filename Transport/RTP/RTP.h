@@ -66,6 +66,7 @@ struct RTPMemberEntry
   //time when last SR was received from this sender
   simtime_t lastSR;
   cOutVector* transVector;
+  cStdDev* transStat;
   //recording likely loss just like ping app (which cannot accept out of order
   //arrivals but rtp can up to playout buffer size).  Cumulative loss as
   //determined by expected - received in reports is more accurate
@@ -73,6 +74,8 @@ struct RTPMemberEntry
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);
+
+class RTCPReports;
 
 /**
  * @class RTP
@@ -121,6 +124,9 @@ class RTP: public UDPAppBase
 
   void resolveAddresses();
 
+  void fillReports(RTCPReports* rtcpPayload);
+  void rtcpTxTimeout();
+
   //ned params storage
   //@{
   unsigned short port;
@@ -165,10 +171,6 @@ class RTP: public UDPAppBase
   bool initial;
 
  private:
-
-  //watch these values for txtimeout calc
-  float C;
-  int n;
 
   std::vector<RTCPReportBlock> incomingBlocks;
   //@}

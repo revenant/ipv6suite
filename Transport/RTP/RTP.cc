@@ -25,7 +25,8 @@
  *
  * @brief  Implementation of RTP
  *
- * @todo
+ * @todo session leaving and subsequent removal from members list 
+ *   markovian sessions
  *
  */
 
@@ -101,6 +102,7 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->lastSR = 0;
   s->transVector = 0;
   s->lossVector = 0;
+  s->transStat = 0;
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -126,7 +128,7 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
       //drop. Actually cumulative loss as determined by expected - received is
       //more accurate
       if (!s->lossVector)
-	s->lossVector = new cOutVector((std::string("rtpDrop ") + s->addr.str()).c_str());
+	s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
       s->lossVector->record(udelta);
     }
       
@@ -154,8 +156,6 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
 
 void RTP::processReceivedPacket(cMessage* msg)
 {
-  EV<<"received msg "<<msg;
-  
   UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
 
   IPvXAddress srcAddr = ctrl->getSrcAddr();
@@ -199,12 +199,18 @@ void RTP::processReceivedPacket(cMessage* msg)
     rme.jitter += ((double)1/16)*(instJitter - rme.jitter);
 
     if (!rme.transVector)
-      rme.transVector = new cOutVector((std::string("transitTimes ") + rme.addr.str()).c_str());
-    rme.transVector->record(transit);    
+      rme.transVector = new cOutVector((std::string("transitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
+    rme.transVector->record(transit);
+    if (!rme.transStat)
+      rme.transStat = new cStdDev((std::string("rtpTransitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
+    rme.transStat->collect(transit);
+
     return;
   } //RTP message
   else //RTCP
   {
+    EV<<"received rtcp msg "<<msg;
+
     assert(dynamic_cast< RTCPPacket*>(msg));
     meanRtcpSize = (1/16)*dgramSize(msg) + (15/16)*meanRtcpSize;
     RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
@@ -296,7 +302,11 @@ simtime_t RTP::calculateTxInterval()
 {
   assert(rtcpBw);
   //alg for rtcp tx interval in 6.3 and A.7 of rfc3550
-  //rtcp tx time alg Sec. 6.3.1
+
+  //watch these values for txtimeout calc
+  float C = 0;
+  int n = 0;
+
   if (senders > members/4)
     {
       //most likely execute this case all the time
@@ -362,12 +372,6 @@ void RTP::initialize(int stageNo)
   WATCH(initial);
   WATCH(weSent);
 
-  C = 0;
-  n = 0;
-
-  WATCH(C);
-  WATCH(n);
-
   WATCH_MAP(memberSet);
   WATCH_VECTOR(incomingBlocks);  
 
@@ -418,7 +422,12 @@ void RTP::resolveAddresses()
   cStringTokenizer tokenizer(destAddresses);
   const char *token;
   while ((token = tokenizer.nextToken())!=NULL)
+  {
+    if (strcmp(OPP_Global::nodeName(this), token) == 0)
+      continue;
     destAddrs.push_back(IPAddressResolver().resolve(token));
+
+  }
 }
 
 bool RTP::sendRTPPacket()
@@ -470,10 +479,6 @@ bool RTP::sendRTPPacket()
   return true;
 }
 
-void RTP::finish()
-{
-}
-
 unsigned int dgramSize(cMessage* msg)
 {
   //8 is UDP header and 40 is IPv6 header
@@ -481,27 +486,8 @@ unsigned int dgramSize(cMessage* msg)
   return msg->byteLength() + 8 + 40;
 }
 
-void RTP::handleMessage(cMessage* msg)
+void RTP::fillReports(RTCPReports* rtcpPayload)
 {
-  if (msg == rtcpTimeout)
-  {
-    simtime_t T = calculateTxInterval();
-    simtime_t now = simTime();
-    tn = tp + T;
-    if (tn <= now) 
-    {
-      //tx rtcp 
-      RTCPReports* rtcpPayload = 0;
-      if (weSent)
-      {
-	rtcpPayload = new RTCPSR(_ssrc, packetCount, octetCount);
-      }
-      else 
-      {
-	rtcpPayload = new RTCPRR(_ssrc);
-      }
-      //ntp time
-      rtcpPayload->setTimestamp(simTime());
       RTCPReportBlock b;
       for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
       {
@@ -538,35 +524,64 @@ void RTP::handleMessage(cMessage* msg)
 
 	rtcpPayload->addBlock(b);
       }
-      if (destAddrs.empty())
-	resolveAddresses();
+}
 
-      //should send to all members 
-      for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
-      {
-	RTPMemberEntry& rme = msi->second;
-	//don't send reception report for self
-	if (msi->first == _ssrc)
-	  continue;
-
-	sendToUDP(static_cast<cMessage*>(rtcpPayload->dup()), port+1, rme.addr, port+1);
-	meanRtcpSize = (1/16)*dgramSize(rtcpPayload) + (15/16)* meanRtcpSize;	
-      }
-      delete rtcpPayload;
-
-      //pg. 42/43 - how to use sender reports to calculate loss rates/ no. of packets received
-      //keep count of whether any RTP sent if after 2 intervals none sent set
-      //weSent = false;
-
-      initial = false;
-      tp = now;
-      T = calculateTxInterval();
-      scheduleAt(now + T, msg);
+void RTP::rtcpTxTimeout()
+{
+  simtime_t T = calculateTxInterval();
+  simtime_t now = simTime();
+  tn = tp + T;
+  if (tn <= now) 
+  {
+    //tx rtcp 
+    RTCPReports* rtcpPayload = 0;
+    if (weSent)
+    {
+      rtcpPayload = new RTCPSR(_ssrc, packetCount, octetCount);
     }
-    else
-      scheduleAt(tn, msg);
-    pmembers = members;
+    else 
+    {
+      rtcpPayload = new RTCPRR(_ssrc);
+    }
+    //ntp time
+    rtcpPayload->setTimestamp(simTime());
 
+    fillReports(rtcpPayload);
+
+    if (destAddrs.empty())
+      resolveAddresses();
+
+    //should send to all members 
+    for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
+    {
+      RTPMemberEntry& rme = msi->second;
+      //don't send reception report for self
+      if (msi->first == _ssrc)
+	continue;
+
+      sendToUDP(static_cast<cMessage*>(rtcpPayload->dup()), port+1, rme.addr, port+1);
+      meanRtcpSize = (1/16)*dgramSize(rtcpPayload) + (15/16)* meanRtcpSize;	
+    }
+    delete rtcpPayload;
+
+    //keep count of whether any RTP sent if after 2 intervals none sent set
+    //weSent = false;
+
+    initial = false;
+    tp = now;
+    T = calculateTxInterval();
+    scheduleAt(now + T, rtcpTimeout);
+  }
+  else
+    scheduleAt(tn, rtcpTimeout);
+  pmembers = members;
+}
+
+void RTP::handleMessage(cMessage* msg)
+{
+  if (msg == rtcpTimeout)
+  {
+    rtcpTxTimeout();
   }
   else if (msg == rtpTimeout)
   {
@@ -588,6 +603,38 @@ void RTP::handleMessage(cMessage* msg)
 
     //do callback
   }
+}
+
+void RTP::finish()
+{
+  using std::cout;
+  for (MSI msi = memberSet.begin(); msi != memberSet.end(); ++msi)
+  {
+    if (!msi->second.sender)
+      continue;
+	
+    RTPMemberEntry& rme = msi->second;
+    if (msi->first == _ssrc)
+      continue;
+
+    u_int32 extended = rme.cycles + rme.maxSeq;
+    extended ++;
+    u_int32 cumPacketsLost = extended - rme.received;
+    cout <<"--------------------------------------------------------" <<endl;
+    cout <<"\t"<<OPP_Global::nodeName(this)<<" from "<< IPAddressResolver().hostname(rme.addr)<<endl;    
+    cout <<"--------------------------------------------------------" <<endl; 
+    cout <<"drop rate (%): "<<100 * (double)cumPacketsLost/(double)extended;
+    cout<<" eed of "<<rme.transStat->samples()<<"/"<<extended<<" recorded/\"expected\"\n";
+    cout<<"ping requests min/avg/max = "
+	<<rme.transStat->min()*1000.0<<"ms/"<<rme.transStat->mean()*1000.0<<"ms/"<<rme.transStat->max()*1000.0<<"ms"<<endl;
+    cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
+
+    rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
+    recordScalar((std::string("rtp dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(), cumPacketsLost);
+    recordScalar((std::string("rtp % dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(),
+		 100 * (double)cumPacketsLost/(double)extended);
+  }
+
 }
 
 /*

@@ -26,14 +26,27 @@
 #include "RoutingTable6.h"
 #endif
 
-
+//could be problems especially if we rebuild network and this cache is outdated!!
+//in that case finish function somewhere needs to clear it.
+std::map<IPvXAddress, std::string> IPAddressResolver::rdnsCache;
 
 IPvXAddress IPAddressResolver::resolve(const char *s, int addrType)
 {
     IPvXAddress addr;
     if (!tryResolve(s, addr, addrType))
         opp_error("IPAddressResolver: address `%s' not configured (yet?)", s);
+    if (!addr.isNull())
+    {
+      rdnsCache[addr] = s;
+    }
     return addr;
+}
+
+std::string IPAddressResolver::hostname(const IPvXAddress& addr)
+{
+  if (addr.isNull() || IPAddressResolver::rdnsCache.count(addr) == 0)
+    return std::string("");
+  return rdnsCache[addr];
 }
 
 bool IPAddressResolver::tryResolve(const char *s, IPvXAddress& result, int addrType)

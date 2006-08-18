@@ -56,6 +56,8 @@ class IPAddressResolver
     // internal
     IPv6Address_ getInterfaceIPv6Address(InterfaceEntry *ie);
 
+    //reverseDNS like store
+    static std::map<IPvXAddress, std::string> rdnsCache;
   public:
     enum {
         ADDR_PREFER_IPv4,
@@ -84,6 +86,8 @@ class IPAddressResolver
      * on any other error condition).
      */
     bool tryResolve(const char *str, IPvXAddress& result, int addrType=ADDR_PREFER_IPv6);
+
+    std::string hostname(const IPvXAddress& addr);
 
     /** @name Utility functions supporting resolve() */
     //@{

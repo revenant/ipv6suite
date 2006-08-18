@@ -75,14 +75,15 @@ def writeTest(testDirs, projName)
   }  
 end
 
+  OldRTPDeps = "|Scenario|RSVP|MPLS"
+
 def writeCMakeList(dir, outputName, projName = nil)
 				#EtherSwitch
 #Contract requires IPv4
 #ARP|IPv4|TCP|FlatNetwork|Queue
-##Scenario|RSVP|MPLS (RTP depends on these)
 #RTP because SocketInterface does not yet exist
   commonIgnore =
-	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d"
+	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   

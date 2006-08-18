@@ -255,7 +255,7 @@ void WirelessAccessPoint::initialize(int stage)
         protocolNotifier->setKind(MK_PACKET);
         send(protocolNotifier, inputQueueOutGate());
 
-        double randomStart = uniform(0, 1);
+        double randomStart = uniform(0, 1, 2);
 
         // On power up, access point will start sending beacons.
         scheduleAt(simTime() + beaconPeriod + randomStart, powerUpBeaconNotifier);

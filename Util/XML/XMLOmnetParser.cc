@@ -547,7 +547,7 @@ void XMLOmnetParser::parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6
   rtrVar.advDefaultLifetime =  OPP_Global::atoul(getNodeProperties(nif, "AdvDefaultLifetime").c_str());
   ie->setMtu(OPP_Global::atoul(getNodeProperties(nif, "HostLinkMTU").c_str()));
   ie->ipv6()->curHopLimit = OPP_Global::atoul(getNodeProperties(nif, "HostCurHopLimit").c_str());
-  ie->ipv6()->baseReachableTime = OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str());
+  ie->ipv6()->setBaseReachableTime(OPP_Global::atoul(getNodeProperties(nif, "HostBaseReachableTime").c_str()));
   ie->ipv6()->retransTimer = OPP_Global::atoul(getNodeProperties(nif, "HostRetransTimer").c_str());
 #if FASTRS
   ie->ipv6()->maxRtrSolDelay = OPP_Global::atod(getNodeProperties(nif, "HostMaxRtrSolDelay").c_str());

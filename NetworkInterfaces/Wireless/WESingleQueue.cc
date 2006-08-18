@@ -253,6 +253,6 @@ void WESingleQueue::startingContention(double time)
 double WESingleQueue::calculateTimeToSend()
 {
     assert((CW >= CWmin) && (CW <= CWmax));
-    backoffSlots = intuniform(0, CW);
+    backoffSlots = intuniform(0, CW, 7);
     return (backoffSlots * slotTime + this->DIFS);
 }

@@ -420,7 +420,11 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     else
     {
 #endif
+#if FASTRS
+      delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
+#else
       delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
+#endif //FASTRS
 #ifdef USE_MOBILITY
     }
 #endif
@@ -785,11 +789,9 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   if (rtrAdv->curHopLimit() != 0 && rtrAdv->curHopLimit() != ie->ipv6()->curHopLimit)
     ie->ipv6()->curHopLimit = rtrAdv->curHopLimit();
 
-  if (rtrAdv->reachableTime() != 0 && rtrAdv->reachableTime() != ie->ipv6()->baseReachableTime)
+  if (rtrAdv->reachableTime() != 0 && rtrAdv->reachableTime() != ie->ipv6()->baseReachableTime())
   {
-    ie->ipv6()->baseReachableTime = rtrAdv->reachableTime();
-    //Generate a new reachable time
-    ie->ipv6()->reachableTime();
+    ie->ipv6()->setBaseReachableTime(rtrAdv->reachableTime());
     //TODO suppose to generate one once every 2 hours even if baseReachable time
     //is the same
   }

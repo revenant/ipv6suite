@@ -36,7 +36,7 @@ double RandomWP::randomWaypoint(double& x, double& y)
                 }
                 else
                 {
-                        steps = (int) intuniform(1,100);
+                        steps = (int) intuniform(1,100, 0);
                         dX = 0;
                         dY = 0;
                 }
@@ -72,9 +72,9 @@ void RandomWP::generateMovements(void)
 {
   for (int i = 0; i < MAX_MOVEMENTS; i++)
   {
-    destX[i] = intuniform(minX, maxX);
-    destY[i] = intuniform(minY, maxY);
-    speed[i] = uniform(minSpeed, maxSpeed);
+    destX[i] = intuniform(minX, maxX, 1);
+    destY[i] = intuniform(minY, maxY, 2);
+    speed[i] = uniform(minSpeed, maxSpeed, 3);
   }
 }
 

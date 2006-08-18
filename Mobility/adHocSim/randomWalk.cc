@@ -83,11 +83,11 @@ double RandomWalk::randomWalk(double& x, double& y)
         if(steps == 0)
         {
                 //choose the direction angle; 6.27 is because alfa is in [0,2PI[
-                alfa =  uniform(0,6.27);
+                alfa =  uniform(0,6.27, 0);
 
                 //choose a random speed
 //              speed = uniform(1,minSpeed->doubleValue(),maxSpeed->doubleValue());
-                speed = uniform(minSpeed,maxSpeed);
+                speed = uniform(minSpeed,maxSpeed, 2);
 
                 //compute a single step length
 //              step = moveInterval->doubleValue() * speed;

@@ -341,7 +341,7 @@ void WirelessEtherModule::initialize(int stage)
 
         initialiseChannelToScan();
 
-        double randomStart = uniform(0, 1);
+        double randomStart = uniform(0, 1, 2);
         // On power up, wireless ethernet interface is staarting to
         // perform active scanning..
         if (activeScan)
@@ -723,10 +723,10 @@ void WirelessEtherModule::sendFrame(WirelessEtherBasicFrame *frame)
     // Four random values which will be used to determine whether
     // data will cross over to adjacent channels
 
-    r1 = uniform(0, 100);
-    r2 = uniform(0, 100);
-    r3 = uniform(0, 100);
-    r4 = uniform(0, 100);
+    r1 = uniform(0, 100, 3);
+    r2 = uniform(0, 100, 4);
+    r3 = uniform(0, 100, 5);
+    r4 = uniform(0, 100, 6);
 
     // Go through each module and determine whether to transmit to them
     for (MLIT it = mods.begin(); it != mods.end(); it++)

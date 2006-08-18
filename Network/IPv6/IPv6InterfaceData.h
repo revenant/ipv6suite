@@ -141,14 +141,20 @@ public:
   /// currently undergoing DAD).
   IPv6Addresses tentativeAddrs;
 
+  unsigned int baseReachableTime() const
+  {
+    return _baseReachableTime;
+  }
+
   ///@name Node Configuration Variables
   //@{
   short curHopLimit;
   unsigned int retransTimer;
-  unsigned int baseReachableTime;
+  
 #if FASTRS
   double maxRtrSolDelay;
 #endif // FASTRS
+  void setBaseReachableTime(unsigned int base);
 
   double reachableTime();
 
@@ -233,11 +239,9 @@ public:
     } rtrVar;
   //@}
 private:
+  unsigned int _baseReachableTime;
+
   double _reachableTime;
-  // the previous base reachable time; Comparing this
-  // prevBaseReachableTime to the current one to determine the
-  // reachableTime is needed to be changed or not
-  unsigned int _prevBaseReachableTime;
   string llAddr; //--> XXX to InterfaceEntry!
   unsigned int _interfaceID[2];
 };

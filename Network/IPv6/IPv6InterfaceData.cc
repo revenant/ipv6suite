@@ -72,15 +72,14 @@ IPv6InterfaceData::IPv6InterfaceData() :
    //loopback(false),
    curHopLimit(DEFAULT_ADVCURHOPLIMIT),
    retransTimer(RETRANS_TIMER),
-   baseReachableTime(REACHABLE_TIME),
 #if FASTRS
    maxRtrSolDelay(MAX_RTR_SOLICITATION_DELAY),
 #endif // FASTRS
    dupAddrDetectTrans(DEFAULT_DUPADDRDETECTTRANSMITS),
-   _prevBaseReachableTime(0)
+   _baseReachableTime(0)
 {
-  // set rechableTime
-  reachableTime();
+  // set reachableTime
+  setBaseReachableTime(REACHABLE_TIME);
 }
 
 std::string IPv6InterfaceData::info() const
@@ -142,16 +141,20 @@ bool IPv6InterfaceData::tentativeAddrAssigned(const ipv6_addr& addr) const
   return it!=tentativeAddrs.end();
 }
 
+void IPv6InterfaceData::setBaseReachableTime(unsigned int base)
+{
+  _baseReachableTime = base;
+
+  //TODO Gets called in RoutingTable6 context at startup when read from XML but
+  //later on in ND does that mean it transfers RNG streams or does it stick with
+  //the first one that was used!!
+  _reachableTime = uniform(_baseReachableTime*MIN_RANDOM_FACTOR,
+                           _baseReachableTime*MAX_RANDOM_FACTOR, 3);
+  
+}
+
 double IPv6InterfaceData::reachableTime(void)
 {
-  if(_prevBaseReachableTime == baseReachableTime)
-    return _reachableTime;
-
-  _reachableTime = uniform(baseReachableTime*MIN_RANDOM_FACTOR,
-                           baseReachableTime*MAX_RANDOM_FACTOR);
-
-  _prevBaseReachableTime = baseReachableTime;
-
   return _reachableTime;
 }
 

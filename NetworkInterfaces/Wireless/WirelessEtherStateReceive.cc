@@ -86,7 +86,7 @@ std::auto_ptr<WESignalIdle> WirelessEtherStateReceive::processIdle(WirelessEther
 
         // the source MS finishes sending, we can send ACK to comfirm the
         // transmission process and process the data
-        if (uniform(0, 1) > mod->errorRate)
+        if (uniform(0, 1, 1) > mod->errorRate)
             mod->decodeFrame(mod->inputFrame);
         else
             static_cast<WirelessEtherStateReceive *>(mod->currentState())->changeNextState(mod);

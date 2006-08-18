@@ -15,6 +15,13 @@
 #include "RoutingTable6Access.h"
 #include "cTimerMessage.h"
 
+/*
+  RNG
+  0: first DAD or RS sent upon interface enabled (NDStateHost)
+  1: NDStateRouter unsolRtrAdv interval
+  2: NDStateRouter solRtrAdv delay
+  3: IPv6InterfaceData::setBaseReachableTime
+ */
 
 Define_Module( NeighbourDiscovery );
 

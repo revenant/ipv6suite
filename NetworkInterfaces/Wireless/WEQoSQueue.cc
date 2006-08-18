@@ -567,7 +567,7 @@ double WEQoSQueue::calculateTimeToSendForQ(int AC)
 {
     assert(AC < 4);
     assert((acQ[AC].CW >= acQ[AC].CWmin) && (acQ[AC].CW <= acQ[AC].CWmax));
-    acQ[AC].backoffSlots = intuniform(0, acQ[AC].CW);
+    acQ[AC].backoffSlots = intuniform(0, acQ[AC].CW, 7);
     return (acQ[AC].backoffSlots * slotTime + acQ[AC].AIFS);
 }
 

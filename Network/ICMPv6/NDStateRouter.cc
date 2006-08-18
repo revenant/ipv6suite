@@ -296,7 +296,7 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
   const IPv6InterfaceData::RouterVariables& rtrVar = ie->ipv6()->rtrVar;
 
   //Calculate new delay
-  double delay = uniform(rtrVar.minRtrAdvInt, rtrVar.maxRtrAdvInt);
+  double delay = uniform(rtrVar.minRtrAdvInt, rtrVar.maxRtrAdvInt, 1);
   assert(delay <= rtrVar.maxRtrAdvInt);
 
   if (tmr->noInitAds < tmr-> maxInitAds && delay > tmr->maxInitRtrInterval)
@@ -441,8 +441,7 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
       tmr = advTmrs[i];
       msg = tmr->msg;
 
-      //really want random not uniform
-      delay = uniform(0, MAX_RA_DELAY_TIME);
+      delay = uniform(0, MAX_RA_DELAY_TIME, 2);
 
 #if FASTRA
       InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);

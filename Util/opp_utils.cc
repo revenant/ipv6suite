@@ -239,7 +239,7 @@ namespace OPP_Global
     for (cSubModIterator submod(*network); !submod.end(); submod++)
     {
       if (OPP_Global::findNetNodeModule(callingMod) == submod())
-        return submod()->name();
+        return submod()->fullName();
     }
 
     return unknown;

@@ -581,6 +581,11 @@ void RTP::handleMessage(cMessage* msg)
 {
   if (msg == rtcpTimeout)
   {
+    //fill rdns cache in case no one has requested us otherwise labels will
+    //appear blank when IPAddressResolver::hostname called
+    if (initial)
+      IPAddressResolver::resolve(OPP_Global::nodeName());
+
     rtcpTxTimeout();
   }
   else if (msg == rtpTimeout)
@@ -625,7 +630,7 @@ void RTP::finish()
     cout <<"--------------------------------------------------------" <<endl; 
     cout <<"drop rate (%): "<<100 * (double)cumPacketsLost/(double)extended;
     cout<<" eed of "<<rme.transStat->samples()<<"/"<<extended<<" recorded/\"expected\"\n";
-    cout<<"ping requests min/avg/max = "
+    cout<<"rtp transit min/avg/max = "
 	<<rme.transStat->min()*1000.0<<"ms/"<<rme.transStat->mean()*1000.0<<"ms/"<<rme.transStat->max()*1000.0<<"ms"<<endl;
     cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
 

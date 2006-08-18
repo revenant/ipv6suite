@@ -328,8 +328,11 @@ void ICMPv6Core::updatePingStats(PingPayload *payload, const ipv6_addr& src)
   long seqNo = payload->seqNo();
   simtime_t sendingTime = payload->creationTime();
 
-  rec.pingDelay->record(simTime() -  sendingTime);
-  rec.stat->collect(simTime() - sendingTime);  
+  if (simTime() >= icmpRecordStart)
+  {
+    rec.pingDelay->record(simTime() -  sendingTime);
+    rec.stat->collect(simTime() - sendingTime);  
+  }
 
   if (seqNo == rec.nextEstSeqNo)
   {
@@ -478,9 +481,9 @@ void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last)
     recordScalar((ipv6_addr_toString(first->first) + " ping req dropped").c_str(), rec.dropCount);
     recordScalar((ipv6_addr_toString(first->first) + " ping req outOfOrderArrival").c_str(), rec.outOfOrderArrivalCount);
     recordScalar((ipv6_addr_toString(first->first) +  " ping req drop rate (%)").c_str(),
-		 100 * rec.dropCount / (double)(rec.nextEstSeqNo-1));
+		 100 * rec.dropCount / (double)(rec.nextEstSeqNo));
     recordScalar((ipv6_addr_toString(first->first) + " ping req out-of-order rate (%)").c_str(),
-		 100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo-1));
+		 100 * rec.outOfOrderArrivalCount / (double)(rec.nextEstSeqNo));
 
     delete stat;
     delete rec.pingDrop;

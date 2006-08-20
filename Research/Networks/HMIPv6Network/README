@@ -76,24 +76,35 @@ that it does not decapsulate and send off an lcoa sourced datagram for us?
 -f HMIPSait.ini
 
 without ro
+
 --------------------------------------------------------
-        hmipv6SaitNet.client1.ping6App
+        hmipv6SaitNet.client1.pingApp
 --------------------------------------------------------
-Ping: deadline 700s NOT reached at 400s
-hmipv6SaitNet.client1.ping6App %drop rate 3.347%
-round-trip min/avg/max = 40.434ms/98.941ms/102.683ms
-stddev=11.832ms variance=0.140ms
+sent: 7200   drop rate (%): 2.47222
+round-trip min/avg/max (ms): 40.46/99.0216/103.897
+stddev (ms): 11.8104   variance:0.000139486
 --------------------------------------------------------
 
 with ro
+
 --------------------------------------------------------
-        hmipv6SaitNet.client1.ping6App
+        hmipv6SaitNet.client1.pingApp
 --------------------------------------------------------
-Ping: deadline 700s NOT reached at 550s
-hmipv6SaitNet.client1.ping6App %drop rate 2.402%
-round-trip min/avg/max = 40.434ms/60.730ms/101.986ms
-stddev=3.097ms variance=0.010ms
+sent: 7200   drop rate (%): 2.34722
+round-trip min/avg/max (ms): 40.46/60.48/102.443
+stddev (ms): 4.05463   variance:1.644e-05
 --------------------------------------------------------
+
+mip6 without ro
+--------------------------------------------------------
+        hmipv6SaitNet.client1.pingApp
+--------------------------------------------------------
+sent: 7200   drop rate (%): 5.26389
+round-trip min/avg/max (ms): 40.46/98.8328/142.186
+stddev (ms): 11.9615   variance:0.000143077
+--------------------------------------------------------
+
+
 
 -f SaitEHCal.ini
 without fast ra beacons and 1s ping interval (pi)
@@ -115,7 +126,16 @@ round-trip min/avg/max = 0.436ms/18.3ms/21.8ms
 stddev=7.16ms variance=0.0513ms
 --------------------------------------------------------
 
-#0  0x001941c2 in EtherModule::handleMessage (this=0x9afa478, msg=0xc425160)
+-f SaitEHCal.ini -r 2
+--------------------------------------------------------
+        saitEHCalNet.mn.pingApp
+--------------------------------------------------------
+sent: 14300   drop rate (%): 1.3986
+round-trip min/avg/max (ms): 0.442646/150.822/599.452
+stddev (ms): 88.6541   variance:0.00785955
+--------------------------------------------------------
+
+#0  0x001941c2 in EtherM dule::handleMessage (this=0x9afa478, msg=0xc425160)
     at /home/jlai/src/IPv6Suite/NetworkInterfaces/Ethernet/EtherModule.cc:108
 #1  0x00b09969 in cSimulation::doOneEvent (this=0xb76860, mod=0x9afa478)
     at csimul.cc:580

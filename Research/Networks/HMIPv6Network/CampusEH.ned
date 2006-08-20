@@ -49,6 +49,216 @@ module CampusEH
   submodules:
     worldProcessor: WorldProcessor;
       display: "i=bwgen_s";
+    cr1: Router6;
+        gatesizes:
+            in[4],
+            out[4];
+        display: "i=router";
+
+    ar2: Router6;
+        gatesizes:
+            in[6],
+            out[6];
+        display: "i=router";
+
+    ar3: Router6;
+        gatesizes:
+            in[5],
+            out[5];
+        display: "i=router";
+
+    ar4: Router6;
+        gatesizes:
+            in[4],
+            out[4];
+        display: "i=router";
+
+    ar5: Router6;
+        gatesizes:
+            in[4],
+            out[4];
+        display: "i=router";
+
+    ar6: Router6;
+        gatesizes:
+            in[6],
+            out[6];
+        display: "i=router";
+
+    ar7: Router6;
+        gatesizes:
+            in[5],
+            out[5];
+        display: "i=router";
+
+    ar8: Router6;
+        gatesizes:
+            in[4],
+            out[4];
+        display: "i=router";
+
+    ar9: Router6;
+        gatesizes:
+            in[4],
+            out[4];
+        display: "i=router";
+
+    cn10: UDPNode;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=pc";
+
+    ha11: Router6;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=router";
+
+    ap12: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=150,650";
+
+    ap13: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=50,650";
+
+    ap14: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=250,650";
+
+    ap15: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,750";
+
+    ap16: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,850";
+
+    ap17: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,950";
+
+    ap18: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,750";
+
+    ap19: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,850";
+
+    ap20: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,950";
+
+    ap21: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,1050";
+
+    ap22: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=150,1150";
+
+    ap23: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,1050";
+
+    ap24: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=150,550";
+
+    ap25: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=50,550";
+
+    ap26: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=250,550";
+
+    ap27: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,450";
+
+    ap28: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,350";
+
+    ap29: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,250";
+
+    ap30: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,450";
+
+    ap31: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,350";
+
+    ap32: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,250";
+
+    ap33: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=100,150";
+
+    ap34: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=150,50";
+
+    ap35: AccessPoint;
+        gatesizes:
+            in[1],
+            out[1];
+        display: "i=switch1_s;p=200,150";
+
     mn1: MobileNode;
     gatesizes:
         wlin[1],
@@ -299,215 +509,6 @@ module CampusEH
         wlin[1],
         wlout[1];
     display: "p=140,431;i=laptop3";
-    cr1: Router6;
-        gatesizes:
-            in[4],
-            out[4];
-        display: "i=router";
-
-    ar2: Router6;
-        gatesizes:
-            in[6],
-            out[6];
-        display: "i=router";
-
-    ar3: Router6;
-        gatesizes:
-            in[5],
-            out[5];
-        display: "i=router";
-
-    ar4: Router6;
-        gatesizes:
-            in[4],
-            out[4];
-        display: "i=router";
-
-    ar5: Router6;
-        gatesizes:
-            in[4],
-            out[4];
-        display: "i=router";
-
-    ar6: Router6;
-        gatesizes:
-            in[6],
-            out[6];
-        display: "i=router";
-
-    ar7: Router6;
-        gatesizes:
-            in[5],
-            out[5];
-        display: "i=router";
-
-    ar8: Router6;
-        gatesizes:
-            in[4],
-            out[4];
-        display: "i=router";
-
-    ar9: Router6;
-        gatesizes:
-            in[4],
-            out[4];
-        display: "i=router";
-
-    cn10: UDPNode;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=pc";
-
-    ha11: Router6;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=router";
-
-    ap12: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=150,650";
-
-    ap13: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=50,650";
-
-    ap14: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=250,650";
-
-    ap15: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,750";
-
-    ap16: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,850";
-
-    ap17: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,950";
-
-    ap18: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,750";
-
-    ap19: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,850";
-
-    ap20: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,950";
-
-    ap21: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,1050";
-
-    ap22: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=150,1150";
-
-    ap23: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,1050";
-
-    ap24: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=150,550";
-
-    ap25: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=50,550";
-
-    ap26: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=250,550";
-
-    ap27: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,450";
-
-    ap28: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,350";
-
-    ap29: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,250";
-
-    ap30: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,450";
-
-    ap31: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,350";
-
-    ap32: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,250";
-
-    ap33: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=100,150";
-
-    ap34: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=150,50";
-
-    ap35: AccessPoint;
-        gatesizes:
-            in[1],
-            out[1];
-        display: "i=switch1_s;p=200,150";
 
  connections nocheck:
     ap15.out[0] --> CampusEHIntranetCable --> ar6.in[0];

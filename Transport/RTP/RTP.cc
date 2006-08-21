@@ -586,9 +586,11 @@ void RTP::handleMessage(cMessage* msg)
   {
     //fill rdns cache in case no one has requested us otherwise labels will
     //appear blank when IPAddressResolver::hostname called
+    /* //appears to be too early i.e. global addr not configured yet
+       //need a version that does not abort and returns null addr so we try later
     if (initial)
       IPAddressResolver().resolve(OPP_Global::nodeName(this));
-
+    */
     rtcpTxTimeout();
   }
   else if (msg == rtpTimeout)

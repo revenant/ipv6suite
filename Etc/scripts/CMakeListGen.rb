@@ -186,7 +186,6 @@ EOF
       x.puts "ENABLE_TESTING()"
       x.puts "SUBDIRS("
       x.puts "Research/Networks/"
-      x.puts "Examples/IPv6/HMIPv6Network"
       x.puts ")"
 
     end

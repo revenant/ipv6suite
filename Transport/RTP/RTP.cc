@@ -212,7 +212,7 @@ void RTP::processReceivedPacket(cMessage* msg)
     EV<<"received rtcp msg "<<msg;
 
     assert(dynamic_cast< RTCPPacket*>(msg));
-    meanRtcpSize = (1/16)*dgramSize(msg) + (15/16)*meanRtcpSize;
+    meanRtcpSize = ((double)1/16)*(double)dgramSize(msg) + ((double)15/16)*meanRtcpSize;
     RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
 
     if (!memberSet.count(rtcp->ssrc()))
@@ -375,6 +375,9 @@ void RTP::initialize(int stageNo)
   WATCH_MAP(memberSet);
   WATCH_VECTOR(incomingBlocks);  
 
+  WATCH(packetCount);
+  WATCH(octetCount);
+  
   //RTP port
   bindToPort(port);
   //RTCP port
@@ -560,7 +563,7 @@ void RTP::rtcpTxTimeout()
 	continue;
 
       sendToUDP(static_cast<cMessage*>(rtcpPayload->dup()), port+1, rme.addr, port+1);
-      meanRtcpSize = (1/16)*dgramSize(rtcpPayload) + (15/16)* meanRtcpSize;	
+      meanRtcpSize = ((double)1/16)*(double)dgramSize(rtcpPayload) + ((double)15/16)* meanRtcpSize;	
     }
     delete rtcpPayload;
 
@@ -584,7 +587,7 @@ void RTP::handleMessage(cMessage* msg)
     //fill rdns cache in case no one has requested us otherwise labels will
     //appear blank when IPAddressResolver::hostname called
     if (initial)
-      IPAddressResolver::resolve(OPP_Global::nodeName());
+      IPAddressResolver().resolve(OPP_Global::nodeName(this));
 
     rtcpTxTimeout();
   }

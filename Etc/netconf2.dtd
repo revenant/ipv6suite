@@ -108,7 +108,7 @@ element. -->
           MIPv6MinRtrAdvInterval NMTOKEN "1"
           MIPv6MinRtrSolInterval NMTOKEN "1"
           MIPv6MaxInterval NMTOKEN "8"
-          MaxFastRAS       NMTOKEN "10"
+          MaxFastRAS       NMTOKEN "0"
           MaxConsecMissRtrAdv NMTOKEN "1"
           >
 

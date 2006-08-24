@@ -103,6 +103,19 @@ class SetFactorChannelAction < Action
   end
 end
 
+class ReplaceStringAction < Action
+  def initialize(symbol, search, replace)
+    baseInitialize(symbol, search, replace)
+  end
+  def apply(line = used, index = nil, file = "used", level = nil)
+    if @symbol == :ned
+      file.gsub!(/#{@attribute}/m, "#{@value}")
+    else
+      line.sub!(/#{@attribute}/, "#{@value}")
+    end
+  end
+end
+
 #TODO: Proper setting of XML values by inserting parameter if not exist into the
 #proper XPath Query Regexp and validating the document
 class SetAction < Action
@@ -335,37 +348,37 @@ end
       nil
     end
 
-    def formFilenames(configs, modname, netname)
-      networkNames = Array.new(configCount(@factors, @levels), netname)
-      filenames = configs.deep_clone
-      configs.each_index{|ci|
-        networkNames[ci] += configs[ci] #+ "ms" #but ms suffix belongs to only some levels not the last one
-        filenames[ci].insert(0, modname)        
+    #returns networksNames and filenames (module name of network in ned)
+    def formFilenames(configs, basemodulename)
+      filenames = configs.map{|i|
+        i.insert(0, basemodulename)
+      }
+      networkNames = filenames.map{|n|
+        netName(n)
       }
       [networkNames, filenames]
     end
 
 
-    modname = "EHComp"
-    netname = netName(modname)
+    basemodname = "EHComp"
+    basenetname = netName(basemodname)
     exename = "Comparison"
-    runcount = 10
+    runcount = 2
     
     readConfigs
     final = generateConfigNames(@factors, @levels)
-    networkNames, filenames = formFilenames(final, modname, netname)
-#    p formFilenames(final, modname, netname)
+    networkNames, filenames = formFilenames(final, basemodname)
 
-    nedfile = IO.read(modname+".ned")
-    inifile = IO.readlines(modname+".ini")
+    nedfileOrig = IO.read(basemodname+".ned")
+    inifile = IO.readlines(basemodname+".ini")
 
     #until we have xpath regexp actions working we'll have to manually create
     #the hmip xml
-#    xmllines = IO.readlines(modname+".xml")
+#    xmllines = IO.readlines(basemodname+".xml")
 
     File.open("jobs.txt","w"){|jobfile|
       filenames.each_with_index {|filename, fileIndex|
-
+        
         #Add some actions at runtime i.e. as we can determine filenames easily here
         
         #write ini files (line oriented)
@@ -373,7 +386,8 @@ end
           inifile.each_with_index {|line2,lineIndex|
             #change network name in ini file to config specific name otherwise
             #will run diff ned network settings!!
-            line = line2.sub(Regexp.new(netname), networkNames[fileIndex])
+            line = line2.dup
+            ReplaceStringAction.new(:ini, basenetname, networkNames[fileIndex]).apply(line)
 
             SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
             # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
@@ -411,11 +425,11 @@ end
             end
             
             # }}}
-            raise "inifile #{modname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
+            raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
             writeIniFile.puts line
           } #end read inifile line by line
 
-          # {{{ appends runs at end and put job line #
+          # {{{ specify ned network to use, appends runs at end and put job line #
 
           writeIniFile.puts "[General]"
           writeIniFile.puts "network = #{networkNames[fileIndex]}"
@@ -440,9 +454,14 @@ end
 
         } #end writeIniFile
 
+        nedfile = nedfileOrig.dup
+
         #write ned files (stream oriented)
         File.open(filename + ".ned", "w"){|writeNedFile|
           line = lineIndex = nil
+          ReplaceStringAction.new(:ned, basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
+          ReplaceStringAction.new(:ned, basenetname, networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
+          
           # {{{ ned block
 
           configLevels = final[fileIndex].split("_")
@@ -479,14 +498,15 @@ end
           end
 
           # }}}
+          
           writeNedFile.print nedfile
         }
 
         scheme = final[fileIndex].split("_")[@factors.index("scheme")]
         if (scheme == "hmip")
-          xmllines = IO.readlines(modname+scheme+".xml")
+          xmllines = IO.readlines(basemodname+scheme+".xml")
         else
-          xmllines = IO.readlines(modname+".xml")
+          xmllines = IO.readlines(basemodname+".xml")
         end
         #write xml files
         File.open(filename + ".xml", "w"){|writeXmlFile|
@@ -662,6 +682,128 @@ END
 
   def test_run
     $app.run
+  end
+
+  def test_ReplaceStringAction
+    sampleNed = <<END
+channel EHCompIntranetCable
+    datarate 100e6;
+    delay 10e-3;
+endchannel
+
+channel EHCompInternetCable
+    datarate 100e6;
+    delay 100e-3;
+endchannel
+
+channel EHCompEdgeCable
+    datarate 100e6;
+    delay 1e-4;
+endchannel
+
+module EHComp
+    submodules:
+        worldProcessor: WorldProcessor;
+            display: "p=264,31;i=bwgen_s";
+        mn: MobileNode;
+            parameters:
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=40,92;i=laptop3";
+        cn: UDPNode;
+            parameters:
+            //Complains about invalid type D for this
+            //                IPForward = false;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=407,41;i=pc";
+        ha: Router6;
+            gatesizes:
+                in[2],
+                out[2];
+            display: "p=72,56;i=router";
+        ar4.out[1] --> apd.in[0];
+        ar4.in[1] <-- apd.out[0];
+
+        ar.out[2] --> EHCompEdgeCable --> ar2.in[2];
+        ar.in[2] <-- EHCompEdgeCable <-- ar2.out[2];
+
+        ar2.out[3] --> EHCompEdgeCable --> ar3.in[2];
+        ar2.in[3] <-- EHCompEdgeCable <-- ar3.out[2];
+
+        ar3.out[3] --> EHCompEdgeCable --> ar4.in[2];
+        ar3.in[3] <-- EHCompEdgeCable <-- ar4.out[2];
+    display: "p=10,10;b=674,426";
+endmodule
+
+network ehCompNet : EHComp
+endnetwork
+END
+
+expected = <<END
+channel EHCompeh_500_20_nIntranetCable
+    datarate 100e6;
+    delay 10e-3;
+endchannel
+
+channel EHCompeh_500_20_nInternetCable
+    datarate 100e6;
+    delay 100e-3;
+endchannel
+
+channel EHCompeh_500_20_nEdgeCable
+    datarate 100e6;
+    delay 1e-4;
+endchannel
+
+module EHCompeh_500_20_n
+    submodules:
+        worldProcessor: WorldProcessor;
+            display: "p=264,31;i=bwgen_s";
+        mn: MobileNode;
+            parameters:
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=40,92;i=laptop3";
+        cn: UDPNode;
+            parameters:
+            //Complains about invalid type D for this
+            //                IPForward = false;
+            gatesizes:
+                in[1],
+                out[1];
+            display: "p=407,41;i=pc";
+        ha: Router6;
+            gatesizes:
+                in[2],
+                out[2];
+            display: "p=72,56;i=router";
+        ar4.out[1] --> apd.in[0];
+        ar4.in[1] <-- apd.out[0];
+
+        ar.out[2] --> EHCompeh_500_20_nEdgeCable --> ar2.in[2];
+        ar.in[2] <-- EHCompeh_500_20_nEdgeCable <-- ar2.out[2];
+
+        ar2.out[3] --> EHCompeh_500_20_nEdgeCable --> ar3.in[2];
+        ar2.in[3] <-- EHCompeh_500_20_nEdgeCable <-- ar3.out[2];
+
+        ar3.out[3] --> EHCompeh_500_20_nEdgeCable --> ar4.in[2];
+        ar3.in[3] <-- EHCompeh_500_20_nEdgeCable <-- ar4.out[2];
+    display: "p=10,10;b=674,426";
+endmodule
+
+network ehCompNet : EHCompeh_500_20_n
+endnetwork
+END
+    ReplaceStringAction.new(:ned, "EHComp", "EHCompeh_500_20_n").apply(nil, nil, sampleNed, nil)
+#    print sampleNed
+    assert_equal(expected, 
+                 sampleNed,
+                 "")
+
   end
 
   def setup

@@ -124,10 +124,13 @@ class SetAction < Action
     @value = quoteValue(@value) if @symbol == :xml
   end
   def apply(line, index = nil, file = nil, level = nil)
-    if line =~ /#{@attribute}\s*=\s*(\S+)/
-        line.sub!(/#{@attribute}\s*=\s*(\S+)/, "#{@attribute}=#{@value}")
-    end
-    line
+      if line =~ /#{@attribute}\s*=\s*(\S+)/
+          if @symbol == :xml
+            line.sub!(/#{@attribute}\s*=\s*([[:alnum:]"]+)/, "#{@attribute}=#{@value}")
+          else 
+            line.sub!(/#{@attribute}(\s*)=(\s*)(\S+)/, "#{@attribute}=#{@value}")            
+          end     
+      end
   end
 end
 
@@ -605,6 +608,18 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
     assert_equal("**.networkInterface.queueSize=100",
                  SetAction.new(:ini, "queueSize", 100).apply(iniline),
                  "queueSize should now be 100")
+
+    xmlline = %|     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">|
+    assert_equal(%|     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="1">|,
+                     SetAction.new(:xml, "HostMaxRtrSolDelay", 1).apply(xmlline), 
+                 "be careful of missing > in xml docs")
+
+    ini = %|ehCompNet.*.IPv6routingFile =xmldoc("EHComphmip.xml")|
+      assert_equal(%|ehCompNet.*.IPv6routingFile=xmldoc("EHComphmip_50_2_y.xml")|,
+                   SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("EHComphmip_50_2_y.xml")|).apply(ini),
+                   "does not preserve space around the = sign so better not put them in base doc")
+
+
   end
 
   def test_SetFactorCableAction

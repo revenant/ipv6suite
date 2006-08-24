@@ -5,6 +5,14 @@
 #
 # =DESCRIPTION
 #
+# Generates config files for runs based on scenario description in terms of
+# factors and their associated levels. The filenames for each specific scenario
+# is codified as BaseName_f1_f2_f3_...fn.{xml,ini,ned} where f1,f2,f3,..fn are a
+# specific level within their respective factors (thus there are n factors here)
+# and will always be ordered as such unless the description of factors and
+# levels are changed. The vector file produced will have run number appended
+# i.e. filename ends like so _#{runnumber}.vec.
+# 
 #
 # =REVISION HISTORY
 #  INI 2006-08-23 Changes
@@ -14,6 +22,8 @@ require 'optparse'
 require 'pp'
 
 $test = false
+
+DELIM = "_"
 
 #obtained from http://rubyforge.org/snippet/detail.php?type=snippet&id=2
 class Object
@@ -186,6 +196,7 @@ class MultiConfigGenerator
 #  -v|--verbose      print intermediate steps to STDERR
 #    USAGE
   end
+  # {{{ Option processing #
 
   #
   # Processes command line arguments
@@ -241,6 +252,7 @@ class MultiConfigGenerator
 
   end
 
+  # }}}
   def readConfigs
 
     @factors = ["scheme", "dnet", "dmap", "ar"]
@@ -308,7 +320,7 @@ end
       index = 0;
       for c in stack do
         for l in levels[f] do
-          final[index] = "#{c}_#{l}"
+          final[index] = "#{c}#{DELIM}#{l}"
           index = index + 1
         end
       end
@@ -356,7 +368,7 @@ end
     #returns networksNames and filenames (module name of network in ned)
     def formFilenames(configs, basemodulename)
       filenames = configs.map{|i|
-        basemodulename + i
+        basemodulename + DELIM + i
       }
       networkNames = filenames.map{|n|
         netName(n)
@@ -392,7 +404,8 @@ end
 
             SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
             # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
-            configLevels = final[fileIndex].split("_")
+
+            configLevels = final[fileIndex].split(DELIM)
             for l in configLevels do
 
               #determine the factor level belongs to hence need for factor together with
@@ -424,7 +437,7 @@ end
                 a.apply(line, lineIndex, inifile, l)
               end
             end
-            
+
             # }}}
             raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
             writeIniFile.puts line
@@ -439,7 +452,7 @@ end
           writeIniFile.puts "output-scalar-file = #{scalarfile}"
 
           1.upto(runcount) do |runIndex|
-            vectorfile = filename + runIndex.to_s + ".vec"         
+            vectorfile = filename + DELIM + runIndex.to_s + ".vec"         
            
             writeIniFile.puts "[Run #{runIndex}]"
             writeIniFile.puts "output-vector-file = #{vectorfile}"
@@ -463,7 +476,7 @@ end
           
           # {{{ ned block
 
-          configLevels = final[fileIndex].split("_")
+          configLevels = final[fileIndex].split(DELIM)
           for l in configLevels do
 
             #determine the factor level belongs to hence need for factor together with
@@ -504,7 +517,7 @@ end
           writeNedFile.print nedfile
         }
 
-        scheme = final[fileIndex].split("_")[@factors.index("scheme")]
+        scheme = final[fileIndex].split(DELIM)[@factors.index("scheme")]
         if (scheme == "hmip")
           xmllines = IO.readlines(basemodname+scheme+".xml")
         else
@@ -516,7 +529,7 @@ end
             xmlfile = nil
           # {{{ xml block
 
-          configLevels = final[fileIndex].split("_")
+          configLevels = final[fileIndex].split(DELIM)
           for l in configLevels do
 
             #determine the factor level belongs to hence need for factor together with
@@ -568,7 +581,7 @@ $app.run if not $test
 
 exit unless $test
 
-
+# {{{ Unit test #
 
 ##Unit test for this class/module
 require 'test/unit'
@@ -841,3 +854,4 @@ if $0 != __FILE__ then
   Test::Unit::UI::Console::TestRunner.run(TC_MultiConfigGenerator)
 end
 
+# }}}

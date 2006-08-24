@@ -62,11 +62,127 @@ def `(cmd)
   old_execute(cmd + " 2>&1")
 end
 
+module RInterface
+  
+  #Retrieve hash of vector index -> label from vec file filename (index is still
+  #a numerical string) where label is the vector name in file. All labels have
+  ##.#{index} appended
+
+  #probably better to return well formed columnname, nodename and index
+  #separately rather than encoded in one string
+  def retrieveLabelsVectorSuffix(filename)
+    vectors = Hash.new
+    
+    IO::foreach(filename) {|l|
+      case l
+      when /^[^\d]/
+        #Retrieve vector number
+        i = l.split(/\s+/,4)[1]
+        #Retrieve vector name
+        s = l.split(/\s+/,4)[3]
+        #Remove "" and last number
+        s = s.split(/["]/,3)[1]
+        #add nodename to column name
+        s += "." + l.split(/\s+/,4)[2].split(/\./)[1]
+        #add vector index to end
+        s += "." + i 
+        vectors[i] = s
+      end
+    }
+    p vectors if @debug
+    return vectors
+  end
+
+  #Retrieve array of hash of vector index -> better label and
+  #nodename from vec file. (the hash key index is still a numerical string)
+  #where label is the vector name in file
+  def retrieveVectors(filename)
+    vectors = Hash.new
+    vectors2 = Hash.new
+    nodename = nil
+    IO::foreach(filename) {|l|
+      case l
+      when /^[^\d]/
+        #Retrieve vector number
+        i = l.split(/\s+/,4)[1]
+        #Retrieve vector name
+        s = l.split(/\s+/,4)[3]
+        #Remove "" and last number
+        s = s.split(/["]/,3)[1]
+        #add nodename to column name
+        nodename = l.split(/\s+/,4)[2].split(/\./)[1]
+        vectors[i] = s
+      end
+    }
+    p vectors if @debug
+    return [vectors, nodename]
+  end
+
+  #
+  # Retrieve array of object names that match the R regular expression in pattern
+  #
+  def retrieveRObjects(p, pattern = "")
+    p.puts %{cat(ls(pat="#{pattern}"),"\\n")}
+    arrayCode =  %{%w[#{p.gets.chomp!}]}
+    eval(arrayCode)
+  end
+  
+  #
+  # array is returned from retrieveRObjects
+  def printRObjects(p, array)
+    results = Array.new
+    array.each {|e|
+      p.puts %{#{e}\n}
+      results.push(p.gets.chomp!)
+    }
+    results.each{|e|
+      p e
+    }
+  end
+  #
+  # Form safe column names from omnetpp vector names
+  # p is pipe to R 
+  # vectors is hash of index -> vector name produced from retrieveLabels
+  def safeColumnNames(p, vectors)
+    p.puts %{l<-c("#{vectors.values.join("\",\"")}")}
+    p.puts %{l<-make.names(l)}
+    #newline is needed otherwise gets stalls. Will get an extra empty element
+    #but does not matter as we don't use it
+    #    p.old_puts %{cat(l,sep="\\",\\"","\\n")}
+    #    arrayCode =  %{["#{p.gets.chomp!}"]}
+    p.puts %{cat(l,sep=" ","\\n")}
+    arrayCode =  %{%w[#{p.gets.chomp!}]}
+    p.puts %{rm(l)}
+    #Eval only only does expressions and not statements?
+    eval(arrayCode)
+  end
+
+  #pause ruby so R can finish its operations
+  def waitForR(rpipe)
+    rpipe.puts %{cat("\\n")}
+    rpipe.gets
+  end
+
+  public
+
+  def printVectorNames(vecFile)
+    v = retrieveLabelsVectorSuffix(vecFile) 
+    v.each_pair { |k,name|
+      $defout.old_puts %{#{k} #{name}}
+    }
+  end
+
+  def removeLastComponentFrom(string, sep=/\./)
+    string.reverse.split(sep, 2)[1].reverse
+  end
+
+end
+
 #
 # Imports omnetpp.vec files
 #
 class RImportOmnet
-  VERSION       = "$Revision: 2.0 $"
+  VERSION       = "$Revision: 2.1 $"
   REVISION_DATE = "$Date: 2006/07/21 $"
   AUTHOR        = "Johnny Lai"
 
@@ -188,6 +304,13 @@ class RImportOmnet
       opt.parse!
     } or  exit(1);
 
+    raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1
+
+    if @printVectors
+      printVectorNames(ARGV[0])
+      exit
+    end
+
   end
   
 #  private
@@ -225,79 +348,6 @@ class RImportOmnet
     return vectors
   end
 
-  #Retrieve hash of vector index -> label from vec file filename (index is still
-  #a numerical string) where label is the vector name in file. All labels have
-  ##.#{index} appended
-
-  #probably better to return well formed columnname, nodename and index
-  #separately rather than encoded in one string
-  def retrieveLabelsVectorSuffix(filename)
-    vectors = Hash.new
-    
-    IO::foreach(filename) {|l|
-      case l
-      when /^[^\d]/
-        #Retrieve vector number
-        i = l.split(/\s+/,4)[1]
-        #Retrieve vector name
-        s = l.split(/\s+/,4)[3]
-        #Remove "" and last number
-        s = s.split(/["]/,3)[1]
-        #add nodename to column name
-        s += "." + l.split(/\s+/,4)[2].split(/\./)[1]
-        #add vector index to end
-        s += "." + i 
-        vectors[i] = s
-      end
-    }
-    p vectors if @debug
-    return vectors
-  end
-
-  #
-  # Retrieve array of object names that match the R regular expression in pattern
-  #
-  def retrieveRObjects(p, pattern = "")
-    p.puts %{cat(ls(pat="#{pattern}"),"\\n")}
-    arrayCode =  %{%w[#{p.gets.chomp!}]}
-    eval(arrayCode)
-  end
-  
-  #
-  # array is returned from retrieveRObjects
-  def printRObjects(p, array)
-    results = Array.new
-    array.each {|e|
-      p.puts %{#{e}\n}
-      results.push(p.gets.chomp!)
-    }
-    results.each{|e|
-      p e
-    }
-  end
-  #
-  # Form safe column names from omnetpp vector names
-  # p is pipe to R 
-  # vectors is hash of index -> vector name produced from retrieveLabels
-  def safeColumnNames(p, vectors)
-    p.puts %{l<-c("#{vectors.values.join("\",\"")}")}
-    p.puts %{l<-make.names(l)}
-    #newline is needed otherwise gets stalls. Will get an extra empty element
-    #but does not matter as we don't use it
-#    p.old_puts %{cat(l,sep="\\",\\"","\\n")}
-#    arrayCode =  %{["#{p.gets.chomp!}"]}
-    p.puts %{cat(l,sep=" ","\\n")}
-    arrayCode =  %{%w[#{p.gets.chomp!}]}
-    p.puts %{rm(l)}
-    #Eval only only does expressions and not statements?
-    eval(arrayCode)
-  end
-
-  #pause ruby so R can finish its operations
-  def waitForR(rpipe)
-    rpipe.puts %{cat("\\n")}
-    rpipe.gets
-  end
 
   def relevelScheme(p)
     @p = p
@@ -384,18 +434,9 @@ class RImportOmnet
     p.puts %{rm(tempscan, p)}
   end
 
+  include RInterface
+
   public
-
-  def printVectorNames(vecFile)
-    v = retrieveLabelsVectorSuffix(vecFile) 
-    v.each_pair { |k,name|
-      $defout.old_puts %{#{k} #{name}}
-    }
-  end
-
-  def removeLastComponentFrom(string, sep=/\./)
-    string.reverse.split(sep, 2)[1].reverse
-  end
 
   def vectorname(rvectorname)
     v = rvectorname.sub(@aggprefix, "")
@@ -438,15 +479,6 @@ TARGET
     return if $test
 
     p = IO.popen(RSlave, "w+")
-    raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1
-
-
-
-
-    if @printVectors
-      printVectorNames(ARGV[0])
-      return
-    end
 
     modname = "EHAnalysism"
     
@@ -490,12 +522,16 @@ end#RImportOmnet
 
 #main
 
-$app = RImportOmnet.new #need to create to parse args otherwise never runs test
-$app.run if not $test
+if $0 == __FILE__ then
+  $app = RImportOmnet.new #need to create to parse args otherwise never runs test
+  $app.run if not $test
+#end
 
-exit unless $test
+exit unless $test or $0 != __FILE__
 
-##Unit test for this class/module
+
+# {{{ ##Unit test for this class/module#
+
 require 'test/unit'
 
 class TC_RImportOmnet < Test::Unit::TestCase
@@ -674,8 +710,9 @@ TARGET
 
 end
 
-if $0 != __FILE__ then
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_RImportOmnet)
+
 end
+# }}}

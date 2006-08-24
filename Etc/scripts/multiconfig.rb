@@ -13,6 +13,8 @@
 require 'optparse'
 require 'pp'
 
+$test = false
+
 #obtained from http://rubyforge.org/snippet/detail.php?type=snippet&id=2
 class Object
   def deep_clone
@@ -22,7 +24,7 @@ end
 
 
 class Action
-  def baseInitialize(symbol, attribute, value)
+  def initialize(symbol, attribute, value)
     @symbol = symbol
     @attribute = attribute
     @value = value
@@ -46,17 +48,34 @@ class Action
 
 end
 
+#TODO: Proper setting of XML values by inserting parameter if not exist into the
+#proper XPath Query Regexp and validating the document
+class SetAction < Action
+  def initialize(symbol, attribute, value)
+    super(symbol, attribute, value)
+    @value = quoteValue(@value) if @symbol == :xml
+  end
+  def apply(line, index = nil, file = nil, level = nil)
+      if line =~ /#{@attribute}\s*=\s*(\S+)/       
+          if @symbol == :xml
+            line.sub!(/#{@attribute}\s*?=\s*?([[:alnum:]"]+)/, "#{@attribute}=#{@value}")
+          else 
+            line.sub!(/#{@attribute}\s*?=\s*?(\S+)/, "#{@attribute}=#{@value}")            
+          end     
+      end
+  end
+end
 
-class ToggleAction < Action
+
+class ToggleAction < SetAction
   def initialize(symbol, attribute, value)
     @testedValue = false
     @symbol = symbol
-    @attribute = attribute
     if @symbol == :xml 
       if value
-        @value = '"on"'  
+        @value = "on"
       else
-        @value = '"off"'
+        @value = "off"
       end
     else
       if value
@@ -64,7 +83,8 @@ class ToggleAction < Action
       else
         @value = 'false'
       end
-    end   
+    end
+    super(@symbol, attribute, @value)
   end
 
   def apply(line, index = nil, file = nil, level = nil)
@@ -78,7 +98,7 @@ class ToggleAction < Action
           @testedValue = true
         end
         return nil if $1 =~/#{@value}/
-        line.sub!(/#{@attribute}=(\S+)/, "#{@attribute}=#{@value}")
+        super(line, index, file, level)
     end
     line
   end
@@ -86,7 +106,7 @@ end #end class ToggleAction
 
 class SetFactorChannelAction < Action
   def initialize(symbol, channel, attribute, values)
-    baseInitialize(symbol, attribute, values)
+    super(symbol, attribute, values)
     @channel = channel
   end
 
@@ -105,7 +125,7 @@ end
 
 class ReplaceStringAction < Action
   def initialize(symbol, search, replace)
-    baseInitialize(symbol, search, replace)
+    super(symbol, search, replace)
   end
   def apply(line = used, index = nil, file = "used", level = nil)
     if @symbol == :ned
@@ -113,24 +133,6 @@ class ReplaceStringAction < Action
     else
       line.sub!(/#{@attribute}/, "#{@value}")
     end
-  end
-end
-
-#TODO: Proper setting of XML values by inserting parameter if not exist into the
-#proper XPath Query Regexp and validating the document
-class SetAction < Action
-  def initialize(symbol, attribute, value)
-    baseInitialize(symbol, attribute, value)
-    @value = quoteValue(@value) if @symbol == :xml
-  end
-  def apply(line, index = nil, file = nil, level = nil)
-      if line =~ /#{@attribute}\s*=\s*(\S+)/
-          if @symbol == :xml
-            line.sub!(/#{@attribute}\s*=\s*([[:alnum:]"]+)/, "#{@attribute}=#{@value}")
-          else 
-            line.sub!(/#{@attribute}(\s*)=(\s*)(\S+)/, "#{@attribute}=#{@value}")            
-          end     
-      end
   end
 end
 
@@ -354,7 +356,7 @@ end
     #returns networksNames and filenames (module name of network in ned)
     def formFilenames(configs, basemodulename)
       filenames = configs.map{|i|
-        i.insert(0, basemodulename)
+        basemodulename + i
       }
       networkNames = filenames.map{|n|
         netName(n)
@@ -374,10 +376,6 @@ end
 
     nedfileOrig = IO.read(basemodname+".ned")
     inifile = IO.readlines(basemodname+".ini")
-
-    #until we have xpath regexp actions working we'll have to manually create
-    #the hmip xml
-#    xmllines = IO.readlines(basemodname+".xml")
 
     File.open("jobs.txt","w"){|jobfile|
       filenames.each_with_index {|filename, fileIndex|
@@ -462,8 +460,6 @@ end
         #write ned files (stream oriented)
         File.open(filename + ".ned", "w"){|writeNedFile|
           line = lineIndex = nil
-          ReplaceStringAction.new(:ned, basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
-          ReplaceStringAction.new(:ned, basenetname, networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
           
           # {{{ ned block
 
@@ -501,6 +497,9 @@ end
           end
 
           # }}}
+
+          ReplaceStringAction.new(:ned, basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
+          ReplaceStringAction.new(:ned, basenetname, networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
           
           writeNedFile.print nedfile
         }
@@ -565,9 +564,9 @@ end#MultiConfigGenerator
 
 
 $app = MultiConfigGenerator.new
-#$app.run if not $test
+$app.run if not $test
 
-#exit unless $test
+exit unless $test
 
 
 
@@ -576,18 +575,17 @@ require 'test/unit'
 
 class TC_MultiConfigGenerator < Test::Unit::TestCase
   def test_ToggleActionXML
-    line = 'AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on"'
+    line = 'AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on">'
     a = ToggleAction.new(:xml, "AdvHomeAgent", false)
-    assert_equal("AdvSendAdvertisements=\"on\" HMIPAdvMAP=\"on\" AdvHomeAgent=\"off\"",
+    assert_equal("AdvSendAdvertisements=\"on\" HMIPAdvMAP=\"on\" AdvHomeAgent=\"off\">",
                  a.apply(line),
                  "value of xml param AdvHomeAgent should have changed to false")
   end
   def test_ToggleActionIni
     a = ToggleAction.new(:ini, "l2up", false)
-
     assert_equal("**.l2upTrigger=true",
                  a.apply("**.l2upTrigger=true"),
-                 "parameter does not match value should not change to false")
+                 "parameter l2upTrigger should not change to false as we modify l2up only")
     assert_equal("**.l2up=false",
                  a.apply("**.l2up=true"),
                  "parameter matches so value should change to false")
@@ -595,7 +593,7 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
   end
   def test_quoteValue
     assert_equal('"me"',
-                 Action.new.quoteValue("me"),
+                 Action.new(nil, nil, nil).quoteValue("me"),
                  "quotes should surround value passed int")
   end
   def test_setAction
@@ -696,7 +694,7 @@ END
   end
 
   def test_run
-    $app.run
+#    $app.run
   end
 
   def test_ReplaceStringAction

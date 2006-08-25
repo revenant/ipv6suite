@@ -96,9 +96,10 @@ def writeCMakeList(dir, outputName, projName = nil)
 
     if not @customise
       x.puts(sprintf("PROJECT(%s)", projName)) if projName and projName.length > 0
-      
       # set_dir_props generated from customCommands requires this
       x.puts %{CMAKE_MINIMUM_REQUIRED(VERSION 2.0)} 
+      x.puts %|SET(CMAKE_BACKWARDS_COMPATIBILITY 2.0 CACHE STRING "2.4 uses default path before our custom path for omnet libs unless we do NO_DEFAULT_PATH in every FIND_LIBRARY" FORCE)|
+
       x.puts "SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)"
 
       x.puts "SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)"

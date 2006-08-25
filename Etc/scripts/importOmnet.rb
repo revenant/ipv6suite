@@ -104,24 +104,9 @@ class ImportOmnet < RImportOmnet
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
 
-    columnNames = safeColumnNames(p, vectors)
-    p columnNames if @debug
-
-    i = 0 
-    vectors.each_pair { |k,v|
-      # does not update value in hash only iterator v
-      #v = a[i] 
-      vectors[k] = columnNames[i]
-      i+=1
-      raise "different sized containers when assigning safe column names" if vectors.keys.size != columnNames.size
-    }
-
-    unless self.filter.nil?
-      newIndices = vectors.keys & self.filter
-      vectors.delete_if{|k,v|
-        not newIndices.include? k
-      }
-    end
+    safeColumnNamesMapping(p ,vectors)
+    
+    filterVectors(vectors)
 
     vectors.each_pair { |k,v|
       raise "logical error in determining column name of vector #{k}" if vectors[k].nil?

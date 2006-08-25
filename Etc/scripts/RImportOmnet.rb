@@ -190,7 +190,7 @@ class RImportOmnet
   #Doing **/*.ext would find all files with .ext recursively while with only one
   #* it is like only in one subdirectory deep
 
-  attr_accessor :rdata, :filter
+  attr_accessor :rdata, :filter, :exclude
 
   #
   # Returns a version string similar to:
@@ -240,13 +240,15 @@ class RImportOmnet
 #    USAGE
   end
 
+  # {{{ process options #
+
   #
   # Processes command line arguments
   #
   def get_options
     ARGV.options { |opt|
       opt.banner = version
-      opt.separator "Usage: #{File.basename __FILE__} [options] [omnetpp.vec] "
+      opt.separator "Usage: #{File.basename __FILE__} [options] omnetpp.vec other.vec .. "
       opt.separator ""
       opt.separator "Specific options:"
  
@@ -263,7 +265,10 @@ class RImportOmnet
         @relevelSchemeOrder =  %{%w[#{@relevelSchemeOrder}]}
         @relevelSchemeOrder = eval(@relevelSchemeOrder)
       }
-
+      
+      opt.on("-e", "--exclude x,y,z", Array, "list of vectors to exclude opposite in effect to filter"){|@exclude|
+        self.exclude.uniq!
+      }
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
       opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
@@ -304,7 +309,7 @@ class RImportOmnet
       opt.parse!
     } or  exit(1);
 
-    raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1
+    raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1 and not $test
 
     if @printVectors
       printVectorNames(ARGV[0])
@@ -312,7 +317,8 @@ class RImportOmnet
     end
 
   end
-  
+  # }}}  
+
 #  private
   #
   # Unused except in unittest.  Retrieve hash of vector index -> label from vec
@@ -349,6 +355,7 @@ class RImportOmnet
   end
 
 
+
   def relevelScheme(p)
     @p = p
     frames = retrieveRObjects(@p, pat="^a\.")    
@@ -356,6 +363,39 @@ class RImportOmnet
     for f in frames do
       @p.puts %|#{f}$scheme = jl.relevel(#{f}$scheme, c("#{@relevelSchemeOrder.join("\",\"")}"))|
     end
+  end
+
+  def filterVectors(vectors)
+    unless self.filter.nil?
+      newIndices = vectors.keys & self.filter
+      vectors.delete_if{|k,v|
+        not newIndices.include? k
+      }
+    end
+
+    unless self.exclude.nil?
+      vectors.delete_if{|k,v|
+        exclude.include? k
+      }
+    end
+
+  end
+
+  #Actually this mapping may be unsafe because iterating through a hash
+  #(vectors) will not guarantee an order and yet I'm assuming safeColumnNames
+  #will generate an array with same order as the traversal of vector keys
+  def safeColumnNamesMapping(p ,vectors)
+    columnNames = safeColumnNames(p, vectors)
+    p columnNames if @debug
+    
+    i = 0 
+    vectors.each_pair { |k,v|
+      # does not update value in hash only iterator v
+      #v = a[i] 
+      vectors[k] = columnNames[i]
+      i+=1
+      raise "different sized containers when assigning safe column names" if vectors.keys.size != columnNames.size
+    }
   end
 
   # Read data from OMNeT++ vecFile and convert to dataframe using vector name as
@@ -373,23 +413,9 @@ class RImportOmnet
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
 
-    a = safeColumnNames(p, vectors)
-    p a if @debug
-    i = 0 
-    vectors.each_pair { |k,v|
-      # does not update value in hash only iterator v
-      #v = a[i] 
-      vectors[k] = a[i]
-      i+=1
-      raise "different sized containers when assigning safe column names" if vectors.keys.size != a.size
-    }
+    safeColumnNamesMapping(p ,vectors)
 
-    unless self.filter.nil?
-      newIndices = vectors.keys & self.filter
-      vectors.delete_if{|k,v|
-        not newIndices.include? k
-      }
-    end
+    filterVectors(vectors)
 
     vectors.each_pair { |k,v|
       raise "logical error in determining common elements" if vectors[k].nil?
@@ -524,11 +550,11 @@ end#RImportOmnet
 
 if $0 == __FILE__ then
   $app = RImportOmnet.new #need to create to parse args otherwise never runs test
-  $app.run if not $test
-#end
-
-exit unless $test or $0 != __FILE__
-
+  if not $test
+    $app.run 
+    exit 
+  end
+end
 
 # {{{ ##Unit test for this class/module#
 
@@ -710,6 +736,7 @@ TARGET
 
 end
 
+if $test 
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_RImportOmnet)

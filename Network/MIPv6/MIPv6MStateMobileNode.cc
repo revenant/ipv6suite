@@ -1833,18 +1833,18 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
     //Reverse Tunnel
     size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
 					 mipv6cdsMN->primaryHA()->prefix().prefix);
-#ifndef USE_HMIP
-    assert(vIfIndex);
-#else
-    if (rt->hmipSupport() && !vIfIndex)
+    if (!vIfIndex)
     {
+      if (rt->hmipSupport())
       Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
 	   <<" is the old one and we have handed to new MAP, awaiting BA "
 	   <<"from HA to use rcoa, packet dropped");
+      else
+	Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
+	     <<" not ready yet, awaiting BA from HA to use coa, packet dropped");
       Dout(dc::mipv6, " tunnels "<<*tunMod);
       return false;
     }
-#endif //USE_HMIP
 
     Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
 	 <<" reverse tunnelling vIfIndex="<<hex<<vIfIndex<<dec

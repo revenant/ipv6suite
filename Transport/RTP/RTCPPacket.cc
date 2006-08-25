@@ -33,6 +33,8 @@
 #include "sys.h"
 #include "debug.h"
 
+#include <cassert>
+
 #include "RTCPPacket.h"
 #include "RTPPacket.h"
 

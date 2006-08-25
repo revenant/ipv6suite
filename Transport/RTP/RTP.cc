@@ -35,6 +35,7 @@
 #include "debug.h"
 
 #include <iomanip>
+#include <cassert>
 
 #include "RTP.h"
 #include "RTPPacket.h"

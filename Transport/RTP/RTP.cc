@@ -44,6 +44,7 @@
 #include "UDPControlInfo_m.h"
 #include "opp_utils.h"
 #include "RTCPSR.h"
+#include "IPv6Address.h"
 
 Define_Module(RTP);
 
@@ -210,7 +211,7 @@ void RTP::processReceivedPacket(cMessage* msg)
   } //RTP message
   else //RTCP
   {
-    EV<<"received rtcp msg "<<msg;
+    //EV<<"received rtcp msg "<<msg;
 
     assert(dynamic_cast< RTCPPacket*>(msg));
     meanRtcpSize = ((double)1/16)*(double)dgramSize(msg) + ((double)15/16)*meanRtcpSize;
@@ -402,7 +403,12 @@ void RTP::initialize(int stageNo)
   meanRtcpSize = 28 + 24;
   tn = calculateTxInterval();
   rtcpTimeout = new cMessage("rtcpTimeout");
-  scheduleAt(tn, rtcpTimeout);
+
+  //Want to make sure we give enough time for global addresses to be assigned to
+  //nodes otherwise the simulation will abort instead of sending stuff to link
+  //local address
+  simtime_t randomStart = startTime?(startTime - 2*tn):0;
+  scheduleAt(randomStart < 0?3 * tn:randomStart, rtcpTimeout);
 
   memberSet[_ssrc].sender = false;
   //Identify ourselves as self for the operator<< fn
@@ -429,6 +435,14 @@ void RTP::resolveAddresses()
   {
     if (strcmp(OPP_Global::nodeName(this), token) == 0)
       continue;
+    IPvXAddress addr = IPAddressResolver().resolve(token);
+    if (IPv6Address(addr.get6().str().c_str()).scope()  !=
+	ipv6_addr::Scope_Global)
+    {
+      cerr<<OPP_Global::nodeName(this)<<" Address of dest "<<token<<" is not "
+	  <<"global at "<<simTime()<<endl;
+      assert(false);
+    }
     destAddrs.push_back(IPAddressResolver().resolve(token));
 
   }

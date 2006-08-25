@@ -204,7 +204,7 @@ class MultiConfigGenerator
   def get_options
     ARGV.options { |opt|
       opt.banner = version
-      opt.banner = "Usage: ruby #{File.basename __FILE__} [options] "
+      opt.banner = "Usage: ruby #{File.basename __FILE__} [options] basename"
       opt.separator ""
       opt.separator "Specific options:"
 
@@ -212,7 +212,11 @@ class MultiConfigGenerator
       #ruby __FILE__ -x -c -s test
       opt.on("-x", "parse arguments and show Usage") {|@quit|}
 
-      opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}                                                                                                     
+      opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}
+    
+      opt.on("-r", "--runCount x", Integer, "How many runs to generate for each scenario"){|@runCount|}
+
+#      opt.on("-t", "--template x", String, "Which base module name to use as template i.e. EHComp "){|@template|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -238,12 +242,14 @@ class MultiConfigGenerator
         exit
       end
 
-      opt.on_tail("By default ...splits data according to opt_filter, ",
-                  "Subset plots on ... #{@opt_subset}. Will not create histograms")
+      opt.on_tail("Where basename stands for the set of files basename.{ned,xml,ini} ",
+                  "that describes the simulation scenario")
       #Samples end
 
       opt.parse!
     } or  exit(1);
+
+    raise ArgumentError, "No template name specified", caller[0] if ARGV.size < 1 and not $test
 
     if @quit
       pp self
@@ -376,11 +382,13 @@ end
       [networkNames, filenames]
     end
 
-
-    basemodname = "EHComp"
+    basemodname = ARGV.shift
     basenetname = netName(basemodname)
-    exename = "Comparison"
-    runcount = 2
+    cwd = `pwd`.chomp
+    #opplink will create symbolic link to INET executabe with same name as
+    #directory
+    exename = `basename #{cwd}`.chomp
+    runcount = @runCount.nil??10:@runCount
     
     readConfigs
     final = generateConfigNames(@factors, @levels)

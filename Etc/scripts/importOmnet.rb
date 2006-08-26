@@ -36,6 +36,15 @@ module General
     resultArray
   end
 
+  def expandFactors(encodedFactors, factors)
+    c = splice(factors, encodedFactors)
+    e = []
+    Hash[*c].to_a.each{|i|
+      e.push(i[0] + "=" + quoteValue(i[1]))
+    } 
+    %|#{e.join(",")}|
+  end
+
   def removeLastComponentFrom(string, sep=/\./)
     string.reverse.split(sep, 2)[1].reverse
   end
@@ -90,15 +99,7 @@ class ImportOmnet < RImportOmnet
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
     #todo rearrange factors according to @factors
-    def expandFactors(encodedFactors, factors)
-      c = splice(factors, encodedFactors)
-      e = []
-      Hash[*c].to_a.each{|i|
-        e.push(i[0] + "=" + quoteValue(i[1]))
-      } 
-      %|#{e.join(",")}|
-    end
-
+    $defout.old_puts "---Processing vector file " + vecFile if @verbose
     vectors, nodename = retrieveVectors(vecFile)
     @vectorStarted = Array.new if not defined? @vectorStarted
     #not caching the vectors' safe column names. Too much hassle and makes code
@@ -116,7 +117,7 @@ class ImportOmnet < RImportOmnet
       onerunframe = %{#{v}}
 
       columnname = v
-      p columnname + "\n" if @verbose
+      $defout.old_puts columnname if @verbose
 
       restrictGrep = nlines > 0? "-m #{nlines}":""
       p.puts %{tempscan <- scan(p<-pipe('grep #{restrictGrep} "^#{k}\\\\>" #{vecFile}'), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
@@ -151,19 +152,19 @@ class ImportOmnet < RImportOmnet
   #
   def run
     p = IO.popen(RSlave, "w+")
-
+        
     modname = "EHComp"
     #Will use read config for factor names to be used in data frame columns
     readConfigs
 #    factor(x, @{levels[@factors[i]]}, labels=@{levels[@factors[i]].map{|x| x + "ms"}}, ordered = TRUE)
     while ARGV.size > 0 do
-      vecFile = ARGV.shift
+      vecFile = ARGV.shift      
       raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"
 
       encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
-      encodedSingleRun(p, vecFile, encodedFactors, run)
+      encodedSingleRun(p, vecFile, encodedFactors, run)    
     end
 
     output = File.join(File.dirname(vecFile), @rdata)

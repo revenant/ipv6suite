@@ -193,7 +193,7 @@ pp configs, netnames if @debug
 
         inifile.each_with_index {|line,index|
           ini.puts line.sub(Regexp.new(netname), netnames[x])
-          raise "nedfile #{modname+".ini"} contains a conflicting network directive at line #{index}" if line =~ /^network/
+          raise "inifile #{modname+".ini"} contains a conflicting network directive at line #{index}" if line =~ /^network/
         }
 
         ini.puts "[General]"
@@ -202,7 +202,8 @@ pp configs, netnames if @debug
 
         1.upto(runcount) do |i|
           vectorfile = c+ i.to_s + ".vec"
-          scalarfile = c+ i.to_s + ".sca"
+          #Use same scalarfile for a config
+          scalarfile = c + ".sca"
     
           ini.puts "[Run #{i}]"
           ini.puts "output-vector-file = #{vectorfile}"

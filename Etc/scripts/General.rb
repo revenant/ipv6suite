@@ -33,6 +33,8 @@ module General
     resultArray
   end
   
+  #Produce a f1="l1", f2="l2", f3="l3", .. where f is in factors and l is in
+  #encodedFactors
   def expandFactors(encodedFactors, factors)
     c = splice(factors, encodedFactors)
     e = []

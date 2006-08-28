@@ -9,9 +9,15 @@
 # Based on RImportOmnet.rb but simplified a lot
 # 
 
+#Put a directory into load path with other custom ruby libs
+$LOAD_PATH<<`echo $HOME`.chomp + "/lib/ruby"
+#Put current dir in load path in case this module requires other files
+$LOAD_PATH<<File.dirname(__FILE__)
+
 require 'optparse'
 require 'pp'
 require 'General'
+require 'set'
 
 #controls whether R commands are printed on screen. Turn on via -X option
 $debug = false
@@ -44,7 +50,7 @@ class IO
 
     self.old_puts str
 
-    $lastCommand.shift if $lastCommand.size > 2
+    $lastCommand.shift if $lastCommand.size > 10
     if false
       #keeping in sync does not work in practice because we need to read the
       #output of R and we would have swallowed it up here unless we can somehow
@@ -97,11 +103,38 @@ module RInterface
     p vectors if @debug
     return vectors
   end
-
+  
+  UniqueVectorNames = {}
+  #module var stored as Class Hash so will not overwrite each instance
+  #Store a list of vector numbers that belong to the unique vector name formed
+  #by vectorname + nodename as the same vector name can belong to two different 
+  #nodes i.e. transitTime from cn
+  def uniqueVectorNames=(o)
+    UniqueVectorNames[object_id] = o
+  end
+  
+  def uniqueVectorNames    
+    UniqueVectorNames[object_id]
+  end
+  
+  if false
+    #detected multiple vectors sharing same index
+    #so another violation on top of a vector having multiple indices
+    
+  #Determines said thing based on the vector Index
+  def determineUniqueVectorName(index)
+    a = self.uniqueVectorNames.select{|k,v| v.include?(index)}      
+    if not a.size == 1
+    	raise "Whoops there appears to be #{a.size} different vectors belong to vector index #{index}: #{a.to_s}"
+    end    	
+    a[0][0]
+  end
+end
   #Retrieve array of hash of vector index -> better label and
   #nodename from vec file. (the hash key index is still a numerical string)
   #where label is the vector name in file
-  def retrieveVectors(filename)
+  def retrieveVectors(filename)    
+    self.uniqueVectorNames = Hash.new if self.uniqueVectorNames.nil?
     vectors = Hash.new
     nodenames = Hash.new
     IO::foreach(filename) {|l|
@@ -112,13 +145,20 @@ module RInterface
         #Retrieve vector name
         s = l.split(/\s+/,4)[3]
         #Remove "" and last number
-        s = s.split(/["]/,3)[1]
-        #add nodename to column name
-        nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]
+        s = s.split(/["]/,3)[1]                
+        nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]        
         vectors[i] = s
+        key = vectors[i] + nodenames[i]
+        if uniqueVectorNames.include?(key)
+          self.uniqueVectorNames[key].push i if not self.uniqueVectorNames[key].include?(i)
+        else
+          self.uniqueVectorNames[key]=Array.new
+          self.uniqueVectorNames[key].push i
+        end
       end
     }
     p vectors if @debug
+    p "unique vector names", uniqueVectorNames if @debug    
     return [vectors, nodenames]
   end
 
@@ -132,10 +172,9 @@ module RInterface
   end
   
   #Assumes 2 dim arrays only
-  def sizeRObjects(p, pattern = "")
+  def dimRObjects(p, pattern = "")
     sizes=Hash.new       
-    retrieveRObjects(p, pattern).each {|e|
-      $defout.old_puts e
+    retrieveRObjects(p, pattern).each {|e|      
       p.puts %{dim(#{e}\n)}
       dim = p.gets.chomp!
       #[1] 5 8
@@ -205,6 +244,8 @@ end
 # Imports omnetpp.vec files
 #
 class RImportOmnet
+  include General
+  
   VERSION       = "$Revision: 2.1 $"
   REVISION_DATE = "$Date: 2006/07/21 $"
   AUTHOR        = "Johnny Lai"
@@ -387,17 +428,39 @@ class RImportOmnet
     end
   end
 
+  #Assumes across different runs of same executable vector indices are not recycled for use as 
+  #other vectors otherwise this will fail miserably. This is indeed false so any
+  #filtering can alter number of resulting sets particularly if taken over large sets of data
+  #TODO Fix or will fail desperately #see determineUniqueVectorName() for proof of faiure
+  #Also will fail to filter/exclude a vector index if that has not been seen yet i.e.
+  #if we specify 317 and 319 is also a duplicate but if we scanned a file that contained 319 first
+  #then parts of 319 can be there causing havoc as we later exclude it or include it
+  #TODO only fix is to scan all vector names of all vector files to determine this 
+  #duplicate vector relationships before starting to parse when we use filer/exclude
   def filterVectors(vectors)
     unless self.filter.nil?
-      newIndices = vectors.keys & self.filter
+      newIndices = Set.new(vectors.keys & self.filter)      
+      uniqueVectorNames.values.each{|array|        
+        #Stick in all vector names with different indices to be included etc
+        if (array & self.filter).size != 0
+          newIndices.merge(array)
+        end
+      }
       vectors.delete_if{|k,v|
         not newIndices.include? k
       }
     end
 
     unless self.exclude.nil?
+      newIndices = Set.new(self.exclude)
+      uniqueVectorNames.values.each{|array|        
+        #Stick in all vector names with different indices to be included etc
+        if (array & self.exclude).size != 0
+          newIndices.merge(array)
+        end
+      }
       vectors.delete_if{|k,v|
-        exclude.include? k
+        newIndices.include? k
       }
     end
 
@@ -711,13 +774,14 @@ TARGET
   end
 
   def test_relevel
-    return
+    if false
      @inputRdata = "EHAnalysism.Rdata"
      @inputRdata = "repeatRun-collated.Rdata"
      @rdata = "out.Rdata"
      @p.puts %|load("#{@inputRdata}")|
      $app.relevelScheme(@p)
      @p.puts %|save.image("#{@rdata}")|
+   end
   end
 
   if false

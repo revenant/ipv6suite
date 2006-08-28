@@ -25,9 +25,7 @@ $test  = false
 #
 # TODO: Add Description Here
 #
-class ImportOmnet < RImportOmnet
-  include General
-
+class ImportOmnet < RImportOmnet  
   VERSION       = "1.0"
   REVISION_DATE = "28 Aug 2006"
   AUTHOR        = "Johnny Lai"
@@ -64,13 +62,12 @@ class ImportOmnet < RImportOmnet
   end
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
-    #todo rearrange factors according to @factors
-    $defout.old_puts "---Processing vector file " + vecFile if @verbose
+    #todo rearrange factors according to @factors    
     vectors, nodenames = retrieveVectors(vecFile)
     @vectorStarted = Array.new if not defined? @vectorStarted
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
-
+    vectorsOrig = vectors.deep_clone
     safeColumnNamesMapping(p ,vectors)
     
     filterVectors(vectors)
@@ -97,13 +94,16 @@ class ImportOmnet < RImportOmnet
 
       #Aggregate runs for same node's vector
       aggframe = %{#{@aggprefix}#{v}} 
-
-      if not @vectorStarted.include? k
-        @vectorStarted.push(k)
+      
+      if not @vectorStarted.include?(vectorsOrig[k] + nodenames[k])
+        #determineUniqueVectorName(k) actually detected multiple vectors sharing same index
+        #so another violation on top of a vector having multiple indices
+        #@vectorStarted.push(determineUniqueVectorName(k))
+        @vectorStarted.push(vectorsOrig[k] + nodenames[k])
         p.puts %{#{aggframe} <- #{onerunframe}}
       else
         p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}        
-        #        p.puts %{#{aggframe} <- merge(#{aggframe} , #{onerunframe})}
+#        p.puts %{#{aggframe} <- merge(#{aggframe} , #{onerunframe})}
       end
       p.puts %{rm(#{onerunframe})}
 
@@ -111,7 +111,11 @@ class ImportOmnet < RImportOmnet
     }#end vectors.each
     p.puts %{rm(tempscan, p)}
   end
-
+ 
+  def resetVectorStarted
+    @vectorStarted = []
+  end
+  
   #
   # Launches the application
   #  ImportOmnet.new.run
@@ -123,14 +127,17 @@ class ImportOmnet < RImportOmnet
     #Will use read config for factor names to be used in data frame columns
     readConfig
 #    factor(x, @{levels[@factors[i]]}, labels=@{levels[@factors[i]].map{|x| x + "ms"}}, ordered = TRUE)
+    vecCount = ARGV.size
+    curCount = 0
     while ARGV.size > 0 do
       vecFile = ARGV.shift      
-      raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"
-
+      raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"     
       encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
-      encodedSingleRun(p, vecFile, encodedFactors, run)    
+      $defout.old_puts "---Processing vector file " + vecFile + " #{curCount}/#{vecCount}" if @verbose
+      encodedSingleRun(p, vecFile, encodedFactors, run)
+      curCount += 1    
     end
     
     output = File.join(File.dirname(vecFile), @rdata)
@@ -139,8 +146,11 @@ class ImportOmnet < RImportOmnet
     p.puts %{q("no")}
   rescue Errno::EPIPE => err
     $defout.old_puts err
-    $defout.old_puts err.backtrace
-    $defout.old_puts "last R command: #{$lastCommand.shift}"
+    $defout.old_puts err.backtrace    
+    $defout.old_puts "last R commands (earliest first): "
+    $lastCommand.each{|l|
+      $defout.old_puts l  
+    } 
   rescue => err
     $defout.old_puts err
     $defout.old_puts err.backtrace
@@ -162,32 +172,29 @@ exit unless $test
 require 'test/unit'
 
 class TC_ImportOmnet < Test::Unit::TestCase
-  include RInterface
-  include General
-  def test_quoteString
-    #assert_equal("\"quotedString\"",
-    #             quoteString("quotedString"),
-    #             "The quotes should surround the quotedString")
-    print Dir.pwd
-    exit
-  end
-
+  #include RInterface 
+  
   def testVectorIndexDifferent
-		p = IO.popen(RSlave, "w+")
-		$app.readConfig
+    p = IO.popen(RInterface::RSlave, "w+")
+    $app.readConfig
+    $app.filter = nil
+    $app.exclude = nil    
     @input.each_pair{|f,v|
       vecFile = f
-      encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
+      encodedFactors = File.basename(vecFile, ".vec").split(RInterface::DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
       $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
-    }    
+    }            
     output = File.join("test.Rdata")
     p.puts %{save.image("#{output}")}
-    printRObjects(p, retrieveRObjects(p, "a.transitTimes.cn"))
+    assert_equal(["a.transitTimes.cn", "a.transitTimes.mn"],
+                 $app.retrieveRObjects(p),
+                 "all vectors")
+    #printRObjects(p, retrieveRObjects(p, "a.transitTimes.cn"))
     assert_equal(12,                 
-    						 sizeRObjects(p, "a.transitTimes.cn")["a.transitTimes.cn"][0],
-    						 "We should have 12 rows of transitTimes.cn")
+                 $app.dimRObjects(p, "a.transitTimes.cn")["a.transitTimes.cn"][0],
+                 "We should have 12 rows of transitTimes.cn")
     
     #Notice output contains node cn and also transitTimes are from cn this is 
     #not correct. Thus because of the fact that vector indexes do not contain nodename
@@ -196,13 +203,59 @@ class TC_ImportOmnet < Test::Unit::TestCase
   rescue Errno::EPIPE => err
     $defout.old_puts err
     $defout.old_puts err.backtrace
-    $defout.old_puts "last R command: #{$lastCommand.shift}"
+    $defout.old_puts "last R commands (earliest first): "
+    $lastCommand.each{|l|
+      $defout.old_puts l  
+    } 
   rescue => err
     $defout.old_puts err
     $defout.old_puts err.backtrace
     p.puts %{save.image("otherException.Rdata")} if not p.nil?
   ensure
     p.close if p    
+  end
+  
+  def test_excludeDupVectorIndex
+    p = IO.popen(RInterface::RSlave, "w+")    
+    $app.readConfig           
+    $app.exclude = %w{317}
+    $app.filter = nil
+    @input.each_pair{|f,v|
+      vecFile = f
+      encodedFactors = File.basename(vecFile, ".vec").split(RInterface::DELIM)
+      run = encodedFactors.last
+      encodedFactors = encodedFactors[1..encodedFactors.size-2]      
+      $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
+    }            
+    assert_equal(["a.transitTimes.cn"],
+                 $app.retrieveRObjects(p),
+                 "should exclude 317 and 319")
+    assert_equal(12,
+      $app.dimRObjects(p,"a.transitTimes.cn")["a.transitTimes.cn"][0],
+      "same result as above unless dup vectors cause havoc like searching for 319 first")
+    #p dimRObjects(p,"a.transitTimes.cn")
+  ensure
+    p.close if p
+  end
+  
+  def test_filterDupVectorIndex
+    p = IO.popen(RInterface::RSlave, "w+")    
+    $app.readConfig   
+    $app.filter = %w{317}     
+    $app.exclude = nil  
+    @input.each_pair{|f,v|
+      vecFile = f
+      encodedFactors = File.basename(vecFile, ".vec").split(RInterface::DELIM)
+      run = encodedFactors.last
+      encodedFactors = encodedFactors[1..encodedFactors.size-2]      
+      $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
+    }            
+    assert_equal(["a.transitTimes.mn"],
+                 $app.retrieveRObjects(p),
+                 "should include only 317 and 319")
+                 
+    assert_equal([10, 8],
+                 $app.dimRObjects(p,"a.transitTimes.mn")["a.transitTimes.mn"])    
   end
   
   def setup
@@ -224,7 +277,6 @@ vector 318  "ehComp_hmip_50_50_nNet.mn.udpApp[0]"  "transitTimes cn"  1
 vector 319  "ehComp_hmip_50_50_nNet.cn.udpApp[0]"  "transitTimes mn"  1
 319 8.06027864061 0.0602786406061
 319 8.06030952061 0.0403095206061
-319 8.06066731333 0.0206673133333
 END
     @input[oldVectors[0]]= <<END
 vector 316  "ehComp_eh_100_20_nNet.mn.udpApp[0]"  "transitTimes cn"  1
@@ -248,11 +300,15 @@ vector 317  "ehComp_eh_100_20_nNet.cn.udpApp[0]"  "transitTimes mn"  1
 317 8.12056952061 0.100569520606
 317 8.12060040061 0.0806004006061
 END
+    #change dir otherwise may overwrite some results
+    Dir.chdir("/tmp")
     @input.each_pair{|k,v|
       File.open("#{k}", 'w'){|f|
         f.puts("#{v}")
       }
     }
+    $app.uniqueVectorNames = nil
+    $app.resetVectorStarted
   end
   
   def teardown

@@ -18,22 +18,22 @@
 #  INI 2006-08-23 Changes
 #
 
+#Put a directory into load path with other custom ruby libs
+$LOAD_PATH<<`echo $HOME`.chomp + "/lib/ruby"
+#Put current dir in load path in case this module requires other files
+$LOAD_PATH<<File.dirname(__FILE__)
+
 require 'optparse'
 require 'pp'
+require 'General'
 
 $test = false
 
 DELIM = "_"
 
-#obtained from http://rubyforge.org/snippet/detail.php?type=snippet&id=2
-class Object
-  def deep_clone
-    Marshal.load(Marshal.dump(self))
-  end
-end
-
-
 class Action
+  include General #for quoteValue
+  
   def initialize(symbol, attribute, value)
     @symbol = symbol
     @attribute = attribute
@@ -41,10 +41,6 @@ class Action
   end
   
   attr_accessor :symbol, :value , :attribute
-  
-  def quoteValue(value)
-    "\"#{value}\""
-  end
   
   #returns index for matching first line 
   def searchForLine(nedfile, regexp)
@@ -150,9 +146,9 @@ end
 # TODO: Add Description Here
 #
 class MultiConfigGenerator
-  VERSION       = "0.1"
-  REVISION_DATE = "<2006-08-23 Wed>"
-  AUTHOR        = ""
+  VERSION       = "0.2"
+  REVISION_DATE = "<2006-08-27>"
+  AUTHOR        = "Johnny Lai"
   
   #
   # Returns a version string similar to:
@@ -358,7 +354,7 @@ class MultiConfigGenerator
     puts "Make sure you specified correct run count and basename counts do not match"
     puts "Runs finished according to log "+ `grep Run out.log |grep end|wc`
     puts "Runs started according to log " + `grep Run outfix100.log |grep Prepar|wc`
-  	 
+     
     configs = generateConfigNames(@factors, @levels)
     vecFiles = Hash.new
     configs.each{|c|

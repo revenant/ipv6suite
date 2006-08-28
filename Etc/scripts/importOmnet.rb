@@ -17,51 +17,19 @@ $LOAD_PATH<<File.dirname(__FILE__)
 
 require 'optparse'
 require 'pp'
+require 'General'
 require 'RImportOmnet'
 
 $test  = false
 
-module General
-  #Splice (interleave) 2 arrays together in order passed in
-  def splice(a, b)
-    resultArray = Array.new(a.size + b.size)
-    factor = 2 # as 2 arrays a and b
-    0.upto(resultArray.size - 1) { |i|
-      if i%factor == 0
-        resultArray[i] = a[i/factor]
-      else
-        resultArray[i] = b[i/factor]
-      end
-    }
-    resultArray
-  end
-
-  def expandFactors(encodedFactors, factors)
-    c = splice(factors, encodedFactors)
-    e = []
-    Hash[*c].to_a.each{|i|
-      e.push(i[0] + "=" + quoteValue(i[1]))
-    } 
-    %|#{e.join(",")}|
-  end
-
-  def removeLastComponentFrom(string, sep=/\./)
-    string.reverse.split(sep, 2)[1].reverse
-  end
-
-  def quoteValue(value)
-    "\"#{value}\""
-  end
-
-end
 #
 # TODO: Add Description Here
 #
 class ImportOmnet < RImportOmnet
   include General
 
-  VERSION       = "$Revision$"
-  REVISION_DATE = "24 Aug 2006"
+  VERSION       = "1.0"
+  REVISION_DATE = "28 Aug 2006"
   AUTHOR        = "Johnny Lai"
  
   #
@@ -81,11 +49,9 @@ class ImportOmnet < RImportOmnet
   def initialize
     super
     get_options
-  end
+  end  
 
-  DELIM = "_"
-
-  def readConfigs
+  def readConfig
 
     @factors = ["scheme", "dnet", "dmap", "ar"]
 
@@ -100,7 +66,7 @@ class ImportOmnet < RImportOmnet
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
     #todo rearrange factors according to @factors
     $defout.old_puts "---Processing vector file " + vecFile if @verbose
-    vectors, nodename = retrieveVectors(vecFile)
+    vectors, nodenames = retrieveVectors(vecFile)
     @vectorStarted = Array.new if not defined? @vectorStarted
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
@@ -125,7 +91,7 @@ class ImportOmnet < RImportOmnet
       p.puts %{attach(tempscan)}
 
       #todo add ordered factor levels for scheme?
-      p.puts %{#{onerunframe} <- data.frame( #{expandFactors(encodedFactors, @factors)} , node=#{quoteValue(nodename)}, run=#{run}, time=time, #{columnname}=#{columnname})}
+      p.puts %{#{onerunframe} <- data.frame( #{expandFactors(encodedFactors, @factors)} , node=#{quoteValue(nodenames[k])}, run=#{run}, time=time, #{columnname}=#{columnname})}
       
       p.puts %{detach(tempscan)}
 
@@ -155,7 +121,7 @@ class ImportOmnet < RImportOmnet
         
     modname = "EHComp"
     #Will use read config for factor names to be used in data frame columns
-    readConfigs
+    readConfig
 #    factor(x, @{levels[@factors[i]]}, labels=@{levels[@factors[i]].map{|x| x + "ms"}}, ordered = TRUE)
     while ARGV.size > 0 do
       vecFile = ARGV.shift      
@@ -166,7 +132,7 @@ class ImportOmnet < RImportOmnet
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
       encodedSingleRun(p, vecFile, encodedFactors, run)    
     end
-
+    
     output = File.join(File.dirname(vecFile), @rdata)
     p.puts %{save.image("#{output}")}     
 
@@ -196,14 +162,97 @@ exit unless $test
 require 'test/unit'
 
 class TC_ImportOmnet < Test::Unit::TestCase
+  include RInterface
+  include General
   def test_quoteString
     #assert_equal("\"quotedString\"",
     #             quoteString("quotedString"),
     #             "The quotes should surround the quotedString")
+    print Dir.pwd
+    exit
   end
 
+  def testVectorIndexDifferent
+		p = IO.popen(RSlave, "w+")
+		$app.readConfig
+    @input.each_pair{|f,v|
+      vecFile = f
+      encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
+      run = encodedFactors.last
+      encodedFactors = encodedFactors[1..encodedFactors.size-2]      
+      $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
+    }    
+    output = File.join("test.Rdata")
+    p.puts %{save.image("#{output}")}
+    printRObjects(p, retrieveRObjects(p, "a.transitTimes.cn"))
+    assert_equal(12,                 
+    						 sizeRObjects(p, "a.transitTimes.cn")["a.transitTimes.cn"][0],
+    						 "We should have 12 rows of transitTimes.cn")
+    
+    #Notice output contains node cn and also transitTimes are from cn this is 
+    #not correct. Thus because of the fact that vector indexes do not contain nodename
+    #they overwrite each other.
+    p.puts %{q("no")}
+  rescue Errno::EPIPE => err
+    $defout.old_puts err
+    $defout.old_puts err.backtrace
+    $defout.old_puts "last R command: #{$lastCommand.shift}"
+  rescue => err
+    $defout.old_puts err
+    $defout.old_puts err.backtrace
+    p.puts %{save.image("otherException.Rdata")} if not p.nil?
+  ensure
+    p.close if p    
+  end
+  
   def setup
-
+    newVectors = ["EHComp_hmip_50_50_y_1.vec", "EHComp_hmip_50_50_n_2.vec"]
+    oldVectors = ['EHComp_eh_100_20_n_2.vec', "EHComp_eh_100_20_n_1.vec"]
+    @input = Hash.new
+    @input[newVectors[0]] = <<END
+vector 318  "ehComp_hmip_50_50_yNet.mn.udpApp[0]"  "transitTimes cn"  1
+318 8.04282581333 0.0428258133333
+318 8.04330212  0.02330212
+vector 319  "ehComp_hmip_50_50_yNet.cn.udpApp[0]"  "transitTimes mn"  1
+319 8.06035864061 0.0603586406061
+319 8.06038952061 0.0403895206061
+END
+    @input[newVectors[1]] = <<END
+vector 318  "ehComp_hmip_50_50_nNet.mn.udpApp[0]"  "transitTimes cn"  1
+318 8.04260852  0.04260852
+318 8.04338482667 0.0233848266667
+vector 319  "ehComp_hmip_50_50_nNet.cn.udpApp[0]"  "transitTimes mn"  1
+319 8.06027864061 0.0602786406061
+319 8.06030952061 0.0403095206061
+319 8.06066731333 0.0206673133333
+END
+    @input[oldVectors[0]]= <<END
+vector 316  "ehComp_eh_100_20_nNet.mn.udpApp[0]"  "transitTimes cn"  1
+316 8.08318852  0.08318852
+316 8.08396482667 0.0639648266667
+316 8.08454113333 0.0445411333333
+316 8.10107370667 0.0410737066667
+vector 317  "ehComp_eh_100_20_nNet.cn.udpApp[0]"  "transitTimes mn"  1
+317 8.12027864061 0.120278640606
+317 8.12030952061 0.100309520606
+317 8.12034040061 0.0803404006061
+END
+    @input[oldVectors[1]] = <<END
+vector 316  "ehComp_eh_100_20_nNet.mn.udpApp[0]"  "transitTimes cn"  1
+316 8.08248852  0.08248852
+316 8.08308482667 0.0630848266667
+316 8.08416113333 0.0441611333333
+316 8.10141370667 0.0414137066667
+vector 317  "ehComp_eh_100_20_nNet.cn.udpApp[0]"  "transitTimes mn"  1
+317 8.12053864061 0.120538640606
+317 8.12056952061 0.100569520606
+317 8.12060040061 0.0806004006061
+END
+    @input.each_pair{|k,v|
+      File.open("#{k}", 'w'){|f|
+        f.puts("#{v}")
+      }
+    }
   end
   
   def teardown
@@ -212,9 +261,9 @@ class TC_ImportOmnet < Test::Unit::TestCase
 
 end
 
-if $0 != __FILE__ then
+if $test
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_ImportOmnet)
-end #end class TC_ImportOmnet
+end
 # }}}

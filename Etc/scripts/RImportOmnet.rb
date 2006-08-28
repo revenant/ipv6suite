@@ -11,6 +11,7 @@
 
 require 'optparse'
 require 'pp'
+require 'General'
 
 #controls whether R commands are printed on screen. Turn on via -X option
 $debug = false
@@ -63,7 +64,11 @@ def `(cmd)
 end
 
 module RInterface
+
+  DELIM = "_"
   
+  RSlave = "R --slave --quiet --vanilla --no-readline"
+      
   #Retrieve hash of vector index -> label from vec file filename (index is still
   #a numerical string) where label is the vector name in file. All labels have
   ##.#{index} appended
@@ -98,8 +103,7 @@ module RInterface
   #where label is the vector name in file
   def retrieveVectors(filename)
     vectors = Hash.new
-    vectors2 = Hash.new
-    nodename = nil
+    nodenames = Hash.new
     IO::foreach(filename) {|l|
       case l
       when /^[^\d]/
@@ -110,12 +114,12 @@ module RInterface
         #Remove "" and last number
         s = s.split(/["]/,3)[1]
         #add nodename to column name
-        nodename = l.split(/\s+/,4)[2].split(/\./)[1]
+        nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]
         vectors[i] = s
       end
     }
     p vectors if @debug
-    return [vectors, nodename]
+    return [vectors, nodenames]
   end
 
   #
@@ -127,16 +131,39 @@ module RInterface
     eval(arrayCode)
   end
   
+  #Assumes 2 dim arrays only
+  def sizeRObjects(p, pattern = "")
+    sizes=Hash.new       
+    retrieveRObjects(p, pattern).each {|e|
+      $defout.old_puts e
+      p.puts %{dim(#{e}\n)}
+      dim = p.gets.chomp!
+      #[1] 5 8
+      row = dim.split(" ")[1].to_i
+      column = dim.split(" ")[2].to_i
+      raise "We handle 2 dimension array only " if dim.split(" ").size > 3
+      sizes[e] = [row, column] 
+    }
+    sizes
+  end
   #
   # array is returned from retrieveRObjects
   def printRObjects(p, array)
     results = Array.new
     array.each {|e|
+      $defout.old_puts e
+      p.puts %{dim(#{e}\n)}
+      dim = p.gets.chomp!
+      #sample output where 5 is the rows and 8 is columns
+      #[1] 5 8
       p.puts %{#{e}\n}
-      results.push(p.gets.chomp!)
+      rowCount = dim.split(" ")[1].to_i + 1 #for header row       
+      1.upto(rowCount) do
+        results.push(p.gets.chomp!)
+      end
     }
     results.each{|e|
-      p e
+      $defout.old_puts e
     }
   end
   #
@@ -172,10 +199,6 @@ module RInterface
     }
   end
 
-  def removeLastComponentFrom(string, sep=/\./)
-    string.reverse.split(sep, 2)[1].reverse
-  end
-
 end
 
 #
@@ -185,8 +208,7 @@ class RImportOmnet
   VERSION       = "$Revision: 2.1 $"
   REVISION_DATE = "$Date: 2006/07/21 $"
   AUTHOR        = "Johnny Lai"
-
-  RSlave = "R --slave --quiet --vanilla --no-readline"
+  
   #Doing **/*.ext would find all files with .ext recursively while with only one
   #* it is like only in one subdirectory deep
 

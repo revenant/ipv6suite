@@ -125,8 +125,8 @@ module RInterface
   def determineUniqueVectorName(index)
     a = self.uniqueVectorNames.select{|k,v| v.include?(index)}      
     if not a.size == 1
-    	raise "Whoops there appears to be #{a.size} different vectors belong to vector index #{index}: #{a.to_s}"
-    end    	
+      raise "Whoops there appears to be #{a.size} different vectors belong to vector index #{index}: #{a.to_s}"
+    end     
     a[0][0]
   end
 end
@@ -148,7 +148,7 @@ end
         s = s.split(/["]/,3)[1]                
         nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]        
         vectors[i] = s
-        key = vectors[i] + nodenames[i]
+        key = uniqueVectorName(vectors[i], nodenames[i])
         if uniqueVectorNames.include?(key)
           self.uniqueVectorNames[key].push i if not self.uniqueVectorNames[key].include?(i)
         else
@@ -162,6 +162,10 @@ end
     return [vectors, nodenames]
   end
 
+  #A vector name can distinguished by the node it belongs to i.e. mn1, mn2 can both has same vector name
+  def uniqueVectorName(vectorName, nodeName)
+    vectorName + ":" + nodeName
+  end
   #
   # Retrieve array of object names that match the R regular expression in pattern
   #
@@ -332,6 +336,7 @@ class RImportOmnet
       opt.on("-e", "--exclude x,y,z", Array, "list of vectors to exclude opposite in effect to filter"){|@exclude|
         self.exclude.uniq!
       }
+            
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
       opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
@@ -347,7 +352,7 @@ class RImportOmnet
 
       opt.on("--doc=DIRECTORY", String, "Output rdoc (Ruby HTML documentation) into directory"){|dir|
         system("rdoc -a --webcvs=\"http://localhost/cgi-bin/viewcvs.cgi/\" --tab-width=2 --diagram --inline-source -N -o #{dir} #{__FILE__}")
-	exit
+  exit
       }
 
       opt.on("--verbose", "-v", "print intermediate steps to STDOUT"){|@verbose|}
@@ -465,7 +470,34 @@ class RImportOmnet
     end
 
   end
-
+  
+  def filterByVectorNames(vectors, nodenames)
+    if not self.exclude.nil?
+      nameFilter = self.exclude[0].class == String        
+    end
+    if not self.filter.nil?
+      nameFilter = self.filter[0].class == String
+    end
+    if nameFilter 
+      filterVectors(vectors)
+      return
+    end
+    unless self.exclude.nil?
+      vectors.delete_if{|k,v|
+        exclude.include?(uniqueVectorName(v, nodenames[k]))
+        #Can use this form if we do not specify the nodename
+        #exclude.include?v
+      }
+    end
+    unless self.filter.nil?
+      vectors.delete_if{|k,v|
+        not filter.include?(uniqueVectorName(v, nodenames[k]))
+        #Can use this form if we do not specify the nodename
+        #not filter.include?v
+      }
+    end
+  end
+  
   #Actually this mapping may be unsafe because iterating through a hash
   #(vectors) will not guarantee an order and yet I'm assuming safeColumnNames
   #will generate an array with same order as the traversal of vector keys
@@ -626,7 +658,7 @@ TARGET
     $defout.old_puts err.backtrace
     p.puts %{save.image("otherException.Rdata")}
   ensure
-	  p.close if p
+    p.close if p
   end#run
   
 end#RImportOmnet

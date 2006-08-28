@@ -65,12 +65,13 @@ class ImportOmnet < RImportOmnet
     #todo rearrange factors according to @factors    
     vectors, nodenames = retrieveVectors(vecFile)
     @vectorStarted = Array.new if not defined? @vectorStarted
+        
+    filterByVectorNames(vectors, nodenames)
+    
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
     vectorsOrig = vectors.deep_clone
-    safeColumnNamesMapping(p ,vectors)
-    
-    filterVectors(vectors)
+    safeColumnNamesMapping(p ,vectors)        
 
     vectors.each_pair { |k,v|
       raise "logical error in determining column name of vector #{k}" if vectors[k].nil?
@@ -95,11 +96,14 @@ class ImportOmnet < RImportOmnet
       #Aggregate runs for same node's vector
       aggframe = %{#{@aggprefix}#{v}} 
       
-      if not @vectorStarted.include?(vectorsOrig[k] + nodenames[k])
+      if not @vectorStarted.include?(vectorsOrig[k])
         #determineUniqueVectorName(k) actually detected multiple vectors sharing same index
         #so another violation on top of a vector having multiple indices
         #@vectorStarted.push(determineUniqueVectorName(k))
-        @vectorStarted.push(vectorsOrig[k] + nodenames[k])
+        # Problem with this is the diff nodes vectors are stored in frame with name of
+        #safeColumnNames(vectorsOrig[k]) so will in fact overwrite each others data
+        #@vectorStarted.push(uniqueVectorName(vectorsOrig[k], nodenames[k]))
+        @vectorStarted.push(vectorsOrig[k])
         p.puts %{#{aggframe} <- #{onerunframe}}
       else
         p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}        
@@ -116,6 +120,31 @@ class ImportOmnet < RImportOmnet
     @vectorStarted = []
   end
   
+  def mergeVectorsWithRScript
+    pairs = %w( a.BAck.recv a.BU.sent a.BBAck.recv a.BBU.sent a.L2.Up a.L2.Down a.LBAck.recv a.LBU.sent)
+    var = ""
+    0.upto(pairs.size/2 - 1) do |i|
+      i = i*2
+      lhs = pairs[i]
+      rhs = pairs[i+1]
+      if lhs == "a.L2.Up"
+        var += "#{lhs} = #{lhs}[#{lhs}$time > 1,] #ignore initial link up trigger on sim startup\n"
+      end
+      var += <<TARGET
+if (dim(#{lhs})[1] == dim(#{rhs})[1])
+        {
+          diff = #{lhs}$time - #{rhs}$time
+          attach(#{rhs})
+          #{lhs} = cbind(#{lhs}, #{rhs[2..rhs.size]}, diff)
+          detach(#{rhs})
+          remove(#{rhs}, diff)
+          dimnames(#{lhs})[[2]]
+        }
+TARGET
+    end    
+    var
+  end
+
   #
   # Launches the application
   #  ImportOmnet.new.run
@@ -232,8 +261,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
                  "should exclude 317 and 319")
     assert_equal(12,
       $app.dimRObjects(p,"a.transitTimes.cn")["a.transitTimes.cn"][0],
-      "same result as above unless dup vectors cause havoc like searching for 319 first")
-    #p dimRObjects(p,"a.transitTimes.cn")
+      "same result as above unless dup vectors cause havoc like searching for 319 first")    
   ensure
     p.close if p
   end
@@ -257,6 +285,10 @@ class TC_ImportOmnet < Test::Unit::TestCase
     assert_equal([10, 8],
                  $app.dimRObjects(p,"a.transitTimes.mn")["a.transitTimes.mn"])    
   end
+
+  def test_mergeOutput
+    $defout.old_puts $app.mergeVectorsWithRScript
+  end  
   
   def setup
     newVectors = ["EHComp_hmip_50_50_y_1.vec", "EHComp_hmip_50_50_n_2.vec"]

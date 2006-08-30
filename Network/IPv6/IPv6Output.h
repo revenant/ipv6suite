@@ -48,6 +48,9 @@ private:
 
   unsigned int ctrIP6OutForwDatagrams;
   unsigned int ctrIP6OutMcastPkts;
+  
+  unsigned int ctrOutPackets;
+  unsigned int ctrOutOctets;
   ::IPv6Forward* forwardMod; // XXX why's this needed? why not connection? --AV
 };
 

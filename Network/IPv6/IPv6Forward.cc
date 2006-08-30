@@ -211,7 +211,10 @@ void IPv6Forward::endService(cMessage* theMsg)
     {
       if (!(boost::polymorphic_downcast<MobileIPv6::MIPv6MStateMobileNode*>(
 	      mob->role))->mnSendPacketCheck(*datagram, this))
+      {
+	ctrIP6OutNoRoutes++;
 	return;
+      }
     }
 
     (boost::polymorphic_downcast<MobileIPv6::MIPv6MStateCorrespondentNode*>(

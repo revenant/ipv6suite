@@ -72,6 +72,12 @@ void IPv6Output::initialize()
 
     cModule* forward = OPP_Global::findModuleByName(this, "forwarding"); // XXX try to get rid of pointers to other modules --AV
     forwardMod = check_and_cast<IPv6Forward*>(forward);
+
+    ctrOutPackets = 0;
+    ctrOutOctets = 0;
+
+    WATCH(ctrOutPackets);
+    WATCH(ctrOutOctets);
 }
 
 void IPv6Output::endService(cMessage* msg)
@@ -118,6 +124,9 @@ void IPv6Output::endService(cMessage* msg)
 
   if (datagram->inputPort() != -1)
     ctrIP6OutForwDatagrams++;
+
+  ctrOutPackets++;
+  ctrOutOctets += datagram->byteLength();
 
   if (datagram->destAddress().isMulticast())
     ctrIP6OutMcastPkts++;

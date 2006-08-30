@@ -658,6 +658,7 @@ void RTP::finish()
     recordScalar((std::string("rtp dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(), cumPacketsLost);
     recordScalar((std::string("rtp % dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(),
 		 100 * (double)cumPacketsLost/(double)extended);
+    recordScalar("rtpOctetCount", octetCount);
   }
 
 }

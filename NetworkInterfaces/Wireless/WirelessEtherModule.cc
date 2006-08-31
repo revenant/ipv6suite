@@ -375,6 +375,8 @@ void WirelessEtherModule::initialize(int stage)
              << " CHANNELS TO AVOID: " << chanNotToScan << "\n"
              << " MAX SS SAMPLE COUNT: " << sSMaxSample << "\n";
     }
+    //needs to be here or registerinterface is not done properly and Link layer
+    //address is missing
     baseInit(stage);
 }
 
@@ -867,7 +869,7 @@ double WirelessEtherModule::getRxPower(int distance)
     // apply log-normal shadowing path loss equation to find receive power
     double rxpwr = 10 * log10((double) txpower) - 40 - 10 * pLExp * log10((double) distance);
     if (shadowing)
-        rxpwr += normal(0, pLStdDev);
+      rxpwr += normal(0, pLStdDev, 8);
 
     return rxpwr;
 }

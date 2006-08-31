@@ -80,6 +80,21 @@ void MobilityStatic::handleMessage(cMessage* msg)
 
     scheduleAt(simTime() + elapsedTime, msg);
   }
+  else
+  {
+    //TODO For this to work need to get omnet to pass us the self message into
+    //here when position updated in gui oh well
+
+    //Disconcerting if allow update manually in gui and yet actual position of
+    //node is not changed in simulation terms.
+    double x, y;
+    mobileEntity->getDispPosition(x,y);
+    if (mobileEntity->position().x != x ||
+	mobileEntity->position().y != y)
+    {
+      mobileEntity->setPosition(x,y);
+    }
+  }
 }
 
 void MobilityStatic::finish()

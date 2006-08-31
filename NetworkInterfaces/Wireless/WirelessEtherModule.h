@@ -213,12 +213,13 @@ public:
 
     bool scanShortCircuit(void) { return scanShortCirc; }
 
-    // returns range in meters, relative to threspower, not HOthrespower
+    // returns range in meters, relative to HOthrespower (used to be threshpower
+    // but then mn did not receive anything because did not associate with AP)
     double wirelessRange() const
     {
       if (!_wirelessRange)
       {
-        _wirelessRange = pow((double)10, (double)((-threshpower+(10*log10(txpower))-40)/(10*pLExp)));
+        _wirelessRange = pow((double)10, (double)((-hothreshpower+(10.0*log10(txpower))-40.0)/(10.0*pLExp)));
       }
       return _wirelessRange;
     }

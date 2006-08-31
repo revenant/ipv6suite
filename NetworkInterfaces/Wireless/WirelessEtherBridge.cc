@@ -203,7 +203,7 @@ cMessage *WirelessEtherBridge::translateFrame(cMessage * frame, int destProtocol
 {
     cMessage *signal = 0;
 
-    int frameProtocol;
+    int frameProtocol = 0; //resolve warning
     if (dynamic_cast<EtherFrame6 *>(frame))
         frameProtocol = PR_ETHERNET;
     else if (dynamic_cast<WirelessEtherDataFrame *>(frame))

@@ -184,9 +184,20 @@ size_t IPv6Encapsulation::findTunnel(const ipv6_addr& src, const ipv6_addr& dest
       if (it->second.exit == dest)
 	return it->first;
     }
-    return 0;
+    return 0; 
   }
 
+  assert(src != dest);
+
+  if (dest == IPv6_ADDR_UNSPECIFIED)
+  {
+    for (TI it = tunnels.begin(); it != tunnels.end(); ++it)
+    {
+      if (it->second.entry == src)
+	return it->first;
+    }
+    return 0; 
+  }
   TI it = find_if(tunnels.begin(), tunnels.end(),
                   bind1st(equalTunnel(),
                           make_pair((size_t) 0, Tunnel(src, dest)) ));
@@ -195,7 +206,8 @@ size_t IPv6Encapsulation::findTunnel(const ipv6_addr& src, const ipv6_addr& dest
   return 0;
 }
 
-///Remove tunnel and the associated entries in Dest Cache
+///Remove tunnel and the associated entries in Dest Cache (entry or exit can be
+///unspecified addresses)
 bool IPv6Encapsulation::destroyTunnel(const ipv6_addr& src, const ipv6_addr& dest)
 {
   Dout(dc::encapsulation|flush_cf, "destroy tunnel entry="<<src<<" exit="<<dest);

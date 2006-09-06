@@ -456,7 +456,8 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
   //Need to wait for BA from new MAP before setting it to currentMAP?
   //Also registering with the HA and perhaps CN too.
-  assert(hmipv6cdsMN.setCurrentMap(bestMap.addr()));
+  bool bestMapAssigned = hmipv6cdsMN.setCurrentMap(bestMap.addr());
+  assert(bestMapAssigned);
   assert(hmipv6cdsMN.currentMap().addr() == bestMap.addr());
 
   //sendBU to new/better MAP initially. (inter AR handover is done by by mip handover)
@@ -499,12 +500,25 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     if (!ie->ipv6()->addrAssigned(oldRcoa))
       Dout(dc::warning, rt->nodeName()<<" oldRcoa "<<oldRcoa<<" was not assigned as never received BA from MAP.");
 
-    Dout(dc::hmip, rt->nodeName()<<" forwarding from MAP="
+    //TODO forward from previous MAP if prev MAP accepts BU
+    /*    Dout(dc::hmip, rt->nodeName()<<" forwarding from MAP="
          <<oldMap<<" to MAP="<<bestMap.addr()<<" oldrcoa="
          <<oldRcoa<<" rcoa="<<rcoa<<" lcoa="<<lcoa);
+    */
 
-    //TODO forward from previous MAP if prev MAP accepts BU
-
+    //Should delete all tunnels with entry point oldBULE->careOfAddr() as entry
+    //point
+    //deletes the old hmip reverse tunnel created above i.e.
+    //mstateMN->sendMapBU(bestMap.addr(), lcoa,
+    //and also the forward from previous map reverse tun too (cannot just delete
+    //this one as we do not know what the previous map to oldBULE was)
+    if (oldBULE && oldBULE->careOfAddr() != lcoa)
+      for (;;)
+      {
+	if (!tunMod->destroyTunnel(oldBULE->careOfAddr(), IPv6_ADDR_UNSPECIFIED))
+	  break;
+      }
+    
 #if EDGEHANDOVER
     if (mob->edgeHandover()) //and previous map distance  = 1 then do pcoaf
     {
@@ -538,12 +552,10 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                             ifIndex);
 
         mob->bbuVector->record(mob->simTime());
+
       }
     }
 #endif // EDGEHANDOVER
-
-    if (oldBULE && oldBULE->careOfAddr() != lcoa)
-      tunMod->destroyTunnel(oldBULE->careOfAddr(), oldMap);
 
   }
 

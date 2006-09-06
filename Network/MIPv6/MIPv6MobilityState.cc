@@ -279,6 +279,7 @@ void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
                                 BA* ba, simtime_t timestamp)
 {
   IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, ba);
+  reply->setKind(1);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTimestamp( timestamp );

@@ -62,6 +62,7 @@ const ipv6_addr& HMIPv6CDSMobileNode::localCareOfAddr() const
   return IPv6_ADDR_UNSPECIFIED;
 }
 
+//returns the hoa of the current map
 const ipv6_addr& HMIPv6CDSMobileNode::remoteCareOfAddr() const
 {
   if (isMAPValid())

@@ -44,16 +44,19 @@ namespace IPv6Utils
 //	osp = &cout;
     }
     ostream& os = *osp;
-    if (!datagram || !routingInfoDisplay)
+        
+    if (!datagram)
       return os;
 
-    os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()
-      <<" type="<<datagram->name()
-      <<" src="<<datagram->srcAddress()<<" dest="
-      <<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes ";
+    if (datagram->kind() == 1 || routingInfoDisplay)
+    {
+      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()
+	<<" type="<<datagram->name()
+	<<" src="<<datagram->srcAddress()<<" dest="
+	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes ";
 
       for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
-	    proc = datagram->getNextHeader(proc))
+	   proc = datagram->getNextHeader(proc))
       {
 	proc->operator<<(os);
       }
@@ -67,5 +70,6 @@ namespace IPv6Utils
       os<<endl;
 
       return os;
+    }
   }
 }

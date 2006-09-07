@@ -69,7 +69,9 @@ namespace IPv6Utils
       }
       os<<endl;
 
-      return os;
     }
+
+    return os;
+    
   }
 }

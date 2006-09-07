@@ -101,6 +101,10 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 #endif //USE_HMIP
               , simtime_t timestamp = 0);
 
+  //update the tunnels based on BU just done
+  bool updateTunnelsFrom(ipv6_addr budest, ipv6_addr coa, unsigned int ifIndex,
+		    bool homeReg, bool mapReg);
+
   void sendInits(const ipv6_addr& dest, const ipv6_addr& coa);
 
 #ifdef USE_HMIP

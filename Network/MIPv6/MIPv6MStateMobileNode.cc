@@ -1626,12 +1626,21 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
 
+  return updateTunnelsFrom(dgram->destAddress(), coa, ifIndex, homeReg, mapReg);
+
+}
+
+bool  MIPv6MStateMobileNode::updateTunnelsFrom
+(ipv6_addr budest, ipv6_addr coa, unsigned int ifIndex,
+ bool homeReg, bool mapReg)
+{
+  //if coa diff from bule->coa (change it)!!
   if (homeReg || mapReg)
   {
     //delete reverse tunnels with exit point of ha/map
     size_t delIndex = tunMod->findTunnel(IPv6_ADDR_UNSPECIFIED,
-					 dgram->destAddress());
-    size_t vIfIndex = tunMod->findTunnel(coa, dgram->destAddress());
+					 budest);
+    size_t vIfIndex = tunMod->findTunnel(coa, budest);
 
     if (vIfIndex != delIndex)
     {
@@ -1649,18 +1658,18 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     assert(!vIfIndex);
     if (!vIfIndex)
     {
-      vIfIndex = tunMod->createTunnel(coa, dgram->destAddress(), ifIndex);
+      vIfIndex = tunMod->createTunnel(coa, budest, ifIndex);
       Dout(dc::hmip|dc::encapsulation|dc::debug|flush_cf, mob->nodeName()
 	   <<" reverse tunnel created entry coa="<<coa<<" exit "
 	   <<(homeReg?"ha=":"map=")
-	   <<dgram->destAddress()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+	   <<budest<<" vIfIndex="<<hex<<vIfIndex<<dec);
     }
     else
     {
       Dout(dc::warning|flush_cf, mob->nodeName()
 	   <<" reverse tunnel exists already coa="<<coa<<" exit "
 	   <<(homeReg?"ha=":"map=")
-	   <<dgram->destAddress()<<" vIfIndex="<<hex<<vIfIndex<<dec);
+	   <<budest<<" vIfIndex="<<hex<<vIfIndex<<dec);
     }
 
     if (!mob->hmipSupport())
@@ -1696,7 +1705,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       if (mipv6cdsMN->primaryHA().get())
       {
 	bu_entry* bue = mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr());
-	if (bue && ipv6_prefix(dgram->destAddress(), EUI64_LENGTH).matchPrefix(
+	if (bue && ipv6_prefix(budest, EUI64_LENGTH).matchPrefix(
 	      bue->careOfAddr()))
 	{
 	  mob->bubble("trigger on HA for lcoa -> MAP during map reg");
@@ -1708,7 +1717,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       //belongs to this map's prefix (if there was a map handover then will need
       //to wait for bu to cn b4 trigger to diff map)
       vector<ipv6_addr> addrs =
-	mipv6cdsMN->findBUToCNCoaMatchPrefix(dgram->destAddress());
+	mipv6cdsMN->findBUToCNCoaMatchPrefix(budest);
       for (vector<ipv6_addr>::iterator it = addrs.begin(); it != addrs.end();
 	   ++it)
       {       
@@ -1726,7 +1735,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     if (!mipv6cdsMN->awayFromHome())
     {
       //remove tunnel to cn
-      //tunMod->untunnelDestination(dgram->destAddress());
+      //tunMod->untunnelDestination(budest);
       // should not be necessary as action of removing tunnels removes associated triggers
       return true;
     }
@@ -1744,10 +1753,11 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       {
 	size_t vIfIndex = tunMod->findTunnel(bue->careOfAddr(), map);
 	assert(vIfIndex);
-	tunMod->tunnelDestination(dgram->destAddress(), vIfIndex);
+	tunMod->tunnelDestination(budest, vIfIndex);
       }
     }
   }
+
   return true;
 }
 

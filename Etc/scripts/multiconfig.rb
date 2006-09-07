@@ -65,8 +65,11 @@ class SetAction < Action
     if line =~ /#{@attribute}\s*=\s*(\S+)/       
       if @symbol == :xml
         line.sub!(/#{@attribute}\s*?=\s*?([[:alnum:]"]+)/, "#{@attribute}=#{@value}")
-      else 
-        line.sub!(/#{@attribute}\s*?=\s*?(\S+)/, "#{@attribute}=#{@value}")            
+#      elsif @symbol == :inifile or @symbol == :runtime
+#          line = "#{@attribute}=#{@value}"
+      else
+        #replace the whole value even if space separated
+        line.sub!(/#{@attribute}\s*?=(\s*?(\S+))+/, "#{@attribute}=#{@value}")            
       end     
     end
   end
@@ -435,6 +438,9 @@ class MultiConfigGenerator
             ReplaceStringAction.new(:ini, basenetname, networkNames[fileIndex]).apply(line)
             
             SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
+
+            SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
+
             # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
             
             configLevels = final[fileIndex].split(DELIM)
@@ -659,6 +665,10 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
                  SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("EHComphmip_50_2_y.xml")|).apply(ini),
                  "does not preserve space around the = sign so better not put them in base doc")
     
+    ini = %|preload-ned-files=@../../../nedfiles.lst *.ned|
+    assert_equal(%|preload-ned-files=@../../../nedfiles.lst EHComp_eh_500_50_n.ned|,
+                 SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst EHComp_eh_500_50_n.ned|).apply(ini),
+                 "")
     
   end
   

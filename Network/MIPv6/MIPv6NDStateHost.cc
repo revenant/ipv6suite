@@ -1137,6 +1137,10 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   //primary HA
   if (!mipv6cdsMN->primaryHA())
     mipv6cdsMN->removeHomeAgent(oldRtr);
+
+  //remove outstanding bus? let it resend them if necessary
+  mstateMN->removeBURetranTmr((BURetranTmr*)0, true);
+  
 }
 
 /**

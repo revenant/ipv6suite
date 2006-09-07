@@ -1280,10 +1280,27 @@ void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram)
   delete br;
 }
 
-void MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr)
+bool MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr, bool all)
 {
-  buRetranTmrs.remove(buTmr);
-  delete buTmr;
+  if (!all)
+  {
+    assert(buTmr);
+    buRetranTmrs.remove(buTmr);
+    delete buTmr;
+    return true;
+  }
+  assert (!buTmr && all);
+  if (buRetranTmrs.empty())
+    return false;
+  for (BURTI buit = buRetranTmrs.begin(); 
+       buit != buRetranTmrs.end(); /*no code here*/)
+  {
+    if ((*buit)->isScheduled())
+      (*buit)->cancel();
+    delete *buit;
+    buit = buRetranTmrs.erase(buit);
+  }
+  return true;
 }
 
 #ifdef USE_HMIP
@@ -1360,10 +1377,8 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
  * previous subnet's HA
  *
  * @param ifIndex is the interface which was connected to "home subnet" for
- * remote startups this may be difficult to determine.  It is used to calculate
- * the retransmission of the BU in case we want a BA from HA.  In this impln
- * only home registrations will have Ack set in the BU. For non homeReg this can
- * will be ignored.
+ * remote startups this may be difficult to determine.  It is used for
+ * retransmission of the BU in case we want a BA from HA.
  *
  * @param mob the ever present IPv6Mobility Ned module
  *
@@ -1655,7 +1670,6 @@ bool  MIPv6MStateMobileNode::updateTunnelsFrom
 //  size_t findTunnelWithExitPoint(const ipv6_addr& exit);
 
     //Create reverse tunnel to HA/Map
-    assert(!vIfIndex);
     if (!vIfIndex)
     {
       vIfIndex = tunMod->createTunnel(coa, budest, ifIndex);

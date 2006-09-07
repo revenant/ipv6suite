@@ -87,7 +87,7 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   ///@name Implementation details
   //@{
-  void removeBURetranTmr(BURetranTmr* buTmr);
+  bool removeBURetranTmr(BURetranTmr* buTmr, bool all = false);
   //@}
 
   ///Sends a binding update to primary HA and HA/CN in BUL too

@@ -1296,7 +1296,12 @@ bool MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr, bool all)
        buit != buRetranTmrs.end(); /*no code here*/)
   {
     if ((*buit)->isScheduled())
+    {
+      bu_entry* bule = 
+	mipv6cdsMN->findBU((*buit)->dgram->destAddress());
+      bule->state = 0;
       (*buit)->cancel();
+    }
     delete *buit;
     buit = buRetranTmrs.erase(buit);
   }
@@ -1645,7 +1650,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
 }
 
-bool  MIPv6MStateMobileNode::updateTunnelsFrom
+bool MIPv6MStateMobileNode::updateTunnelsFrom
 (ipv6_addr budest, ipv6_addr coa, unsigned int ifIndex,
  bool homeReg, bool mapReg)
 {

@@ -73,9 +73,30 @@ EHTimedAlgorithm::~EHTimedAlgorithm()
 void EHTimedAlgorithm::mapAlgorithm()
 {
   Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" May do map algorithm");
+  Dout(dc::eh, mob->nodeName()<<" mip->coa="<<mipv6cdsMN->careOfAddr()
+       <<" hmip->rcoa="<<hmipv6cdsMN.remoteCareOfAddr()<<" eh->bcoa="<<
+       ehcds->boundCoa());
   if (!hmipv6cdsMN.isMAPValid() ||
       hmipv6cdsMN.currentMap().addr() == ehcds->boundMapAddr())
   {
+    //Fix for over optimistic mip6 behaviour which can cause race conditions for
+    //advanced heuristics that do not bind at every handover
+    if (hmipv6cdsMN.isMAPValid() && mipv6cdsMN->careOfAddr() != ehcds->boundCoa() && 
+	hmipv6cdsMN.remoteCareOfAddr() == ehcds->boundCoa())
+    {
+      /* This didn't work needed the actual sending of BU below to work
+      //destaddr is ha/cns and coa is boundcoa
+      unsigned int ifIndex = 0;
+      bool homeReg = true;
+      bool mapReg = !homeReg;
+      mstateMN->updateTunnelsFrom(mipv6cdsMN->primaryHA()->addr(), ehcds->boundMapAddr(), ifIndex, homeReg, mapReg);
+      //trigger cns on old coa tunnel
+      */
+      MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(rt->mipv6cds->hmipv6cdsMN->currentMap().addr());
+      mnRole->sendBUToAll(
+        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
+
+    }
     if (!mob->edgeHandoverCallback()->isScheduled())
         mob->edgeHandoverCallback()->rescheduleDelay(interval);
     return; //unless state of binding has changed or is about to expire

@@ -270,3 +270,44 @@ for (i in v)
   }
   return (o)
 }
+
+ # Ta is sender to listener delay
+ # Defaults values of Ie and Bpl are for G.728 encoding and come from
+ # PacketCable data sheet
+
+ #Ppl packet loss rate (0-20)%, burstR = 1 for random otherwise > 1 BurstR =
+ #length of observed burst loss/ mean length of losses under random conditions
+jl.Rfactor <- function(Ta, Ie = 7, Bpl = 17, Ppl = 0, burstR = 1)
+  {
+    Idd <- function(Ta)
+      {
+        Ta <- Ta * 1000 #in milliseconds
+        X <- function(Ta)
+          {        
+            log10(Ta/100)/log10(2)
+          }
+        if (Ta <= 100)
+          return (0)
+        else
+          {
+            return(25*((1 + X(Ta)^6)^(1/6)-3*(1+(X(Ta)/3)^6)^(1/6) + 2))
+          }
+      }
+
+    Ieff <- function(Ie, Ppl, Bpl)
+      {
+        Ie + (95 - Ie)*(Ppl/(Ppl/burstR + Bpl))
+      }
+    #assuming echo cancelation is perfect so Id reduces to Idd only
+    93.2 - Idd(Ta) - Ieff(Ie, Ppl, Bpl)
+  }
+
+#MOS conversational situation
+jl.Mos <- function(R)
+  {
+    if (R < 0)
+      return(1)
+    if (R > 100)
+      return(4.5)
+    return(1+0.035*R + R*(R-60)*(100-R)*7*10^-6)
+  }

@@ -478,7 +478,7 @@ class RImportOmnet
     if not self.filter.nil?
       nameFilter = self.filter[0].class == String
     end
-    if nameFilter 
+    if not nameFilter 
       filterVectors(vectors)
       return
     end

@@ -141,6 +141,8 @@ void IPv6Output::finish()
 {
   recordScalar("IP6OutForwDatagrams", ctrIP6OutForwDatagrams);
   recordScalar("IP6OutMcastPkts", ctrIP6OutMcastPkts);
+  recordScalar("OutPkts", ctrOutPackets);
+  recordScalar("OutOctets", ctrOutOctets);
 }
 
 

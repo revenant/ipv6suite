@@ -469,7 +469,6 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
                       //This may not be exact lifetime as DAD delay will have reduced this
                       lifetime,
                       ifIndex);
-  mob->lbuVector->record(nd->simTime());
 
   IPv6Encapsulation* tunMod = check_and_cast<IPv6Encapsulation*>
     (OPP_Global::findModuleByType(rt, "IPv6Encapsulation"));
@@ -550,8 +549,6 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
         mstateMN->sendMapBU(ehcds->boundMapAddr(), lcoa, bcoa,
                             static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
                             ifIndex);
-
-        mob->bbuVector->record(mob->simTime());
 
       }
     }
@@ -664,7 +661,6 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
                         ifIndex
                         //newRtr->re.lock()->ifIndex())
                         );
-    mob->lbuVector->record(nd->simTime());
 
   }
   return true;

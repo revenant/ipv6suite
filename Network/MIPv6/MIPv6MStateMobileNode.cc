@@ -82,6 +82,34 @@ namespace MobileIPv6
 
 const simtime_t CELL_RESI_THRESHOLD = 4;
 
+
+  ///dgram contains bu
+void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
+{
+  const simtime_t now = mob->simTime();
+  if (mipv6cds->mipv6cdsMN->primaryHA().get() && 
+      dgram->destAddress() == mipv6cds->mipv6cdsMN->primaryHA()->addr())
+  {
+    mob->buVector->record(now);
+  }
+#ifdef USE_HMIP
+  else if (mob->hmipSupport())
+  {
+#if EDGEHANDOVER
+    if (mob->edgeHandover() && dgram->destAddress() == mipv6cds->ehcds->boundMapAddr())
+    {
+      mob->bbuVector->record(now);
+    } else
+#endif //EDGEHANDOVER
+      if (mipv6cds->hmipv6cdsMN->isMAPValid() && 
+	  mipv6cds->hmipv6cdsMN->currentMap().addr() == dgram->destAddress())
+      {
+	mob->lbuVector->record(now);
+      }
+  }
+#endif //USE_HMIP
+}
+
 class BURetranTmr;
 typedef std::list<BURetranTmr*> BURetranTmrs;
 typedef BURetranTmrs::iterator BURTI;
@@ -181,25 +209,7 @@ public:
 
       IPv6Mobility* mob = static_cast<IPv6Mobility*>(mod);
       simtime_t now = module()->simTime();
-      if (dgram->destAddress() == mipv6cds->mipv6cdsMN->primaryHA()->addr())
-      {
-        mob->buVector->record(now);
-      }
-#ifdef USE_HMIP
-      else if (mob->hmipSupport())
-      {
-#if EDGEHANDOVER
-        if (mob->edgeHandover() && dgram->destAddress() == mipv6cds->ehcds->boundMapAddr())
-        {
-          mob->bbuVector->record(now);
-        } else
-#endif //EDGEHANDOVER
-          if (mipv6cds->hmipv6cdsMN->isMAPValid() && mipv6cds->hmipv6cdsMN->currentMap().addr() == dgram->destAddress())
-          {
-            mob->lbuVector->record(now);
-          }
-      }
-#endif //USE_HMIP
+      recordBUVector(dgram, mob, mipv6cds);
 
       assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
       Dout(dc::mipv6|flush_cf, nodeName<<" "<<now<<" Resending BU for the "
@@ -1324,6 +1334,9 @@ bool MIPv6MStateMobileNode::sendMapBU(const ipv6_addr& dest, const ipv6_addr& co
   @param hoa is the previous care of address
 
   @return true if forwarding BU to PAR was sent false otherwise
+  @warning this fn appears to be invalid in standard mip6 spec (was valid prior
+  to 18) and also has not been used in a while (called by sendBUToAll when no
+  hmip support or map not valid)
  */
 bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
                                                const ipv6_addr& hoa)
@@ -1334,7 +1347,7 @@ bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
     mipv6cdsMN->currentRouter():mipv6cdsMN->previousDefaultRouter();
   if (oldRtr && oldRtr->isHomeAgent())
   {
-
+    assert(false); //fn should not be used but checking to see when it may trigger
 #ifdef USE_HMIP
     //Required to prevent warnings like the following in debug log as b/rcoa is
     //not a valid home address for pure HA. Anyway HMIP/EH should bind with HAs as
@@ -1535,9 +1548,9 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   destProc->addOption(new MIPv6TLVOptHomeAddress(hoa));
 
-  if (mipv6cdsMN->primaryHA().get() && dgram->destAddress() == mipv6cdsMN->primaryHA()->addr())
-    mob->buVector->record(mob->simTime());
   mob->send(dgram, "routingOut");
+
+  recordBUVector(dgram, mob, mipv6cds);
 
   //Create BU retransmission timer
   if (ack)
@@ -1625,7 +1638,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
     if ( homeReg && mob->isEwuOutVectorHODelays() )
     {
-      //TODO bule gets recreated when when return home and go away again so
+      //TODO bule gets recreated when return home and go away again so
       //previous vector wiped out
       bule->regDelay = new cOutVector("home reg");
     }

@@ -171,7 +171,8 @@ class MultiConfigGenerator
     @debug    = false 
     @verbose  = false
     @quit     = false
-    
+    @check = nil
+
     get_options
     
   rescue => err
@@ -215,7 +216,7 @@ class MultiConfigGenerator
       
       opt.on("-r", "--runCount x", Integer, "How many runs to generate for each scenario"){|@runCount|}
       
-      opt.on("-c", "--check", "Checks output of runs"){|@check|}
+      opt.on("-c", "--check logfile", String, "Checks output of runs"){|@check| }
       
       opt.separator ""
       opt.separator "Common options:"
@@ -354,9 +355,9 @@ class MultiConfigGenerator
     puts "Found #{vecFileCount}/#{expectedCount} vector files"
     return if expectedCount == vecFileCount
         
-    puts "Make sure you specified correct run count and basename counts do not match"
-    puts "Runs finished according to log "+ `grep Run out.log |grep end|wc`
-    puts "Runs started according to log " + `grep Run outfix100.log |grep Prepar|wc`
+    puts "Counts do not match! Make sure you specified correct run count and basename."
+    puts "Runs finished according to log "+ `grep Run #{check} |grep end|wc`
+    puts "Runs started according to log " + `grep Run #{check} |grep Prepar|wc`
      
     configs = generateConfigNames(@factors, @levels)
     vecFiles = Hash.new
@@ -412,12 +413,13 @@ class MultiConfigGenerator
     exename = `basename #{cwd}`.chomp
     runcount = @runCount.nil??10:@runCount
     
+    readConfigs
+
     if @check
-      checkConfig(@factors, @levels, @runCount, basemodname)
+      checkRunResults(@factors, @levels, @runCount, basemodname)
       exit
     end
     
-    readConfigs
     final = generateConfigNames(@factors, @levels)
     networkNames, filenames = formFilenames(final, basemodname)
     

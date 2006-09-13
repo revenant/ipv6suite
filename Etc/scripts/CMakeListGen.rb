@@ -99,7 +99,7 @@ def writeCMakeList(dir, outputName, projName = nil)
       # set_dir_props generated from customCommands requires this
       x.puts %{CMAKE_MINIMUM_REQUIRED(VERSION 2.0)} 
       x.puts %|SET(CMAKE_BACKWARDS_COMPATIBILITY 2.0 CACHE STRING "2.4 uses default path before our custom path for omnet libs unless we do NO_DEFAULT_PATH in every FIND_LIBRARY" FORCE)|
-
+      x.puts %|SET(OPP_USE_TK OFF CACHE BOOL "OFF unless you are sure tk gui can build")|
       x.puts "SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)"
 
       x.puts "SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)"
@@ -179,10 +179,14 @@ EOF
       x.puts "ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})"  
       x.puts %{TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_CMDLIBRARIES} -lstdc++)} # abstract libs
 
-      x.puts "IF(NOT LIBCWD_DEBUG)"      
+      x.puts "IF(NOT LIBCWD_DEBUG)"
+      x.puts %|IF(CMAKE_CACHE_MINOR_VERSION EQUAL 0)|
+      x.puts "IF(OPP_USE_TK)"
       x.puts "SET(tk#{projName} ${OUTPUTDIR}/tk#{projName})"
       x.puts "ADD_EXECUTABLE(${tk#{projName}} ${#{projName}_SRCS})"
       x.puts %{TARGET_LINK_LIBRARIES(${tk#{projName}} ${OPP_TKGUILIBRARIES} -lstdc++)}
+      x.puts "ENDIF(OPP_USE_TK)"
+      x.puts %|ENDIF(CMAKE_CACHE_MINOR_VERSION EQUAL 0)|
       x.puts "ENDIF(NOT LIBCWD_DEBUG)"
       x.puts "ENABLE_TESTING()"
       x.puts "SUBDIRS("

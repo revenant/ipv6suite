@@ -102,6 +102,7 @@ xvar = <<EOF
 CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 SET(CMAKE_BACKWARDS_COMPATIBILITY 2.0 CACHE STRING "2.4 uses default path before our custom path for omnet libs unless we do NO_DEFAULT_PATH in every FIND_LIBRARY" FORCE)
 SET(OPP_USE_TK OFF CACHE BOOL "OFF unless you are sure tk gui can build")
+SET(OPP_USE_MPI OFF CACHE BOOL "OFF unless you are sure lam libs are not 64bit")
 SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)
 SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)
 SET(SCRIPTDIR ${MISCDIR}/scripts)

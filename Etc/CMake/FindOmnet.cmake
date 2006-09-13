@@ -122,12 +122,15 @@ FIND_LIBRARY(OPP_SIMSTD_LIBRARY sim_std
   MARK_AS_ADVANCED(FORCE OPP_NEDXML_LIBRARY)
 
 
+OPTION(OPP_USE_MPI "omnet linked with mpi? (Autodetect) turn off if 64 bit system" ON)
 INCLUDE(${CMAKE_ROOT}/Modules/FindMPI.cmake)
+IF(OPP_USE_MPI)
 IF(MPI_INCLUDE_PATH)
     #Based on LAM (mpiCC -showme) 
     SET(MPI_LIBRARIES pthread lammpio lammpi++ lamf77mpi mpi  lam aio aio util)
     INCLUDE_DIRECTORIES(MPI_INCLUDE_PATH)
 ENDIF(MPI_INCLUDE_PATH)
+ENDIF(OPP_USE_MPI)
 
 OPTION(OPP_USE_AKAROA "MRIP with Akaroa" OFF)
 #include by default as opp 3 will detect akaroa and depend on it

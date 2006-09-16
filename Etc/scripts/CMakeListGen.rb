@@ -32,6 +32,7 @@ def customCommands(dir, ignorePattern,projName)
   
   m = traverseDirectory(dir,RECURSEDIR+MSGEXT, ignorePattern)
  
+  return "" if m.size == 0
   string = "\nOPP_WRAP_MSGC(dum dum2 #{m.join("\n")}\n)\n"
 	#the following will include all msg files in all subdirs
 	#string += "\nOPP_WRAP_MSGC_ALL()\n"  
@@ -101,8 +102,12 @@ xvar = <<EOF
 # set_dir_props generated from customCommands requires this
 CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 SET(CMAKE_BACKWARDS_COMPATIBILITY 2.0 CACHE STRING "2.4 uses default path before our custom path for omnet libs unless we do NO_DEFAULT_PATH in every FIND_LIBRARY" FORCE)
+
 SET(OPP_USE_TK OFF CACHE BOOL "OFF unless you are sure tk gui can build")
 SET(OPP_USE_MPI OFF CACHE BOOL "OFF unless you are sure lam libs are not 64bit")
+SET(CMAKE_CXX_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
+SET(CMAKE_SHARED_LINKER_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
+
 SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)
 SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)
 SET(SCRIPTDIR ${MISCDIR}/scripts)
@@ -165,17 +170,19 @@ EOF
     }
     x.puts ")\n\n"
 
-    if not @customise
+   if @customise
+
+# No longer works cause simplemodules don't export their type no more in gcc output
+     x.puts %|OPTION(BUILD_SHARED_LIBS "Build with shared libraries." ON)|
+     x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
+   else
 #      outputdir = projName == "INET" ? "bin" : "."
       outputdir = "."
+
+
 xvar = <<EOF
 SET(OUTPUTDIR #{outputdir})
  
-# No longer works cause simplemodules don't export their type no more in gcc output
-#      if not projName == "INET" then
-#        x.puts(sprintf("ADD_LIBRARY(%s ${%s})\n", projName, projName + "_SRCS"))
-#      end
-
 SET(#{projName} ${OUTPUTDIR}/#{projName})
 ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})
 TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_CMDLIBRARIES} -lstdc++)
@@ -204,13 +211,16 @@ end
 ## main
 
 if ARGV.length < 2 then
-  print "Usage ",  " <source dir name> <Project Name>\n", \
-  " where [source dir] is where MakeLists.txt will be generated for\n", \
-  "Generated in current working directory"
+  @customise = true
+  writeCMakeList(".", "CMakeLists.txt", ARGV[0])
   exit
 else
+  print "Usage ",  " <source dir name> <Project Name>\n", \
+  " where [source dir] is where CMakeLists.txt will be generated for\n", \
+  "Generated in current working directory"
+
   projName = ARGV[1]
-	#customise used to be for making OneBigStaticExe.cmake except forgot how to generate sourcelist sourcelist 
+	#customise used to be for making OneBigStaticExe.cmake except forgot how to generate sourcelist 
   @customise = false
   outname = @customise ? "OneBigStaticExe.cmake" : "CMakeLists.txt"
   writeCMakeList(ARGV[0], outname, projName)

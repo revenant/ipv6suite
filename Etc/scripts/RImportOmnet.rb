@@ -341,6 +341,11 @@ class RImportOmnet
 
       opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
       opt.separator ""
+      opt.separator "importOmnet options:"
+      opt.separator "Usage: #{File.basename __FILE__} [options] basename"
+      opt.on("-a", "Use the first argument as prefix (modname/basename) of vec files and load vec files that conform to the pattern \"\#\{basename\}*_*.vec\""){|@allvecFiles|}
+
+      opt.separator ""
       opt.separator "Common options:"
 
       #Try testing with this 

@@ -216,7 +216,7 @@ class MultiConfigGenerator
       
       opt.on("-r", "--runCount x", Integer, "How many runs to generate for each scenario"){|@runCount|}
       
-      opt.on("-c", "--check logfile", String, "Checks output of runs"){|@check| }
+      opt.on("-c", "--check logfile", String, "Checks output of runs (requires -r option)"){|@check| }
       
       opt.separator ""
       opt.separator "Common options:"
@@ -250,7 +250,7 @@ class MultiConfigGenerator
     } or  exit(1);
     
     
-    raise ArgumentError, "No template name specified", caller[0] if ARGV.size < 1 and not $test
+    raise ArgumentError, "No basename specified", caller[0] if ARGV.size < 1 and not $test
     
     if @quit
       pp self
@@ -269,8 +269,7 @@ class MultiConfigGenerator
     @levels[@factors[1]] = ["50", "100", "200", "500"]
     @levels[@factors[2]] = ["2", "20", "50"]
     @levels[@factors[3]] = ["y", "n"]
-    
-    processActions
+    [@factors, @levels]
   end
   
   def processActions
@@ -359,7 +358,7 @@ class MultiConfigGenerator
     puts "Runs finished according to log "+ `grep Run #{check} |grep end|wc`
     puts "Runs started according to log " + `grep Run #{check} |grep Prepar|wc`
      
-    configs = generateConfigNames(@factors, @levels)
+    configs = generateConfigNames(factors, levels)
     vecFiles = Hash.new
     configs.each{|c|
       vecFiles[c] = Dir["*_#{c}*.vec"].size
@@ -413,14 +412,15 @@ class MultiConfigGenerator
     exename = `basename #{cwd}`.chomp
     runcount = @runCount.nil??10:@runCount
     
-    readConfigs
+    factors, levels = readConfigs
+    processActions
 
     if @check
-      checkRunResults(@factors, @levels, @runCount, basemodname)
+      checkRunResults(factors, levels, @runCount, basemodname)
       exit
     end
     
-    final = generateConfigNames(@factors, @levels)
+    final = generateConfigNames(factors, levels)
     networkNames, filenames = formFilenames(final, basemodname)
     
     nedfileOrig = IO.read(basemodname+".ned")
@@ -446,11 +446,9 @@ class MultiConfigGenerator
             # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
             
             configLevels = final[fileIndex].split(DELIM)
-            for l in configLevels do
-            
-              #determine the factor level belongs to hence need for factor together with
-              #level in filename as level names may not be unique
-              me = determineFactor(l, configLevels)
+            configLevels.each_with_index do |l,idx|
+              me = factors[idx]
+
               if @actions.include? me
                 if not @actions[me].class == Hash
                   iniactions = @actions[me].select {|item|
@@ -514,11 +512,8 @@ class MultiConfigGenerator
           # {{{ ned block
           
           configLevels = final[fileIndex].split(DELIM)
-          for l in configLevels do
-          
-            #determine the factor level belongs to hence need for factor together with
-            #level in filename as level names may not be unique
-            me = determineFactor(l, configLevels)
+          configLevels.each_with_index do |l,idx|
+            me = factors[idx]
             if @actions.include? me
               if not @actions[me].class == Hash
                 iniactions = @actions[me].select {|item|
@@ -554,7 +549,7 @@ class MultiConfigGenerator
           writeNedFile.print nedfile
         }
         
-        scheme = final[fileIndex].split(DELIM)[@factors.index("scheme")]
+        scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]
         if (scheme == "hmip")
           xmllines = IO.readlines(basemodname+scheme+".xml")
         else
@@ -567,11 +562,8 @@ class MultiConfigGenerator
             # {{{ xml block
             
             configLevels = final[fileIndex].split(DELIM)
-            for l in configLevels do
-            
-              #determine the factor level belongs to hence need for factor together with
-              #level in filename as level names may not be unique
-              me = determineFactor(l, configLevels)
+            configLevels.each_with_index do |l,idx|
+              me = factors[idx]                         
               if @actions.include? me
                 if not @actions[me].class == Hash
                   iniactions = @actions[me].select {|item|

@@ -262,17 +262,17 @@ class MultiConfigGenerator
   # }}}
   def readConfigs
   
-    @factors = ["scheme", "dnet", "dmap", "ar"]
+    factors = ["scheme", "dnet", "dmap", "ar"]
     
-    @levels = {}
-    @levels[@factors[0]] = ["hmip", "mip", "eh"]
-    @levels[@factors[1]] = ["50", "100", "200", "500"]
-    @levels[@factors[2]] = ["2", "20", "50"]
-    @levels[@factors[3]] = ["y", "n"]
-    [@factors, @levels]
+    levels = {}
+    levels[factors[0]] = ["hmip", "mip", "eh"]
+    levels[factors[1]] = ["50", "100", "200", "500"]
+    levels[factors[2]] = ["2", "20", "50"]
+    levels[factors[3]] = ["y", "n"]
+    [factors, levels]
   end
   
-  def processActions
+  def processActions(factors, levels)
     #read from file but for now define here
     @actions={}
     @actions["mip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)]
@@ -295,8 +295,8 @@ class MultiConfigGenerator
     @actions["eh"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
     
     #Look into factors actions before specific levels
-    @actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", @levels["dnet"])]
-    @actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", @levels["dmap"])]
+    @actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
+    @actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
     
     @actions["ar"] = {}
     @actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
@@ -387,12 +387,6 @@ class MultiConfigGenerator
       netname = netname + "Net"
     end
 
-    def determineFactor(level, config)
-      index = config.index(level)
-      return @factors[index] if not index.nil?
-      nil
-    end
-
     #returns networksNames and filenames (module name of network in ned)
     def formFilenames(configs, basemodulename)
       filenames = configs.map{|i|
@@ -413,7 +407,7 @@ class MultiConfigGenerator
     runcount = @runCount.nil??10:@runCount
     
     factors, levels = readConfigs
-    processActions
+    processActions(factors, levels)
 
     if @check
       checkRunResults(factors, levels, @runCount, basemodname)
@@ -485,8 +479,8 @@ class MultiConfigGenerator
           
           writeIniFile.puts "[General]"
           writeIniFile.puts "network = #{networkNames[fileIndex]}"
-          #Use same scalarfile for a config
-          scalarfile = filename + ".sca"
+
+          scalarfile = filename + DELIM + runIndex.to_s + ".sca"
           writeIniFile.puts "output-scalar-file = #{scalarfile}"
           
           1.upto(runcount) do |runIndex|

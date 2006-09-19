@@ -795,7 +795,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
       //(currently it just skips map indiscriminately)
       for_each(mipv6cdsMN->bul.begin(), mipv6cdsMN->bul.end(),
                sendBUs(coa, oldcoa, hoa, lifetime, mob, mipv6cdsMN));
-
+      /* //Not allowed in mip6 spec (only allowed in revisions <= 18 )
 #ifdef USE_HMIP
       //Forwarding from previous MAP to new MAP is already done in HMIP
       if (!mob->hmipSupport() ||
@@ -806,6 +806,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
 #ifdef USE_HMIP
       }
 #endif //USE_HMIP
+      */
       //Don't need forwarding from previous MAP as that's done in
       //HMIPNDStateHost::processRtrAd
     }

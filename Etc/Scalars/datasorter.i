@@ -77,16 +77,16 @@ typedef FileList::const_iterator FileRef;
   }
 }
 
-%exception loadFile {
+%exception {
   try {
     $action
       }
-  catch (TException& a) {
+  catch (TException* a) {
     static VALUE cpperror = rb_define_class("CPPError", rb_eStandardError);
-    //rb_raise(cpperror, "TException prob filename wrong or file format wrong");
-    rb_raise(cpperror, a.message());
+    rb_raise(cpperror, a->message());
   }
 }
+
 //in swig 1.3.28 can do this instead of above will handle conv automatically
 //%exceptionclass TException;
 

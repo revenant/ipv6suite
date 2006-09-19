@@ -262,14 +262,14 @@ class MultiConfigGenerator
   # }}}
   def readConfigs
   
-    factors = ["scheme", "dnet", "dmap", "ar", "error"]
-    
+#    factors = ["scheme", "dnet", "dmap", "ar", "error"]
+    factors = ["scheme", "dnet", "dmap", "ar"]
     levels = {}
     levels[factors[0]] = ["hmip", "mip", "eh"]
     levels[factors[1]] = ["50", "100", "200", "500"]
     levels[factors[2]] = ["2", "20", "50"]
     levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = ["0", "1pc"]
+#    levels[factors[4]] = ["0", "1pc"]
     [factors, levels]
   end
   
@@ -308,9 +308,9 @@ class MultiConfigGenerator
                            SetAction.new(:xml, "MaxFastRAS", 0),
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
-    @actions["error"] = {}
-    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
-    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
+#    @actions["error"] = {}
+#    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
+#    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
   end
   
   # Similar to above or  test case setup fn but in future do 
@@ -601,11 +601,15 @@ class MultiConfigGenerator
 end#MultiConfigGenerator
 
 
+if $0 == __FILE__ then
+  $app = MultiConfigGenerator.new  
+  if not $test    
+    $app.run 
+    exit 
+  end
 
-$app = MultiConfigGenerator.new
-$app.run if not $test
+end
 
-exit unless $test
 
 # {{{ Unit test #
 
@@ -716,7 +720,7 @@ END
     end
     
     assert_equal(length,
-                 $app.generateConfigNames(@factors, @levels).size,
+                 @app.generateConfigNames(@factors, @levels).size,
                  "should be equal as number of levels of each factor multiplied together")
     
     
@@ -728,16 +732,12 @@ END
     
     expected = ["a_alpha_s", "a_alpha_t", "a_alpha_u", "a_alpha_v", "a_beta_s", "a_beta_t", "a_beta_u", "a_beta_v", "b_alpha_s", "b_alpha_t", "b_alpha_u", "b_alpha_v", "b_beta_s", "b_beta_t", "b_beta_u", "b_beta_v", "c_alpha_s", "c_alpha_t", "c_alpha_u", "c_alpha_v", "c_beta_s", "c_beta_t", "c_beta_u", "c_beta_v"]
     assert_equal(expected,
-                 $app.generateConfigNames(factors, levels),
+                 @app.generateConfigNames(factors, levels),
                  "should be equal as number of levels of each factor multiplied together")
     
     assert_equal(24,
-                 $app.configCount(factors, levels),
+                 @app.configCount(factors, levels),
                  "should be equal as I calculated manually in head")
-  end
-  
-  def test_run
-    #    $app.run
   end
   
   def test_ReplaceStringAction
@@ -863,6 +863,7 @@ END
   end
   
   def setup
+    @app = MultiConfigGenerator.new
     @factors = ["scheme", "dnet", "dmap", "ar"]
     
     @levels = {}
@@ -878,7 +879,7 @@ END
   
 end #test class
 
-if $0 != __FILE__ then
+if $test
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_MultiConfigGenerator)

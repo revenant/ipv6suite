@@ -262,13 +262,14 @@ class MultiConfigGenerator
   # }}}
   def readConfigs
   
-    factors = ["scheme", "dnet", "dmap", "ar"]
+    factors = ["scheme", "dnet", "dmap", "ar", "error"]
     
     levels = {}
     levels[factors[0]] = ["hmip", "mip", "eh"]
     levels[factors[1]] = ["50", "100", "200", "500"]
     levels[factors[2]] = ["2", "20", "50"]
     levels[factors[3]] = ["y", "n"]
+    levels[factors[4]] = ["0", "1pc"]
     [factors, levels]
   end
   
@@ -307,7 +308,9 @@ class MultiConfigGenerator
                            SetAction.new(:xml, "MaxFastRAS", 0),
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
-    
+    @actions["error"] = {}
+    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
+    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
   end
   
   # Similar to above or  test case setup fn but in future do 
@@ -479,16 +482,16 @@ class MultiConfigGenerator
           
           writeIniFile.puts "[General]"
           writeIniFile.puts "network = #{networkNames[fileIndex]}"
-
-          scalarfile = filename + DELIM + runIndex.to_s + ".sca"
-          writeIniFile.puts "output-scalar-file = #{scalarfile}"
-          
+     
           1.upto(runcount) do |runIndex|
+            
             vectorfile = filename + DELIM + runIndex.to_s + ".vec"         
+            scalarfile = filename + DELIM + runIndex.to_s + ".sca"
             
             writeIniFile.puts "[Run #{runIndex}]"
             writeIniFile.puts "output-vector-file = #{vectorfile}"           
-            
+            writeIniFile.puts "output-scalar-file = #{scalarfile}"
+
             #write distjobs file
             jobfile.puts "./#{exename} -f #{filename}.ini -r #{runIndex}"
           end

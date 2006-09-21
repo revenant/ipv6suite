@@ -94,11 +94,11 @@ typedef FileList::const_iterator FileRef;
 %rename("files") ScalarManager::getFiles() const;
 %rename("values") ScalarManager::getValues() const;
 %rename("runs") ScalarManager::getRuns() const;
-%rename("modnames") ScalarManager::getModuleNames() const;
+%rename("modules") ScalarManager::getModuleNames() const;
 %rename("scalars") ScalarManager::getScalarNames() const;
 
 %rename("run") Datum::runRef;
-%rename("modname") Datum::moduleNameRef;
+%rename("module") Datum::moduleNameRef;
 %rename("scalar") Datum::scalarNameRef;
 
 %template(Values) std::vector<Datum>;

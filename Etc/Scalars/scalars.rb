@@ -52,7 +52,14 @@ class Scalars
     @debug    = false 
     @verbose  = false
     @quit     = false
-    
+
+    @dir = "."
+    #all nodes will be processed unless option passed in to pass subset
+    @nodes = [ "*" ] 
+    @scalars = [ "*" ]
+    @module = "*"
+    @print = false
+
     get_options
 
   rescue => err
@@ -85,36 +92,28 @@ class Scalars
   def get_options
     ARGV.options { |opt|
       opt.banner = version
-      opt.banner = "Usage: ruby #{File.basename __FILE__} [options] "
+      opt.banner = "Usage: ruby #{File.basename __FILE__} [options] basename"
       opt.separator ""
       opt.separator "Specific options:"
 
-      #Try testing with this 
-      #ruby __FILE__ -x -c -s test
       opt.on("-x", "parse arguments and show Usage") {|@quit|}
 
-      opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}                                                                                                     
-      #Sample options
-      opt.on("--[no-]combine=[FLAG]", "-c", "load all results from subdirectories into",
-             "one big RData file in topdir"){ |@opt_combine|}
+      opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}
 
-      opt.on("--sub=SUBSET", "-s", String, "Plot subset only"){ |@opt_subset|   
-        puts "subsetting on #{@opt_subset}"
+      opt.on("-chdir dir", "-c", "Process the *.sca files in dir"){|@dir|}
+
+      opt.on("--nodes \"mn,cn,ha\"", "-n", String,  "nodes to output scalars for separated by commas. default is *"){|nodes|
+        @nodes = nodes.split(",")
       }
 
-      # Cast 'time' argument to a Time object.
-#      opt.on("-t", "--time [TIME]", Time, "Begin execution at given time") do |time|
-#        options.time = time
-#      end
-      # Cast to octal integer.
-      opt.on("-F", "--irs [OCTAL]", OptionParser::OctalInteger,
-              "Specify record separator (default \\0)") do |rs|
-        options.record_separator = rs
-      end
-      # List of arguments.
-      opt.on("--list x,y,z", Array, "Example 'list' of arguments") do |list|
-        options.list = list
-      end
+      opt.on("--modulename mod", "-m", String, "module name to query for values"){|@module|
+      }
+
+      opt.on("--scalarname \"*%*,rtpOctetCount\"", "-s", String, "scalar name/s to query separated by commas. One output csv per scalar"){|scalars|        
+        @scalars = scalars.split(",")
+      }
+
+      opt.on("--print", "-p", "Print scalar names available for the specified set of modulename and node"){|@print|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -140,8 +139,8 @@ class Scalars
         exit
       end
 
-      opt.on_tail("By default ...splits data according to opt_filter, ",
-                  "Subset plots on ... #{@opt_subset}. Will not create histograms")
+      opt.on_tail(%|-n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
+                  "")
       #Samples end
 
       opt.parse!
@@ -152,8 +151,6 @@ class Scalars
       (print ARGV.options; exit) 
     end
 
-    #raise ArgumentError, "No arguments or options specified (Maybe you need to remove this exception?) ", caller[0] if ARGV.size < 1 and not $test
-
   end
 
   # }}}
@@ -163,22 +160,27 @@ class Scalars
   #  Scalars.new.run
   #
   def run
-    ## TODO: Add code here
-
-    #variable
-    path = File.expand_path("~/tmp/process")
-    path = File.expand_path("/home/jmll/other/IPv6SuiteWithINET/Research/Networks/EHComp")
+    path = File.expand_path("~/other/IPv6SuiteWithINET/Research/Networks/EHComp")
+    @dir = path
     sm=Datasorter::ScalarManager.new
     ds=Datasorter::DataSorter.new(sm)
 
-#    dirs = ["1pcerror", "noerror"]
-#    dirs.each { |dir|
-#      Dir["#{path}/#{dir}/*.sca"].each{|file|
-      Dir["#{path}/*.sca"].each{|file|
-        @file = file
-        sm.loadFile(file)        
-      }
-#    }
+    Dir["#{@dir}/*.sca"].each{|file|
+      puts "Loading scalar file " + file if @verbose
+      @file = file
+      sm.loadFile(file)
+    }
+
+    @file = nil
+
+    if @verbose
+      puts "scalar names are "
+      p sm.scalars.keys
+      puts ""
+      #puts "module names are " 
+      #p sm.modules.keys
+      puts ""
+    end
 
     require 'multiconfig'
     require 'General'
@@ -186,50 +188,81 @@ class Scalars
     factors, levels = mcg.readConfigs
     configNames = mcg.generateConfigNames(factors, levels)
 
-    p = IO.popen(RInterface::RSlave, "w+")
+    #p = IO.popen(RInterface::RSlave, "w+")
 
-    header = false
+    #Collect scalarNames so we can output correct header and csv files
+
+    #scalarName May not be unique across modules should check what happens if
+    #not (but c++ interface is a set so if not unique some values will get
+    #erased?)
+    scalarNames = Set.new
+    moduleNames = Set.new
     for config in configNames
-      for node in [ "cn", "mn" ]
-        #variables are modulename and scalarname
-        ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.udpApp[*]", "* % *")
-        next if ints.size == 0
-        sum = ints.inject(0){|sum, i| sum + sm.getValue(i).value}
-        mean = sum/ints.length
-#        puts "#{config}: mean is #{mean} of #{ints.length} values for #{node}"
-        encodedFactors = config.split(RInterface::DELIM)
-        ints.each{|i|
-          datum = sm.getValue(i)
-          run = datum.run.runNumber
+      for node in @nodes
+        for scalar in @scalars
+          ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.#{@module}", scalar)
+          ints.each{|i|
+            v = sm.getValue(i)
+            scalarNames.add v.scalar
+            moduleNames.add v.module
+          }
+        end
+      end
+      #Just do one config if print names otherwise gets repetitive
+      break if @print
+    end
 
-          #May not be unique should check what happens if not (but c++ interface
-          #is a set so if not unique some values will get erased?)
-          scalarName = datum.scalar
-          #scalarName = "loss"
+    if @print
+      puts "scalar names are "
+      puts scalarNames.to_a.join("\n")
+      puts "module names are " 
+      puts moduleNames.to_a.join("\n")
+      exit
+    end
 
-          csvdelim = ","
-    
-          #Be careful with scalarName because dropped from mn/cn in case does
-          #not matter much as implied from node but when really random partner
-          #then will matter.
-          if (not header)
-            #header line
-            puts factors.join(csvdelim) + csvdelim + %|node| + csvdelim + "run" + csvdelim + scalarName 
-            header = true
+    for scalarName in scalarNames 
+      header = false
+      outputfile = scalarName +".csv"
+      File.open(outputfile, "w"){|f|
+        for config in configNames
+          for node in @nodes
+            ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.#{@module}", scalarName)
+            next if ints.size == 0
+            sum = ints.inject(0){|sum, i| sum + sm.getValue(i).value}
+            mean = sum/ints.length
+            encodedFactors = config.split(RInterface::DELIM)
+            ints.each{|i|
+              datum = sm.getValue(i)
+              run = datum.run.runNumber
+              csvdelim = ","            
+              if (not header)
+                puts "outputting csv file #{f.path}"
+                f.puts factors.join(csvdelim) + csvdelim + %|node| + csvdelim + "run" + csvdelim + scalarName 
+                header = true
+              end
+              f.puts encodedFactors.join(csvdelim) + csvdelim + node + csvdelim + run.to_s + csvdelim + datum.value.to_s
+              #p.puts %{ a = data.frame(#{expandFactors(encodedFactors, factors)}, node=#{quoteValue(node)}, run=#{run}, #{scalarName} = #{datum.value}}
+            }
           end
-          puts encodedFactors.join(csvdelim) + csvdelim + node + csvdelim + run.to_s + csvdelim + datum.value.to_s
-#          p.puts %{ a = data.frame(#{expandFactors(encodedFactors, factors)}, node=#{quoteValue(node)}, run=#{run}, #{scalarName} = #{datum.value}}
-        }
+        end
+      }
+      if File.size(outputfile) == 0
+        cout = IO.open(1, "w")
+        endl = "\n"
+        cout << "Deleting "<< outputfile<< endl
+        File.delete(outputfile) 
       end
     end
+
     rescue => err
       puts err
       puts err.backtrace
-      puts "file process at the time was #{@file}"
+      puts "file processed at the time was #{@file}" if not @file.nil?
 
   end#run
 
   def notesInR
+<<END
     #In R
     a = read.table("csv.out",sep=",", header=T)
     b = subset(a, ar=="y")
@@ -244,7 +277,9 @@ b = subset(a.rtpDrop.cn, rtpDrop.cn > 9 & run == 1  & encodedFactors.join("&"))
 sum(length(b[,1]))
 #Interrun variation do subset for each run too and then graph histogram of sums
 #exceed quality. (If not much spread good) or just calc. std dev
+END
   end
+
 end#class Scalars
 
 if $0 == __FILE__ then

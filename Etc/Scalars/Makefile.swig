@@ -54,4 +54,4 @@ $(LIB): engine/CMakeLists.txt
 	cd engine/lib && cmake ../ && make
 
 engine/CMakeLists.txt:
-	(cd engine;ruby ../scripts/CMakeListGen.rb scalars)
+	(cd engine;ruby ../../scripts/CMakeListGen.rb scalars)

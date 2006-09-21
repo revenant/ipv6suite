@@ -208,8 +208,6 @@ class MultiConfigGenerator
       opt.separator ""
       opt.separator "Specific options:"
       
-      #Try testing with this 
-      #ruby __FILE__ -x -c -s test
       opt.on("-x", "parse arguments and show Usage") {|@quit|}
       
       opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}
@@ -263,7 +261,6 @@ class MultiConfigGenerator
   def readConfigs
   
     factors = ["scheme", "dnet", "dmap", "ar", "error"]
-    factors = ["scheme", "dnet", "dmap", "ar"]
     levels = {}
     levels[factors[0]] = ["hmip", "mip", "eh"]
     levels[factors[1]] = ["50", "100", "200", "500"]
@@ -352,25 +349,40 @@ class MultiConfigGenerator
   end
   
   def  checkRunResults(factors, levels, runCount, basename)
-    vecFileCount = runCount * configCount(factors, levels)
-    expectedCount = Dir["#{basename}*_*.vec"].size
-    puts "Found #{vecFileCount}/#{expectedCount} vector files"
-    return if expectedCount == vecFileCount
+    expectedCount = runCount * configCount(factors, levels)
+    puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
+    puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]
+
+    for ext in [ "sca", "vec" ]
+    vecFileCount = Dir["#{basename}*#{DELIM}*.#{ext}"].size
+    puts "Found #{vecFileCount}/#{expectedCount} #{ext} files"
+    next if expectedCount == vecFileCount
         
-    puts "Counts do not match! Make sure you specified correct run count and basename."
-    puts "Runs finished according to log "+ `grep Run #{check} |grep end|wc`
-    puts "Runs started according to log " + `grep Run #{check} |grep Prepar|wc`
+    puts "Counts do not match for #{ext} files! Make sure you specified correct run count and basename."
      
     configs = generateConfigNames(factors, levels)
     vecFiles = Hash.new
     configs.each{|c|
-      vecFiles[c] = Dir["*_#{c}*.vec"].size
+      puts "Checking no. of files that match #{basename}#{DELIM}#{c}*.#{ext}" if @verbose
+			size = Dir["#{basename}#{DELIM}#{c}*.#{ext}"].size 
+      vecFiles[c] = size if size < runCount
+break if size < runCount if @debug 
     }
     sorted = vecFiles.sort{|a,b| a[1] <=> b[1]}
-    p sorted
+    runs = Hash.new
     sorted.each{|s|
       puts s[0] + " generated "  + s[1].to_s
+      c = s[0]
+		  runs[c] = Array.new
+	    1.upto(100) do |run|
+puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") and @verbose
+				runs[c].push run if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") 
+		  end
     }
+      for c in runs.keys
+        puts "#{c} is missing runs #{runs[c].join(',')}"
+      end
+		end
   end
     
   #
@@ -656,13 +668,13 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
                  "be careful of missing > in xml docs")
     
     ini = %|ehCompNet.*.IPv6routingFile =xmldoc("EHComphmip.xml")|
-    assert_equal(%|ehCompNet.*.IPv6routingFile=xmldoc("EHComphmip_50_2_y.xml")|,
-                 SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("EHComphmip_50_2_y.xml")|).apply(ini),
+    assert_equal(%|ehCompNet.*.IPv6routingFile=xmldoc("EHComphmip#{DELIM}50#{DELIM}2#{DELIM}y.xml")|,
+                 SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("EHComphmip#{DELIM}50#{DELIM}2#{DELIM}y.xml")|).apply(ini),
                  "does not preserve space around the = sign so better not put them in base doc")
     
     ini = %|preload-ned-files=@../../../nedfiles.lst *.ned|
-    assert_equal(%|preload-ned-files=@../../../nedfiles.lst EHComp_eh_500_50_n.ned|,
-                 SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst EHComp_eh_500_50_n.ned|).apply(ini),
+    assert_equal(%|preload-ned-files=@../../../nedfiles.lst EHComp#{DELIM}eh#{DELIM}500#{DELIM}50#{DELIM}n.ned|,
+                 SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst EHComp#{DELIM}eh#{DELIM}500#{DELIM}50#{DELIM}n.ned|).apply(ini),
                  "")
     
   end

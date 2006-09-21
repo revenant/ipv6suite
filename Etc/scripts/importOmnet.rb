@@ -156,10 +156,22 @@ TARGET
     #Will use read config for factor names to be used in data frame columns
     readConfig
 #    factor(x, @{levels[@factors[i]]}, labels=@{levels[@factors[i]].map{|x| x + "ms"}}, ordered = TRUE)
-    vecCount = ARGV.size
     curCount = 0
-    while ARGV.size > 0 do
-      vecFile = ARGV.shift      
+    if @allvecFiles 
+      modname = ARGV.shift
+      vecFiles = Dir["#{modname}*_*.vec"]
+      vecCount = vecFiles.size     
+    else
+      vecCount = ARGV.size
+    end
+
+    while curCount != vecCount do
+      if @allvecFiles
+        vecFile = vecFiles[curCount]
+      else
+        vecFile = ARGV.shift
+      end
+
       raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"     
       encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
       run = encodedFactors.last
@@ -168,7 +180,7 @@ TARGET
       encodedSingleRun(p, vecFile, encodedFactors, run)
       curCount += 1    
     end
-    
+
     output = File.join(File.dirname(vecFile), @rdata)
     p.puts %{save.image("#{output}")}     
 

@@ -171,7 +171,8 @@ class MultiConfigGenerator
     @debug    = false 
     @verbose  = false
     @quit     = false
-    
+    @check = nil
+
     get_options
     
   rescue => err
@@ -215,7 +216,7 @@ class MultiConfigGenerator
       
       opt.on("-r", "--runCount x", Integer, "How many runs to generate for each scenario"){|@runCount|}
       
-      opt.on("-c", "--check", "Checks output of runs"){|@check|}
+      opt.on("-c", "--check logfile", String, "Checks output of runs (requires -r option)"){|@check| }
       
       opt.separator ""
       opt.separator "Common options:"
@@ -249,7 +250,7 @@ class MultiConfigGenerator
     } or  exit(1);
     
     
-    raise ArgumentError, "No template name specified", caller[0] if ARGV.size < 1 and not $test
+    raise ArgumentError, "No basename specified", caller[0] if ARGV.size < 1 and not $test
     
     if @quit
       pp self
@@ -261,18 +262,18 @@ class MultiConfigGenerator
   # }}}
   def readConfigs
   
-    @factors = ["scheme", "dnet", "dmap", "ar"]
+    factors = ["scheme", "dnet", "dmap", "ar", "error"]
     
-    @levels = {}
-    @levels[@factors[0]] = ["hmip", "mip", "eh"]
-    @levels[@factors[1]] = ["50", "100", "200", "500"]
-    @levels[@factors[2]] = ["2", "20", "50"]
-    @levels[@factors[3]] = ["y", "n"]
-    
-    processActions
+    levels = {}
+    levels[factors[0]] = ["hmip", "mip", "eh"]
+    levels[factors[1]] = ["50", "100", "200", "500"]
+    levels[factors[2]] = ["2", "20", "50"]
+    levels[factors[3]] = ["y", "n"]
+    levels[factors[4]] = ["0", "1pc"]
+    [factors, levels]
   end
   
-  def processActions
+  def processActions(factors, levels)
     #read from file but for now define here
     @actions={}
     @actions["mip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)]
@@ -295,8 +296,8 @@ class MultiConfigGenerator
     @actions["eh"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
     
     #Look into factors actions before specific levels
-    @actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", @levels["dnet"])]
-    @actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", @levels["dmap"])]
+    @actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
+    @actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
     
     @actions["ar"] = {}
     @actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
@@ -307,7 +308,9 @@ class MultiConfigGenerator
                            SetAction.new(:xml, "MaxFastRAS", 0),
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
-    
+    @actions["error"] = {}
+    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
+    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
   end
   
   # Similar to above or  test case setup fn but in future do 
@@ -354,11 +357,11 @@ class MultiConfigGenerator
     puts "Found #{vecFileCount}/#{expectedCount} vector files"
     return if expectedCount == vecFileCount
         
-    puts "Make sure you specified correct run count and basename counts do not match"
-    puts "Runs finished according to log "+ `grep Run out.log |grep end|wc`
-    puts "Runs started according to log " + `grep Run outfix100.log |grep Prepar|wc`
+    puts "Counts do not match! Make sure you specified correct run count and basename."
+    puts "Runs finished according to log "+ `grep Run #{check} |grep end|wc`
+    puts "Runs started according to log " + `grep Run #{check} |grep Prepar|wc`
      
-    configs = generateConfigNames(@factors, @levels)
+    configs = generateConfigNames(factors, levels)
     vecFiles = Hash.new
     configs.each{|c|
       vecFiles[c] = Dir["*_#{c}*.vec"].size
@@ -387,12 +390,6 @@ class MultiConfigGenerator
       netname = netname + "Net"
     end
 
-    def determineFactor(level, config)
-      index = config.index(level)
-      return @factors[index] if not index.nil?
-      nil
-    end
-
     #returns networksNames and filenames (module name of network in ned)
     def formFilenames(configs, basemodulename)
       filenames = configs.map{|i|
@@ -412,13 +409,15 @@ class MultiConfigGenerator
     exename = `basename #{cwd}`.chomp
     runcount = @runCount.nil??10:@runCount
     
+    factors, levels = readConfigs
+    processActions(factors, levels)
+
     if @check
-      checkConfig(@factors, @levels, @runCount, basemodname)
+      checkRunResults(factors, levels, @runCount, basemodname)
       exit
     end
     
-    readConfigs
-    final = generateConfigNames(@factors, @levels)
+    final = generateConfigNames(factors, levels)
     networkNames, filenames = formFilenames(final, basemodname)
     
     nedfileOrig = IO.read(basemodname+".ned")
@@ -444,11 +443,9 @@ class MultiConfigGenerator
             # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
             
             configLevels = final[fileIndex].split(DELIM)
-            for l in configLevels do
-            
-              #determine the factor level belongs to hence need for factor together with
-              #level in filename as level names may not be unique
-              me = determineFactor(l, configLevels)
+            configLevels.each_with_index do |l,idx|
+              me = factors[idx]
+
               if @actions.include? me
                 if not @actions[me].class == Hash
                   iniactions = @actions[me].select {|item|
@@ -485,16 +482,16 @@ class MultiConfigGenerator
           
           writeIniFile.puts "[General]"
           writeIniFile.puts "network = #{networkNames[fileIndex]}"
-          #Use same scalarfile for a config
-          scalarfile = filename + ".sca"
-          writeIniFile.puts "output-scalar-file = #{scalarfile}"
-          
+     
           1.upto(runcount) do |runIndex|
+            
             vectorfile = filename + DELIM + runIndex.to_s + ".vec"         
+            scalarfile = filename + DELIM + runIndex.to_s + ".sca"
             
             writeIniFile.puts "[Run #{runIndex}]"
             writeIniFile.puts "output-vector-file = #{vectorfile}"           
-            
+            writeIniFile.puts "output-scalar-file = #{scalarfile}"
+
             #write distjobs file
             jobfile.puts "./#{exename} -f #{filename}.ini -r #{runIndex}"
           end
@@ -512,11 +509,8 @@ class MultiConfigGenerator
           # {{{ ned block
           
           configLevels = final[fileIndex].split(DELIM)
-          for l in configLevels do
-          
-            #determine the factor level belongs to hence need for factor together with
-            #level in filename as level names may not be unique
-            me = determineFactor(l, configLevels)
+          configLevels.each_with_index do |l,idx|
+            me = factors[idx]
             if @actions.include? me
               if not @actions[me].class == Hash
                 iniactions = @actions[me].select {|item|
@@ -552,7 +546,7 @@ class MultiConfigGenerator
           writeNedFile.print nedfile
         }
         
-        scheme = final[fileIndex].split(DELIM)[@factors.index("scheme")]
+        scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]
         if (scheme == "hmip")
           xmllines = IO.readlines(basemodname+scheme+".xml")
         else
@@ -565,11 +559,8 @@ class MultiConfigGenerator
             # {{{ xml block
             
             configLevels = final[fileIndex].split(DELIM)
-            for l in configLevels do
-            
-              #determine the factor level belongs to hence need for factor together with
-              #level in filename as level names may not be unique
-              me = determineFactor(l, configLevels)
+            configLevels.each_with_index do |l,idx|
+              me = factors[idx]                         
               if @actions.include? me
                 if not @actions[me].class == Hash
                   iniactions = @actions[me].select {|item|

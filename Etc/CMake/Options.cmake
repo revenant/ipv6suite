@@ -162,7 +162,7 @@ MARK_AS_ADVANCED(FORCE BUILD_TOPOLOGY)
 
 OPTION(BUILD_DOCUMENTATION "Adds extra targets like dox,cl2html etc. see DocTargets.cmake" OFF)
 
-OPTION(USE_XMLWRAPP "Build xmlwrapp (Deprecated. Upgrade omnet to use its parser)" ON)
+OPTION(USE_XMLWRAPP "Build xmlwrapp (Deprecated. Upgrade omnet to use its parser)" OFF)
 MARK_AS_ADVANCED(FORCE USE_XMLWRAPP)
 
 OPTION(USE_XERCES "UNSUPPORTED!" OFF)

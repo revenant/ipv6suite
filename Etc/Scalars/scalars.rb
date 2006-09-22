@@ -59,6 +59,7 @@ class Scalars
     @scalars = [ "*" ]
     @module = "*"
     @print = false
+    @pattern = "*.sca"
 
     get_options
 
@@ -100,7 +101,9 @@ class Scalars
 
       opt.on("--verbose", "-v", "print intermediate steps to STDERR"){|@verbose|}
 
-      opt.on("-chdir dir", "-c", "Process the *.sca files in dir"){|@dir|}
+      opt.on("--chdir dir", "-c", "Process the *.sca files in dir"){|@dir|}
+
+      opt.on("--file pattern", "-f", "Process files conforming to {pattern}.sca files. Default is *.sca"){|@pattern|}
 
       opt.on("--nodes \"mn,cn,ha\"", "-n", String,  "nodes to output scalars for separated by commas. default is *"){|nodes|
         @nodes = nodes.split(",")
@@ -155,22 +158,53 @@ class Scalars
 
   # }}}
 
+  def readConfigs
+    require 'multiconfig'
+    mcg = MultiConfigGenerator.new
+    factors, levels = mcg.readConfigs
+    configNames = mcg.generateConfigNames(factors, levels)
+    [configNames, factors, levels]
+  end
+
+  def aggregateScalars(basename)    
+    require 'fileutils'
+    configs = readConfigs
+    puts "Trying to concatenate all runs belonging to a config into one scalar file inside agg dir"
+    `rm -fr agg` if not Dir["agg"].empty?
+    for c in configs[0]
+      FileUtils.mkpath("agg")
+      `cat #{basename}#{DELIM}#{c}*.sca > agg/#{basename}#{DELIM}#{c}.sca`
+    end
+    configs
+  end
+
   #
   # Launches the application
   #  Scalars.new.run
   #
   def run
+    basename = ARGV[0]
     @dir = File.expand_path(@dir)
     sm=Datasorter::ScalarManager.new
     ds=Datasorter::DataSorter.new(sm)
+    
+    files = Dir["#{@dir}/#{@pattern}"]
+    if files.size > 1020 #limited by __FD_SETSIZE (1024)
+      STDERR.puts "Sorry cannot process #{files.size} files at one time as limited by __FD_SETSIZE of 1024"      
+      configNames, factors, levels = aggregateScalars(basename)
+      files = Dir["agg/#{basename}*.sca"]
+    else
+      configNames, factors, levels = readConfigs      
+    end
 
-    Dir["#{@dir}/*.sca"].each{|file|
-      puts "Loading scalar file " + file if @verbose
-      @file = file
+    file = nil
+
+    files.each_with_index{|file, index|
+      puts "Loading scalar ##{index}" + file  if @verbose    
       sm.loadFile(file)
     }
 
-    @file = nil
+    file = nil
 
     if @verbose
       puts "scalar names are "
@@ -181,12 +215,7 @@ class Scalars
       puts ""
     end
 
-    require 'multiconfig'
-    require 'General'
-    mcg = MultiConfigGenerator.new
-    factors, levels = mcg.readConfigs
-    configNames = mcg.generateConfigNames(factors, levels)
-
+    #require 'General'
     #p = IO.popen(RInterface::RSlave, "w+")
 
     #Collect scalarNames so we can output correct header and csv files
@@ -256,7 +285,7 @@ class Scalars
     rescue => err
       puts err
       puts err.backtrace
-      puts "file processed at the time was #{@file}" if not @file.nil?
+      puts "file processed at the time was #{file}" if not file.nil?
 
   end#run
 

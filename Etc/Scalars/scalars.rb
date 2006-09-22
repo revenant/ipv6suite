@@ -139,7 +139,7 @@ class Scalars
         exit
       end
 
-      opt.on_tail(%|-n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
+      opt.on_tail(%|e.g. -d "~/other/IPv6SuiteWithINET/Research/Networks/EHComp" -n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
                   "")
       #Samples end
 
@@ -160,8 +160,7 @@ class Scalars
   #  Scalars.new.run
   #
   def run
-    path = File.expand_path("~/other/IPv6SuiteWithINET/Research/Networks/EHComp")
-    @dir = path
+    @dir = File.expand_path(@dir)
     sm=Datasorter::ScalarManager.new
     ds=Datasorter::DataSorter.new(sm)
 

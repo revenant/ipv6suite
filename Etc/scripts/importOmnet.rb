@@ -50,15 +50,9 @@ class ImportOmnet < RImportOmnet
   end  
 
   def readConfig
-
-    @factors = ["scheme", "dnet", "dmap", "ar"]
-
-    @levels = {}
-    @levels[@factors[0]] = ["hmip", "mip", "eh"]
-    @levels[@factors[1]] = ["50", "100", "200", "500"]
-    @levels[@factors[2]] = ["2", "20", "50"]
-    @levels[@factors[3]] = ["y", "n"]
-
+    require 'multiconfig'
+    mcg = MultiConfigGenerator.new
+    @factors, @levels = mcg.readConfigs
   end
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
@@ -176,6 +170,7 @@ TARGET
       encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
+      $defout.old_puts " encodedFactors are " + encodedFactors.join(",") if @debug
       $defout.old_puts "---Processing vector file " + vecFile + " #{curCount}/#{vecCount}" if @verbose
       encodedSingleRun(p, vecFile, encodedFactors, run)
       curCount += 1    

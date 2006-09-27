@@ -285,6 +285,7 @@ class RImportOmnet
     @aggFrames = nil #store aggframe names to remove them 
     @printVectors = false #Print only vector names and quit
     @relevelSchemeOrder = nil
+    @count = nil
 
     get_options
 
@@ -341,9 +342,13 @@ class RImportOmnet
 
       opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
       opt.separator ""
+
       opt.separator "importOmnet options:"
       opt.separator "Usage: #{File.basename __FILE__} [options] basename"
+
       opt.on("-a", "Use the first argument as prefix (modname/basename) of vec files and load vec files that conform to the pattern \"\#\{basename\}*_*.vec\""){|@allvecFiles|}
+
+      opt.on("-c", "--count skipcount", Integer, "number of files to skip before starting processing"){|@count|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -516,7 +521,7 @@ class RImportOmnet
       #v = a[i] 
       vectors[k] = columnNames[i]
       i+=1
-      raise "different sized containers when assigning safe column names" if vectors.keys.size != columnNames.size
+      raise "different sized containers when assigning safe column names #{vectors.keys.join(",")} and #{columnNames.join(",")}" if vectors.keys.size != columnNames.size
     }
   end
 

@@ -50,15 +50,9 @@ class ImportOmnet < RImportOmnet
   end  
 
   def readConfig
-
-    @factors = ["scheme", "dnet", "dmap", "ar"]
-
-    @levels = {}
-    @levels[@factors[0]] = ["hmip", "mip", "eh"]
-    @levels[@factors[1]] = ["50", "100", "200", "500"]
-    @levels[@factors[2]] = ["2", "20", "50"]
-    @levels[@factors[3]] = ["y", "n"]
-
+    require 'multiconfig'
+    mcg = MultiConfigGenerator.new
+    @factors, @levels = mcg.readConfigs
   end
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
@@ -165,6 +159,8 @@ TARGET
       vecCount = ARGV.size
     end
 
+
+    output = File.join(Dir.pwd, @rdata)
     while curCount != vecCount do
       if @allvecFiles
         vecFile = vecFiles[curCount]
@@ -172,16 +168,18 @@ TARGET
         vecFile = ARGV.shift
       end
 
+      curCount += 1    
+      next if @count and curCount < @count
       raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"     
       encodedFactors = File.basename(vecFile, ".vec").split(DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
+      $defout.old_puts " encodedFactors are " + encodedFactors.join(",") if @debug
       $defout.old_puts "---Processing vector file " + vecFile + " #{curCount}/#{vecCount}" if @verbose
       encodedSingleRun(p, vecFile, encodedFactors, run)
-      curCount += 1    
+      p.puts %{save.image("#{output}")} if curCount%3000 == 0
     end
 
-    output = File.join(File.dirname(vecFile), @rdata)
     p.puts %{save.image("#{output}")}     
 
     p.puts %{q("no")}
@@ -196,6 +194,8 @@ TARGET
     $defout.old_puts err
     $defout.old_puts err.backtrace
     p.puts %{save.image("otherException.Rdata")} if not p.nil?
+    $defout.old_puts `cat /proc/meminfo` 
+
   ensure
     p.close if p
   end#run

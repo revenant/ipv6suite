@@ -200,7 +200,12 @@ class Scalars
     file = nil
 
     files.each_with_index{|file, index|
-      puts "Loading scalar ##{index}" + file  if @verbose    
+      if @verbose
+        puts "Loading scalar ##{index}" + file  
+      else
+        print %|#{"\b"*80}#{index+1}/#{files.size}|
+        $defout.flush
+      end
       sm.loadFile(file)
     }
 
@@ -256,8 +261,6 @@ class Scalars
           for node in @nodes
             ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.#{@module}", scalarName)
             next if ints.size == 0
-            sum = ints.inject(0){|sum, i| sum + sm.getValue(i).value}
-            mean = sum/ints.length
             encodedFactors = config.split(RInterface::DELIM)
             ints.each{|i|
               datum = sm.getValue(i)

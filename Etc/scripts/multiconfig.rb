@@ -266,7 +266,8 @@ class MultiConfigGenerator
     levels[factors[1]] = ["50", "100", "200", "500"]
     levels[factors[2]] = ["2", "20", "50"]
     levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = ["0", "1pc"]
+    #levels[factors[4]] = ["0", "1pc"]
+    levels[factors[4]] = ["2pc"]
     [factors, levels]
   end
   
@@ -306,8 +307,9 @@ class MultiConfigGenerator
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
     @actions["error"] = {}
-    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
-    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
+    #@actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
+    #@actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
+    @actions["error"]["2pc"] = [SetAction.new(:ini, "errorRate", 0.02)]
   end
   
   # Similar to above or  test case setup fn but in future do 

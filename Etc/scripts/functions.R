@@ -271,6 +271,13 @@ for (i in v)
   return (o)
 }
 
+jl.test <- function()
+  {
+    testl=seq(0,18,2)
+    testv=c(0.05,0.1,seq(0.15,0.5,0.05))
+    jl.Rfactor(testv, Ppl=testl)
+  }
+
  # Ta is sender to listener delay
  # Defaults values of Ie and Bpl are for G.728 encoding and come from
  # PacketCable data sheet
@@ -286,11 +293,20 @@ jl.Rfactor <- function(Ta, Ie = 7, Bpl = 17, Ppl = 0, burstR = 1)
           {        
             log10(Ta/100)/log10(2)
           }
-        if (Ta <= 100)
-          return (0)
+        if (length(Ta) == 1)
+          {
+            if (Ta <= 100)
+              return (0)
+            else
+              {
+                return(25*((1 + X(Ta)^6)^(1/6)-3*(1+(X(Ta)/3)^6)^(1/6) + 2))
+              }
+          }
         else
           {
-            return(25*((1 + X(Ta)^6)^(1/6)-3*(1+(X(Ta)/3)^6)^(1/6) + 2))
+            Ta[Ta<=100] = 0            
+            Ta[Ta>100] = 25*((1 + X(Ta[Ta>100])^6)^(1/6)-3*(1+(X(Ta[Ta>100])/3)^6)^(1/6) + 2)
+            return(Ta)
           }
       }
 

@@ -350,6 +350,14 @@ class MultiConfigGenerator
   
   def  checkRunResults(factors, levels, runCount, basename)
     expectedCount = runCount * configCount(factors, levels)
+    if File.directory? @check
+      catlogfile = "mylog.log"
+      Dir["#{@check}/*.o*"].each{|joblog|
+	`cat #{joblog} >> #{catlogfile}` 
+      }
+      @check = catlogfile
+      puts "here i am"
+    end
     puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
     puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]
 

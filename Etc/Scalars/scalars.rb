@@ -265,14 +265,15 @@ class Scalars
             ints.each{|i|
               datum = sm.getValue(i)
               run = datum.run.runNumber
+              nodename = datum.module.split(".")[1]
               csvdelim = ","            
               if (not header)
                 puts "outputting csv file #{f.path}"
                 f.puts factors.join(csvdelim) + csvdelim + %|node| + csvdelim + "run" + csvdelim + scalarName 
                 header = true
               end
-              f.puts encodedFactors.join(csvdelim) + csvdelim + node + csvdelim + run.to_s + csvdelim + datum.value.to_s
-              #p.puts %{ a = data.frame(#{expandFactors(encodedFactors, factors)}, node=#{quoteValue(node)}, run=#{run}, #{scalarName} = #{datum.value}}
+              f.puts encodedFactors.join(csvdelim) + csvdelim + nodename + csvdelim + run.to_s + csvdelim + datum.value.to_s
+              #p.puts %{ a = data.frame(#{expandFactors(encodedFactors, factors)}, node=#{quoteValue(nodename)}, run=#{run}, #{scalarName} = #{datum.value}}
             }
           end
         end

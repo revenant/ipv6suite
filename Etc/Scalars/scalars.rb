@@ -212,7 +212,7 @@ class Scalars
     file = nil
 
     if @verbose
-      puts "scalar names are "
+      puts "All scalar names are "
       p sm.scalars.keys
       puts ""
       #puts "module names are " 
@@ -233,7 +233,7 @@ class Scalars
     for config in configNames
       for node in @nodes
         for scalar in @scalars
-          ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.#{@module}", scalar)
+          ints = ds.getFilteredScalarList("*#{RInterface::DELIM}#{config}*", "*.#{node}.#{@module}", scalar)
           ints.each{|i|
             v = sm.getValue(i)
             scalarNames.add v.scalar
@@ -246,9 +246,9 @@ class Scalars
     end
 
     if @print
-      puts "scalar names are "
+      puts "scalar names after filtering are "
       puts scalarNames.to_a.join("\n")
-      puts "module names are " 
+      puts "module names after filtering are " 
       puts moduleNames.to_a.join("\n")
       exit
     end
@@ -259,7 +259,7 @@ class Scalars
       File.open(outputfile, "w"){|f|
         for config in configNames
           for node in @nodes
-            ints = ds.getFilteredScalarList("*#{config}*", "*#{node}.#{@module}", scalarName)
+            ints = ds.getFilteredScalarList("*#{RInterface::DELIM}#{config}*", "*.#{node}.#{@module}", scalarName)
             next if ints.size == 0
             encodedFactors = config.split(RInterface::DELIM)
             ints.each{|i|

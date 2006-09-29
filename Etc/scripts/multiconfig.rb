@@ -214,8 +214,11 @@ class MultiConfigGenerator
       
       opt.on("-r", "--runCount x", Integer, "How many runs to generate for each scenario"){|@runCount|}
       
-      opt.on("-c", "--check logfile", String, "Checks output of runs (requires -r option)"){|@check| }
-      
+      opt.on("-c", "--check logfile", String, "Checks output of runs (requires -r option)"){|@check|}
+      opt.on("-C", "--config configfile", String, "Use the specified yaml file for configurations to generate"){|@config| @config = File.expand_path(@config) }
+ 
+      opt.on("-g", "Generate config.yaml in current directory"){ generateConfig; exit }
+
       opt.separator ""
       opt.separator "Common options:"
       
@@ -248,7 +251,9 @@ class MultiConfigGenerator
     } or  exit(1);
     
     
-    raise ArgumentError, "No basename specified", caller[0] if ARGV.size < 1 and not $test
+    raise ArgumentError, "No basename specified!!", caller[0] if ARGV.size < 1 and not $test
+    raise ArgumentError, "No runCount specified when checking log file!!", caller[0] if not @runCount and not $test
+    raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test
     
     if @quit
       pp self
@@ -258,22 +263,26 @@ class MultiConfigGenerator
   end
   
   # }}}
+
   def readConfigs
+    require 'yaml'
+    File.open(@config) do |f|
+      factors, levels, actions = YAML.load(f)
+    end
+  end
   
+  def generateConfig
     factors = ["scheme", "dnet", "dmap", "ar", "error"]
     levels = {}
     levels[factors[0]] = ["hmip", "mip", "eh"]
     levels[factors[1]] = ["50", "100", "200", "500"]
     levels[factors[2]] = ["2", "20", "50"]
     levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = ["0", "1pc"]
+    levels[factors[4]] = ["2pc"]
     [factors, levels]
-  end
-  
-  def processActions(factors, levels)
-    #read from file but for now define here
-    @actions={}
-    @actions["mip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)]
+
+    actions={}
+    actions["mip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)]
     
     ##Generate hmip xml: use eh version and add following to crv
     ## mobileIPv6Support="on" mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on"
@@ -289,25 +298,30 @@ class MultiConfigGenerator
     ##change map="off" for everything else i.e. ar*
     
     ## do it by create XML aware regexp and ifa
-    @actions["hmip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
-    @actions["eh"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
+    actions["hmip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
+    actions["eh"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
     
     #Look into factors actions before specific levels
-    @actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
-    @actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
+    actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
+    actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
     
-    @actions["ar"] = {}
-    @actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
+    actions["ar"] = {}
+    actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
                            SetAction.new(:xml, "MaxFastRAS", 10),
                            ToggleAction.new(:xml, "optimisticDAD", true),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 0)]
-    @actions["ar"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false), 
+    actions["ar"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false), 
                            SetAction.new(:xml, "MaxFastRAS", 0),
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
-    @actions["error"] = {}
-    @actions["error"]["0"] = [SetAction.new(:ini, "errorRate", 0)]
-    @actions["error"]["1pc"] = [SetAction.new(:ini, "errorRate", 0.01)]
+    actions["error"] = {}
+    actions["error"]["2pc"] = [SetAction.new(:ini, "errorRate", 0.02)]
+
+    require 'yaml'
+    File.open('config.yaml', 'w' ) do |out|
+      YAML.dump([factors, levels, actions], out)
+    end
+    [factors,levels,actions]
   end
   
   # Similar to above or  test case setup fn but in future do 
@@ -429,8 +443,7 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
     exename = `basename #{cwd}`.chomp
     runcount = @runCount.nil??10:@runCount
     
-    factors, levels = readConfigs
-    processActions(factors, levels)
+    factors, levels, @actions = readConfigs
 
     if @check
       checkRunResults(factors, levels, @runCount, basemodname)
@@ -881,7 +894,33 @@ END
                  "")
     
   end
-  
+
+  def test_yaml    
+    yamlLoad(yamlSave)
+  end
+
+  def yamlSave
+    require 'yaml'
+    factors,levels,actions = @app.generateConfig
+    [factors,levels,actions]
+  end
+
+  def yamlLoad(check)
+    File.open( 'config.yaml') do |f|
+      factors, levels, actions = YAML.load(f)
+      if false
+      p factors
+      puts "levels:"
+      p levels
+      puts "actions:"
+      p actions
+      end
+      assert_equal(check[0], factors)
+      assert_equal(check[1], levels)
+      assert_equal(check[2].keys.sort, actions.keys.sort)
+    end
+  end
+
   def setup
     @app = MultiConfigGenerator.new
     @factors = ["scheme", "dnet", "dmap", "ar"]

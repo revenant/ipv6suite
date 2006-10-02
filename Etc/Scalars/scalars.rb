@@ -60,6 +60,7 @@ class Scalars
     @module = "*"
     @print = false
     @pattern = "*.sca"
+    @config = nil
 
     get_options
 
@@ -116,6 +117,8 @@ class Scalars
         @scalars = scalars.split(",")
       }
 
+      opt.on("-C", "--config configfile", String, "Use the specified yaml file for configurations to generate"){|@config| @config = File.expand_path(@config) }
+
       opt.on("--print", "-p", "Print scalar names available for the specified set of modulename and node"){|@print|}
 
       opt.separator ""
@@ -149,6 +152,8 @@ class Scalars
       opt.parse!
     } or  exit(1);
 
+    raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test
+    
     if @quit
       pp self
       (print ARGV.options; exit) 
@@ -161,7 +166,7 @@ class Scalars
   def readConfigs
     require 'multiconfig'
     mcg = MultiConfigGenerator.new
-    factors, levels = mcg.readConfigs
+    factors, levels = mcg.readConfigs(@config)
     configNames = mcg.generateConfigNames(factors, levels)
     [configNames, factors, levels]
   end

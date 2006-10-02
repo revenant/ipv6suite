@@ -172,8 +172,11 @@ class MultiConfigGenerator
     @verbose  = false
     @quit     = false
     @check = nil
+    @runCount = nil
 
+if $0 == __FILE__ then
     get_options
+end
     
   rescue => err
     STDERR.puts usage
@@ -252,7 +255,7 @@ class MultiConfigGenerator
     
     
     raise ArgumentError, "No basename specified!!", caller[0] if ARGV.size < 1 and not $test
-    raise ArgumentError, "No runCount specified when checking log file!!", caller[0] if not @runCount and not $test
+    raise ArgumentError, "No runCount specified when checking log file!!", caller[0] if not @runCount and @check and not $test
     raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test
     
     if @quit
@@ -264,9 +267,9 @@ class MultiConfigGenerator
   
   # }}}
 
-  def readConfigs
+  def readConfigs(config=@config)
     require 'yaml'
-    File.open(@config) do |f|
+    File.open(config) do |f|
       factors, levels, actions = YAML.load(f)
     end
   end

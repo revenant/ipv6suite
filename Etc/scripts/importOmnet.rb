@@ -46,13 +46,12 @@ class ImportOmnet < RImportOmnet
   #
   def initialize
     super
-    get_options
   end  
 
   def readConfig
     require 'multiconfig'
     mcg = MultiConfigGenerator.new
-    @factors, @levels = mcg.readConfigs
+    @factors, @levels = mcg.readConfigs(@config)
   end
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)

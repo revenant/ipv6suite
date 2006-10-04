@@ -286,6 +286,7 @@ class RImportOmnet
     @printVectors = false #Print only vector names and quit
     @relevelSchemeOrder = nil
     @count = nil
+    @config = nil
 
     get_options
 
@@ -350,6 +351,9 @@ class RImportOmnet
 
       opt.on("-c", "--count skipcount", Integer, "number of files to skip before starting processing"){|@count|}
 
+      opt.on("-C", "--config configfile", String, "Use the specified yaml file for configurations to generate"){|@config| @config = File.expand_path(@config) }
+
+
       opt.separator ""
       opt.separator "Common options:"
 
@@ -388,6 +392,7 @@ class RImportOmnet
     } or  exit(1);
 
     raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1 and not $test
+    raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test and not $0 == __FILE__ 
 
     if @printVectors
       printVectorNames(ARGV[0])

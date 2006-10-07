@@ -88,7 +88,7 @@ private:
                            size_t hopLimit = 0);
 
   template <class ForwardIterator>
-  void ICMPv6Core::recordStats(ForwardIterator first, ForwardIterator last);
+  void recordStats(ForwardIterator first, ForwardIterator last);
 
   ///@name Ned Parameters
   //@{

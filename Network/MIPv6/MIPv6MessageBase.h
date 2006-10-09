@@ -29,7 +29,6 @@
 #include <vector>
 #include <omnetpp.h>
 
-#include "IPv6Datagram.h"
 #include "HdrExtProc.h"
 #include "MIPv6MobilityOptions_m.h"
 

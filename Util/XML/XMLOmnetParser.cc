@@ -404,15 +404,13 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   rt->mipv6Support = getNodeProperties(ne, "mobileIPv6Support") == XML_ON;
   if (rt->mobilitySupport() && version() >= 3)
   {
-    if (getNodeProperties(ne,"mobileIPv6Role") == string("HomeAgent"))
+    const std::string& role = getNodeProperties(ne,"mobileIPv6Role");
+    if ( role == string("HomeAgent"))
       rt->role = RoutingTable6::HOME_AGENT;
-    else if (getNodeProperties(ne,"mobileIPv6Role") == string("MobileNode"))
+    else if ( role == string("MobileNode"))
       rt->role = RoutingTable6::MOBILE_NODE;
     else
       rt->role = RoutingTable6::CORRESPONDENT_NODE;
-  }
-  else
-    rt->role = RoutingTable6::CORRESPONDENT_NODE;
 
   IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByName(rt, "mobility"));
@@ -444,26 +442,21 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   else
     mob->setEarlyBindingUpdate(false);
   
-  if (getNodeProperties(ne,"signalingEnhance") == string("Direct"))
+  const std::string& signalEnhance = getNodeProperties(ne,"signalingEnhance");
+  if ( signalEnhance == string("Direct"))
     mob->setSignalingEnhance(MobileIPv6::Direct);
-  else if (getNodeProperties(ne,"signalingEnhance") == string("CellResidency"))
+  else if (signalEnhance == string("CellResidency"))
     mob->setSignalingEnhance(MobileIPv6::CellResidency);
   else
     mob->setSignalingEnhance(MobileIPv6::None);
 
 #ifdef USE_HMIP
 
- if (version() < 5 || getNodeProperties(ne, "hierarchicalMIPv6Support") != XML_ON)
+  rt->hmipv6Support = getNodeProperties(ne, "hierarchicalMIPv6Support") == XML_ON;
+  if (version() < 5)
     rt->hmipv6Support = false;
-  else if (rt->mobilitySupport())
-    rt->hmipv6Support = true;
-  else
-  {
-    cerr << "HMIP Support cannot be activated without mobility support.\n";
-    abort_ipv6suite();
-  }
 
-  if (rt->mobilitySupport() && version() >= 3)
+  if (rt->hmipSupport())
   {
     if (getNodeProperties(ne, "map") == XML_ON)
     {
@@ -480,8 +473,6 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
     else
       rt->mapSupport = false;
   }
-  else
-    rt->role = RoutingTable6::CORRESPONDENT_NODE;
 
 #if EDGEHANDOVER
   string ehType;
@@ -496,6 +487,11 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 #endif //EDGEHANDOVER
 
 #endif //USE_HMIP
+
+  }
+  else
+    rt->role = RoutingTable6::CORRESPONDENT_NODE;
+
 
 #endif // USE_MOBILITY
 

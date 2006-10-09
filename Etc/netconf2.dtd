@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
           mobileIPv6Support (on|off) "off"
           mobileIPv6Role (None|HomeAgent|MobileNode) "None"
           routeOptimisation (on|off) "on"
-          returnRoutability (on|off) "off"
+          returnRoutability (on|off) "on"
           earlyBU (on|off) "off"
 	  signalingEnhance (None|Direct|CellResidency) "None"
           respondBindingRequest (on|off) "off"

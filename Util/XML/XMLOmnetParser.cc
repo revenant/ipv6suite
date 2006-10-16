@@ -411,6 +411,9 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
       rt->role = RoutingTable6::MOBILE_NODE;
     else
       rt->role = RoutingTable6::CORRESPONDENT_NODE;
+  }
+  else
+    rt->role = RoutingTable6::CORRESPONDENT_NODE;
 
   IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByName(rt, "mobility"));
@@ -452,11 +455,17 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 
 #ifdef USE_HMIP
 
-  rt->hmipv6Support = getNodeProperties(ne, "hierarchicalMIPv6Support") == XML_ON;
-  if (version() < 5)
+ if (version() < 5 || getNodeProperties(ne, "hierarchicalMIPv6Support") != XML_ON)
     rt->hmipv6Support = false;
+  else if (rt->mobilitySupport())
+    rt->hmipv6Support = true;
+  else
+  {
+    cerr << "HMIP Support cannot be activated without mobility support.\n";
+    abort_ipv6suite();
+  }
 
-  if (rt->hmipSupport())
+  if (rt->mobilitySupport() && version() >= 3)
   {
     if (getNodeProperties(ne, "map") == XML_ON)
     {
@@ -473,6 +482,8 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
     else
       rt->mapSupport = false;
   }
+  else
+    rt->role = RoutingTable6::CORRESPONDENT_NODE;
 
 #if EDGEHANDOVER
   string ehType;
@@ -487,11 +498,6 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
 #endif //EDGEHANDOVER
 
 #endif //USE_HMIP
-
-  }
-  else
-    rt->role = RoutingTable6::CORRESPONDENT_NODE;
-
 
 #endif // USE_MOBILITY
 

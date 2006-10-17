@@ -30,6 +30,7 @@ simple IPv6Encapsulation
         in: encapsulateRoutingIn;
         in: decapsulateLocalDeliverIn;
         in: mobilityIn;
+	in: encapsulatedSendIn;
         out: encapsulatedSendOut;
         out: decapsulatedPreRoutingOut;
 endsimple

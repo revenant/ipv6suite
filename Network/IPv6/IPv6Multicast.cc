@@ -1,6 +1,7 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -54,7 +55,6 @@
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "AddrResInfo_m.h"
-#include "IPv6Forward.h"
 #include "opp_utils.h"
 
 Define_Module( IPv6Multicast );
@@ -65,10 +65,6 @@ void IPv6Multicast::initialize()
     QueueBase::initialize();
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
-
-    fc = check_and_cast<IPv6Forward*> (
-      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
-    assert(fc != 0);
 
     ctrIP6InMcastPkts = 0;
 }
@@ -136,7 +132,7 @@ inline void IPv6Multicast::dupAndSendPacket(const IPv6Datagram* datagram, size_t
   IPv6Datagram* datagramCopy = datagram->dup();
   if (datagramCopy->srcAddress() == IPv6_ADDR_UNSPECIFIED)
   {
-    datagramCopy->setSrcAddress(fc->determineSrcAddress(
+    datagramCopy->setSrcAddress(rt->determineSrcAddress(
                               datagram->destAddress(), ifIndex));
      //Do determine SrcAddress if none exist
     if (datagramCopy->srcAddress() == IPv6_ADDR_UNSPECIFIED)

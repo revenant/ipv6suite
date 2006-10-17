@@ -44,7 +44,6 @@ struct ipv6_addr;
 
 class IPv6Datagram;
 class IPv6Mobility;
-class IPv6Forward;
 class IPv6Encapsulation;
 
 namespace HierarchicalMIPv6
@@ -127,8 +126,21 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   void recordHODelay(const simtime_t buRecvTime, ipv6_addr addr);
 
-  //return true if further processing of packet required
-  bool mnSendPacketCheck(IPv6Datagram& dgram, ::IPv6Forward* frwd);
+  /**
+     @brief RFC 3775 Sec. 11.3.1
+     @param dgram is datagram to be sent by this node
+     @param tunnel out parameter with true if dgram should be reversed tunnelled
+     @return true if should continue sending dgram otherwise drop
+  */
+  bool mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel);
+
+  /**
+     @brief sets datagrams without a src address to home address if conditions are right
+     @param dgram to be sent
+  */
+
+  void mnSrcAddrDetermination(IPv6Datagram* dgram);
+
 
  protected:
   ///handle Binding Acks according to draft 16 10.14

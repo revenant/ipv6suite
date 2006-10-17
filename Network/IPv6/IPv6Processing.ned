@@ -160,6 +160,7 @@ module IPv6Processing
         tunneling.encapsulatedSendOut --> send.tunnelIn;
         tunneling.decapsulatedPreRoutingOut --> preRouting.tunnelExit;
         tunneling.encapsulateRoutingIn <-- forwarding.tunnelEntry;
+	tunneling.encapsulatedSendIn <-- send.tunnelEntry;
         tunneling.decapsulateLocalDeliverIn <-- localDeliver.tunnelOut;
 
 

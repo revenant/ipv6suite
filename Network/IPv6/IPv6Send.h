@@ -45,6 +45,7 @@
 class IPv6Datagram;
 class InterfaceTable;
 class RoutingTable6;
+class IPv6Mobility;
 
 /**
  * @class IPv6Send
@@ -68,6 +69,7 @@ private:
 
   InterfaceTable *ift;
   RoutingTable6 *rt;
+  IPv6Mobility *mob;
 
   int defaultTimeToLive;
   int defaultMCTimeToLive;
@@ -77,6 +79,8 @@ private:
   // Routing the src address can change when routing header is encountered.
 
   unsigned int ctrIP6OutRequests;
+  unsigned int ctrIP6OutNoRoutes;
+
 };
 
 #endif

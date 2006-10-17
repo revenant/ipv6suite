@@ -2,6 +2,7 @@
 //
 // Copyright (C) 2000 Institut fuer Telematik, Universitaet Karlsruhe
 // Copyright (C) 2001 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -45,7 +46,6 @@
 #include "QueueBase.h"
 
 class IPv6Datagram;
-class IPv6Forward;
 struct ipv6_addr;
 class RoutingTable6;
 class InterfaceTable;
@@ -72,7 +72,6 @@ private:
 
   InterfaceTable *ift;
   RoutingTable6 *rt;
-  IPv6Forward* fc;
 
   unsigned int ctrIP6InMcastPkts;
 };

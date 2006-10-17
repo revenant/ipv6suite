@@ -39,7 +39,6 @@
 #include "opp_utils.h"
 #include "InterfaceTableAccess.h"
 #include "RoutingTable6Access.h" //required for counters only
-#include "IPv6Forward.h"
 
 #ifdef TESTIPv6
 #undef NDEBUG
@@ -69,9 +68,6 @@ void ICMPv6Core::initialize()
   replyToICMPRequests = par("replyToICMPRequests");
   icmpRecordStart = par("icmpRecordStart");
 
-  fc = check_and_cast<IPv6Forward*> (
-    OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
-  assert(fc != 0);
   ctrIcmp6OutEchoReplies = 0;
   ctrIcmp6InMsgs = 0;
   ctrIcmp6InEchos = ctrIcmp6InEchoReplies = 0;
@@ -400,7 +396,7 @@ void ICMPv6Core::processEchoRequest (ICMPv6Message *request, const ipv6_addr& sr
   ipv6_addr src1 = src;
   if (dest.isMulticast())
   {
-    src1 = fc->determineSrcAddress(src, inputPort);
+    src1 = rt->determineSrcAddress(src, inputPort);
     if (src1 == IPv6_ADDR_UNSPECIFIED)
     {
       delete request;

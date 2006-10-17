@@ -276,7 +276,8 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
 
 
   if (!strcmp(dgram->arrivalGate()->name(), "encapsulateRoutingIn") ||
-      !strcmp(dgram->arrivalGate()->name(), "mobilityIn"))
+      !strcmp(dgram->arrivalGate()->name(), "mobilityIn")||
+      !strcmp(dgram->arrivalGate()->name(), "encapsulatedSendIn"))
   {
     auto_ptr<IPv6Datagram> origDgram(dgram);
 

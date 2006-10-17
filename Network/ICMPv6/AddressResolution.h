@@ -20,7 +20,6 @@
 
 
 class IPv6Datagram;
-class IPv6Forward;
 class RoutingTable6;
 class InterfaceTable;
 
@@ -75,10 +74,10 @@ class AddressResolution : public cSimpleModule
   ///Pending Packet Queue for packets awaiting addr res
   PendingPacketQ ppq;
   NDARTimers tmrs;
-  IPv6Forward* fc;
 
   unsigned int ctrIcmp6OutNgbrAdv;
   unsigned int ctrIcmp6OutNgbrSol;
+  unsigned int ctrIP6OutNoRoutes;
 
   cModule** outputMod;
   static unsigned int outputUnicastGate;

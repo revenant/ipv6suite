@@ -56,6 +56,8 @@ class InterfaceTable;
 class InterfaceEntry;
 class cTimerMessage;
 class IPv6Address;
+class AddrResInfo; 
+class IPv6Datagram;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -186,6 +188,17 @@ public:
 
   ////Determine if the address is a local one, ie for delivery to localhost
   bool localDeliver(const ipv6_addr& dest);
+
+  /**
+     @return -1 if destination is not in routing table; -2 if packets are pending addr res. 0 if no address resolution required.
+     @param dgram destination address in dgram is used
+     @param info out parameter assigned with the link local address and ifIndex information
+
+  */
+  int conceptualSending(IPv6Datagram *dgram, AddrResInfo *info);
+
+  ///Return the src address for a packet going out on ifIndex to dest
+  ipv6_addr determineSrcAddress(const ipv6_addr& dest, size_t ifIndex);
 
   //@}
 

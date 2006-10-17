@@ -45,6 +45,7 @@
 #include "ExpiryEntryListSignal.h"
 #include "NDTimers.h"
 #include "NDEntry.h"
+#include "AddrResInfo_m.h"
 #include "IPv6Datagram.h"
 #include "NeighbourDiscovery.h" //Tmr_AddrConf message_id
 #include "IPv6Encapsulation.h"
@@ -52,6 +53,7 @@
 #include "IPv6CDS.h"
 #include "MLD.h"
 #include "IPv6InterfaceData.h"
+#include "IRouterList.h" //conceptualSending
 
 #ifdef USE_MOBILITY
 #include "MIPv6CDSMobileNode.h"
@@ -763,6 +765,188 @@ void RoutingTable6::leaveMulticastGroup(const ipv6_addr& addr)
     }
   }
 }
+
+/**
+   Based on Conceptual Sending Algorithm described in Sec. 5.2 of RFC2461
+
+   info.outputPort = UINT_MAX;
+   Notify address resolution to occur on all interfaces i.e. don't know
+   which link this address could be on
+*/
+
+int RoutingTable6::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
+{
+  // Conceptual Sending Algorithm
+  using boost::weak_ptr;
+  using IPv6NeighbourDiscovery::IRouterList;
+
+  weak_ptr<NeighbourEntry> ne;
+
+  if (isRouter())
+    ne = cds->lookupDestination(dgram->destAddress());
+  else
+    ne = cds->neighbour(dgram->destAddress());
+
+  if (ne.lock().get() == 0)
+  {
+    // Next Hop determination
+    unsigned int tmpIfIndex = info->ifIndex();
+    if (cds->lookupAddress(dgram->destAddress(),tmpIfIndex))
+    {
+      info->setIfIndex(tmpIfIndex);
+      // destination address of the packet is onlink
+
+      //Do Address Resolution from this interface (info->ifIndex())
+      info->setNextHop(dgram->destAddress());
+      return -2;
+    }
+    // destination address of the packet is offlink
+    else
+    {
+      info->setIfIndex(tmpIfIndex);
+      ne = cds->defaultRouter();
+
+      // check to see if the router entry exists
+      if(ne.lock().get() != 0)
+      {
+        //Save this route to dest in DC
+        (*cds)[dgram->destAddress()].neighbour = ne;
+        Dout(dc::forwarding, nodeName()<<" Using default router addr="<<ne.lock()->addr()<<" for dest="
+             <<dgram->destAddress()<<" ne="<<*(ne.lock().get()));
+        if (ne.lock()->addr() == dgram->srcAddress())
+        {
+          cerr<< nodeName()<<" default router of destination points back to source! "
+              <<*(static_cast<IRouterList*>(cds))<<endl;
+          Dout(dc::warning, nodeName()<<" default router of destination points back to source! "
+               <<*(static_cast<IRouterList*>(cds)));
+        }
+      }
+      else
+      {
+
+        if (ift->numInterfaceGates() > 1)
+          //Signify to addr res to occur on all interfaces
+          info->setIfIndex(UINT_MAX);
+        else
+          info->setIfIndex(0);
+
+        info->setNextHop(dgram->destAddress());
+
+        Dout(dc::forwarding, "No default router assuming dest="<<dgram->destAddress()
+             <<" is on link."<<"Performing "
+             <<(info->ifIndex() != 0?
+                "promiscuous addr res":
+                "plain addr res on single iface=")<<info->ifIndex());
+
+        // no route to dest -1 (promiscuous addr res) or do plain addr res -2
+        return info->ifIndex() != 0?-1:-2;
+      }
+
+    }
+  }
+  else if (!isRouter())
+    Dout(dc::forwarding, " Found dest "<<dgram->destAddress()<<" in Dest Cache next hop="
+         <<ne.lock()->addr());
+
+  //Assume neighbour is reachable and use precached info
+  info->setNextHop(ne.lock().get()->addr());
+  info->setIfIndex(ne.lock().get()->ifIndex());
+
+  //Neighbour exists check state that neighbour is in
+  if (ne.lock().get()->state() == NeighbourEntry::INCOMPLETE)
+    //Pass dgram to addr resln to queue pending packet
+    return -2;
+
+  //TODO
+  if (ne.lock().get()->state() == NeighbourEntry::STALE)
+  {
+    //Initiate NUD timer to go to DELAY state & subsequently PROBE if
+    //no indication of reachability (refer to RFC 2461 Sec. 7.3.2
+
+    //Probably best to return an indication of this so RoutingCore starts the
+    //timer or send a message to ND to initiate NUD
+
+    Dout(dc::debug, nodeName()<<":"<<info->ifIndex()<<" -- Reachability to "
+         << info->nextHop() <<" STALE");
+  }
+
+  info->setLinkLayerAddr(ne.lock().get()->linkLayerAddr().c_str());
+
+  return 0;
+} //end conceptualSending
+
+/**
+ *    Choose an apropriate source address
+ *    should do:
+ *    i)   get an address with an apropriate scope
+ *    ii)  see if there is a specific route for the destination and use
+ *         an address of the attached interface
+ *    iii) don't use deprecated addresses or Expired Addresses TODO
+ */
+
+ipv6_addr RoutingTable6::determineSrcAddress(const ipv6_addr& dest, size_t ifIndex)
+{
+  ipv6_addr::SCOPE destScope = ipv6_addr_scope(dest);
+
+  assert(dest != IPv6_ADDR_UNSPECIFIED);
+  if (dest == IPv6_ADDR_UNSPECIFIED)
+    return IPv6_ADDR_UNSPECIFIED;
+
+  //ifIndex == UINT_MAX can only mean No default Router so assume dest is onlink
+  //and return any link local address on the default Interface.  Address Res
+  //will find the correct iface and the subsequent source Address
+  if (ifIndex == UINT_MAX && cds->defaultRouter().lock().get() == 0)
+  {
+    if (ift->interfaceByPortNo(0)->ipv6()->inetAddrs.size() == 0)
+    {
+      cerr <<nodeId()<<" "<<ift->interfaceByPortNo(ifIndex)->name()
+           <<" is not ready (no addresses assigned"<<endl;
+      Dout(dc::mipv6, nodeName()<<" "<<ift->interfaceByPortNo(ifIndex)->name()
+           <<" is not ready (no addresses assigned");
+
+      if (odad())
+      {
+        if (ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs.size())
+        {
+          Dout(dc::custom, nodeName()<<":"<<ifIndex<<" "<<simTime()
+               <<" determineSrcAddress no default rtr case ODAD is on using tentative addr="
+               << ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0]);
+          return ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0];
+        }
+      }
+
+      return IPv6_ADDR_UNSPECIFIED;
+    }
+    else
+      return ift->interfaceByPortNo(0)->ipv6()->inetAddrs[0];
+  }
+
+  InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
+
+  for (size_t i = 0; i < ie->ipv6()->inetAddrs.size(); i++)
+    if (ie->ipv6()->inetAddrs[i].scope() == destScope)
+      return ie->ipv6()->inetAddrs[i];
+
+  if (odad())
+  {
+    for (size_t i = 0; i < ie->ipv6()->tentativeAddrs.size(); i++)
+      if (ie->ipv6()->tentativeAddrs[i].scope() == destScope)
+      {
+        Dout(dc::custom, nodeName()<<":"<<ifIndex<<" "<<simTime()
+             <<" determineSrcAddress using ODAD addr="
+             << ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs[0]);
+        return ie->ipv6()->tentativeAddrs[i];
+      }
+  }
+
+#if !defined NOIPMASQ
+  //Perhaps allow return of src addresses with diff scope to allow for case of
+  //"IP MASQ".
+  return ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size() - 1];
+#else
+  return IPv6_ADDR_UNSPECIFIED;
+#endif //!NOIPMASQ
+} //end determineSrcAddress
 
 void  RoutingTable6::setForwardPackets(bool forward)
 {

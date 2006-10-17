@@ -30,5 +30,6 @@ class AddrResInfo
     ipv6_addr nextHop;
     unsigned int ifIndex;
     string linkLayerAddr;
+    int status;
 };
 

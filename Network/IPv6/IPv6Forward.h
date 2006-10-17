@@ -1,6 +1,7 @@
 // -*- C++ -*-
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -44,11 +45,11 @@
 #include <functional>
 
 #include "ipv6_addr.h"
-#include "IPv6Datagram.h"
 #include "QueueBase.h"
 
 class RoutingTable6;
 class InterfaceTable;
+class IPv6Datagram;
 
 //The last route is always the dest
 typedef vector<ipv6_addr> _SrcRoute;
@@ -71,7 +72,6 @@ public:
  * @brief Process datagrams and determine where they go
  */
 class ICMPv6Message;
-class AddrResInfo; //remove this dependency when conceptual sending is removed
 class RoutingTable6;
 class IPv6Encapsulation;
 class IPv6Mobility;
@@ -95,26 +95,7 @@ public:
 
   void addSrcRoute(const SrcRoute& routes);
 
-  /**
-     Return the interface index to send the packets with dest as
-     destination address.
-     @param info is assigned with the link local address and ifIndex too
-     -1 if destination is not in routing table
-     -2 if packets are pending addr res
-  */
-  //migrate to Routing
-  int conceptualSending(IPv6Datagram *dgram, AddrResInfo *info);
-
-  ///Return the src address for a packet going out on ifIndex to dest
-  //migrate to Routing?
-  ipv6_addr determineSrcAddress(const ipv6_addr& dest, size_t ifIndex);
-
   bool insertSourceRoute(IPv6Datagram& datagram);
-
-  ////Determine if the address is a local one, ie for delivery to localhost
-  //bool localDeliver(const ipv6_addr& dest);
-
-  unsigned int ctrIP6OutNoRoutes;
 
   //par from ini file
   bool routingInfoDisplay;

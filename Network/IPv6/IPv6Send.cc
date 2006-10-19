@@ -40,27 +40,41 @@
 #include "sys.h"
 #include "debug.h"
 
-#include <omnetpp.h>
-#include <cstdlib>
-#include <cstring>
 #include <boost/cast.hpp>
-
+#include <boost/bind.hpp>
 
 #include "IPv6Send.h"
+#include "opp_utils.h" //getParser
+#include "XMLOmnetParser.h"
 #include "IPv6Datagram.h"
 #include "IPv6ControlInfo_m.h"
-#include "ipv6addrconv.h"
+#include "ipv6addrconv.h" //ipv6/ipv4 addr trans
 #include "HdrExtRteProc.h"
 #include "InterfaceTableAccess.h"
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
 #include "IPv6Mobility.h"
-#include "MIPv6MStateMobileNode.h"
 #include "AddrResInfo_m.h"
 #include "IPv6CDS.h"
+#include "MIPv6MStateMobileNode.h"
 #include "MIPv6CDSMobileNode.h"
 
 Define_Module( IPv6Send );
+
+std::ostream& operator<<(std::ostream& os, SrcRoute& route)
+{
+  copy(route->begin(), route->end(), ostream_iterator<
+       _SrcRoute::value_type>(os, " >>\n"));
+  /*
+  _SrcRoute* sr = route.get();
+  typedef _SrcRoute::iterator SRI;
+  os<<"start";
+  for (SRI it = sr->begin(); it != sr->end();it++)
+    os<<*it<<" ";
+  os<<endl;
+  */
+  return os;
+}
 
 void IPv6Send::initialize()
 {
@@ -74,8 +88,81 @@ void IPv6Send::initialize()
   ctrIP6OutRequests = 0;
   mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
+
+  parseSourceRoutes();
+
+  WATCH_MAP(routes);
+
 }
 
+/*
+  @brief Test for a preconfigured source route to a destination and insert an
+  appropriate routing header
+ */
+bool IPv6Send::insertSourceRoute(IPv6Datagram& datagram)
+{
+  SRI srit = routes.find(datagram.destAddress());
+  if (srit != routes.end() &&
+      rt->localDeliver(datagram.srcAddress()) &&
+      !datagram.findHeader(EXTHDR_ROUTING))
+  {
+    HdrExtRteProc* proc = datagram.acquireRoutingInterface();
+    HdrExtRte* rt0 = proc->routingHeader();
+    if(!rt0)
+    {
+      rt0 = new HdrExtRte;
+      proc->addRoutingHeader(rt0);
+    }
+
+    const SrcRoute& route = srit->second;
+    for_each(route->begin()+1, route->end(),
+	     boost::bind(&HdrExtRte::addAddress, rt0, _1));
+    assert(datagram.destAddress() == *(route->rbegin()));
+    datagram.setDestAddress(*(route->begin()));
+    return true;
+  }
+  return false;
+}
+
+void IPv6Send::parseSourceRoutes()
+{
+  typedef cXMLElementList::iterator NodeIt;
+
+  XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
+  cXMLElement* netNode = p->getNetNode(rt->nodeName());
+
+  cXMLElement* nsource = netNode->getElementByPath("./sourceRoute");
+  if (!nsource)
+  {
+    Dout(dc::debug|dc::forwarding, "No source routes for "<<rt->nodeName()
+         <<" in XML config");
+    return;
+  }
+  else
+    Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in sourceRoute");
+
+  cXMLElementList sres = nsource->getChildrenByTagName("sourceRouteEntry");
+  for (NodeIt it = sres.begin();it != sres.end();it++)
+  {
+    cXMLElement* nsre = *it;
+    cXMLElementList nextHops = nsre->getChildrenByTagName("nextHop");
+    size_t nextHopCount = nextHops.size();
+    SrcRoute route(new _SrcRoute(nextHopCount + 1, IPv6_ADDR_UNSPECIFIED));
+    (*route)[nextHopCount] = c_ipv6_addr(p->getNodeProperties(nsre, "finalDestination").c_str());
+
+    NodeIt nextIt = nextHops.begin();
+    for ( size_t j = 0 ; j < nextHopCount; nextIt++, j++)
+    {
+      cXMLElement* nnh = *nextIt;
+      (*route)[j] = c_ipv6_addr(p->getNodeProperties(nnh, "address").c_str());
+    }
+
+    routes[*route->rbegin()] = route;
+  }
+}
+
+///sends datagram from transport or 3.5 layer onto forwarding module only
+///Neighbour Discovery and Mobility skips this
 void IPv6Send::endService(cMessage* msg)
 {
   IPv6Datagram *datagram = encapsulatePacket(msg);
@@ -84,6 +171,7 @@ void IPv6Send::endService(cMessage* msg)
   auto_ptr<IPv6Datagram> cleanup(datagram);
 
 // {{{ Process outgoing packet for MIP6 
+
 //binding exists for dest then swap dest==hoa to coa
 
   if (rt->mobilitySupport())
@@ -114,6 +202,8 @@ void IPv6Send::endService(cMessage* msg)
 
 // }}}
 
+  insertSourceRoute(*datagram);
+
   AddrResInfo* info = new AddrResInfo;
   rt->conceptualSending(datagram, info);
   datagram->setControlInfo(info);
@@ -127,6 +217,7 @@ void IPv6Send::endService(cMessage* msg)
   }
 
 // {{{ Drop packets with src addresses that are not ready yet
+
   if (rt->mobilitySupport())
   {
     MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
@@ -185,6 +276,7 @@ void IPv6Send::endService(cMessage* msg)
       }
     }
   }
+
 // }}}
 
 // {{{ unspecified src addr so drop

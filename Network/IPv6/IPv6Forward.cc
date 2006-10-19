@@ -40,10 +40,7 @@
 
 
 #include <iomanip> //setprecision
-#include <iterator> //ostream_iterator
-#include <omnetpp.h>
 #include <boost/cast.hpp>
-#include <boost/bind.hpp>
 
 #include "IPv6Forward.h"
 #include "InterfaceTableAccess.h"
@@ -55,28 +52,14 @@
 #include "opp_utils.h"  // for int/double <==> string conversions
 #include "NDEntry.h"
 #include "AddrResInfo_m.h"
-#include "HdrExtRteProc.h"
 #include "IPv6InterfaceData.h"
 #include "IPv6CDS.h"
 
+
 #ifdef USE_MOBILITY
 #include "MIPv6CDSMobileNode.h"
-#include "MIPv6Entry.h"
-#include "HdrExtDestProc.h"
-#include "MIPv6DestOptMessages.h"
-#include "MIPv6MNEntry.h" //bu_entry
-#include "IPv6Encapsulation.h"
-#include "MIPv6MessageBase.h"
-#include "MIPv6MStateCorrespondentNode.h"
-#include "MIPv6MStateMobileNode.h"
-#ifdef USE_HMIP
-#include "HMIPv6CDSMobileNode.h"
-#ifdef EDGEHANDOVER
-#include "EHCDSMobileNode.h"
-#include "HMIPv6Entry.h"
-#endif //EDGEHANDOVER
-#endif //USE_HMIP
 #endif //#ifdef USE_MOBILITY
+
 
 ///For redirect. Its overkill but sendDirect would still require many mods too
 ///in terms of thinking how to pass a dgram in when it expects all to be
@@ -95,17 +78,6 @@ using boost::weak_ptr;
 
 Define_Module( IPv6Forward );
 
-std::ostream& operator<<(std::ostream& os, SrcRoute& route)
-{
-  _SrcRoute* sr = route.get();
-  typedef _SrcRoute::iterator SRI;
-  os<<"start";
-  for (SRI it = sr->begin(); it != sr->end();it++)
-    os<<*it<<" ";
-  os<<endl;
-  return os;
-}
-
 void IPv6Forward::initialize(int stage)
 {
   if (stage == 0)
@@ -114,22 +86,10 @@ void IPv6Forward::initialize(int stage)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
-    mob = boost::polymorphic_downcast<IPv6Mobility*>
-      (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
-    assert(mob != 0);
-
     ctrIP6InAddrErrors = 0;
 
     routingInfoDisplay = par("routingInfoDisplay");
 
-    WATCH_MAP(routes);
-
-#ifdef USE_MOBILITY
-    tunMod = check_and_cast<IPv6Encapsulation*>
-      (OPP_Global::findModuleByName(this, "tunneling")); // XXX try to get rid of pointers to other modules --AV
-    assert(tunMod != 0);
-
-#endif //USE_MOBILITY
   }
   //numInitStages needs to be after creation of ND state in NeighbourDiscovery
   //which happens at 3rd stage
@@ -194,18 +154,17 @@ void IPv6Forward::endService(cMessage* theMsg)
 // }}}
 
 
-
-  insertSourceRoute(*datagram);
-
 // {{{ tunnel via dest addr using CDS::findDestEntry
 
 #if !defined NOINGRESSFILTERING
   //Cannot use the result of conceptual sending i.e. ifIndex because at that
-  //stage dgrams with link local addresses are dropped.  Thus this disables a
-  //form of "IP Masq" via tunneling at the gateways.  Otherwise this check is
-  //not required here at all and a test for vIfIndex from result of conceptual
-  //sending is sufficient to trigger a tunnel. (Actually is it required for
-  //prefixed tunnel matches see TunnelNet example with prefixed dest trigger?)
+  //stage dgrams with link local addresses are dropped.  They are dropped at
+  //processReceived.  Thus this disables a form of "IP Masq" via tunneling at
+  //the gateways.  Otherwise this check is not required here at all and a test
+  //for vIfIndex from result of conceptual sending is sufficient to trigger a
+  //tunnel. This code required for TunnelNet -r 1 but not the prefixed matches
+  //-r 2 because only run 1 uses link local addr
+
   IPv6NeighbourDiscovery::IPv6CDS::DCI it;
   //Want to do this for received packets only otherwise the trigger on cn
   //address will prevent hoa option from been attached to packets sent to CN
@@ -230,6 +189,7 @@ void IPv6Forward::endService(cMessage* theMsg)
     {
       Dout(dc::encapsulation|dc::forwarding|dc::debug|flush_cf, rt->nodeName()
            <<" Found tunnel vifIndex ="<<hex<<it->second.neighbour.lock().get()->ifIndex() <<dec);
+
       IPv6Datagram* copy = datagram->dup();
       copy->setOutputPort(ne->ifIndex());
       send(copy, "tunnelEntry");
@@ -373,55 +333,6 @@ void IPv6Forward::finish()
   recordScalar("IP6InAddrErrors", ctrIP6InAddrErrors);
 }
 
-
-std::ostream& operator<<(std::ostream & os,  IPv6Forward& routeMod)
-{
-  for (IPv6Forward::SRI it = routeMod.routes.begin();
-       it != routeMod.routes.end(); it++)
-  {
-    os << "Source route to dest "<<it->first<<" via intermediate hop"<<endl;
-    copy(it->second->begin(), it->second->end(), ostream_iterator<
-         _SrcRoute::value_type>(os, " >>\n"));
-//    os << *(it->second.end()-1)<<endl;
-  }
-  return os;
-}
-
-///Route is searched according to final dest (last address in SrcRoute).  The
-///src address of packet is used to determine outgoing iface.
-void IPv6Forward::addSrcRoute(const SrcRoute& route)
-{
-  routes[*route->rbegin()] = route;
-}
-
-/*
-  @brief Test for a preconfigured source route to a destination and insert an
-  appropriate routing header
- */
-bool IPv6Forward::insertSourceRoute(IPv6Datagram& datagram)
-{
-  SRI srit = routes.find(datagram.destAddress());
-  if (srit != routes.end() &&
-      rt->localDeliver(datagram.srcAddress()) &&
-      !datagram.findHeader(EXTHDR_ROUTING))
-  {
-    HdrExtRteProc* proc = datagram.acquireRoutingInterface();
-    HdrExtRte* rt0 = proc->routingHeader();
-    if(!rt0)
-    {
-      rt0 = new HdrExtRte;
-      proc->addRoutingHeader(rt0);
-    }
-
-    const SrcRoute& route = srit->second;
-    for_each(route->begin()+1, route->end(),
-	     boost::bind(&HdrExtRte::addAddress, rt0, _1));
-    assert(datagram.destAddress() == *(route->rbegin()));
-    datagram.setDestAddress(*(route->begin()));
-    return true;
-  }
-  return false;
-}
 
 bool IPv6Forward::processReceived(IPv6Datagram& datagram)
 {

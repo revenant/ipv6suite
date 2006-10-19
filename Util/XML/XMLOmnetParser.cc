@@ -45,7 +45,6 @@
 #include "RoutingTable6.h"
 #include "opp_utils.h"
 #include "IPv6Encapsulation.h" // XXX WHY????? --AV
-#include "IPv6Forward.h" // XXX WHY????? --AV
 #include "IPv6CDS.h"
 #include "MACAddress6.h"
 
@@ -304,49 +303,6 @@ void XMLOmnetParser::tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt)
     Dout(dc::finish, "-|");
 
   } //end for tunnelEntries
-
-  sourceRoute(ift, rt);
-
-}
-
-void XMLOmnetParser::sourceRoute(InterfaceTable *ift, RoutingTable6 *rt)
-{
-  using namespace OPP_Global;
-  IPv6Forward* forwardMod = check_and_cast<IPv6Forward*>
-    (findModuleByTypeDepthFirst(rt, "IPv6Forward"));
-  //Even though downcast detects incorrect downcasts it still allows casting 0
-  //down to anything
-  assert(forwardMod != 0);
-
-  cXMLElement* netNode = getNetNode(rt->nodeName());
-
-  cXMLElement* nsource = netNode->getElementByPath("./sourceRoute");
-  if (!nsource)
-  {
-    Dout(dc::debug|dc::forwarding, "No source routes for "<<rt->nodeName()
-         <<" in XML config");
-    return;
-  }
-  else
-    Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in sourceRoute");
-
-  cXMLElementList sres = nsource->getChildrenByTagName("sourceRouteEntry");
-  for (NodeIt it = sres.begin();it != sres.end();it++)
-  {
-    cXMLElement* nsre = *it;
-    cXMLElementList nextHops = nsre->getChildrenByTagName("nextHop");
-    size_t nextHopCount = nextHops.size();
-    SrcRoute route(new _SrcRoute(nextHopCount + 1, IPv6_ADDR_UNSPECIFIED));
-    (*route)[nextHopCount] = c_ipv6_addr(getNodeProperties(nsre, "finalDestination").c_str());
-
-    NodeIt nextIt = nextHops.begin();
-    for ( size_t j = 0 ; j < nextHopCount; nextIt++, j++)
-    {
-      cXMLElement* nnh = *nextIt;
-      (*route)[j] = c_ipv6_addr(getNodeProperties(nnh, "address").c_str());
-    }
-    forwardMod->addSrcRoute(route);
-  }
 
 }
 

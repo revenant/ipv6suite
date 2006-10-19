@@ -146,7 +146,6 @@ void parseRandomWPInfoDetail(MobilityRandomWP* mod, cXMLElement* movenode);
  private:
 
   void tunnelConfiguration(InterfaceTable *ift, RoutingTable6 *rt);
-  void sourceRoute(InterfaceTable *ift, RoutingTable6 *rt);
 
   /// parse node level attributes
   void parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne);

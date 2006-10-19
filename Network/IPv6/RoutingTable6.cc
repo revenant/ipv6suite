@@ -798,7 +798,8 @@ int RoutingTable6::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
 
       //Do Address Resolution from this interface (info->ifIndex())
       info->setNextHop(dgram->destAddress());
-      return -2;
+      info->setStatus(-2);
+      return info->status();
     }
     // destination address of the packet is offlink
     else
@@ -839,7 +840,8 @@ int RoutingTable6::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
                 "plain addr res on single iface=")<<info->ifIndex());
 
         // no route to dest -1 (promiscuous addr res) or do plain addr res -2
-        return info->ifIndex() != 0?-1:-2;
+        info->setStatus(info->ifIndex() != 0?-1:-2);
+	return info->status();
       }
 
     }
@@ -854,8 +856,11 @@ int RoutingTable6::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
 
   //Neighbour exists check state that neighbour is in
   if (ne.lock().get()->state() == NeighbourEntry::INCOMPLETE)
+  {
     //Pass dgram to addr resln to queue pending packet
-    return -2;
+    info->setStatus(-2);
+    return info->status();
+  }
 
   //TODO
   if (ne.lock().get()->state() == NeighbourEntry::STALE)
@@ -872,7 +877,8 @@ int RoutingTable6::conceptualSending(IPv6Datagram *dgram, AddrResInfo *info)
 
   info->setLinkLayerAddr(ne.lock().get()->linkLayerAddr().c_str());
 
-  return 0;
+  info->setStatus(0);
+  return info->status();
 } //end conceptualSending
 
 /**

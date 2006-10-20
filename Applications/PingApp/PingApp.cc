@@ -26,6 +26,8 @@
 #include "PingPayload_m.h"
 #include "IPControlInfo_m.h"
 #include "IPv6ControlInfo_m.h"
+#include "IPv6Utils.h" //printRoutingInfo
+#include <sstream>
 
 using std::cout;
 
@@ -229,20 +231,27 @@ void PingApp::finish()
 
     delayStat.recordScalar("Ping roundtrip delays");
 
+    std::ostringstream str;
     // print it to stdout as well
-    cout << "--------------------------------------------------------" << endl;
-    cout << "\t" << fullPath() << endl;
-    cout << "--------------------------------------------------------" << endl;
+    str << "--------------------------------------------------------" << endl;
+    str << "\t" << fullPath() << endl;
+    str << "--------------------------------------------------------" << endl;
 
-    cout << "sent: " << (double)sendSeqNo
+    str << "sent: " << (double)sendSeqNo
          << "   drop rate (%): " << (100 * dropCount / (double)sendSeqNo) << endl;
-    cout << "round-trip min/avg/max (ms): "
+    str << "round-trip min/avg/max (ms): "
          << (delayStat.min()*1000.0) << "/"
          << (delayStat.mean()*1000.0) << "/"
          << (delayStat.max()*1000.0) << endl;
-    cout << "stddev (ms): "<< (delayStat.stddev()*1000.0)
+    str << "stddev (ms): "<< (delayStat.stddev()*1000.0)
          << "   variance:" << delayStat.variance() << endl;
-    cout <<"--------------------------------------------------------" << endl;
+    str <<"--------------------------------------------------------" << endl;
+
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    cout<<str.str();
+    os<<str.str();
+    //without this flush the previous line has no effect on the output file!!!!
+    os.flush();
 }
 
 

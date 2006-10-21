@@ -132,7 +132,11 @@ void IPv6Send::parseSourceRoutes()
 
   XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
   cXMLElement* netNode = p->getNetNode(rt->nodeName());
-
+  if (!netNode)
+  {
+    Dout(dc::warning, rt->nodeName()<<" no XML configuration found");
+    return;
+  }
   cXMLElement* nsource = netNode->getElementByPath("./sourceRoute");
   if (!nsource)
   {

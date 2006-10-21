@@ -25,16 +25,7 @@ The next two hops to reach Router C are router B and D. On Router D the reverse 
 is set up using the same mechanism so that the flow of packets follows a figure of 8
 pattern through the four routers.
 
-
-Latest gcc 3.4.4
---------------------------------------------------------
-        tunnelNet.client.pingApp
---------------------------------------------------------
-sent: 70   drop rate (%): 0
-round-trip min/avg/max (ms): 0.0344/0.0347771/0.0608
-stddev (ms): 0.0031554   variance:9.95657e-12
---------------------------------------------------------
-gcc 4.0.3
+gcc 4.0.3/4.1.1
 --------------------------------------------------------
         tunnelNet.client.pingApp
 --------------------------------------------------------
@@ -76,4 +67,14 @@ round-trip min/avg/max (ms): 0.67048/0.675309/1.00848
 stddev (ms): 0.0403987   variance:1.63206e-09
 --------------------------------------------------------
 
+Run 3 uses source routing only 
+Probably close to original test case for source route. Source route defined at
+the mn and the route travelled is obviously suboptimal
 
+--------------------------------------------------------
+        tunnelNet.client.pingApp
+--------------------------------------------------------
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.0344/0.03484/0.0652
+stddev (ms): 0.0036813   variance:1.3552e-11
+--------------------------------------------------------

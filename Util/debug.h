@@ -107,6 +107,7 @@ namespace simulacrum {       // >
         extern ::libcwd::channel_ct xml_addresses;
         extern ::libcwd::channel_ct routing;
         extern ::libcwd::channel_ct forwarding;
+        extern ::libcwd::channel_ct send;
         extern ::libcwd::channel_ct encapsulation;
         extern ::libcwd::channel_ct prefix_timer;
         extern ::libcwd::channel_ct address_timer;
@@ -141,6 +142,7 @@ namespace simulacrum {       // >
         extern const char* ch_XMLAddress;
         extern const char* ch_Routing;
         extern const char* ch_Forwarding;
+        extern const char* ch_Send;
         extern const char* ch_Encapsulation;
         extern const char* ch_PrefixTimer;
         extern const char* ch_AddressTimer;

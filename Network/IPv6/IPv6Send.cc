@@ -103,7 +103,6 @@ bool IPv6Send::insertSourceRoute(IPv6Datagram& datagram)
 {
   SRI srit = routes.find(datagram.destAddress());
   if (srit != routes.end() &&
-      rt->localDeliver(datagram.srcAddress()) &&
       !datagram.findHeader(EXTHDR_ROUTING))
   {
     HdrExtRteProc* proc = datagram.acquireRoutingInterface();
@@ -113,11 +112,14 @@ bool IPv6Send::insertSourceRoute(IPv6Datagram& datagram)
       rt0 = new HdrExtRte;
       proc->addRoutingHeader(rt0);
     }
-
+   Dout(dc::send, "source route triggered at "<<rt->nodeName()<<" on dgram="
+	<<datagram);
     const SrcRoute& route = srit->second;
     for_each(route->begin()+1, route->end(),
 	     boost::bind(&HdrExtRte::addAddress, rt0, _1));
     assert(datagram.destAddress() == *(route->rbegin()));
+   Dout(dc::send, "source route added for "<<rt->nodeName()<<" dgram="
+	 <<datagram<<" route="<<route);
     datagram.setDestAddress(*(route->begin()));
     return true;
   }
@@ -134,7 +136,7 @@ void IPv6Send::parseSourceRoutes()
   cXMLElement* nsource = netNode->getElementByPath("./sourceRoute");
   if (!nsource)
   {
-    Dout(dc::debug|dc::forwarding, "No source routes for "<<rt->nodeName()
+    Dout(dc::send, "No source routes for "<<rt->nodeName()
          <<" in XML config");
     return;
   }
@@ -235,7 +237,7 @@ void IPv6Send::endService(cMessage* msg)
 	  ))
 	)
       {
-	Dout(dc::forwarding|flush_cf, rt->nodeName()<<" "<<simTime()
+	Dout(dc::send|flush_cf, rt->nodeName()<<" "<<simTime()
 	     <<" checking coa "<<datagram->srcAddress()
 	     <<" is onlink at correct ifIndex "<<info->ifIndex());
 	unsigned int ifIndexTest;
@@ -245,7 +247,7 @@ void IPv6Send::endService(cMessage* msg)
 	//assert(ifIndexTest == info->ifIndex());
 	if (!rt->cds->lookupAddress(datagram->srcAddress(), ifIndexTest))
 	{
-	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
 	       <<"No suitable src address available on foreign network as "
 	       <<"coa is old one "<<datagram->srcAddress()
 	       <<"and BA from HA not received packet dropped");
@@ -257,7 +259,7 @@ void IPv6Send::endService(cMessage* msg)
 	if (mipv6cdsMN->currentRouter().get() == 0)
 	{
 	  //FMIP just set to PCoA here and hope for the best right.
-	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
 	       <<" No suitable src address available on foreign network as no "
 	       <<"routers recorded so far to form coa so packet dropped");
 	}
@@ -267,7 +269,7 @@ void IPv6Send::endService(cMessage* msg)
 	  ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
 	  if (ie->ipv6()->tentativeAddrs.size())
 	    unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
-	  Dout(dc::forwarding|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
 	       <<"No suitable src address available on foreign network as "
 	       <<"ncoa in not ready from DAD or BA from HA/MAP not received "
 	       <<unready<<" packet dropped");

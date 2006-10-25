@@ -220,6 +220,14 @@ void PingApp::finish()
     return;
   }
 
+  if (sendSeqNo > expectedReplySeqNo)
+  {
+    // jump in the sequence: count pings in gap as lost
+    long jump = sendSeqNo-expectedReplySeqNo;
+    dropCount += jump;
+    dropVector.record(dropCount);
+  }
+
     // record statistics
     recordScalar("Pings sent", sendSeqNo);
     recordScalar("Pings dropped", dropCount);

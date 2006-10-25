@@ -1,4 +1,6 @@
-ADD_TEST(FastRANet MIPv6Network -f MIPv6Network.ini -r 3)
+ADD_TEST(FastRANet3 MIPv6Network -f MIPv6Network.ini -r 3)
+
+ADD_TEST(FastRANet4 MIPv6Network -f MIPv6Network.ini -r 4)
 
 #fix routes
 #ADD_TEST(PCOAFNet MIPv6Network -f PCOAForwarding.ini -r 1)

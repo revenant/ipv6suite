@@ -176,6 +176,9 @@ void IPv6Send::endService(cMessage* msg)
     return;
   auto_ptr<IPv6Datagram> cleanup(datagram);
 
+  if (!rt->localDeliver(datagram->destAddress()))
+  {
+
 // {{{ Process outgoing packet for MIP6 
 
 //binding exists for dest then swap dest==hoa to coa
@@ -299,6 +302,8 @@ void IPv6Send::endService(cMessage* msg)
   }
 
 // }}}
+	
+  } // if !localDeliver
 
   cleanup.release();
   send(datagram, "routingOut");

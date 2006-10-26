@@ -217,6 +217,19 @@ void IPv6Send::endService(cMessage* msg)
   rt->conceptualSending(datagram, info);
   datagram->setControlInfo(info);
 
+  if (rt->mobilitySupport() && rt->hmipSupport() && info->status() == 0 && 
+      info->ifIndex() > ift->numInterfaceGates())
+  {
+    Dout(dc::send|flush_cf, rt->nodeName()<<":"<<datagram->inputPort()
+         <<" vIfindex="<<hex<<info->status()<<dec<<" dgram="<<*datagram
+	 <<" hmip tunnel trig");
+    datagram->setOutputPort(info->ifIndex());
+    delete datagram->removeControlInfo();
+    cleanup.release();
+    send(datagram, "tunnelEntry");
+    return;
+  }
+
   //Set src address here if upper layer protocols left it up
   //to network layer
   if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
@@ -227,8 +240,9 @@ void IPv6Send::endService(cMessage* msg)
 
 // {{{ Drop packets with src addresses that are not ready yet
 
-  if (rt->mobilitySupport())
+  if (rt->mobilitySupport() && info->status() == 0)
   {
+    assert(ift->numInterfaceGates() > info->ifIndex());
     MobileIPv6::MIPv6CDSMobileNode* mipv6cdsMN = rt->mipv6cds->mipv6cdsMN;
     if (mipv6cdsMN && mipv6cdsMN->currentRouter().get() != 0 &&
 	datagram->srcAddress() != mipv6cdsMN->homeAddr()

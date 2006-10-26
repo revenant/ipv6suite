@@ -220,7 +220,7 @@ void PingApp::finish()
     return;
   }
 
-  if (sendSeqNo > expectedReplySeqNo)
+  if (sendSeqNo > expectedReplySeqNo + 1)
   {
     // jump in the sequence: count pings in gap as lost
     long jump = sendSeqNo-expectedReplySeqNo;

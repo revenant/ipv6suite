@@ -202,6 +202,14 @@ public:
   MobileIPv6::MIPv6MobilityState* role;
 //  MobileIPv6::MIPv6CDS* mipv6cds;
 
+  /**
+   @brief RFC 3775 9.3.1	
+   @param hoa home address from the home address destination option inside dgram
+   @param dgram received datagram
+   @return true if dgram for further processing, false when dgram should be dropped
+  */
+  bool processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* dgram);
+
 private:
 
   IPv6Mobility(const IPv6Mobility& src);

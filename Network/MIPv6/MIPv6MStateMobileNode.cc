@@ -39,7 +39,7 @@
 #include "cSignalMessage.h"
 #include "IPv6Datagram.h"
 #include "IPv6Mobility.h"
-#include "MIPv6MobilityHeaders.h"
+#include "MobilityHeaders.h"
 #include "MIPv6CDSMobileNode.h"
 #include "MIPv6Entry.h"
 #include "MIPv6MNEntry.h"
@@ -50,9 +50,9 @@
 #include "RoutingTable6.h" // for sendBU
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
-#include "MIPv6MobilityOptions_m.h"
+#include "MobilityOptions_m.h"
 #include "MIPv6Timers.h" //MIPv6PeriodicCB
-#include "MIPv6MessageBase.h" //MIPv6MobilityHeaderBase
+#include "MobilityHeaderBase_m.h"
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 
 #ifdef USE_HMIP
@@ -413,12 +413,12 @@ void MIPv6MStateMobileNode::initialize(int stage)
 bool MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram)
 {
 
-  MIPv6MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
+  MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
 
   if (!mhb)
-    return true;
+    return false; //dgram deleted already
 
-  switch ( mhb->header_type() )
+  switch ( mhb->kind() )
   {
     case MIPv6MHT_BA:
     {
@@ -427,23 +427,23 @@ bool MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram)
     }
     break;
 
-    case MIPv6MHT_BM:
+    case MIPv6MHT_BE:
     {
-      BM* bm = check_and_cast<BM*>(mhb);
-      processBM(bm, dgram);
+      BE* be = check_and_cast<BE*>(mhb);
+      processBE(be, dgram);
     }
     break;
 
-    case MIPv6MHT_BR:
+    case MIPv6MHT_BRR:
     {
-      BR* br =  check_and_cast<BR*> (mhb);
-      processBR(br, dgram);
+      BRR* br =  check_and_cast<BRR*> (mhb);
+      processBRR(br, dgram);
     }
     break;
-    case MIPv6MHT_HoT: case MIPv6MHT_CoT:
+    case MIPv6MHT_HOT: case MIPv6MHT_COT:
     {
-      TMsg* t =  check_and_cast<TMsg*> (mhb);
-      processTestMsg(t, dgram);
+      //TMsg* t =  check_and_cast<TMsg*> (mhb);
+      processTest(mhb, dgram);
     }
     break;
     default:
@@ -573,7 +573,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<now
          <<" unable to find BURetranTmr for deletion as received Back from "
          <<dgram->srcAddress());
-  if (BA::BAS_ACCEPTED == ba->status())
+  if (BAS_ACCEPTED == ba->status())
   {
     Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
          <<dgram->srcAddress()<<" seq="<<ba->sequence());
@@ -814,7 +814,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
   }
 }
 
-void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram)
+void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagram* dgram)
 {
   Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " << mob->nodeName()<<" receives " << testMsg->className() << " src=" << dgram->srcAddress() << " dest= " << dgram->destAddress());
 
@@ -843,7 +843,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram)
     return;
   }
 
-  if ( testMsg->header_type() == MIPv6MHT_CoT && mipv6cdsMN->careOfAddr() != dgram->destAddress())
+  if ( testMsg->kind() == MIPv6MHT_COT && mipv6cdsMN->careOfAddr() != dgram->destAddress())
   {
     Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: "
          << mob->nodeName()<<" dest="<<dgram->destAddress()
@@ -852,7 +852,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram)
     return;
   }
 
-  if ( testMsg->header_type() == MIPv6MHT_HoT && mipv6cdsMN->homeAddr() != dgram->destAddress())
+  if ( testMsg->kind() == MIPv6MHT_HOT && mipv6cdsMN->homeAddr() != dgram->destAddress())
   {
     Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: "
          << mob->nodeName()<<" dest="<<dgram->destAddress()
@@ -860,7 +860,7 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram)
          <<mipv6cdsMN->homeAddr());
     return;
   }
-
+  /*
   // check if the core-of init cookie filed in the message matches the
   // value stored in the BUL
   if ( bule->cookie(testMsg->header_type()) != testMsg->cookie)
@@ -950,11 +950,13 @@ void MIPv6MStateMobileNode::processTestMsg(TMsg* testMsg, IPv6Datagram* dgram)
     bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
     bule->isPerformingRR = false;
   }
+  */ 
 }
 
 void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa)
 {
+  /* 
   OPP_Global::ContextSwitcher switchContext(mob);
 
   std::vector<ipv6_addr> addrs(2);
@@ -994,7 +996,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   }
   else
   {
-    if (bule->isPerformingRR || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) /*MAX_UPDATE_RATE*/  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
+  if (bule->isPerformingRR || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
 
@@ -1003,7 +1005,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
   simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
 
-  /*** SIGNALING ENHANCEMENT SCHEMES ***/
+  // *** SIGNALING ENHANCEMENT SCHEMES ***
 
   if ( mob->signalingEnhance() == Direct )
   {
@@ -1019,46 +1021,15 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     {
       simtime_t elapsedTime = mob->simTime() - bce.lock()->buArrivalTime;
       simtime_t cnThreshold = bce.lock()->avgHandoverDelay + CELL_RESI_THRESHOLD;
-/*
+  //
       if ( mob->avgHandoverDelay && mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT < MN_THRESHOLD )
         mnThreshold = mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT;
       else
         mnThreshold = MN_THRESHOLD;
-*/
+  //
       if ( bce.lock()->avgCellResidenceTime - elapsedTime > cnThreshold )
         addrs[0] = bce.lock()->care_of_addr; // direct signaling
-    }
-    /*
-
-    if ( bule->dirSignalCount() <= INITIAL_SIGNALING_COUNT )
-    {
-      if(bce.lock())
-      {
-        addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
-        bule->incDirSignalCount();
-      }
-    }
-    else
-    {
-      assert(bce.lock());
-
-      double probSuccess = (double)bule->successDirSignalCount() / bule->dirSignalCount();
-
-      bool dirSignalDecider = ( probSuccess >= uniform(0,1) );
-
-      if ( dirSignalDecider )
-      {
-        addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
-        bule->incDirSignalCount();
-      }
-      // we are facing high rate of signaling loss, fall back to
-      // indirect signaling
-      else
-      {
-        hotiScheduleTime += bule->hotiSendDelayTimer();
-        cotiScheduleTime += bule->cotiSendDelayTimer();
-      }
-      }      */
+    }   
   }
 
   *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
@@ -1082,11 +1053,12 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     bule->hotiRetransTmr->reschedule(hotiScheduleTime);
 
   bule->cotiRetransTmr->reschedule(cotiScheduleTime);
+   */ 
 }
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
 {
-
+  /*
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
   ipv6_addr cnhoa;
@@ -1150,10 +1122,12 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   bule->hotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_HoTI));
 
   Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_HoTI) + mob->simTime());
+  */ 
 }
 
 void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
 {
+  /* 
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
   ipv6_addr cnhoa;
@@ -1214,6 +1188,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << IPv6Address(dest));
   }
+  */ 
 }
 
 /**
@@ -1221,7 +1196,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
  *
  */
 
-void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram)
+void MIPv6MStateMobileNode::processBE(BE* bm, IPv6Datagram* dgram)
 {
   bu_entry* bule = 0;
 
@@ -1256,7 +1231,7 @@ void MIPv6MStateMobileNode::processBM(BM* bm, IPv6Datagram* dgram)
  *
  */
 
-void  MIPv6MStateMobileNode::processBR(BR* br, IPv6Datagram* dgram)
+void  MIPv6MStateMobileNode::processBRR(BRR* br, IPv6Datagram* dgram)
 {
   //IPv6Datagram* dgram = check_and_cast<IPv6Datagram*> (br->encapsulatedMsg());
   size_t ifIndex = dgram->inputPort();
@@ -1422,9 +1397,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   bool dad = false;
   bool ack = homeReg;
 
-  ///Won't worry about multiple global on-link prefixes on home subnet.  We will only respond to one of them for now.
-  const bool saonly = false;
-
   /////////////////
 
   if (homeReg)
@@ -1494,28 +1466,11 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   }
 
-  bool useCellSignaling = (mob->signalingEnhance() == CellResidency ? true : false);
-
-  BU* bu = new BU(ack, homeReg, saonly, dad, seq, lifetime, hoa
+  BU* bu = new BU(ack, homeReg,
 #ifdef USE_HMIP
-                  , mapReg
+                  mapReg,
 #endif //USE_HMIP
-                  , useCellSignaling
-                  ,mob);
-
-  // When cell residency signaling is enabled, send handover duration
-  // information to the peer
-
-  if ( useCellSignaling )
-  {
-    // add handover delay option
-    HandoverDelay* delayInfo = new HandoverDelay;
-    delayInfo->setOptType(MOPT_HandoverDelay);
-// Don't remove this line; option length to be decided
-// delayInfo->setOptLength();
-    delayInfo->setDelay(mob->handoverDelay);
-    bu->addMobilityOption(delayInfo);
-  }
+  seq, lifetime); //hoa
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
@@ -1845,10 +1800,10 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
   // sent from upper layer. The mobility messages do not contain the
   // home address option TODO: maybe an extra check of where the
   // message is sent should be done?
-  MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
+  MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-    ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
-  if (ms == 0 && bule && !bule->isPerformingRR &&
+    ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
+  if (ms == 0 && bule && !bule->isPerformingRR() &&
       bule->homeAddr() == datagram->srcAddress() &&
       mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
       //state 0 means ba received or assumed to be received > 0 means

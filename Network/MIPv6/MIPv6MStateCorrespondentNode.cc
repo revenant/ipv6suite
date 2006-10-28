@@ -34,7 +34,7 @@
 #include "MIPv6MStateCorrespondentNode.h"
 #include "IPv6Mobility.h"
 #include "IPv6Datagram.h"
-#include "MIPv6MobilityHeaders.h"
+#include "MobilityHeaders.h"
 #include "MIPv6Entry.h"
 #include "MIPv6DestOptMessages.h"
 #include "MIPv6CDS.h"
@@ -65,27 +65,26 @@ MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
 
 bool MIPv6MStateCorrespondentNode::processMobilityMsg(IPv6Datagram* dgram)
 {
-  MIPv6MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
+  MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
 
   if (!mhb)
     return false;
 
-  switch ( mhb->header_type() )
+  switch ( mhb->kind() )
   {
     case MIPv6MHT_BU:
     {
       BU* bu = check_and_cast<BU*>(mhb);
-      processBU(dgram, bu);
+      processBU(bu, dgram);
     }
     break;
-    case MIPv6MHT_CoTI: case MIPv6MHT_HoTI:
+    case MIPv6MHT_COTI: case MIPv6MHT_HOTI:
     {
-      TIMsg* ti = check_and_cast<TIMsg*>(mhb);
-      processTI(ti, dgram);
+      processTI(mhb, dgram);
     }
     break;
     default:
-      defaultResponse(dgram, mhb);
+      defaultResponse(mhb, dgram);
       return false;
     break;
   }
@@ -103,19 +102,19 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
   // messages are sent in reverse tunnel. Therefore, we need to
   // check if the packet is encapsulated with another IPv6 header.
 
-  MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
+  MobilityHeaderBase* ms = 0;
   IPv6Datagram* tunPacket = 0;
   if (dgram.transportProtocol() == IP_PROT_IPv6)
     tunPacket = check_and_cast<IPv6Datagram*>(dgram.encapsulatedMsg());
 
   if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
-    ms = check_and_cast<MIPv6MobilityHeaderBase*>(
+    ms = check_and_cast<MobilityHeaderBase*>(
       tunPacket->encapsulatedMsg());
   else if (dgram.transportProtocol() == IP_PROT_IPv6_MOBILITY)
-    ms = check_and_cast<MIPv6MobilityHeaderBase*>(dgram.encapsulatedMsg());
+    ms = check_and_cast<MobilityHeaderBase*>(dgram.encapsulatedMsg());
 
   // no mobility message is allowed to have type 2 rh except BA
-  if (ms == 0 || (ms && ms->header_type() ==  MIPv6MHT_BA))
+  if (ms == 0 || (ms && ms->kind() ==  MIPv6MHT_BA))
   {
     bce = mipv6cds->findBinding(dgram.destAddress());
 
@@ -142,11 +141,11 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
 
 // protected member functions
 
-bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
+bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
 {
   ipv6_addr hoa, coa;
-
-  if (!preprocessBU(dgram, bu, hoa, coa))
+  bool hoaOptFound;
+  if (!preprocessBU(bu, dgram, hoa, coa, hoaOptFound))
     return false;
 
   // BU in which H bit is set to the CN, we should send the BA back to
@@ -154,48 +153,41 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
 
   if (bu->homereg())
   {
-    BA* ba = new BA(BA::BAS_HR_NOT_SUPPORTED, UNDEFINED_SEQ,
-                    UNDEFINED_EXPIRES, UNDEFINED_REFRESH);
+    BA* ba = new BA;
+    ba->setStatus(BAS_HR_NOT_SUPPORTED);
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
     Dout(dc::warning|dc::mipv6, mob->nodeName()<<" BU received with homereg bit set but in"
-         <<"CN mode so check config BA sent with seq no "<<UNDEFINED_SEQ);
+         <<"CN mode so check config BA sent with seq no "<<0);
     return false;
   }
 
-  //Pg. 83 rev. 24
-  // home nonce indices mob opt present
-  //regnerate home keygen token and coa token. generate kBM and verify authenticator in bu
+  //TODO Pg. 82
+  //Inspect HONI and CONI options for recentness. CONI are skipped if deleting binding
+  //Regnerate home keygen token and coa token. generate kBM and verify authenticator in bu
   //binding authorizatino data mob opt must be present and last opt and no padding
+  //use acoa if present (part of preprocess BU)
+
+  //send 136/137/138 if honi or coni not up to date
 
   // if the lifetime of BU is zero OR the MN returns to its home
   // subnet, delete the its binding update, accordingly
-  if (bu->expires() == 0 || dgram->srcAddress() == hoa)
+  if (bu->expires() == 0 || coa == hoa)
   {
     // sec 5.1.9, signal an inappropriate attempt to use the home
     // address option without existing binding; NOTE that the home
     // address option has already checked for its existence by calling
     // MIPv6MobilityState::processBU()
-    if(!MIPv6MobilityState::deregisterBCE(bu, 0))
+    //TODO assuming only 1 interface for correspondent Node instead of retrieving the correct Ifindex
+    if(!MIPv6MobilityState::deregisterBCE(bu, hoa, 0))
     {
-      BM* bm = new BM(bu->ha());
-      sendBM(dgram->destAddress(), dgram->srcAddress(), bm);
+      sendBE(1, dgram);
       Dout(dc::warning, mob->nodeName()<<" CN deregistration failed from hoa="
            <<hoa);
       return false;
     }
     return true;
   }
-
-/*
-   check for coa nonce index exists too
-   check both coa/hoa nonce indices are recent!
-
-   If the receiving node no longer recognizes the Home Nonce Index
-   value, Care-of Nonce Index value, or both values from the Binding
-   Update, then the receiving node MUST send back a Binding
-   Acknowledgement with status code 136, 137, or 138, respectively.
-*/
 
   if (mob->earlyBindingUpdate())
   {
@@ -210,10 +202,9 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
 
       if ( bu->ack() )
       {
-        BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
-                        bu->expires());
+        BA* ba = new BA(BAS_ACCEPTED, bu->sequence(), bu->expires());
 
-        sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
+        sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
       }
       
       check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
@@ -221,7 +212,7 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
     }
   }
 
-  MIPv6MobilityState::registerBCE(dgram, bu);
+  MIPv6MobilityState::registerBCE(bu, hoa, dgram);
   Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mob->simTime() << ", " << mob->nodeName()
        <<" CN registering BU from src="<<dgram->srcAddress()
        <<" hoa="<<hoa<<" coa="<<coa);
@@ -229,10 +220,8 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
   // sending MN
   if ( bu->ack() )
   {
-    BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
-                    bu->expires());
-
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
+    BA* ba = new BA(BAS_ACCEPTED, bu->sequence(), bu->expires());
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
   }
 
   if (!mob->earlyBindingUpdate())
@@ -243,10 +232,12 @@ bool MIPv6MStateCorrespondentNode::processBU(IPv6Datagram* dgram, BU* bu)
   return true;
 }
 
-void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram)
+
+//Sec. 9.4.1-4 no Sec. 5.2.3 generation of cookies/tokens as we are not testing security of RR procedure
+void MIPv6MStateCorrespondentNode::processTI(MobilityHeaderBase* ti, IPv6Datagram* dgram)
 {
   // MUST NOT carry destination option
-  // check if the packet contains home address option
+  // check if the packet contains home address option (i.e. mn bound with us previously?
   HdrExtProc* proc = dgram->findHeader(EXTHDR_DEST);
   if (proc)
   {
@@ -259,15 +250,20 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram)
       return;
     }
   }
-  MIPv6MobilityHeaderType replyType;
-  if (ti->header_type() == MIPv6MHT_HoTI)
-    replyType = MIPv6MHT_HoT;
-  else if (ti->header_type() == MIPv6MHT_CoTI)
-    replyType = MIPv6MHT_CoT;
+
+  MobilityHeaderBase* testMsg = 0;
+  if (ti->kind() == MIPv6MHT_HOTI)
+  {
+    testMsg = new HOT;
+  }
+  else if (ti->kind() == MIPv6MHT_COTI)
+  {
+    testMsg = new COT;
+  }
+  else
+    assert(false);
 
   // send back the HoT to the mobile node
-  // TODO: not implement the token for now
-  TMsg* testMsg = new TMsg(replyType, 0, ti->cookie, mipv6cds->generateToken(replyType));
   IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
   reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
@@ -279,18 +275,5 @@ void MIPv6MStateCorrespondentNode::processTI(TIMsg* ti, IPv6Datagram* dgram)
 
   mob->send(reply, "routingOut");
 }
-
-void MIPv6MStateCorrespondentNode::sendBM(const ipv6_addr& srcAddr,
-                                          const ipv6_addr& destAddr,
-                                          BM* bm)
-{
-  IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, bm);
-  reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  // TODO: include routing header
-
-  mob->send(reply, "routingOut");
-}
-
 
 } // end namespace MobileIPv6

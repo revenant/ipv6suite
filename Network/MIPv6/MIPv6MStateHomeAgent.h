@@ -55,11 +55,11 @@ class MIPv6MStateHomeAgent : public MIPv6MStateCorrespondentNode
   virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
  protected:
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu);
+  virtual bool processBU(BU* bu, IPv6Datagram* dgram);
 
-  virtual void registerBCE(IPv6Datagram* dgram, BU* bu);
+  virtual void registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram* dgram);
 
-  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex);
+  virtual bool deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned int ifIndex);
 
 
   ///Returns global address on certain interface used as HA's address

@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -25,42 +26,55 @@
 
 #include "IPv6LocalDeliver.h"
 #include "MIPv6DestOptMessages.h"
+#include "opp_utils.h"
+#include "IPv6Mobility.h"
 
 namespace MobileIPv6
 {
 
 /**
- * @todo Implement this according to 5.3
+ * RFC 3775 9.3.1
  *
- * @warning don't ever touch HAOption.  We don't need to save the care of addr.
- * It should already be in BC.  If it is not in BC then drop packet.  Read spec.
-
- * Another anomaly that the spec does not clarify is the fact that no BC
- * entry exists prior to sending the first BU.  Thus we cannot drop those packets
- * which contain an MIPv6 BU message which requests to cache a new binding.
+ * @see see 9.3.3 for MIPv6MobilityState::sendBE for reason why we keep coa
+ * inside hoa dest option after processing
  */
 
 bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgram)
 {
-  ///Drop if no binding for this home addr exists with matching care of addr as
-  ///src addr of this packet.  Do this only after Return Routability Procedure
-  ///has been implmented.  Send BM if dropped.  Check that no other HAOpt
-  ///exists.
+  IPv6Mobility* mob = check_and_cast<IPv6Mobility*>(OPP_Global::findModuleByType(mod, "IPv6Mobility"));
 
-  //ipv6_addr coa = dgram->srcAddres();
-  if (dgram->transportProtocol() != IP_PROT_IPv6_MOBILITY)
+  if (mob->processReceivedHoADestOpt(opt.home_addr, dgram))
   {
+    bool process = true;
+    process = !(dgram->transportProtocol() == IP_PROT_IPv6_MOBILITY);
+
+    if (process)
+    {
+    ipv6_addr coa = dgram->srcAddress();
+
 #ifdef TESTMIPv6
-  cout<<"Processed DestOpt HomeAddress ha=:"<<opt.home_addr<<" coa="
-      <<dgram->srcAddress()<<"\n";
+    cout<<"Processed DestOpt HomeAddress ha=:"<<opt.home_addr<<" coa="
+	<<dgram->srcAddress()<<"\n";
 #endif //TESTMIPv6
     dgram->setSrcAddress(opt.home_addr);
-  }
 
-  //It doesn't say swap in the spec. but it's simplest method rather than check
-  //whether payload is MIPv6 protocol but perhaps that's more precise and clear
-  //opt.home_addr = coa;
-  return true;
+    //It doesn't say swap in the spec. but we need coa sometimes as its the
+    //original src addr on wire see 9.3.3 in MIPv6MobilityState::sendBE
+    opt.home_addr = coa;
+    }
+    else
+    {
+      //skip destopt processing for mobility messages as we want the values from
+      //the wire
+      
+      //doesn't say to do this in spec other than to skip the binding cache
+      //tests but this way leads to less code in mobility and consistent
+      //handling especially for bu where we need both hoa/coa and it assumes hoa
+      //in hoa option (9.5.1)
+    }
+    return true;
+  }
+  return false;
 }
 
 std::ostream& MIPv6TLVOptHomeAddress::operator<<(std::ostream& os)
@@ -70,34 +84,3 @@ std::ostream& MIPv6TLVOptHomeAddress::operator<<(std::ostream& os)
 
 } //namespace MobileIPv6
 
-//Duplicated class !!!!
-// namespace MobileIPv6
-// {
-
-// // class MIPv6TLVOptHomeAddress definition
-
-// MIPv6TLVOptHomeAddress::MIPv6TLVOptHomeAddress(const ipv6_addr& addr)
-//   : IPv6TLVOptionBase(MIPv6_HOME_ADDRESS_OPT, 18),
-//     _homeAddress(addr)
-// {}
-
-// MIPv6TLVOptHomeAddress::~MIPv6TLVOptHomeAddress(void)
-// {
-//   _subOptions.empty();
-// }
-
-// bool MIPv6TLVOptHomeAddress::
-// processOption(cSimpleModule* mod, IPv6Datagram* pdu)
-// {
-//   ipv6_addr careofaddr = pdu->srcAddress();
-
-//   // sec 8.1 - swap the original value of the source address field
-//   // of IPv6 header with home address field in the home address option
-//   pdu->setSrcAddress(_homeAddress);
-
-//   _homeAddress = careofaddr;
-
-//   return true;
-// }
-
-// } // end namespace MobileIPv6

@@ -1,5 +1,6 @@
 // -*- C++ -*-
 // Copyright (C) 2002 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -83,7 +84,7 @@ namespace MobileIPv6
 
     const ipv6_addr& homeAddr(void) { return opt.home_addr; }
 
-    ///Process Home Address Option according to 5.3
+    ///Process Home Address Option according RFC 3775 9.3.1
     virtual bool processOption(cSimpleModule* mod, IPv6Datagram* dgram);
   private:
     mipv6_home_address_opt opt;

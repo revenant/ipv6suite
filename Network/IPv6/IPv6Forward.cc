@@ -65,7 +65,6 @@
 #include "MIPv6DestOptMessages.h"
 #include "MIPv6MNEntry.h" //bu_entry
 #include "IPv6Encapsulation.h"
-#include "MIPv6MessageBase.h"
 #include "MIPv6MStateCorrespondentNode.h"
 #include "MIPv6MStateMobileNode.h"
 #ifdef USE_HMIP

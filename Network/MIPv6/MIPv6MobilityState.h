@@ -45,28 +45,20 @@ namespace
   const unsigned int MIPv6_PERIOD = 1 ; //seconds
 };
 
+class MobilityHeaderBase;
+class BRR;
+class HOTI;
+class COTI;
+class HOT;
+class COT;
+class BU;
+class BA;
+class BE;
+
 namespace MobileIPv6
 {
 
-// class forward declaration
-
-class MIPv6MobilityHeaderBase;
-class MIPv6MHBindingRequest;
-class MIPv6MHTestInit;
-class MIPv6MHTest;
-class MIPv6MHBindingUpdate;
-class MIPv6MHBindingAcknowledgement;
-class MIPv6MHBindingMissing;
   class MIPv6CDS;
-
-// typedef
-
-typedef MIPv6MHBindingRequest         BR;
-typedef MIPv6MHTestInit               TIMsg;
-typedef MIPv6MHTest                   TMsg;
-typedef MIPv6MHBindingUpdate          BU;
-typedef MIPv6MHBindingAcknowledgement BA;
-typedef MIPv6MHBindingMissing         BM;
 
 /**
    @class MIPv6MobilityState
@@ -96,34 +88,61 @@ class MIPv6MobilityState
   //@return true if it processed the message false otherwise
   virtual bool processMobilityMsg(IPv6Datagram* dgram) = 0;
 
+  /**
+   @brief RFC 3775 9.3.1 checks on packets with a received hoa dest option	
+   @param hoa home address from the home address destination option inside dgram
+   @param dgram received datagram
+
+   @return true if further processing of datagram, false if datagram should be
+   deleted and dropped by IPv6LocalDeliver
+
+   @see MIPv6TLVOptHomeAddress::processOption which calls this and does actual
+   processing
+  */
+  bool processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* dgram);
+
  protected:
   MIPv6MobilityState(IPv6Mobility* mod);
 
   ///@name process specificy type of mobility message
   //@{
   /// process binding update
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu) = 0;
+  virtual bool processBU(BU* bu, IPv6Datagram* dgram) = 0;
 
-  bool preprocessBU(IPv6Datagram* dgram, BU* bu,
-                    ipv6_addr& hoa, ipv6_addr& coa);
+  bool preprocessBU(BU* bu, IPv6Datagram* dgram,
+                    ipv6_addr& hoa, ipv6_addr& coa, bool& hoaOptFound);
 
   /// send binding acknowledgement
-  void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
+  /// @param hoa is the home address in hoa option if different from srcAddr
+  void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, const ipv6_addr& hoa,
               BA* ba, simtime_t timestamp = 0);
+
+
+  /**
+   @brief RFC 3775 9.3.3 send Binding Error depending on status of dgram
+   @param status 1 for missing binding, 2 for unrecognised mobility header
+   @param dgram is received dgram with error    
+
+   @note Currently assuming the swapping of hoa opt with src addr in dgram has
+   not occurred @see processReceivedHoADestOpt and
+   MIPv6TLVOptHomeAddress::processOption where this occurs
+  */
+
+  void sendBE(int status, IPv6Datagram* dgram);
   //@}
 
   ///@name handle management of binding cache
   //@{
   /// add or update binding cache entry in binding cache
-  virtual void registerBCE(IPv6Datagram* dgram, BU* bu);
+  virtual void registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram* dgram);
 
   /// delete binding update (CN) or primary care-of address
   /// de-registration (HA);
-  virtual bool deregisterBCE(BU* bu, unsigned int ifIndex);
+  virtual bool deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned int ifIndex);
   //@}
 
-  MIPv6MobilityHeaderBase* mobilityHeaderExists(IPv6Datagram* dgram);
-  virtual void defaultResponse(IPv6Datagram* dgram, MIPv6MobilityHeaderBase* mhb);
+  MobilityHeaderBase* mobilityHeaderExists(IPv6Datagram* dgram);
+  virtual void defaultResponse(MobilityHeaderBase* mhb, IPv6Datagram* dgram);
 
 
   IPv6Mobility* mob;

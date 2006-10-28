@@ -55,12 +55,13 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
 
   MIPv6CDS::MIPv6CDS():tunMod(0), mipv6cdsMN(0), ha(0)
   {
+/*
     home_token.high = rand();
     home_token.low = rand();
 
     careof_token.high = rand();
     careof_token.low = rand();
-
+*/
     WATCH_PTRMAP(bc);
   }
 

@@ -285,4 +285,8 @@ cTimerMessage* IPv6Mobility::setEdgeHandoverCallback(cTimerMessage* ehcb)
   return oldcb;
 }
 
+bool IPv6Mobility::processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* dgram)
+{
+  return role->processReceivedHoADestOpt(hoa, dgram);
+}
 #endif //EDGEHANDOVER

@@ -35,10 +35,10 @@
 #include "MIPv6MStateHomeAgent.h"
 #include "IPv6Mobility.h"
 #include "IPv6Datagram.h"
-#include "MIPv6MobilityHeaders.h"
 #include "MIPv6Entry.h"
 #include "MIPv6DestOptMessages.h"
 #include "MIPv6CDS.h"
+#include "MobilityHeaders.h"
 #include "RoutingTable6.h"
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
@@ -61,17 +61,17 @@ MIPv6MStateHomeAgent::~MIPv6MStateHomeAgent(void)
 bool MIPv6MStateHomeAgent::
 processMobilityMsg(IPv6Datagram* dgram)
 {
-  MIPv6MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
+  MobilityHeaderBase* mhb = mobilityHeaderExists(dgram);
 
   if (!mhb)
-    return true;
+    return false;
 
-  switch ( mhb->header_type() )
+  switch ( mhb->kind() )
   {
     case MIPv6MHT_BU:
     {
       BU* bu = check_and_cast<BU*>(mhb);
-      processBU(dgram, bu);
+      processBU(bu, dgram);
     }
     break;
     default:
@@ -82,19 +82,19 @@ processMobilityMsg(IPv6Datagram* dgram)
 }
 
 /**
- * @todo Draft 18 no Home address in BU it is a home addr destination option only
- * DAD defending and removal.
+ * @todo DAD defending and removal.
  *
  */
 
-bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu)
+bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
 {
   Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BU from "
        <<dgram->srcAddress()<<" lifetime="<<bu->expires());
 
   ipv6_addr hoa, coa;
+  bool hoaOptFound;
 
-  if (!preprocessBU(dgram, bu, hoa, coa))
+  if (!preprocessBU(bu, dgram, hoa, coa, hoaOptFound))
     return false;
 
   Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()
@@ -117,11 +117,10 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu)
 #endif // #USE_HMIP
       )
   {
-    BA* ba = new BA(BA::BAS_NOT_HOME_SUBNET, UNDEFINED_SEQ,
-                    UNDEFINED_EXPIRES, UNDEFINED_REFRESH);
+    BA* ba = new BA(BAS_NOT_HOME_SUBNET);
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba);
-    Dout(dc::warning|dc::mipv6, " hoa="<<bu->ha()<<" is not on link w.r.t. HA prefix list");
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+    Dout(dc::warning|dc::mipv6, " hoa="<<hoa<<" is not on link w.r.t. HA prefix list");
 
     return false;
   }
@@ -138,26 +137,25 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu)
       dgram->setInputPort(0);
     }
 
-    if(!deregisterBCE(bu, (unsigned int)dgram->inputPort()))
+    if(!deregisterBCE(bu, hoa, (unsigned int)dgram->inputPort()))
     {
-      BA* ba = new BA(BA::BAS_NOT_HA_FOR_MN, UNDEFINED_SEQ,
-                      UNDEFINED_EXPIRES, UNDEFINED_REFRESH);
-      sendBA(dgram->destAddress(), dgram->srcAddress(), ba);
+      BA* ba = new BA(BAS_NOT_HA_FOR_MN);
+      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
       Dout(dc::mipv6|dc::warning, " Failed pcoa de-registration for "
-           <<dgram->srcAddress()<<" hoa="<<bu->ha());
+           <<dgram->srcAddress()<<" hoa="<<hoa);
       return false;
     }
     else
     {
-      BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), 0, 0);
-      sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
+      BA* ba = new BA(BAS_ACCEPTED, bu->sequence());
+      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
       Dout(dc::mipv6, " pcoa de-registration succeeded for "
-           <<dgram->srcAddress()<<" hoa="<<bu->ha());
+           <<dgram->srcAddress()<<" hoa="<<hoa);
       return true;
     }
   }
 
-  registerBCE(dgram, bu);
+  registerBCE(bu, hoa, dgram);
 
   //rev. 24 always sending back a BA regardless of A bit. Also some prefix
   //discovery clause i.e. status value of 1 if prefix will expire during
@@ -167,13 +165,15 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu)
   // sending MN
 //  if ( bu->ack() )
 //  {
-    BA* ba = new BA(BA::BAS_ACCEPTED, bu->sequence(), bu->expires(),
-                    bu->expires());
+    BA* ba = new BA;
+    ba->setStatus(BAS_ACCEPTED);
+    ba->setSequence(bu->sequence());
+    ba->setLifetime(bu->expires());
 
   //Ensure that dgram dest address and type 2 routing header is used only when
   //appropriate see sendBA comments
 
-    sendBA(dgram->destAddress(), dgram->srcAddress(), ba, dgram->timestamp());
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
 
     Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BA sent to "
          <<dgram->srcAddress()<<" status="<<ba->status());
@@ -196,11 +196,11 @@ bool MIPv6MStateHomeAgent::processBU(IPv6Datagram* dgram, BU* bu)
  *
  */
 
-void MIPv6MStateHomeAgent::registerBCE(IPv6Datagram* dgram, BU* bu)
+void MIPv6MStateHomeAgent::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram* dgram)
 {
   //Test that lifetime of bce is less than bu expires.
   //Test also prefix from which hoa is derived is not shorter than expires.
-  boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(bu->ha());
+  boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(hoa);
   ipv6_addr oldcoa = IPv6_ADDR_UNSPECIFIED;
   if (bce.lock().get())
   {
@@ -212,10 +212,10 @@ void MIPv6MStateHomeAgent::registerBCE(IPv6Datagram* dgram, BU* bu)
   //do dad and then send self message for when dad successful
   //callback will sendBA and rest of this fn then multicast NA to all nodes addr on home link
 
-  MIPv6MobilityState::registerBCE(dgram, bu);
+  MIPv6MobilityState::registerBCE(bu, hoa, dgram);
 
   //retrieve updated bce (not necessary) or new bce
-  bce = mipv6cds->findBinding(bu->ha());
+  bce = mipv6cds->findBinding(hoa);
 
   // The binding cache entry should have already been created by the
   // virtual function of MIPv6MobilityState
@@ -251,7 +251,7 @@ void MIPv6MStateHomeAgent::registerBCE(IPv6Datagram* dgram, BU* bu)
     vifIndex = tunMod->createTunnel(gaddr, bce.lock()->care_of_addr, dgram->inputPort());
 
     Dout(dc::mipv6|flush_cf, mob->nodeName()<<" Adding tunnel="<<gaddr<<"->"
-         <<bce.lock()->care_of_addr<<" ifIndex of BU="<<dgram->inputPort()<<" hoa="<<bu->ha());
+         <<bce.lock()->care_of_addr<<" ifIndex of BU="<<dgram->inputPort()<<" hoa="<<hoa);
 
   }
 
@@ -263,25 +263,17 @@ void MIPv6MStateHomeAgent::registerBCE(IPv6Datagram* dgram, BU* bu)
          <<oldcoa);
   }
 
-  //rev. 24 no sa only L bit. If L bit set means hoa is derived from link local
+  //If L bit set means hoa is derived from link local
   //addr (formed from interface identifier). Also if L is set HA will protect
   //both hoa and link local address and do DAD for both. In this sim this L bit
   //will most likely be yes until we allow XML conf of home address too.
 
-  //Do we need sa in bce?  Probably not
-  //as all consequent actions from its value can be activated when the binding
-  //is created (what happens when update specifies a diff single address bit?)
-  if (!bu->saonly())
+  if (bu->llac())
   {
-    ///TODO form other addr home address for all on link prefixes of MN except link local
-    ///prefix. Well 9.1 also says form a different bce for each possible routing
-    ///prefix supported by HA does that mean all global addresses that are on
-    ///link or any routable address including site-local since we can tunnel
-    ///those to MN(9.4) if MN still at same site but diff subnet?
-    tunMod->tunnelDestination(bce.lock()->home_addr, vifIndex);
-  }
-  else
-  {
+    //TODO
+    //derive lladdr from hoa
+    //protect lladdr and hoa via dad 
+    //also check hoa is either hoa or link local addr from tunnelled packets
     tunMod->tunnelDestination(bce.lock()->home_addr, vifIndex);
   }
 
@@ -299,14 +291,13 @@ void MIPv6MStateHomeAgent::registerBCE(IPv6Datagram* dgram, BU* bu)
  *
  */
 
-bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu,  unsigned int ifIndex)
+bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned int ifIndex)
 {
-  boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(bu->ha());
+  boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(hoa);
 
-  // The binding cache entry should have already been created by the
-  // virtual function of MIPv6MobilityState
-  //Is it possible that ha did not receive any more bindings? and so when mn returns
-  //home bindings expired already?
+  if (bce.lock().get() == 0)
+    return false;
+
   assert(bce.lock().get() != 0);
 
 
@@ -315,14 +306,14 @@ bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu,  unsigned int ifIndex)
       (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
   IPv6Encapsulation* tunMod = mipv6cds->tunMod;
 
-  boost::weak_ptr<NeighbourEntry> ne = (*(mob->rt->cds))[bu->ha()].neighbour;
+  boost::weak_ptr<NeighbourEntry> ne = (*(mob->rt->cds))[hoa].neighbour;
   if (!ne.lock().get() || !tunMod->destroyTunnel(ne.lock().get()->ifIndex()))
   {
-    Dout(dc::mipv6|flush_cf, mob->nodeName()<<":"<<ifIndex<<" failed to remove tunnel for hoa="<<bu->ha());
+    Dout(dc::mipv6|flush_cf, mob->nodeName()<<":"<<ifIndex<<" failed to remove tunnel for hoa="<<hoa);
     assert(false);
   }
 
-  return MIPv6MobilityState::deregisterBCE(bu, ifIndex);
+  return MIPv6MobilityState::deregisterBCE(bu, hoa, ifIndex);
 }
 
 /**

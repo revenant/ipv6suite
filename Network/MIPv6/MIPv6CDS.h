@@ -39,7 +39,7 @@
 #endif //BOOST_WEAK_PTR_HPP
 
 #ifndef MIPv6MOBILITYHEADERS_H
-#include "MIPv6MobilityHeaders.h"
+
 #endif // MIPv6MOBILITYHEADERS_H
 
 #include <iosfwd>
@@ -106,23 +106,6 @@ namespace MobileIPv6
     ///Used to create/destroy tunnels for mobility bindings
     IPv6Encapsulation* tunMod;
 
-    const bit_64& generateToken(MIPv6MobilityHeaderType& ht)
-      {
-        if (ht==MIPv6MHT_HoT)
-        {
-          home_token.high = rand();
-          home_token.low = rand();
-          return home_token;
-        }
-        else if (ht==MIPv6MHT_CoT)
-        {
-          careof_token.high = rand();
-          careof_token.low = rand();
-          return careof_token;
-        }
-        assert(false);
-      }
-
     typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
     typedef BindingCache::iterator  BCI;
 
@@ -151,8 +134,10 @@ namespace MobileIPv6
     BindingCache bc;
 
   private:
-    bit_64 home_token;
-    bit_64 careof_token;
+
+    //rr procedure stuff like tokens should be in bc_entry. nonces and the
+    //secret key Kcn here though
+    
   };
   std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds);
 } //namespace MobileIPv6

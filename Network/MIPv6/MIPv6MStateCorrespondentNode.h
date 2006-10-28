@@ -34,6 +34,7 @@
 
 class IPv6Mobility;
 class IPv6Datagram;
+class MobilityHeaderBase;
 
 namespace MobileIPv6
 {
@@ -60,12 +61,9 @@ class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
   bool cnSendPacketCheck(IPv6Datagram& dgram);
 
  protected:
-  virtual bool processBU(IPv6Datagram* dgram, BU* bu);
+  virtual bool processBU(BU* bu, IPv6Datagram* dgram);
 
-  void processTI(TIMsg* timsg, IPv6Datagram* dgram);
-
-  // send binding missing
-  void sendBM(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, BM* bm);
+  void processTI(MobilityHeaderBase* timsg, IPv6Datagram* dgram);
 
   cTimerMessage* periodTmr;
 };

@@ -134,11 +134,11 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   ///handle Binding Acks according to draft 16 10.14
   void processBA(BA* ba, IPv6Datagram* dgram);
 
-  void processBM(BM* bm, IPv6Datagram* dgram);
+  void processBE(BE* bm, IPv6Datagram* dgram);
 
-  void processBR(BR* br, IPv6Datagram* dgram);
+  void processBRR(BRR* br, IPv6Datagram* dgram);
 
-  void processTestMsg(TMsg* t, IPv6Datagram* dgram);
+  void processTest(MobilityHeaderBase* t, IPv6Datagram* dgram);
 
   // TODO: it would probably make more sense to add buRetransTmr in
   // each of the BUL entry instead of storing a list of buRetransTmrs

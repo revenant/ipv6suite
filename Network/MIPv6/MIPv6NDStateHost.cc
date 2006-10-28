@@ -39,7 +39,6 @@
 #include "RoutingTable6.h"
 #include "NeighbourDiscovery.h"
 #include "IPv6CDS.h"
-
 #include "NDTimers.h"
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
@@ -48,6 +47,7 @@
 #include "MIPv6CDSMobileNode.h"
 #include "MIPv6MNEntry.h"
 #include "MIPv6DestOptMessages.h"
+#include "MobilityHeaderBase.h"
 
 //extern for movement detection messages types
 #include "NeighbourDiscovery.h"
@@ -222,10 +222,6 @@ MIPv6NDStateHost::MIPv6NDStateHost(NeighbourDiscovery* mod)
     (OPP_Global::findModuleByType(rt, "IPv6Mobility"));
   assert(mob != 0);
 
-  //Todo change all instance() to return the state pointer to themself instead
-  //of superclass since its not a virtual function anyway (even if was they can
-  //differ by return type) and we referencing a static func by the correct
-  //class itself.
   mstateMN = boost::polymorphic_downcast<MIPv6MStateMobileNode*>
     (mob->role);
   assert(mstateMN != 0);
@@ -1243,17 +1239,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 #ifdef USE_HMIP
   if (rt->hmipSupport())
   {
-// Unnecessary now with tunDest==coa check
-//   if (cna == mipv6cdsMN->primaryHA()->addr())
-//   {
-//     Dout(dc::hmip, __FUNCTION__<<": Ignoring CN with srcAddress of HA "
-//          <<cna<<" to prevent BA from HA triggering Route Optimisation "
-//          <<"causing off by one sequence no. when BU is sent to HA in CN mode");
-//     //TODO better fix would be to stop sending BU to nodes that have outstanding
-//     //unacknowledged BU i.e. store all BURetransTmr in a list and search in
-//     //there
-//     return;
-//   }
 
   HMIPv6CDSMobileNode* hmipv6cds = rt->mipv6cds->hmipv6cdsMN;
 
@@ -1288,7 +1273,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   //Check if packet contains HOT/I or /COT/I 
 
   if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY && 
-      check_and_cast<MIPv6MobilityHeaderBase*>(tunPacket->encapsulatedMsg()) != 0)
+      check_and_cast<MobilityHeaderBase*>(tunPacket->encapsulatedMsg()) != 0)
   {
     Dout(dc::mipv6, rt->nodeName()<<" encapsulated datagram contains a RR message. Not doing RO");
     return;

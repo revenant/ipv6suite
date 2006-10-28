@@ -53,10 +53,6 @@
 #include "ipv6_addr.h"
 #endif //IPV6_ADDRESS_H
 
-#ifndef MIPv6MOBILITYHEADERS_H
-#include "MIPv6MobilityHeaders.h"
-#endif // MIPv6MOBILITYHEADERS_H
-
 #ifndef CCALLBACKMESSAGE_H
 #include "cCallbackMessage.h"
 #endif
@@ -211,45 +207,11 @@ namespace MobileIPv6
   public:
 
     bu_entry(const ipv6_addr& dest, const ipv6_addr& hoa, const ipv6_addr& coa,
-             unsigned int olifetime, unsigned int seq, double lastTime, bool homeRegn
+             unsigned int olifetime, unsigned int seq, double lastTime, bool homeReg
 #ifdef USE_HMIP
              , bool mapReg = false
 #endif //USE_HMIP
-)
-
-      :dest_addr(dest), hoa(hoa), coa(coa), _lifetime(olifetime),
-       last_time_sent(lastTime), state(0), seq_no(seq), _homeReg(homeRegn),
-       problem(false)
-#ifdef USE_HMIP
-       , mapReg(mapReg)
-#endif //USE_HMIP
-       , isPerformingRR(false), hotiRetransTmr(0), cotiRetransTmr(0),
-       last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
-       hoti_timeout(0), coti_timeout(0),
-       hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
-       careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
-       // cell residency related information
-       _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
-      cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0),
-       regDelay(0)
-      {
-        setExpires(lifetime());
-        hoti_cookie.high = rand();
-        hoti_cookie.low = rand();
-
-        coti_cookie.high = rand();
-        coti_cookie.low = rand();
-
-        if (!_homeReg) // information is only valid for mobile CN
-        {
-          WATCH(_dirSignalCount);
-          WATCH(_successDirSignalCount);
-          WATCH(_careOfTestRTT);
-        }
-      }
-
-    // CELLTODO - do a proper statistical analysis for this paramter later
-    simtime_t _careOfTestRTT;
+	     );
 
     std::ostream& operator<<(std::ostream& os) const;
 
@@ -317,25 +279,6 @@ namespace MobileIPv6
 
     //boost::weak_ptr<MIPv6RouterEntry> coaRouter;
 
-    bool testSuccess()
-      {
-        return ( hotSuccess && cotSuccess );
-      }
-
-    void resetTestSuccess()
-      {
-        hotSuccess = false;
-        cotSuccess = false;
-      }
-
-    void setTestSuccess(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          hotSuccess = true;
-        else if ( ht == MIPv6MHT_CoT )
-          cotSuccess = true;
-      }
-    
   private:
     /// IP address of the node to which a binding update was sent
     ipv6_addr dest_addr;
@@ -389,12 +332,6 @@ namespace MobileIPv6
 
     //@}
 
-    unsigned int successDirSignalCount() { return _successDirSignalCount; }
-    void incSuccessDirSignalCount() { _successDirSignalCount++; }
-    
-    unsigned int dirSignalCount() { return _dirSignalCount; }
-    void incDirSignalCount() { _dirSignalCount++; }    
-
   private:
 
     ///maximum Sequence Number sent in previous binding update
@@ -424,8 +361,8 @@ namespace MobileIPv6
     //@{
   public:
 
-    bool isPerformingRR;
-
+    bool isPerformingRR();
+    /*
     TIRetransTmr* hotiRetransTmr;
     TIRetransTmr* cotiRetransTmr;
 
@@ -435,6 +372,35 @@ namespace MobileIPv6
     int homeNI;
     int careofNI;
 
+
+    // CELLTODO - do a proper statistical analysis for this paramter later
+    simtime_t _careOfTestRTT;
+
+    unsigned int successDirSignalCount() { return _successDirSignalCount; }
+    void incSuccessDirSignalCount() { _successDirSignalCount++; }
+    
+    unsigned int dirSignalCount() { return _dirSignalCount; }
+    void incDirSignalCount() { _dirSignalCount++; }    
+
+    bool testSuccess()
+      {
+        return ( hotSuccess && cotSuccess );
+      }
+
+    void resetTestSuccess()
+      {
+        hotSuccess = false;
+        cotSuccess = false;
+      }
+      
+    void setTestSuccess(const MIPv6MobilityHeaderType& ht)
+      {
+        if ( ht == MIPv6MHT_HoT )
+          hotSuccess = true;
+        else if ( ht == MIPv6MHT_CoT )
+          cotSuccess = true;
+      }
+    
     // TODO: too many if statements. we will have a map with entry of
     // a struct rrInfo and a key of MIPv6MobilityHeaderType being
     // either CoT or HoT
@@ -566,7 +532,7 @@ namespace MobileIPv6
     simtime_t _cotiSendDelayTimer;
 
   public:
-
+    */
     cOutVector* regDelay;
 
     //@}

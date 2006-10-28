@@ -82,6 +82,12 @@ namespace MobileIPv6
 ;
   }
 
+  //TODO
+  bool bu_entry::isPerformingRR()
+  {
+    return false;
+  }
+
   void bu_entry::setLifetime(unsigned int life)
   {
     _lifetime = life;
@@ -91,6 +97,49 @@ namespace MobileIPv6
   void bu_entry::setExpires(unsigned int exp)
   {
     _expires = exp;
+  }
+
+
+  bu_entry::bu_entry(const ipv6_addr& dest, const ipv6_addr& hoa, 
+		     const ipv6_addr& coa, unsigned int olifetime, unsigned int seq,
+		     double lastTime, bool homeRegn
+#ifdef USE_HMIP
+	   , bool mapReg
+#endif //USE_HMIP
+		     )
+
+    :dest_addr(dest), hoa(hoa), coa(coa), _lifetime(olifetime),
+     last_time_sent(lastTime), state(0), seq_no(seq), _homeReg(homeRegn),
+     problem(false)
+#ifdef USE_HMIP
+    , mapReg(mapReg)
+#endif //USE_HMIP
+/*    , isPerformingRR(false), hotiRetransTmr(0), cotiRetransTmr(0),
+     last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
+     hoti_timeout(0), coti_timeout(0),
+     hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
+     careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
+     // cell residency related information
+     _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
+     cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0),
+     regDelay(0)
+*/
+  {
+    setExpires(lifetime());
+/*
+    hoti_cookie.high = rand();
+    hoti_cookie.low = rand();
+
+    coti_cookie.high = rand();
+    coti_cookie.low = rand();
+
+    if (!_homeReg) // information is only valid for mobile CN
+    {
+      WATCH(_dirSignalCount);
+      WATCH(_successDirSignalCount);
+      WATCH(_careOfTestRTT);
+    }
+*/
   }
 
 } //namespace MobileIPv6

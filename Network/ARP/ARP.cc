@@ -61,7 +61,9 @@ void ARP::initialize()
     WATCH(numResolutions);
     WATCH(numFailedResolutions);
 
+#if !defined __INTEL_COMPILER
     WATCH_PTRMAP(arpCache);
+#endif //!defined __INTEL_COMPILER
 }
 
 void ARP::finish()

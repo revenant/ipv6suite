@@ -59,8 +59,10 @@ void TCPMain::initialize()
 {
     nextEphemeralPort = 1024;
 
+#if !defined __INTEL_COMPILER
     WATCH_PTRMAP(tcpConnMap);
     WATCH_PTRMAP(tcpAppConnMap);
+#endif //!defined __INTEL_COMPILER
 
     recordStatistics = par("recordStats");
 

@@ -64,7 +64,9 @@ void MACRelayUnitBase::initialize()
 
     seqNum = 0;
 
+#if !defined __INTEL_COMPILER
     WATCH_MAP(addresstable);
+#endif //!defined __INTEL_COMPILER
 }
 
 void MACRelayUnitBase::handleAndDispatchFrame(EtherFrame *frame, int inputport)

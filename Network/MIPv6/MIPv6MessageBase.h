@@ -30,7 +30,6 @@
 #include <omnetpp.h>
 
 #include "HdrExtProc.h"
-#include "MIPv6MobilityOptions_m.h"
 
 using namespace std;
 
@@ -139,20 +138,6 @@ class MIPv6MobilityHeaderBase : public cMessage
       return 0;
     }
 
-  void addMobilityOption(MobilityOptionBase* op)
-    {
-      mobilityOptions.push_back(op);
-    }
-
-  MobilityOptionBase* mobilityOption(int t) const
-    {
-      for ( size_t i = 0; i < mobilityOptions.size(); i++)
-        if ( mobilityOptions[i]->optType() == t )
-          return mobilityOptions[i];
-
-      return 0;
-    }
-
  protected:
   MIPv6MobilityHeaderBase(MIPv6MobilityHeaderType headertype = MIPv6MHT_NONE,
                          int len = 0);
@@ -167,14 +152,6 @@ class MIPv6MobilityHeaderBase : public cMessage
   // mobility header parameters
   Parameters _parameters;
 
-  // mobility options ARE mobility header parameters in the old
-  // draft. no time to move to MIPv6MobilityOptions.msg If someone can
-  // do it, that would be great!
-  std::vector<MobilityOptionBase*> mobilityOptions;
-
-// private:
-//  // actual length calculated from real data
-//  size_t _physicalLen;
 };
 
 } // end namespace

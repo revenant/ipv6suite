@@ -49,7 +49,6 @@
 #include "RoutingTable6.h" // for sendBU
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
-#include "MIPv6MobilityOptions_m.h"
 #include "MIPv6Timers.h" //MIPv6PeriodicCB
 #include "MIPv6MessageBase.h" //MIPv6MobilityHeaderBase
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
@@ -1501,7 +1500,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #endif //USE_HMIP
                   , useCellSignaling
                   ,mob);
-
+  /*
   // When cell residency signaling is enabled, send handover duration
   // information to the peer
 
@@ -1515,6 +1514,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     delayInfo->setDelay(mob->handoverDelay);
     bu->addMobilityOption(delayInfo);
   }
+  */
 
   IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
   dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
@@ -1845,6 +1845,7 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   MobileIPv6::MIPv6MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobileIPv6::MIPv6MobilityHeaderBase*>(datagram->encapsulatedMsg());
+
   if (ms == 0 && bule && !bule->isPerformingRR &&
       bule->homeAddr() == datagram->srcAddress() &&
       //too strict a test for one of the current coa should instead check that

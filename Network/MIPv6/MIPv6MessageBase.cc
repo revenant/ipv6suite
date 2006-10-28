@@ -53,10 +53,6 @@ MIPv6MobilityHeaderBase::~MIPv6MobilityHeaderBase(void)
 
   _parameters.empty();
 
-  for (size_t i = 0; i < mobilityOptions.size(); i++)
-    delete mobilityOptions[i];
-
-  mobilityOptions.empty();
 }
 
 MIPv6MobilityHeaderBase& MIPv6MobilityHeaderBase::
@@ -68,12 +64,6 @@ operator=(const MIPv6MobilityHeaderBase& rhs)
     _payloadprot = rhs._payloadprot;
     _headertype = rhs._headertype;
     _parameters = rhs._parameters;
-
-    for ( size_t i = 0; i < rhs.mobilityOptions.size(); i++)
-    {
-      MobilityOptionBase* opt = static_cast<MobilityOptionBase*>(rhs.mobilityOptions[i]->dup());
-      mobilityOptions.push_back(opt);
-    }
   }
 
   return* this;

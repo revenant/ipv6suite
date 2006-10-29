@@ -59,7 +59,7 @@ message HOTI extends MobilityHeaderBase
   customize = true;
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_HOTI;
-  //  u_int64 hic;
+  u_int64 hic;
   //length +8
 };
 
@@ -70,7 +70,7 @@ message COTI extends MobilityHeaderBase
   customize = true;
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_COTI;
-  //  u_int64 coc;
+  u_int64 coc;
   //length +8
 };
 
@@ -81,7 +81,7 @@ message HOT extends MobilityHeaderBase
   customize = true;
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_HOT;
-// u_int16 hni;
+  u_int16 hni;
 // u_int64 hic;
 // u_int64 hkt;
   //length +16
@@ -94,7 +94,7 @@ message COT extends MobilityHeaderBase
   customize = true;
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_COT;
-//  u_int16 coni;
+  u_int16 coni;
 //  u_int64 cic;
 //  u_int64 cokt;
   //length +16

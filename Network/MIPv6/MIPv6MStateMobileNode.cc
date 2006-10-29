@@ -956,9 +956,9 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
 void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa)
 {
-  /* 
+   
   OPP_Global::ContextSwitcher switchContext(mob);
-
+  /*
   std::vector<ipv6_addr> addrs(2);
   addrs[0] = dest;
   addrs[1] = coa;
@@ -978,8 +978,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   if(!bule)
   {
     isNewBU = true;
-
-    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, false);
+    bool homereg = false;
+    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, homereg);
 
     if ( mob->isEwuOutVectorHODelays() )
     	bule->regDelay = new cOutVector("CN reg (including RR)");
@@ -1032,8 +1032,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     }   
   }
 
-  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
-                                        addrs, mob->simTime());
+//  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
+//                                        addrs, mob->simTime());
   *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
                                         addrs, mob->simTime());
 
@@ -1049,8 +1049,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     bule->cotiRetransTmr->cancel();
   }
 
-  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
-    bule->hotiRetransTmr->reschedule(hotiScheduleTime);
+  //reschedule only if outdated
+//  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
+//   bule->hotiRetransTmr->reschedule(hotiScheduleTime);
 
   bule->cotiRetransTmr->reschedule(cotiScheduleTime);
    */ 

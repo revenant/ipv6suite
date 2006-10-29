@@ -118,10 +118,8 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
       )
   {
     BA* ba = new BA(BAS_NOT_HOME_SUBNET);
-
     sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
     Dout(dc::warning|dc::mipv6, " hoa="<<hoa<<" is not on link w.r.t. HA prefix list");
-
     return false;
   }
 
@@ -131,6 +129,7 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
   {
     //assert(dgram->inputPort() > -1);
     if (dgram->inputPort() == -1)
+
     {
       Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()<<
            " set input port to zero when its -1 for BU");
@@ -157,29 +156,15 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
 
   registerBCE(bu, hoa, dgram);
 
-  //rev. 24 always sending back a BA regardless of A bit. Also some prefix
-  //discovery clause i.e. status value of 1 if prefix will expire during
-  //lifetime or after expires.
-
-  // bu is legal, if bu in which A bit is set, send the BA back to the
-  // sending MN
-//  if ( bu->ack() )
-//  {
     BA* ba = new BA;
     ba->setStatus(BAS_ACCEPTED);
     ba->setSequence(bu->sequence());
     ba->setLifetime(bu->expires());
 
-  //Ensure that dgram dest address and type 2 routing header is used only when
-  //appropriate see sendBA comments
-
     sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
 
     Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BA sent to "
          <<dgram->srcAddress()<<" status="<<ba->status());
-
-//  }
-
 
   return true;
 }
@@ -190,9 +175,8 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
  * @param dgram datagram which encapsulated bu
  * @param mob everpresent IPv6Mobility mobule
  *
- * @todo form other addr from home address for all on link prefixes of MN except
- * link local prefix for tunneling purpose when S is not set. Well 9.1 also says
- * form a different bce for each possible routing prefix supported by HA.
+ * @todo defend hoa and possibly link-local address if L bit set. Intercept
+ * link local packets too if L set. Do DAD on hoa before accepting BU.
  *
  */
 

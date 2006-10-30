@@ -85,7 +85,12 @@ namespace MobileIPv6
   //TODO
   bool bu_entry::isPerformingRR()
   {
-    return false;
+    if (cotiRetransTmr)
+    {
+      return cotiRetransTmr->isScheduled();
+    }
+    else
+      return false;
   }
 
   void bu_entry::setLifetime(unsigned int life)

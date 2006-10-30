@@ -956,8 +956,62 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
 void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
                                       const ipv6_addr& coa)
 {
-   
   OPP_Global::ContextSwitcher switchContext(mob);
+
+  std::vector<ipv6_addr> addrs(2);
+  addrs[0] = dest;
+  addrs[1] = coa;
+   
+  bu_entry* bule = mipv6cdsMN->findBU(dest);
+
+  bool isNewBU = false;
+  if(!bule)
+  {
+    isNewBU = true;
+    bool homereg = false;
+    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, homereg);
+
+    if ( mob->isEwuOutVectorHODelays() )
+    	bule->regDelay = new cOutVector("CN reg (including RR)");
+
+    mipv6cdsMN->addBU(bule);
+
+    bule->hotiRetransTmr = new TIRetransTmr("Sched_SendHoTI", Sched_SendHoTI);
+
+    bule->cotiRetransTmr = new TIRetransTmr("Sched_SendCoTI", Sched_SendCoTI);
+  }
+  else
+  {
+    if (bule->isPerformingRR() || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
+      return;
+  }
+
+  simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
+  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
+
+  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
+                                        addrs, mob->simTime());
+  *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
+                                        addrs, mob->simTime());
+
+  if ( !mob->earlyBindingUpdate() && bule->hotiRetransTmr->isScheduled() )
+  {
+    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the HoTI for the previous CoA. The timer message is canceled");
+    bule->hotiRetransTmr->cancel();
+  }
+
+  if ( bule->cotiRetransTmr->isScheduled() )
+  {
+    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the CoTI for the previous CoA. The timer message is canceled");
+    bule->cotiRetransTmr->cancel();
+  }
+
+  //TODO reschedule only if outdated (EBU)
+  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
+    bule->hotiRetransTmr->reschedule(hotiScheduleTime);
+
+  bule->cotiRetransTmr->reschedule(cotiScheduleTime);
+
   /*
   std::vector<ipv6_addr> addrs(2);
   addrs[0] = dest;
@@ -1059,6 +1113,50 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
 {
+  ipv6_addr dest = addrs[0];
+  const ipv6_addr& coa = addrs[1];
+
+  bu_entry* bule = mipv6cdsMN->findBU(dest);
+
+  assert(bule);
+
+  bule->increaseHotiTimeout();
+
+  cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
+  assert(outputMod);
+
+  HOTI* hoti = new HOTI;
+  bule->setHomeCookie(hoti->homeCookie());
+  IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
+  dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  dgram_hoti->setTimestamp(timestamp);
+
+  // TODO: return home; Since the return home handover isn't fully
+  // robust, we will send the hoti straight to the outputcore instead
+  // of forwardcore for now. coa can be removed when the return home
+  // handover is fixed
+
+  if (coa != mipv6cdsMN->homeAddr())
+  {
+    size_t vIfIndex = tunMod->findTunnel(coa,
+                                         mipv6cdsMN->primaryHA()->prefix().prefix);
+//    if(!vIfIndex)
+//      vIfIndex = tunMod->createTunnel(coa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
+    assert(vIfIndex);
+
+    dgram_hoti->setOutputPort(vIfIndex);
+    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+    mob->sendDirect(dgram_hoti, 0, tunMod, "mobilityIn");
+  }
+  else
+  {
+    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+    mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
+  }
+
+  bule->hotiRetransTmr->rescheduleDelay(bule->homeInitTimeout());
+
+//  Dout(dc::rrprocedure|flush_cf, "HOTI: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->hotiRetransTmr->scheduleTimeout());
   /*
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
@@ -1128,6 +1226,47 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
 
 void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
 {
+  ipv6_addr dest = addrs[0];
+  const ipv6_addr& coa = addrs[1];
+
+  bu_entry* bule = mipv6cdsMN->findBU(dest);
+
+  assert(bule);
+
+  bule->increaseCotiTimeout();
+
+  cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
+  assert(outputMod);
+
+  COTI* coti = new COTI;
+  bule->setCareofCookie(coti->careOfCookie());
+
+  // Once the tunnel is established, the packet destinated for the
+  // particular tunnel will be sent in tunnel. We want the CoTI to be
+  // sent directly to the correspondent node. Therefore it is sent
+  // directly to the output core via "mobilityIn")
+
+  IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
+  dgram_coti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  dgram_coti->setTimestamp(timestamp);
+
+  dgram_coti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+  mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
+
+  bule->cotiRetransTmr->reschedule(mob->simTime() + bule->careOfInitTimeout());
+
+//  Dout(dc::rrprocedure|flush_cf,"COTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() << " sending CoTI src= " << dgram_coti->srcAddress() << " to " << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_CoTI) + mob->simTime());
+
+  if (mob->earlyBindingUpdate())
+  {
+    // send early BU
+    sendBU(dest, coa,
+           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
+           false, 0);
+    Dout(dc::rrprocedure|flush_cf, "RR Procedure (Early BU) At" << mob->simTime()<< " sec, " << mob->rt->nodeName()
+         <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
+         << IPv6Address(dest));
+  }
   /* 
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];

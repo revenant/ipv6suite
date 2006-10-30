@@ -362,10 +362,52 @@ namespace MobileIPv6
   public:
 
     bool isPerformingRR();
-    /*
+    
     TIRetransTmr* hotiRetransTmr;
     TIRetransTmr* cotiRetransTmr;
 
+    int homeNI;
+    int careofNI;
+
+    void setHomeCookie(int cook)
+    { hoti_cookie = cook; }
+    void setCareofCookie(int cook)
+    { coti_cookie = cook; }
+
+    void increaseHotiTimeout()
+      {
+        if ( hoti_timeout == 0 )
+          hoti_timeout = INITIAL_BINDACK_TIMEOUT;
+        else if ( hoti_timeout == INITIAL_BINDACK_TIMEOUT)
+          hoti_timeout = hoti_timeout * 2;
+        else if ( hoti_timeout != MAX_BINDACK_TIMEOUT)
+          hoti_timeout = pow( hoti_timeout ,2 );
+      }
+
+    void increaseCotiTimeout()
+      {
+        if ( coti_timeout == 0 )
+          coti_timeout = INITIAL_BINDACK_TIMEOUT;
+        else if ( coti_timeout == INITIAL_BINDACK_TIMEOUT)
+          coti_timeout = coti_timeout * 2;
+        else if ( coti_timeout != MAX_BINDACK_TIMEOUT)
+          coti_timeout = pow( coti_timeout ,2 );
+      }
+
+    simtime_t homeInitTimeout() const
+    { return hoti_timeout; }
+    simtime_t careOfInitTimeout() const
+    { return coti_timeout; }
+
+    cOutVector* regDelay;
+
+  private:
+    int hoti_cookie;
+    int coti_cookie;
+
+    double hoti_timeout;
+    double coti_timeout;
+/*
     double last_hoti_sent;
     double last_coti_sent;
 
@@ -447,39 +489,6 @@ namespace MobileIPv6
           coti_cookie = cookie;
       }
 
-    double testInitTimeout(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoTI || ht == MIPv6MHT_HoT )
-          return hoti_timeout;
-        else if ( ht == MIPv6MHT_CoTI || ht == MIPv6MHT_CoT )
-          return coti_timeout;
-        else
-        {
-          assert(false);
-          return 0;
-        }
-      }
-
-    void increaseHotiTimeout()
-      {
-        if ( hoti_timeout == 0 )
-          hoti_timeout = INITIAL_BINDACK_TIMEOUT;
-        else if ( hoti_timeout == INITIAL_BINDACK_TIMEOUT)
-          hoti_timeout = hoti_timeout * 2;
-        else if ( hoti_timeout != MAX_BINDACK_TIMEOUT)
-          hoti_timeout = pow( hoti_timeout ,2 );
-      }
-
-    void increaseCotiTimeout()
-      {
-        if ( coti_timeout == 0 )
-          coti_timeout = INITIAL_BINDACK_TIMEOUT;
-        else if ( coti_timeout == INITIAL_BINDACK_TIMEOUT)
-          coti_timeout = coti_timeout * 2;
-        else if ( coti_timeout != MAX_BINDACK_TIMEOUT)
-          coti_timeout = pow( coti_timeout ,2 );
-      }
-
     simtime_t hotiSendDelayTimer()
       {
         return _hotiSendDelayTimer;
@@ -533,7 +542,6 @@ namespace MobileIPv6
 
   public:
     */
-    cOutVector* regDelay;
 
     //@}
   };

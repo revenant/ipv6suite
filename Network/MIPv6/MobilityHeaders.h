@@ -44,7 +44,7 @@ public:
   HOTI(const char *name="HOTI", int kind=MIPv6MHT_HOTI) : HOTI_Base(name,kind) 
   {
     setByteLength(8 + byteLength());
-    //setHic(rand());
+    setHomeCookie(rand());
   }
   HOTI(const HOTI& other) : HOTI_Base(other.name()) {operator=(other);}
   HOTI& operator=(const HOTI& other) {HOTI_Base::operator=(other); return *this;}
@@ -59,7 +59,7 @@ public:
   COTI(const char *name="COTI", int kind=MIPv6MHT_COTI) : COTI_Base(name,kind) 
   {
     setByteLength(byteLength() + 8);
-    //setCoc(rand());
+    setCareOfCookie(rand());
   }
   COTI(const COTI& other) : COTI_Base(other.name()) {operator=(other);}
   COTI& operator=(const COTI& other) {COTI_Base::operator=(other); return *this;}

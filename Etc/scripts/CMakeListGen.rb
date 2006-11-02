@@ -84,7 +84,7 @@ def writeCMakeList(dir, outputName, projName = nil)
 #ARP|IPv4|TCP|FlatNetwork|Queue
 #RTP because SocketInterface does not yet exist
   commonIgnore =
-	"CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
+	"Scalars|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   

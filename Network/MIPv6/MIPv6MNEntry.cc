@@ -95,6 +95,9 @@ namespace MobileIPv6
 
   void bu_entry::setLifetime(unsigned int life)
   {
+    //    if (lifetime == MAX_TOKEN_LIFETIME)
+    //  _lifetime = 0xffff;
+
     _lifetime = life;
     setExpires(_lifetime);
   }
@@ -146,5 +149,27 @@ namespace MobileIPv6
     }
 */
   }
+
+
+    bool bu_entry::testSuccess() const
+    {
+      return !hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled();
+    }
+
+    void bu_entry::resetTestInitTimeout(const MIPv6HeaderType& ht)
+      {
+        if ( ht == MIPv6MHT_HOT )
+	{
+          hoti_timeout = 0;
+	  hotiRetransTmr->cancel();
+	}
+        else if ( ht == MIPv6MHT_COT )
+	{
+          coti_timeout = 0;
+	  cotiRetransTmr->cancel();
+	}
+        else
+          assert(false);
+      }
 
 } //namespace MobileIPv6

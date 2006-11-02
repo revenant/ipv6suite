@@ -1,5 +1,6 @@
 // -*- C++ -*-
 // Copyright (C) 2002, 2004 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -31,6 +32,10 @@
 #ifndef MIPV6MOBILTIYSTATE_H
 #include "MIPv6MobilityState.h"
 #endif // MIPV6MOBILTIYSTATE_H
+
+#ifndef TYPES_TYPEDEF_H
+#include "types_typedef.h"
+#endif //TYPES_TYPEDEF_H
 
 class IPv6Mobility;
 class IPv6Datagram;
@@ -65,7 +70,19 @@ class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
 
   void processTI(MobilityHeaderBase* timsg, IPv6Datagram* dgram);
 
+  //used to expire lifetimes of bce, MIPv6CDS::expireLifetimes
   cTimerMessage* periodTmr;
+
+  ///nonces
+  //@{
+  void nonceGeneration();
+
+  cTimerMessage* nonceGenTmr;
+  unsigned int noncesIndex;
+  //8 derived from MAX_NONCE_LIFETIME/30 where 30 is period of new nonce
+  //generation
+  u_int16 nonces[8];
+  //@}
 };
 
 } // end namespace MobileIPv6

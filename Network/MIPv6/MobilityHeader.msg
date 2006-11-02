@@ -84,6 +84,7 @@ message HOT extends MobilityHeaderBase
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_HOT;
   u_int16 hni;
+  int homeCookie;
 // u_int64 hic;
 // u_int64 hkt;
   //length +16
@@ -97,6 +98,7 @@ message COT extends MobilityHeaderBase
  fields:
   int kind enum(MIPv6HeaderType) = MIPv6MHT_COT;
   u_int16 coni;
+  int careOfCookie;
 //  u_int64 cic;
 //  u_int64 cokt;
   //length +16

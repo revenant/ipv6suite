@@ -46,6 +46,7 @@
 #include "MIPv6Entry.h"
 
 #include "MIPv6CDS.h"
+#include "HdrExtRteProc.h"
 
 namespace MobileIPv6
 {
@@ -170,7 +171,6 @@ bool MIPv6MobilityState::preprocessBU(BU* bu, IPv6Datagram* dgram, ipv6_addr& ho
   hoa = dgram->srcAddress();
   coa = dgram->srcAddress();
 
-  //TODO send ba's to rt type 2 of hoa if hoa option included otherwise just to src addr
   hoaOptFound = false;
 
   // check if the packet contains home address option
@@ -205,18 +205,16 @@ bool MIPv6MobilityState::preprocessBU(BU* bu, IPv6Datagram* dgram, ipv6_addr& ho
     return false;
   }
 
-  //TODO ACOA retrieval
-  /* 
-  MIPv6MHParameterBase* acoaExist = bu->parameter(MIPv6MHPT_ACoA);
+  MobilityOptionBase* acoaExist = bu->mobilityOption(MOPT_ACoA);   
   if (acoaExist)
   {
-    MIPv6MHAlternateCareofAddress* acoaPar = boost::polymorphic_downcast<MIPv6MHAlternateCareofAddress*>(acoaExist);
+    MIPv6OptACoA* acoa = check_and_cast<MIPv6OptACoA*>(acoaExist);
 
-    assert(acoaPar);
-    coa = acoaPar->address();
-    Dout(dc::mipv6, mob->nodeName()<<" alternate coa="<<coa);
+    assert(acoa);
+    coa = acoa->acoa();
+    Dout(dc::mipv6, mob->nodeName()<<" alternate acoa="<<coa);
   }
-  */
+
   // check if the sequence number is greater than the last successful
   // binding update
 
@@ -256,16 +254,7 @@ void MIPv6MobilityState::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram*
 {
   boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(hoa);
 
-  if (bce.lock().get() != 0)
-  {
-    bce.lock()->care_of_addr = dgram->srcAddress();
-    if (mob->earlyBindingUpdate())
-      bce.lock()->expires = TENTATIVE_BINDING_LIFETIME;
-    else
-        bce.lock()->expires = bu->expires();
-    bce.lock()->setSeqNo(bu->sequence());
-  }
-  else
+  if (!bce.lock().get())
   {
     // create a new entry bu does not exists in bc
     bc_entry* be = new bc_entry;
@@ -275,15 +264,9 @@ void MIPv6MobilityState::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram*
 
     //Create a ctor for this
     be->home_addr = hoa;
-    if (mob->earlyBindingUpdate())
-      be->expires = TENTATIVE_BINDING_LIFETIME;
-    else
-        be->expires = bu->expires();
     be->is_home_reg = bu->homereg();
-    be->setSeqNo(bu->sequence());
     // BSA set to zero as not being implemented yet ...
     be->bsa = 0;
-    be->care_of_addr = dgram->srcAddress();
 
     // Sathya - Initialize prev_bu_time, and cell_resi_time
     be->prevBUTime = 0;
@@ -295,6 +278,13 @@ void MIPv6MobilityState::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram*
     bce = mipv6cds->insertBinding(be);
     Dout(dc::custom, "bc "<<(*(mipv6cds)));
   }
+
+  bce.lock()->care_of_addr = dgram->srcAddress();
+  if (mob->earlyBindingUpdate())
+    bce.lock()->expires = TENTATIVE_BINDING_LIFETIME;
+  else
+    bce.lock()->expires = bu->expires();
+  bce.lock()->setSeqNo(bu->sequence());
 
   // Sathya - When BU is received, note down BU_arrive_time
   bce.lock()->buArrivalTime = mob->simTime();
@@ -332,12 +322,6 @@ bool MIPv6MobilityState::deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned in
   return mipv6cds->removeBinding(hoa);
 }
 
-/*
-  @todo rev. 24 if bu did not have hoa option then no need for routing header
-  otherwise use routing header with hoa ( prob. need to inc. a flag for this and
-  how do we prevent forwarding module from adding a routing header which it does
-  by default if bce for dest exists)
-*/
 void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
                                 const ipv6_addr& destAddr,
 				const ipv6_addr& hoa,
@@ -353,14 +337,40 @@ void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
   reply->setTimestamp( timestamp );
   Dout(dc::mipv6, mob->nodeName()<<" sending BA to "<<destAddr);
 
-  //rev. 24
-  //if ba status is rejecting due to bad nonce 136/7/8 then must not include the
-  //binding auth data mob opt. Otherwise must be there.
+  if (ba->status() ==  BAS_UNREC_HONI ||
+      ba->status() == BAS_UNREC_CONI ||
+      ba->status() == BAS_UNREC_BOTHNI)
+  {
+    //not including binding auth mob opt
+  }
+  else
+  {
+    ba->addOption(new MIPv6OptBAD);
+  }
 
-  //TODO send ba's to rt type 2 of hoa if hoa option included otherwise just to src addr
 
+  //send ba's to rt type 2 of hoa if hoa option included otherwise just to
+  //src addr 
+  if (srcAddr != hoa)
+    addRoutingHeader(hoa, reply);
 
   mob->send(reply, "routingOut");
+}
+
+bool MIPv6MobilityState::addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dgram)
+{
+  HdrExtRteProc* rtProc = dgram->acquireRoutingInterface();
+
+  //Should only be one t2 header per datagram (except for inner
+  //tunneled packets)
+  assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
+  if (rtProc->routingHeader(IPv6_TYPE2_RT_HDR) != 0)
+    return false;
+
+  MIPv6RteOpt* rt2 = new MIPv6RteOpt(hoa);
+  rtProc->addRoutingHeader(rt2);
+  dgram->addLength(rtProc->lengthInUnits()*BITS);
+  return true;
 }
 
 } // end namespace MobileIPv6

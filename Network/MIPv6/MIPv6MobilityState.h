@@ -104,7 +104,7 @@ class MIPv6MobilityState
  protected:
   MIPv6MobilityState(IPv6Mobility* mod);
 
-  ///@name process specificy type of mobility message
+  ///@name process specific type of mobility message
   //@{
   /// process binding update
   virtual bool processBU(BU* bu, IPv6Datagram* dgram) = 0;
@@ -129,6 +129,8 @@ class MIPv6MobilityState
   */
 
   void sendBE(int status, IPv6Datagram* dgram);
+
+  virtual void defaultResponse(MobilityHeaderBase* mhb, IPv6Datagram* dgram);
   //@}
 
   ///@name handle management of binding cache
@@ -142,7 +144,8 @@ class MIPv6MobilityState
   //@}
 
   MobilityHeaderBase* mobilityHeaderExists(IPv6Datagram* dgram);
-  virtual void defaultResponse(MobilityHeaderBase* mhb, IPv6Datagram* dgram);
+  ///returns false if type 2 routing header could not be added
+  bool addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dgram);
 
 
   IPv6Mobility* mob;

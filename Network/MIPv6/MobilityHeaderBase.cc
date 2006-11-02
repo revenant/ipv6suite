@@ -25,7 +25,6 @@
  *
  * @brief  Implementation of MobilityHeaderBase
  *
- * @todo
  *
  */
 
@@ -36,23 +35,38 @@
 #include "MobilityHeaderBase.h"
 #include "MobilityHeaders.h"
 
+MobilityHeaderBase_Base::MobilityHeaderBase(const char *name, int kind) : 
+  MobilityHeaderBase_Base(name,kind) 
+{
+  setByteLength(8);
+  WATCH_VECTOR(mobilityOptions);
+}
 
-void  MobilityHeaderBase::addMobilityOption(MobilityOptionBase* op)
+
+MobilityHeaderBase::~MobilityHeaderBase()
+{
+  //TODO delete options but take release from ownership
+  for ( size_t i = 0; i < mobilityOptions.size(); i++)
+    delete mobilityOptions[i];
+  mobilityOptions.clear();
+}
+
+void  MobilityHeaderBase::addOption(MobilityOptionBase* op)
 {
   if (kind() == MIPv6MHT_BE || kind() == MIPv6MHT_COT || kind() == MIPv6MHT_HOT
       || kind() == MIPv6MHT_COTI || kind() == MIPv6MHT_HOTI 
       || kind() == MIPv6MHT_BRR)
     assert(false);
   mobilityOptions.push_back(op);
-  //byteLength() may be bigger as it includes padding but when adding options
-  //we should remove the padding and recalculate it.
+  if (kind() == MIPv6MHT_BA && op->kind() == MOPT_AUTH)
+    assert(op->byteLength());
   setByteLength(byteLength() + op->byteLength());
 }
 
-MobilityOptionBase*  MobilityHeaderBase::mobilityOption(int t) const
+MobilityOptionBase*  MobilityHeaderBase::mobilityOption(MobilityOptType type) const
 {
   for ( size_t i = 0; i < mobilityOptions.size(); i++)
-    if ( mobilityOptions[i]->kind() == t )
+    if ( mobilityOptions[i]->kind() == type )
       return mobilityOptions[i];
     
   return 0;

@@ -42,17 +42,28 @@
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
 #include "MIPv6Timers.h"
-#include "HdrExtRteProc.h"
+
+namespace {
+  const int nonceGenerationPeriod = 30;
+}
 
 namespace MobileIPv6
 {
 
 MIPv6MStateCorrespondentNode::MIPv6MStateCorrespondentNode(IPv6Mobility* mod):
   MIPv6MobilityState(mod),
-  periodTmr(new MIPv6PeriodicCB(mob, MIPv6_PERIOD))
+  periodTmr(new MIPv6PeriodicCB(mob, MIPv6_PERIOD)),
+  nonceGenTmr(new cSignalMessage("nonce Generation", 234)),
+	      noncesIndex(0)
 {
   mob->rt->mipv6cds = mipv6cds;
-  ((MIPv6PeriodicCB*)(periodTmr))->connect(boost::bind(&MIPv6CDS::expireLifetimes, mipv6cds, periodTmr));		       				 
+  ((MIPv6PeriodicCB*)(periodTmr))->connect(boost::bind(&MIPv6CDS::expireLifetimes,
+						       mipv6cds, periodTmr));
+  ((MIPv6PeriodicCB*)(nonceGenTmr))
+    ->connect(
+	      boost::bind(&MIPv6MStateCorrespondentNode::nonceGeneration, this));
+  nonceGenTmr->rescheduleDelay(nonceGenerationPeriod);  
+  nonces[noncesIndex] = rand();
 }
 
 MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
@@ -60,8 +71,19 @@ MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
   if (periodTmr && !periodTmr->isScheduled())
     delete periodTmr;
   periodTmr = 0;
+  if (nonceGenTmr->isScheduled())
+    nonceGenTmr->cancel();
+  delete nonceGenTmr;
+  nonceGenTmr = 0;
 }
 
+void MIPv6MStateCorrespondentNode::nonceGeneration()
+{
+  noncesIndex++;
+  noncesIndex %= 8;
+  nonces[noncesIndex] = rand();
+  nonceGenTmr->rescheduleDelay(nonceGenerationPeriod);
+}
 
 bool MIPv6MStateCorrespondentNode::processMobilityMsg(IPv6Datagram* dgram)
 {
@@ -114,7 +136,8 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
     ms = check_and_cast<MobilityHeaderBase*>(dgram.encapsulatedMsg());
 
   // no mobility message is allowed to have type 2 rh except BA
-  if (ms == 0 || (ms && ms->kind() ==  MIPv6MHT_BA))
+  // but sendBA takes care of that directly
+  if (ms == 0)
   {
     bce = mipv6cds->findBinding(dgram.destAddress());
 
@@ -123,19 +146,21 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
       assert(bce.lock()->home_addr == dgram.destAddress());
       dgram.setDestAddress(bce.lock()->care_of_addr);
 
-      HdrExtRteProc* rtProc = dgram.acquireRoutingInterface();
-      //Should only be one t2 header per datagram (except for inner
-      //tunneled packets)
-      assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
-      MIPv6RteOpt* rt2 = new MIPv6RteOpt(bce.lock()->home_addr);
-      rtProc->addRoutingHeader(rt2);
-      dgram.addLength(rtProc->lengthInUnits()*BITS);
-      Dout(dc::mipv6, mob->nodeName()<<" Found binding for destination "
-           <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);
-
-      return true;
+      bool result = addRoutingHeader(bce.lock()->home_addr, &dgram);
+      if (result)
+	Dout(dc::mipv6, mob->nodeName()<<" Found binding for destination "
+	     <<bce.lock()->home_addr<<" swapping to "<<bce.lock()->care_of_addr);
+      return result;
     }
   }
+  return false;
+}
+
+bool checkNonces(u_int16 nonceIndex, u_int16* nonces)
+{
+  for (unsigned int i = 0; i < 8; i++)
+    if (nonceIndex == nonces[i])
+      return true;
   return false;
 }
 
@@ -162,24 +187,36 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
     return false;
   }
 
-  //TODO Pg. 82
-  //Inspect HONI and CONI options for recentness. CONI are skipped if deleting binding
-  //Regnerate home keygen token and coa token. generate kBM and verify authenticator in bu
-  //binding authorizatino data mob opt must be present and last opt and no padding
-  //use acoa if present (part of preprocess BU)
+  MIPv6OptNI* ni = check_and_cast<MIPv6OptNI*>(bu->mobilityOption(MOPT_NI));
+  if (!ni)
+  {
+    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	 <<" due to missing nonce indices option for coa="<<coa);
+    return false;
+  }
 
-  //send 136/137/138 if honi or coni not up to date
+  bool hniCheck = checkNonces(ni->hni(),nonces);
+  
+
+  //Pg. 82
+  //Skipped Regnerate home keygen token and coa token. generate kBM and verify
+  //authenticator in bu
+  //use acoa if present (part of preprocess BU)
 
   // if the lifetime of BU is zero OR the MN returns to its home
   // subnet, delete the its binding update, accordingly
   if (bu->expires() == 0 || coa == hoa)
   {
-    // sec 5.1.9, signal an inappropriate attempt to use the home
-    // address option without existing binding; NOTE that the home
-    // address option has already checked for its existence by calling
-    // MIPv6MobilityState::processBU()
-    //TODO assuming only 1 interface for correspondent Node instead of retrieving the correct Ifindex
-    if(!MIPv6MobilityState::deregisterBCE(bu, hoa, 0))
+    if (!hniCheck)
+    {
+      BA* ba = new BA(BAS_UNREC_HONI);
+      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+      Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN deregistration failed"
+	   <<" due to home nonce index (hni) expired for hoa="<<hoa);
+      return false;
+    }  
+
+    if(!MIPv6MobilityState::deregisterBCE(bu, hoa, dgram->inputPort()))
     {
       sendBE(1, dgram);
       Dout(dc::warning, mob->nodeName()<<" CN deregistration failed from hoa="
@@ -189,6 +226,42 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
     return true;
   }
 
+  bool cniCheck = checkNonces(ni->coni(),nonces);
+  if (!cniCheck && !hniCheck)
+  {
+    BA* ba = new BA(BAS_UNREC_BOTHNI);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	 <<" due to both nonce indices (hni and coni) expired from coa="<<coa);
+    return false;
+  }
+  else if (!hniCheck)
+  {
+    BA* ba = new BA(BAS_UNREC_HONI);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	 <<" due to home nonce index (hni) expired from coa="<<coa);
+    return false;
+
+  }
+  else if (!cniCheck)
+  {
+    BA* ba = new BA(BAS_UNREC_CONI);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	 <<" due to care of nonce index (coni) expired for coa="<<coa);
+    return false;
+  }
+
+  //binding authorization data mob opt must be present and last opt and no padding
+  MIPv6OptBAD* auth = check_and_cast<MIPv6OptBAD*>(bu->mobilityOption(MOPT_AUTH));
+  if (!auth)
+  {
+    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	 <<" due to missing binding authentication data option for coa="<<coa);
+    return false;
+  }
+  
   if (mob->earlyBindingUpdate())
   {
     boost::weak_ptr<bc_entry> bce =
@@ -233,11 +306,11 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
 }
 
 
-//Sec. 9.4.1-4 no Sec. 5.2.3 generation of cookies/tokens as we are not testing security of RR procedure
+//Sec. 9.4.1-4 (skipped Sec. 5.2.3 generation of tokens as we are not testing
+//security hash fn of RR procedure)
 void MIPv6MStateCorrespondentNode::processTI(MobilityHeaderBase* ti, IPv6Datagram* dgram)
 {
   // MUST NOT carry destination option
-  // check if the packet contains home address option (i.e. mn bound with us previously?
   HdrExtProc* proc = dgram->findHeader(EXTHDR_DEST);
   if (proc)
   {
@@ -246,19 +319,26 @@ void MIPv6MStateCorrespondentNode::processTI(MobilityHeaderBase* ti, IPv6Datagra
       getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
     if (opt)
     {
-      Dout(dc::rrprocedure|flush_cf, "At "<< mob->simTime() << ", RR procedure ERROR: " << mob->nodeName()<<" receives a "<< ti->className() << ", which contains an home address destination option");
+      Dout(dc::rrprocedure|flush_cf, "At "<< mob->simTime() << ", RR procedure ERROR: " 
+	   << mob->nodeName()<<" receives a "<< ti->className() 
+	   << ", which contains an home address destination option");
       return;
     }
   }
 
+  //nonces used may be same for both test messages see pg 26
   MobilityHeaderBase* testMsg = 0;
   if (ti->kind() == MIPv6MHT_HOTI)
   {
-    testMsg = new HOT;
+    HOTI* hoti = check_and_cast<HOTI*>(ti);
+    HOT* hot = new HOT(hoti->homeCookie(), nonces[noncesIndex]);
+    testMsg = hot;
   }
   else if (ti->kind() == MIPv6MHT_COTI)
   {
-    testMsg = new COT;
+    COTI* coti = check_and_cast<COTI*>(ti);
+    COT* cot = new COT(coti->careOfCookie(), nonces[noncesIndex]);
+    testMsg = cot;
   }
   else
     assert(false);
@@ -271,7 +351,9 @@ void MIPv6MStateCorrespondentNode::processTI(MobilityHeaderBase* ti, IPv6Datagra
   assert(dgram->timestamp());
   reply->setTimestamp(dgram->timestamp());
 
-  Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mob->simTime() << "sec, " << mob->nodeName()<<" sending " << testMsg->className() << " src= " << dgram->destAddress() <<" to "<<dgram->srcAddress());
+  Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mob->simTime() << "sec, " 
+       << mob->nodeName()<<" sending " << testMsg->className() << " src= " 
+       << dgram->destAddress() <<" to "<<dgram->srcAddress());
 
   mob->send(reply, "routingOut");
 }

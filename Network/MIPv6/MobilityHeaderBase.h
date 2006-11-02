@@ -32,6 +32,7 @@
 
 
 #include "MobilityHeaderBase_m.h"
+#include "MobilityOptions_m.h"
 
 #ifndef VECTOR
 #define VECTOR
@@ -55,6 +56,7 @@ public:
   //@{
   MobilityHeaderBase& operator=(const MobilityHeaderBase& other) {MobilityHeaderBase_Base::operator=(other); return *this;}
 
+  virtual ~MobilityHeaderBase();
 protected:
   MobilityHeaderBase(const char *name=NULL, int kind=0) : MobilityHeaderBase_Base(name,kind) 
   {
@@ -80,15 +82,14 @@ public:
   }
   //@}
 
-  virtual void addMobilityOption(MobilityOptionBase* op);
+  virtual void addOption(MobilityOptionBase* op);
   
-  MobilityOptionBase* mobilityOption(int t) const;
+  MobilityOptionBase* mobilityOption(MobilityOptType type) const;
 
 
   
  protected:
   std::vector<MobilityOptionBase* > mobilityOptions;
- private:
 
 };
 

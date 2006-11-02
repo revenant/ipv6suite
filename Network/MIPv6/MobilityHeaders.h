@@ -70,8 +70,11 @@ public:
 class HOT : public HOT_Base
 {
 public:
-  HOT(const char *name="HOT", int kind=MIPv6MHT_HOT) : HOT_Base(name,kind) 
+  HOT(int cookie, u_int16 hni, const char *name="HOT", int kind=MIPv6MHT_HOT) :
+    HOT_Base(name,kind) 
   {
+    setHni(hni);
+    setHomeCookie(cookie);
     setByteLength(byteLength() + 16);
   }
   HOT(const HOT& other) : HOT_Base(other.name()) {operator=(other);}
@@ -83,8 +86,11 @@ public:
 class COT : public COT_Base
 {
 public:
-  COT(const char *name="COT", int kind=MIPv6MHT_COT) : COT_Base(name,kind) 
+  COT(int cookie, u_int16 coni, const char *name="COT", int kind=MIPv6MHT_COT) : 
+    COT_Base(name,kind) 
   {
+    setConi(coni);
+    setCareOfCookie(cookie);
     setByteLength(byteLength() + 16);
   }
   COT(const COT& other) : COT_Base(other.name()) {operator=(other);}
@@ -110,11 +116,11 @@ public:
   virtual cPolymorphic *dup() const {return new BU(*this);}
   // ADD CODE HERE to redefine and implement pure virtual functions from BU_Base
 
-  void addMobilityOption(MobilityOptionBase* op) 
+  void addOption(MobilityOptionBase* op) 
   {
     assert(op->kind() == MOPT_NI || op->kind() == MOPT_AUTH ||
 	   op->kind() == MOPT_ACoA);
-    MobilityHeaderBase::addMobilityOption(op);
+    MobilityHeaderBase::addOption(op);
   }
 };
 
@@ -133,10 +139,10 @@ public:
   virtual cPolymorphic *dup() const {return new BA(*this);}
   // ADD CODE HERE to redefine and implement pure virtual functions from BA_Base
 
-  void addMobilityOption(MobilityOptionBase* op) 
+  void addOption(MobilityOptionBase* op) 
   {
     assert(op->kind() == MOPT_BRA || op->kind() == MOPT_AUTH);
-    MobilityHeaderBase::addMobilityOption(op);
+    MobilityHeaderBase::addOption(op);
   }
 };
 

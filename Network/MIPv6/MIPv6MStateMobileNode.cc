@@ -816,7 +816,11 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
 
 void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagram* dgram)
 {
-  Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " << mob->nodeName()<<" receives " << testMsg->className() << " src=" << dgram->srcAddress() << " dest= " << dgram->destAddress());
+
+  assert(testMsg->kind() == MIPv6MHT_HOT || testMsg->kind() == MIPv6MHT_COT);
+  Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " 
+       << mob->nodeName()<<" receives " << testMsg->className() << " src=" 
+       << dgram->srcAddress() << " dest= " << dgram->destAddress());
 
   bu_entry* bule = 0;
   ipv6_addr srcAddr = dgram->srcAddress();
@@ -860,81 +864,52 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
          <<mipv6cdsMN->homeAddr());
     return;
   }
-  /*
+
+  HOT* hot = 0;
+  COT* cot = 0;
+  
+  if (testMsg->kind() == MIPv6MHT_HOT)
+    hot = check_and_cast<HOT*>(testMsg);
+  else
+    cot = check_and_cast<COT*>(testMsg);
+
+  assert(hot || cot);
+
   // check if the core-of init cookie filed in the message matches the
   // value stored in the BUL
-  if ( bule->cookie(testMsg->header_type()) != testMsg->cookie)
+  if ((hot && hot->homeCookie() != bule->homeCookie()) ||
+       (cot && cot->careOfCookie() != bule->careOfCookie()))
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()<<" the init cookie filed in the " << testMsg->className() << " does not match the value stored in the BUL");
+    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()
+	 <<" the init cookie filed in the " << testMsg->className() 
+	 << " does not match entry in BUL");
     return;
   }
 
-  // check if the bule indicates that no keygen token has been
-  // received yet
-  if ( bule->token(testMsg->header_type()) == testMsg->token)
+  bule->resetTestInitTimeout((MIPv6HeaderType)testMsg->kind());
+
+  Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " 
+       << mob->nodeName()<<" has verified that " << testMsg->className() 
+       << " src=" << srcAddr << " dest= " << dgram->destAddress() << " is valid");
+
+  if ( testMsg->kind() == MIPv6MHT_HOT && mob->earlyBindingUpdate())
   {
-    Dout(dc::warning|dc::rrprocedure|flush_cf, "RR procedure ERROR: " << mob->nodeName()<<" the BUL indicates that the token " << testMsg->className() << " has been received");
-    return;
-  }
+    //10 is just arbitrary number so that it refreshes before the home token expires
+    bule->hotiRetransTmr->reschedule(mob->simTime() + MAX_TOKEN_LIFETIME - 10);
 
-  // all of the above tests have been passed
+    Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()
+	 << " sec, " << mob->nodeName() << " next home test will be at " 
+	 << bule->hotiRetransTmr->arrivalTime()<<" sec");
+  }  
 
-  // CELLTODO - dealt with this later
-  if ( testMsg->header_type() == MIPv6MHT_CoT )
+  if (hot)
+    bule->homeNI = hot->hni();
+  else
+    bule->careOfNI = cot->coni();
+
+  //TODO if ebu then testSuccess means home token still valid
+  if (bule->testSuccess())
   {
-    assert(dgram->timestamp());
-    bule->_careOfTestRTT = mob->simTime() - dgram->timestamp();
-  }
-
-  bule->setToken(testMsg->header_type(), testMsg->token);
-
-  if ( mob->signalingEnhance() == CellResidency )
-  {
-    // successful transmission when the signaling packets via direct
-    // route reach to the destination first time
-    if ( isDirectRoute &&
-         bule->testInitTimeout(testMsg->header_type()) == INITIAL_BINDACK_TIMEOUT)
-      bule->setTestSuccess(testMsg->header_type());
-
-    // signaling loss happens even if signaling packets via indirect
-    // route, so we need to increment the delay for the next signaling
-    // tranmission
-    else if ( !isDirectRoute && bule->testInitTimeout(testMsg->header_type()) != INITIAL_BINDACK_TIMEOUT )
-    {
-      bule->increaseSendDelayTimer(testMsg->header_type());
-    }
-  }
-
-  bule->resetTITimeout(testMsg->header_type());
-
-  Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " << mob->nodeName()<<" has verified that " << testMsg->className() << " src=" << srcAddr << " dest= " << dgram->destAddress() << " is valid");
-
-  MIPv6MobilityHeaderType theOtherTestMsgType;
-  if ( testMsg->header_type() == MIPv6MHT_HoT )
-  {
-    bule->hotiRetransTmr->cancel();
-    theOtherTestMsgType = MIPv6MHT_CoT;
-
-    if (mob->earlyBindingUpdate())
-    {
-      bule->hotiRetransTmr->reschedule(mob->simTime() + MAX_NONCE_LIFETIME);
-
-      Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " next home test will be at " << mob->simTime() + MAX_NONCE_LIFETIME<<" sec");
-    }
-  }
-  else if ( testMsg->header_type() == MIPv6MHT_CoT )
-  {
-    bule->cotiRetransTmr->cancel();
-    theOtherTestMsgType = MIPv6MHT_HoT;
-  }
-
-  if (bule->token(theOtherTestMsgType) != UNSPECIFIED_BIT_64)
-  {
-    if ( mob->signalingEnhance() == CellResidency && bule->testSuccess() )
-      bule->incSuccessDirSignalCount();
-
-    bule->resetTestSuccess();
-
     assert(dgram->timestamp());
 
     // send BU
@@ -945,12 +920,7 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
          << mob->rt->nodeName()
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
-
-    bule->setToken(MIPv6MHT_HoT, UNSPECIFIED_BIT_64);
-    bule->setToken(MIPv6MHT_CoT, UNSPECIFIED_BIT_64);
-    bule->isPerformingRR = false;
   }
-  */ 
 }
 
 void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
@@ -986,8 +956,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
       return;
   }
 
-  simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
-  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
+  simtime_t testInitScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
 
   *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
                                         addrs, mob->simTime());
@@ -996,119 +965,24 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   if ( !mob->earlyBindingUpdate() && bule->hotiRetransTmr->isScheduled() )
   {
-    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the HoTI for the previous CoA. The timer message is canceled");
+    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " 
+	 << mob->nodeName() << " moves to a new foreign network but still retransmits the HoTI for the previous CoA. The timer message is canceled");
     bule->hotiRetransTmr->cancel();
   }
 
   if ( bule->cotiRetransTmr->isScheduled() )
   {
-    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the CoTI for the previous CoA. The timer message is canceled");
+    Dout(dc::rrprocedure|flush_cf, "ERROR: At " <<  mob->simTime()<< " sec, " 
+	 << mob->nodeName() << " moves to a new foreign network but still retransmits the CoTI for the previous CoA. The timer message is canceled");
     bule->cotiRetransTmr->cancel();
   }
 
   //TODO reschedule only if outdated (EBU)
   if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
-    bule->hotiRetransTmr->reschedule(hotiScheduleTime);
+    bule->hotiRetransTmr->reschedule(testInitScheduleTime);
 
-  bule->cotiRetransTmr->reschedule(cotiScheduleTime);
+  bule->cotiRetransTmr->reschedule(testInitScheduleTime);
 
-  /*
-  std::vector<ipv6_addr> addrs(2);
-  addrs[0] = dest;
-  addrs[1] = coa;
-
-  // for signaling enhancement schemes, we need one more address just
-  // to obtain binding update list entry for the cn with its home
-  // address
-  if ( mob->signalingEnhance() != None )
-  {
-    addrs.resize(3);
-    addrs[2] = dest; // dest is currently cn's hoa
-  }
-
-  bu_entry* bule = mipv6cdsMN->findBU(dest);
-
-  bool isNewBU = false;
-  if(!bule)
-  {
-    isNewBU = true;
-    bool homereg = false;
-    bule = new bu_entry(dest, mipv6cdsMN->homeAddr(), coa, mob->rt->minValidLifetime(), 0, 0, homereg);
-
-    if ( mob->isEwuOutVectorHODelays() )
-    	bule->regDelay = new cOutVector("CN reg (including RR)");
-
-    mipv6cdsMN->addBU(bule);
-
-    TIRetransTmr* hotiTmr;
-    hotiTmr = new TIRetransTmr("Sched_SendHoTI", Sched_SendHoTI);
-    bule->hotiRetransTmr = hotiTmr;
-
-    TIRetransTmr* cotiTmr;
-    cotiTmr = new TIRetransTmr("Sched_SendCoTI", Sched_SendCoTI);
-    bule->cotiRetransTmr = cotiTmr;
-  }
-  else
-  {
-  if (bule->isPerformingRR || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
-      return;
-  }
-
-  bule->isPerformingRR = true;
-
-  simtime_t hotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
-  simtime_t cotiScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
-
-  // *** SIGNALING ENHANCEMENT SCHEMES ***
-
-  if ( mob->signalingEnhance() == Direct )
-  {
-    boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(dest);
-    if(bce.lock())
-      addrs[0] = bce.lock()->care_of_addr; // dest being the CN's coa
-  }
-  else if ( mob->signalingEnhance() == CellResidency )
-  {
-    boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(dest);
-
-    if(bce.lock()) // when CN is also mobile
-    {
-      simtime_t elapsedTime = mob->simTime() - bce.lock()->buArrivalTime;
-      simtime_t cnThreshold = bce.lock()->avgHandoverDelay + CELL_RESI_THRESHOLD;
-  //
-      if ( mob->avgHandoverDelay && mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT < MN_THRESHOLD )
-        mnThreshold = mob->avgHandoverDelay + INITIAL_BINDACK_TIMEOUT;
-      else
-        mnThreshold = MN_THRESHOLD;
-  //
-      if ( bce.lock()->avgCellResidenceTime - elapsedTime > cnThreshold )
-        addrs[0] = bce.lock()->care_of_addr; // direct signaling
-    }   
-  }
-
-//  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
-//                                        addrs, mob->simTime());
-  *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
-                                        addrs, mob->simTime());
-
-  if ( !mob->earlyBindingUpdate() && bule->hotiRetransTmr->isScheduled() )
-  {
-    Dout(dc::rrprocedure|flush_cf, " RR procedure ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the HoTI for the previous CoA. The timer message is canceled");
-    bule->hotiRetransTmr->cancel();
-  }
-
-  if ( bule->cotiRetransTmr->isScheduled() )
-  {
-    Dout(dc::rrprocedure|flush_cf, " RR procedure ERROR: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " moves to a new foreign network but still retransmits the CoTI for the previous CoA. The timer message is canceled");
-    bule->cotiRetransTmr->cancel();
-  }
-
-  //reschedule only if outdated
-//  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
-//   bule->hotiRetransTmr->reschedule(hotiScheduleTime);
-
-  bule->cotiRetransTmr->reschedule(cotiScheduleTime);
-   */ 
 }
 
 void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
@@ -1528,6 +1402,10 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
                                    , simtime_t timestamp
 )
 {
+  //TODO 11.7.2 destAddress is either src addr of inner packet or hoa dest option of
+  //inner packet that triggered this route optimisation to CN (prob. for
+  //simultaneous mns)
+
   //Can be called from NDStateHost(IPv6NeighbourDiscovery) or
   //itself(IPv6Mobility)
   // 2 lines equiv to Enter_Method except that uses this pointer implicitly
@@ -1627,8 +1505,25 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     assert( !timestamp );
     dgram->setTimestamp( mob->simTime() );
   }
-  else // BU sent to CN should already have timestamp from previous state
-  {
+  else 
+  {    
+
+    //rr should already have been done
+    assert(bule->homeNI && bule->careOfNI);
+    assert(!bule->isPerformingRR());
+    assert(bule->testSuccess());
+
+    //11.7.2 , 6.1.7 & 5.2.6 for CN
+    MIPv6OptNI* ni = new MIPv6OptNI;
+    ni->setHni(bule->homeNI);
+    ni->setConi(bule->careOfNI);
+    bule->homeNI = 0;
+    bule->careOfNI = 0;
+    bu->addOption(ni);
+    //add Kbm
+    bu->addOption(new MIPv6OptBAD);
+
+// BU sent to CN should already have timestamp from previous state
 #ifndef USE_HMIP
     assert( timestamp );
 #else
@@ -1637,6 +1532,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
       timestamp = mob->simTime();
 #endif
     dgram->setTimestamp( timestamp );
+    
   }
 
   //Draft 17 6.1.7 BU must have haddr dest opt

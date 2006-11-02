@@ -66,6 +66,10 @@
 #include <cstdlib>
 #endif
 
+#include "MobilityHeader_m.h"
+
+enum MIPv6HeaderType;
+
 using std::rand;
 
 
@@ -87,6 +91,7 @@ namespace
   extern const simtime_t MAX_UPDATE_RATE = 1/3;
 
   extern const int MAX_NONCE_LIFETIME = 240;
+  extern const int MAX_TOKEN_LIFETIME = 210;
 
   extern const simtime_t SEND_DELAY_INCREMENT = 0.025; // ms
   //@}
@@ -287,9 +292,9 @@ namespace MobileIPv6
     ipv6_addr coa;
 
     /// initial lifetime sent in update
-    unsigned int _lifetime;
+    u_int16 _lifetime;
 
-    unsigned int _expires;
+    u_int16 _expires;
 
   public:
     void setSequence(unsigned int seq) { seq_no = seq; }
@@ -300,11 +305,11 @@ namespace MobileIPv6
 
     /// bu entry lifetime countdown.  Removal from BindingUpdateList once this
     /// reaches zero
-    unsigned int expires() const { return _expires; }
+    u_int16 expires() const { return _expires; }
     void setExpires(unsigned int exp);
 
     /// initial lifetime sent in update
-    unsigned int lifetime() const { return _lifetime; }
+    u_int16 lifetime() const { return _lifetime; }
     void setLifetime(unsigned int life);
     //@}
 
@@ -366,9 +371,13 @@ namespace MobileIPv6
     TIRetransTmr* hotiRetransTmr;
     TIRetransTmr* cotiRetransTmr;
 
-    int homeNI;
-    int careofNI;
+    u_int16 homeNI;
+    u_int16 careOfNI;
 
+    int homeCookie() const
+    { return hoti_cookie; }
+    int careOfCookie() const
+    { return coti_cookie; }
     void setHomeCookie(int cook)
     { hoti_cookie = cook; }
     void setCareofCookie(int cook)
@@ -398,6 +407,10 @@ namespace MobileIPv6
     { return hoti_timeout; }
     simtime_t careOfInitTimeout() const
     { return coti_timeout; }
+
+    void resetTestInitTimeout(const MIPv6HeaderType& ht);
+
+    bool testSuccess() const;
 
     cOutVector* regDelay;
 
@@ -505,16 +518,6 @@ namespace MobileIPv6
           _hotiSendDelayTimer += SEND_DELAY_INCREMENT;
         else if ( ht == MIPv6MHT_CoT )
           _cotiSendDelayTimer += SEND_DELAY_INCREMENT;
-        else
-          assert(false);
-      }
-
-    void resetTITimeout(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          hoti_timeout = 0;
-        else if ( ht == MIPv6MHT_CoT )
-          coti_timeout = 0;
         else
           assert(false);
       }

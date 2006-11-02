@@ -2,6 +2,11 @@
 <!DOCTYPE netconf SYSTEM "netconf2.dtd">
 
 <netconf debugChannel="debug.log:all:malloc:IPv6AddrDeAlloc:bfd:debug">
+  <!-- Use default settings in DTD by not specifying anything since
+  baseSettings is always active i.e. points to this file if not specified for
+  node!  -->
+  <local node="common" mobileIPv6Support="off" mobileIPv6Role="None">
+  </local>
 <!-- settings for all nodes without explicit xml settings defined by
 IPv6routingFile and baseSettings. These settings are suitable for MNs -->
   <local node="common" optimisticDAD="on" mobileIPv6Support="on"

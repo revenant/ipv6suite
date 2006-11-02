@@ -87,7 +87,7 @@ ADD_CUSTOM_TARGET(statcvs	    cd ${PROJECT_SOURCE_DIR}\;
 
 ADD_CUSTOM_TARGET(slochtml	    cd ${PROJECT_SOURCE_DIR}\;
   sloccount --wide  . > ${GENERATED_DOCUMENTATION_DIR}/topincip.sloc\;
-  cd IP\;
+  cd ${PROJECT_SOURCE_DIR}/Network\;
   sloccount --wide --addlangall . > ${GENERATED_DOCUMENTATION_DIR}/ip.sloc\;
   cd ${GENERATED_DOCUMENTATION_DIR}\;
   python ${MISCDIR}/sloc2html.py topincip.sloc > totalsloc.html\;

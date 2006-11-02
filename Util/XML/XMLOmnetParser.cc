@@ -404,9 +404,10 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   rt->mipv6Support = getNodeProperties(ne, "mobileIPv6Support") == XML_ON;
   if (rt->mobilitySupport() && version() >= 3)
   {
-    if (getNodeProperties(ne,"mobileIPv6Role") == string("HomeAgent"))
+    const std::string& role = getNodeProperties(ne,"mobileIPv6Role");
+    if ( role == string("HomeAgent"))
       rt->role = RoutingTable6::HOME_AGENT;
-    else if (getNodeProperties(ne,"mobileIPv6Role") == string("MobileNode"))
+    else if ( role == string("MobileNode"))
       rt->role = RoutingTable6::MOBILE_NODE;
     else
       rt->role = RoutingTable6::CORRESPONDENT_NODE;
@@ -444,9 +445,10 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   else
     mob->setEarlyBindingUpdate(false);
   
-  if (getNodeProperties(ne,"signalingEnhance") == string("Direct"))
+  const std::string& signalEnhance = getNodeProperties(ne,"signalingEnhance");
+  if ( signalEnhance == string("Direct"))
     mob->setSignalingEnhance(MobileIPv6::Direct);
-  else if (getNodeProperties(ne,"signalingEnhance") == string("CellResidency"))
+  else if (signalEnhance == string("CellResidency"))
     mob->setSignalingEnhance(MobileIPv6::CellResidency);
   else
     mob->setSignalingEnhance(MobileIPv6::None);

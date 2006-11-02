@@ -6,8 +6,9 @@ END
 }
 hash = {}
 dumps = []
+exe = File.basename(Dir.pwd)
 Dir["core.*"].each{|corefile|
-  dump = `gdb ./Comparison -q -x debug.txt #{corefile}|grep ^\#`
+  dump = `gdb #{exe} -q -x debug.txt #{corefile}|grep ^\#`
   if dump =~ /\?\?/m
   puts "#{corefile} is stuffed i.e. no bt so deleting"
   File.delete(corefile)

@@ -30,9 +30,18 @@
 #ifndef MOBILITYHEADERBASE_H
 #define MOBILITYHEADERBASE_H
 
-
+#ifndef _MOBILITYHEADERBASE_M_H_
 #include "MobilityHeaderBase_m.h"
-#include "MobilityOptions_m.h"
+#endif 
+
+#ifndef _MOBILITYOPTIONS_M_H_
+#include "MobilityOptions_m.h" //for MobilityOptType
+#endif
+
+#ifndef IOSFWD
+#define IOSFWD
+#include <iosfwd>
+#endif
 
 #ifndef VECTOR
 #define VECTOR
@@ -51,6 +60,9 @@ class MobilityOptionBase;
 
 class MobilityHeaderBase: public MobilityHeaderBase_Base
 {
+
+friend std::ostream& operator<<(std::ostream&, const MobilityHeaderBase& mhb);
+
 public:
   //@name constructors, destructors and operators
   //@{
@@ -58,10 +70,7 @@ public:
 
   virtual ~MobilityHeaderBase();
 protected:
-  MobilityHeaderBase(const char *name=NULL, int kind=0) : MobilityHeaderBase_Base(name,kind) 
-  {
-    setByteLength(8);
-  }
+  MobilityHeaderBase(const char *name=NULL, int kind=0);
   MobilityHeaderBase(const MobilityHeaderBase& other) : MobilityHeaderBase_Base(other.name()) {operator=(other);}
 
   //@}
@@ -93,6 +102,7 @@ public:
 
 };
 
+std::ostream& operator<<(std::ostream&, const MobilityHeaderBase& mhb);
 
 #endif /* MOBILITYHEADERBASE_H */
 

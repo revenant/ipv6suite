@@ -278,9 +278,10 @@ struct sendBUs: public std::unary_function<bu_entry*, void>
       }
 
       bool homeReg = bule->homeReg();
-
       if (mob->returnRoutability() && !homeReg)
+      {
         mstateMN->sendInits(bule->addr(), coa);
+      }
       else
       {
         mstateMN->sendBU(bule->addr(), coa, bule->homeAddr(),
@@ -481,10 +482,6 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   bu_entry* bue = mipv6cdsMN->findBU(dgram->srcAddress());
   if (bue == 0)
   {
-#if defined TESTMIPv6 || defined BUL_DEBUG || defined BA_DEBUG
-    cerr << mob->nodeName()<<" BA received from "<<dgram->srcAddress()
-         <<" with no corresponding BUL entry\n";
-#endif //defined TESTMIPv6 || defined BUL_DEBUG || defined BA_DEBUG
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" with no corresponding BUL entry");
     return;
@@ -550,6 +547,29 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     }
   }
 
+  if (!found)
+    Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<now
+         <<" unable to find BURetranTmr for deletion as received Back from "
+         <<dgram->srcAddress());
+
+  if (BAS_ACCEPTED != ba->status())
+  {
+    //Remove entry from BUL if BU failed.
+    mipv6cdsMN->removeBU(bue->addr());
+    Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "
+         <<dgram->srcAddress()<<" status="<<ba->status());
+
+    //Don't know how to do optional recover from these errors for now sending
+    //new BU.
+    return ;
+  }
+
+  Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
+       <<dgram->srcAddress()<<" seq="<<ba->sequence());
+
+  bue->state = 0;
+
+
   if (dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
     mob->backVector->record(now);
 #ifdef USE_HMIP
@@ -569,143 +589,121 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   }
 #endif //USE_HMIP
 
-  if (!found)
-    Dout(dc::warning|dc::mipv6|flush_cf, mob->nodeName()<<" "<<now
-         <<" unable to find BURetranTmr for deletion as received Back from "
-         <<dgram->srcAddress());
-  if (BAS_ACCEPTED == ba->status())
+  if ( bue->homeReg() )
   {
-    Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
-         <<dgram->srcAddress()<<" seq="<<ba->sequence());
+    mob->prevLinkUpTime = now;
 
-    bue->state = 0;
-
-    if ( bue->homeReg() )
+    if ( mob->isEwuOutVectorHODelays() )
     {
-      mob->prevLinkUpTime = now;
-
-      if ( mob->isEwuOutVectorHODelays() )
-      {
-        assert( dgram->timestamp() );
-        bue->regDelay->record(now - dgram->timestamp() );
-      }
+      assert( dgram->timestamp() );
+      bue->regDelay->record(now - dgram->timestamp() );
     }
+  }
 
-    if (ba->lifetime() < bue->lifetime())
-    {
-      bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
-    }
+  if (ba->lifetime() < bue->lifetime())
+  {
+    bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
+  }
 
 #ifdef USE_HMIP
-    //mob->sendDirect(new ICMPv6Message(0,0, dgram->dup()), 0, nd, NDiscOut);
-    if (mob->hmipSupport())
+  if (!mob->hmipSupport())
+    return;
+
+
+  if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
+  {
+    Dout(dc::hmip, mob->nodeName()<<" "<<now<<" BA from MAP "
+	 <<dgram->srcAddress());
+
+    //Assuming single interface for now if assumption not true revise code
+    //accordingly
+    assert(dgram->inputPort() == 0);
+    if (!mob->rt->addrAssigned(hmipv6cds->remoteCareOfAddr(), dgram->inputPort()))
     {
+      IPv6Address addrObj(hmipv6cds->remoteCareOfAddr());
+      addrObj.setPrefixLength(EUI64_LENGTH);
+      addrObj.setStoredLifetimeAndUpdate(ba->lifetime());
+      addrObj.setPreferredLifetime(ba->lifetime());
+      mob->rt->assignAddress(addrObj, dgram->inputPort());
+    }
 
-      if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
+    if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
+    {
+#if EDGEHANDOVER
+      if (!mob->edgeHandover())
       {
-        Dout(dc::hmip, mob->nodeName()<<" "<<now<<" BA from MAP "
-             <<dgram->srcAddress());
-
-        //Assuming single interface for now if assumption not true revise code
-        //accordingly
-        assert(dgram->inputPort() == 0);
-        if (!mob->rt->addrAssigned(hmipv6cds->remoteCareOfAddr(), dgram->inputPort()))
-        {
-          IPv6Address addrObj(hmipv6cds->remoteCareOfAddr());
-          addrObj.setPrefixLength(EUI64_LENGTH);
-          addrObj.setStoredLifetimeAndUpdate(ba->lifetime());
-          addrObj.setPreferredLifetime(ba->lifetime());
-          mob->rt->assignAddress(addrObj, dgram->inputPort());
-        }
-
-        if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
-        {
-#if EDGEHANDOVER
-          if (!mob->edgeHandover())
-          {
 #endif //EDGEHANDOVER
-          Dout(dc::hmip, " sending BU to all coa="
-               <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
+	Dout(dc::hmip, " sending BU to all coa="
+	     <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
 
-          //Map is skipped
-          sendBUToAll(hmipv6cds->remoteCareOfAddr(), mipv6cdsMN->homeAddr(),
-                      bue->lifetime());
+	//Map is skipped
+	sendBUToAll(hmipv6cds->remoteCareOfAddr(), mipv6cdsMN->homeAddr(),
+		    bue->lifetime());
 #if EDGEHANDOVER
-          }
-          else
-          {
-            if (!mob->edgeHandoverCallback())
-              //Exit code of 254
-              DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
-            else
-            {
-              //if rcoa does not prefix match the dgram->srcAddress we ignore
-              //since we do not want to bind with HA using a coa from a previous MAP.
-
-              Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
-                   <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
-                   <<" bcoa "<<ehcds->boundCoa());
-	      mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
-              assert(dgram->inputPort() == 0);
-              mob->edgeHandoverCallback()->callFunc();
-
-              //Not something we should do as routerstate is for routers only
-//               EdgeHandover::EHNDStateHost* ehstate =
-//                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
-//                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
-//                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
-
-//               ehstate->invokeMapAlgorithmCallback(dgram);
-
-            }
-          }
-#endif //EDGEHANDOVER
-        }
       }
-#if EDGEHANDOVER
-      else if (hmipv6cds->isMAPValid() && mob->edgeHandover() &&
-               dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr() &&
-               ///Since we've restricted boundMaps to be only ARs (existing
-               ///MIPv6RouterEntry when calling setBoundMap) they have to have a
-               ///distance of 1.
-               //Not true as we may want to bind with a previous map along the
-               //edge so it will have distance > 1
-               hmipv6cds->currentMap().distance() >= 1)
+      else
       {
-        ///If the HA's BA is acknowledging binding with another MAP besides the
-        ///currentMap's then this code block needs to be revised accordingly. It
-        ///is possible for currentMap to have changed whilst updating HA.
-        if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
-        {
-          Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
-	       <<" perhaps due to BA not arriving to us previously? "
-               <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
-          //assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
-        }
+	if (!mob->edgeHandoverCallback())
+	  //Exit code of 254
+	  DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
+	else
+	{
+	  //if rcoa does not prefix match the dgram->srcAddress we ignore
+	  //since we do not want to bind with HA using a coa from a previous MAP.
 
-        Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
-             <<" inport="<<dgram->outputPort());
-        ///outputPort should contain outer header's inputPort so we know which
-        ///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
-        ///original inport needed so we can configure the proper bcoa for multi homed MNs
-        assert(dgram->outputPort() >= 0);
-        ehcds->setBoundMap(hmipv6cds->currentMap(), dgram->outputPort());
+	  Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
+	       <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
+	       <<" bcoa "<<ehcds->boundCoa());
+	  mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
+	  assert(dgram->inputPort() == 0);
+	  mob->edgeHandoverCallback()->callFunc();
+
+	  //Not something we should do as routerstate is for routers only
+	  //               EdgeHandover::EHNDStateHost* ehstate =
+	  //                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
+	  //                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
+	  //                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
+
+	  //               ehstate->invokeMapAlgorithmCallback(dgram);
+
+	}
       }
 #endif //EDGEHANDOVER
     }
+  }
+#if EDGEHANDOVER
+  else if (hmipv6cds->isMAPValid() && mob->edgeHandover() &&
+	   dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr() &&
+	   ///Since we've restricted boundMaps to be only ARs (existing
+	   ///MIPv6RouterEntry when calling setBoundMap) they have to have a
+	   ///distance of 1.
+	   //Not true as we may want to bind with a previous map along the
+	   //edge so it will have distance > 1
+	   hmipv6cds->currentMap().distance() >= 1)
+  {
+    ///If the HA's BA is acknowledging binding with another MAP besides the
+    ///currentMap's then this code block needs to be revised accordingly. It
+    ///is possible for currentMap to have changed whilst updating HA.
+    if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
+    {
+      Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
+	   <<" perhaps due to BA not arriving to us previously? "
+	   <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
+      //assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
+    }
+
+    Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
+	 <<" inport="<<dgram->outputPort());
+    ///outputPort should contain outer header's inputPort so we know which
+    ///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
+    ///original inport needed so we can configure the proper bcoa for multi homed MNs
+    assert(dgram->outputPort() >= 0);
+    ehcds->setBoundMap(hmipv6cds->currentMap(), dgram->outputPort());
+  }
+#endif //EDGEHANDOVER
+
 #endif //USE_HMIP
 
-  }
-  else
-  {
-    //Remove entry from BUL if BU failed.
-    mipv6cdsMN->removeBU(bue->addr());
-    Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "
-         <<dgram->srcAddress()<<" status="<<ba->status());
-
-    //Don't know how to do optional recover from these errors for now sending
-    //new BU.
-  }
 }
 
 void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr addr)
@@ -955,6 +953,8 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     if (bule->isPerformingRR() || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
+  cerr<<"sendInit: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
+      <<endl;
 
   simtime_t testInitScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
 
@@ -1001,10 +1001,9 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
 
   HOTI* hoti = new HOTI;
   bule->setHomeCookie(hoti->homeCookie());
-  IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
-  dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  dgram_hoti->setTimestamp(timestamp);
-
+  IPv6Datagram* dgram_hoti = 
+    constructDatagram(mipv6cdsMN->homeAddr(), dest, hoti, 0, timestamp);
+  
   // TODO: return home; Since the return home handover isn't fully
   // robust, we will send the hoti straight to the outputcore instead
   // of forwardcore for now. coa can be removed when the return home
@@ -1012,6 +1011,7 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
 
   if (coa != mipv6cdsMN->homeAddr())
   {
+    
     size_t vIfIndex = tunMod->findTunnel(coa,
                                          mipv6cdsMN->primaryHA()->prefix().prefix);
 //    if(!vIfIndex)
@@ -1019,83 +1019,15 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
     assert(vIfIndex);
 
     dgram_hoti->setOutputPort(vIfIndex);
-    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
     mob->sendDirect(dgram_hoti, 0, tunMod, "mobilityIn");
   }
   else
   {
-    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
+    //returning home case
     mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
   }
 
   bule->hotiRetransTmr->rescheduleDelay(bule->homeInitTimeout());
-
-//  Dout(dc::rrprocedure|flush_cf, "HOTI: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->hotiRetransTmr->scheduleTimeout());
-  /*
-  ipv6_addr dest = addrs[0];
-  const ipv6_addr& coa = addrs[1];
-  ipv6_addr cnhoa;
-  if ( mob->signalingEnhance() != None )
-    cnhoa= addrs[2];
-
-  Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " is about to send a HoTI, dest= " << IPv6Address(dest));
-
-  bu_entry* bule;
-  if ( mob->signalingEnhance() == None )
-    bule = mipv6cdsMN->findBU(dest);
-  else
-    bule = mipv6cdsMN->findBU(cnhoa);
-
-  assert(bule);
-
-  bule->increaseHotiTimeout();
-
-  if (mob->signalingEnhance() != None &&
-      bule->testInitTimeout(MIPv6MHT_HoTI) != INITIAL_BINDACK_TIMEOUT)
-  {
-    // only if the dest is CN's CoA, we then revert this address back
-    // to CN's HoA
-    dest = cnhoa;
-  }
-
-  cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
-  assert(outputMod);
-
-  TIMsg* hoti = new TIMsg(MIPv6MHT_HoTI, bule->cookie(MIPv6MHT_HoTI));
-  hoti->cookie.high = rand();
-  hoti->cookie.low = rand();
-  bule->setCookie(MIPv6MHT_HoTI, hoti->cookie);
-
-  IPv6Datagram* dgram_hoti = new IPv6Datagram(mipv6cdsMN->homeAddr(), dest, hoti);
-  dgram_hoti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  dgram_hoti->setTimestamp(timestamp);
-
-  // TODO: return home; Since the return home handover isn't fully
-  // robust, we will send the hoti straight to the outputcore instead
-  // of forwardcore for now. coa can be removed when the return home
-  // handover is fixed
-
-  if (coa != mipv6cdsMN->homeAddr())
-  {
-    size_t vIfIndex = tunMod->findTunnel(coa,
-                                         mipv6cdsMN->primaryHA()->prefix().prefix);
-    if(!vIfIndex)
-      vIfIndex = tunMod->createTunnel(coa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
-
-    dgram_hoti->setOutputPort(vIfIndex);
-    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-    mob->sendDirect(dgram_hoti, 0, tunMod, "mobilityIn");
-  }
-  else
-  {
-    dgram_hoti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-    mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
-  }
-
-  bule->hotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_HoTI));
-
-  Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " << dgram_hoti->destAddress() << "| next HoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_HoTI) + mob->simTime());
-  */ 
 }
 
 void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
@@ -1120,17 +1052,20 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
   // sent directly to the correspondent node. Therefore it is sent
   // directly to the output core via "mobilityIn")
 
-  IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
-  dgram_coti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  dgram_coti->setTimestamp(timestamp);
+  IPv6Datagram* dgram_coti = constructDatagram(coa, dest, coti, 0, timestamp);
 
-  dgram_coti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
   mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + bule->careOfInitTimeout());
 
-//  Dout(dc::rrprocedure|flush_cf,"COTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() << " sending CoTI src= " << dgram_coti->srcAddress() << " to " << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_CoTI) + mob->simTime());
-
+  Dout(dc::rrprocedure|flush_cf,"COTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
+       << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
+       << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
+       <<   bule->cotiRetransTmr->arrivalTime());
+  cerr<<"COTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
+       << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
+       << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
+      <<   bule->cotiRetransTmr->arrivalTime()<<endl;
   if (mob->earlyBindingUpdate())
   {
     // send early BU
@@ -1141,68 +1076,6 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << IPv6Address(dest));
   }
-  /* 
-  ipv6_addr dest = addrs[0];
-  const ipv6_addr& coa = addrs[1];
-  ipv6_addr cnhoa;
-  if ( mob->signalingEnhance() != None )
-    cnhoa= addrs[2];
-
-  Dout(dc::rrprocedure|flush_cf, " RR procedure: At " <<  mob->simTime()<< " sec, " << mob->nodeName() << " is about to send a CoTI, dest= " << IPv6Address(dest));
-
-  bu_entry* bule;
-  if ( mob->signalingEnhance() == None )
-    bule = mipv6cdsMN->findBU(dest);
-  else
-    bule = mipv6cdsMN->findBU(cnhoa);
-
-  assert(bule);
-
-  bule->increaseCotiTimeout();
-
-  if (mob->signalingEnhance() != None &&
-      bule->testInitTimeout(MIPv6MHT_CoTI) != INITIAL_BINDACK_TIMEOUT)
-  {
-    // only if the dest is CN's CoA, we then revert this address back
-    // to CN's HoA
-    dest = cnhoa;
-  }
-
-  cModule* outputMod = OPP_Global::findModuleByType(mob, "IPv6Output");
-  assert(outputMod);
-
-  TIMsg* coti = new TIMsg(MIPv6MHT_CoTI, bule->cookie(MIPv6MHT_CoTI));
-  coti->cookie.high = rand();
-  coti->cookie.low = rand();
-  bule->setCookie(MIPv6MHT_CoTI, coti->cookie);
-
-  // Once the tunnel is established, the packet destinated for the
-  // particular tunnel will be sent in tunnel. We want the CoTI to be
-  // sent directly to the correspondent node. Therefore it is sent
-  // directly to the output core via "mobilityIn")
-
-  IPv6Datagram* dgram_coti = new IPv6Datagram(coa, dest, coti);
-  dgram_coti->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  dgram_coti->setTimestamp(timestamp);
-
-  dgram_coti->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
-
-  bule->cotiRetransTmr->reschedule(mob->simTime() + bule->testInitTimeout(MIPv6MHT_CoTI));
-
-  Dout(dc::rrprocedure|flush_cf," RR procedure: At " << mob->simTime()<< " sec, "<< mob->nodeName() << " sending CoTI src= " << dgram_coti->srcAddress() << " to " << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " << bule->testInitTimeout(MIPv6MHT_CoTI) + mob->simTime());
-
-  if (mob->earlyBindingUpdate())
-  {
-    // send early BU
-    sendBU(dest, coa,
-           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
-           false, 0);
-    Dout(dc::rrprocedure|flush_cf, "RR Procedure (Early BU) At" << mob->simTime()<< " sec, " << mob->rt->nodeName()
-         <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
-         << IPv6Address(dest));
-  }
-  */ 
 }
 
 /**
@@ -1412,15 +1285,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   OPP_Global::ContextSwitcher switchContext(mob);
   //switchContext.methodCall("sendBU(%s)", ipv6_addr_toString(dest).c_str());
 
-  bool dad = false;
-  bool ack = homeReg;
-
-  /////////////////
-
-  if (homeReg)
-  {
-    dad = mipv6cdsMN->bulEmpty();
-  }
+  bool ack = homeReg;  
 
   bu_entry* bule = 0;
 
@@ -1446,12 +1311,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   if (!ack && mipv6cdsMN->sendBUAckFlag())
     ack = true;
 
-  //In case we do forwarding from previous MAP we don't need to redo DAD on MAP
-  //that has already been registered with old RCOA.
-  if (mapReg && bule == 0)
-  {
-    dad = true;
-  }
 #endif //USE_HMIP
 
   unsigned int seq = 0;
@@ -1490,11 +1349,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #endif //USE_HMIP
   seq, lifetime); //hoa
 
-  IPv6Datagram* dgram = new IPv6Datagram(coa, dest, bu);
-  dgram->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  //make it inspectable in routingInfo
-  dgram->setKind(1);
+  IPv6Datagram* dgram = constructDatagram(coa, dest, bu, 0);
 
   if (homeReg
 #ifdef USE_HMIP

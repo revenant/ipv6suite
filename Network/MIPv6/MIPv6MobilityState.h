@@ -115,7 +115,7 @@ class MIPv6MobilityState
   /// send binding acknowledgement
   /// @param hoa is the home address in hoa option if different from srcAddr
   void sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr, const ipv6_addr& hoa,
-              BA* ba, simtime_t timestamp = 0);
+              BA* ba, simtime_t timestamp = 0, unsigned int ifIndex = 0);
 
 
   /**
@@ -147,6 +147,9 @@ class MIPv6MobilityState
   ///returns false if type 2 routing header could not be added
   bool addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dgram);
 
+  IPv6Datagram* constructDatagram(const ipv6_addr& dest, const ipv6_addr& src, 
+				  cMessage* const msg, unsigned int ifIndex,
+				  simtime_t timestamp = 0) const;
 
   IPv6Mobility* mob;
   MIPv6CDS* mipv6cds;

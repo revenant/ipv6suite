@@ -1262,11 +1262,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 #endif //USE_HMIP
 
 
-  // the mobile node only initiates the route optimization process
-  // when the received packet is a data packet. The mobile node may
-  // receive a mobility message in tunnel when the other communicating
-  // mobile node also moves to a foreign network
-
   IPv6Datagram* tunPacket =
     check_and_cast<IPv6Datagram*>(dgram->encapsulatedMsg());
 
@@ -1297,53 +1292,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   boost::weak_ptr<bc_entry> bce =
     rt->mipv6cds->findBindingByCoA(tunPacket->srcAddress());
 
-  // It could be HoTI that is reverse tunneled by the sender's HA
-  // and gets tunneled again by the receiver's HA
-
-    // In simultaneous movement, if the correspondent node completes
-    // route optimization with the mobile node before the mobile node
-    // does, the mobile node would use the care-of address of the
-    // correspondent node as destionation for HoTI and CoTI to
-    // initiate the route optimization process.
-
-    // A suggested solution to overcome such issue is to check if the
-    // received data packet has a home address option. This implies
-    // that the correspondent node has a BUL entry for the mobile node
-    // if it does.  The mobile node MAY do a futher check to determine
-    // if the home address in the home address option appears in the
-    // home address field of the BC entry for the correspodnent
-    // node. Hence, the mobile node would use home address of the
-    // correspondent node as the destination for HoTI and CoTI to
-    // initiate the route optimization process. If not, it would
-    // simply use the source address of the packet as destination
-    // address for the HoTI and CoTI as described in the Mobile IPv6
-    // specification.
-
-/*
-    HdrExtProc* proc = check_and_cast<IPv6Datagram* >(dgram->encapsulatedMsg())->findHeader(EXTHDR_DEST);
-    if (proc)
-    {
-      IPv6TLVOptionBase* opt =
-        check_and_cast<HdrExtDestProc*>(proc)->
-        getOption(IPv6TLVOptionBase::MIPv6_HOME_ADDRESS_OPT);
-
-      if (opt)
-      {
-        MIPv6TLVOptHomeAddress* haOpt = check_and_cast<MIPv6TLVOptHomeAddress*>(opt);
-        assert(haOpt);
-        ipv6_addr hoa = haOpt->homeAddr();
-
-        IPv6NeighbourDiscovery::IPv6CDS::DCI it;
-        bool findDest = rt->cds->findDestEntry(hoa, it);
-
-        boost::weak_ptr<bc_entry> bce = it->second.bce;
-        if (bce.lock().get() != 0 && !mob->directSignaling())
-            const_cast<ipv6_addr&>(cna) = bce.lock().get()->home_addr;
-      }
-    }
-*/
-    // OR
-
     // to look up the destination cache entry
 
   //Use hoa of CN if we have a binding for it
@@ -1367,7 +1315,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   }
 
     if (mob->returnRoutability())
-        mstateMN->sendInits(cna, coa);
+      mstateMN->sendInits(cna, coa);
     else
     {
       //What happens if home_addr is really our previous coa? so use the one

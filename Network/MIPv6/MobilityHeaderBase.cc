@@ -35,7 +35,7 @@
 #include "MobilityHeaderBase.h"
 #include "MobilityHeaders.h"
 
-MobilityHeaderBase_Base::MobilityHeaderBase(const char *name, int kind) : 
+MobilityHeaderBase::MobilityHeaderBase(const char *name, int kind) : 
   MobilityHeaderBase_Base(name,kind) 
 {
   setByteLength(8);
@@ -70,4 +70,67 @@ MobilityOptionBase*  MobilityHeaderBase::mobilityOption(MobilityOptType type) co
       return mobilityOptions[i];
     
   return 0;
+}
+
+std::ostream& operator<<(std::ostream& os, const MobilityHeaderBase& mhb)
+{
+  os<<" mob header"; 
+  if (mhb.kind() == MIPv6MHT_HOTI)
+  {
+    os<<" hc="<<((HOTI&)mhb).homeCookie();
+  }
+  else if (mhb.kind() == MIPv6MHT_COTI)
+  {
+    os<<" coc="<<((COTI&)mhb).careOfCookie();
+  }
+  else if (mhb.kind() == MIPv6MHT_HOT)
+  {
+    HOT& hot = (HOT&)mhb;
+    os<<" hni="<<hot.hni()<<" hc="<<hot.homeCookie();
+  }
+  else if (mhb.kind() == MIPv6MHT_COT)
+  {
+    COT& cot = (COT&)mhb;
+    os<<" cni="<<cot.coni()<<" coc="<<cot.careOfCookie();
+  }
+  else if (mhb.kind() == MIPv6MHT_BU)
+  {
+    BU& bu = (BU&)mhb;
+    os<<" ack="<<bu.ack()<<" home="<<bu.homereg()<<" map="<<bu.mapreg()<<" seq="
+      <<bu.sequence()<<" exp="<<bu.expires();
+  }
+  else if (mhb.kind() == MIPv6MHT_BA)
+  {
+    BA& ba = (BA&)mhb;
+    os<<" status="<<ba.status()<<" seq="<<ba.sequence()<<" lifetime="<<ba.lifetime();    
+  }
+
+
+  for ( size_t i = 0; i < mhb.mobilityOptions.size(); i++)
+  {
+    if (i == 0)
+      os<<"mobopt";
+    MobilityOptionBase& opt = *(mhb.mobilityOptions[i]);
+    os<<" len="<<opt.byteLength();
+    switch(opt.kind())
+    {
+    case MOPT_BRA:
+	os<<" refresh interval="<<((MIPv6OptBRA&)opt).interval();
+	break;
+    case MOPT_ACoA:
+      os<<" acoa="<<((MIPv6OptACoA&)opt).acoa();
+      break;
+    case MOPT_NI:
+      os<<" hni="<<((MIPv6OptNI&)opt).hni()<<" coni="<<((MIPv6OptNI&)opt).coni();
+      break;
+    case MOPT_AUTH:
+      os<<" Auth";
+      break;
+    default:
+      os<<" unknown kind="<<opt.kind();
+      break;
+    }
+    os<<"--";
+  }
+  return os;
 }

@@ -79,7 +79,7 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
 
 std::ostream& MIPv6TLVOptHomeAddress::operator<<(std::ostream& os)
 {
-  return os<<" destination option: home addr option hoa="<<homeAddr()<<"\n";
+  return os<<" destination option: hoa="<<homeAddr();
 }
 
 } //namespace MobileIPv6

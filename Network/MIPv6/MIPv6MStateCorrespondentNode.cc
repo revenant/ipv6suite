@@ -280,7 +280,9 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
         sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
       }
       
-      check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+      //senderModule is not IPv6mobility?
+      //check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+      std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;
       return true;
     }
   }
@@ -300,7 +302,9 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
   if (!mob->earlyBindingUpdate())
   {
     assert( dgram->timestamp() );
-    check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+    //check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+    if (bu->senderModule())
+    std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;
   }
   return true;
 }
@@ -343,13 +347,11 @@ void MIPv6MStateCorrespondentNode::processTI(MobilityHeaderBase* ti, IPv6Datagra
   else
     assert(false);
 
-  // send back the HoT to the mobile node
-  IPv6Datagram* reply = new IPv6Datagram(dgram->destAddress(), dgram->srcAddress(), testMsg);
-  reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  
   assert(dgram->timestamp());
-  reply->setTimestamp(dgram->timestamp());
+
+  // send back the HoT to the mobile node
+  IPv6Datagram* reply = constructDatagram(dgram->destAddress(), dgram->srcAddress(),
+					  testMsg, 0, dgram->timestamp());
 
   Dout(dc::rrprocedure|flush_cf, "RR procedure: At " <<mob->simTime() << "sec, " 
        << mob->nodeName()<<" sending " << testMsg->className() << " src= " 

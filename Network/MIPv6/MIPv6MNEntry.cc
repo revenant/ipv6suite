@@ -122,32 +122,19 @@ namespace MobileIPv6
 #ifdef USE_HMIP
     , mapReg(mapReg)
 #endif //USE_HMIP
-/*    , isPerformingRR(false), hotiRetransTmr(0), cotiRetransTmr(0),
-     last_hoti_sent(0), last_coti_sent(0), homeNI(0), careofNI(0),
-     hoti_timeout(0), coti_timeout(0),
-     hoti_cookie(UNSPECIFIED_BIT_64), coti_cookie(UNSPECIFIED_BIT_64),
+     ,hotiRetransTmr(0), cotiRetransTmr(0), homeNI(0), careOfNI(0),
+     regDelay(0),
+     hoti_cookie(0), coti_cookie(0),
+     hoti_timeout(0), coti_timeout(0)
+/*    , isPerformingRR(false), 
+     last_hoti_sent(0), last_coti_sent(0)
      careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
      // cell residency related information
      _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
      cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0),
-     regDelay(0)
 */
   {
     setExpires(lifetime());
-/*
-    hoti_cookie.high = rand();
-    hoti_cookie.low = rand();
-
-    coti_cookie.high = rand();
-    coti_cookie.low = rand();
-
-    if (!_homeReg) // information is only valid for mobile CN
-    {
-      WATCH(_dirSignalCount);
-      WATCH(_successDirSignalCount);
-      WATCH(_careOfTestRTT);
-    }
-*/
   }
 
 

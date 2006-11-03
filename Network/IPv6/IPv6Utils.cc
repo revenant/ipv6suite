@@ -30,6 +30,7 @@
 #include <omnetpp.h>
 #include "IPv6Datagram.h"
 #include "HdrExtProc.h"
+#include "MobilityHeaderBase.h"
 
 namespace IPv6Utils
 {
@@ -50,9 +51,15 @@ namespace IPv6Utils
 
     if (datagram->kind() == 1 || routingInfoDisplay)
     {
-      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime()
-	<<" type="<<datagram->name()
-	<<" src="<<datagram->srcAddress()<<" dest="
+      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime();
+      if (datagram->transportProtocol() == IP_PROT_IPv6)
+      {
+	os<<" payload=tunnel";
+      }
+      else
+	os<<" payload="<<datagram->name();
+
+      os<<" src="<<datagram->srcAddress()<<" dest="
 	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes ";
 
       for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
@@ -67,6 +74,14 @@ namespace IPv6Utils
 	  check_and_cast<IPv6Datagram*> (datagram->encapsulatedMsg());
 	printRoutingInfo(true, dgram, name, directionOut);
       }
+      if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+      {
+	MobilityHeaderBase* mhb = 
+	  check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
+	if (mhb)
+	  os<<*mhb;
+      }
+
       os<<endl;
 
     }

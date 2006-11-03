@@ -138,11 +138,8 @@ void MIPv6MobilityState::sendBE(int status, IPv6Datagram* dgram)
   if (origSrc.isMulticast())
     return;
 
-  IPv6Datagram* error = new IPv6Datagram(dgram->destAddress(), origSrc);
-  error->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  error->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  error->encapsulate(new BE(status, hoa));
-
+  IPv6Datagram* error = constructDatagram(dgram->destAddress(), origSrc,
+					 new BE(status, hoa), dgram->inputPort());
   mob->send(error, "routingOut");
 }
 
@@ -322,19 +319,14 @@ bool MIPv6MobilityState::deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned in
   return mipv6cds->removeBinding(hoa);
 }
 
-void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr,
-                                const ipv6_addr& destAddr,
-				const ipv6_addr& hoa,
-                                BA* ba, simtime_t timestamp)
+void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
+				const ipv6_addr& hoa, BA* ba, simtime_t timestamp,
+				unsigned int ifIndex)
 {
   if ( destAddr.isMulticast() )
     return;
 
-  IPv6Datagram* reply = new IPv6Datagram(srcAddr, destAddr, ba);
-  reply->setKind(1);
-  reply->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
-  reply->setHopLimit(mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit);
-  reply->setTimestamp( timestamp );
+  IPv6Datagram* reply = constructDatagram(srcAddr, destAddr, ba, ifIndex, timestamp);
   Dout(dc::mipv6, mob->nodeName()<<" sending BA to "<<destAddr);
 
   if (ba->status() ==  BAS_UNREC_HONI ||
@@ -371,6 +363,33 @@ bool MIPv6MobilityState::addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dg
   rtProc->addRoutingHeader(rt2);
   dgram->addLength(rtProc->lengthInUnits()*BITS);
   return true;
+}
+
+/**
+   @brief Uniform method of constructing IPv6Mobility datagrams that show up in routingInfo
+   @param timestamp not really sure how to use this need to ask Eric
+   @return constructed datagrma
+
+   @note Code assumes single iface is mobile interface so 
+*/
+
+IPv6Datagram* MIPv6MobilityState::constructDatagram(const ipv6_addr& dest, const ipv6_addr& src, 
+				cMessage* const msg, unsigned int ifIndex, simtime_t timestamp) const
+{
+  IPv6Datagram* dgram = new IPv6Datagram(dest, src, msg);
+  dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  if (timestamp)
+    dgram->setTimestamp(timestamp);
+  dgram->setOutputPort(ifIndex);
+  //tunnels should use default hop limit of first interface!! as they are not
+  //added to interface table
+  unsigned int hoplimit = mob->ift->interfaceByPortNo(0)->ipv6()->curHopLimit;
+  if (mob->ift->numInterfaceGates() > ifIndex)
+    hoplimit = mob->ift->interfaceByPortNo(ifIndex)->ipv6()->curHopLimit;
+  dgram->setHopLimit(hoplimit);
+  //show up in routingInfo
+  dgram->setKind(1);
+  return dgram;
 }
 
 } // end namespace MobileIPv6

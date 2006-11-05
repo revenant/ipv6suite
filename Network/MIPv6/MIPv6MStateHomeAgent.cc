@@ -119,7 +119,7 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
       )
   {
     BA* ba = new BA(BAS_NOT_HOME_SUBNET);
-    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, 0, ifIndex);
+    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, 0, ifIndex, false);
     Dout(dc::warning|dc::mipv6, " hoa="<<hoa<<" is not on link w.r.t. HA prefix list");
     return false;
   }
@@ -140,7 +140,7 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
     if(!deregisterBCE(bu, hoa, (unsigned int)dgram->inputPort()))
     {
       BA* ba = new BA(BAS_NOT_HA_FOR_MN);
-      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, 0, ifIndex);
+      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, 0, ifIndex, false);
       Dout(dc::mipv6|dc::warning, " Failed pcoa de-registration for "
            <<dgram->srcAddress()<<" hoa="<<hoa);
       return false;
@@ -149,7 +149,7 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
     {
       BA* ba = new BA(BAS_ACCEPTED, bu->sequence());
       sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp(),
-	     ifIndex);
+	     ifIndex, false);
       Dout(dc::mipv6, " pcoa de-registration succeeded for "
            <<dgram->srcAddress()<<" hoa="<<hoa);
       return true;
@@ -164,7 +164,7 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
     ba->setLifetime(bu->expires());
 
     sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp(),
-	   ifIndex);
+	   ifIndex, false);
 
     Dout(dc::mipv6|flush_cf, mob->nodeName()<<" "<<mob->simTime()<<" BA sent to "
          <<dgram->srcAddress()<<" status="<<ba->status());

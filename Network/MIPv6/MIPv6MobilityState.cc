@@ -321,7 +321,7 @@ bool MIPv6MobilityState::deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned in
 
 void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destAddr,
 				const ipv6_addr& hoa, BA* ba, simtime_t timestamp,
-				unsigned int ifIndex)
+				unsigned int ifIndex, bool rrproc )
 {
   if ( destAddr.isMulticast() )
     return;
@@ -335,7 +335,7 @@ void MIPv6MobilityState::sendBA(const ipv6_addr& srcAddr, const ipv6_addr& destA
   {
     //not including binding auth mob opt
   }
-  else
+  else if (rrproc)
   {
     ba->addOption(new MIPv6OptBAD);
   }

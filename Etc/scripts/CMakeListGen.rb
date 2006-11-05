@@ -84,7 +84,7 @@ def writeCMakeList(dir, outputName, projName = nil)
 #ARP|IPv4|TCP|FlatNetwork|Queue
 #RTP because SocketInterface does not yet exist
   commonIgnore =
-	"Scalars|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
+	"Scalars|Research|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   
@@ -120,7 +120,9 @@ INCLUDE(${CMAKEFILES_PATH}/IntelICCOptions.cmake)
 
 INCLUDE(${CMAKEFILES_PATH}/Configure.cmake)
 
-INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
+IF(NOT WIN32)
+  INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
+ENDIF(NOT WIN32)
 
 INCLUDE(${CMAKEFILES_PATH}/LinkLibraries.cmake)
 
@@ -128,6 +130,19 @@ ADD_DEFINITIONS(-DBOOST_WITH_LIBS -DWITH_IPv6 -DUSE_MOBILITY -DFASTRS -DFASTRA -
  
 INCLUDE_DIRECTORIES(${OPP_INCLUDE_PATH})
 INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
+#By default on Linux env this is usually same as /usr/include
+#But just in case not include it too
+INCLUDE_DIRECTORIES(${BOOSTROOT})
+
+IF(WIN32)
+  #include windows specific includes/lib dirs part of SDK and
+  #VC (run vcvars32.bat in console before cmakesetup)
+  INCLUDE_DIRECTORIES($ENV{INCLUDE})
+  FIND_LIBRARY(USER32 user32 $ENV{LIB})
+  #Force inclusion of $ENV(LIB)
+  ADD_LIBRARY(USER32)
+ENDIF(WIN32)
+
 EOF
       x.puts xvar
 
@@ -195,10 +210,12 @@ ENDIF(OPP_USE_TK)
 ENDIF(CMAKE_CACHE_MINOR_VERSION EQUAL 0)
 ENDIF(NOT LIBCWD_DEBUG)
 
+IF(NOT WIN32)
 ENABLE_TESTING()
 SUBDIRS(
 Research/Networks/
 )
+ENDIF(NOT WIN32)
 
 EOF
       x.puts xvar

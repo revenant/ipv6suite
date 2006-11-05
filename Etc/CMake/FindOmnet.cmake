@@ -13,7 +13,7 @@
 # OPP_CMDLIBRARIES opp libraries using cmdenv
 # OPP_TKGUILIBRARIES opp libs using tkenv
 
-FIND_PROGRAM(OPP_NEDC nedc ${OPP_BASE_DIR}/bin DOC "Full Path of nedc")
+FIND_PROGRAM(OPP_NEDC nedtool ${OPP_BASE_DIR}/bin DOC "Full Path of nedtool")
 
 IF(NOT OPP_BASE_DIR)
   IF(EXISTS ${OPP_NEDC})
@@ -25,13 +25,16 @@ IF(NOT OPP_BASE_DIR)
   ENDIF(EXISTS ${OPP_NEDC})
 ENDIF(NOT OPP_BASE_DIR)
 
-FIND_PROGRAM(OPP_MSGC opp_msgc ${OPP_BASE_DIR}/bin DOC "Full path to opp_msgc")
+IF(WIN32)
+  SET(WIN32BATCH .cmd)
+ENDIF(WIN32)
+FIND_PROGRAM(OPP_MSGC opp_msgc${WIN32BATCH} ${OPP_BASE_DIR}/bin DOC "Full path to opp_msgc")
   IF(EXISTS ${OPP_MSGC})
   ELSE(EXISTS ${OPP_MSGC})
     MESSAGE(FATAL_ERROR "Cannot find OMNeT++ opp_msgc program")
   ENDIF(EXISTS ${OPP_MSGC})
 
-FIND_PROGRAM(OPP_TEST opp_test ${OPP_BASE_DIR}/bin DOC "Full path to opp_test")
+FIND_PROGRAM(OPP_TEST opp_test${WIN32BATCH} ${OPP_BASE_DIR}/bin DOC "Full path to opp_test")
 IF(EXISTS ${OPP_TEST})
 ELSE(EXISTS ${OPP_TEST})
   MESSAGE(FATAL_ERROR "Cannot find OMNeT++ opp_test program")

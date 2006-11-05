@@ -54,13 +54,13 @@ namespace IPv6Utils
       os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime();
       if (datagram->transportProtocol() == IP_PROT_IPv6)
       {
-	os<<" payload=tunnel";
+	os<<" payload=datagram";
       }
       else
 	os<<" payload="<<datagram->name();
 
       os<<" src="<<datagram->srcAddress()<<" dest="
-	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes ";
+	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes";
 
       for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
 	   proc = datagram->getNextHeader(proc))

@@ -1,4 +1,5 @@
 ADD_TEST(SimpleHMIP HMIPv6Network -f HMIPv6Simple.ini -r 1)
+ADD_TEST(SimpleHMIP HMIPv6Network -f HMIPv6Simple.ini -r 4)
 #Does previous MAP to next MAP forwarding in code (perhaps I should add XML var to toggle this)
 ADD_TEST(MapToMapHandover HMIPv6Network -f HMIPv6Sait.ini -r 1)
 ADD_TEST(EH1secondPing HMIPv6Network -f SaitEHCal.ini -r 1)

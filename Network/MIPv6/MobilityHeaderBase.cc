@@ -74,7 +74,7 @@ MobilityOptionBase*  MobilityHeaderBase::mobilityOption(MobilityOptType type) co
 
 std::ostream& operator<<(std::ostream& os, const MobilityHeaderBase& mhb)
 {
-  os<<" mob header "; 
+  os<<" mobheader "; 
   if (mhb.kind() == MIPv6MHT_HOTI)
   {
     os<<"hc="<<((HOTI&)mhb).homeCookie();

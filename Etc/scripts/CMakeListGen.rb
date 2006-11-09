@@ -82,7 +82,6 @@ def writeCMakeList(dir, outputName, projName = nil)
 				#EtherSwitch
 #Contract requires IPv4
 #ARP|IPv4|TCP|FlatNetwork|Queue
-#RTP because SocketInterface does not yet exist
   commonIgnore =
 	"Scalars|Research|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
   
@@ -119,6 +118,8 @@ INCLUDE(${CMAKEFILES_PATH}/IntelICCOptions.cmake)
 #INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 
 INCLUDE(${CMAKEFILES_PATH}/Configure.cmake)
+
+INCLUDE(${CMAKEFILES_PATH}/Macros.cmake)
 
 IF(NOT WIN32)
   INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)

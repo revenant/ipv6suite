@@ -44,6 +44,7 @@ namespace simulacrum {      // >
         ::libcwd::channel_ct xml_addresses(ch_XMLAddress);
         ::libcwd::channel_ct routing(ch_Routing);
         ::libcwd::channel_ct forwarding(ch_Forwarding);
+        ::libcwd::channel_ct send(ch_Send);
         ::libcwd::channel_ct encapsulation(ch_Encapsulation);
         ::libcwd::channel_ct prefix_timer(ch_PrefixTimer);
         ::libcwd::channel_ct address_timer(ch_AddressTimer);
@@ -78,6 +79,7 @@ namespace simulacrum {      // >
         const char* ch_XMLAddress = "XMLAddresses";
         const char* ch_Routing = "Routing";
         const char* ch_Forwarding = "Forwarding";
+        const char* ch_Send = "Send";	
         const char* ch_Encapsulation = "Encapsulation";
         const char* ch_PrefixTimer = "PrefixTimer";
         const char* ch_AddressTimer = "AddressTimer";
@@ -122,6 +124,7 @@ namespace simulacrum {      // >
 
           Debug( addChannel(ch_Routing, routing); );
           Debug( addChannel(ch_Forwarding, forwarding); );
+          Debug( addChannel(ch_Send, send); );
           Debug( addChannel(ch_Encapsulation, encapsulation); );
           Debug( addChannel(ch_PrefixTimer, prefix_timer); );
           Debug( addChannel(ch_AddressTimer, address_timer); );

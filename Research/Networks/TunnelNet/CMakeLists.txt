@@ -1,2 +1,6 @@
 ADD_TEST(TunnelNetR1 TunnelNet -r 1)
+ADD_TEST(diffr1 /usr/bin/bash -c "bzcat TunnelNet-r1.out.bz2|diff - test.out")
 ADD_TEST(TunnelNetR2 TunnelNet -r 2)
+ADD_TEST(diffr2 /usr/bin/bash -c "bzcat TunnelNet-r2.out.bz2|diff - test.out")
+ADD_TEST(TunnelNetR3 TunnelNet -r 3)
+ADD_TEST(diffr3 /usr/bin/bash -c "bzcat TunnelNet-r3.out.bz2|diff - test.out")

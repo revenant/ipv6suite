@@ -175,3 +175,13 @@ ENDMACRO(CREATE_SIMULATION target ned_includes ned_sources)
 MACRO(CREATE_SIM target)
   CREATE_SIMULATION(${target} ${target}_ned_includes "${target}")
 ENDMACRO(CREATE_SIM target)
+
+##################### "Test macros" ###########################################
+OPTION(COLLECT_RESULT "Should results be collected or just test against past collected results (.out.bz2 files)" OFF)
+MACRO(COLLECT_CHECK_TEST testname)
+  IF (COLLECT_RESULT)
+    ADD_TEST(collect${testname} /usr/bin/bash -c "bzip2 test.out && mv test.out.bz2 ${testname}.out.bz2")
+  ELSE (COLLECT_RESULT)
+    ADD_TEST(check${testname} /usr/bin/bash -c "bzcat ${testname}.out.bz2|diff -u - test.out")
+  ENDIF (COLLECT_RESULT)
+ENDMACRO(COLLECT_CHECK_TEST)

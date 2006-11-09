@@ -299,16 +299,6 @@ void MIPv6MobilityState::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram*
       bce.lock()->buArrivalTime - bce.lock()->prevBUTime);
   }
 
-/*  // must need cell residency signaling support from both MN and CN
-  if ( mob->signalingEnhance() == CellResidency && bu->cellSignaling() )
-  {
-    double totalHandoverTime = bce.lock()->avgHandoverDelay * bce.lock()->handoverCount;      
-
-    bce.lock()->avgHandoverDelay = ( totalHandoverTime +
-                                     static_cast<HandoverDelay*>(bu->mobilityOption(MOPT_HandoverDelay))->delay() ) /
-      (bce.lock()->handoverCount + 1) ;      
-  }
-*/
   bce.lock()->prevBUTime = bce.lock()->buArrivalTime;
   bce.lock()->handoverCount++;
 }

@@ -1,6 +1,7 @@
 // -*- C++ -*-
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -42,9 +43,20 @@
 
 #include "QueueBase.h"
 
+//SrcRoute includes
+#include <map>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include "ipv6_addr.h"
+
 class IPv6Datagram;
 class InterfaceTable;
 class RoutingTable6;
+class IPv6Mobility;
+
+//The last route is always the dest
+typedef vector<ipv6_addr> _SrcRoute;
+typedef boost::shared_ptr<_SrcRoute> SrcRoute;
 
 /**
  * @class IPv6Send
@@ -65,9 +77,37 @@ public:
 
 private:
   IPv6Datagram *encapsulatePacket(cMessage *msg);
+  bool insertSourceRoute(IPv6Datagram& datagram);
+
+  void parseSourceRoutes();
 
   InterfaceTable *ift;
   RoutingTable6 *rt;
+  IPv6Mobility *mob;
+
+  /*
+  class ipv6AddrHash: public unary_function<ipv6_addr, size_t>
+  {
+  public:
+
+    size_t operator()(const ipv6_addr& addr) const
+    {
+      return static_cast<size_t> ((addr.extreme || addr.low) &&
+                                  (addr.normal || addr.high));
+    }
+  };
+
+  typedef std::hash_map<ipv6_addr, SrcRoute, ipv6AddrHash, less<ipv6_addr> > SrcRoutes;
+  */
+  ///Route is searched according to final dest (last address in SrcRoute).  The
+  ///src address of packet is used to determine outgoing iface.
+  typedef std::map<ipv6_addr, SrcRoute> SrcRoutes;
+  typedef SrcRoutes::iterator SRI;
+
+  ///Preconfigured source routes.  Only 1 preconfigured source route per
+  ///destination. New ones to same destination will replace existing ones
+  ///without warning.
+  SrcRoutes routes; 
 
   int defaultTimeToLive;
   int defaultMCTimeToLive;
@@ -77,6 +117,8 @@ private:
   // Routing the src address can change when routing header is encountered.
 
   unsigned int ctrIP6OutRequests;
+  unsigned int ctrIP6OutNoRoutes;
+
 };
 
 #endif

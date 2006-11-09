@@ -46,7 +46,6 @@
 #include "MIPv6DestOptMessages.h" //MIPv6OptHomeAddress
 #include "opp_utils.h"
 #include "IPv6Encapsulation.h"
-#include "IPv6Forward.h" //for mnSendPacketCheck
 #include "RoutingTable6.h" // for sendBU
 #include "InterfaceTable.h"
 #include "IPv6InterfaceData.h"
@@ -1640,18 +1639,19 @@ bool MIPv6MStateMobileNode::updateTunnelsFrom
   return true;
 }
 
-bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* frwd)
+//Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
+bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
 {
-
-  //Check to see if we have sent a BU to the peer (bule exists) and if so use a hoa dest
-  //opt and send packet via route optimised path. Otherwise send via reverse tunnel to HA
+  tunnel = false;
+  //see if binding exists at cn (BU to the peer i.e. bule exists) and if so use
+  //a hoa dest opt and send packet via route optimised path. Otherwise send via
+  //reverse tunnel to HA
 
   //Perhaps this goes into send too as only for non forwarded packets.
   RoutingTable6* rt = mob->rt;
   IPv6Datagram* datagram = &dgram;
-  //Process Datagram according to MIPv6 Sec. 11.3.1 while away from home
-  if (!rt->isMobileNode())
-    return true;
+
+  assert(rt->isMobileNode());
   if (!mipv6cdsMN->awayFromHome() ||
       mipv6cdsMN->primaryHA().get() == 0)
     return true;
@@ -1676,7 +1676,8 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
 
 */
 
-  //above no longer applies because we do not swap dest address until after this fn
+  //above no longer applies because we do not swap dest address until after this
+  //fn see IPv6Send::endService
   MobileIPv6::bu_entry* bule = 0;
   bule = mipv6cdsMN->findBU(datagram->destAddress());
 
@@ -1685,18 +1686,20 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
 
   bool pcoa = false;
 
-// {{{ Do Route Optimisation (RO) if bule contains this mn's coa or reverse tunnel to HA
+// {{{ Do Route Optimisation (RO) if bule contains this mn's coa
 
   // The following section of the code only applies to data packet
-  // sent from upper layer. The mobility messages do not contain the
-  // home address option TODO: maybe an extra check of where the
+  // sent from upper layer. Mobility messages do not contain the
+  // home address option. TODO: maybe an extra check of where the
   // message is sent should be done?
   MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
   if (ms == 0 && bule && !bule->isPerformingRR() &&
       bule->homeAddr() == datagram->srcAddress() &&
-      mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&
+      //too strict a test for one of the current coa should instead check that
+      //it is assigned somewhere?
+      mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&      
       //state 0 means ba received or assumed to be received > 0 means
       //outstanding BUs
       (!bule->problem && bule->state == 0) && bule->expires() > 0)
@@ -1710,10 +1713,11 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
     bool test = destProc->addOption(
       new MobileIPv6::MIPv6TLVOptHomeAddress(datagram->srcAddress()));
     assert(test);
-    datagram->setSrcAddress(mipv6cdsMN->careOfAddr(pcoa));
+    datagram->setSrcAddress(bule->careOfAddr());
     Dout(dc::mipv6, rt->nodeName()<<" Added homeAddress Option "
-	 <<rt->mipv6cds->mipv6cdsMN->homeAddr()<<" src addr="<<mipv6cdsMN->careOfAddr(pcoa)
+	 <<bule->homeAddr()<<" src addr="<<bule->careOfAddr()
 	 <<" for destination "<<datagram->destAddress());
+    //test for addr is assigned on link to send is done in IPv6Send::endService
     return true;
   }
 // }}}
@@ -1740,15 +1744,33 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, IPv6Forward* 
     Dout(dc::mipv6|dc::encapsulation|dc::debug|flush_cf, rt->nodeName()
 	 <<" reverse tunnelling vIfIndex="<<hex<<vIfIndex<<dec
 	 <<" for dest="<<datagram->destAddress());
-    IPv6Datagram* copy = datagram->dup();
-    copy->setOutputPort(vIfIndex);
-    frwd->send(copy, "tunnelEntry");
-    return false;
+    datagram->setOutputPort(vIfIndex);
+    tunnel = true;
+    return tunnel;
   }
 
 // }}}
 
   return true;
+}
+
+void MIPv6MStateMobileNode::mnSrcAddrDetermination(IPv6Datagram* datagram)
+{
+  ipv6_addr::SCOPE destScope = ipv6_addr_scope(datagram->destAddress());
+
+  //We don't care which outgoing iface dest is on because it is determined by
+  //default router ifIndex anyway (preferably iface on link with Internet
+  //connection after translation to care of addr)
+  if (datagram->srcAddress() == IPv6_ADDR_UNSPECIFIED &&
+      mipv6cdsMN->primaryHA().get() != 0 &&
+      destScope == ipv6_addr::Scope_Global)
+  {
+    RoutingTable6* rt = mob->rt;
+    Dout(dc::mipv6, rt->nodeName()<<" using homeAddress "
+	 <<rt->mipv6cds->mipv6cdsMN
+	 ->homeAddr()<<" for destination "<<datagram->destAddress());
+    datagram->setSrcAddress(mipv6cdsMN->homeAddr());
+  }
 }
 
 void MIPv6MStateMobileNode::parseXMLAttributes()

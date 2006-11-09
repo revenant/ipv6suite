@@ -39,7 +39,6 @@
 #include "InterfaceTableAccess.h"
 #include "IPv6InterfaceData.h"
 #include "RoutingTable6Access.h"
-#include "IPv6Forward.h"
 #include "cTimerMessage.h"
 #include "cSignalMessage.h"
 #include "AddrResInfo_m.h"
@@ -80,14 +79,9 @@ void AddressResolution::initialize(int stage)
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 
-    //XXX Don't know why on OSF1 requires the global scope qualifier.  Is there
-    //another class with exactly same name?
-    fc = check_and_cast<IPv6Forward*> (
-      OPP_Global::findModuleByTypeDepthFirst(this, "IPv6Forward")); // XXX try to get rid of pointers to other modules --AV
-    assert(fc != 0);
-
     ctrIcmp6OutNgbrAdv = 0;
     ctrIcmp6OutNgbrSol = 0;
+    ctrIP6OutNoRoutes = 0;
 
     if (ift->numInterfaceGates()==0)
     {
@@ -302,7 +296,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
         //happens when other nodes are ready but our addresses are not
         Dout(dc::warning|error_cf|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
              <<" Cannot find any suitable source address for AddrResln so dropping");
-        fc->ctrIP6OutNoRoutes++;
+        ctrIP6OutNoRoutes++;
         delete tmr;
         return;
       }
@@ -435,7 +429,7 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
                                                   p->second->dup());
         delete p->second;
         send(icmp, "ICMPOut");
-        fc->ctrIP6OutNoRoutes++;
+        ctrIP6OutNoRoutes++;
       }
       ppq.erase(nextHop);
     }
@@ -603,7 +597,7 @@ void AddressResolution::sendQueuedPackets(const ipv6_addr& src,
       if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
       {
 	p->second->setSrcAddress(
-				 fc->determineSrcAddress(
+				 rt->determineSrcAddress(
 							 p->second->destAddress(), ifIndex));
 	if (p->second->srcAddress() == IPv6_ADDR_UNSPECIFIED)
 	{
@@ -770,5 +764,6 @@ void AddressResolution::finish()
 
   recordScalar("Icmp6OutNgbrAdv", ctrIcmp6OutNgbrAdv);
   recordScalar("Icmp6OutNgbrSol", ctrIcmp6OutNgbrSol);
+  recordScalar("IP6OutNoRoutes", ctrIP6OutNoRoutes);
 
 }

@@ -34,7 +34,6 @@ class ICMPv6Message;
 class IPv6Datagram;
 class RoutingTable6;
 class InterfaceTable;
-class IPv6Forward;
 class PingPayload;
 
 /**
@@ -113,7 +112,6 @@ private:
 
   InterfaceTable *ift;
   RoutingTable6 *rt;
-  IPv6Forward *fc;
 
   unsigned int ctrIcmp6OutEchoReplies;
   unsigned int ctrIcmp6InMsgs;

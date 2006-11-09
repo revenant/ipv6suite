@@ -1,6 +1,7 @@
 // -*- C++ -*-
 //
 // Copyright (C) 2001, 2003 CTIE, Monash University
+// Copyright (C) 2006 by Johnny Lai
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -38,43 +39,19 @@
 #ifndef __IPv6FORWARD_H__
 #define __IPv6FORWARD_H__
 
-#include <map>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <functional>
-
 #include "ipv6_addr.h"
-#include "IPv6Datagram.h"
 #include "QueueBase.h"
 
 class RoutingTable6;
 class InterfaceTable;
-
-//The last route is always the dest
-typedef vector<ipv6_addr> _SrcRoute;
-typedef boost::shared_ptr<_SrcRoute> SrcRoute;
-
-class ipv6AddrHash: public unary_function<ipv6_addr, size_t>
-{
-public:
-
-  size_t operator()(const ipv6_addr& addr) const
-    {
-      return static_cast<size_t> ((addr.extreme || addr.low) &&
-                                  (addr.normal || addr.high));
-    }
-};
+class IPv6Datagram;
+class ICMPv6Message;
 
 
 /**
  * @class IPv6Forward
  * @brief Process datagrams and determine where they go
  */
-class ICMPv6Message;
-class AddrResInfo; //remove this dependency when conceptual sending is removed
-class RoutingTable6;
-class IPv6Encapsulation;
-class IPv6Mobility;
 
 namespace IPv6NeighbourDiscovery
 {
@@ -83,8 +60,6 @@ namespace IPv6NeighbourDiscovery
 
 class IPv6Forward : public QueueBase
 {
-  friend std::ostream& operator<<(std::ostream & os,
-                                  IPv6Forward& routeMod);
 public:
   Module_Class_Members(IPv6Forward, QueueBase, 0);
 
@@ -92,29 +67,6 @@ public:
   virtual void endService(cMessage* theMsg);
   virtual int  numInitStages() const  {return 4;}
   virtual void finish();
-
-  void addSrcRoute(const SrcRoute& routes);
-
-  /**
-     Return the interface index to send the packets with dest as
-     destination address.
-     @param info is assigned with the link local address and ifIndex too
-     -1 if destination is not in routing table
-     -2 if packets are pending addr res
-  */
-  //migrate to Routing
-  int conceptualSending(IPv6Datagram *dgram, AddrResInfo *info);
-
-  ///Return the src address for a packet going out on ifIndex to dest
-  //migrate to Routing?
-  ipv6_addr determineSrcAddress(const ipv6_addr& dest, size_t ifIndex);
-
-  bool insertSourceRoute(IPv6Datagram& datagram);
-
-  ////Determine if the address is a local one, ie for delivery to localhost
-  //bool localDeliver(const ipv6_addr& dest);
-
-  unsigned int ctrIP6OutNoRoutes;
 
   //par from ini file
   bool routingInfoDisplay;
@@ -129,26 +81,10 @@ private:
 
   void sendErrorMessage (ICMPv6Message* err);
 
-  //typedef std::hash_map<ipv6_addr, SrcRoute, ipv6AddrHash, less<ipv6_addr> > SrcRoutes;
-  typedef std::map<ipv6_addr, SrcRoute> SrcRoutes;
-  typedef SrcRoutes::iterator SRI;
-
-  ///Preconfigured source routes.  Only 1 preconfigured source route per
-  ///destination. New ones to same destination will replace existing ones
-  ///without warning.
-  SrcRoutes routes; // XXX move to RoutingTable! --AV
-
   ///Used for sending redirects on our behalf
   IPv6NeighbourDiscovery::NDStateRouter* nd;
-  IPv6Encapsulation* tunMod;
-#ifdef EDGEHANDOVER
-  //used to determine bcoa to trigger reverse tunnel
-  IPv6Mobility* mob;
-#endif //EDGEHANDOVER
 
 };
-
-std::ostream& operator<<(std::ostream & os, IPv6Forward& routeMod);
 
 #endif
 

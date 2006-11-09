@@ -114,10 +114,16 @@ bool MIPv6MStateCorrespondentNode::processMobilityMsg(IPv6Datagram* dgram)
   return true;
 }
 
+/**
+   @brief RFC 3775 Sec. 9.3.2
+   @param dgram is packet to be sent from this node
+   @return true if packet was modified
+   @note ignores stuff about AH authentication requirements
+   @warning not sure about mn-mn communication tunnel in tunnel check here
+*/
+
 bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
 {
-  //Could possibly place this into sendCore
-
   boost::weak_ptr<bc_entry> bce;
 
   // In MN-MN communications, it is possible that the mobility

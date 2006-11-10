@@ -90,7 +90,7 @@ protected:
   std::auto_ptr<RA> discoverMAP(std::auto_ptr<RA> rtrAdv);
 
   //arhandover used by MIPv6NDStateHost::sendBU;
-  friend class MIPv6NDStateHost;
+  friend class MobileIPv6::MIPv6NDStateHost;
   /**
    * @brief Does AR-AR handover with local MAP
    *

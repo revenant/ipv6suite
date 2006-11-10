@@ -170,12 +170,20 @@ EOF
 
     x.puts ")"
 
+    xvar = ""
+xvar = <<EOF
+IF(NOT WIN32)
+  SET(WARNING_LEVEL -Wall)
+ELSE(NOT WIN32)
+  #-Wall takes forever on vsxpress2005
+  SET(WARNING_LEVEL /W1)
+ENDIF(NOT WIN32)
+SET_SOURCE_FILES_PROPERTIES(${#{projName}_SRCS} PROPERTIES  COMPILE_FLAGS ${WARNING_LEVEL})
+SET(#{projName}_SRCS ${GENERATED_MSGC_FILES} ${#{projName}_SRCS})
 
-    x.puts "SET_SOURCE_FILES_PROPERTIES(${#{projName}_SRCS} PROPERTIES  COMPILE_FLAGS -Wall)"
-    x.puts "SET(#{projName}_SRCS ${GENERATED_MSGC_FILES} ${#{projName}_SRCS})"
-    x.puts
-    x.puts
 
+EOF
+    x.puts xvar
     x.puts "INCLUDE_DIRECTORIES("
     includes.each{|inc|         
       x.puts basepath + inc

@@ -1,4 +1,5 @@
-// -*- C++ -*-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// -*- C++ -*-
+// Copyright (C) 2001 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +19,10 @@
     @file WirelessEtherMonitorReceiveMode.h
     @brief Header file for WEMonitorReceiveMode
 
-    @author Steve Woon            Eric Wu
+    @author Steve Woon
+            Eric Wu
 */
+
 
 
 #ifndef __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__
@@ -27,16 +30,20 @@
 
 #include "WirelessEtherReceiveMode.h"
 
-class WESignalData;class WirelessEtherModule;
+class WESignalData;
+class WirelessEtherModule;
 
-class WEMonitorReceiveMode : public WEReceiveMode
+
+class WEMonitorReceiveMode : public WEReceiveMode
 {
     public:
         virtual void decodeFrame(WirelessEtherModule* mod, WESignalData* signal);
         static WEMonitorReceiveMode* instance();
 
-    protected:        static WEMonitorReceiveMode* _instance;
+    protected:
+        static WEMonitorReceiveMode* _instance;
         WEMonitorReceiveMode(void) {}
 };
 
 #endif // __WIRELESS_ETHER_MONITOR_RECEIVE_MODE_H__
+

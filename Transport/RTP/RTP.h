@@ -34,14 +34,21 @@
 #include <omnetpp.h>
 #endif //__OMNETPP_H
 
+#ifndef TYPE_TYPEDEFS_H
+#include "type_typedefs.h"
+#endif
+#ifndef __UDPAPPBASE_H__
 #include "UDPAppBase.h"
+#endif
+#ifndef MAP
+#define MAP
 #include <map>
+#endif
+#ifndef _RTPPACKET_M_H_
 #include "RTCPPacket_m.h"
-#include <sys/types.h>
+#endif
 
-typedef u_int16_t u_int16;
-typedef u_int32_t u_int32;
-typedef u_int64_t u_int64;
+
 
 struct RTPMemberEntry
 {

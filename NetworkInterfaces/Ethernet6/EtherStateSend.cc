@@ -329,7 +329,7 @@ simtime_t EtherStateSend::getBackoffInterval(EtherModule* mod)
 //  assert( mod->getRetry() <= MAX_RETRY );
 
   size_t k = (mod->getRetry()>10?10:mod->getRetry());
-  size_t u = static_cast<size_t>(pow(2, k));
+  size_t u = static_cast<size_t>(pow((float)2, (int)k));
   double r = uniform(0,u, 0);
   simtime_t backoff =  r * SLOT_TIME;
 

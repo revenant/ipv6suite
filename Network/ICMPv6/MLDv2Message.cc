@@ -36,8 +36,8 @@ MLDv2Message::MLDv2Message(ICMPv6Type type, size_t size) : ICMPv6Message(),  _op
 
 MLDv2Message& MLDv2Message::operator=(const MLDv2Message& rhs )
 {
-  MLDv2Message::operator=(rhs);
-      //Identifier and sequence number are set when _opt_info is copied in ICMPv6Message
+  ICMPv6Message::operator=(rhs);
+  //Identifier and sequence number are set when _opt_info is copied in ICMPv6Message
   return* this;
 }
 

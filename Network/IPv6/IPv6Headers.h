@@ -212,11 +212,10 @@ struct ipv6_pad1_opt: public ipv6_option
   static const char zero;
 };
 
-#ifndef C_ASSERT
-#define C_ASSERT
+#ifndef CASSERT
+#define CASSERT
 #include <cassert>
-#endif //C_ASSERT
-
+#endif //CASSERT
 
 /**
    Pad out the whole header to a multiple of 8 octets in length.

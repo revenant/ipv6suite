@@ -1,4 +1,5 @@
-// -*- C++ -*-// Copyright (C) 2001 Monash University, Melbourne, Australia
+// -*- C++ -*-
+// Copyright (C) 2001 Monash University, Melbourne, Australia
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,6 +28,7 @@
 #define __WIRELESS_ETHER_PSCAN_RECEIVE_MODE_H__
 
 #include "WirelessEtherReceiveMode.h"
+
 class WESignalData;
 class WirelessEtherModule;
 

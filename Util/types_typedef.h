@@ -32,9 +32,15 @@
 
 #include <sys/types.h>
 
+#if !defined(WIN32)
 typedef u_int16_t u_int16;
 typedef u_int32_t u_int32;
 typedef u_int64_t u_int64;
+#else
+typedef WORD u_int16;
+typedef unsigned int u_int32;
+typedef DWORD u_int64;
+#endif
 
 #endif /* TYPES_TYPEDEF_H */
 

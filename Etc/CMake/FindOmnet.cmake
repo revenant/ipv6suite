@@ -159,7 +159,9 @@ ELSE(BUILD_SHARED_LIBS)
   SET(TCLTK_LIBS ${TK_STUB_LIBRARY} ${TCL_STUB_LIBRARY})
 ENDIF(BUILD_SHARED_LIBS)
 
-SET(DL_LIB dl) #needs to be last for static builds
+IF(NOT WIN32)
+  SET(DL_LIB dl) #needs to be last for static builds
+ENDIF(NOT WIN32)
 
 SET( OPP_CMDLIBRARIES ${OPP_NEDXML_LIBRARIES} ${OPP_CMDENV_GUI_LIBRARY} ${OPP_ENVIR_LIBRARY} ${OPP_SIMSTD_LIBRARY} ${AKAROA_LIBRARIES} ${MPI_LIBRARIES} ${DL_LIB})
 #Added akaroa lib dep as opp needs it even if we do not want to use akoutvector

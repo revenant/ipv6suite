@@ -34,8 +34,8 @@
 #include <omnetpp.h>
 #endif //__OMNETPP_H
 
-#ifndef TYPE_TYPEDEFS_H
-#include "type_typedefs.h"
+#ifndef TYPES_TYPEDEF_H
+#include "types_typedef.h"
 #endif
 #ifndef __UDPAPPBASE_H__
 #include "UDPAppBase.h"

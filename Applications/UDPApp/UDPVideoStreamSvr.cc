@@ -25,7 +25,7 @@
 #include "UDPVideoStreamSvr.h"
 #include "UDPControlInfo_m.h"
 #include "stlwatch.h"
-
+#include <algorithm> //std::find
 
 Define_Module(UDPVideoStreamSvr);
 

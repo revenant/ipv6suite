@@ -30,7 +30,7 @@
 #include "debug.h" // Dout
 
 #include "EtherStateReceiveWaitBackoff.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "EtherSignal_m.h"
 #include "EtherModule.h"
 #include "EtherStateSend.h"

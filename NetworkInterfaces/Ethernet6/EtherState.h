@@ -37,7 +37,7 @@
 
 #include <omnetpp.h>
 
-#include "ethernet.h"
+#include "ethernet6.h"
 
 class EtherModule;
 

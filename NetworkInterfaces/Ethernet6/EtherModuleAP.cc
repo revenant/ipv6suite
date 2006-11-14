@@ -33,7 +33,7 @@
 
 
 #include "opp_utils.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "PHYSimple.h"
 #include "EtherSignal_m.h"
 #include "EtherFrame6.h"

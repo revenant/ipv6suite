@@ -30,7 +30,7 @@
 #include "debug.h" // Dout
 
 #include "EtherStateReceive.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "EtherModule.h"
 #include "EtherSignal_m.h"
 #include "EtherStateSend.h"

@@ -5,7 +5,7 @@
 
 #include <boost/cast.hpp>
 #include "Repeater.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "EtherSignal_m.h"
 #include "IPv6Datagram.h"
 

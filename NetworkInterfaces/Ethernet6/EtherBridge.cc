@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include "EtherBridge.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "EtherSignal_m.h"
 #include "EtherFrame6.h"
 #include "MACAddress6.h"

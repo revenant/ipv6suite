@@ -40,7 +40,6 @@
 #include <map>
 
 #include "LinkLayerModule.h"
-#include "ethernet.h"
 #include "MACAddress6.h"
 #include <string>
 

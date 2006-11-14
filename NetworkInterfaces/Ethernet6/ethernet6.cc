@@ -25,7 +25,7 @@
 
 */
 
-#include "ethernet.h"
+#include "ethernet6.h"
 
 // timer message ID
 const int TRANSMIT_SENDDATA = 1001;

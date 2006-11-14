@@ -33,7 +33,7 @@
 #include "EtherStateIdle.h"
 #include "cCallbackMessage.h"
 #include "EtherFrame6.h"
-#include "ethernet.h"
+#include "ethernet6.h"
 #include "EtherModule.h"
 #include "EtherSignal_m.h"
 #include "EtherStateSend.h"

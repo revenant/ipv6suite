@@ -59,11 +59,12 @@ MACRO(OPP_WRAP_MSGC dummyTarget dummyIncludes )
 ENDMACRO(OPP_WRAP_MSGC)
 
 
-#Does not work DirName should be name of current directory as opp_test -r -v expects that
 MACRO(OPP_WRAP_TEST DirName)
-  ADD_CUSTOM_COMMAND(TARGET ${DirName} PRE_BUILD COMMAND ${OPP_TEST} ARGS -g *.test)
-  FILE(GLOB TESTS *.test)
-  #FOREACH(test ${ARGN})
+#  SET(WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
+  SET(WORKDIR ${CMAKE_CURRENT_BINARY_DIR}/${DirName})
+  FILE(MAKE_DIRECTORY ${WORKDIR})
+
+  FILE(GLOB TESTS ${DirName}/*.test)
   FOREACH(test ${TESTS})
     STRING(REGEX REPLACE "[.]test$" ".cc" SOURCE ${test})  
     STRING(REGEX REPLACE "^.*/" "" SOURCE ${SOURCE})
@@ -71,28 +72,24 @@ MACRO(OPP_WRAP_TEST DirName)
     STRING(REGEX REPLACE "^.*/" "" TESTNED ${TESTNED})
     STRING(REGEX REPLACE "[.]test$" ".ini" TESTINI ${test})
     STRING(REGEX REPLACE "^.*/" "" TESTINI ${TESTINI})
-    SET(WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
-#    FILE(MAKE_DIRECTORY ${WORKDIR})
+
     ADD_CUSTOM_COMMAND(OUTPUT ${WORKDIR}/${SOURCE} COMMAND ${OPP_TEST}
-      ARGS -w ${CMAKE_CURRENT_BINARY_DIR} -g ${test} DEPENDS ${OPP_TEST}
+      ARGS -w ${WORKDIR} -g ${test} DEPENDS ${OPP_TEST}
       MAIN_DEPENDENCY ${test})
           
-    SET(MSGC_GEN "${MSGC_GEN};${TESTNED};${TESTINI};${SOURCE}")
-    SET(TESTS_SOURCES ${TESTS_SOURCES} ${SOURCE})
+    SET(MSGC_GEN "${MSGC_GEN};${WORKDIR}/${TESTNED};${WORKDIR}/${TESTINI};${WORKDIR}/${SOURCE}")
+    SET(TESTS_SOURCES ${TESTS_SOURCES} ${WORKDIR}/${SOURCE})
     #Creates .cc depending on whether a %global i.e. source file is generated or not
     #Which means not all tests will have a .cc file generated
   ENDFOREACH(test)    
   
-  #IF we can run some script to generate the cc and then use this to populate file I guess it may work but how to run script before
-  #cmake generates the make file?. Treat test directory as separate project?
-  #FILE(GLOB SOURCES ${CMAKE_CURRENT_BINARY_DIR}/*.cc)
-  
   SET_SOURCE_FILES_PROPERTIES(${TESTS_SOURCES} PROPERTIES GENERATED ON)
   
-  ADD_EXECUTABLE(${DirName} ${TESTS_SOURCES} )
-  
+  ADD_EXECUTABLE(${DirName}/${DirName} ${TESTS_SOURCES} )
+ 
   SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MSGC_GEN}" )
-  
+  TARGET_LINK_LIBRARIES(${DirName}/${DirName} ${OPP_CMDLIBRARIES} inet)  
+  ADD_TEST(OPPTEST ${OPP_TEST} -r -N -w ${WORKDIR} ${DirName}/*.test)
 ENDMACRO(OPP_WRAP_TEST )
 
 MACRO(OPP_WRAP_NEDC dum INCLUDES)

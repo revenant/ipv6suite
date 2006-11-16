@@ -139,7 +139,8 @@ IF(WIN32)
   #include windows specific includes/lib dirs part of SDK and
   #VC (run vcvars32.bat in console before cmakesetup)
   INCLUDE_DIRECTORIES($ENV{INCLUDE})
-  FIND_LIBRARY(USER32 user32 $ENV{LIB})
+  FIND_LIBRARY(USER32 wsock32 $ENV{LIB})
+  ADD_DEFINITIONS(/NODEFAULTLIB:MSVCRTD /NODEFAULTLIB:LIBCMT)
 ENDIF(WIN32)
 
 EOF
@@ -201,7 +202,12 @@ EOF
 
 
 xvar = <<EOF
-SET(OUTPUTDIR #{outputdir})
+SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+IF(NOT WIN32)
+#Windows does not recognise ./ as current dir
+  SET(OUTPUTDIR #{outputdir})
+ENDIF(NOT WIN32)
  
 SET(#{projName} ${OUTPUTDIR}/#{projName})
 ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})
@@ -218,7 +224,9 @@ IF(NOT LIBCWD_DEBUG)
 ENDIF(NOT LIBCWD_DEBUG)
 
 IF(NOT WIN32)
+ADD_LIBRARY(inet ${INET_SRCS})
 ENABLE_TESTING()
+OPP_WRAP_TEST(Tests)
 SUBDIRS(
 Research/Networks/
 )

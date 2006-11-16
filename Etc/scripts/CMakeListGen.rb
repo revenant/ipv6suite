@@ -209,10 +209,10 @@ SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 IF(NOT WIN32)
 #Windows does not recognise ./ as current dir
-  SET(OUTPUTDIR #{outputdir})
+  SET(OUTPUTDIR #{outputdir}/)
 ENDIF(NOT WIN32)
  
-SET(#{projName} ${OUTPUTDIR}/#{projName})
+SET(#{projName} ${OUTPUTDIR}#{projName})
 ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})
 TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_CMDLIBRARIES} )
 

@@ -145,7 +145,10 @@ ENDIF(WIN32)
 
 EOF
       x.puts xvar
-
+      if `hostname` =~ /hn1/
+      x.puts %|SET(CMAKE_CXX_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
+SET(CMAKE_SHARED_LINKER_FLAGS -m32 CACHE STRING "build 32bit" FORCE)|
+      end
     end
 
     createNedFilesList(dir, commonIgnore + "|Examples|Research")

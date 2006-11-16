@@ -65,7 +65,7 @@ namespace IPv6NeighbourDiscovery
 {
 
 
-size_t NDStateRouter::outputUnicastGate = UINT_MAX;
+unsigned int NDStateRouter::outputUnicastGate = UINT_MAX;
 
 
 /**

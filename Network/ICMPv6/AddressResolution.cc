@@ -65,7 +65,7 @@ static const size_t MAX_MULTICAST_SOLICIT = 3;
 
 Define_Module( AddressResolution );
 
-size_t AddressResolution::outputUnicastGate = UINT_MAX;
+unsigned int AddressResolution::outputUnicastGate = UINT_MAX;
 
 void AddressResolution::initialize(int stage)
 {

@@ -38,7 +38,7 @@ ENDIF(CMAKE_CXX_COMPILER MATCHES "icpc")
 
 FIND_LIBRARY(BOOST_LIB_SIGNALS 
     NAMES boost_signals-${BOOST_LIB_SUFFIX} boost_signals 
-    PATHS ${BOOSTROOT}/../lib /usr/lib
+    PATHS $ENV{HOME}/lib ${BOOSTROOT}/../lib /usr/lib
     DOC "Signals library which replaced Loki for timer messages")
 
 IF(USE_XMLWRAPP)

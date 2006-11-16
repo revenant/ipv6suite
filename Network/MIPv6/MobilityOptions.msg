@@ -37,12 +37,12 @@ class MobilityOptionBase
 {
   properties:
   omitGetVerb = true;
+  //  customize = true;
   fields:
   //extra kind_var data member but virtual fn ensure correct one is retrived
   //using abstract removes data member kind_var but requires to redefine class
-  int kind enum(MobilityOptType);
-  unsigned int byteLength;
-  //length of 4 but added in subclasses already
+   int kind;
+   unsigned int byteLength;
 }
 
 struct u_int16;
@@ -53,7 +53,7 @@ class MIPv6OptBRA extends MobilityOptionBase
  properties:
   omitGetVerb = true;
  fields:
-  unsigned int byteLength = 6;
+  unsigned int byteLength = 4;
   int kind enum(MobilityOptType) = MOPT_BRA;
   //ignore requirement alignments which require padding for now
 
@@ -66,7 +66,7 @@ class MIPv6OptACoA extends MobilityOptionBase
  properties:
   omitGetVerb = true;
  fields:
-  unsigned int byteLength = 20;
+  unsigned int byteLength = 18;
   int kind enum(MobilityOptType) = MOPT_ACoA;
   ipv6_addr acoa;
 }
@@ -76,7 +76,7 @@ class MIPv6OptNI extends MobilityOptionBase
  properties:
   omitGetVerb = true;
  fields:
-  unsigned int byteLength = 8;
+  unsigned int byteLength = 6;
   int kind enum(MobilityOptType) = MOPT_NI;
   u_int16 hni;
   u_int16 coni;
@@ -87,7 +87,7 @@ class MIPv6OptBAD extends MobilityOptionBase
  properties:
   omitGetVerb = true;
  fields:
-  unsigned int byteLength = 20;
+  unsigned int byteLength = 14;
   int kind enum(MobilityOptType) = MOPT_AUTH;
   ipv6_addr auth;
 }

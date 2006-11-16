@@ -199,7 +199,12 @@ ENDIF(NOT BUILD_SHARED_LIBS)
 
 SET(LIBRARY_OUTPUT_PATH "${IPv6Suite_BINARY_DIR}/lib")
 
-SET(COMPILER_WARNINGS -Wall CACHE STRING "compiler flags for warnings")
+IF(NOT WIN32)
+  SET(COMPILER_WARNINGS -Wall CACHE STRING "compiler flags for warnings")
+ELSE(NOT WIN32)
+  #-Wall takes forever on vsxpress2005
+  SET(COMPILER_WARNINGS /W1 CACHE STRING "compiler flags for warnings")
+ENDIF(NOT WIN32)
 
 SET(SOURCE_EXTENSION "cc")
 

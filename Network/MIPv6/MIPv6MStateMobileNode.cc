@@ -1348,18 +1348,11 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #endif //USE_HMIP
   seq, lifetime); //hoa
 
-  IPv6Datagram* dgram = constructDatagram(coa, dest, bu, 0);
-
-  if (homeReg
+  if (!homeReg
 #ifdef USE_HMIP
-      || mapReg
+      && !mapReg
 #endif //USE_HMIP
-      ) // BU sent to HA should not have any timestamp set
-  {
-    assert( !timestamp );
-    dgram->setTimestamp( mob->simTime() );
-  }
-  else 
+      )
   {    
 
     //rr should already have been done
@@ -1375,18 +1368,22 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->careOfNI = 0;
     bu->addOption(ni);
     //add Kbm
-    bu->addOption(new MIPv6OptBAD);
+    bu->addOption(new MIPv6OptBAD);   
+  }
 
-// BU sent to CN should already have timestamp from previous state
-#ifndef USE_HMIP
+  IPv6Datagram* dgram = constructDatagram(coa, dest, bu, 0);
+
+  if (homeReg || mapReg)
+  {
+    // BU sent to HA should not have any timestamp set
+    assert( !timestamp );
+    dgram->setTimestamp( mob->simTime() );
+  }
+  else
+  {
+    // BU sent to CN should already have timestamp from previous state
     assert( timestamp );
-#else
-//Removed assertion as SaitEHCal -r 1 will cause this to trigger. Don't know where to set timestamp
-    if (!timestamp)
-      timestamp = mob->simTime();
-#endif
     dgram->setTimestamp( timestamp );
-    
   }
 
   //Draft 17 6.1.7 BU must have haddr dest opt

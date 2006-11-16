@@ -51,6 +51,16 @@ MobilityHeaderBase::~MobilityHeaderBase()
   mobilityOptions.clear();
 }
 
+void MobilityHeaderBase::padHeader()  
+{
+  unsigned int l = this->byteLength();
+  while (l % 8 != 0)
+    {
+      l++;
+    }
+  this->setByteLength(l);
+}
+
 void  MobilityHeaderBase::addOption(MobilityOptionBase* op)
 {
   if (kind() == MIPv6MHT_BE || kind() == MIPv6MHT_COT || kind() == MIPv6MHT_HOT
@@ -59,7 +69,8 @@ void  MobilityHeaderBase::addOption(MobilityOptionBase* op)
     assert(false);
   mobilityOptions.push_back(op);
   if (kind() == MIPv6MHT_BA && op->kind() == MOPT_AUTH)
-    assert(op->byteLength());
+    assert(op->byteLength() > 0);
+  assert(op->byteLength() > 0);
   setByteLength(byteLength() + op->byteLength());
 }
 

@@ -364,9 +364,10 @@ bool MIPv6MobilityState::addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dg
 */
 
 IPv6Datagram* MIPv6MobilityState::constructDatagram(const ipv6_addr& dest, const ipv6_addr& src, 
-				cMessage* const msg, unsigned int ifIndex, simtime_t timestamp) const
+				MobilityHeaderBase* const mhb, unsigned int ifIndex, simtime_t timestamp) const
 {
-  IPv6Datagram* dgram = new IPv6Datagram(dest, src, msg);
+  mhb->padHeader();
+  IPv6Datagram* dgram = new IPv6Datagram(dest, src, mhb);
   dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
   if (timestamp)
     dgram->setTimestamp(timestamp);

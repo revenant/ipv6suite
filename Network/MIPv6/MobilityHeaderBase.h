@@ -79,17 +79,11 @@ protected:
   //@{
 public:
   virtual cPolymorphic *dup() const {return new MobilityHeaderBase(*this);}
-  // ADD CODE HERE to redefine and implement pure virtual functions from MobilityHeaderBase_Base  
+  // ADD CODE HERE to redefine and implement pure virtual functions from MobilityHeaderBase_Base   
+  //@}
 
   //Cater for alignment on multiple of 8 octets
-  void setByteLength(long l)  {
-    while (l % 8 != 0)
-    {
-      l++;
-    }
-    cMessage::setByteLength(l);
-  }
-  //@}
+  void padHeader();
 
   virtual void addOption(MobilityOptionBase* op);
   

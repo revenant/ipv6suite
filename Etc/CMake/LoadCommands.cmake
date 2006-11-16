@@ -89,7 +89,8 @@ MACRO(OPP_WRAP_TEST DirName)
  
   SET_DIRECTORY_PROPERTIES(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MSGC_GEN}" )
   TARGET_LINK_LIBRARIES(${DirName}/${DirName} ${OPP_CMDLIBRARIES} inet)  
-  ADD_TEST(OPPTEST ${OPP_TEST} -r -N -w ${WORKDIR} ${DirName}/*.test)
+  #Modified opp_test to return -1 if tests fail to alert us of failure in cmaketest
+  ADD_TEST(OPPTEST ${OPP_TEST} -r -N -v -w ${WORKDIR} ${CMAKE_CURRENT_SOURCE_DIR}/${DirName}/*.test)
 ENDMACRO(OPP_WRAP_TEST )
 
 MACRO(OPP_WRAP_NEDC dum INCLUDES)

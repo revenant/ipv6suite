@@ -148,7 +148,7 @@ class MIPv6MobilityState
   bool addRoutingHeader(const ipv6_addr& hoa, IPv6Datagram* dgram);
 
   IPv6Datagram* constructDatagram(const ipv6_addr& dest, const ipv6_addr& src, 
-				  cMessage* const msg, unsigned int ifIndex,
+				  MobilityHeaderBase* const mhb, unsigned int ifIndex,
 				  simtime_t timestamp = 0) const;
 
   IPv6Mobility* mob;

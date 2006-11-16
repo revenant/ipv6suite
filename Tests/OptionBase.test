@@ -1,0 +1,82 @@
+%description
+Testing length of mobility options
+
+%global
+#include "MobilityHeaders.h"
+#include "MobilityOptions_m.h"
+#include "IPv6Datagram.h"
+#include "MIPv6DestOptMessages.h" //MIPv6OptHomeAddress
+#include "HdrExtRteProc.h"
+#include <iostream>
+
+%activity
+using namespace std;
+using namespace MobileIPv6;
+BU* bu = new BU(true, false, false, 0,20);
+cout<<bu->byteLength()<<endl;
+
+MIPv6OptNI* ni = new MIPv6OptNI;
+ni->setHni(80);
+ni->setConi(88);
+bu->addOption(ni);
+cout<<bu->byteLength()<<endl;
+
+//add Kbm
+bu->addOption(new MIPv6OptBAD);
+bu->padHeader();
+cout<<bu->byteLength()<<endl;
+
+IPv6Datagram* dg = new IPv6Datagram;
+dg->encapsulate(bu);
+cout<<dg->byteLength()<<endl;
+
+HdrExtDestProc* destProc = dg->acquireDestInterface();
+
+//added length here already don't know how though as we did not stick a dest opt
+//in yet!!
+cout<<dg->byteLength()<<endl;
+destProc->addOption(new MobileIPv6::MIPv6TLVOptHomeAddress(IPv6_ADDR_UNSPECIFIED));
+destProc->addOption(new MobileIPv6::MIPv6TLVOptHomeAddress(IPv6_ADDR_UNSPECIFIED));
+destProc->addOption(new MobileIPv6::MIPv6TLVOptHomeAddress(IPv6_ADDR_UNSPECIFIED));
+cout<<dg->byteLength()<<endl;
+unsigned int comp = dg->byteLength();
+dg->acquireRoutingInterface();
+//cout<<dg->byteLength()<<endl; //no change
+assert(dg->byteLength() == comp);
+
+assert(dg->dup()->byteLength() == comp);
+
+
+BU* bu2 = new BU(true, true, false, 0,20);
+IPv6Datagram* dg2 = new IPv6Datagram;
+dg2->encapsulate(bu2);
+cout<<dg2->byteLength()<<endl;
+
+
+
+
+
+  HdrExtRteProc* rtProc = dg2->acquireRoutingInterface();
+
+  //Should only be one t2 header per datagram (except for inner
+  //tunneled packets)
+  assert(rtProc->routingHeader(IPv6_TYPE2_RT_HDR) == 0);
+cout<<dg2->byteLength()<<endl;
+
+  MIPv6RteOpt* rt2 = new MIPv6RteOpt(IPv6_ADDR_UNSPECIFIED);
+  rtProc->addRoutingHeader(rt2);
+  dg2->addLength(rtProc->lengthInUnits()*BITS);
+cout<<dg2->byteLength()<<endl;
+
+%contains: stdout
+12
+18
+32
+72
+96
+96
+52
+52
+76
+50
+

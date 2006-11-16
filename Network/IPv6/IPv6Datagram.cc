@@ -318,15 +318,6 @@ void IPv6Datagram::encapsulate(cMessage *transportPacket)
 */
 }
 
-/* thrown out --AV
-cPacket* IPv6Datagram::decapsulate()
-{
-  //May need to do special things if ICMPv6 will not be encapsulated
-  //as sub class of CPacket or current IPv4 ICMP impl.
-  return (cPacket *)(cPacket::decapsulate());
-}
-*/
-
 /*
   void IPv6Datagram::setFragmentOffset(int offset);
   {
@@ -488,6 +479,15 @@ HdrExtProc* IPv6Datagram::addExtHdr(const IPv6ExtHeader& hdr_type)
       break;
     case EXTHDR_DEST:
       proc = new HdrExtDestProc();
+      //TODO rewrite whole ipv6 extension headers it is just really bad 
+
+      //better way to add this padding is via virtual
+      //HdrExtDestProc::lengthInUnits() which can them all up and cater for
+      //specific alignments of options
+
+      //the home dest option to 8n+6 (4 only since 2 taken up already by dest
+      //header. Assumes that only home address option is in destination option
+      //and nothing else. This is valid for mip6 simulations thus far)
       break;
     case EXTHDR_ROUTING:
       proc = new HdrExtRteProc();

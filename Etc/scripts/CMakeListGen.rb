@@ -209,7 +209,7 @@ ENDIF(NOT WIN32)
 ADD_LIBRARY(inet ${INET_SRCS})
 
 SET(DUMMY_FILE ${CMAKE_CURRENT_BINARY_DIR}/empty.cc)
-FILE(WRITE ${DUMMY_FILE} "//empty file")
+FILE(WRITE ${DUMMY_FILE} "//empty file\n")
  
 SET(#{projName} ${OUTPUTDIR}#{projName})
 ADD_EXECUTABLE(${#{projName}} ${DUMMY_FILE})

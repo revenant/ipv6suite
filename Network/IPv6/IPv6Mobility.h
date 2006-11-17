@@ -125,11 +125,7 @@ public:
   bool returnRoutability() { return _returnRoutability; }
   void setReturnRoutability(bool rr)
     {
-      if (!_routeOptimise && rr)
-      {
-        std::cerr<<"Error: "<<fullPath()<<" Return Routability Procedure is on while Route Optimisation is off"<<endl;
-        abort_ipv6suite();
-      }
+      assert(rr);
       _returnRoutability = rr;
     }
 

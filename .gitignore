@@ -49,3 +49,5 @@ general.ini
 nedfiles.lst
 omnetppconfig
 tkINET
+CMakeFiles
+progress.make

@@ -205,23 +205,27 @@ IF(NOT WIN32)
 #Windows does not recognise ./ as current dir
   SET(OUTPUTDIR #{outputdir}/)
 ENDIF(NOT WIN32)
+
+ADD_LIBRARY(inet ${INET_SRCS})
+
+SET(DUMMY_FILE ${CMAKE_CURRENT_BINARY_DIR}/empty.cc)
+FILE(WRITE ${DUMMY_FILE} "//empty file")
  
 SET(#{projName} ${OUTPUTDIR}#{projName})
-ADD_EXECUTABLE(${#{projName}} ${#{projName}_SRCS})
-TARGET_LINK_LIBRARIES(${#{projName}} ${OPP_CMDLIBRARIES} )
+ADD_EXECUTABLE(${#{projName}} ${DUMMY_FILE})
+TARGET_LINK_LIBRARIES(${#{projName}} inet ${OPP_CMDLIBRARIES} )
 
 IF(NOT LIBCWD_DEBUG)
   IF(CMAKE_CACHE_MINOR_VERSION EQUAL 0)
     IF(OPP_USE_TK)
       SET(tk#{projName} ${OUTPUTDIR}/tk#{projName})
-      ADD_EXECUTABLE(${tk#{projName}} ${#{projName}_SRCS})
-      TARGET_LINK_LIBRARIES(${tk#{projName}} ${OPP_TKGUILIBRARIES} )
+      ADD_EXECUTABLE(${tk#{projName}} ${DUMMY_FILE})
+      TARGET_LINK_LIBRARIES(${tk#{projName}} inet ${OPP_TKGUILIBRARIES} )
     ENDIF(OPP_USE_TK)
   ENDIF(CMAKE_CACHE_MINOR_VERSION EQUAL 0)
 ENDIF(NOT LIBCWD_DEBUG)
 
 IF(NOT WIN32)
-ADD_LIBRARY(inet ${INET_SRCS})
 ENABLE_TESTING()
 OPP_WRAP_TEST(Tests)
 SUBDIRS(

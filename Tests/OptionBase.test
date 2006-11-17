@@ -48,6 +48,7 @@ assert(dg->dup()->byteLength() == comp);
 
 
 BU* bu2 = new BU(true, true, false, 0,20);
+bu2->padHeader();
 IPv6Datagram* dg2 = new IPv6Datagram;
 dg2->encapsulate(bu2);
 cout<<dg2->byteLength()<<endl;
@@ -75,8 +76,8 @@ cout<<dg2->byteLength()<<endl;
 72
 96
 96
-52
-52
-76
-50
+56
+56
+80
+
 

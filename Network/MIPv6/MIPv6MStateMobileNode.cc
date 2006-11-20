@@ -109,6 +109,30 @@ void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
 #endif //USE_HMIP
 }
 
+void recordBAVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
+{
+  const simtime_t now = mob->simTime();
+  if (dgram->srcAddress() == mipv6cds->mipv6cdsMN->primaryHA()->addr())
+    mob->backVector->record(now);
+#ifdef USE_HMIP
+  else if (mob->hmipSupport())
+  {
+#if EDGEHANDOVER
+    if (mob->edgeHandover() && dgram->srcAddress() == mipv6cds->ehcds->boundMapAddr())
+    {
+      mob->bbackVector->record(now);
+    } 
+    else
+#endif //EDGEHANDOVER
+      if (mipv6cds->hmipv6cdsMN->isMAPValid() && mipv6cds->hmipv6cdsMN->currentMap().addr() == dgram->srcAddress())
+      {
+	mob->lbackVector->record(now);
+      }
+  }
+#endif //USE_HMIP
+
+}
+
 class BURetranTmr;
 typedef std::list<BURetranTmr*> BURetranTmrs;
 typedef BURetranTmrs::iterator BURTI;
@@ -136,7 +160,7 @@ public:
     {
 //stop it from dumping core at end run of sim
 //TODO LEAK
-      delete dgram;
+//      delete dgram;
     };
 
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT
@@ -219,6 +243,7 @@ public:
 private:
   ///now-msg->sendingTime() = timeout
   unsigned int timeout;
+  BURetranTmr();
 public:
   IPv6Datagram* dgram;
   MIPv6MStateMobileNode* stateMN;
@@ -315,16 +340,6 @@ MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
   InterfaceTable *ift = mod->ift;
   mipv6cdsMN = new MIPv6CDSMobileNode(ift->numInterfaceGates());
   mipv6cds->mipv6cdsMN = mipv6cdsMN;
-  if (mod->rt->hmipSupport())
-  {
-    hmipv6cds = new HierarchicalMIPv6::HMIPv6CDSMobileNode(mipv6cds, ift->numInterfaceGates());
-    mipv6cds->hmipv6cdsMN = hmipv6cds;
-  }
-  if (mob->edgeHandover())
-  {
-    ehcds = new EdgeHandover::EHCDSMobileNode(mipv6cds, ift->numInterfaceGates());
-    mipv6cds->ehcds = ehcds;
-  }
   
   ((MIPv6PeriodicCB*)(periodTmr))->connect(boost::bind(&MIPv6CDSMobileNode::expireLifetimes,
 				mipv6cdsMN, periodTmr));
@@ -347,8 +362,6 @@ MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
 {
   delete mipv6cdsMN;
   delete mipv6cdsMN;
-  delete hmipv6cds;
-  delete ehcds;
 
   delete mob->backVector;
   delete mob->buVector;
@@ -454,36 +467,20 @@ bool MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram)
 }
 
 /**
- * 10.14
- *
- * ignoring authentication req. from 4.5 well there doesn't appear to be any
- * besides 4.5.5 point 6
- *
- * @todo fix ba->physicalLenInOctet() < ba->length()
+ * 11.7.3
  */
 
-void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
+bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 {
   // check if the length in the option is actually greater or equal to
   // how long it SHOULD be according to the draft standard
-//   if ( ba->physicalLenInOctet() < ba->length() )
-//   {
-// #if defined TESTMIPv6 || defined BA_DEBUG
-//     cerr << mob->nodeName()<<" BA received with incorrect length "<<ba->length()
-//          <<" instead of >"<<ba->physicalLenInOctet()<<"\n";
-// #endif //defined TESTMIPv6 || defined BA_DEBUG
-//     return;
-//   }
-
-  // check if the sequence number field matches the sequence number
-  // sent by the mobile node to this destination address in an
-  // outstanding binding update
+  bool cont = false;
   bu_entry* bue = mipv6cdsMN->findBU(dgram->srcAddress());
   if (bue == 0)
   {
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" with no corresponding BUL entry");
-    return;
+    return cont;
   }
 
   if (ba->sequence() != bue->sequence())
@@ -491,22 +488,8 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" IGNORED. With sequence "<< ba->sequence()
          <<" instead of "<< bue->sequence());
-    /*
-    //possible that we miss BA from ha so we expect sequence no. that is 0 still?
-    if (ba->sequence() > bue->sequence())
-     
-      for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
-      {
-        if ((*it)->dgram->destAddress() == dgram->srcAddress())
-	{
-	  (*it)->cancel();
-	  removeBURetranTmr(*it);
-	  //prevent assertion at sendBU when we try to cancel timer and yet it was not scheduled?
-	}
-      }
-    */
     //11.7.3 
-    return;
+    return cont;
   }
 
   simtime_t now = mob->simTime();
@@ -560,7 +543,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 
     //Don't know how to do optional recover from these errors for now sending
     //new BU.
-    return ;
+    return cont;
   }
 
   Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
@@ -568,25 +551,7 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 
   bue->state = 0;
 
-
-  if (dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr())
-    mob->backVector->record(now);
-#ifdef USE_HMIP
-  else if (mob->hmipSupport())
-  {
-#if EDGEHANDOVER
-    if (mob->edgeHandover() && dgram->srcAddress() == ehcds->boundMapAddr())
-    {
-      mob->bbackVector->record(now);
-    } 
-    else
-#endif //EDGEHANDOVER
-      if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
-      {
-	mob->lbackVector->record(now);
-      }
-  }
-#endif //USE_HMIP
+  recordBAVector(dgram, mob, mipv6cds);
 
   if ( bue->homeReg() )
   {
@@ -603,106 +568,8 @@ void MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   {
     bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
   }
-
-#ifdef USE_HMIP
-  if (!mob->hmipSupport())
-    return;
-
-
-  if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
-  {
-    Dout(dc::hmip, mob->nodeName()<<" "<<now<<" BA from MAP "
-	 <<dgram->srcAddress());
-
-    //Assuming single interface for now if assumption not true revise code
-    //accordingly
-    assert(dgram->inputPort() == 0);
-    if (!mob->rt->addrAssigned(hmipv6cds->remoteCareOfAddr(), dgram->inputPort()))
-    {
-      IPv6Address addrObj(hmipv6cds->remoteCareOfAddr());
-      addrObj.setPrefixLength(EUI64_LENGTH);
-      addrObj.setStoredLifetimeAndUpdate(ba->lifetime());
-      addrObj.setPreferredLifetime(ba->lifetime());
-      mob->rt->assignAddress(addrObj, dgram->inputPort());
-    }
-
-    if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
-    {
-#if EDGEHANDOVER
-      if (!mob->edgeHandover())
-      {
-#endif //EDGEHANDOVER
-	Dout(dc::hmip, " sending BU to all coa="
-	     <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
-
-	//Map is skipped
-	sendBUToAll(hmipv6cds->remoteCareOfAddr(), mipv6cdsMN->homeAddr(),
-		    bue->lifetime());
-#if EDGEHANDOVER
-      }
-      else
-      {
-	if (!mob->edgeHandoverCallback())
-	  //Exit code of 254
-	  DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
-	else
-	{
-	  //if rcoa does not prefix match the dgram->srcAddress we ignore
-	  //since we do not want to bind with HA using a coa from a previous MAP.
-
-	  Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
-	       <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
-	       <<" bcoa "<<ehcds->boundCoa());
-	  mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
-	  assert(dgram->inputPort() == 0);
-	  mob->edgeHandoverCallback()->callFunc();
-
-	  //Not something we should do as routerstate is for routers only
-	  //               EdgeHandover::EHNDStateHost* ehstate =
-	  //                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
-	  //                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
-	  //                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
-
-	  //               ehstate->invokeMapAlgorithmCallback(dgram);
-
-	}
-      }
-#endif //EDGEHANDOVER
-    }
-  }
-#if EDGEHANDOVER
-  else if (hmipv6cds->isMAPValid() && mob->edgeHandover() &&
-	   dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr() &&
-	   ///Since we've restricted boundMaps to be only ARs (existing
-	   ///MIPv6RouterEntry when calling setBoundMap) they have to have a
-	   ///distance of 1.
-	   //Not true as we may want to bind with a previous map along the
-	   //edge so it will have distance > 1
-	   hmipv6cds->currentMap().distance() >= 1)
-  {
-    ///If the HA's BA is acknowledging binding with another MAP besides the
-    ///currentMap's then this code block needs to be revised accordingly. It
-    ///is possible for currentMap to have changed whilst updating HA.
-    if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
-    {
-      Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
-	   <<" perhaps due to BA not arriving to us previously? "
-	   <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
-      //assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
-    }
-
-    Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
-	 <<" inport="<<dgram->outputPort());
-    ///outputPort should contain outer header's inputPort so we know which
-    ///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
-    ///original inport needed so we can configure the proper bcoa for multi homed MNs
-    assert(dgram->outputPort() >= 0);
-    ehcds->setBoundMap(hmipv6cds->currentMap(), dgram->outputPort());
-  }
-#endif //EDGEHANDOVER
-
-#endif //USE_HMIP
-
+  cont = true;
+  return cont;
 }
 
 void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr addr)
@@ -792,20 +659,6 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
       //(currently it just skips map indiscriminately)
       for_each(mipv6cdsMN->bul.begin(), mipv6cdsMN->bul.end(),
                sendBUs(coa, oldcoa, hoa, lifetime, mob, mipv6cdsMN));
-      /* //Not allowed in mip6 spec (only allowed in revisions <= 18 )
-#ifdef USE_HMIP
-      //Forwarding from previous MAP to new MAP is already done in HMIP
-      if (!mob->hmipSupport() ||
-          (mob->hmipSupport() && !hmipv6cds->isMAPValid()) )
-      {
-#endif //USE_HMIP
-        previousCoaForward(coa, oldcoa);
-#ifdef USE_HMIP
-      }
-#endif //USE_HMIP
-      */
-      //Don't need forwarding from previous MAP as that's done in
-      //HMIPNDStateHost::processRtrAd
     }
 
   }
@@ -1189,58 +1042,6 @@ bool MIPv6MStateMobileNode::sendMapBU(const ipv6_addr& dest, const ipv6_addr& co
 }
 #endif //USE_HMIP
 
-/*
-  @brief Forward from PAR to current AR (when previous AR is an HA)
-
-  @param coa is the new care of address
-  @param hoa is the previous care of address
-
-  @return true if forwarding BU to PAR was sent false otherwise
-  @warning this fn appears to be invalid in standard mip6 spec (was valid prior
-  to 18) and also has not been used in a while (called by sendBUToAll when no
-  hmip support or map not valid)
- */
-bool MIPv6MStateMobileNode::previousCoaForward(const ipv6_addr& coa,
-                                               const ipv6_addr& hoa)
-{
-  assert(coa != hoa);
-
-  boost::shared_ptr<MIPv6RouterEntry> oldRtr = mipv6cdsMN->currentRouter()?
-    mipv6cdsMN->currentRouter():mipv6cdsMN->previousDefaultRouter();
-  if (oldRtr && oldRtr->isHomeAgent())
-  {
-    assert(false); //fn should not be used but checking to see when it may trigger
-#ifdef USE_HMIP
-    //Required to prevent warnings like the following in debug log as b/rcoa is
-    //not a valid home address for pure HA. Anyway HMIP/EH should bind with HAs as
-    //hmip MAP and have only one HA
-
-    //WARNING  :  hoa=30f4:0:0:3:c274:82ff:fea6:958b is not on link w.r.t. HA prefix list
-    bool hmipFlag = false;
-    if (mob->hmipSupport())
-    {
-      hmipFlag = hmipv6cds->mapEntries().count(oldRtr->addr()) == 1;
-    }
-#endif //USE_HMIP
-
-    Dout(dc::mipv6, mob->nodeName()<<" pcoaf forwarding from PAR="
-         <<*oldRtr.get()<<" pcoa="<<hoa<<" ncoa="<<coa);
-
-    sendBU(oldRtr->addr(), coa, hoa,
-           static_cast<unsigned int>(mipv6cdsMN->pcoaLifetime()), true,
-           //don't care about ifIndex as DAD only done on
-           //primaryHA and only the very first BU to it
-           0, mob
-#ifdef USE_HMIP
-           , hmipFlag
-#endif //USE_HMIP
-           );
-    return true;
-  }
-  return false;
-}
-
-
 /**
  * @brief send a binding update and update the bul entry in the process
  *
@@ -1299,7 +1100,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   if (!bule)
     bule = mipv6cdsMN->findBU(dest);
 
-  if (mob->returnRoutability() && !homeReg)
+  if (mob->returnRoutability() && !homeReg && !mapReg)
     assert(bule);
 
 #ifdef USE_HMIP
@@ -1348,12 +1149,8 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #endif //USE_HMIP
   seq, lifetime); //hoa
 
-  if (!homeReg
-#ifdef USE_HMIP
-      && !mapReg
-#endif //USE_HMIP
-      )
-  {    
+  if (!homeReg && !mapReg )
+  {
 
     //rr should already have been done
     assert(bule->homeNI && bule->careOfNI);
@@ -1545,91 +1342,6 @@ bool MIPv6MStateMobileNode::updateTunnelsFrom
 	   <<" reverse tunnel exists already coa="<<coa<<" exit "
 	   <<(homeReg?"ha=":"map=")
 	   <<budest<<" vIfIndex="<<hex<<vIfIndex<<dec);
-    }
-
-    if (!mob->hmipSupport())
-      return true;
-
-    HMIPv6CDSMobileNode* hmipv6cds = mipv6cds->hmipv6cdsMN;
-
-    if (homeReg)
-    {
-      //trigger on HA to lcoa tunnel if coa was formed from map prefix
-
-      //list of maps in here may be smaller or bigger than in bul depends on
-      //whether the map list tracks the actual maps in current domain @see 
-      //hmipv6ndstatehost::discoverMap
-      ipv6_addr map = hmipv6cds->findMapOwnsCoa(coa);
-      if (map != IPv6_ADDR_UNSPECIFIED)
-      {
-	bu_entry* bue = mipv6cdsMN->findBU(map);
-	if (bue)
-	{
-	  vIfIndex = tunMod->findTunnel(bue->careOfAddr(), map);
-	  assert(vIfIndex);
-	  //trigger on ha only after BA for maximum correctness but nonoptimal
-	  //operation?
-	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->addr(), vIfIndex);
-	}
-      }
-    }
-    else
-    {
-      //trigger on HA to different lcoa tunnel as we moved to different AR only
-      //if this map is registered at HA
-      if (mipv6cdsMN->primaryHA().get())
-      {
-	bu_entry* bue = mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr());
-	if (bue && ipv6_prefix(budest, EUI64_LENGTH).matchPrefix(
-	      bue->careOfAddr()))
-	{
-	  mob->bubble("trigger on HA for lcoa -> MAP during map reg");
-	  // vIfIndex points to tunnel lcoa -> map
-	  tunMod->tunnelDestination(mipv6cdsMN->primaryHA()->addr(), vIfIndex);
-	}
-      }
-      //Find all cn entries and trigger them to new lcoa tunnel if their coa
-      //belongs to this map's prefix (if there was a map handover then will need
-      //to wait for bu to cn b4 trigger to diff map)
-      vector<ipv6_addr> addrs =
-	mipv6cdsMN->findBUToCNCoaMatchPrefix(budest);
-      for (vector<ipv6_addr>::iterator it = addrs.begin(); it != addrs.end();
-	   ++it)
-      {       
-	tunMod->tunnelDestination(*it, vIfIndex);
-      }
-    }
-  }
-  else //not (home or map reg)
-  {
-    //trigger on cn address to lcoa tunnel if coa formed from map prefix
-
-    if (!mob->hmipSupport())
-      return true;
-
-    if (!mipv6cdsMN->awayFromHome())
-    {
-      //remove tunnel to cn
-      //tunMod->untunnelDestination(budest);
-      // should not be necessary as action of removing tunnels removes associated triggers
-      return true;
-    }
-
-    HMIPv6CDSMobileNode* hmipv6cds = mipv6cds->hmipv6cdsMN;
-
-    //list of maps in here may be smaller or bigger than in bul depends on
-    //whether the map list tracks the actual maps in current domain @see 
-    //hmipv6ndstatehost::discoverMap
-    ipv6_addr map = hmipv6cds->findMapOwnsCoa(coa);
-    if (map != IPv6_ADDR_UNSPECIFIED)
-    {
-      bu_entry* bue = mipv6cdsMN->findBU(map);
-      if (bue)
-      {
-	size_t vIfIndex = tunMod->findTunnel(bue->careOfAddr(), map);
-	assert(vIfIndex);
-	tunMod->tunnelDestination(budest, vIfIndex);
-      }
     }
   }
 

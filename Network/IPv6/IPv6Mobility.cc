@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -43,11 +44,11 @@
 
 #include "WirelessEtherModule.h" // for linklayer trigger enum values
 
-#if (defined OPP_VERSION && OPP_VERSION >= 3) || OMNETPP_VERSION >= 0x300
 #include "opp_utils.h" //getParser()
 #include "XMLOmnetParser.h"
 #include "XMLCommon.h"
-#endif
+
+#include "HMIPv6MStateMobileNode.h"
 
 #endif //USE_MOBILITY
 
@@ -114,12 +115,19 @@ void IPv6Mobility::initialize(int stage)
   if (!rt->mobilitySupport())
     return;
 
+#ifdef USE_MOBILITY
+
   if (stage == 1)
   {
       if (isHomeAgent())
         role = new MIPv6MStateHomeAgent(this);
       else if (isMobileNode())
-        role = new MIPv6MStateMobileNode(this);
+      {
+	if (rt->hmipSupport())
+	  role = new HierarchicalMIPv6::HMIPv6MStateMobileNode(this);
+	else
+	  role = new MIPv6MStateMobileNode(this);
+      }
       else
         role = new MIPv6MStateCorrespondentNode(this);
 
@@ -130,15 +138,14 @@ void IPv6Mobility::initialize(int stage)
   else if (stage == 2)
   {
     role->initialize(stage);
-#ifdef USE_MOBILITY
     if ( ewuOutVectorHODelays )
       handoverLatency = new cOutVector("L3 handover delay");
     linkUpVector = new cOutVector("L2 Up");
     linkDownVector = new cOutVector("L2 Down");
     
+  }
 #endif // USE_MOBILITY
 
-  }
 }
 
 void IPv6Mobility::finish()

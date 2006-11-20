@@ -1,4 +1,5 @@
 // -*- C++ -*-
+// Copyright (C) 2006 by Johnny Lai
 // Copyright (C) 2002, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -100,10 +101,6 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 #endif //USE_HMIP
               , simtime_t timestamp = 0);
 
-  //update the tunnels based on BU just done
-  bool updateTunnelsFrom(ipv6_addr budest, ipv6_addr coa, unsigned int ifIndex,
-		    bool homeReg, bool mapReg);
-
   void sendInits(const ipv6_addr& dest, const ipv6_addr& coa);
 
 #ifdef USE_HMIP
@@ -111,16 +108,6 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
                  size_t lifetime, size_t ifIndex);
 #endif //USE_HMIP
 
-  bool previousCoaForward(const ipv6_addr& coa, const ipv6_addr& hoa);
-
-  // Loki cannot accept a TypeList with the same argument type because
-  // TYPE_LIST works on GenScatterHierarchy. This class creates a
-  // class hierarchy based on arguments in that macro. Thus we get the
-  // ambiguous base class error if we have the same types. See Modern
-  // CPP design for explanation of GenscatterHierarchy
-
-  // addrs[0] = dest
-  // addrs[1] = coa
   void sendHoTI(const std::vector<ipv6_addr> addrs, simtime_t);
   void sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t);
 
@@ -143,8 +130,11 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
 
  protected:
-  ///handle Binding Acks according to draft 16 10.14
-  void processBA(BA* ba, IPv6Datagram* dgram);
+  //update the tunnels based on BU just done
+  virtual bool updateTunnelsFrom(ipv6_addr budest, ipv6_addr coa, unsigned int ifIndex,
+		    bool homeReg, bool mapReg);
+
+  virtual bool processBA(BA* ba, IPv6Datagram* dgram);
 
   void processBE(BE* bm, IPv6Datagram* dgram);
 

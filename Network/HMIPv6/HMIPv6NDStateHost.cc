@@ -361,6 +361,10 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
   }
 
   ipv6_addr rcoa = formRemoteCOA(bestMap, dgram->inputPort());
+  //Now that RR is introduced we have BA with type 2 route header and of course this is not assigned!!!
+  //For MIPv6 no problem as hoa was assigned from at home but hmip this never assigned 
+  rt->assignAddress(IPv6Address(rcoa), (unsigned int) dgram->inputPort());
+   
   assert(dgram->inputPort() > IMPL_INPUT_PORT_LOCAL_PACKET && (unsigned int)dgram->inputPort() == accessRouter->re.lock()->ifIndex());
 
   ArgMapHandover* arg = new ArgMapHandover(boost::make_tuple(bestMap, rcoa, lcoa, nd->simTime(), accessRouter->re.lock()->ifIndex()));

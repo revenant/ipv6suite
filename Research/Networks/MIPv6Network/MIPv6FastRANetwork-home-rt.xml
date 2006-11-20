@@ -7,9 +7,9 @@
     <ObjectMovement>
       <MovingNode NodeName="pingpong" startTime="0">
         <move moveToX="352" moveToY="118" moveSpeed="3"/>
-        <move moveToX="352" moveToY="378" moveSpeed="3"/>
+        <move moveToX="100" moveToY="118" moveSpeed="3"/>
         <move moveToX="352" moveToY="118" moveSpeed="3"/>
-        <move moveToX="352" moveToY="378" moveSpeed="3"/>
+        <move moveToX="100" moveToY="118" moveSpeed="3"/>
       </MovingNode>
       <MovingNode NodeName="square" startTime="0">
         <move moveToX="352" moveToY="378" moveSpeed="3"/>

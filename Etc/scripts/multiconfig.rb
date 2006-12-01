@@ -26,7 +26,7 @@ $LOAD_PATH<<File.dirname(__FILE__)
 require 'optparse'
 require 'pp'
 require 'General'
-require 'breakpoint'
+#require 'breakpoint'
 
 $test = false
 
@@ -62,17 +62,22 @@ class SetAction < Action
     super(symbol, attribute, value)
     @value = quoteValue(@value) if @symbol == :xml
   end
-  def apply(line, index = nil, file = nil, level = nil)
+:public
+  def applyWith(value, line, index = nil, file = nil, level = nil)
     if line =~ /#{@attribute}\s*=\s*(\S+)/       
       if @symbol == :xml
-        line.sub!(/#{@attribute}\s*?=\s*?([[:alnum:]"]+)/, "#{@attribute}=#{@value}")
+        line.sub!(/#{@attribute}\s*?=\s*?([[:alnum:]."]+)/, "#{@attribute}=#{value}")
 #      elsif @symbol == :inifile or @symbol == :runtime
-#          line = "#{@attribute}=#{@value}"
+#          line = "#{@attribute}=#{value}"
       else
         #replace the whole value even if space separated
-        line.sub!(/#{@attribute}\s*?=(\s*?(\S+))+/, "#{@attribute}=#{@value}")            
+        line.sub!(/#{@attribute}\s*?=(\s*?(\S+))+/, "#{@attribute}=#{value}")            
       end     
     end
+  end
+
+  def apply(line, index = nil, file = nil, level = nil)
+    applyWith(@value, line)
   end
 end
 
@@ -146,6 +151,16 @@ class ReplaceStringAction < Action
   end
 end
 
+class SetConstant < SetAction
+  def initialize(symbol, attribute, values, constant)
+    super(symbol, attribute, values)
+    @constant = constant
+  end
+  def apply(line = "used", index = nil, file = nil, level = "used")
+#    raise "dud level #{level} passed in! as not in channels=" + @value.to_s if not @value.include? quoteValue(level)
+    applyWith(quoteValue(level + @constant), line)
+  end
+end
 #
 # TODO: Add Description Here
 #
@@ -306,7 +321,7 @@ end
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
-    levels[factors[2]] = [50,100,300,600]
+    levels[factors[2]] = [0.05,0.100,0.300,0.600]
     levels[factors[3]] = ["3", "9" "13", "22"]
 
     actions={}
@@ -324,9 +339,9 @@ end
     actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
 
     #MaxRtrAdvInterval should be +20ms more than Min
-    actions["rai"]  = [SetAction.new(:xml, "MIPv6MaxRtrAdvInterval", levels["rai"]), 
-      SetAction.new(:xml, "MIPv6MinRtrAdvInterval", levels["rai"])]
-    actions["speed"] = [SetAction.new(:xml, "moveSpeed", levels["speed"])]
+    actions["rai"]  = [SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", levels["rai"], 0.02), 
+      SetConstant.new(:xml, "MIPv6MinRtrAdvInterval", levels["rai"], 0)]
+    actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 
     [factors, levels]
 
@@ -354,9 +369,7 @@ end
     levels[factors[3]] = ["y", "n"]
     levels[factors[4]] = ["3", "9" "13", "22"]
     [factors, levels]
-
-    actions={}
-    
+  
     require 'yaml'
     File.open('config.yaml', 'w' ) do |out|
       YAML.dump([factors, levels, actions], out)
@@ -899,6 +912,13 @@ END
     require 'yaml'
     factors,levels,actions = @app.generateConfig
     [factors,levels,actions]
+  end
+
+  def test_constant
+    line = %|<interface name="eth4" AdvSendAdvertisements="on" MIPv6MaxRtrAdvInterval="1.4" MaxFastRAS="10">|
+    expected = %|<interface name="eth4" AdvSendAdvertisements="on" MIPv6MaxRtrAdvInterval="0.7" MaxFastRAS="10">|
+    SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", [0.01,0.03, 0.5], 0.2).apply(line, nil, nil, 0.5)
+    assert_equal(expected, line,"")
   end
 
   def yamlLoad(check)

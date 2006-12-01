@@ -26,6 +26,7 @@ $LOAD_PATH<<File.dirname(__FILE__)
 require 'optparse'
 require 'pp'
 require 'General'
+require 'breakpoint'
 
 $test = false
 
@@ -120,7 +121,7 @@ class SetFactorChannelAction < Action
   end
   
   def apply(line = nil, index = nil, file = "used", level = "used")
-    raise "dud level passed in! as not in channels=" + @values.to_s if not @value.include? level
+    raise "dud level #{level} passed in! as not in channels=" + @value.to_s if not @value.include? level
     #? for non greedy i.e. quit as soon as found first matching pattern instead
     #of match as much as possible
     
@@ -273,20 +274,8 @@ end
       factors, levels, actions = YAML.load(f)
     end
   end
-  
-  def generateConfig
-    factors = ["scheme", "dnet", "dmap", "ar", "error"]
-    levels = {}
-    levels[factors[0]] = ["hmip", "mip", "eh"]
-    levels[factors[1]] = ["50", "100", "200", "500"]
-    levels[factors[2]] = ["2", "20", "50"]
-    levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = ["2pc"]
-    [factors, levels]
 
-    actions={}
-    actions["mip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)]
-    
+  def hmipConfigBak
     ##Generate hmip xml: use eh version and add following to crv
     ## mobileIPv6Support="on" mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on"
     ##
@@ -308,6 +297,19 @@ end
     actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
     actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
     
+    actions["error"] = {}
+    actions["error"]["2pc"] = [SetAction.new(:ini, "errorRate", 0.02)]
+  end
+  
+  def generateConfig
+    factors = ["ar","fsra", "rai", "speed"] # "traffic_rate"]
+    levels = {}
+    levels[factors[0]] = ["y", "n"]
+    levels[factors[1]] = ["y", "n"]
+    levels[factors[2]] = [50,100,300,600]
+    levels[factors[3]] = ["3", "9" "13", "22"]
+
+    actions={}
     actions["ar"] = {}
     actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
                            SetAction.new(:xml, "MaxFastRAS", 10),
@@ -317,9 +319,44 @@ end
                            SetAction.new(:xml, "MaxFastRAS", 0),
                            ToggleAction.new(:xml, "optimisticDAD", false),
                            SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
-    actions["error"] = {}
-    actions["error"]["2pc"] = [SetAction.new(:ini, "errorRate", 0.02)]
+    actions["fsra"] = {}
+    actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
+    actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
 
+    #MaxRtrAdvInterval should be +20ms more than Min
+    actions["rai"]  = [SetAction.new(:xml, "MIPv6MaxRtrAdvInterval", levels["rai"]), 
+      SetAction.new(:xml, "MIPv6MinRtrAdvInterval", levels["rai"])]
+    actions["speed"] = [SetAction.new(:xml, "moveSpeed", levels["speed"])]
+
+    [factors, levels]
+
+
+    #default rai of 1s
+    factors = ["fsra","odad", "l2t", "ebu", "speed"]
+    actions={}
+    actions["fsra"] = {}
+    actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
+    actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
+    actions["odad"] = {}
+    actions["odad"]["y"] = [ToggleAction.new(:xml, "optimisticDAD", true)]
+    actions["odad"]["n"] = [ToggleAction.new(:xml, "optimisticDAD", false)]
+    actions["l2t"] = {}
+    actions["l2t"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true)]
+    actions["l2t"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false)]
+    actions["ebu"] = {}
+    actions["ebu"]["y"] = [ToggleAction.new(:xml, 'earlyBU', true)]
+    actions["ebu"]["n"] = [ToggleAction.new(:ini, 'earlyBU', false)]
+
+    levels = {}
+    levels[factors[0]] = ["y", "n"]
+    levels[factors[1]] = ["y", "n"]
+    levels[factors[2]] = ["y", "n"]
+    levels[factors[3]] = ["y", "n"]
+    levels[factors[4]] = ["3", "9" "13", "22"]
+    [factors, levels]
+
+    actions={}
+    
     require 'yaml'
     File.open('config.yaml', 'w' ) do |out|
       YAML.dump([factors, levels, actions], out)
@@ -438,6 +475,39 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
       [networkNames, filenames]
     end
 
+    def applyActions(final, factors, fileIndex, line, lineIndex, symbol, file)
+      configLevels = final[fileIndex].split(DELIM)
+      configLevels.each_with_index do |l,idx|
+        me = factors[idx]
+
+        if @actions.include? me
+          if not @actions[me].class == Hash
+            iniactions = @actions[me].select {|item|
+              item.symbol == symbol
+            }
+          else                  
+            iniactions = @actions[me][l].select{|items|
+              items.symbol == symbol
+            }
+          end
+          for a in iniactions do
+            #apply file actions only on lineIndex == 0
+            a.apply(line, lineIndex, file, l)
+          end
+          next #skip level specific actions
+        end
+        
+        #do level specific actions
+        next if not @actions.include?(l)
+        iniactions = @actions[l].select{|items|
+          items.symbol == symbol
+        }
+        for a in iniactions do
+          a.apply(line, lineIndex, file, l)
+        end
+      end
+    end
+
     basemodname = ARGV.shift
     basenetname = netName(basemodname)
     cwd = `pwd`.chomp
@@ -463,7 +533,8 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
       filenames.each_with_index {|filename, fileIndex|
       
         #Add some actions at runtime i.e. as we can determine filenames easily here
-        
+
+        # {{{ ini block        
         #write ini files (line oriented)
         File.open(filename + ".ini", "w"){ |writeIniFile|
           inifile.each_with_index {|line2,lineIndex|
@@ -476,40 +547,8 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
 
             SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
 
-            # {{{ Pass a block into custom fn with this in it so we can do one for ini and one for xmlfile
+            applyActions(final, factors, fileIndex, line, lineIndex, :ini, inifile)
             
-            configLevels = final[fileIndex].split(DELIM)
-            configLevels.each_with_index do |l,idx|
-              me = factors[idx]
-
-              if @actions.include? me
-                if not @actions[me].class == Hash
-                  iniactions = @actions[me].select {|item|
-                    item.symbol == :ini
-                  }
-                else                  
-                  iniactions = @actions[me][l].select{|items|
-                    items.symbol == :ini
-                  }
-                end
-                for a in iniactions do
-                  #apply file actions only on lineIndex == 0
-                  a.apply(line, lineIndex, inifile, l)
-                end
-                next #skip level specific actions
-              end
-              
-              #do level specific actions
-              next if not @actions.include?(l)
-              iniactions = @actions[l].select{|items|
-                items.symbol == :ini
-              }
-              for a in iniactions do
-                a.apply(line, lineIndex, inifile, l)
-              end
-            end
-            
-            # }}}
             raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
             writeIniFile.puts line
           } #end read inifile line by line
@@ -535,6 +574,9 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
           # }}}
           
         } #end writeIniFile
+        # }}}
+
+        # {{{ ned block
         
         nedfile = nedfileOrig.dup
         
@@ -542,94 +584,39 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
         File.open(filename + ".ned", "w"){|writeNedFile|
           line = lineIndex = nil
           
-          # {{{ ned block
           
-          configLevels = final[fileIndex].split(DELIM)
-          configLevels.each_with_index do |l,idx|
-            me = factors[idx]
-            if @actions.include? me
-              if not @actions[me].class == Hash
-                iniactions = @actions[me].select {|item|
-                  item.symbol == :ned
-                }
-              else                  
-                iniactions = @actions[me][l].select{|items|
-                  items.symbol == :ned
-                }
-              end
-              for a in iniactions do
-                #apply file actions only on lineIndex == 0
-                a.apply(line, lineIndex, nedfile, l)
-              end
-              next #skip level specific actions
-            end
-            
-            #do level specific actions
-            next if not @actions.include?(l)
-            iniactions = @actions[l].select{|items|
-              items.symbol == :ned
-            }
-            for a in iniactions do
-              a.apply(line, lineIndex, nedfile, l)
-            end
-          end
-          
-          # }}}
-          
+          applyActions(final, factors, fileIndex, line, lineIndex, :ned, nedfile)
+        
           ReplaceStringAction.new(:ned, basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
           ReplaceStringAction.new(:ned, basenetname, networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
           
+
           writeNedFile.print nedfile
         }
-        
+        # }}}
+
+        # {{{ xml block
+
+#        if factors.include? "scheme" then
         scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]
         if (scheme == "hmip")
           xmllines = IO.readlines(basemodname+scheme+".xml")
         else
           xmllines = IO.readlines(basemodname+".xml")
         end
+#        end
+
         #write xml files
         File.open(filename + ".xml", "w"){|writeXmlFile|
           xmllines.each_with_index {|line, lineIndex|
             xmlfile = nil
-            # {{{ xml block
-            
-            configLevels = final[fileIndex].split(DELIM)
-            configLevels.each_with_index do |l,idx|
-              me = factors[idx]                         
-              if @actions.include? me
-                if not @actions[me].class == Hash
-                  iniactions = @actions[me].select {|item|
-                    item.symbol == :xml
-                  }
-                else                  
-                  iniactions = @actions[me][l].select{|items|
-                    items.symbol == :xml
-                  }
-                end
-                for a in iniactions do
-                  #apply file actions only on lineIndex == 0
-                  a.apply(line, lineIndex, xmlfile, l)
-                end
-                next #skip level specific actions
-              end
-              
-              #do level specific actions
-              next if not @actions.include?(l)
-              iniactions = @actions[l].select{|items|
-                items.symbol == :xml
-              }
-              for a in iniactions do
-                a.apply(line, lineIndex, xmlfile, l)
-              end
-            end
-            
-            # }}}            
+            applyActions(final, factors, fileIndex, line, lineIndex, :xml, xmlfile)                    
             writeXmlFile.puts line
           }# end read xmllines line by line
         } #end writeXmlFile
-      }# end each config filename
-    }
+        # }}}
+      }# end each configuration's filename
+    }# end job file output
     
     
   end#run
@@ -659,6 +646,12 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
     assert_equal("AdvSendAdvertisements=\"on\" HMIPAdvMAP=\"on\" AdvHomeAgent=\"off\">",
                  a.apply(line),
                  "value of xml param AdvHomeAgent should have changed to false")
+
+    line = 'hierarchicalMIPv6Support="on" edgeHandoverType="Timed"'
+    a = ToggleAction.new(:xml, 'hierarchicalMIPv6Support', false)
+    assert_equal('hierarchicalMIPv6Support="off" edgeHandoverType="Timed"',
+                 a.apply(line),
+                 "value of xml param hierarchicalMIPv6Support should be changed to false")
   end
   def test_ToggleActionIni
     a = ToggleAction.new(:ini, "l2up", false)

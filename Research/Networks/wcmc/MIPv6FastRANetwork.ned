@@ -20,7 +20,7 @@
 
 
 //
-// @file   MIPv6FastRANetwork.ned
+// @file   wcmc.ned
 // @author Johnny Lai
 // @date   26 Oct 2003
 //
@@ -38,7 +38,7 @@ import
     "Cables";
 
 
-module MIPv6FastRANetwork
+module wcmc
     submodules:
         worldProcessor: WorldProcessor;
             display: "p=316,40;i=bwgen_s";
@@ -124,6 +124,6 @@ module MIPv6FastRANetwork
     display: "p=2,10;b=425,415";
 endmodule
 
-network mipv6fastRANet : MIPv6FastRANetwork
+network wcmcNet : wcmc
 endnetwork
 

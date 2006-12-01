@@ -158,7 +158,7 @@ class SetConstant < SetAction
   end
   def apply(line = "used", index = nil, file = nil, level = "used")
 #    raise "dud level #{level} passed in! as not in channels=" + @value.to_s if not @value.include? quoteValue(level)
-    applyWith(quoteValue(level + @constant), line)
+    applyWith(quoteValue(level.to_i + @constant), line)
   end
 end
 #
@@ -317,12 +317,13 @@ end
   end
   
   def generateConfig
+if false
     factors = ["ar","fsra", "rai", "speed"] # "traffic_rate"]
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
     levels[factors[2]] = [0.05,0.100,0.300,0.600]
-    levels[factors[3]] = ["3", "9" "13", "22"]
+    levels[factors[3]] = [3, 9, 13, 22]
 
     actions={}
     actions["ar"] = {}
@@ -344,10 +345,19 @@ end
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 
     [factors, levels]
-
+end
 
     #default rai of 1s
     factors = ["fsra","odad", "l2t", "ebu", "speed"]
+
+    levels = {}
+    levels[factors[0]] = ["y", "n"]
+    levels[factors[1]] = ["y", "n"]
+    levels[factors[2]] = ["y", "n"]
+#    levels[factors[3]] = ["y", "n"]
+    levels[factors[3]] = ["n"]
+    levels[factors[4]] = [3, 9, 13, 22]
+
     actions={}
     actions["fsra"] = {}
     actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
@@ -360,14 +370,9 @@ end
     actions["l2t"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false)]
     actions["ebu"] = {}
     actions["ebu"]["y"] = [ToggleAction.new(:xml, 'earlyBU', true)]
-    actions["ebu"]["n"] = [ToggleAction.new(:ini, 'earlyBU', false)]
+    actions["ebu"]["n"] = [ToggleAction.new(:xml, 'earlyBU', false)]
+    actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 
-    levels = {}
-    levels[factors[0]] = ["y", "n"]
-    levels[factors[1]] = ["y", "n"]
-    levels[factors[2]] = ["y", "n"]
-    levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = ["3", "9" "13", "22"]
     [factors, levels]
   
     require 'yaml'
@@ -610,14 +615,12 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
 
         # {{{ xml block
 
-#        if factors.include? "scheme" then
-        scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]
-        if (scheme == "hmip")
-          xmllines = IO.readlines(basemodname+scheme+".xml")
-        else
-          xmllines = IO.readlines(basemodname+".xml")
+        xmllines = IO.readlines(basemodname+".xml")
+
+        if factors.include? "scheme" then
+          scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]          
+          xmllines = IO.readlines(basemodname+scheme+".xml") if (scheme == "hmip")
         end
-#        end
 
         #write xml files
         File.open(filename + ".xml", "w"){|writeXmlFile|

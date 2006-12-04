@@ -1,0 +1,79 @@
+--- 
+- - fsra
+  - odad
+  - l2t
+  - ebu
+  - speed
+- ebu: 
+  - y
+  - n
+  odad: 
+  - y
+  - n
+  l2t: 
+  - y
+  - n
+  speed: 
+  - 3
+  - 9
+  - 13
+  - 22
+  fsra: 
+  - y
+  - n
+- ebu: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: earlyBU
+      symbol: :ini
+      testedValue: false
+      value: "false"
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: earlyBU
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+  odad: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+  l2t: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "false"
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "true"
+  speed: 
+  - !ruby/object:SetConstant 
+    attribute: moveSpeed
+    constant: 0
+    symbol: :xml
+    value: "\"391322\""
+  fsra: 
+    n: 
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"0\""
+    y: 
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"10\""

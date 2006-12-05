@@ -48,7 +48,7 @@
 class RTCPRR : public RTCPRR_Base
 {
    public:
-    RTCPRR(unsigned int ssrc, const char *name="", int kind=201) : RTCPRR_Base(name,kind) {
+    RTCPRR(unsigned int ssrc, const char *name="RTCPRR", int kind=201) : RTCPRR_Base(name,kind) {
       setSsrc(ssrc);
     }
     RTCPRR(const RTCPRR& other) : RTCPRR_Base(other.name()) {operator=(other);}
@@ -82,7 +82,7 @@ class RTCPRR : public RTCPRR_Base
 class RTCPSR : public RTCPSR_Base
 {
   public:
-    RTCPSR(unsigned int ssrc, unsigned int packetCount, unsigned int octetCount,  const char *name="", int kind=200) : RTCPSR_Base(name,kind)
+    RTCPSR(unsigned int ssrc, unsigned int packetCount, unsigned int octetCount,  const char *name="RTCPSR", int kind=200) : RTCPSR_Base(name,kind)
     {
       setByteLength(5*4  + byteLength());
       setSsrc(ssrc);

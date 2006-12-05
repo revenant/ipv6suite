@@ -52,7 +52,7 @@
    public:
   //@name constructors, destructors and operators
   //@{
-   RTPPacket(unsigned int ssrc, unsigned int seqNo, const char *name=NULL, int kind=0) : RTPPacket_Base(name,kind) 
+   RTPPacket(unsigned int ssrc, unsigned int seqNo, const char *name="RTP", int kind=0) : RTPPacket_Base(name,kind) 
    {
      setByteLength(12);
      setSsrc(ssrc);
@@ -96,7 +96,7 @@ class RTCPPacket: public RTCPPacket_Base
 
   //@name constructors, destructors and operators
   //@{
-    RTCPPacket(const char *name=NULL, int kind=0) : RTCPPacket_Base(name,kind) 
+    RTCPPacket(const char *name="RTCP", int kind=0) : RTCPPacket_Base(name,kind) 
     {
       setByteLength(8);
     }

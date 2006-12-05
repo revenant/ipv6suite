@@ -76,7 +76,7 @@ protected:
 class RTCPGoodBye : public RTCPGoodBye_Base
 {
   public:
-    RTCPGoodBye(unsigned int ssrc, const char *name="", int kind=203) : RTCPGoodBye_Base(name,kind) 
+    RTCPGoodBye(unsigned int ssrc, const char *name="RTCPGoodBye", int kind=203) : RTCPGoodBye_Base(name,kind) 
     {
       setByteLength(4 + byteLength());
       setSsrc(ssrc);
@@ -90,7 +90,7 @@ class RTCPGoodBye : public RTCPGoodBye_Base
 class RTCPSDES : public RTCPSDES_Base
 {
   public:
-    RTCPSDES(unsigned int ssrc, const char* cname, const char *name="", int kind=202) : RTCPSDES_Base(name,kind) 
+    RTCPSDES(unsigned int ssrc, const char* cname, const char *name="RTCPSDES", int kind=202) : RTCPSDES_Base(name,kind) 
     {
       setByteLength(2 + byteLength());
       setCname(cname);

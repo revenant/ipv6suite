@@ -31,6 +31,7 @@
 #include "IPControlInfo_m.h"
 #include "IPv6ControlInfo_m.h"
 #include "stlwatch.h"
+#include <cassert>
 
 Define_Module( UDPProcessing );
 
@@ -173,7 +174,8 @@ void UDPProcessing::processMsgFromApp(cMessage *appData)
     UDPPacket *udpPacket = new UDPPacket(appData->name());
     udpPacket->setLength(8*UDP_HEADER_BYTES);
     udpPacket->encapsulate(appData);
-
+    if (udpControlInfo->getTrace())
+      udpPacket->setKind(1);
     // set source and destination port
     udpPacket->setSourcePort(udpControlInfo->getSrcPort());
     udpPacket->setDestinationPort(udpControlInfo->getDestPort());

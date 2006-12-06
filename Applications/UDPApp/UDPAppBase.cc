@@ -35,10 +35,13 @@ void UDPAppBase::bindToPort(int port)
 
 void UDPAppBase::sendToUDP(cMessage *msg, int srcPort, const IPvXAddress& destAddr, int destPort)
 {
+  UDPControlInfo *ctrl = new UDPControlInfo();
+  if (msg->kind() == 1)
+    ctrl->setTrace(true);
+
     // send message to UDP, with the appropriate control info attached
     msg->setKind(UDP_C_DATA);
 
-    UDPControlInfo *ctrl = new UDPControlInfo();
     ctrl->setSrcPort(srcPort);
     ctrl->setDestAddr(destAddr);
     ctrl->setDestPort(destPort);

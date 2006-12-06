@@ -56,5 +56,6 @@ class UDPControlInfo
         int srcPort;   // UDP source port in packet
         int destPort;  // UDP destination port in packet
         int inputPort; // gate index of interface on which the packet was received
+  bool trace; //display in routingInfo?
 };
 

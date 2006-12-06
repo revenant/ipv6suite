@@ -31,6 +31,7 @@
 #include "IPv6Datagram.h"
 #include "HdrExtProc.h"
 #include "MobilityHeaderBase.h"
+#include "RTPPacket.h"
 
 namespace IPv6Utils
 {
@@ -81,7 +82,21 @@ namespace IPv6Utils
 	if (mhb)
 	  os<<*mhb;
       }
-
+      if (datagram->transportProtocol() == IP_PROT_UDP)
+      {
+	if (!datagram->encapsulatedMsg())
+	  assert(false);
+	RTPPacket* pkt = dynamic_cast<RTPPacket*> (datagram->encapsulatedMsg()->encapsulatedMsg());
+	if (pkt)
+	  os<<" seq no " <<pkt->seqNo();
+	else
+	{
+	  RTCPPacket* pkt = dynamic_cast<RTCPPacket*> (datagram->encapsulatedMsg()->encapsulatedMsg());
+	  if (!pkt)
+	    os<<" unknown udp packet";
+	}
+	  
+      }
       os<<endl;
 
     }

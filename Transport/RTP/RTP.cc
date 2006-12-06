@@ -45,6 +45,7 @@
 #include "opp_utils.h"
 #include "RTCPSR.h"
 #include "IPv6Address.h"
+#include "opp_utils.h" //nodename
 
 Define_Module(RTP);
 
@@ -455,7 +456,7 @@ bool RTP::sendRTPPacket()
   //each frame encodes 2.5ms so for one 20ms packet requires 8*40 = 320 bytes
   //rtp payload and forms a 16kbs audio stream
   int payloadLength = 320;
-
+  
   if (!rtpTimeout)
   {
     rtpTimeout = new cMessage("rtpTimeout");
@@ -479,6 +480,8 @@ bool RTP::sendRTPPacket()
 
   scheduleAt(simTime() + packetisationInterval, rtpTimeout);
   RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
+  if (strcmp(OPP_Global::nodeName(this), "client1") != 0)
+    rtpData->setKind(1);
   rtpData->setTimestamp(simTime());
   rtpData->setPayloadLength(payloadLength);
 

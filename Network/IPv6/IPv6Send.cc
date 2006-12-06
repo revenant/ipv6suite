@@ -341,6 +341,9 @@ IPv6Datagram *IPv6Send::encapsulatePacket(cMessage *msg)
 
   datagram->encapsulate(msg);
   datagram->setName(msg->name());
+  //display bit set?
+  if (msg->kind() == 1)
+    datagram->setKind(1);
 
   datagram->setTransportProtocol(ctrl->protocol());
 

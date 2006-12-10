@@ -51,6 +51,14 @@ MobilityHeaderBase::~MobilityHeaderBase()
   mobilityOptions.clear();
 }
 
+MobilityHeaderBase& MobilityHeaderBase::operator=(const MobilityHeaderBase& other) 
+{
+  MobilityHeaderBase_Base::operator=(other);
+  for ( size_t i = 0; i < other.mobilityOptions.size(); i++)
+    addOption(dynamic_cast<MobilityOptionBase*>(other.mobilityOptions[i]->dup()));
+  return *this;
+}
+
 void MobilityHeaderBase::padHeader()  
 {
   unsigned int l = this->byteLength();

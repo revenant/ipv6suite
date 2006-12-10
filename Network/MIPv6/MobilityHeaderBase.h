@@ -66,7 +66,7 @@ friend std::ostream& operator<<(std::ostream&, const MobilityHeaderBase& mhb);
 public:
   //@name constructors, destructors and operators
   //@{
-  MobilityHeaderBase& operator=(const MobilityHeaderBase& other) {MobilityHeaderBase_Base::operator=(other); return *this;}
+  MobilityHeaderBase& operator=(const MobilityHeaderBase& other);
 
   virtual ~MobilityHeaderBase();
 protected:

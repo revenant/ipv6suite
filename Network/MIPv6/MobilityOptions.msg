@@ -33,16 +33,15 @@ enum MobilityOptType
   MOPT_AUTH = 5; // authorization data
 };
 
-class MobilityOptionBase
+message MobilityOptionBase 
 {
   properties:
   omitGetVerb = true;
   //  customize = true;
   fields:
-  //extra kind_var data member but virtual fn ensure correct one is retrived
-  //using abstract removes data member kind_var but requires to redefine class
-   int kind;
-   unsigned int byteLength;
+  //override kind in subclasses works (in omnetpp-3.2p1 anyway) 
+  int kind;
+  unsigned int byteLength;
 }
 
 struct u_int16;

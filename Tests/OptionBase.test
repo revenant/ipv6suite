@@ -8,6 +8,7 @@ Testing length of mobility options
 #include "MIPv6DestOptMessages.h" //MIPv6OptHomeAddress
 #include "HdrExtRteProc.h"
 #include <iostream>
+#include "IPv6Utils.h"
 
 %activity
 using namespace std;
@@ -28,6 +29,7 @@ cout<<bu->byteLength()<<endl;
 
 IPv6Datagram* dg = new IPv6Datagram;
 dg->encapsulate(bu);
+dg->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
 cout<<dg->byteLength()<<endl;
 
 HdrExtDestProc* destProc = dg->acquireDestInterface();
@@ -46,6 +48,9 @@ assert(dg->byteLength() == comp);
 
 assert(dg->dup()->byteLength() == comp);
 
+//check output of test.out (both lines should be same now)
+IPv6Utils::printRoutingInfo(true, dg, "test", false);
+IPv6Utils::printRoutingInfo(true, dg->dup(), "test", false);
 
 BU* bu2 = new BU(true, true, false, 0,20);
 bu2->padHeader();
@@ -69,6 +74,8 @@ cout<<dg2->byteLength()<<endl;
   dg2->addLength(rtProc->lengthInUnits()*BITS);
 cout<<dg2->byteLength()<<endl;
 
+delete dg2;
+delete dg;
 %contains: stdout
 12
 18

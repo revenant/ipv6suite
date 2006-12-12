@@ -29,14 +29,16 @@
 
 
 import
-    "EtherHub",
+    "WorldProcessor",
     "Router6",
     "UDPNode",
-    "WorldProcessor",
     "WirelessAccessPoint",
-    "WirelessMobileNode",
-    "Cables";
+    "WirelessMobileNode";
 
+channel wcmcIntranetCable
+    datarate 100e6;
+    delay 10e-6;
+endchannel
 
 module wcmc
     submodules:
@@ -84,42 +86,22 @@ module wcmc
     connections nocheck:
 
         // Correct for ping test
-        ha.in[0] <-- intranetCable <-- ap1.out[0];
-        ha.out[0] --> intranetCable --> ap1.in[0];
+        ha.in[0] <-- wcmcIntranetCable <-- ap1.out[0];
+        ha.out[0] --> wcmcIntranetCable --> ap1.in[0];
 
-        ap2.out[0] --> intranetCable --> ha.in[1]; //router1.in[0];
-        ap2.in[0] <-- intranetCable <-- ha.out[1]; //router1.out[0];
+        ap2.out[0] --> wcmcIntranetCable --> ha.in[1]; //router1.in[0];
+        ap2.in[0] <-- wcmcIntranetCable <-- ha.out[1]; //router1.out[0];
 
-                                                   //        router1.out[1] --> intranetCable --> ha.in[1];
-                                                   //        router1.in[1] <-- intranetCable <-- ha.out[1];
+        ap3.out[0] --> wcmcIntranetCable --> ha.in[2]; //router2.in[0];
+        ap3.in[0] <-- wcmcIntranetCable <-- ha.out[2]; //router2.out[0];
 
-        ap3.out[0] --> intranetCable --> ha.in[2]; //router2.in[0];
-        ap3.in[0] <-- intranetCable <-- ha.out[2]; //router2.out[0];
 
-                                                   //        router2.out[1] --> internetCable --> router1.in[2];
-                                                   //        router2.in[1] <-- internetCable <-- router1.out[2];
-
-        ap4.out[0] --> intranetCable --> ha.in[3]; //router3.in[0];
-        ap4.in[0] <-- intranetCable <-- ha.out[3]; //router3.out[0];
-
-                                                   //        router3.out[1] --> internetCable --> router2.in[2];
-                                                   //        router3.in[1] <-- internetCable <-- router2.out[2];
-
-                                                   //        router3.out[2] --> intranetCable --> server4.in[0];
-                                                   //        router3.in[2] <-- intranetCable <-- server4.out[0];
+        ap4.out[0] --> wcmcIntranetCable --> ha.in[3]; //router3.in[0];
+        ap4.in[0] <-- wcmcIntranetCable <-- ha.out[3]; //router3.out[0];
 
 
         ha.out[4] --> internetCable --> server4.in[0];
         ha.in[4] <-- internetCable <-- server4.out[0];
-
-                                                       //        ha.in[2] <-- intranetCable <-- router3.out[3];
-                                                       //        ha.out[2] --> intranetCable --> router3.in[3];
-
-                                                       //        ha.in[3] <-- intranetCable <-- router2.out[3];
-                                                       //        ha.out[3] --> intranetCable --> router2.in[3];
-
-                                                       //        router1.out[3] --> internetCable --> router3.in[4];
-                                                       //        router1.in[3] <-- internetCable <-- router3.out[4];
 
     display: "p=2,10;b=425,415";
 endmodule

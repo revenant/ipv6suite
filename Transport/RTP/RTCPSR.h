@@ -54,23 +54,6 @@ class RTCPRR : public RTCPRR_Base
     RTCPRR(const RTCPRR& other) : RTCPRR_Base(other.name()) {operator=(other);}
     RTCPRR& operator=(const RTCPRR& other) {RTCPRR_Base::operator=(other); return *this;}
     virtual cPolymorphic *dup() const {return new RTCPRR(*this);}
-    // ADD CODE HERE to redefine and implement pure virtual functions from RTCPRR_Base
-    virtual void setReportBlocksArraySize(unsigned int size)
-    {
-      RTCPReports::setReportBlocksArraySize(size);
-    }
-    virtual unsigned int reportBlocksArraySize() const
-    {
-      return RTCPReports::reportBlocksArraySize();
-    }
-    virtual RTCPReportBlock& reportBlocks(unsigned int k)
-    {
-      return RTCPReports::reportBlocks(k);
-    }
-    virtual void setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
-    {
-      RTCPReports::setReportBlocks(k, reportBlocks_var);
-    }
 };
 
 /**
@@ -92,23 +75,6 @@ class RTCPSR : public RTCPSR_Base
     RTCPSR(const RTCPSR& other) : RTCPSR_Base(other.name()) {operator=(other);}
     RTCPSR& operator=(const RTCPSR& other) {RTCPSR_Base::operator=(other); return *this;}
     virtual cPolymorphic *dup() const {return new RTCPSR(*this);}
-    // ADD CODE HERE to redefine and implement pure virtual functions from RTCPSR_Base
-    virtual void setReportBlocksArraySize(unsigned int size)
-    {
-      RTCPReports::setReportBlocksArraySize(size);
-    }
-    virtual unsigned int reportBlocksArraySize() const
-    {
-      return RTCPReports::reportBlocksArraySize();
-    }
-    virtual RTCPReportBlock& reportBlocks(unsigned int k)
-    {
-      return RTCPReports::reportBlocks(k);
-    }
-    virtual void setReportBlocks(unsigned int k, const RTCPReportBlock& reportBlocks_var)
-    {
-      RTCPReports::setReportBlocks(k, reportBlocks_var);
-    }
 };
 
 #endif /* RTCPSR_H */

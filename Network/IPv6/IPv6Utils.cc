@@ -32,6 +32,7 @@
 #include "HdrExtProc.h"
 #include "MobilityHeaderBase.h"
 #include "RTPPacket.h"
+#include "RTCPSR.h"
 
 namespace IPv6Utils
 {
@@ -94,6 +95,15 @@ namespace IPv6Utils
 	  RTCPPacket* pkt = dynamic_cast<RTCPPacket*> (datagram->encapsulatedMsg()->encapsulatedMsg());
 	  if (!pkt)
 	    os<<" unknown udp packet";
+	  else
+	    {
+	      RTCPSR* sr = dynamic_cast<RTCPSR*> (pkt);
+	      if (sr)
+	      {
+		os<<" "<<sr->ssrc()<<" pkt="<<sr->packetCount()<<" oct="<<sr->octetCount()
+		  <<" len="<<sr->byteLength()<<" blk="<<sr->reportBlocksArraySize();
+	      }
+	    }
 	}
 	  
       }

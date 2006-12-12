@@ -54,14 +54,7 @@ class RTCPReports : public RTCPReports_Base
   public:
     RTCPReports(const char *name="invalid", int kind=0) : RTCPReports_Base(name,kind){}
     RTCPReports(const RTCPReports& other) : RTCPReports_Base(other.name()) {operator=(other);}
-    RTCPReports& operator=(const RTCPReports& other) {
-      RTCPReports_Base::operator=(other);
-      for (unsigned int i = 0; i < other.blocks.size(); ++i)
-      {
-	addBlock(other.blocks[i]);
-      }
-      return *this;
-    }
+  RTCPReports& operator=(const RTCPReports& other);
     virtual cPolymorphic *dup() const {return new RTCPReports(*this);}
     // ADD CODE HERE to redefine and implement pure virtual functions from RTCPReports_Base
     virtual void setReportBlocksArraySize(unsigned int size);

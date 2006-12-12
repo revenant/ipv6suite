@@ -1,0 +1,61 @@
+%description
+Testing length of RTP messages
+
+%global
+#include "IPv6Utils.h"
+#include "RTCPSR.h"
+#include "UDPPacket.h"
+#include "IPv6Datagram.h"
+#include "UDPProcessing.h" // UDP_HEADER_BYTES
+%activity
+using namespace std;
+
+RTCPReportBlock b;
+RTCPSR* rtcpPayload = new RTCPSR(99, 10, 8000);
+cout<< rtcpPayload->byteLength()<<endl;
+cout<< ((RTCPSR*)rtcpPayload->dup())->byteLength()<<endl;
+rtcpPayload->addBlock(b);
+//was screwed up in this operation as operator= used addblock which added extra
+//bytes to an already correct length. (Tried subtracting bytes due to block but did not work)
+cout<< ((RTCPSR*)rtcpPayload->dup())->byteLength()<<endl;
+cout<< rtcpPayload->byteLength()<<endl;
+rtcpPayload->addBlock(b);
+cout<< rtcpPayload->byteLength()<<endl;
+rtcpPayload->addBlock(b);
+cout<< rtcpPayload->byteLength()<<endl;
+UDPPacket* udpPacket = new UDPPacket();
+cout<<udpPacket->byteLength()<<endl;
+udpPacket->setByteLength(UDP_HEADER_BYTES);
+cout<<udpPacket->byteLength()<<endl;
+udpPacket->encapsulate(rtcpPayload);
+cout<<udpPacket->byteLength()<<endl;
+
+IPv6Datagram* dg = new IPv6Datagram;
+cout<<dg->byteLength()<<endl;
+dg->encapsulate(udpPacket);
+cout<<dg->byteLength()<<endl;
+IPv6Datagram* dg2 = dg->dup();
+cout<<dg2->byteLength()<<endl;
+IPv6Datagram* dg3 = dg2->dup();
+IPv6Utils::printRoutingInfo(true, dg2, "test", false);
+dg2->decapsulate()->decapsulate();
+IPv6Utils::printRoutingInfo(true, dg3, "test", false);
+dg3->decapsulate()->decapsulate();
+
+delete dg2;
+delete dg;
+delete dg3;
+
+%contains: stdout
+28
+28
+52
+52
+76
+100
+0
+8
+108
+40
+148
+148

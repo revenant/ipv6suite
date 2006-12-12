@@ -41,6 +41,20 @@
 //Register_Class(RTPPacket);
 Register_Class(RTCPPacket);
 
+RTCPReports& RTCPReports::operator=(const RTCPReports& other) 
+{
+  if (this == &other)
+    return *this;
+  RTCPReports_Base::operator=(other);
+  setReportBlocksArraySize(other.blocks.size());
+  for (unsigned int i = 0; i < other.blocks.size(); ++i)
+  {
+    //addBlock(other.blocks[i]);
+    blocks[i] = other.blocks[i];
+  }
+  return *this;
+}
+
 void RTCPReports::setReportBlocksArraySize(unsigned int size)
 {
   blocks.resize(size);

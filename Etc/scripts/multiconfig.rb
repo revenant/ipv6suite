@@ -317,7 +317,7 @@ end
   
   def generateConfig
 if false
-    factors = ["ar","fsra", "rai", "speed"] # "traffic_rate"]
+    factors = ["ar","fsra", "rai", "speed"] # "traffic_rate", hardware channel scan]
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]

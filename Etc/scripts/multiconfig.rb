@@ -62,7 +62,6 @@ class SetAction < Action
     super(symbol, attribute, value)
     @value = quoteValue(@value) if @symbol == :xml
   end
-:public
   def applyWith(value, line, index = nil, file = nil, level = nil)
     if line =~ /#{@attribute}\s*=\s*(\S+)/       
       if @symbol == :xml

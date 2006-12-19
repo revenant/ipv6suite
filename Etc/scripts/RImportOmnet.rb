@@ -283,7 +283,7 @@ class RImportOmnet
     @rsize    = 0 #no restriction on vector length
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
     @aggFrames = nil #store aggframe names to remove them 
-    @printVectors = false #Print only vector names and quit
+    @printVectors = nil #Print only vector names and quit
     @relevelSchemeOrder = nil
     @count = nil
     @config = nil
@@ -341,7 +341,7 @@ class RImportOmnet
             
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
-      opt.on("-p", " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
+      opt.on("-p vecfile", String, " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
       opt.separator ""
 
       opt.separator "importOmnet options:"
@@ -395,7 +395,7 @@ class RImportOmnet
     raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test and not $0 == __FILE__ 
 
     if @printVectors
-      printVectorNames(ARGV[0])
+      printVectorNames(@printVectors)
       exit
     end
 
@@ -488,10 +488,10 @@ class RImportOmnet
   
   def filterByVectorNames(vectors, nodenames)
     if not self.exclude.nil?
-      nameFilter = self.exclude[0].class == String        
+      nameFilter = self.exclude[0].to_i == 0
     end
     if not self.filter.nil?
-      nameFilter = self.filter[0].class == String
+      nameFilter = self.filter[0].to_i == 0
     end
     if not nameFilter 
       filterVectors(vectors)

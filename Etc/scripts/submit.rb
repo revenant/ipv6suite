@@ -25,5 +25,7 @@ END
 #sample line l
 #./wcmc -f wcmc_n_n_n_n_22.ini -r 2
 logfile = l.split(' ')[2].split('.')[0]
+run = l.split(' ')[4]
+logfile << "_#{run}.log"
 `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
 }

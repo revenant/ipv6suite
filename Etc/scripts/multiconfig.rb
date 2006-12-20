@@ -157,9 +157,29 @@ class SetConstant < SetAction
   end
   def apply(line = "used", index = nil, file = nil, level = "used")
 #    raise "dud level #{level} passed in! as not in channels=" + @value.to_s if not @value.include? quoteValue(level)
-    applyWith(quoteValue(level.to_i + @constant), line)
+    if level =~ /[.]/ then
+      number = level.to_f 
+    else
+      number = level.to_i
+    end
+    applyWith(quoteValue(number + @constant), line)
   end
 end
+
+#inserts value into line that matches attribute only when level is true
+class InsertAction < Action
+  def initialize(symbol, attribute, value)
+    super(symbol, attribute, value)
+  end
+  def apply(line = "used", index = nil, file = nil, level = "used")
+    return nil unless level == "y"
+    if line =~ /#{@attribute}/
+        line.insert(0, @value + "\n")
+    end
+    line
+  end
+end
+
 #
 # TODO: Add Description Here
 #
@@ -316,13 +336,14 @@ end
   end
   
   def generateConfig
-if false
-    factors = ["ar","fsra", "rai", "speed"] # "traffic_rate", hardware channel scan]
+
+    factors = ["ar","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
     levels[factors[2]] = [0.05,0.100,0.300,0.600]
     levels[factors[3]] = [3, 9, 13, 22]
+    levels[factors[4]] = ["y", "n"]
 
     actions={}
     actions["ar"] = {}
@@ -337,6 +358,13 @@ if false
     actions["fsra"] = {}
     actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
     actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
+    actions["l2scan"] = [InsertAction.new(:ini, "include default.ini", %|
+**.networkInterface.channelsNotToScan = "1-2-3-4-5-7-8-9-10-12-13-14-15-16"
+**.ap1.chann=6
+**.ap2.chann=11
+**.ap3.chann=6
+**.ap4.chann=11
+|)]
 
     #MaxRtrAdvInterval should be +20ms more than Min
     actions["rai"]  = [SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", levels["rai"], 0.02), 
@@ -344,8 +372,8 @@ if false
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 
     [factors, levels]
-end
 
+if false
     #default rai of 1s
     factors = ["fsra","odad", "l2t", "ebu", "speed"]
 
@@ -371,7 +399,7 @@ end
     actions["ebu"]["y"] = [ToggleAction.new(:xml, 'earlyBU', true)]
     actions["ebu"]["n"] = [ToggleAction.new(:xml, 'earlyBU', false)]
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
-
+end
     [factors, levels]
   
     require 'yaml'
@@ -569,7 +597,7 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
             raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
             writeIniFile.puts line
           } #end read inifile line by line
-          
+         
           # {{{ specify ned network to use, appends runs at end and put job line #
           
           writeIniFile.puts "[General]"

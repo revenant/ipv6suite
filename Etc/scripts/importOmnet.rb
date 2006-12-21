@@ -48,10 +48,10 @@ class ImportOmnet < RImportOmnet
     super
   end  
 
-  def readConfig
+  def readConfig(config = @config)
     require 'multiconfig'
     mcg = MultiConfigGenerator.new
-    @factors, @levels = mcg.readConfigs(@config)
+    @factors, @levels = mcg.readConfigs(config)
   end
 
   def encodedSingleRun(p, vecFile, encodedFactors, run = 0)
@@ -216,7 +216,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
   
   def testVectorIndexDifferent
     p = IO.popen(RInterface::RSlave, "w+")
-    $app.readConfig
+    $app.readConfig(@yaml)
     $app.filter = nil
     $app.exclude = nil    
     @input.each_pair{|f,v|
@@ -257,7 +257,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
   
   def test_excludeDupVectorIndex
     p = IO.popen(RInterface::RSlave, "w+")    
-    $app.readConfig           
+    $app.readConfig(@yaml)
     $app.exclude = %w{317}
     $app.filter = nil
     @input.each_pair{|f,v|
@@ -279,7 +279,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
   
   def test_filterDupVectorIndex
     p = IO.popen(RInterface::RSlave, "w+")    
-    $app.readConfig   
+    $app.readConfig(@yaml)   
     $app.filter = %w{317}     
     $app.exclude = nil  
     @input.each_pair{|f,v|
@@ -304,6 +304,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
   def setup
     newVectors = ["EHComp_hmip_50_50_y_1.vec", "EHComp_hmip_50_50_n_2.vec"]
     oldVectors = ['EHComp_eh_100_20_n_2.vec', "EHComp_eh_100_20_n_1.vec"]
+    @yaml = "test.yaml"
     @input = Hash.new
     @input[newVectors[0]] = <<END
 vector 318  "ehComp_hmip_50_50_yNet.mn.udpApp[0]"  "transitTimes cn"  1
@@ -343,6 +344,100 @@ vector 317  "ehComp_eh_100_20_nNet.cn.udpApp[0]"  "transitTimes mn"  1
 317 8.12056952061 0.100569520606
 317 8.12060040061 0.0806004006061
 END
+
+    @input[@yaml] = <<END
+--- 
+- - scheme
+  - dnet
+  - dmap
+  - ar
+- dmap: &id001 
+    - "2"
+    - "20"
+    - "50"
+  dnet: &id002 
+    - "50"
+    - "100"
+    - "200"
+    - "500"
+  scheme: 
+  - hmip
+  - mip
+  - eh
+  ar: 
+  - y
+  - n
+- hmip: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\\"on\\""
+  dmap: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: EHCompIntranetCable
+    symbol: :ned
+    value: *id001
+  dnet: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: EHCompInternetCable
+    symbol: :ned
+    value: *id002
+  eh: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\\"on\\""
+  ar: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "false"
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\\"0\\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\\"off\\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\\"1\\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "true"
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\\"10\\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\\"on\\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\\"0\\""
+  mip: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\\"off\\""
+END
+
     #change dir otherwise may overwrite some results
     Dir.chdir("/tmp")
     @input.each_pair{|k,v|
@@ -350,6 +445,7 @@ END
         f.puts("#{v}")
       }
     }
+    @input.delete(@yaml)
     $app.uniqueVectorNames = nil
     $app.resetVectorStarted
   end

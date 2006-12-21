@@ -184,10 +184,12 @@ end
 # TODO: Add Description Here
 #
 class MultiConfigGenerator
+  include General #for safeLevelLabel
+
   VERSION       = "0.2"
   REVISION_DATE = "<2006-08-27>"
   AUTHOR        = "Johnny Lai"
-  
+
   #
   # Returns a version string similar to:
   #  <app_name>:  Version: 1.2 Created on: 2002/05/08 by Jim Freeze
@@ -322,7 +324,7 @@ end
     ## then
     ## another action
     ##change map="off" for everything else i.e. ar*
-    
+
     ## do it by create XML aware regexp and ifa
     actions["hmip"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
     actions["eh"] = [ToggleAction.new(:xml, 'hierarchicalMIPv6Support', true)]
@@ -330,12 +332,14 @@ end
     #Look into factors actions before specific levels
     actions["dnet"]  = [SetFactorChannelAction.new(:ned, "EHCompInternetCable", "delay", levels["dnet"])]
     actions["dmap"]  = [SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", levels["dmap"])]
-    
+
     actions["error"] = {}
     actions["error"]["2pc"] = [SetAction.new(:ini, "errorRate", 0.02)]
+    [factors, levels, actions]    
   end
   
   def generateConfig
+#    factors, levels,actions = hmipConfigBak
 
     factors = ["ar","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
     levels = {}
@@ -371,8 +375,6 @@ end
       SetConstant.new(:xml, "MIPv6MinRtrAdvInterval", levels["rai"], 0)]
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 
-    [factors, levels]
-
 if false
     #default rai of 1s
     factors = ["fsra","odad", "l2t", "ebu", "speed"]
@@ -400,7 +402,6 @@ if false
     actions["ebu"]["n"] = [ToggleAction.new(:xml, 'earlyBU', false)]
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 end
-    [factors, levels]
   
     require 'yaml'
     File.open('config.yaml', 'w' ) do |out|
@@ -409,11 +410,6 @@ end
     [factors,levels,actions]
   end
   
-  # Similar to above or  test case setup fn but in future do 
-  # Read from file and have 
-  # factor0 = [level0, level1, level2, ... leveln]
-  # factor1 = [level0, level1, level2, ... leveln], ...
-  # then have the reading bit build up the hash
   def generateConfigNames(factors, levels)
     stack = nil
     final = []
@@ -423,9 +419,10 @@ end
         next
       end
       index = 0;
-      for c in stack do
+      for concatenatedConfigName in stack do
         for l in levels[f] do
-          final[index] = "#{c}#{DELIM}#{l}"
+          level=safeLevelLabel(l)
+          final[index] = "#{concatenatedConfigName}#{DELIM}#{level}"
           index = index + 1
         end
       end
@@ -523,6 +520,8 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
     def applyActions(final, factors, fileIndex, line, lineIndex, symbol, file)
       configLevels = final[fileIndex].split(DELIM)
       configLevels.each_with_index do |l,idx|
+        origlevel = l.dup
+        l = safeLevelLabel(l, true)
         me = factors[idx]
 
         if @actions.include? me
@@ -536,7 +535,7 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
             }
           end
           for a in iniactions do
-            #apply file actions only on lineIndex == 0
+            #apply file actions only on lineIndex == 0            
             a.apply(line, lineIndex, file, l)
           end
           next #skip level specific actions
@@ -683,6 +682,7 @@ end
 require 'test/unit'
 
 class TC_MultiConfigGenerator < Test::Unit::TestCase
+  include General #Test functions for module fns
   def test_ToggleActionXML
     line = 'AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on">'
     a = ToggleAction.new(:xml, "AdvHomeAgent", false)
@@ -947,7 +947,8 @@ END
   def test_constant
     line = %|<interface name="eth4" AdvSendAdvertisements="on" MIPv6MaxRtrAdvInterval="1.4" MaxFastRAS="10">|
     expected = %|<interface name="eth4" AdvSendAdvertisements="on" MIPv6MaxRtrAdvInterval="0.7" MaxFastRAS="10">|
-    SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", [0.01,0.03, 0.5], 0.2).apply(line, nil, nil, 0.5)
+    SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", [0.01,0.03, 0.5], 0.2).apply(line, nil, nil, "0.5")
+    SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", [0.01,0.03, 0.5], 0.2).apply(line, nil, nil, safeLevelLabel("0d5", true))
     assert_equal(expected, line,"")
   end
 

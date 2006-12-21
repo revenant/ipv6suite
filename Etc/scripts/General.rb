@@ -1,5 +1,3 @@
-# -*- coding: ISO-8859-1 -*-
-
 #obtained from http://rubyforge.org/snippet/detail.php?type=snippet&id=2
 class Object
   def deep_clone
@@ -37,6 +35,7 @@ module General
   #encodedFactors
   def expandFactors(encodedFactors, factors)
     c = splice(factors, encodedFactors)
+    p c
     e = []
     Hash[*c].to_a.each{|i|
       e.push(i[0] + "=" + quoteValue(i[1]))
@@ -52,4 +51,25 @@ module General
     "\"#{value}\""
   end
   
+  #derive a valid C++ expression i.e. no . in ned network names and thus filenames
+  def safeLevelLabel(level, invert = false)
+    if not invert
+      label = level
+      label = level.to_s.sub!(/[.]/,"d") if level.kind_of? Float
+    else
+      throw "label names should be a string" if level.class != String
+      label = level.dup
+      label.sub!(/d/, '.') if level =~ /^[0-9]+d[0-9]+$/
+    end
+    label
+  end
+
+  def test_safeLevelLabel
+    level = 2.341324
+    assert_equal("2d341324", safeLevelLabel(level))
+    label = "adsf2d341324"
+    assert_equal(label, safeLevelLabel(label, true))
+    assert_equal("3.1414", safeLevelLabel("3d1414", true))
+    assert_equal("3dd1414", safeLevelLabel("3dd1414", true))
+  end
 end

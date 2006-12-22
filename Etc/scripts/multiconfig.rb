@@ -65,9 +65,8 @@ class SetAction < Action
   def applyWith(value, line, index = nil, file = nil, level = nil)
     if line =~ /#{@attribute}\s*=\s*(\S+)/       
       if @symbol == :xml
+#    p "am i in here? #{@attribute}"
         line.sub!(/#{@attribute}\s*?=\s*?([[:alnum:]."]+)/, "#{@attribute}=#{value}")
-#      elsif @symbol == :inifile or @symbol == :runtime
-#          line = "#{@attribute}=#{value}"
       else
         #replace the whole value even if space separated
         line.sub!(/#{@attribute}\s*?=(\s*?(\S+))+/, "#{@attribute}=#{value}")            
@@ -104,14 +103,15 @@ class ToggleAction < SetAction
   def apply(line, index = nil, file = nil, level = nil)
     #Regexp.new("\S+") will not work as \S is interpreted differently there
     #and \b is backspace not word boundary like in regexp literal
-    if line =~ /#{@attribute}=(\S+)/
+    if line =~ /#{@attribute}\s*?=\s*?(\S+)/
+#        p "#{$1} and #{@value} #{@attribute}"
       if not @testedValue
         if $1.include?('"') and not @symbol == :xml
           raise "error detected xml boolean value in line and yet Action defined as non xml"
         end
         @testedValue = true
       end
-      return nil if $1 =~/#{@value}/
+      return line if $1 =~/#{@value}/
       super(line, index, file, level)
     end
     line
@@ -695,6 +695,14 @@ class TC_MultiConfigGenerator < Test::Unit::TestCase
     assert_equal('hierarchicalMIPv6Support="off" edgeHandoverType="Timed"',
                  a.apply(line),
                  "value of xml param hierarchicalMIPv6Support should be changed to false")
+
+    line = '    optimisticDAD = "off"'
+    a = ToggleAction.new(:xml, 'optimisticDAD', true)
+    assert_equal('    optimisticDAD="on"', a.apply(line))
+    line = '    optimisticDAD = "off"'
+    a = ToggleAction.new(:xml, 'optimisticDAD', false)
+    assert_equal('    optimisticDAD = "off"', a.apply(line))
+
   end
   def test_ToggleActionIni
     a = ToggleAction.new(:ini, "l2up", false)

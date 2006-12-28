@@ -30,7 +30,7 @@ bool IPv6Address_::tryParse(const char *addr)
     std::stringstream is(addr);
 
     unsigned int octals[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    char sep;
+    char sep = 0;
 
     try
     {

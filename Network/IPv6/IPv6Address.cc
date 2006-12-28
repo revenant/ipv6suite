@@ -241,6 +241,9 @@ std::ostream& operator<<(std::ostream& os, const IPv6Address& obj)
 
 IPv6Address& IPv6Address::operator=(const IPv6Address& obj)
 {
+  if (this == &obj)
+    return *this;
+
   m_prefix_length = obj.m_prefix_length;
   m_addr = obj.m_addr;
   m_scope = obj.m_scope;

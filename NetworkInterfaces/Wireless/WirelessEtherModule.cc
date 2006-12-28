@@ -165,6 +165,7 @@ void WirelessEtherModule::baseInit(int stage)
 {
     if (stage == 0)
     {
+      linkdownTime = 0;
         changeState(WirelessEtherStateIdle::instance());
         sequenceNumber = 0;
         inputFrame = 0;

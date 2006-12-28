@@ -118,15 +118,7 @@ std::string IPv6InterfaceData::detailedInfo() const
 
 void IPv6InterfaceData::removeAddrFromArray(IPv6Addresses& addrs, const IPv6Address& addr)
 {
-  //Weak test to see if addr indeed belongs in this interface.  Should compare
-  //the actual pointers
-  IPv6Addresses::iterator it = std::find(addrs.begin(),addrs.end(),addr);
-  // assert (it!=addrs.end());
-  if (it != addrs.end())
-  {
-    *it = addrs.back();
-    addrs.pop_back();
-  }
+  addrs.erase(std::remove(addrs.begin(), addrs.end(), addr));
 }
 
 bool IPv6InterfaceData::addrAssigned(const ipv6_addr& addr) const

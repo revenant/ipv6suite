@@ -247,6 +247,8 @@ void WirelessAccessPoint::initialize(int stage)
         avgFrameSizeRxStat = new cStdDev("avgFrameSizeRxStat");
 
         _currentReceiveMode = WEAPReceiveMode::instance();
+
+ 	newNoOfVI = newNoOfVO = 0;
     }
     else if (stage == 1)
     {
@@ -729,7 +731,7 @@ void WirelessAccessPoint::estimateThroughput(double &aTAPBE, double &aTAPVI, dou
     double aTMS;
 
     // Intermediate variables for estimation
-    double probOfTx, probOneOrMore, duration, num, denom;
+    double probOfTx, probOneOrMore, duration = 0, num, denom;
 
     // Prediction variables
     /* double probOfTxVI=1, probOfTxVO=1;

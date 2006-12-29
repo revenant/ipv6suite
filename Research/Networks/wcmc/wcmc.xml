@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE netconf SYSTEM "defaults.dtd">
 
-<netconf debugChannel="debug1.log:MobileMove::notice:custom:Ping6:Statistic">
+<netconf debugChannel="debug1.log:rcfile:MobileMove::notice:custom:Ping6:Statistic">
 <!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
   <global>
     <ObjectMovement>
@@ -19,7 +19,7 @@
   </global>
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
     optimisticDAD = "off"
-  routeOptimisation="on" hierarchicalMIPv6Support="off">
+  routeOptimisation="on" hierarchicalMIPv6Support="off" earlyBU="off">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">

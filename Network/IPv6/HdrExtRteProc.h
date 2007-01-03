@@ -59,16 +59,6 @@ public:
       return new HdrExtRte(*this);
     }
 
-//  /**
-//        @Overridden cObject functions
-//      */
-//     //@{
-//   virtual cObject* dup() const { return new HdrExtRte(*this); }
-//   virtual const char *className() const { return "HdrExtRte"; }
-//   virtual std::string info();
-//   virtual void writeContents(ostream& os);
-//   //@}
-
   /**
       @name Overridden HdrExtProc functions
   */
@@ -166,6 +156,11 @@ public:
   virtual std::ostream& operator<<(std::ostream& os);
   virtual ~MIPv6RteOpt()
     {}
+
+  /*v*/ MIPv6RteOpt* dup() const
+    {
+      return new MIPv6RteOpt(*this);
+    }
 
   virtual bool processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
                              int cumulLengthInUnits);

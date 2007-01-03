@@ -1,5 +1,6 @@
 // -*- C++ -*-
 //
+// Copyright (C) 2007 by Johnny Lai
 // Copyright (C) 2001 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -54,7 +55,7 @@ public:
 
   virtual std::ostream& operator<<(std::ostream& os);
 
-  /*v*/ HdrExtRte* dup() const
+  virtual HdrExtRte* dup() const
     {
       return new HdrExtRte(*this);
     }

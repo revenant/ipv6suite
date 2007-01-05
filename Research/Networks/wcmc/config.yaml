@@ -25,9 +25,9 @@
     n: 
     - !ruby/object:ToggleAction 
       attribute: earlyBU
-      symbol: :ini
+      symbol: :xml
       testedValue: false
-      value: "false"
+      value: "\"off\""
     y: 
     - !ruby/object:ToggleAction 
       attribute: earlyBU
@@ -54,12 +54,22 @@
       symbol: :ini
       testedValue: false
       value: "false"
+    - !ruby/object:ToggleAction 
+      attribute: eagerHandover
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
     y: 
     - !ruby/object:ToggleAction 
       attribute: linkUpTrigger
       symbol: :ini
       testedValue: false
       value: "true"
+    - !ruby/object:ToggleAction 
+      attribute: eagerHandover
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
   speed: 
   - !ruby/object:SetConstant 
     attribute: moveSpeed
@@ -72,8 +82,16 @@
       attribute: MaxFastRAS
       symbol: :xml
       value: "\"0\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"1\""
     y: 
     - !ruby/object:SetAction 
       attribute: MaxFastRAS
       symbol: :xml
       value: "\"10\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"0\""

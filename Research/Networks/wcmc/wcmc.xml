@@ -19,13 +19,14 @@
   </global>
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
     optimisticDAD = "off"
-  routeOptimisation="on" hierarchicalMIPv6Support="off" earlyBU="off">
+  routeOptimisation="on" hierarchicalMIPv6Support="off" earlyBU="off"
+  eagerHandover="on" ewuOutVectorHODelays="on">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
-    <interface name="wlan0" HostDupAddrDetectTransmits="0">
+    <interface name="wlan0" HostMaxRtrSolDelay="0">
     </interface>
   </local>
-  <local node="server4" mobileIPv6Support="on">
+  <local node="server4" mobileIPv6Support="on" earlyBU="off">
   </local>
 <!-- routing table configuration -->
 

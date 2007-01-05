@@ -351,17 +351,29 @@ end
 
     actions={}
     actions["ar"] = {}
-    actions["ar"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true), 
-                           SetAction.new(:xml, "MaxFastRAS", 10),
-                           ToggleAction.new(:xml, "optimisticDAD", true),
-                           SetAction.new(:xml, "HostMaxRtrSolDelay", 0)]
-    actions["ar"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false), 
-                           SetAction.new(:xml, "MaxFastRAS", 0),
-                           ToggleAction.new(:xml, "optimisticDAD", false),
-                           SetAction.new(:xml, "HostMaxRtrSolDelay", 1)]
+    actions["ar"]["y"] = [
+      ToggleAction.new(:ini, 'linkUpTrigger', true), 
+      ToggleAction.new(:xml, 'eagerHandover', true),
+      ToggleAction.new(:xml, "optimisticDAD", true),
+      ToggleAction.new(:xml, 'earlyBU', true)
+    ]
+    actions["ar"]["n"] = [
+      ToggleAction.new(:ini, 'linkUpTrigger', false), 
+      ToggleAction.new(:xml, 'eagerHandover', false),
+      ToggleAction.new(:xml, "optimisticDAD", false),
+      ToggleAction.new(:xml, 'earlyBU', false)
+    ]
+
     actions["fsra"] = {}
-    actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
-    actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
+    actions["fsra"]["y"] = [
+      SetAction.new(:xml, "MaxFastRAS", 10),
+      SetAction.new(:xml, "HostMaxRtrSolDelay", 0),
+    ]
+    actions["fsra"]["n"] = [
+      SetAction.new(:xml, "MaxFastRAS", 0),
+      SetAction.new(:xml, "HostMaxRtrSolDelay", 1),
+    ]
+    
     actions["l2scan"] = [InsertAction.new(:ini, "include default.ini", %|
 **.networkInterface.channelsNotToScan = "1-2-3-4-5-7-8-9-10-12-13-14-15-16"
 **.ap1.chann=6
@@ -383,20 +395,29 @@ if false
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
     levels[factors[2]] = ["y", "n"]
-#    levels[factors[3]] = ["y", "n"]
-    levels[factors[3]] = ["n"]
+    levels[factors[3]] = ["y", "n"]
     levels[factors[4]] = [3, 9, 13, 22]
 
     actions={}
     actions["fsra"] = {}
-    actions["fsra"]["y"] = [SetAction.new(:xml, "MaxFastRAS", 10)]
-    actions["fsra"]["n"] = [SetAction.new(:xml, "MaxFastRAS", 0)]
+    actions["fsra"]["y"] = [
+      SetAction.new(:xml, "MaxFastRAS", 10),
+      SetAction.new(:xml, "HostMaxRtrSolDelay", 0),
+    ]
+    actions["fsra"]["n"] = [
+      SetAction.new(:xml, "MaxFastRAS", 0),
+      SetAction.new(:xml, "HostMaxRtrSolDelay", 1),
+    ]
+
     actions["odad"] = {}
     actions["odad"]["y"] = [ToggleAction.new(:xml, "optimisticDAD", true)]
     actions["odad"]["n"] = [ToggleAction.new(:xml, "optimisticDAD", false)]
+
     actions["l2t"] = {}
-    actions["l2t"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true)]
-    actions["l2t"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false)]
+    actions["l2t"]["y"] = [ToggleAction.new(:ini, 'linkUpTrigger', true),
+                           ToggleAction.new(:xml, 'eagerHandover', true)]
+    actions["l2t"]["n"] = [ToggleAction.new(:ini, 'linkUpTrigger', false),
+                           ToggleAction.new(:xml, 'eagerHandover', false)]
     actions["ebu"] = {}
     actions["ebu"]["y"] = [ToggleAction.new(:xml, 'earlyBU', true)]
     actions["ebu"]["n"] = [ToggleAction.new(:xml, 'earlyBU', false)]

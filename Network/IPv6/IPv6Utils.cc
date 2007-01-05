@@ -38,6 +38,7 @@ namespace IPv6Utils
 {
   std::ostream& printRoutingInfo(bool routingInfoDisplay, IPv6Datagram* datagram, const char* name, bool directionOut)
   {
+    static bool encapsulate = false;
     static ostream* osp = 0;
     if (!osp)
     {
@@ -53,7 +54,10 @@ namespace IPv6Utils
 
     if (datagram->kind() == 1 || routingInfoDisplay)
     {
-      os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime();
+      if (!encapsulate)
+	os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime();
+      else
+	os<<"    ";
       if (datagram->transportProtocol() == IP_PROT_IPv6)
       {
 	os<<" payload=datagram";
@@ -72,9 +76,11 @@ namespace IPv6Utils
       if (datagram->transportProtocol() == IP_PROT_IPv6)
       {
 	os<<" encapsulating \n";
+	encapsulate = true;
 	IPv6Datagram* dgram = 
 	  check_and_cast<IPv6Datagram*> (datagram->encapsulatedMsg());
 	printRoutingInfo(true, dgram, name, directionOut);
+	encapsulate = false;
       }
       if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
       {

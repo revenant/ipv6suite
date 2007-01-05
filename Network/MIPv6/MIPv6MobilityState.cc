@@ -47,6 +47,7 @@
 
 #include "MIPv6CDS.h"
 #include "HdrExtRteProc.h"
+#include "opp_utils.h" //switchContext
 
 namespace MobileIPv6
 {
@@ -85,7 +86,7 @@ bool MIPv6MobilityState::processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* 
     boost::weak_ptr< bc_entry > bce = mipv6cds->findBinding(hoa);    
     if (!bce.lock().get())
       dropped = true;
-    if (bce.lock()->care_of_addr != coa)
+    else if (bce.lock()->care_of_addr != coa)
       dropped = true;
     if (dropped)
     {
@@ -122,6 +123,8 @@ MobilityHeaderBase* MIPv6MobilityState::mobilityHeaderExists(IPv6Datagram* dgram
 //TODO rate limit like icmp messages
 void MIPv6MobilityState::sendBE(int status, IPv6Datagram* dgram)
 {
+  //Enter_Method("sendBE");
+  OPP_Global::ContextSwitcher switchContext(mob);
   HdrExtDestProc* proc = static_cast<HdrExtDestProc*>(dgram->findHeader(EXTHDR_DEST));
   ipv6_addr origSrc = dgram->srcAddress();
   ipv6_addr hoa = IPv6_ADDR_UNSPECIFIED;
@@ -273,15 +276,14 @@ void MIPv6MobilityState::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagram*
       be->cellResidenceTimeVec = new cOutVector("CN cell residence time");
 
     bce = mipv6cds->insertBinding(be);
-    Dout(dc::custom, "bc "<<(*(mipv6cds)));
+    assert(bce.lock().get());
   }
 
   bce.lock()->care_of_addr = dgram->srcAddress();
-  if (mob->earlyBindingUpdate())
-    bce.lock()->expires = TENTATIVE_BINDING_LIFETIME;
-  else
-    bce.lock()->expires = bu->expires();
+  bce.lock()->expires = bu->expires();
   bce.lock()->setSeqNo(bu->sequence());
+
+  Dout(dc::custom, "bc "<<(*(mipv6cds)));
 
   // Sathya - When BU is received, note down BU_arrive_time
   bce.lock()->buArrivalTime = mob->simTime();

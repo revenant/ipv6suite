@@ -128,6 +128,12 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
 
   void mnSrcAddrDetermination(IPv6Datagram* dgram);
 
+  // TODO: it would probably make more sense to add buRetransTmr in
+  // each of the BUL entry instead of storing a list of buRetransTmrs
+  // in the state class.
+
+  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
+  typedef BURetranTmrs::iterator BURTI;
 
  protected:
   //update the tunnels based on BU just done
@@ -141,13 +147,6 @@ class MIPv6MStateMobileNode : public MIPv6MStateCorrespondentNode
   void processBRR(BRR* br, IPv6Datagram* dgram);
 
   void processTest(MobilityHeaderBase* t, IPv6Datagram* dgram);
-
-  // TODO: it would probably make more sense to add buRetransTmr in
-  // each of the BUL entry instead of storing a list of buRetransTmrs
-  // in the state class.
-
-  typedef std::list<MobileIPv6::BURetranTmr*> BURetranTmrs;
-  typedef BURetranTmrs::iterator BURTI;
 
   BURetranTmrs buRetranTmrs;
 

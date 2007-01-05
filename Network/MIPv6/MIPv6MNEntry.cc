@@ -79,6 +79,7 @@ namespace MobileIPv6
 #ifdef USE_HMIP
       <<" m="<<isMobilityAnchorPoint()
 #endif //USE_HMIP
+	     <<" honi="<<homeNI<<" coni="<<careOfNI
 ;
   }
 
@@ -91,6 +92,11 @@ namespace MobileIPv6
     }
     else
       return false;
+  }
+
+  bool bu_entry::tentativeBinding()
+  {
+    return isPerformingRR() && careOfNI == 0;
   }
 
   void bu_entry::setLifetime(unsigned int life)
@@ -140,7 +146,8 @@ namespace MobileIPv6
 
     bool bu_entry::testSuccess() const
     {
-      return !hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled();
+      return !hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled() &&
+	homeNI != 0 && careOfNI != 0;
     }
 
     void bu_entry::resetTestInitTimeout(const MIPv6HeaderType& ht)

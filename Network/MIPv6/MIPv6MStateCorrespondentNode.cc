@@ -63,7 +63,10 @@ MIPv6MStateCorrespondentNode::MIPv6MStateCorrespondentNode(IPv6Mobility* mod):
     ->connect(
 	      boost::bind(&MIPv6MStateCorrespondentNode::nonceGeneration, this));
   nonceGenTmr->rescheduleDelay(nonceGenerationPeriod);  
-  nonces[noncesIndex] = rand();
+  nonces[0] = rand();
+  for (int i = 1; i < 8; ++i)
+    nonces[i] = 0;
+  WATCH(nonces);
 }
 
 MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
@@ -164,6 +167,9 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
 
 bool checkNonces(u_int16 nonceIndex, u_int16* nonces)
 {
+  if (nonceIndex == 0)
+    return false;
+
   for (unsigned int i = 0; i < 8; i++)
     if (nonceIndex == nonces[i])
       return true;
@@ -210,7 +216,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
   //use acoa if present (part of preprocess BU)
 
   // if the lifetime of BU is zero OR the MN returns to its home
-  // subnet, delete the its binding update, accordingly
+  // subnet, delete its binding update, accordingly
   if (bu->expires() == 0 || coa == hoa)
   {
     if (!hniCheck)
@@ -233,6 +239,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
   }
 
   bool cniCheck = checkNonces(ni->coni(),nonces);
+  bool tentativeBinding = false;
   if (!cniCheck && !hniCheck)
   {
     BA* ba = new BA(BAS_UNREC_BOTHNI);
@@ -252,11 +259,18 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
   }
   else if (!cniCheck)
   {
-    BA* ba = new BA(BAS_UNREC_CONI);
-    sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
-    Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
-	 <<" due to care of nonce index (coni) expired for coa="<<coa);
-    return false;
+    if (!mob->earlyBindingUpdate())
+    {
+      BA* ba = new BA(BAS_UNREC_CONI);
+      sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba);
+      Dout(dc::warning|dc::rrprocedure, mob->nodeName()<<" CN registration failed"
+	   <<" due to care of nonce index (coni) expired for coa="<<coa);
+      return false;
+    }
+    else 
+    {
+      tentativeBinding = true;
+    }
   }
 
   //binding authorization data mob opt must be present and last opt and no padding
@@ -268,14 +282,16 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
     return false;
   }
   
-  if (mob->earlyBindingUpdate())
+  if (mob->earlyBindingUpdate() && !tentativeBinding)
   {
     boost::weak_ptr<bc_entry> bce =
       mipv6cds->findBinding(hoa);
 
     // binding cache entry has already been created
-    if (bce.lock() &&  bce.lock()->care_of_addr == coa)
+    if (bce.lock())
     {
+      if (bce.lock()->care_of_addr == coa)
+      {
       bce.lock()->expires = bu->expires();
       bce.lock()->setSeqNo(bu->sequence());
 
@@ -288,20 +304,30 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
       
       //senderModule is not IPv6mobility?
       //check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+      if (bu->senderModule())
       std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;
       return true;
+      }
+      else
+	assert(false);
     }
   }
 
   MIPv6MobilityState::registerBCE(bu, hoa, dgram);
-  Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mob->simTime() << ", " << mob->nodeName()
-       <<" CN registering BU from src="<<dgram->srcAddress()
-       <<" hoa="<<hoa<<" coa="<<coa);
-  // bu is legal, if bu in which A bit is set, send the BA back to the
-  // sending MN
+  if (!tentativeBinding)
+    Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mob->simTime() << ", " << mob->nodeName()
+	 <<" CN registering BU from src="<<dgram->srcAddress()
+	 <<" hoa="<<hoa<<" coa="<<coa);
+  else
+    Dout(dc::mipv6|dc::rrprocedure|flush_cf, "At " << mob->simTime() << ", " << mob->nodeName()
+	 <<" CN registering EBU from src="<<dgram->srcAddress()
+	 <<" hoa="<<hoa<<" coa="<<coa);
+    
   if ( bu->ack() )
   {
     BA* ba = new BA(BAS_ACCEPTED, bu->sequence(), bu->expires());
+    if (tentativeBinding)
+      ba->setName("EarlyBA");
     sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
   }
 

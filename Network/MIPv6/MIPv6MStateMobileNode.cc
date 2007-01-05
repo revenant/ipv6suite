@@ -85,6 +85,7 @@ const simtime_t CELL_RESI_THRESHOLD = 4;
   ///dgram contains bu
 void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
 {
+  //if dgram->name() == EarlyBU then record ebu time and same for BA
   const simtime_t now = mob->simTime();
   if (mipv6cds->mipv6cdsMN->primaryHA().get() && 
       dgram->destAddress() == mipv6cds->mipv6cdsMN->primaryHA()->addr())
@@ -251,6 +252,19 @@ public:
 
 };
 
+std::ostream& operator<<(std::ostream& os,
+                         const MobileIPv6::BURetranTmr& burtmr)
+{
+  return os<< "bu timer to "<<*(burtmr.dgram);
+}
+
+std::ostream& operator<<(std::ostream& os,
+                         const MobileIPv6::MIPv6MStateMobileNode::BURetranTmrs& list)
+{
+  copy(list.begin(), list.end(), ostream_iterator<
+       MobileIPv6::MIPv6MStateMobileNode::BURetranTmrs::value_type >(os, "\n"));
+  return os;
+}
 
 /**
  * @class sendBUs
@@ -420,6 +434,8 @@ void MIPv6MStateMobileNode::initialize(int stage)
     mipv6cdsMN->currentRouter() = boost::shared_ptr<MIPv6RouterEntry>();
 
     mob->rt->cds->removeDestEntryByNeighbour(haAddr);
+
+    WATCH_PTRLIST(buRetranTmrs);
   }
 }
 
@@ -502,6 +518,7 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   bool found = false;
   for (BURTI it = buRetranTmrs.begin(); it != buRetranTmrs.end(); it++)
   {
+    Dout(dc::mipv6|flush_cf, **it);
     if ((*it)->dgram->destAddress() == dgram->srcAddress())
     {
       if ((*it)->isScheduled())
@@ -625,9 +642,12 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
         !mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr()) &&
         hmipv6cds->isMAPValid())
 #endif //USE_HMIP
+    //ebu causes bul to contain cn entries while at home for home test purposes
+    || (mob->earlyBindingUpdate() && !mipv6cdsMN->findBU(mipv6cdsMN->primaryHA()->addr()))
     )
   {
     assert(mipv6cdsMN->homeAddr() != IPv6_ADDR_UNSPECIFIED);
+    ipv6_addr oldcoa = mipv6cdsMN->careOfAddr();
 
     //Send BU to pHA
     //Create pHA bul entry and update it
@@ -635,6 +655,10 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
            lifetime, true,
            mipv6cdsMN->primaryHA()->re.lock()->ifIndex());
 
+    //send to current cns too (3.5 proactive registrations)
+    if (mob->earlyBindingUpdate())
+      for_each(mipv6cdsMN->bul.begin(), mipv6cdsMN->bul.end(),
+               sendBUs(coa, oldcoa, hoa, lifetime, mob, mipv6cdsMN));
   }
   else
   {
@@ -737,19 +761,20 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
   }
 
   bule->resetTestInitTimeout((MIPv6HeaderType)testMsg->kind());
-
+  /*
   Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " 
        << mob->nodeName()<<" has verified that " << testMsg->className() 
        << " src=" << srcAddr << " dest= " << dgram->destAddress() << " is valid");
-
+  */
   if ( testMsg->kind() == MIPv6MHT_HOT && mob->earlyBindingUpdate())
   {
     //10 is just arbitrary number so that it refreshes before the home token expires
     bule->hotiRetransTmr->reschedule(mob->simTime() + MAX_TOKEN_LIFETIME - 10);
-
+    /*
     Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()
 	 << " sec, " << mob->nodeName() << " next home test will be at " 
 	 << bule->hotiRetransTmr->arrivalTime()<<" sec");
+    */
   }  
 
   if (hot)
@@ -757,8 +782,16 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
   else
     bule->careOfNI = cot->coni();
 
-  //TODO if ebu then testSuccess means home token still valid
-  if (bule->testSuccess())
+  bool returnHome = bule->homeAddr() == mipv6cdsMN->careOfAddr();
+
+  if (bule->testSuccess() || (mob->earlyBindingUpdate() && 
+			      ((cot && bule->homeNI != 0) || 
+			       (hot && bule->careOfNI != 0))
+			      ) ||
+      //for pro active home test bule willl look like a returning home bulue
+      //except that bu to cn was never sent (i.e. last_time_sent == 0) so we only
+      //want to deregister when it is not a pro active home test entry
+      (returnHome && bule->homeNI != 0 && bule->last_time_sent != 0))
   {
     assert(dgram->timestamp());
 
@@ -781,7 +814,10 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   std::vector<ipv6_addr> addrs(2);
   addrs[0] = dest;
   addrs[1] = coa;
-   
+
+  //if coa is unspecified then means proactive hoti
+  //so only set up hoti things. and allow it to repeat according to ebu.
+  //send will call this fn with the cn addr in dest and coa unspecified
   bu_entry* bule = mipv6cdsMN->findBU(dest);
 
   bool isNewBU = false;
@@ -805,15 +841,15 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     if (bule->isPerformingRR() || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
-  cerr<<"sendInit: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
-      <<endl;
 
   simtime_t testInitScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
+
+  bool returnHome = bule->homeAddr() == coa;
 
   *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
                                         addrs, mob->simTime());
   *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
-                                        addrs, mob->simTime());
+					addrs, mob->simTime());
 
   if ( !mob->earlyBindingUpdate() && bule->hotiRetransTmr->isScheduled() )
   {
@@ -833,7 +869,13 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
     bule->hotiRetransTmr->reschedule(testInitScheduleTime);
 
-  bule->cotiRetransTmr->reschedule(testInitScheduleTime);
+  if (!returnHome)
+    bule->cotiRetransTmr->reschedule(testInitScheduleTime);
+
+  if (returnHome && bule->homeNI != 0)
+    sendBU(dest, coa,
+           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
+           false, 0, false, mob->simTime());
 
 }
 
@@ -856,11 +898,6 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   IPv6Datagram* dgram_hoti = 
     constructDatagram(mipv6cdsMN->homeAddr(), dest, hoti, 0, timestamp);
   
-  // TODO: return home; Since the return home handover isn't fully
-  // robust, we will send the hoti straight to the outputcore instead
-  // of forwardcore for now. coa can be removed when the return home
-  // handover is fixed
-
   if (coa != mipv6cdsMN->homeAddr())
   {
     
@@ -918,14 +955,18 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
        << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
        << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
       <<   bule->cotiRetransTmr->arrivalTime()<<endl;
-  if (mob->earlyBindingUpdate())
+
+  //looks like acc. to fig. 1 of ebu draft that proactive home reg needs to have
+  //taken place for ebu to be effective. i.e. no point sending ebu when HOT
+  //received if we do HOTI test at handover time.
+  if (mob->earlyBindingUpdate()) //&& bule->homeNI != 0)
   {
     // send early BU
     sendBU(dest, coa,
            mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
-           false, 0);
+           false, 0, false, mob->simTime());
     Dout(dc::rrprocedure|flush_cf, "RR Procedure (Early BU) At" << mob->simTime()<< " sec, " << mob->rt->nodeName()
-         <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
+         <<" Correspondent Registration: sending BU to CN dest= "
          << IPv6Address(dest));
   }
 }
@@ -941,7 +982,7 @@ void MIPv6MStateMobileNode::processBE(BE* bm, IPv6Datagram* dgram)
 
   if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
   {
-    Dout(dc::warning, " implement processBM for MN to send BU to CN");
+    Dout(dc::warning, " implement processBE ");
 /*
  o  If the mobile node has recent upper layer progress information,
       which indicates that communications with the correspondent node
@@ -958,7 +999,7 @@ void MIPv6MStateMobileNode::processBE(BE* bm, IPv6Datagram* dgram)
   }
   else
     Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()
-         <<" Unable to process BM from "<<dgram->srcAddress());
+         <<" Unable to process BE from "<<dgram->srcAddress());
   // if the mobile node does not have a binding update list entry for
   // the source of the binding missing message, it MUST ignore the
   // message
@@ -1149,27 +1190,57 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 #endif //USE_HMIP
   seq, lifetime); //hoa
 
+  bool returnHome = coa == hoa;
+  bool ebu = false;
   if (!homeReg && !mapReg )
   {
 
+    if (!mob->earlyBindingUpdate())
+    {
     //rr should already have been done
-    assert(bule->homeNI && bule->careOfNI);
-    assert(!bule->isPerformingRR());
-    assert(bule->testSuccess());
+      assert(bule->homeNI);
+      if (!returnHome)
+      {
+	assert(bule->careOfNI);
+	assert(bule->testSuccess());
+      }	 
+      else
+	assert(bule->homeNI != 0);
+      assert(!bule->isPerformingRR());
+    }
+    else
+    {
+      //assert(bule->homeNI); 
+    }
 
     //11.7.2 , 6.1.7 & 5.2.6 for CN
     MIPv6OptNI* ni = new MIPv6OptNI;
     ni->setHni(bule->homeNI);
-    ni->setConi(bule->careOfNI);
-    bule->homeNI = 0;
+    if (!mob->earlyBindingUpdate() || 
+	(mob->earlyBindingUpdate() && !bule->tentativeBinding()))
+      ni->setConi(bule->careOfNI);
+    else 
+    {
+      ni->setConi(0);
+      ebu = true;
+      lifetime = TENTATIVE_BINDING_LIFETIME;
+      bu->setExpires(TENTATIVE_BINDING_LIFETIME);
+    }
+
+    //no need to reset as we promise to continually update it for ebu
+    if (!mob->earlyBindingUpdate())
+      bule->homeNI = 0;
+
     bule->careOfNI = 0;
     bu->addOption(ni);
     //add Kbm
     bu->addOption(new MIPv6OptBAD);   
   }
 
+  if (ebu && !returnHome)
+    bu->setName("EarlyBU");
+  
   IPv6Datagram* dgram = constructDatagram(coa, dest, bu, 0);
-
   if (homeReg || mapReg)
   {
     // BU sent to HA should not have any timestamp set
@@ -1190,6 +1261,8 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   mob->send(dgram, "routingOut");
 
+  //  if (mapReg || homeReg || ((mob->earlyBindingUpdate() && ((!mapReg && !homeReg) && ebu))) ||
+  //  !mob->earlyBindingUpdate())
   recordBUVector(dgram, mob, mipv6cds);
 
   //Create BU retransmission timer
@@ -1356,11 +1429,27 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   //a hoa dest opt and send packet via route optimised path. Otherwise send via
   //reverse tunnel to HA
 
-  //Perhaps this goes into send too as only for non forwarded packets.
   RoutingTable6* rt = mob->rt;
   IPv6Datagram* datagram = &dgram;
 
   assert(rt->isMobileNode());
+
+  if (mipv6cdsMN->primaryHA().get() != 0 &&
+      mob->earlyBindingUpdate() && !mipv6cdsMN->awayFromHome() && 
+      datagram->srcAddress() == mipv6cdsMN->homeAddr())
+  {
+    //proactive home test
+    MobileIPv6::bu_entry* bule = 0;
+    bule = mipv6cdsMN->findBU(datagram->destAddress());
+    if (!bule)
+    {
+      Dout(dc::rrprocedure|flush_cf, mob->simTime()<< " "<< mob->rt->nodeName()
+	   <<"proactive home test");
+      sendInits(datagram->destAddress(), mipv6cdsMN->homeAddr());
+      return true;
+    }
+  }
+
   if (!mipv6cdsMN->awayFromHome() ||
       mipv6cdsMN->primaryHA().get() == 0)
     return true;
@@ -1399,12 +1488,12 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
 
   // The following section of the code only applies to data packet
   // sent from upper layer. Mobility messages do not contain the
-  // home address option. TODO: maybe an extra check of where the
-  // message is sent should be done?
+  // home address option. 
   MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
-  if (ms == 0 && bule && !bule->isPerformingRR() &&
+  if (ms == 0 && bule && (!bule->isPerformingRR() || 
+			  (mob->earlyBindingUpdate() && bule->isPerformingRR())) &&
       bule->homeAddr() == datagram->srcAddress() &&
       //too strict a test for one of the current coa should instead check that
       //it is assigned somewhere?

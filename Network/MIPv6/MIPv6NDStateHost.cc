@@ -744,12 +744,13 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   }
   else if (tmr->kind() == Tmr_L2Trigger)
   {
-    if (ignoreInitiall2trigger)
+    /*    if (ignoreInitiall2trigger)
     {
       ignoreInitiall2trigger = false;
       return;
     }
     else
+    */
       mipv6cdsMN->setAwayFromHome(true);
 
     mipv6cdsMN->setMovementDetected(true);
@@ -775,7 +776,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   for(size_t ifIndex = 0; ifIndex < ift->numInterfaceGates(); ifIndex++)
   {
     initiateSendRtrSol(ifIndex);
-    Dout(dc::mipv6|dc::mobile_move|dc::router_disc, rt->nodeName()<<" rtr Sol sent on ifIndex="<<ifIndex
+    Dout(dc::mipv6|dc::mobile_move|dc::router_disc, rt->nodeName()<<" Rtr Sol sent on ifIndex="<<ifIndex
 	 <<" in response to movement detected");
   }
 
@@ -1309,7 +1310,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     {
       //removeBU not implemented! 
       //mipv6cdsMN->removeBU(tunPacket->srcAddress());
-      Dout(dc::mipv6|flush_cf, rt->nodeName()<<" "<<rt->simTime()<<" BU in progress. Not doing RO again");
+      //Dout(dc::mipv6|flush_cf, rt->nodeName()<<" "<<rt->simTime()<<" BU in progress. Not doing RO again");
       return;
     }
   }

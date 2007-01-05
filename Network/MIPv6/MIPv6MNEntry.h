@@ -367,7 +367,8 @@ namespace MobileIPv6
   public:
 
     bool isPerformingRR();
-    
+    bool tentativeBinding();
+
     TIRetransTmr* hotiRetransTmr;
     TIRetransTmr* cotiRetransTmr;
 

@@ -38,7 +38,7 @@
 #include "ICMPv6Message_m.h"
 #include "ICMPv6MessageUtil.h"
 #include "IPv6Headers.h"
-
+#include "IPv6Mobility.h" //for future hoa test of type2 header
 
 
 HdrExtRte::HdrExtRte(unsigned char rt_type)
@@ -229,24 +229,6 @@ bool HdrExtRte::processHeader(cSimpleModule* mod, IPv6Datagram* thePdu,
   return true;
 }
 
-// void HdrExtRte::assign(const HdrExtRte& rhs)
-// {
-//   HdrExtProc::assign(rhs);
-//   assert(rt0_hdr->routing_type == IPV6_TYPE0_RT_HDR);
-//   if (rhs.segmentsLeft())
-//     {
-//       ipv6_addr* addr = new ipv6_addr[segmentsLeft()];
-//       memcpy(addr, rhs.rt0_hdr->addr, segmentsLeft()*sizeof(ipv6_addr));
-//       rt0_hdr->addr = addr;
-//     }
-// }
-
-/* Never used as address are never removed only swapped around
-void HdrExtRte::removeAddress(const ipv6_addr& addr)
-{
-}
-*/
-
 namespace MobileIPv6
 {
 
@@ -260,12 +242,14 @@ bool MIPv6RteOpt::processHeader(cSimpleModule* mod, IPv6Datagram* pdu,
 {
   assert(rt0_hdr->segments_left == 1);
 
-#if defined TESTMIPv6 || defined DEBUG_BC
-  cout<<" RteType2 hdr with home addres="<<rt0_hdr->addr[0]
-      <<" swapped with dest addr=<<"<<pdu->destAddress()<<"\n";
-#endif //defined TESTMIPv6 || defined DEBUG_BC
-
-  return true;
+  bool ret = false;
+  IPv6Mobility* mob = 
+    check_and_cast<IPv6Mobility*>(OPP_Global::findModuleByType(mod, "IPv6Mobility"));
+  //if (mob->homeAddress() == rt0_hdr->addr[0])
+  {
+    ret = HdrExtRte::processHeader(mod, pdu, cumulLengthInUnits);
+  }       
+  return ret;
 }
 
 std::ostream& MIPv6RteOpt::operator<<(std::ostream& os)

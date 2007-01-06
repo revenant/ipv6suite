@@ -160,6 +160,7 @@ public:
   {
     setStatus(status == 2);
     setByteLength(16 + byteLength());
+    setHoa(hoa);
   }
   BE(const BE& other) : BE_Base(other.name()) {operator=(other);}
   BE& operator=(const BE& other) {BE_Base::operator=(other); return *this;}

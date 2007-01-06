@@ -341,7 +341,7 @@ end
   def generateConfig
 #    factors, levels,actions = hmipConfigBak
 
-    factors = ["ar","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
+    factors = ["multi","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
@@ -350,14 +350,14 @@ end
     levels[factors[4]] = ["y", "n"]
 
     actions={}
-    actions["ar"] = {}
-    actions["ar"]["y"] = [
+    actions["multi"] = {}
+    actions["multi"]["y"] = [
       ToggleAction.new(:ini, 'linkUpTrigger', true), 
       ToggleAction.new(:xml, 'eagerHandover', true),
       ToggleAction.new(:xml, "optimisticDAD", true),
       ToggleAction.new(:xml, 'earlyBU', true)
     ]
-    actions["ar"]["n"] = [
+    actions["multi"]["n"] = [
       ToggleAction.new(:ini, 'linkUpTrigger', false), 
       ToggleAction.new(:xml, 'eagerHandover', false),
       ToggleAction.new(:xml, "optimisticDAD", false),

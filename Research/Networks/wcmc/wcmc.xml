@@ -12,8 +12,36 @@
              <move moveToX="352" moveToY="378" moveSpeed="3"/>
       </MovingNode>
       <MovingNode NodeName="square" startTime="0">
-        <move moveToX="352" moveToY="378" moveSpeed="3"/>
-        <move moveToX="88" moveToY="118" moveSpeed="3"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
+        <move moveToX="352" moveToY="378" moveSpeed="9"/>
+        <move moveToX="88" moveToY="118" moveSpeed="9"/>
       </MovingNode>
     </ObjectMovement>
   </global>
@@ -21,8 +49,6 @@
     optimisticDAD = "off"
   routeOptimisation="on" hierarchicalMIPv6Support="off" earlyBU="off"
   eagerHandover="on" ewuOutVectorHODelays="on">
-<!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
-<!-- perhaps other values do not work either -->
     <interface name="wlan0" HostMaxRtrSolDelay="0">
     </interface>
   </local>

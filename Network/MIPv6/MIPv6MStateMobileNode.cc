@@ -804,6 +804,22 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
   }
+  /* not really part of ebu spec because they say only do ebu when sending a
+     coti but nevertheless another valid case for sending ebu. But how to tell
+     whether ebu sent already during this handover? (becomes many little tweaks
+     to improve throughput)
+
+  else if (hot && bule->careOfNI == 0 &&
+	   mipv6cdsMN->homeAddr() != mipv6cdsMN->careOfAddr())
+  {
+    //early bu (useful for cases where we are already away from home and then we
+    //start sending stuff to cn) however coti is already under way here (as soon
+    //as encapsulated packet from cn) so advantage slim
+    sendBU(dgram->srcAddress(), mipv6cdsMN->careOfAddr(),
+           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
+           false, dgram->inputPort(), false, dgram->timestamp());    
+  }
+  */
 }
 
 void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
@@ -865,8 +881,9 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
     bule->cotiRetransTmr->cancel();
   }
 
-  //TODO reschedule only if outdated (EBU)
-  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && isNewBU))
+  if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && 
+				     (isNewBU || !bule->homeNI) && 
+				     !bule->hotiRetransTmr->isScheduled()))
     bule->hotiRetransTmr->reschedule(testInitScheduleTime);
 
   if (!returnHome)
@@ -958,8 +975,8 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
 
   //looks like acc. to fig. 1 of ebu draft that proactive home reg needs to have
   //taken place for ebu to be effective. i.e. no point sending ebu when HOT
-  //received if we do HOTI test at handover time.
-  if (mob->earlyBindingUpdate()) //&& bule->homeNI != 0)
+  //not received at handover time.
+  if (mob->earlyBindingUpdate() && bule->homeNI != 0)
   {
     // send early BU
     sendBU(dest, coa,
@@ -1210,7 +1227,7 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     }
     else
     {
-      //assert(bule->homeNI); 
+      assert(bule->homeNI); 
     }
 
     //11.7.2 , 6.1.7 & 5.2.6 for CN

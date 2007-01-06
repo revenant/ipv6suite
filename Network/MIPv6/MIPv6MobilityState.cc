@@ -85,9 +85,17 @@ bool MIPv6MobilityState::processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* 
     bool dropped = false;
     boost::weak_ptr< bc_entry > bce = mipv6cds->findBinding(hoa);    
     if (!bce.lock().get())
+    {
       dropped = true;
+      Dout(dc::warning, mob->nodeName()<<" received hoa dest option's hoa="<<hoa
+	   <<" binding does not exist");
+    }
     else if (bce.lock()->care_of_addr != coa)
+    {
+      Dout(dc::warning, mob->nodeName()<<" received hoa dest option contained wrong binding coa="
+	   <<coa<<" when coa in bce="<<bce.lock()->care_of_addr);
       dropped = true;
+    }
     if (dropped)
     {
       //processReceivedHoADestOpt has not run yet so do not reverse its effects

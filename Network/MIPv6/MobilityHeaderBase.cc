@@ -123,7 +123,12 @@ std::ostream& operator<<(std::ostream& os, const MobilityHeaderBase& mhb)
     BA& ba = (BA&)mhb;
     os<<"status="<<ba.status()<<" seq="<<ba.sequence()<<" lifetime="<<ba.lifetime();    
   }
-
+  else if (mhb.kind() == MIPv6MHT_BE)
+  {
+    BE& be = (BE&)mhb;
+    os<<(be.status()?"unrecognised mob header":"unknown binding")
+      <<" for hoa="<<be.hoa();
+  }
 
   for ( size_t i = 0; i < mhb.mobilityOptions.size(); i++)
   {

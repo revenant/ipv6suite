@@ -631,7 +631,6 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
   }
 #endif //USE_HMIP
 
-
   if (
     //First registration is always to primary HA
     mipv6cdsMN->bulEmpty()
@@ -675,7 +674,7 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
     //handover
 
     Dout(dc::mipv6|dc::debug|flush_cf, " in send bu to all hoa "<<hoa<<" coa "
-         <<coa<<" oldcoa "<<oldcoa);
+         <<coa<<" oldcoa "<<oldcoa<<" lifetime="<<lifetime);
     if (oldcoa != coa)
     {
 
@@ -794,10 +793,10 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
       (returnHome && bule->homeNI != 0 && bule->last_time_sent != 0))
   {
     assert(dgram->timestamp());
-
+    size_t lifetime = returnHome? 0:mob->rt->minValidLifetime();
     // send BU
     sendBU(dgram->srcAddress(), mipv6cdsMN->careOfAddr(),
-           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
+           mipv6cdsMN->homeAddr(), lifetime,
            false, dgram->inputPort(), false, dgram->timestamp());
     Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime()<< " sec, "
          << mob->rt->nodeName()
@@ -891,7 +890,11 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   if (returnHome && bule->homeNI != 0)
     sendBU(dest, coa,
-           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
+           mipv6cdsMN->homeAddr(), 0, //allow deletion of cns even under
+				      //proactive home test, if comms still
+				      //active we can redo home test (TODO what
+				      //method for determining when to stop
+				      //proactive home test?)
            false, 0, false, mob->simTime());
 
 }
@@ -999,7 +1002,6 @@ void MIPv6MStateMobileNode::processBE(BE* bm, IPv6Datagram* dgram)
 
   if ((bule = mipv6cdsMN->findBU(dgram->srcAddress())) != 0)
   {
-    Dout(dc::warning, " implement processBE ");
 /*
  o  If the mobile node has recent upper layer progress information,
       which indicates that communications with the correspondent node
@@ -1013,6 +1015,15 @@ void MIPv6MStateMobileNode::processBE(BE* bm, IPv6Datagram* dgram)
       procedure (see Section 5.2).
 
 */
+    //Maybe we should assume first option if we can tell that it is rapid stuff
+    //from other side i.e. rtp and we are receiving it we can choose to wait for
+    //ack from it.or redo bu/rr
+
+    Dout(dc::notice, mob->nodeName()<<" "<<mob->simTime()
+	 <<" removing bu list entry in response to BE from "
+	 <<dgram->srcAddress());
+    //doing second option (since first is difficult)
+    mipv6cdsMN->removeBU(dgram->srcAddress());
   }
   else
     Dout(dc::warning, mob->nodeName()<<" "<<mob->simTime()

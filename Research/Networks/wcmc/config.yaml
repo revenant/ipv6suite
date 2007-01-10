@@ -3,6 +3,7 @@
   - odad
   - l2t
   - ebu
+  - ack
   - speed
 - ebu: 
   - y
@@ -18,6 +19,9 @@
   - 9
   - 13
   - 22
+  ack: 
+  - y
+  - n
   fsra: 
   - y
   - n
@@ -76,6 +80,19 @@
     constant: 0
     symbol: :xml
     value: "\"391322\""
+  ack: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: mnSendBUAckFlag
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: mnSendBUAckFlag
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
   fsra: 
     n: 
     - !ruby/object:SetAction 

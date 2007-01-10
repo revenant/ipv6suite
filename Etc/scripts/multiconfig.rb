@@ -340,7 +340,7 @@ end
   
   def generateConfig
 #    factors, levels,actions = hmipConfigBak
-
+if false
     factors = ["multi","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
     levels = {}
     levels[factors[0]] = ["y", "n"]
@@ -386,17 +386,18 @@ end
     actions["rai"]  = [SetConstant.new(:xml, "MIPv6MaxRtrAdvInterval", levels["rai"], 0.02), 
       SetConstant.new(:xml, "MIPv6MinRtrAdvInterval", levels["rai"], 0)]
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
-
-if false
+end
+if true
     #default rai of 1s
-    factors = ["fsra","odad", "l2t", "ebu", "speed"]
+    factors = ["fsra","odad", "l2t", "ebu", "ack", "speed"]
 
     levels = {}
     levels[factors[0]] = ["y", "n"]
     levels[factors[1]] = ["y", "n"]
     levels[factors[2]] = ["y", "n"]
     levels[factors[3]] = ["y", "n"]
-    levels[factors[4]] = [3, 9, 13, 22]
+    levels[factors[4]] = ["y", "n"]
+    levels[factors[5]] = [3, 9, 13, 22]
 
     actions={}
     actions["fsra"] = {}
@@ -421,6 +422,10 @@ if false
     actions["ebu"] = {}
     actions["ebu"]["y"] = [ToggleAction.new(:xml, 'earlyBU', true)]
     actions["ebu"]["n"] = [ToggleAction.new(:xml, 'earlyBU', false)]
+
+    actions["ack"] = {}
+    actions["ack"]["y"] = [ToggleAction.new(:xml, 'mnSendBUAckFlag', true)]
+    actions["ack"]["n"] = [ToggleAction.new(:xml, 'mnSendBUAckFlag', false)]
     actions["speed"] = [SetConstant.new(:xml, "moveSpeed", levels["speed"], 0)]
 end
   

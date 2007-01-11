@@ -615,7 +615,7 @@ puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basena
             
             SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
 
-            SetAction.new(:runtime, %|mobilityHandler.moveXmlConfig|, %|xmldoc("#{filename}.xml")|).apply(line)
+            SetAction.new(:runtime, %|mobilityHandler.moveXmlConfig|, %|xmldoc("#{filename}.xml",  "netconf/global/ObjectMovement/MovingNode[1]")|).apply(line)
 
             SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
 

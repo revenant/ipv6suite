@@ -330,7 +330,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
       ba->setName("EarlyBA");
     sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
   }
-
+  /*
   if (!mob->earlyBindingUpdate())
   {
     assert( dgram->timestamp() );
@@ -338,6 +338,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
     if (bu->senderModule())
     std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;
   }
+  */
   return true;
 }
 

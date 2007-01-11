@@ -287,11 +287,21 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
     boost::weak_ptr<bc_entry> bce =
       mipv6cds->findBinding(hoa);
 
-    // binding cache entry has already been created
+    // binding cache entry has already been created by ebu or previous handover
     if (bce.lock())
     {
       if (bce.lock()->care_of_addr == coa)
+      {     
+	//senderModule is not IPv6mobility?
+	//check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
+	if (bu->senderModule())
+	  std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;	
+      }
+      else 
       {
+	//ebu did not reach us
+	bce.lock()->care_of_addr = coa;
+      }
       bce.lock()->expires = bu->expires();
       bce.lock()->setSeqNo(bu->sequence());
 
@@ -301,15 +311,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
 
         sendBA(dgram->destAddress(), dgram->srcAddress(), hoa, ba, dgram->timestamp());
       }
-      
-      //senderModule is not IPv6mobility?
-      //check_and_cast<IPv6Mobility*>(bu->senderModule())->recordHODelay(mob->simTime()-dgram->timestamp(), dgram->destAddress());
-      if (bu->senderModule())
-      std::cerr<<" classname of sender module "<<bu->senderModule()->className()<<endl;
       return true;
-      }
-      else
-	assert(false);
     }
   }
 

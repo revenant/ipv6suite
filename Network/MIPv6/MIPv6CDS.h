@@ -52,7 +52,6 @@ namespace IPv6NeighbourDiscovery
 template <class Arg> class TFunctorBaseA;
 class cTimerMessage;
 struct ipv6_addr;
-class IPv6Encapsulation;
 
 namespace HierarchicalMIPv6
 {
@@ -102,9 +101,6 @@ namespace MobileIPv6
     boost::weak_ptr<bc_entry> insertBinding(bc_entry* entry);
 
     std::ostream& operator<<(std::ostream& os) const;
-
-    ///Used to create/destroy tunnels for mobility bindings
-    IPv6Encapsulation* tunMod;
 
     typedef std::map<ipv6_addr, boost::shared_ptr<bc_entry> > BindingCache;
     typedef BindingCache::iterator  BCI;

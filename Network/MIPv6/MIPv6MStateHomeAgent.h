@@ -36,6 +36,7 @@
 class IPv6Mobility;
 class IPv6Datagram;
 class MIPv6MobilityHeaderBase;
+class IPv6Encapsulation;
 
 namespace MobileIPv6
 {
@@ -66,6 +67,7 @@ class MIPv6MStateHomeAgent : public MIPv6MStateCorrespondentNode
   ipv6_addr globalAddr(unsigned int ifIndex) const;
 private:
   MIPv6MStateHomeAgent(void);
+  IPv6Encapsulation* tunMod;
 };
 
 } // end namespace MobileIPv6

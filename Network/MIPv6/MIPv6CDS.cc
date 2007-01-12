@@ -24,13 +24,16 @@
  * @brief Binding Cache implementation
  */
 
+#include "sys.h"
+#include "debug.h"
 
 #include "MIPv6CDS.h"
 #include "MIPv6Entry.h"
 #include "MIPv6Timers.h"
 #include "stlwatch.h"
 #include <iostream>
-
+#include <iomanip> //setprecision
+#include "IPv6Mobility.h" //nodeName
 using std::rand;
 
 std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS::BindingCache::value_type& p)
@@ -53,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
   return mipv6cds.operator<<(os);
 }
 
-  MIPv6CDS::MIPv6CDS():tunMod(0), mipv6cdsMN(0), ha(0)
+  MIPv6CDS::MIPv6CDS():mipv6cdsMN(0), ha(0)
   {
 /*
     home_token.high = rand();
@@ -104,7 +107,10 @@ std::ostream& operator<<(std::ostream& os, const MobileIPv6::MIPv6CDS& mipv6cds)
   }
 
   void MIPv6CDS::expireLifetimes(cTimerMessage* tmr)
-  {
+  {    
+    MIPv6PeriodicCB* cb = static_cast<MIPv6PeriodicCB*> (tmr);
+    Dout(dc::mipv6, cb->mob->nodeName()<<setprecision(6)<<" "
+	 <<cb->mob->simTime()<<" bc "<<*this);
     //Decrement every BC entry and remove entry if decrement > remaining lifetime
     unsigned int dec = static_cast<MIPv6PeriodicCB*> (tmr)->interval;
     BCI temp;

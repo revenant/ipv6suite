@@ -52,7 +52,9 @@ namespace MobileIPv6
 {
 
 MIPv6MStateHomeAgent::MIPv6MStateHomeAgent(IPv6Mobility* mob):
-  MIPv6MStateCorrespondentNode(mob)
+  MIPv6MStateCorrespondentNode(mob), 
+  tunMod(dynamic_cast<IPv6Encapsulation*>
+	 (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation")))
 {}
 
 MIPv6MStateHomeAgent::~MIPv6MStateHomeAgent(void)
@@ -210,10 +212,6 @@ void MIPv6MStateHomeAgent::registerBCE(BU* bu, const ipv6_addr& hoa, IPv6Datagra
 
   //Create tunnel from HA to MN for this binding (Sec. 9.4) so once packets
   //are intercepted we can send them to MN
-  if (!mipv6cds->tunMod)
-     mipv6cds->tunMod = check_and_cast<IPv6Encapsulation*>
-       (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
-  IPv6Encapsulation* tunMod = mipv6cds->tunMod;
   assert(tunMod != 0);
 
 
@@ -286,12 +284,6 @@ bool MIPv6MStateHomeAgent::deregisterBCE(BU* bu, const ipv6_addr& hoa, unsigned 
     return false;
 
   assert(bce.lock().get() != 0);
-
-
-  if (!mipv6cds->tunMod)
-    mipv6cds->tunMod = check_and_cast<IPv6Encapsulation*>
-      (OPP_Global::findModuleByType(mob->rt, "IPv6Encapsulation"));
-  IPv6Encapsulation* tunMod = mipv6cds->tunMod;
 
   boost::weak_ptr<NeighbourEntry> ne = (*(mob->rt->cds))[hoa].neighbour;
   if (!ne.lock().get() || !tunMod->destroyTunnel(ne.lock().get()->ifIndex()))

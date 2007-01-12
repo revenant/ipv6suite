@@ -1,6 +1,8 @@
 File.open("debug.txt", "w"){|f|
   f.puts <<END
 bt
+f 4
+l
 q
 END
 }

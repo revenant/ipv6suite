@@ -34,7 +34,7 @@ namespace MobileIPv6
 {
 
 MIPv6PeriodicCB::MIPv6PeriodicCB(IPv6Mobility* mob, unsigned int interval)
-  :cSignalMessage("MIPv6Lifetime", Tmr_MIPv6Lifetime), interval(interval)
+  :cSignalMessage("MIPv6Lifetime", Tmr_MIPv6Lifetime), interval(interval), mob(mob)
 {
   rescheduleDelay(interval);
 }

@@ -54,6 +54,7 @@ namespace MobileIPv6
     virtual void callFunc();
 
     unsigned int interval;
+    IPv6Mobility* mob;
   };
 
 }

@@ -553,6 +553,10 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 
   if (BAS_ACCEPTED != ba->status())
   {
+    //don't delete bule in this case as could be an old bu coming in
+    if (ba->status() == BAS_SEQ_OUT_OF_WINDOW)
+      return cont;
+
     //Remove entry from BUL if BU failed.
     mipv6cdsMN->removeBU(bue->addr());
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "

@@ -769,11 +769,10 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
   {
     //10 is just arbitrary number so that it refreshes before the home token expires
     bule->hotiRetransTmr->reschedule(mob->simTime() + MAX_TOKEN_LIFETIME - 10);
-    /*
+    
     Dout(dc::rrprocedure|flush_cf, " RR procedure:(EARLY BU)  At " <<  mob->simTime()
 	 << " sec, " << mob->nodeName() << " next home test will be at " 
-	 << bule->hotiRetransTmr->arrivalTime()<<" sec");
-    */
+	 << bule->hotiRetransTmr->arrivalTime()<<" sec");    
   }  
 
   if (hot)
@@ -861,8 +860,6 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   bool returnHome = bule->homeAddr() == coa;
 
-  *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
-                                        addrs, mob->simTime());
   *(bule->cotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendCoTI, this,
 					addrs, mob->simTime());
 
@@ -883,7 +880,11 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   if (!mob->earlyBindingUpdate() || (mob->earlyBindingUpdate() && 
 				     (isNewBU || !bule->homeNI) && 
 				     !bule->hotiRetransTmr->isScheduled()))
+  {
+    *(bule->hotiRetransTmr) = boost::bind(&MobileIPv6::MIPv6MStateMobileNode::sendHoTI, this,
+					  addrs, mob->simTime());
     bule->hotiRetransTmr->reschedule(testInitScheduleTime);
+  }
 
   if (!returnHome)
     bule->cotiRetransTmr->reschedule(testInitScheduleTime);
@@ -903,6 +904,9 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
 {
   ipv6_addr dest = addrs[0];
   const ipv6_addr& coa = addrs[1];
+  //don't really need coa (as it's sometimes wrong due to reusing previous timer
+  //message?)  mip6 spec just says it has to be reverse tunnelled through ha and
+  //no requirement that it is same as coa in care of test
 
   bu_entry* bule = mipv6cdsMN->findBU(dest);
 
@@ -917,11 +921,15 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   bule->setHomeCookie(hoti->homeCookie());
   IPv6Datagram* dgram_hoti = 
     constructDatagram(mipv6cdsMN->homeAddr(), dest, hoti, 0, timestamp);
+
+  Dout(dc::rrprocedure,"HOTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
+       << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " 
+       << dgram_hoti->destAddress()<<"cb coa="<<coa<< " cdsMN->coa="<<mipv6cdsMN->careOfAddr());
   
-  if (coa != mipv6cdsMN->homeAddr())
+  if (mipv6cdsMN->careOfAddr() != mipv6cdsMN->homeAddr())
   {
     
-    size_t vIfIndex = tunMod->findTunnel(coa,
+    size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(),
                                          mipv6cdsMN->primaryHA()->prefix().prefix);
 //    if(!vIfIndex)
 //      vIfIndex = tunMod->createTunnel(coa, mipv6cdsMN->primaryHA()->prefix().prefix, 0);
@@ -937,6 +945,9 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   }
 
   bule->hotiRetransTmr->rescheduleDelay(bule->homeInitTimeout());
+
+  Dout(dc::rrprocedure|flush_cf," next HoTI retransmission time will be at " 
+       <<   bule->hotiRetransTmr->arrivalTime());
 }
 
 void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime_t timestamp)
@@ -985,7 +996,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
     sendBU(dest, coa,
            mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
            false, 0, false, mob->simTime());
-    Dout(dc::rrprocedure|flush_cf, "RR Procedure (Early BU) At" << mob->simTime()<< " sec, " << mob->rt->nodeName()
+    Dout(dc::rrprocedure|flush_cf, "RR Procedure (Early BU) At " << mob->simTime()<< " sec, " << mob->rt->nodeName()
          <<" Correspondent Registration: sending BU to CN dest= "
          << IPv6Address(dest));
   }
@@ -1052,7 +1063,7 @@ void  MIPv6MStateMobileNode::processBRR(BRR* br, IPv6Datagram* dgram)
     //if unique identified exists in br then send it back in the BU too
 
     //Latest lifetime
-    unsigned int lifetime = 0;
+    unsigned int lifetime = 30000;
 
     //Home Agents would never send BR to us as the onus is on the MN to update
     //its own home address lifetime.

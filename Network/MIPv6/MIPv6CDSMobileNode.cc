@@ -312,7 +312,27 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
 
   bool MIPv6CDSMobileNode::removeBU(const ipv6_addr& addr)
   {
-    return false;
+    const BULI it =
+      find_if(bul.begin(), bul.end(), std::bind1st(findBUByDestAddr(), addr));
+    if (it == bul.end())
+      return false;
+
+    bu_entry* bule = (*it).get();
+    //cancel all timers inside bule
+    if (bule->cotiRetransTmr)
+    {
+      if (bule->cotiRetransTmr->isScheduled())
+	bule->cotiRetransTmr->cancel();
+      delete bule->cotiRetransTmr;
+    }
+    if (bule->hotiRetransTmr)
+    {
+      if (bule->hotiRetransTmr->isScheduled())
+	bule->hotiRetransTmr->cancel();
+      delete bule->hotiRetransTmr;
+    }   
+    bul.erase(it);
+    return true;
   }
 
   struct findBUToCNMatchPrefix

@@ -421,7 +421,11 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
   {
     cerr<<"futureCoa is" <<futureCoa<<endl;
     assert((ncoa == IPv6_ADDR_UNSPECIFIED && futureCoa != IPv6_ADDR_UNSPECIFIED) ||
-           (ncoa != IPv6_ADDR_UNSPECIFIED && futureCoa == IPv6_ADDR_UNSPECIFIED));
+           (ncoa != IPv6_ADDR_UNSPECIFIED && futureCoa == IPv6_ADDR_UNSPECIFIED) ||
+	   //moves back to current rtr after thinking moved elsewhere due to
+	   //missedrtradv (don't know why initial first time its unspecified
+	   //address for ncoa but subsequent ones do not call setFuturecoa)
+	   (ncoa == futureCoa && ncoa != IPv6_ADDR_UNSPECIFIED));
     futureCoa = ncoa;
   }
 

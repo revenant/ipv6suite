@@ -482,43 +482,50 @@ end
          end
     end
     if multiple
-      catlogfile = "mylog.log"
-      Dir[logfilepattern].each{|joblog| `cat #{joblog} >> #{catlogfile}` }
-      @check = catlogfile
+      started = 0;
+      ended = 0;
+      Dir[logfilepattern].each{|joblog| 
+        #takes too long
+        #`cat #{joblog} >> #{catlogfile}` 
+        ended = ended + 1 if `grep Run #{joblog}| grep end`.length > 0
+        started = started + 1 if `grep Run #{joblog}| grep Prepar`.length > 0
+      }
+      puts "Runs finished according to multiple logs #{ended}/#{started}"
+    else
+      puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
+      puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]
     end
-    puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
-    puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]
 
     for ext in [ "sca", "vec" ]
-    vecFileCount = Dir["#{basename}*#{DELIM}*.#{ext}"].size
-    puts "Found #{vecFileCount}/#{expectedCount} #{ext} files"
-    next if expectedCount == vecFileCount
-        
-    puts "Counts do not match for #{ext} files! Make sure you specified correct run count and basename."
-     
-    configs = generateConfigNames(factors, levels)
-    vecFiles = Hash.new
-    configs.each{|c|
-      puts "Checking no. of files that match #{basename}#{DELIM}#{c}*.#{ext}" if @verbose
-			size = Dir["#{basename}#{DELIM}#{c}*.#{ext}"].size 
-      vecFiles[c] = size if size < runCount
-break if size < runCount if @debug 
-    }
-    sorted = vecFiles.sort{|a,b| a[1] <=> b[1]}
-    runs = Hash.new
-    sorted.each{|s|
-      puts s[0] + " generated "  + s[1].to_s
-      c = s[0]
-		  runs[c] = Array.new
-	    1.upto(100) do |run|
-puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") and @verbose
-				runs[c].push run if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") 
-		  end
-    }
+      vecFileCount = Dir["#{basename}*#{DELIM}*.#{ext}"].size
+      puts "Found #{vecFileCount}/#{expectedCount} #{ext} files"
+      next if expectedCount == vecFileCount
+      
+      puts "Counts do not match for #{ext} files! Make sure you specified correct run count and basename."
+      
+      configs = generateConfigNames(factors, levels)
+      vecFiles = Hash.new
+      configs.each{|c|
+        puts "Checking no. of files that match #{basename}#{DELIM}#{c}*.#{ext}" if @verbose
+        size = Dir["#{basename}#{DELIM}#{c}*.#{ext}"].size 
+        vecFiles[c] = size if size < runCount
+        break if size < runCount if @debug 
+      }
+      sorted = vecFiles.sort{|a,b| a[1] <=> b[1]}
+      runs = Hash.new
+      sorted.each{|s|
+        puts s[0] + " generated "  + s[1].to_s
+        c = s[0]
+        runs[c] = Array.new
+        1.upto(runCount) do |run|
+          puts "#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}" if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") and @verbose
+          runs[c].push run if not File.exist?("#{basename}#{DELIM}#{c}#{DELIM}#{run}.#{ext}") 
+        end
+      }
       for c in runs.keys
         puts "#{c} is missing runs #{runs[c].join(',')}"
       end
-		end
+    end
   end
     
   #

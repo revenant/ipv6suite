@@ -317,7 +317,6 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
     if (it == bul.end())
       return false;
 
-    bu_entry* bule = (*it).get();
     bul.erase(it);
     return true;
   }

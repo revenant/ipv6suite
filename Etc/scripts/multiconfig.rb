@@ -472,13 +472,19 @@ end
   
   def  checkRunResults(factors, levels, runCount, basename)
     expectedCount = runCount * configCount(factors, levels)
+    multiple = false
     if File.directory? @check
+      logfilepattern = "#{@check}/*.o*"
+      multiple = true
+    else if Dir["#{basename}*.log"].length > 1 then
+           logfilepattern = "#{basename}*.log"
+           multiple = true
+         end
+    end
+    if multiple
       catlogfile = "mylog.log"
-      Dir["#{@check}/*.o*"].each{|joblog|
-	`cat #{joblog} >> #{catlogfile}` 
-      }
+      Dir[logfilepattern].each{|joblog| `cat #{joblog} >> #{catlogfile}` }
       @check = catlogfile
-      puts "here i am"
     end
     puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
     puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]

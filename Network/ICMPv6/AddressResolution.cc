@@ -198,9 +198,21 @@ void AddressResolution::handleMessage(cMessage* msg)
       }
       else
       {
-        //Can we resolve on another router besides the default and if so how to handle?
-        assert(!rt->cds->router(tmr->targetAddr).lock());
-        (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->router(tmr->targetAddr);
+	/*
+        //Can we resolve on another router besides the default?
+	if (rt->cds->router(tmr->targetAddr).lock())
+	  (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->router(tmr->targetAddr);
+	else
+          (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->defaultRouter();
+	*/
+	//TODO hack fix this properly when time available
+	//workaround for mip6. don't know why conceptual sending returns old
+	//default router when new one already set and dest cache had corrected
+	//defaultRouter too. (only happens in unexpected cases though)
+        (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->defaultRouter();
+	ngbr = rt->cds->defaultRouter();
+	Dout(dc::notice, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
+	     <<" hack to force use of defaultRouter (preferably after handover");
       }
 
     //Routers in DRL usually not in NC (don't call insertNeighbourEntry) they
@@ -220,7 +232,7 @@ void AddressResolution::handleMessage(cMessage* msg)
     }
 
     //Check that targetAddr really is a neighbour
-    assert(ngbr.lock().get()->addr() == tmr->targetAddr);
+    //assert(ngbr.lock().get()->addr() == tmr->targetAddr);
 
     if (ngbr.lock().get()->state() != NeighbourEntry::INCOMPLETE)
     {
@@ -228,9 +240,17 @@ void AddressResolution::handleMessage(cMessage* msg)
            <<" "<<tmr->ifIndex<<" mismatched ND State="<<ngbr.lock().get()->state()
            <<" for "<<ngbr.lock().get()->addr()<< " "<<*(ngbr.lock().get()));
 
-      //TODO Cancel impending or outstanding addrResln (see processNgbrAdv) but
-      //how would ifIndex be set if incorrect?
-      assert(false);
+      //TODO Cancel outstanding addrResln (see processNgbrAdv) but how would
+      //ifIndex be set if incorrect?
+
+      delete tmr;
+      Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<ngbr.lock().get()->ifIndex()<<dec
+	   <<setprecision(4)<<simTime()<<" mismatched ND State (sending them off)"
+	   <<ngbr.lock().get()->state()<<" for "<<ngbr.lock().get()->addr()<< " "
+	   <<*(ngbr.lock().get()));
+	   
+      sendQueuedPackets(ngbr.lock().get()->addr(), ngbr.lock().get()->ifIndex(), ngbr.lock().get());
+
       return;
     }
 

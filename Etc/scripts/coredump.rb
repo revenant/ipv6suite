@@ -23,6 +23,7 @@ Dir["core.*"].each{|corefile|
     #invocations as we used different seeds
 
     dump.gsub!(/(\s[[:xdigit:]]x[[:xdigit:]]+\s)|\S[[:xdigit:]]x[[:xdigit:]]+/," ")
+    dump.gsub!(/\s[[:xdigit:]]x[[:xdigit:]]+\S|=\d+[.]\d+/," ")
     dumps << dump if not dumps.include?(dump)
     index = dumps.index(dump)
 

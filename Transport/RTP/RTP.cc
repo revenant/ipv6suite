@@ -480,7 +480,7 @@ bool RTP::sendRTPPacket()
 
   scheduleAt(simTime() + packetisationInterval, rtpTimeout);
   RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
-  rtpData->setKind(1);
+  //rtpData->setKind(1);
   rtpData->setTimestamp(simTime());
   rtpData->setPayloadLength(payloadLength);
 
@@ -565,7 +565,7 @@ void RTP::rtcpTxTimeout()
     }
     //ntp time
     rtcpPayload->setTimestamp(simTime());
-    rtcpPayload->setKind(1);
+    //rtcpPayload->setKind(1);
 
     fillReports(rtcpPayload);
 

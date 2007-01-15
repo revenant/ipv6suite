@@ -35,6 +35,8 @@
 #include <iostream>
 #include <boost/cast.hpp>
 #include <boost/bind.hpp>
+#include <sstream>
+
 #include "cSignalMessage.h"
 
 #include "NDStateHost.h"
@@ -51,6 +53,8 @@
 #include "cTimerMessage.h"
 #include "opp_utils.h"
 #include "IPv6CDS.h"
+
+#ifdef USE_MOBILITY
 #include "MIPv6CDS.h"
 #include "MIPv6CDSMobileNode.h"
 
@@ -59,7 +63,6 @@
 #endif //defined USE_HMIP
 
 
-#ifdef USE_MOBILITY
 ///For dupAddrDetSuccess perhaps I should have added a virtual function that
 ///called the most derived one instead of friend member access. But then I'd
 ///have to modify the header and add mobility stuff there which is sort of not
@@ -558,7 +561,9 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
     RS* rs = new RS;
-
+    std::stringstream name;
+    name<<rs->name()<<" "<<tmr->counter<<"/"<<tmr->max_sends;
+    rs->setName(name.str().c_str());
     if (!ie->ipv6()->inetAddrs.empty()
         || (rt->odad() && !ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress())))
       rs->setSrcLLAddr(ie->llAddrStr());
@@ -715,7 +720,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 	Dout(dc::router_disc|flush_cf, " lhs="<<rt->cds->neighbour(re->addr()).lock()->addr()
 	     <<" rhs="<<re->addr()<<" srcAddr="<<srcAddr<<" rt->cds->router(srcAddr)="
 	     <<*(rt->cds->router(srcAddr).lock()));
-        	
+
 	if (rt->cds->neighbour(re->addr()).lock()->addr() != re->addr())
 	{
 	  //possible when relinquishRouter not called yet and we receive Rtr

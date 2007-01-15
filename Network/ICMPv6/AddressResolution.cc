@@ -31,6 +31,7 @@
 #include <string>
 #include <iostream>
 #include <boost/bind.hpp>
+#include <sstream> //stringstream
 
 #include "AddressResolution.h"
 #include "IPv6Datagram.h"
@@ -302,7 +303,9 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
       }
 
     NS* ns = new NS(tmr->targetAddr, ie->llAddrStr());
-
+    std::stringstream name;
+    name<<ns->name()<<" "<<tmr->counter<<"/"<< MAX_MULTICAST_SOLICIT;
+    ns->setName(name.str().c_str());
     tmr->dgram->encapsulate(ns);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
     tmr->dgram->setName(ns->name());

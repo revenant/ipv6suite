@@ -54,7 +54,7 @@ ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
                                bool managed, bool other)
   :ICMPv6NDMsgBaseRtrAd(ICMPv6_ROUTER_AD)
 {
-  setName("Router Advertisement");
+  setName("RA");
 
   setCurHopLimit(hopLimit);
   setManaged(managed);
@@ -74,7 +74,7 @@ ICMPv6NDMRtrAd::ICMPv6NDMRtrAd(int lifetime, int hopLimit, unsigned int reach,
                                unsigned int retrans, bool managed, bool other)
   :ICMPv6NDMsgBaseRtrAd(ICMPv6_ROUTER_AD)
 {
-  setName("Router Advertisement");
+  setName("RA");
 
   setCurHopLimit(hopLimit);
   setManaged(managed);
@@ -278,7 +278,7 @@ ICMPv6NDOptRedirect::~ICMPv6NDOptRedirect()
 ICMPv6NDMRtrSol::ICMPv6NDMRtrSol()
   :ICMPv6NDMsgBseRtrSol(ICMPv6_ROUTER_SOL)
 {
-  setName("Router Solicitation");
+  setName("RS");
 }
 
 ICMPv6NDMRtrSol::ICMPv6NDMRtrSol(const ICMPv6NDMRtrSol& src)
@@ -311,7 +311,7 @@ ICMPv6NDMNgbrSol::ICMPv6NDMNgbrSol(const ipv6_addr& targetAddr, const string&
                                    srcLLAddr)
   :ICMPv6NDMsgBaseNgbrSol(ICMPv6_NEIGHBOUR_SOL)
 {
-  setName("Neighbour Solicitation");
+  setName("NS");
 
   setTargetAddr(targetAddr);
   if (!srcLLAddr.empty())
@@ -351,7 +351,7 @@ bool ICMPv6NDMNgbrSol::operator==(const ICMPv6NDMNgbrSol& rhs) const
 ICMPv6NDMNgbrAd::ICMPv6NDMNgbrAd(const ipv6_addr& targetAddr, const string& addr, bool isRouter, bool solicited, bool override)
   :ICMPv6NDMsgBaseNgbrAd(ICMPv6_NEIGHBOUR_AD)
 {
-  setName("Neighbour Advertisement");
+  setName("NA");
 
   setTargetAddr(targetAddr);
   setFlags(isRouter, solicited, override);

@@ -318,19 +318,6 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
       return false;
 
     bu_entry* bule = (*it).get();
-    //cancel all timers inside bule
-    if (bule->cotiRetransTmr)
-    {
-      if (bule->cotiRetransTmr->isScheduled())
-	bule->cotiRetransTmr->cancel();
-      delete bule->cotiRetransTmr;
-    }
-    if (bule->hotiRetransTmr)
-    {
-      if (bule->hotiRetransTmr->isScheduled())
-	bule->hotiRetransTmr->cancel();
-      delete bule->hotiRetransTmr;
-    }   
     bul.erase(it);
     return true;
   }

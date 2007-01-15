@@ -83,6 +83,23 @@ namespace MobileIPv6
 ;
   }
 
+
+  bu_entry::~bu_entry()
+  {
+    if (cotiRetransTmr)
+    {
+      if (cotiRetransTmr->isScheduled())
+	cotiRetransTmr->cancel();
+      delete cotiRetransTmr;
+    }
+    if (hotiRetransTmr)
+    {
+      if (hotiRetransTmr->isScheduled())
+	hotiRetransTmr->cancel();
+      delete hotiRetransTmr;
+    }
+  }
+
   //TODO
   bool bu_entry::isPerformingRR()
   {

@@ -218,6 +218,8 @@ namespace MobileIPv6
 #endif //USE_HMIP
 	     );
 
+    ~bu_entry();
+
     std::ostream& operator<<(std::ostream& os) const;
 
     /// IP address of the node to which a binding update was sent

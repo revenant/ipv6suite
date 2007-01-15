@@ -689,8 +689,8 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     rt->insertRouterEntry(re);
     reValid = true;
   }
-  else
-    if (re != 0)
+  else if (re != 0)
+  {
       if ( rtrAdv->routerLifetime() != 0)
       {
         OPP_Global::ContextSwitcher switcher(rt);
@@ -707,14 +707,25 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
         }
 
         reValid = true;
-
 #ifdef USE_MOBILITY
         ///Recreate the DE if it was deleted when moving to different subnets
         if (rt->cds->neighbour(re->addr()).lock().get() == 0)
           (*rt->cds)[re->addr()] = DestinationEntry(rt->cds->router(srcAddr));
-#endif //USE_MOBILITY
-        assert(rt->cds->neighbour(re->addr()).lock()->addr() == re->addr());
 
+	Dout(dc::router_disc|flush_cf, " lhs="<<rt->cds->neighbour(re->addr()).lock()->addr()
+	     <<" rhs="<<re->addr()<<" srcAddr="<<srcAddr<<" rt->cds->router(srcAddr)="
+	     <<*(rt->cds->router(srcAddr).lock()));
+        	
+	if (rt->cds->neighbour(re->addr()).lock()->addr() != re->addr())
+	{
+	  //possible when relinquishRouter not called yet and we receive Rtr
+	  //Advertisement and previous router was not none. The neighbour that
+	  //it is pointing to would have been the last default router. Fix would
+	  //be to remove all link local addresses from dest cache upon moving to
+	  //another subnet. but when do you know that happens for certain?
+          (*rt->cds)[re->addr()] = DestinationEntry(rt->cds->router(srcAddr));	  
+	}
+#endif //USE_MOBILITY
         Dout(dc::router_disc|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<nd->simTime()
              <<" Updated router entry from RtrAd "<<*re);
       }
@@ -726,6 +737,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
         rt->cds->removeRouterEntry(srcAddr);
         return rtrAdv;
       }
+  }
 
   if (reValid)
     re->lastRAReceived = nd->simTime();

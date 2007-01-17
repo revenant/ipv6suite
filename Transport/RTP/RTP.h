@@ -52,6 +52,7 @@
 
 struct RTPMemberEntry
 {
+  RTPMemberEntry();
   bool sender;
   //send reports to these guys
   IPvXAddress addr;

@@ -103,15 +103,22 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->jitter = 0;
   s->transit = 0;
   s->lastSR = 0;
-  s->transVector = 0;
-  s->lossVector = 0;
-  s->transStat = 0;
+  //s->transVector = 0;
+  //s->lossVector = 0;
+  //s->transStat = 0;
+}
+
+RTPMemberEntry::RTPMemberEntry():transVector(0),  transStat(0), lossVector(0)
+{
+  
 }
 
 //From A.1 of rfc3550 with probation removed
 int update_seq(RTPMemberEntry *s, u_int16 seq)
 {
   u_int16 udelta = seq - s->maxSeq;
+  //modify these two constants if we envisage severe loss due to incorrect handover or
+  //just assume never resync like code does below
   const int MAX_DROPOUT = 3000;
   const int MAX_MISORDER = 100;
 
@@ -144,7 +151,13 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
        * restarted without telling us so just re-sync
        * (i.e., pretend this was the first packet).
        */
-      init_seq(s, seq);
+      //init_seq(s, seq);
+      //EV<<"sequence reinitialised as two sequential packets from other side after huge jump so resyncing";
+
+      //don't want a total resync because we know otherside does not do a real
+      //resync in my sim and we want to preserve our stats
+      s->lossVector->record(udelta);
+      s->maxSeq = seq;
     }
     else {
       s->badSeq = (seq + 1) & (RTP_SEQ_MOD-1);
@@ -188,7 +201,7 @@ void RTP::processReceivedPacket(cMessage* msg)
     }
     else if (!update_seq(&rme, rtpData->seqNo()))
     {
-      EV<<"huge jump and bad sequence rec. should reset stats??";
+      EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
       return;
     }
 

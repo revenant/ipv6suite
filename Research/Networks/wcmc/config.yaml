@@ -4,6 +4,7 @@
   - l2t
   - ebu
   - ack
+  - ro
   - speed
 - ebu: 
   - y
@@ -23,6 +24,9 @@
   - y
   - n
   fsra: 
+  - y
+  - n
+  ro:
   - y
   - n
 - ebu: 
@@ -48,6 +52,19 @@
     y: 
     - !ruby/object:ToggleAction 
       attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+  ro:
+    n:
+    - !ruby/object:ToggleAction 
+      attribute: routeOptimisation
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: routeOptimisation
       symbol: :xml
       testedValue: false
       value: "\"on\""

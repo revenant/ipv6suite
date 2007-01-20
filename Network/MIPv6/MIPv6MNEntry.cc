@@ -79,56 +79,10 @@ namespace MobileIPv6
 #ifdef USE_HMIP
       <<" m="<<isMobilityAnchorPoint()
 #endif //USE_HMIP
-	     <<" honi="<<homeNI<<" coni="<<careOfNI
+	     <<" honi="<<homeNI<<" coni="<<careOfNI<<" ackrec="<<buReceived
 ;
   }
 
-
-  bu_entry::~bu_entry()
-  {
-    if (cotiRetransTmr)
-    {
-      if (cotiRetransTmr->isScheduled())
-	cotiRetransTmr->cancel();
-      delete cotiRetransTmr;
-    }
-    if (hotiRetransTmr)
-    {
-      if (hotiRetransTmr->isScheduled())
-	hotiRetransTmr->cancel();
-      delete hotiRetransTmr;
-    }
-  }
-
-  //TODO
-  bool bu_entry::isPerformingRR()
-  {
-    if (cotiRetransTmr)
-    {
-      return cotiRetransTmr->isScheduled();
-    }
-    else
-      return false;
-  }
-
-  bool bu_entry::tentativeBinding()
-  {
-    return isPerformingRR() && careOfNI == 0;
-  }
-
-  void bu_entry::setLifetime(unsigned int life)
-  {
-    //    if (lifetime == MAX_TOKEN_LIFETIME)
-    //  _lifetime = 0xffff;
-
-    _lifetime = life;
-    setExpires(_lifetime);
-  }
-
-  void bu_entry::setExpires(unsigned int exp)
-  {
-    _expires = exp;
-  }
 
 
   bu_entry::bu_entry(const ipv6_addr& dest, const ipv6_addr& hoa, 
@@ -146,28 +100,75 @@ namespace MobileIPv6
     , mapReg(mapReg)
 #endif //USE_HMIP
      ,hotiRetransTmr(0), cotiRetransTmr(0), homeNI(0), careOfNI(0),
-     regDelay(0),
+     regDelay(0), buReceived(false),
      hoti_cookie(0), coti_cookie(0),
      hoti_timeout(0), coti_timeout(0)
-/*    , isPerformingRR(false), 
-     last_hoti_sent(0), last_coti_sent(0)
-     careof_token(UNSPECIFIED_BIT_64), home_token(UNSPECIFIED_BIT_64),
-     // cell residency related information
-     _dirSignalCount(0), _successDirSignalCount(0), hotSuccess(false), 
-     cotSuccess(false), _hotiSendDelayTimer(0), _cotiSendDelayTimer(0),
-*/
   {
     setExpires(lifetime());
   }
 
-
-    bool bu_entry::testSuccess() const
+  bu_entry::~bu_entry()
+  {
+    if (cotiRetransTmr)
     {
-      return !hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled() &&
-	homeNI != 0 && careOfNI != 0;
+      if (cotiRetransTmr->isScheduled())
+	cotiRetransTmr->cancel();
+      delete cotiRetransTmr;
+    }
+    if (hotiRetransTmr)
+    {
+      if (hotiRetransTmr->isScheduled())
+	hotiRetransTmr->cancel();
+      delete hotiRetransTmr;
+    }
+  }
+
+
+  void bu_entry::setLifetime(unsigned int life)
+  {
+    //    if (lifetime == MAX_TOKEN_LIFETIME)
+    //  _lifetime = 0xffff;
+
+    _lifetime = life;
+    setExpires(_lifetime);
+  }
+
+  void bu_entry::setExpires(unsigned int exp)
+  {
+    _expires = exp;
+  }
+
+  bool bu_entry::isPerformingRR(bool earlyBU)
+  {
+    if (!earlyBU)
+    {
+      if (cotiRetransTmr && hotiRetransTmr)
+	return cotiRetransTmr->isScheduled() && hotiRetransTmr->isScheduled();
+    }
+    else
+    {
+      if (cotiRetransTmr)
+	return cotiRetransTmr->isScheduled();
+    }
+    return false;	
+  }
+
+  bool bu_entry::tentativeBinding()
+  {
+    bool earlyBU = true;
+    return isPerformingRR(earlyBU) && careOfNI == 0;
+  }
+
+    bool bu_entry::testSuccess(bool earlyBU) const
+    {
+      if (!earlyBU)
+	return !hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled() &&
+	  homeNI != 0 && careOfNI != 0;
+      return hotiRetransTmr->isScheduled() && !cotiRetransTmr->isScheduled() && 
+	careOfNI != 0 && homeNI != 0;
     }
 
-    void bu_entry::resetTestInitTimeout(const MIPv6HeaderType& ht)
+    void bu_entry::cancelTestInitTimeout(const MIPv6HeaderType& ht)
       {
         if ( ht == MIPv6MHT_HOT )
 	{

@@ -572,6 +572,10 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 
   bue->state = 0;
 
+  if (!bue->homeReg() && !bue->isMobilityAnchorPoint())
+    //allow ro packets to cn as back received from cn
+    bue->buReceived = true;
+
   recordBAVector(dgram, mob, mipv6cds);
 
   if ( bue->homeReg() )
@@ -763,7 +767,7 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
     return;
   }
 
-  bule->resetTestInitTimeout((MIPv6HeaderType)testMsg->kind());
+  bule->cancelTestInitTimeout((MIPv6HeaderType)testMsg->kind());
   /*
   Dout(dc::rrprocedure|flush_cf, "RR Procedure At " << mob->simTime() << " sec, " 
        << mob->nodeName()<<" has verified that " << testMsg->className() 
@@ -786,11 +790,9 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
 
   bool returnHome = bule->homeAddr() == mipv6cdsMN->careOfAddr();
 
-  if (bule->testSuccess() || (mob->earlyBindingUpdate() && 
-			      ((cot && bule->homeNI != 0) || 
-			       (hot && bule->careOfNI != 0))
-			      ) ||
-      //for pro active home test bule willl look like a returning home bulue
+  if (bule->testSuccess(mob->earlyBindingUpdate()) ||  
+      (mob->earlyBindingUpdate() && hot) ||      
+      //for pro active home test bule willl look like a returning home bule
       //except that bu to cn was never sent (i.e. last_time_sent == 0) so we only
       //want to deregister when it is not a pro active home test entry
       (returnHome && bule->homeNI != 0 && bule->last_time_sent != 0))
@@ -806,21 +808,13 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
          <<" Correspondent Registration: sending BU to CN (Route Optimisation) dest= "
          << dgram->srcAddress());
   }
-  /* not really part of ebu spec because they say only do ebu when sending a
+  /*
+    actually if condition above caters for this now.
+
+    not really part of ebu spec because they say only do ebu when sending a
      coti but nevertheless another valid case for sending ebu. But how to tell
      whether ebu sent already during this handover? (becomes many little tweaks
      to improve throughput)
-
-  else if (hot && bule->careOfNI == 0 &&
-	   mipv6cdsMN->homeAddr() != mipv6cdsMN->careOfAddr())
-  {
-    //early bu (useful for cases where we are already away from home and then we
-    //start sending stuff to cn) however coti is already under way here (as soon
-    //as encapsulated packet from cn) so advantage slim
-    sendBU(dgram->srcAddress(), mipv6cdsMN->careOfAddr(),
-           mipv6cdsMN->homeAddr(), mob->rt->minValidLifetime(),
-           false, dgram->inputPort(), false, dgram->timestamp());    
-  }
   */
 }
 
@@ -856,9 +850,14 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
   }
   else
   {
-    if (bule->isPerformingRR() || mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
+    if (bule->isPerformingRR(mob->earlyBindingUpdate()) ||
+	mob->simTime() < bule->last_time_sent + (simtime_t) 1/3) //MAX_UPDATE_RATE  // for some reason, MAX_UPDATE_RATE keeps returning zero.. I can't be stuffed fixing it.. just leave it for now
       return;
   }
+
+  //don't want ro packets when back not received yet
+  if (mipv6cdsMN->sendBUAckFlag())      
+      bule->buReceived = false;
 
   simtime_t testInitScheduleTime = mob->simTime() + SELF_SCHEDULE_DELAY;
 
@@ -895,7 +894,7 @@ void MIPv6MStateMobileNode::sendInits(const ipv6_addr& dest,
 
   if (returnHome && bule->homeNI != 0)
     sendBU(dest, coa,
-           mipv6cdsMN->homeAddr(), 0, //allow deletion of cns even under
+           bule->homeAddr(), 0, //allow deletion of cns even under
 				      //proactive home test, if comms still
 				      //active we can redo home test (TODO what
 				      //method for determining when to stop
@@ -1188,14 +1187,13 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     assert(bule);
 
 #ifdef USE_HMIP
-
   if (mapReg)
     ack = mapReg;
+#endif //USE_HMIP
 
   if (!ack && mipv6cdsMN->sendBUAckFlag())
     ack = true;
 
-#endif //USE_HMIP
 
   unsigned int seq = 0;
 
@@ -1237,23 +1235,16 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
   bool ebu = false;
   if (!homeReg && !mapReg )
   {
+    assert(bule->homeNI);
 
     if (!mob->earlyBindingUpdate())
     {
     //rr should already have been done
-      assert(bule->homeNI);
       if (!returnHome)
       {
-	assert(bule->careOfNI);
 	assert(bule->testSuccess());
       }	 
-      else
-	assert(bule->homeNI != 0);
       assert(!bule->isPerformingRR());
-    }
-    else
-    {
-      assert(bule->homeNI); 
     }
 
     //11.7.2 , 6.1.7 & 5.2.6 for CN
@@ -1535,8 +1526,9 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
-  if (ms == 0 && bule && (!bule->isPerformingRR() || 
-			  (mob->earlyBindingUpdate() && bule->isPerformingRR())) &&
+  if (ms == 0 && bule && 
+      (!bule->isPerformingRR(mob->earlyBindingUpdate()) || (mob->earlyBindingUpdate() && bule->homeNI != 0)) &&
+      ((mipv6cdsMN->sendBUAckFlag() && bule->buReceived) || !mipv6cdsMN->sendBUAckFlag()) &&
       bule->homeAddr() == datagram->srcAddress() &&
       //too strict a test for one of the current coa should instead check that
       //it is assigned somewhere?

@@ -368,7 +368,7 @@ namespace MobileIPv6
     //@{
   public:
 
-    bool isPerformingRR();
+    bool isPerformingRR(bool earlyBU = false);
     bool tentativeBinding();
 
     TIRetransTmr* hotiRetransTmr;
@@ -411,143 +411,19 @@ namespace MobileIPv6
     simtime_t careOfInitTimeout() const
     { return coti_timeout; }
 
-    void resetTestInitTimeout(const MIPv6HeaderType& ht);
+    void cancelTestInitTimeout(const MIPv6HeaderType& ht);
 
-    bool testSuccess() const;
+    bool testSuccess(bool earlyBU = false) const;
 
     cOutVector* regDelay;
 
+    bool buReceived;
   private:
     int hoti_cookie;
     int coti_cookie;
 
     double hoti_timeout;
     double coti_timeout;
-/*
-    double last_hoti_sent;
-    double last_coti_sent;
-
-    int homeNI;
-    int careofNI;
-
-
-    // CELLTODO - do a proper statistical analysis for this paramter later
-    simtime_t _careOfTestRTT;
-
-    unsigned int successDirSignalCount() { return _successDirSignalCount; }
-    void incSuccessDirSignalCount() { _successDirSignalCount++; }
-    
-    unsigned int dirSignalCount() { return _dirSignalCount; }
-    void incDirSignalCount() { _dirSignalCount++; }    
-
-    bool testSuccess()
-      {
-        return ( hotSuccess && cotSuccess );
-      }
-
-    void resetTestSuccess()
-      {
-        hotSuccess = false;
-        cotSuccess = false;
-      }
-      
-    void setTestSuccess(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          hotSuccess = true;
-        else if ( ht == MIPv6MHT_CoT )
-          cotSuccess = true;
-      }
-    
-    // TODO: too many if statements. we will have a map with entry of
-    // a struct rrInfo and a key of MIPv6MobilityHeaderType being
-    // either CoT or HoT
-
-    void setToken(const MIPv6MobilityHeaderType& ht, const bit_64& token)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          home_token = token;
-        else if ( ht == MIPv6MHT_CoT )
-          careof_token = token;
-        else
-          assert(false);
-      }
-
-    const bit_64& token(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          return home_token;
-        else if ( ht == MIPv6MHT_CoT )
-          return careof_token;
-
-        assert(false);
-        return UNSPECIFIED_BIT_64;
-      }
-
-    const bit_64& cookie(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT || ht == MIPv6MHT_HoTI)
-          return hoti_cookie;
-        else if ( ht == MIPv6MHT_CoT || ht == MIPv6MHT_CoTI)
-          return coti_cookie;
-        else
-        {
-          assert(false);
-          return UNSPECIFIED_BIT_64;
-        }
-      }
-
-    void setCookie(const MIPv6MobilityHeaderType& ht, bit_64 cookie)
-      {
-        if ( ht == MIPv6MHT_HoT || ht == MIPv6MHT_HoTI)
-          hoti_cookie = cookie;
-        else if ( ht == MIPv6MHT_CoT || ht == MIPv6MHT_CoTI)
-          coti_cookie = cookie;
-      }
-
-    simtime_t hotiSendDelayTimer()
-      {
-        return _hotiSendDelayTimer;
-      }
-
-    simtime_t cotiSendDelayTimer()
-      {
-        return _cotiSendDelayTimer;
-      }
-
-    void increaseSendDelayTimer(const MIPv6MobilityHeaderType& ht)
-      {
-        if ( ht == MIPv6MHT_HoT )
-          _hotiSendDelayTimer += SEND_DELAY_INCREMENT;
-        else if ( ht == MIPv6MHT_CoT )
-          _cotiSendDelayTimer += SEND_DELAY_INCREMENT;
-        else
-          assert(false);
-      }
-
-  private:
-    double hoti_timeout;
-    double coti_timeout;
-
-    bit_64 hoti_cookie;
-    bit_64 coti_cookie;
-
-    bit_64 careof_token;
-    bit_64 home_token;
-
-    // paramters for cell residency signaling heuristic
-
-    unsigned int _dirSignalCount;
-    unsigned int _successDirSignalCount;
-
-    bool hotSuccess;
-    bool cotSuccess;
-
-    simtime_t _hotiSendDelayTimer;
-    simtime_t _cotiSendDelayTimer;
-
-  public:
-    */
 
     //@}
   };

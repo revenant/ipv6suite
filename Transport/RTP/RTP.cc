@@ -46,6 +46,8 @@
 #include "RTCPSR.h"
 #include "IPv6Address.h"
 #include "opp_utils.h" //nodename
+#include "NotificationBoard.h"
+#include "NotifierConsts.h"
 
 Define_Module(RTP);
 
@@ -103,18 +105,17 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->jitter = 0;
   s->transit = 0;
   s->lastSR = 0;
-  //s->transVector = 0;
-  //s->lossVector = 0;
-  //s->transStat = 0;
 }
 
-RTPMemberEntry::RTPMemberEntry():transVector(0),  transStat(0), lossVector(0)
+RTPMemberEntry::RTPMemberEntry():transVector(0),  transStat(0), lossVector(0),
+				 handStat(0)
 {
   
 }
 
 //From A.1 of rfc3550 with probation removed
-int update_seq(RTPMemberEntry *s, u_int16 seq)
+//with added results collection and modified to assume no resyncing
+int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
 {
   u_int16 udelta = seq - s->maxSeq;
   //modify these two constants if we envisage severe loss due to incorrect handover or
@@ -140,6 +141,13 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
       if (!s->lossVector)
 	s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
       s->lossVector->record(udelta);
+      if (!s->handStat)
+	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+      if (rtp->l2down)
+      {
+	s->handStat->collect(rtp->simTime() - rtp->l2down);
+	rtp->l2down = 0;
+      }
     }
       
     s->maxSeq = seq;
@@ -156,8 +164,17 @@ int update_seq(RTPMemberEntry *s, u_int16 seq)
 
       //don't want a total resync because we know otherside does not do a real
       //resync in my sim and we want to preserve our stats
+      if (!s->lossVector)
+	s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
       s->lossVector->record(udelta);
       s->maxSeq = seq;
+      if (!s->handStat)
+	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+      if (rtp->l2down)
+      {
+	s->handStat->collect(rtp->simTime() - rtp->l2down);
+	rtp->l2down = 0;
+      }
     }
     else {
       s->badSeq = (seq + 1) & (RTP_SEQ_MOD-1);
@@ -199,7 +216,7 @@ void RTP::processReceivedPacket(cMessage* msg)
       senders += 1;
       init_seq(&rme, rtpData->seqNo());
     }
-    else if (!update_seq(&rme, rtpData->seqNo()))
+    else if (!update_seq(&rme, rtpData->seqNo(), this))
     {
       EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
       return;
@@ -354,9 +371,9 @@ simtime_t RTP::calculateTxInterval()
 
 
 
+RTP::RTP():nb(0),l2down(0){}
 
-
-
+RTP::~RTP(){}
 
 int RTP::numInitStages() const
 {
@@ -367,6 +384,9 @@ void RTP::initialize(int stageNo)
 {
   if (stageNo != 3)
     return;
+
+  nb = NotificationBoardAccess().get();
+  nb->subscribe(this, NF_L2_BEACON_LOST);
 
   rtpTimeout = 0;
 
@@ -671,6 +691,7 @@ void RTP::finish()
     cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
 
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
+    rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
     recordScalar((std::string("rtp dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(), cumPacketsLost);
     recordScalar((std::string("rtp % dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(),
 		 100 * (double)cumPacketsLost/(double)extended);
@@ -680,13 +701,11 @@ void RTP::finish()
 
 }
 
-/*
-///For non omnetpp csimplemodule derived classes
-RTP::RTP()
+void RTP::receiveChangeNotification(int category, cPolymorphic *details)
 {
+  Enter_Method_Silent();
+  printNotificationBanner(category, details);
+ 
+  assert(category == NF_L2_BEACON_LOST);
+  l2down = simTime();
 }
-
-RTP::~RTP()
-{
-}
-*/

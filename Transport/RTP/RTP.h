@@ -48,7 +48,9 @@
 #include "RTCPPacket_m.h"
 #endif
 
-
+#ifndef __INOTIFIABLE_H
+#include "INotifiable.h"
+#endif
 
 struct RTPMemberEntry
 {
@@ -79,11 +81,13 @@ struct RTPMemberEntry
   //arrivals but rtp can up to playout buffer size).  Cumulative loss as
   //determined by expected - received in reports is more accurate
   cOutVector* lossVector;
+  cStdDev* handStat;
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);
 
 class RTCPReports;
+class NotificationBoard;
 
 /**
  * @class RTP
@@ -93,14 +97,12 @@ class RTCPReports;
  * detailed description
  */
 
-class RTP: public UDPAppBase
+class RTP: public UDPAppBase, INotifiable
 {
  public:
 #ifdef USE_CPPUNIT
   friend class RTPTest;
 #endif //USE_CPPUNIT
-
-  Module_Class_Members(RTP, UDPAppBase, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -112,15 +114,16 @@ class RTP: public UDPAppBase
 
   virtual void handleMessage(cMessage* msg);
 
+  virtual void receiveChangeNotification(int category, cPolymorphic *details);
   //@}
 
   //@name constructors, destructors and operators
   //@{
-  /*
+  
   RTP();
 
   ~RTP();
-  */
+  
   //@}
 
   virtual void processReceivedPacket(cMessage* msg);
@@ -181,6 +184,9 @@ class RTP: public UDPAppBase
  private:
 
   std::vector<RTCPReportBlock> incomingBlocks;
+  NotificationBoard* nb;
+ public:
+  simtime_t l2down;
   //@}
 
   

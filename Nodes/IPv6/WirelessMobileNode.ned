@@ -18,7 +18,6 @@
 
 
 import
-    "Blackboard",
     "InterfaceTable",
     "MobilityManager",
     "NetworkLayer6",
@@ -53,8 +52,8 @@ module MobileNode
         in: wlin[];
         out: wlout[];
     submodules:
-        blackboard: Blackboard;
-            display: "p=62,60;i=block/blackboard";
+        notificationBoard: NotificationBoard;
+            display: "p=60,70;i=block/control";
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;

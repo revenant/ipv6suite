@@ -20,6 +20,7 @@
 #define __MODULEACCESS_H__
 
 #include <omnetpp.h>
+#include "INETDefs.h"
 
 
 /**
@@ -31,11 +32,19 @@
 cModule *findModuleWherever(const char *name, const char *classname, cModule *from);
 
 /**
+ * Find a module with given name, and "closest" to module "from".
+ *
+ * Operation: gradually rises in the module hierarchy, and looks for a submodule
+ * of the given name.
+ */
+cModule *findModuleSomewhereUp(const char *name, cModule *from);
+
+/**
  * Finds and returns the pointer to a module of type T and name N.
  * Uses findModuleWherever(). See usage e.g. at RoutingTableAccess.
  */
 template<typename T>
-class ModuleAccess
+class INET_API ModuleAccess
 {
      // Note: MSVC 6.0 doesn't like const char *N as template parameter,
      // so we have to pass it via the ctor...
@@ -48,9 +57,19 @@ class ModuleAccess
     {
         if (!p)
         {
-            cModule *m = findModuleWherever(name, opp_typename(typeid(T)), simulation.contextModule());
+            cModule *m = findModuleSomewhereUp(name, simulation.contextModule());
             if (!m) opp_error("Module (%s)%s not found",opp_typename(typeid(T)),name);
             p = check_and_cast<T*>(m);
+        }
+        return p;
+    }
+
+    T *getIfExists()
+    {
+        if (!p)
+        {
+            cModule *m = findModuleSomewhereUp(name, simulation.contextModule());
+            p = dynamic_cast<T*>(m);
         }
         return p;
     }

@@ -20,7 +20,7 @@
 
 
 import
-    "Blackboard",
+    "NotificationBoard",
     "InterfaceTable",
     "NetworkLayer6",
     "PhysicalLayer",
@@ -49,8 +49,8 @@ module UDPNode
         in: in[];
         out: out[];
     submodules:
-        blackboard: Blackboard;
-            display: "p=62,60;i=block/blackboard";
+        notificationBoard: NotificationBoard;
+            display: "p=60,70;i=block/control";
         interfaceTable: InterfaceTable;
             display: "p=60,150;i=block/table";
         errorHandling: ErrorHandling6;

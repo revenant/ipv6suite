@@ -66,6 +66,7 @@ class MobilityHandler;
 class WorldProcessor;
 class InterfaceEntry;
 class cTimerMessage;
+class NotificationBoard;
 
 // support rates of the wireless network interface
 typedef std::vector<SupportedRatesElement> SupportedRates;
@@ -554,6 +555,8 @@ public:
     bool highestHOValueAPEntry(APInfo&);
 
     bool findAPEntry(APInfo&);
+
+    NotificationBoard* nb;
 };
 
 

@@ -235,6 +235,7 @@ bool MIPv6MStateCorrespondentNode::processBU(BU* bu, IPv6Datagram* dgram)
            <<hoa);
       return false;
     }
+    Dout(dc::rrprocedure, mob->nodeName()<<" CN deregistration from hoa="<<hoa);
     return true;
   }
 

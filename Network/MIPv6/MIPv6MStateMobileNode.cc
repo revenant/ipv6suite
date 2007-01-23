@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2006 by Johnny Lai
+// Copyright (C) 2006, 2007 by Johnny Lai
 // Copyright (C) 2002, 2003, 2004 CTIE, Monash University
 //
 // This program is free software; you can redistribute it and/or
@@ -791,7 +791,7 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
   bool returnHome = bule->homeAddr() == mipv6cdsMN->careOfAddr();
 
   if (bule->testSuccess(mob->earlyBindingUpdate()) ||  
-      (mob->earlyBindingUpdate() && hot) ||      
+      (mipv6cdsMN->awayFromHome() && mob->earlyBindingUpdate() && hot) ||      
       //for pro active home test bule willl look like a returning home bule
       //except that bu to cn was never sent (i.e. last_time_sent == 0) so we only
       //want to deregister when it is not a pro active home test entry
@@ -1107,7 +1107,9 @@ bool MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr, bool all)
     {
       bu_entry* bule = 
 	mipv6cdsMN->findBU((*buit)->dgram->destAddress());
-      bule->state = 0;
+      assert(bule);
+      if (bule)
+	bule->state = 0;
       (*buit)->cancel();
     }
     delete *buit;

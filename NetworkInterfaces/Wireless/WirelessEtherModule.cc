@@ -89,6 +89,8 @@
 #include "InterfaceTableAccess.h"
 
 #include "BRMsg_m.h"
+#include "NotificationBoard.h" //for rtp handover l2 up signal
+#include "NotifierConsts.h"
 
 Define_Module(WirelessEtherModule);
 
@@ -296,6 +298,7 @@ void WirelessEtherModule::initialize(int stage)
 {
     if (stage == 0)
     {
+      nb = NotificationBoardAccess().get();
         _linkUpTrigger = false;
 	_linkDownTrigger = false;
         totalDisconnectedTime = 0;
@@ -1033,6 +1036,7 @@ void WirelessEtherModule::restartScanning(void)
     linkDownTimeMsg->setKind(LinkDOWN);
     sendDirect(linkDownTimeMsg,
 	       0, OPP_Global::findModuleByName(this, "mobility"), "l2TriggerIn");
+    nb->fireChangeNotification(NF_L2_BEACON_LOST);
 
     if (ev.isGUI())
     {

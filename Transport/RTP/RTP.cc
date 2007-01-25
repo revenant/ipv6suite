@@ -108,7 +108,7 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
 }
 
 RTPMemberEntry::RTPMemberEntry():transVector(0),  transStat(0), lossVector(0),
-				 handStat(0)
+				 handStat(0), handVector(0)
 {
   
 }
@@ -143,9 +143,12 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       s->lossVector->record(udelta);
       if (!s->handStat)
 	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+      if (!s->handVector)
+	s->handVector = new cOutVector((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
       if (rtp->l2down)
       {
 	s->handStat->collect(rtp->simTime() - rtp->l2down);
+	s->handVector->record(rtp->simTime() - rtp->l2down);
 	rtp->l2down = 0;
       }
     }
@@ -170,9 +173,12 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       s->maxSeq = seq;
       if (!s->handStat)
 	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+      if (!s->handVector)
+	s->handVector = new cOutVector((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
       if (rtp->l2down)
       {
 	s->handStat->collect(rtp->simTime() - rtp->l2down);
+	s->handVector->record(rtp->simTime() - rtp->l2down);
 	rtp->l2down = 0;
       }
     }

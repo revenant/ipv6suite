@@ -82,6 +82,7 @@ struct RTPMemberEntry
   //determined by expected - received in reports is more accurate
   cOutVector* lossVector;
   cStdDev* handStat;
+  cOutVector* handVector;
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);

@@ -484,6 +484,9 @@ bool MIPv6MStateMobileNode::processMobilityMsg(IPv6Datagram* dgram)
 
 /**
  * 11.7.3
+ *
+ @note bule may not exist because the bu was a deregistration hence lifetime of
+ 0 and bul expiry function will have removed it
  */
 
 bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
@@ -496,10 +499,11 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   {
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" with no corresponding BUL entry");
-    return cont;
+    //return cont;
+    //remove the buretranstimer 
   }
 
-  if (ba->sequence() != bue->sequence())
+  if (bue && ba->sequence() != bue->sequence())
   {
     Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BA received from "
          <<dgram->srcAddress()<<" IGNORED. With sequence "<< ba->sequence()
@@ -553,32 +557,50 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
 
   if (BAS_ACCEPTED != ba->status())
   {
-    //don't delete bule in this case as could be an old bu coming in
+    //don't delete bule in this case as could be an old bu to cn
     if (ba->status() == BAS_SEQ_OUT_OF_WINDOW)
-      return cont;
+    {
+      Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "
+	   <<dgram->srcAddress()<<" because out of sequence. ba seq="<<ba->sequence());
+      if (bue && OPP_Global::lessThanEqualsModulo(bue->sequence(), ba->sequence()))
+      {
+	Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" bue seq="<<bue->sequence());
+	bue->setSequence(ba->sequence() + 1);
+      }
+    }
+    else
+    {
+      if (bue)
+      {
+	//Remove entry from BUL if BU failed.
+	mipv6cdsMN->removeBU(bue->addr());
+	bue = 0;
+      }
+      Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "
+	   <<dgram->srcAddress()<<" status="<<ba->status()<< " and bue removed if existed");
 
-    //Remove entry from BUL if BU failed.
-    mipv6cdsMN->removeBU(bue->addr());
-    Dout(dc::mipv6|dc::notice|flush_cf, mob->nodeName()<<" BU rejected by "
-         <<dgram->srcAddress()<<" status="<<ba->status());
-
-    //Don't know how to do optional recover from these errors for now sending
-    //new BU.
-    return cont;
+      //Don't know how to do optional recover from these errors for now sending
+      //new BU if reverse tunnel packets from cn.
+    }
   }
+  else
+  {
+    Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
+	 <<dgram->srcAddress()<<" seq="<<ba->sequence());
 
-  Dout(dc::mipv6| flush_cf, mob->nodeName()<<" "<<now<<" BA received from "
-       <<dgram->srcAddress()<<" seq="<<ba->sequence());
-
-  bue->state = 0;
-
-  if (!bue->homeReg() && !bue->isMobilityAnchorPoint())
-    //allow ro packets to cn as back received from cn
-    bue->buReceived = true;
+    if (bue)
+    {
+      bue->state = 0;
+  
+      if (!bue->homeReg() && !bue->isMobilityAnchorPoint())
+	//allow ro packets to cn as back received from cn
+	bue->buReceived = true;
+    }
+  }
 
   recordBAVector(dgram, mob, mipv6cds);
 
-  if ( bue->homeReg() )
+  if ( bue && bue->homeReg() )
   {
     mob->prevLinkUpTime = now;
 
@@ -589,7 +611,10 @@ bool MIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     }
   }
 
-  if (ba->lifetime() < bue->lifetime())
+  if (BAS_ACCEPTED != ba->status())
+    return cont;
+
+  if (bue && ba->lifetime() < bue->lifetime())
   {
     bue->setExpires(max<int>(bue->expires()-(bue->lifetime()-ba->lifetime()), 0));
   }
@@ -1107,7 +1132,8 @@ bool MIPv6MStateMobileNode::removeBURetranTmr(BURetranTmr* buTmr, bool all)
     {
       bu_entry* bule = 
 	mipv6cdsMN->findBU((*buit)->dgram->destAddress());
-      assert(bule);
+      if (!bule)
+	std::cout<<" missing binding when retrans "<<(*buit)->dgram->destAddress();
       if (bule)
 	bule->state = 0;
       (*buit)->cancel();

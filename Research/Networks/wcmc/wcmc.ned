@@ -35,9 +35,9 @@ import
     "WirelessAccessPoint",
     "WirelessMobileNode";
 
-channel wcmcIntranetCable
+channel wcmcCable
     datarate 100e6;
-    delay 10e-6;
+    delay 1e-3;
 endchannel
 
 module wcmc
@@ -85,23 +85,22 @@ module wcmc
             display: "p=134,330;i=switch1_s";
     connections nocheck:
 
-        // Correct for ping test
-        ha.in[0] <-- wcmcIntranetCable <-- ap1.out[0];
-        ha.out[0] --> wcmcIntranetCable --> ap1.in[0];
+        ha.in[0] <-- wcmcCable <-- ap1.out[0];
+        ha.out[0] --> wcmcCable --> ap1.in[0];
 
-        ap2.out[0] --> wcmcIntranetCable --> ha.in[1]; //router1.in[0];
-        ap2.in[0] <-- wcmcIntranetCable <-- ha.out[1]; //router1.out[0];
+        ap2.out[0] --> wcmcCable --> ha.in[1]; 
+        ap2.in[0] <-- wcmcCable <-- ha.out[1]; 
 
-        ap3.out[0] --> wcmcIntranetCable --> ha.in[2]; //router2.in[0];
-        ap3.in[0] <-- wcmcIntranetCable <-- ha.out[2]; //router2.out[0];
-
-
-        ap4.out[0] --> wcmcIntranetCable --> ha.in[3]; //router3.in[0];
-        ap4.in[0] <-- wcmcIntranetCable <-- ha.out[3]; //router3.out[0];
+        ap3.out[0] --> wcmcCable --> ha.in[2]; 
+        ap3.in[0] <-- wcmcCable <-- ha.out[2]; 
 
 
-        ha.out[4] --> internetCable --> server4.in[0];
-        ha.in[4] <-- internetCable <-- server4.out[0];
+        ap4.out[0] --> wcmcCable --> ha.in[3]; 
+        ap4.in[0] <-- wcmcCable <-- ha.out[3]; 
+
+
+        ha.out[4] --> wcmcCable --> server4.in[0];
+        ha.in[4] <-- wcmcCable <-- server4.out[0];
 
     display: "p=2,10;b=425,415";
 endmodule

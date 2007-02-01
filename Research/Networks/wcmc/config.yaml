@@ -5,6 +5,7 @@
   - ebu
   - ack
   - ro
+  - delay
   - speed
 - ebu: 
   - y
@@ -15,6 +16,11 @@
   l2t: 
   - y
   - n
+  delay: &id001 
+    - "10"
+    - "30"
+    - "50"
+    - "100"
   speed: 
   - 3
   - 9
@@ -97,6 +103,12 @@
     constant: 0
     symbol: :xml
     value: "\"391322\""
+  delay: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: wcmcCable
+    symbol: :ned
+    value: *id001
   ack: 
     n: 
     - !ruby/object:ToggleAction 

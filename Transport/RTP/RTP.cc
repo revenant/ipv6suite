@@ -684,6 +684,12 @@ void RTP::finish()
     if (msi->first == _ssrc)
       continue;
 
+    if (!rme.transStat)
+    {
+      cout<<"WARNING " <<OPP_Global::nodeName(this)<<" not one packet's eed was recorded for member "<<IPAddressResolver().hostname(rme.addr);
+      continue;
+    }
+
     u_int32 extended = rme.cycles + rme.maxSeq;
     extended ++;
     u_int32 cumPacketsLost = extended - rme.received;
@@ -697,7 +703,12 @@ void RTP::finish()
     cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
 
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
-    rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
+
+    if (rme.handStat)
+      rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
+    else
+      assert(false);
+
     recordScalar((std::string("rtp dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(), cumPacketsLost);
     recordScalar((std::string("rtp % dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(),
 		 100 * (double)cumPacketsLost/(double)extended);

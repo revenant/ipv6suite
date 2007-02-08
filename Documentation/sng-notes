@@ -1,0 +1,44 @@
+Johnny: insert compilation notes here.
+wget http://www.cmake.org/files/v2.4/cmake-2.4.3-Linux-i386.tar.gz
+ mv cmake-2.4.3-Linux-i386/{bin,doc,share} ~/
+ wget http://www.codemonkey.org.uk/projects/git-snapshots/git/git-latest.tar.gz
+ cd git-***
+ make -j4  && make prefix=~/ install
+
+For some unknown reason make install fails and need to move executables to ~/bin
+
+ find . -type f -perm 775 ! -name \*.sh ! -name \*.perl ! -name \*.py -name git\* |xargs -i mv {}  ~/bin
+ cd -;mkdir src;cd !$
+ git-clone git+ssh://mammoth.ctie.monash.edu.au/home/cvs/IPv6Suite/git/IPv6SuiteWithINET.git
+
+Grab and extract omnetpp-3.2p1.tar.gz and enter its directory. Edit configure.user and change CFLAGs and also add
+
+ NO_TCL=true
+ with_parsim=no
+
+because we don't have X forwarding working and too much hassle to get it working.
+
+Edit the resultant Makefile and remove samples from the component target otherwise will try to build samples assuming tk installed.
+
+Need secret -m32 in configure.user CFLAG and SHLIB_LD by adding this line
+
+ SHLIB_LD='g++ -shared -fPIC -m32'
+ LDFLAGS="-m32 -L/nfs/0/home/netsimuser/lib"
+
+on omnet3.4b2 need  to follow http://www.omnetpp.org/forum/viewtopic.php?forum=12&showtopic=1064 to fix error. i.e. add extern int yyparse(); to line 56 
+
+Also need to do
+
+ ln -s /usr/lib/libxml2.so.* lib/libxml2.so
+ make
+
+For IPv6SuiteWithINET
+
+ ln -s /usr/lib/libboost_signals.so.1 ~/src/omnetpp-3.2p1/lib/libboost_signals.so
+ ln -s /usr/lib/libz.so.1 ~/src/omnetpp-3.2p1/lib/libz.so
+
+ cd IPv6SuiteWithINET;ruby Etc/scripts/CMakeListsGen.rb . INET
+ mkdir -pv ~/src/other/IPv6SuiteWithINET
+ cd !$;cmake ~/src/IPv6SuiteWithINET
+ make -j10
+

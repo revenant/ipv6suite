@@ -43,6 +43,7 @@ FileTokenizer::~FileTokenizer()
 {
     delete [] buffer;
     delete [] vec;
+    fclose(f);
 }
 
 size_t FileTokenizer::readMore()

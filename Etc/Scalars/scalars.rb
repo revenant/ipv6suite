@@ -194,14 +194,16 @@ class Scalars
     ds=Datasorter::DataSorter.new(sm)
     
     files = Dir["#{@dir}/#{@pattern}"]
+if false
     if files.size > 1020 #limited by __FD_SETSIZE (1024)
       STDERR.puts "Sorry cannot process #{files.size} files at one time as limited by __FD_SETSIZE of 1024"      
-      configNames, factors, levels = aggregateScalars(basename)
+  #    configNames, factors, levels = aggregateScalars(basename)
+      configNames, factors, levels = readConfigs      
       files = Dir["agg/#{basename}*.sca"]
     else
       configNames, factors, levels = readConfigs      
     end
-
+end
     file = nil
 
     files.each_with_index{|file, index|

@@ -182,6 +182,8 @@ void AddressResolution::handleMessage(cMessage* msg)
     tmr->targetAddr = addrResInfo->nextHop();
 
     tmr->ifIndex = addrResInfo->ifIndex();
+    delete addrResInfo;
+    addrResInfo = 0;
 
     boost::weak_ptr<NeighbourEntry> ngbr =
       rt->cds->neighbour(tmr->targetAddr);

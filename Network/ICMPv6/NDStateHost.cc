@@ -412,6 +412,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
       if (ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress()))
       {
         Dout(dc::warning, rt->nodeName()<<":"<<tmr->ifIndex<<" cannot use a tentative address as source of NS (ODAD)");
+	delete tmr;
         return;
       }
     }
@@ -472,6 +473,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     timerMsgs.remove(tmr->msg);
     //msg deletes tmr (_arg) internally
     delete tmr->msg;
+    delete tmr;
   }
 }
 

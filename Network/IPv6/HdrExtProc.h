@@ -51,7 +51,7 @@ class HdrExtProc
 public:
   //  friend class IPv6Datagram;
 
-  virtual ~HdrExtProc() = 0;
+  virtual ~HdrExtProc();
 
   virtual const char* className() const { return "HdrExtProc"; }
 

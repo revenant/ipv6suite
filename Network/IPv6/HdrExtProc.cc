@@ -39,6 +39,7 @@
 
 HdrExtProc::~HdrExtProc()
 {
+  //why doesn't virtual delete work to destroy headers from HdrExtProc::construct
   delete ext_hdr;
 }
 

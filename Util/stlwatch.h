@@ -13,10 +13,18 @@
 *
 *********************************************************************/
 
+
+#ifndef __OMNETPP_H
+#include <omnetpp.h>
+#endif 
+
+#if (defined OMNETPP_VERSION && OMNETPP_VERSION >= 0x0302)
+  #include "cstlwatch.h"
+#else
+
 #ifndef _STLWATCH_H__
 #define _STLWATCH_H__
 
-#include <omnetpp.h>
 #include <vector>
 #include <list>
 #include <map>
@@ -230,6 +238,14 @@ void createPointerMapWatcher(const char *varname, std::map<KeyT,ValueT,CmpT>& m)
     new cPointerMapWatcher<KeyT,ValueT,CmpT>(varname, m);
 }
 
+#endif
+
+#endif
+
+#if (defined OMNETPP_VERSION && OMNETPP_VERSION >= 0x0302)
+typedef cStdVectorWatcherBase cVectorWatcherBase;
+#endif
+
 //
 // Internal class
 //
@@ -317,6 +333,4 @@ void createPointerMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT
 #define WATCH_MULTIMAP(m)   createMultiMapWatcher(#m,(m))
 
 #define WATCH_PTRMULTIMAP(m)   createPointerMultiMapWatcher(#m,(m))
-
-#endif
 

@@ -14,6 +14,7 @@
 *********************************************************************/
 
 
+#ifdef _STLWATCH_H__
 #include <stdio.h>
 #include "stlwatch.h"
 
@@ -159,3 +160,4 @@ cStructDescriptor *cVectorWatcherBase::createDescriptor()
     return sd;
 }
 
+#endif //_STLWATCH_H__

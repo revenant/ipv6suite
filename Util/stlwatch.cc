@@ -13,10 +13,10 @@
 *
 *********************************************************************/
 
+#include "stlwatch.h"
 
 #ifdef _STLWATCH_H__
 #include <stdio.h>
-#include "stlwatch.h"
 
 
 //

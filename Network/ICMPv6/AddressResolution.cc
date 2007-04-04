@@ -162,7 +162,7 @@ void AddressResolution::handleMessage(cMessage* msg)
 
     Dout(dc::addr_resln|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
          <<": packet queued dest="<<dgram->destAddress()<<" nexthop="
-         <<addrResInfo->nextHop());
+         <<addrResInfo->nextHop()<<" status="<<addrResInfo->status());
 
     //Already done at conceptual sending, necessary only for for promiscous
     //addr res when src addr unknown (handled by processNgbrAdv)
@@ -188,20 +188,22 @@ void AddressResolution::handleMessage(cMessage* msg)
     boost::weak_ptr<NeighbourEntry> ngbr =
       rt->cds->neighbour(tmr->targetAddr);
 
-    //For mobile nodes AddrRes failure will remove the DE so we need to recreate
-    //DE that points to RE if neighbour is router. Can this happen for normal
-    //nodes too? (Only if NUD is implemented would DE be removed)
-    if (!ngbr.lock())
-      if (rt->cds->defaultRouter().lock() &&
-          rt->cds->defaultRouter().lock()->addr() == tmr->targetAddr)
+    //For mobile nodes (cannot be routers) AddrRes failure will remove the DE so
+    //we need to recreate DE that points to RE if neighbour is router. Can this
+    //happen for normal nodes too? (Only if NUD is implemented would DE be
+    //removed)
+    if (!rt->isRouter() && !ngbr.lock() && rt->cds->defaultRouter().lock())
+      if (rt->cds->defaultRouter().lock()->addr() == tmr->targetAddr)
       {
         (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->defaultRouter();
         ngbr = rt->cds->defaultRouter();
       }
-      else
+    // do not ever want to set a valid onlink neighbour addr resln to point to
+    // default router as next hop
+      else if (dgram->destAddress() != addrResInfo->nextHop())
       {
 	/*
-        //Can we resolve on another router besides the default?
+        //Can we resolve as next hop, another router besides the default?
 	if (rt->cds->router(tmr->targetAddr).lock())
 	  (*rt->cds)[tmr->targetAddr].neighbour = rt->cds->router(tmr->targetAddr);
 	else

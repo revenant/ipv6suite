@@ -143,12 +143,12 @@ namespace MobileIPv6
     if (!earlyBU)
     {
       if (cotiRetransTmr && hotiRetransTmr)
-	return cotiRetransTmr->isScheduled() && hotiRetransTmr->isScheduled();
+        return cotiRetransTmr->isScheduled() || hotiRetransTmr->isScheduled();
     }
     else
     {
       if (cotiRetransTmr)
-	return cotiRetransTmr->isScheduled();
+        return cotiRetransTmr->isScheduled();
     }
     return false;	
   }

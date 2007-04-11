@@ -1,3 +1,5 @@
+#Turn it on for non RT scenarios to show similar results to with no RR.
+ADD_TEST(EarlyBUTurnOn perl -i -pwe s|earlyBU='off'|earlyBU='on'|g MIPv6FastRANetwork.xml)
 ADD_TEST(FastRANet MIPv6Network -f MIPv6Network.ini -r 3)
 COLLECT_CHECK_TEST(MIPv6Network-r3-ro)
 
@@ -9,6 +11,12 @@ COLLECT_CHECK_TEST(MIPv6Network-r5)
 
 ADD_TEST(FastRANetRTPingPong MIPv6Network -f MIPv6Network.ini -r 6)
 COLLECT_CHECK_TEST(MIPv6Network-r6)
+
+#ADD_TEST(FastRANetEBU MIPv6Network -f MIPv6Network.ini -r 9)
+#COLLECT_CHECK_TEST(FastRANetEBU)
+
+#ADD_TEST(FastRANetPingPongEBU MIPv6Network -f MIPv6Network.ini -r 10)
+#COLLECT_CHECK_TEST(FastRANetPingPongEBU)
 
 ##Haven't fixed and will prob. not return home
 #ADD_TEST(FastRANetRTHome MIPv6Network -f MIPv6Network.ini -r 7)
@@ -22,3 +30,5 @@ COLLECT_CHECK_TEST(MIPv6Network-r6)
 
 #missing default route ask Eric
 #ADD_TEST(MIPv6NetworkSiumlMov2 MIPv6Network -f MIPv6NetworkSimulMove.ini -r 5)
+
+ADD_TEST(EarlyBUTurnOff perl -i -pwe s|earlyBU='on'|earlyBU='off'|g MIPv6FastRANetwork.xml)

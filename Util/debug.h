@@ -71,10 +71,12 @@
 #else // CWDEBUG
 
 #if !CWDEBUG_ALLOC
+#if !defined PLATFORM64bit
 #define AllocTag1(p)
 #define AllocTag2(p, desc)
 #define AllocTag_dynamic_description(p, x)
 #define AllocTag(p, x)
+#endif //!defined PLATFORM64bit
 #endif //CWDEBUG_ALLOC
 
 #ifndef DEBUGCHANNELS

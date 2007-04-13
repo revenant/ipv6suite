@@ -1555,7 +1555,7 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
   if (ms == 0 && bule && 
-      (!bule->isPerformingRR(mob->earlyBindingUpdate()) || (mob->earlyBindingUpdate() && bule->homeNI != 0)) &&
+      !bule->isPerformingRR(mob->earlyBindingUpdate()) &&
       ((mipv6cdsMN->sendBUAckFlag() && bule->buReceived) || !mipv6cdsMN->sendBUAckFlag()) &&
       bule->homeAddr() == datagram->srcAddress() &&
       //too strict a test for one of the current coa should instead check that

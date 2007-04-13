@@ -147,8 +147,9 @@ namespace MobileIPv6
     }
     else
     {
-      if (cotiRetransTmr)
-        return cotiRetransTmr->isScheduled();
+      //cerr<<simulation.simTime()<<" homeNI="<<homeNI<<" remaining time="<<hotiRetransTmr->remainingTime()<<" timeout="<<homeInitTimeout() <<" cotiRetransTmr="<< cotiRetransTmr->isScheduled()<<endl;
+      return (cotiRetransTmr && cotiRetransTmr->isScheduled()) || 
+        (hotiRetransTmr && (hotiRetransTmr->remainingTime() <= homeInitTimeout()));
     }
     return false;	
   }

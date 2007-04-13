@@ -24,7 +24,7 @@
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
     </interface>
   </local>
-  <local node="server4" mobileIPv6Support="on">
+  <local node="server4" mobileIPv6Support="on" earlyBU='off'>
   </local>
 <!-- routing table configuration -->
 

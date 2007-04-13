@@ -5,11 +5,11 @@
   <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
   mobileIPv6Role="MobileNode" routeOptimisation="on"
   hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
-	eagerHandover="on" earlyBU='on'>
+	eagerHandover="on" earlyBU='off'>
     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
     </interface>
   </local>
-  <local node="cn" mobileIPv6Support="on" earlyBU='on'>
+  <local node="cn" mobileIPv6Support="on" earlyBU='off'>
     <interface name="ppp0">
 <!--    should be autoconfed but need to determine for traffic source
   <inetAddr>3011:0:0:b:21ac:240a:911:bba</inetAddr> -->

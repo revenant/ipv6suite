@@ -995,14 +995,27 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
   COTI* coti = new COTI;
   bule->setCareofCookie(coti->careOfCookie());
 
-  // Once the tunnel is established, the packet destinated for the
-  // particular tunnel will be sent in tunnel. We want the CoTI to be
-  // sent directly to the correspondent node. Therefore it is sent
-  // directly to the output core via "mobilityIn")
-
   IPv6Datagram* dgram_coti = constructDatagram(coa, dest, coti, 0, timestamp);
 
-  mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
+  bool reverseTunnelled = false;
+  if (mob->hmipSupport())
+  {
+    const bu_entry* bule = mipv6cdsMN->findHAOwns(coa);
+    if (bule != 0 && bule->isMobilityAnchorPoint())
+    {
+
+      //reverse tunnel      
+      size_t vIfIndex = tunMod->findTunnel(hmipv6cds->localCareOfAddr(), bule->addr());
+      assert(vIfIndex);
+
+      dgram_coti->setOutputPort(vIfIndex);
+      mob->sendDirect(dgram_coti, 0, tunMod, "mobilityIn");
+      reverseTunnelled = true;
+    }
+  }
+
+  if (!mob->hmipSupport() || !reverseTunnelled)
+    mob->sendDirect(dgram_coti, 0, outputMod, "mobilityIn");
 
   bule->cotiRetransTmr->reschedule(mob->simTime() + bule->careOfInitTimeout());
 
@@ -1543,6 +1556,13 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
 
   if (bule)
     Dout(dc::debug|flush_cf, "bule "<<*bule);
+
+  //ebu entries when starting from home subnet fulfil this criteria just after
+  //movement detected. Should not send as not sure if l3 handover, so no attempt
+  //at mip6 (route optimisation or reverse tunnel). Will drop further in forward
+  //processing if hoa is not a valid onlink address on current subnet.
+  if (bule && bule->careOfAddr() == bule->homeAddr())
+    return true;
 
   bool pcoa = false;
 

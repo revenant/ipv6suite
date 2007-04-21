@@ -310,6 +310,19 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
     return boost::weak_ptr<bu_entry>().lock().get();
   }
 
+  const bu_entry* MIPv6CDSMobileNode::findHAOwns(const ipv6_addr& coa)
+  {
+    ipv6_prefix addr(coa, EUI64_LENGTH);
+    BULI it = bul.end();
+    for (it = bul.begin(); it != bul.end(); it++)
+    {
+      const bu_entry* bue = (*it).get();
+      if ((bue->isMobilityAnchorPoint() || bue->homeReg()) && addr.matchPrefix(bue->addr()))
+	return bue;
+    }
+    return 0;
+  }
+
   bool MIPv6CDSMobileNode::removeBU(const ipv6_addr& addr)
   {
     const BULI it =

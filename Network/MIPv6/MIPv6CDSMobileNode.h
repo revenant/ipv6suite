@@ -246,6 +246,8 @@ namespace MobileIPv6
     bool removeBU(const ipv6_addr& addr);
     ///returns addresses of CNs where coa registered prefix matches addr
     std::vector<ipv6_addr> findBUToCNCoaMatchPrefix(const ipv6_addr& addr);
+    ///returns address of HA from which coa was formed from
+    const bu_entry * findHAOwns(const ipv6_addr& coa);
     //@}
 
     bool awayFromHome() const { return away; }

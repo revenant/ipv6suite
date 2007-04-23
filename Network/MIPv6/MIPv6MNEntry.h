@@ -369,6 +369,7 @@ namespace MobileIPv6
   public:
 
     bool isPerformingRR(bool earlyBU = false);
+    bool ebuWaitingOnHOT();
     bool tentativeBinding();
 
     TIRetransTmr* hotiRetransTmr;

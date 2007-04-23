@@ -138,6 +138,13 @@ namespace MobileIPv6
     _expires = exp;
   }
 
+  //Returns true if HOTI has been transmitted and waiting for HOT in EBU case as
+  //HOTI is always scheduled in EBU.
+  bool bu_entry::ebuWaitingOnHOT()
+  {
+    return (hotiRetransTmr && hotiRetransTmr->isScheduled() && (hotiRetransTmr->remainingTime() <= homeInitTimeout()));
+  }
+
   bool bu_entry::isPerformingRR(bool earlyBU)
   {
     if (!earlyBU)
@@ -148,8 +155,8 @@ namespace MobileIPv6
     else
     {
       //cerr<<simulation.simTime()<<" homeNI="<<homeNI<<" remaining time="<<hotiRetransTmr->remainingTime()<<" timeout="<<homeInitTimeout() <<" cotiRetransTmr="<< cotiRetransTmr->isScheduled()<<endl;
-      return (cotiRetransTmr && cotiRetransTmr->isScheduled()) || 
-        (hotiRetransTmr && (hotiRetransTmr->remainingTime() <= homeInitTimeout()));
+      return (cotiRetransTmr && cotiRetransTmr->isScheduled()) || ebuWaitingOnHOT();
+ 
     }
     return false;	
   }

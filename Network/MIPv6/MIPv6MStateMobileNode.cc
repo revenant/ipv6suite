@@ -1568,15 +1568,19 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
 
 // {{{ Do Route Optimisation (RO) if bule contains this mn's coa
 
-  // The following section of the code only applies to data packet
-  // sent from upper layer. Mobility messages do not contain the
-  // home address option. 
+  // The following section of the code only applies to data packet sent from
+  // upper layer. mobility messages are processed at point of creation.
   MobilityHeaderBase* ms = 0;
   if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
   if (ms == 0 && bule && 
-      !bule->isPerformingRR(mob->earlyBindingUpdate()) &&
-      ((mipv6cdsMN->sendBUAckFlag() && bule->buReceived) || !mipv6cdsMN->sendBUAckFlag()) &&
+
+      (!bule->isPerformingRR(mob->earlyBindingUpdate()) || 
+       (mob->earlyBindingUpdate() && !bule->ebuWaitingOnHOT())) &&
+
+      ((mipv6cdsMN->sendBUAckFlag() && bule->buReceived) ||
+       !mipv6cdsMN->sendBUAckFlag()) &&
+
       bule->homeAddr() == datagram->srcAddress() &&
       //too strict a test for one of the current coa should instead check that
       //it is assigned somewhere?

@@ -4,7 +4,7 @@
 <netconf debugChannel="HMIPv6Simple.log:rcfile:MobileMove:notice">
 <!--Ping6:Statistic:HMIPv6:custom:MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
   <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
-  hierarchicalMIPv6Support="on" routeOptimisation="on">
+  hierarchicalMIPv6Support="on" routeOptimisation="on" earlyBU='off'>
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either (applies to xerces-c interface) -->
     <interface name="wlan0" HostDupAddrDetectTransmits="1">      
@@ -13,7 +13,7 @@
 		 -->
     </interface>
   </local>
-  <local node="server" mobileIPv6Support="on">
+  <local node="server" mobileIPv6Support="on" earlyBU='off'>
     <interface name="ppp0">
       <inetAddr>3011:bbbb:3333:6666:ac24:aff:fe11:bba</inetAddr>
     </interface>

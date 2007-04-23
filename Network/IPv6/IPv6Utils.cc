@@ -56,13 +56,8 @@ namespace IPv6Utils
     {
       if (!encapsulate)
 	os<<name<<" "<<(directionOut?"-->":"<--")<<" "<<simulation.simTime();
-      else
-	os<<"    ";
-      if (datagram->transportProtocol() == IP_PROT_IPv6)
-      {
-	os<<" payload=datagram";
-      }
-      else
+
+      if (datagram->transportProtocol() != IP_PROT_IPv6)
 	os<<" payload="<<datagram->name();
 
       os<<" src="<<datagram->srcAddress()<<" dest="
@@ -75,7 +70,7 @@ namespace IPv6Utils
       }
       if (datagram->transportProtocol() == IP_PROT_IPv6)
       {
-	os<<" encapsulating \n";
+	os<<" [encapsulating]=>";
 	encapsulate = true;
 	IPv6Datagram* dgram = 
 	  check_and_cast<IPv6Datagram*> (datagram->encapsulatedMsg());

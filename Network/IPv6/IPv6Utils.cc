@@ -61,7 +61,7 @@ namespace IPv6Utils
 	os<<" payload="<<datagram->name();
 
       os<<" src="<<datagram->srcAddress()<<" dest="
-	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes";
+	<<datagram->destAddress()<<" len="<<(datagram->length()/BITS)<<" bytes"<<" hl="<<datagram->hopLimit();
 
       for (HdrExtProc* proc = datagram->getNextHeader(0); proc != 0;
 	   proc = datagram->getNextHeader(proc))

@@ -645,8 +645,8 @@ end
      
           1.upto(runcount) do |runIndex|
             
-            vectorfile = filename + DELIM + runIndex.to_s + ".vec"         
-            scalarfile = filename + DELIM + runIndex.to_s + ".sca"
+            vectorfile = "../../../../vecs/" + filename + DELIM + runIndex.to_s + ".vec"         
+            scalarfile = filename + DELIM + ".sca"
             
             writeIniFile.puts "[Run #{runIndex}]"
             writeIniFile.puts "output-vector-file = #{vectorfile}"           

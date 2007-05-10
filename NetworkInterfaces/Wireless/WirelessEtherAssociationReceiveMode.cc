@@ -49,8 +49,9 @@
 #include "cTimerMessage.h" //link up trigger
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 #include "IPv6Utils.h"
-
 #include "opp_utils.h"
+#include "NotificationBoard.h" //for rtp handover l2 up signal
+#include "NotifierConsts.h"
 
 
 WEAssociationReceiveMode *WEAssociationReceiveMode::_instance = 0;
@@ -224,6 +225,7 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
                 linkUpTimeMsg->setKind(LinkUP);
                 mod->sendDirect(linkUpTimeMsg,
                                 0, OPP_Global::findModuleByName(mod, "mobility"), "l2TriggerIn");
+		mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
 
                 mod->linkdownTime = 0;
             }

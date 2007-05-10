@@ -50,6 +50,8 @@
 #include "cTimerMessage.h" //link up trigger
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 #include "opp_utils.h"
+#include "NotificationBoard.h" //for rtp handover l2 up signal
+#include "NotifierConsts.h"
 
 void sendLinkDownMsg(cSimpleModule* mod);
 
@@ -118,6 +120,7 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule *mod, WESi
               mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
               Dout(dc::mipv6 | dc::mobile_move,
                    mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
+	      mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
             }
         }
         // TODO: need to check supported rates and status code

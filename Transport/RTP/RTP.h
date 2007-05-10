@@ -83,6 +83,8 @@ struct RTPMemberEntry
   cOutVector* lossVector;
   cStdDev* handStat;
   cOutVector* handVector;
+  cStdDev* l2handStat;
+  cStdDev* l3handStat;
 };
 
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme);
@@ -188,6 +190,7 @@ class RTP: public UDPAppBase, INotifiable
   NotificationBoard* nb;
  public:
   simtime_t l2down;
+  simtime_t l2up;
   //@}
 
   

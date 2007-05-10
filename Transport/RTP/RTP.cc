@@ -108,9 +108,42 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
 }
 
 RTPMemberEntry::RTPMemberEntry():transVector(0),  transStat(0), lossVector(0),
-				 handStat(0), handVector(0)
+				 handStat(0), handVector(0), l2handStat(0),
+				 l3handStat(0)
 {
   
+}
+
+void initialiseStats(RTPMemberEntry *s, RTP* rtp)
+{
+  if (!s->lossVector)
+    s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
+  if (!s->handStat)
+    s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+  if (!s->handVector)
+    s->handVector = new cOutVector((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
+  if (!s->l2handStat)
+    s->l2handStat = new cStdDev((std::string("rtpl2Handover ") + OPP_Global::nodeName(rtp)).c_str());
+  if (!s->l3handStat)
+    s->l3handStat = new cStdDev((std::string("rtpl3Handover ") + OPP_Global::nodeName(rtp)).c_str());
+
+}
+
+void recordHOStats(RTPMemberEntry *s, RTP* rtp)
+{
+  if (rtp->l2down)
+  {
+    s->handStat->collect(rtp->simTime() - rtp->l2down);
+    s->handVector->record(rtp->simTime() - rtp->l2down);
+
+    if (rtp->l2up)
+    {
+      s->l2handStat->collect(rtp->l2up - rtp->l2down);
+      s->l3handStat->collect(rtp->simTime() - rtp->l2up);
+    }
+    rtp->l2down = rtp->l2up = 0;
+  }
+
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -138,19 +171,9 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       //of order packet (at this stage we are simply recording likely
       //drop. Actually cumulative loss as determined by expected - received is
       //more accurate
-      if (!s->lossVector)
-	s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
       s->lossVector->record(udelta);
-      if (!s->handStat)
-	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
-      if (!s->handVector)
-	s->handVector = new cOutVector((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
-      if (rtp->l2down)
-      {
-	s->handStat->collect(rtp->simTime() - rtp->l2down);
-	s->handVector->record(rtp->simTime() - rtp->l2down);
-	rtp->l2down = 0;
-      }
+      initialiseStats(s, rtp);
+      recordHOStats(s, rtp);
     }
       
     s->maxSeq = seq;
@@ -167,20 +190,10 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
 
       //don't want a total resync because we know otherside does not do a real
       //resync in my sim and we want to preserve our stats
-      if (!s->lossVector)
-	s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
+      initialiseStats(s, rtp);
       s->lossVector->record(udelta);
       s->maxSeq = seq;
-      if (!s->handStat)
-	s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
-      if (!s->handVector)
-	s->handVector = new cOutVector((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
-      if (rtp->l2down)
-      {
-	s->handStat->collect(rtp->simTime() - rtp->l2down);
-	s->handVector->record(rtp->simTime() - rtp->l2down);
-	rtp->l2down = 0;
-      }
+      recordHOStats(s, rtp);
     }
     else {
       s->badSeq = (seq + 1) & (RTP_SEQ_MOD-1);
@@ -393,6 +406,7 @@ void RTP::initialize(int stageNo)
 
   nb = NotificationBoardAccess().get();
   nb->subscribe(this, NF_L2_BEACON_LOST);
+  nb->subscribe(this, NF_L2_ASSOCIATED);
 
   rtpTimeout = 0;
 
@@ -723,6 +737,8 @@ void RTP::receiveChangeNotification(int category, cPolymorphic *details)
   Enter_Method_Silent();
   printNotificationBanner(category, details);
  
-  assert(category == NF_L2_BEACON_LOST);
-  l2down = simTime();
+  if (category == NF_L2_BEACON_LOST)
+    l2down = simTime();
+  else if (category == NF_L2_ASSOCIATED)
+    l2up = simTime();
 }

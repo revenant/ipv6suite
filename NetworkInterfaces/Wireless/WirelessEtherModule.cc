@@ -89,7 +89,7 @@
 #include "InterfaceTableAccess.h"
 
 #include "BRMsg_m.h"
-#include "NotificationBoard.h" //for rtp handover l2 up signal
+#include "NotificationBoard.h" //for rtp handover l2 down signal
 #include "NotifierConsts.h"
 
 Define_Module(WirelessEtherModule);

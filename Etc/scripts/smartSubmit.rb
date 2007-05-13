@@ -28,12 +28,6 @@ submitfile = "job.sh"
 li=0
 lines.size.times do
 
-  #File.open(submitfile + li.to_s, "w"){|f|
-  File.open(submitfile, "w"){|f|
-    f.puts <<END
-#!/bin/bash
-# Generated via #{__FILE__}
-END
 
     l = lines[li]
     #sample line l
@@ -41,11 +35,18 @@ END
     logfile = l.split(' ')[2].split('.')[0]
     logfile = "~/simlogs/" + logfile + ".log"
 
-    subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" "#{lines[li]}"|
-    f.puts subline
-    li += 1
-    #`qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
-    puts subline
+    subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" -r 2 "#{lines[li].chomp}"|
+  #File.open(submitfile + li.to_s, "w"){|f|
+  File.open(submitfile, "w"){|f|
+    f.puts <<END
+#!/bin/bash
+# Generated via #{__FILE__}
+#{subline}
+END
   }
+    li += 1
+    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}` if /hn1/.match(`hostname`)
+    puts subline
+    puts "`qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`"
 
 end

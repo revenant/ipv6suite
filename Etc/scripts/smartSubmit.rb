@@ -7,21 +7,18 @@
 #  Submit jobs to Sun grid engine
 #  Assumes jobs are listed in a file named jobs.txt one process per line
 #
-#  Now requires a runCount i.e. replications of same config should be run on
-#  same machine instead of one replication per job submitssion.
+#  Should run multiconfig.rb with -r 1 i.e. just one replication as this will
+#  submit a job that uses ConfTest.rb to run the actual number of replications required
 #
 # =REVISION HISTORY
-#  INI 2006-09-21 Changes
+#  INI 2007-07-15 Changes
 #  
 
-#require 'fileutils'
-#FileUtils.mkpath("agg")
-
-if ARGV.size < 1
-  puts "missing argument number of replications to run (-r parameter in multiconfig.rb)"
-  exit
+if (/hn1/.match(`hostname`))
+  ruby = "~/bin/ruby"
+else
+  ruby = "ruby"
 end
-runCount = ARGV[0].to_i
 
 f=File.open("jobs.txt","r")
 lines = f.to_a
@@ -29,7 +26,7 @@ f.close
 
 submitfile = "job.sh"
 li=0
-(lines.size/runCount).times do
+lines.size.times do
 
   #File.open(submitfile + li.to_s, "w"){|f|
   File.open(submitfile, "w"){|f|
@@ -44,13 +41,11 @@ END
     logfile = l.split(' ')[2].split('.')[0]
     logfile = "~/simlogs/" + logfile + ".log"
 
-    runCount.times do
-      f.puts "#{lines[li]}"
-      li = li+1
-    end
-
-    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
-    puts "qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
+    subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" "#{lines[li]}"|
+    f.puts subline
+    li += 1
+    #`qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
+    puts subline
   }
 
 end

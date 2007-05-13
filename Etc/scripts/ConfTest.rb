@@ -142,7 +142,7 @@ class ConfTest
       opt.parse!
     } or  exit(1);
 
-    raise ArgumentError, "No grep pattern specified!!", caller[0] if not @pattern and not $test or not ARGV.size > 0
+    raise ArgumentError, "No grep pattern specified!!", caller[0] if (not @pattern and not ARGV.size > 0) and not $test 
 
     if @quit
       pp self

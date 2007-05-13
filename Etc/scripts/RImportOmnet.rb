@@ -5,9 +5,9 @@
 #
 # =DESCRIPTION
 # Imports omnetpp.vec files
-# 
+#
 # Based on RImportOmnet.rb but simplified a lot
-# 
+#
 
 #Put a directory into load path with other custom ruby libs
 $LOAD_PATH<<`echo $HOME`.chomp + "/lib/ruby"
@@ -29,7 +29,7 @@ $lastCommand = []
 class IO
   alias old_puts puts
 
-  # 
+  #
   # As we only use pipe to R any other puts is to terminal mainly. puts to R
   # should be done in a put/get combo in order to keep both processes in sync
   # otherwise ruby is much faster than R and may overload input buffer of
@@ -44,7 +44,7 @@ class IO
     $lastCommand.push str
 
     if $debug
-      $defout.old_puts str 
+      $defout.old_puts str
       $defout.flush
     end
 
@@ -72,9 +72,9 @@ end
 module RInterface
 
   DELIM = "_"
-  
+
   RSlave = "R --slave --quiet --vanilla --no-readline"
-      
+
   #Retrieve hash of vector index -> label from vec file filename (index is still
   #a numerical string) where label is the vector name in file. All labels have
   ##.#{index} appended
@@ -83,7 +83,7 @@ module RInterface
   #separately rather than encoded in one string
   def retrieveLabelsVectorSuffix(filename)
     vectors = Hash.new
-    
+
     IO::foreach(filename) {|l|
       case l
       when /^[^\d]/
@@ -96,44 +96,44 @@ module RInterface
         #add nodename to column name
         s += "." + l.split(/\s+/,4)[2].split(/\./)[1]
         #add vector index to end
-        s += "." + i 
+        s += "." + i
         vectors[i] = s
       end
     }
     p vectors if @debug
     return vectors
   end
-  
+
   UniqueVectorNames = {}
   #module var stored as Class Hash so will not overwrite each instance
   #Store a list of vector numbers that belong to the unique vector name formed
-  #by vectorname + nodename as the same vector name can belong to two different 
+  #by vectorname + nodename as the same vector name can belong to two different
   #nodes i.e. transitTime from cn
   def uniqueVectorNames=(o)
     UniqueVectorNames[object_id] = o
   end
-  
-  def uniqueVectorNames    
+
+  def uniqueVectorNames
     UniqueVectorNames[object_id]
   end
-  
+
   if false
     #detected multiple vectors sharing same index
     #so another violation on top of a vector having multiple indices
-    
+
   #Determines said thing based on the vector Index
   def determineUniqueVectorName(index)
-    a = self.uniqueVectorNames.select{|k,v| v.include?(index)}      
+    a = self.uniqueVectorNames.select{|k,v| v.include?(index)}
     if not a.size == 1
       raise "Whoops there appears to be #{a.size} different vectors belong to vector index #{index}: #{a.to_s}"
-    end     
+    end
     a[0][0]
   end
 end
   #Retrieve array of hash of vector index -> better label and
   #nodename from vec file. (the hash key index is still a numerical string)
   #where label is the vector name in file
-  def retrieveVectors(filename)    
+  def retrieveVectors(filename)
     self.uniqueVectorNames = Hash.new if self.uniqueVectorNames.nil?
     vectors = Hash.new
     nodenames = Hash.new
@@ -145,8 +145,8 @@ end
         #Retrieve vector name
         s = l.split(/\s+/,4)[3]
         #Remove "" and last number
-        s = s.split(/["]/,3)[1]                
-        nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]        
+        s = s.split(/["]/,3)[1]
+        nodenames[i] = l.split(/\s+/,4)[2].split(/\./)[1]
         vectors[i] = s
         key = uniqueVectorName(vectors[i], nodenames[i])
         if uniqueVectorNames.include?(key)
@@ -158,7 +158,7 @@ end
       end
     }
     p vectors if @debug
-    p "unique vector names", uniqueVectorNames if @debug    
+    p "unique vector names", uniqueVectorNames if @debug
     return [vectors, nodenames]
   end
 
@@ -174,18 +174,18 @@ end
     arrayCode =  %{%w[#{p.gets.chomp!}]}
     eval(arrayCode)
   end
-  
+
   #Assumes 2 dim arrays only
   def dimRObjects(p, pattern = "")
-    sizes=Hash.new       
-    retrieveRObjects(p, pattern).each {|e|      
+    sizes=Hash.new
+    retrieveRObjects(p, pattern).each {|e|
       p.puts %{dim(#{e}\n)}
       dim = p.gets.chomp!
       #[1] 5 8
       row = dim.split(" ")[1].to_i
       column = dim.split(" ")[2].to_i
       raise "We handle 2 dimension array only " if dim.split(" ").size > 3
-      sizes[e] = [row, column] 
+      sizes[e] = [row, column]
     }
     sizes
   end
@@ -200,7 +200,7 @@ end
       #sample output where 5 is the rows and 8 is columns
       #[1] 5 8
       p.puts %{#{e}\n}
-      rowCount = dim.split(" ")[1].to_i + 1 #for header row       
+      rowCount = dim.split(" ")[1].to_i + 1 #for header row
       1.upto(rowCount) do
         results.push(p.gets.chomp!)
       end
@@ -211,7 +211,7 @@ end
   end
   #
   # Form safe column names from omnetpp vector names
-  # p is pipe to R 
+  # p is pipe to R
   # vectors is hash of index -> vector name produced from retrieveLabels
   def safeColumnNames(p, vectors)
     p.puts %{l<-c("#{vectors.values.join("\",\"")}")}
@@ -236,7 +236,7 @@ end
   public
 
   def printVectorNames(vecFile)
-    v = retrieveLabelsVectorSuffix(vecFile) 
+    v = retrieveLabelsVectorSuffix(vecFile)
     v.each_pair { |k,name|
       $defout.old_puts %{#{k} #{name}}
     }
@@ -249,11 +249,11 @@ end
 #
 class RImportOmnet
   include General
-  
+
   VERSION       = "$Revision: 2.1 $"
   REVISION_DATE = "$Date: 2006/07/21 $"
   AUTHOR        = "Johnny Lai"
-  
+
   #Doing **/*.ext would find all files with .ext recursively while with only one
   #* it is like only in one subdirectory deep
 
@@ -262,19 +262,19 @@ class RImportOmnet
   #
   # Returns a version string similar to:
   #  <app_name>:  Version: 1.2 Created on: 2002/05/08 by Jim Freeze
-  # The version number is maintained by CVS. 
+  # The version number is maintained by CVS.
   # The date is the last checkin date of this file.
-  # 
+  #
   def version
     "Version: #{VERSION.split[1]} Created on: " +
       "#{REVISION_DATE.split[1]} by #{AUTHOR}"
   end
 
   #
-  # Initialse option variables in case the actual option is not parsed in 
+  # Initialse option variables in case the actual option is not parsed in
   #
   def initialize
-    @debug    = false 
+    @debug    = false
     @verbose  = false
     @quit     = false
     @filter   = nil
@@ -282,7 +282,7 @@ class RImportOmnet
     @restrict = nil
     @rsize    = 0 #no restriction on vector length
     @aggprefix = %{a.} #dataframes have this as prefix when aggregating runs
-    @aggFrames = nil #store aggframe names to remove them 
+    @aggFrames = nil #store aggframe names to remove them
     @printVectors = nil #Print only vector names and quit
     @relevelSchemeOrder = nil
     @count = nil
@@ -320,7 +320,7 @@ class RImportOmnet
       opt.separator "Usage: #{File.basename __FILE__} [options] omnetpp.vec other.vec .. "
       opt.separator ""
       opt.separator "Specific options:"
- 
+
       opt.on("--output=filename","-o", String, "Output R data to filename"){|@rdata|}
 
       # List of arguments.
@@ -334,14 +334,14 @@ class RImportOmnet
         @relevelSchemeOrder =  %{%w[#{@relevelSchemeOrder}]}
         @relevelSchemeOrder = eval(@relevelSchemeOrder)
       }
-      
+
       opt.on("-e", "--exclude x,y,z", Array, "list of vectors to exclude opposite in effect to filter"){|@exclude|
         self.exclude.uniq!
       }
-            
+
       opt.on("-s", "--size x", Integer, "restrict vectors specified to --restrict to size rows "){|@rsize|}
 
-      opt.on("-p vecfile", String, " Print the vector names and their corresponding numeric indices"){|@printVectors|} 
+      opt.on("-p vecfile", String, " Print the vector names and their corresponding numeric indices"){|@printVectors|}
       opt.separator ""
 
       opt.separator "importOmnet options:"
@@ -357,11 +357,11 @@ class RImportOmnet
       opt.separator ""
       opt.separator "Common options:"
 
-      #Try testing with this 
+      #Try testing with this
       #ruby __FILE__ -x -c -s test
       opt.on("-x", "parse arguments and show Usage") {|@quit|
         pp self
-        (print ARGV.options; exit) 
+        (print ARGV.options; exit)
       }
 
       opt.on("--doc=DIRECTORY", String, "Output rdoc (Ruby HTML documentation) into directory"){|dir|
@@ -371,7 +371,7 @@ class RImportOmnet
 
       opt.on("--verbose", "-v", "print intermediate steps to STDOUT"){|@verbose|}
 
-      opt.on("--debug", "-d", "print debugging info to STDOUT"){|@debug| 
+      opt.on("--debug", "-d", "print debugging info to STDOUT"){|@debug|
         $debug = @debug
       }
 
@@ -392,7 +392,7 @@ class RImportOmnet
     } or  exit(1);
 
     raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1 and not $test
-    raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test and not $0 == __FILE__ 
+    raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test and not $0 == __FILE__
 
     if @printVectors
       printVectorNames(@printVectors)
@@ -400,7 +400,7 @@ class RImportOmnet
     end
 
   end
-  # }}}  
+  # }}}
 
 #  private
   #
@@ -410,7 +410,7 @@ class RImportOmnet
   #
   def retrieveLabels(filename)
     vectors = Hash.new
-    
+
     #foreach less verbose than opening file and reading it
     IO::foreach(filename) {|l|
       case l
@@ -441,26 +441,26 @@ class RImportOmnet
 
   def relevelScheme(p)
     @p = p
-    frames = retrieveRObjects(@p, pat="^a\.")    
+    frames = retrieveRObjects(@p, pat="^a\.")
     @p.puts %|source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R")|
     for f in frames do
       @p.puts %|#{f}$scheme = jl.relevel(#{f}$scheme, c("#{@relevelSchemeOrder.join("\",\"")}"))|
     end
   end
 
-  #Assumes across different runs of same executable vector indices are not recycled for use as 
+  #Assumes across different runs of same executable vector indices are not recycled for use as
   #other vectors otherwise this will fail miserably. This is indeed false so any
   #filtering can alter number of resulting sets particularly if taken over large sets of data
   #TODO Fix or will fail desperately #see determineUniqueVectorName() for proof of faiure
   #Also will fail to filter/exclude a vector index if that has not been seen yet i.e.
   #if we specify 317 and 319 is also a duplicate but if we scanned a file that contained 319 first
   #then parts of 319 can be there causing havoc as we later exclude it or include it
-  #TODO only fix is to scan all vector names of all vector files to determine this 
+  #TODO only fix is to scan all vector names of all vector files to determine this
   #duplicate vector relationships before starting to parse when we use filer/exclude
   def filterVectors(vectors)
     unless self.filter.nil?
-      newIndices = Set.new(vectors.keys & self.filter)      
-      uniqueVectorNames.values.each{|array|        
+      newIndices = Set.new(vectors.keys & self.filter)
+      uniqueVectorNames.values.each{|array|
         #Stick in all vector names with different indices to be included etc
         if (array & self.filter).size != 0
           newIndices.merge(array)
@@ -473,7 +473,7 @@ class RImportOmnet
 
     unless self.exclude.nil?
       newIndices = Set.new(self.exclude)
-      uniqueVectorNames.values.each{|array|        
+      uniqueVectorNames.values.each{|array|
         #Stick in all vector names with different indices to be included etc
         if (array & self.exclude).size != 0
           newIndices.merge(array)
@@ -485,7 +485,7 @@ class RImportOmnet
     end
 
   end
-  
+
   def filterByVectorNames(vectors, nodenames)
     if not self.exclude.nil?
       nameFilter = self.exclude[0].to_i == 0
@@ -493,7 +493,7 @@ class RImportOmnet
     if not self.filter.nil?
       nameFilter = self.filter[0].to_i == 0
     end
-    if not nameFilter 
+    if not nameFilter
       filterVectors(vectors)
       return
     end
@@ -512,18 +512,18 @@ class RImportOmnet
       }
     end
   end
-  
+
   #Actually this mapping may be unsafe because iterating through a hash
   #(vectors) will not guarantee an order and yet I'm assuming safeColumnNames
   #will generate an array with same order as the traversal of vector keys
   def safeColumnNamesMapping(p ,vectors)
     columnNames = safeColumnNames(p, vectors)
     p columnNames if @debug
-    
-    i = 0 
+
+    i = 0
     vectors.each_pair { |k,v|
       # does not update value in hash only iterator v
-      #v = a[i] 
+      #v = a[i]
       vectors[k] = columnNames[i]
       i+=1
       raise "different sized containers when assigning safe column names #{vectors.keys.join(",")} and #{columnNames.join(",")}" if vectors.keys.size != columnNames.size
@@ -541,12 +541,14 @@ class RImportOmnet
   def singleRun(p, vecFile, n, scheme)
     vectors = retrieveLabelsVectorSuffix(vecFile)
     @vectorStarted = Array.new if not defined? @vectorStarted
- 
+
     #not caching the vectors' safe column names. Too much hassle and makes code
     #look complex. Loaded vectors can differ a lot anyway.
 
     safeColumnNamesMapping(p ,vectors)
 
+
+    self.uniqueVectorNames = Hash.new if self.uniqueVectorNames.nil?
     filterVectors(vectors)
 
     vectors.each_pair { |k,v|
@@ -559,7 +561,7 @@ class RImportOmnet
       columnname = v.sub(%r{[.]\d+$},"")
       ncolumnname = columnname
       #remove nodename from vector name
-      ncolumnname = removeLastComponentFrom(columnname) 
+      ncolumnname = removeLastComponentFrom(columnname)
       restrictGrep = nlines > 0? "-m #{nlines}":""
       p.puts %{tempscan <- scan(p<-pipe('grep #{restrictGrep} "^#{k}\\\\>" #{vecFile}'), list(trashIndex=0,time=0,#{columnname}=0), nlines = #{nlines})}
       p.puts %{close(p)}
@@ -575,13 +577,13 @@ class RImportOmnet
       p.puts %{detach(tempscan)}
 
       #Aggregate runs for same node's vector
-      aggframe = %{#{@aggprefix}#{v}} 
+      aggframe = %{#{@aggprefix}#{v}}
 
       if not @vectorStarted.include? k
         @vectorStarted.push(k)
         p.puts %{#{aggframe} <- #{onerunframe}}
       else
-        p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}        
+        p.puts %{#{aggframe} <- rbind(#{aggframe} , #{onerunframe})}
 #        p.puts %{#{aggframe} <- merge(#{aggframe} , #{onerunframe})}
 
       end
@@ -639,17 +641,17 @@ TARGET
     p = IO.popen(RSlave, "w+")
 
     modname = "EHAnalysism"
-    
+
     while ARGV.size > 0 do
       vecFile = ARGV.shift
       raise "wrong file type as it does not end in .vec" if File.extname(vecFile) != ".vec"
       encodedScheme = File.basename(vecFile, ".vec").sub(modname,"")
       encodedScheme =~ /(\d+)$/
       n = $1
-      scheme = $` 
+      scheme = $`
 
       raise "Cannot parse run number from file name\n \
-      (run one file at a time if not a set of vector files\n \ 
+      (run one file at a time if not a set of vector files\n \
       and give different -o options for resultant R data files)" if ARGV.size > 0
 
       n = 1 if n.nil?
@@ -660,7 +662,7 @@ TARGET
     relevelScheme(p) if not @relevelSchemeOrder.nil?
 
     output = File.join(File.dirname(vecFile), @rdata)
-    p.puts %{save.image("#{output}")}     
+    p.puts %{save.image("#{output}")}
 
     p.puts %{q("no")}
 
@@ -675,7 +677,7 @@ TARGET
   ensure
     p.close if p
   end#run
-  
+
 end#RImportOmnet
 
 #main
@@ -683,8 +685,8 @@ end#RImportOmnet
 if $0 == __FILE__ then
   $app = RImportOmnet.new #need to create to parse args otherwise never runs test
   if not $test
-    $app.run 
-    exit 
+    $app.run
+    exit
   end
 end
 
@@ -694,7 +696,7 @@ require 'test/unit'
 
 class TC_RImportOmnet < Test::Unit::TestCase
   def test_safeColumnNames
-    a=@imp.safeColumnNames(@p, Hash[1,"bad names",5,"compliant.column-name"])   
+    a=@imp.safeColumnNames(@p, Hash[1,"bad names",5,"compliant.column-name"])
     assert_equal(a, %w{compliant.column.name bad.names}, "Column names should not differ!")
   end
 
@@ -741,10 +743,10 @@ TARGET
     @p.puts  %{save.image("#{@imp.rdata}")}
     # Race conditions exist so sync to R first otherwise may raise missing file exception
     @imp.waitForR(@p)
-    raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.file? @imp.rdata)
+    #raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.file? @imp.rdata)
 
     @p.puts %{rm(list=ls())}
-    @p.puts %{load("#{@imp.rdata}")}   
+    @p.puts %{load("#{@imp.rdata}")}
     e = %w{a.handoverLatency.mn.5 a.IEEE.802.11.HO.Latency.mn.6 a.Movement.Detection.Latency.mn.3 a.pingEED.mn.0}
     r = @imp.retrieveRObjects(@p)
     assert_equal(e, r, "singleRun test: list of matching R objects differ!")
@@ -792,7 +794,7 @@ vector 1  "saitEHCalNet.mn.networkLayer.proc.ICMP.duddup"  "handoverLatency"  1
 TARGET
       f.print var
     }
-     e = Hash["3", "Movement Detection Latency", "6", "IEEE 802.11 HO Latency", "5", "handoverLatency", "0", "pingEED", "2", "icmpv6Core.handoverLatency", "1", "duddup.handoverLatency"]     
+     e = Hash["3", "Movement Detection Latency", "6", "IEEE 802.11 HO Latency", "5", "handoverLatency", "0", "pingEED", "2", "icmpv6Core.handoverLatency", "1", "duddup.handoverLatency"]
      h = @imp.retrieveLabels(TestFileName)
      #becomes an array of arrays
      el = e.sort
@@ -832,7 +834,7 @@ TARGET
   end
 
   if false
-  def test_collect    
+  def test_collect
     Dir.chdir(File.expand_path(%{~/src/phantasia/master/output/saiteh})){
       `ruby #{__FILE__} -o testcoll.Rdata -a -c -f 3,6,5 -O supertest.Rdata`
       assert_equal(0, $?.exitstatus, "collect with  aggregate mode failed")
@@ -852,7 +854,7 @@ TARGET
 
 # L2.Up.318.0[2:5,3]-L2.Down.319.0[,3]
 
-#    v = retrieveLabelsVectorSuffix(vecFile) 
+#    v = retrieveLabelsVectorSuffix(vecFile)
     #match (\s+\d+\s+)\
   end
 
@@ -862,14 +864,14 @@ TARGET
     @p = IO.popen( RImportOmnet::RSlave, "w+")
     @imp = RImportOmnet.new
   end
-  
+
   def teardown
     @p.close
   end
 
 end
 
-if $test 
+if $test
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_RImportOmnet)

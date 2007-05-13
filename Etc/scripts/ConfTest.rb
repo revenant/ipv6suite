@@ -4,7 +4,11 @@
 #  Copyright (c) 2006 Johnny Lai
 #
 # =DESCRIPTION
-# TODO: Add your description
+# Run as many replications of command as required until precision is reached
+# or runLimit reached.
+#
+# Sample run line
+# ruby `pwd`/ConfTest.rb -g "client1,Ping roundtrip delays" --debug "./HMIPv6Netork -f HMIPv6Sait.ini"
 #
 # =REVISION HISTORY
 #  INI 2007-05-11
@@ -55,11 +59,11 @@ class ConfTest
     @verbose  = false
     @quit     = false
 
-    @dir = "."
-    #all nodes will be processed unless option passed in to pass subset
-    @print = false
     @pattern = nil
     @scalarfile = "omnetpp.sca"
+    @runlimit = 100
+    @precision = 0.00001
+    @auto = false
 
     get_options
 
@@ -102,13 +106,14 @@ class ConfTest
       opt.on("--file scalarfile", "-f", String, "Process the specified scalar file. "\
              "Default is omnetpp.sca"){|@scalarfile|}
 
-      opt.on("--grep pattern \"mn,cn,ha\"", "-g", String, "particular scalar to"\
-             " choose from can include nodename, modulename, network name and "\
-             "scalar name separated by commas)") { |nodes|
+      opt.on("--grep pattern \"network,node,module,scalarname\"", "-g", String,
+             "particular scalar to check precision on. Scalar name must be "\
+             "according to order specified and separated by commas.") { |nodes|
         createRegex(nodes)
       }
-
-      opt.on("--print", "-p", "Print scalar names available for the specified grep pattern"){|@print|}
+      opt.on("-r runlimit", Integer, "run limit to stop at if precision is not reached"){|@runlimit|}
+      opt.on("-p precision", Float, "precision you'd like to reach"){|@precision|}
+      opt.on("-a", "infer scalar file name and remove run number indications from command to run"){|@auto|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -137,7 +142,7 @@ class ConfTest
       opt.parse!
     } or  exit(1);
 
-    raise ArgumentError, "No grep pattern specified!!", caller[0] if not @pattern and not $test
+    raise ArgumentError, "No grep pattern specified!!", caller[0] if not @pattern and not $test or not ARGV.size > 0
 
     if @quit
       pp self
@@ -152,7 +157,7 @@ class ConfTest
     #Create a regex that requires all nodes to be present before matching
     @pattern = greppattern.split(",")
     @pattern.map!{|p| "(#{p})+" }
-    pattern = Regexp.new(@pattern.join(".*"))
+    @pattern = Regexp.new(@pattern.join(".*"))
   end
 
   def parseScalarFile(filename)
@@ -161,7 +166,7 @@ class ConfTest
     s = Array.new
     File.open(filename,"r"){|f|
       f.each_line{|l|
-        if @pattern.match(l)
+        if pattern.match(l)
             case l
             when /stddev/
               s<<l.split(/[ ]+|\t+/).last.to_f
@@ -179,13 +184,11 @@ class ConfTest
   def calculateSem(n, u, s)
     #convert s from sample standard to the one with N as denominator
     v = s.collect{|std| BigDecimal.new(std.to_s)**2}
-    nfactor = n.collect{|denom| (denom-1)/denom}
+    nfactor = n.collect{|denom| (BigDecimal.new(denom.to_s)-1)/denom}
     n.each_index{|i| s[i] = Math.sqrt(nfactor[i]*v[i])}
-
     ntot = n.inject(0){|sum,x| sum + x}
     a = Matrix.row_vector(n)
     b = Matrix.column_vector(u)
-
 
     utot = ((a*b)[0,0])/ntot
 
@@ -207,27 +210,31 @@ class ConfTest
   #  ConfTest.new.run
   #
   def run
-    @nodes = Regexp.new(@nodes.join("|")) if @nodes.class != Regexp
-    1.upto(runLimit){|rc|
-      puts "#{rc.to_s} running'`#{ARGV[0]}`'" if @debug
-
+    cli = String.new(ARGV[0])
+    if @auto
+        @scalarfile = ARGV[0].split(' ')[2].split('.')[0] + ".sca"
+        cli.gsub!(/-r[0-9]+/,'')
+    end
+    puts "scalar file is " + @scalarfile if @debug
+    1.upto(@runlimit){|rc|
+      puts "`#{cli + ' -r' + rc.to_s}`"
+      `#{cli + " -r"+rc.to_s}`
       n, u, s = parseScalarFile(@scalarfile)
       pp n, u, s if @debug
       sem = calculateSem(n, u, s)
       ciw = confIntWidth(sem)
-      puts "ciw is " + ciw.to_s if @debug
-      if ciw <= precision + 0.00001
-        puts "ciw is " + ciw.to_s
+      puts "ciw is " + ciw.to_s if @verbose
+      if ciw <= 0.00001
+        puts "final ciw is " + ciw.to_s
         exit 0
       end
     }
+    puts "unable to lock onto required precision. ciw is " + ciw.to_s
     exit(-1)
 
     rescue => err
       puts err
       puts err.backtrace
-      puts "file processed at the time was #{file}" if not file.nil?
-
   end#run
 
 end#class ConfTest
@@ -260,15 +267,18 @@ class TC_ConfTest < Test::Unit::TestCase
     #assert_equal(sigma(totalArray)/Math.sqrt(ntot), @cf.calculateSem(n, u, s),
    #   "my mathematical sem based on groups should equal the total one")
 
-    assert(sigma(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s) < 0.00000001, "difference between two results is due to rounding but very small as I use BigDecimals")
-    #assert_equal("\"quotedString\"",
-    #             quoteString("quotedString"),
-    #             "The quotes should surround the quotedString")
+    assert(sigman(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s) < 0.00000001,
+           "difference between two results is due to rounding but should be very"\
+           "small as I use BigDecimals")
   end
 
+  #Requires a scalar file with name of omnetpp.sca (tested from HMIPv6Sait -r1/2)
   def test_parseScalarFile
-    @cf.pattern = "mn|rtp"
-    @cf.parseScalarFile("omnetpp.sca")
+    @cf.createRegex("client1,Ping roundtrip delays")
+    n, u, s = @cf.parseScalarFile("omnetpp.sca")
+    pp n, u, s
+    pp @cf.calculateSem(n, u, s)
+    pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
   end
 
   def mean(x)
@@ -280,11 +290,18 @@ class TC_ConfTest < Test::Unit::TestCase
     m = mean(x)
     sum = 0.0
     x.each { |v| sum += (v-m)**2 }
-    sum/(x.size)
+    sum/(x.size-1)
   end
 
   def sigma(x)
     Math.sqrt(variance(x))
+  end
+
+  def sigman(x)
+    m = mean(x)
+    sum = 0.0
+    x.each { |v| sum += (v-m)**2 }
+    Math.sqrt(sum/(x.size))
   end
 
   def setup

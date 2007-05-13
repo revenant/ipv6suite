@@ -171,8 +171,8 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       //of order packet (at this stage we are simply recording likely
       //drop. Actually cumulative loss as determined by expected - received is
       //more accurate
-      s->lossVector->record(udelta);
       initialiseStats(s, rtp);
+      s->lossVector->record(udelta);
       recordHOStats(s, rtp);
     }
       
@@ -719,7 +719,11 @@ void RTP::finish()
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
 
     if (rme.handStat)
+    {
       rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
+      rme.l2handStat->recordScalar((std::string("rtpl2Handover of ") + OPP_Global::nodeName(this)).c_str());
+      rme.l3handStat->recordScalar((std::string("rtpl3Handover of ") + OPP_Global::nodeName(this)).c_str());
+    }
     else
       assert(false);
 

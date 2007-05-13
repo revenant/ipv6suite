@@ -1023,10 +1023,6 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
        << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
        << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
        <<   bule->cotiRetransTmr->arrivalTime());
-  cerr<<"COTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
-       << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
-       << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
-      <<   bule->cotiRetransTmr->arrivalTime()<<endl;
 
   //looks like acc. to fig. 1 of ebu draft that proactive home reg needs to have
   //taken place for ebu to be effective. i.e. no point sending ebu when HOT

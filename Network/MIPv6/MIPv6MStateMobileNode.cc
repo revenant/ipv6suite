@@ -969,7 +969,10 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   else
   {
     //returning home case
-    mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
+    //should not have any active tunnels now (if we send via output mod will 
+    //skip necessary addr res and end up with HOTI on link before BU to HA)  
+    //mob->sendDirect(dgram_hoti, 0, outputMod, "mobilityIn");
+    mob->send(dgram_hoti, "routingOut");
   }
 
   bule->hotiRetransTmr->rescheduleDelay(bule->homeInitTimeout());

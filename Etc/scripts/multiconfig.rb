@@ -210,6 +210,7 @@ class MultiConfigGenerator
     @quit     = false
     @check = nil
     @runCount = nil
+    @conftest = true
 
 if $0 == __FILE__ then
     get_options
@@ -271,6 +272,8 @@ end
       opt.on("--debug", "-X", "print debugging info to STDOUT"){|@debug|}
       
       opt.on("--test", "run unit tests"){|$test|}
+
+      opt.on("--smart", "-s", "use ConfTest via smartSubmit"){|@conftest|}
       
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -654,9 +657,11 @@ end
             writeIniFile.puts "output-vector-file = #{vectorfile}"            
 
             #write distjobs file
-            jobfile.puts "./#{exename} -f #{filename}.ini -r #{runIndex}"
+            jobfile.puts "./#{exename} -f #{filename}.ini -r#{runIndex}" if not @conftest
           end
-          
+            #Using the ConfTest to determine how many (just need runcount to pregenerate
+            #vector file name. of course we could have renamed it after after sim runs.
+            jobfile.puts "./#{exename} -f #{filename}.ini -r1" if @conftest
           # }}}
           
         } #end writeIniFile

@@ -14,6 +14,8 @@
 #  INI 2007-07-15 Changes
 #  
 
+runlimit = 100
+
 if (/hn1/.match(`hostname`))
   ruby = "~/bin/ruby"
 else
@@ -27,16 +29,13 @@ f.close
 submitfile = "job.sh"
 li=0
 lines.size.times do
+  l = lines[li]
+  #sample line l
+  #./wcmc -f wcmc_n_n_n_n_22.ini -r 2
+  logfile = l.split(' ')[2].split('.')[0]
+  logfile = "~/simlogs/" + logfile + ".log"
 
-
-    l = lines[li]
-    #sample line l
-    #./wcmc -f wcmc_n_n_n_n_22.ini -r 2
-    logfile = l.split(' ')[2].split('.')[0]
-    logfile = "~/simlogs/" + logfile + ".log"
-
-    subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" -r 2 "#{lines[li].chomp}"|
-  #File.open(submitfile + li.to_s, "w"){|f|
+  subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" -r #{runlimit} "#{lines[li].chomp}"|
   File.open(submitfile, "w"){|f|
     f.puts <<END
 #!/bin/bash
@@ -44,9 +43,16 @@ lines.size.times do
 #{subline}
 END
   }
-    li += 1
-    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}` if /hn1/.match(`hostname`)
-    puts subline
+  li += 1
+if false
+  if /hn1/.match(`hostname`)
+    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}` 
     puts "`qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`"
-
+  else
+    puts subline
+  end
+end
+  puts "START new scenario " 
+  puts subline
+  `#{subline}`
 end

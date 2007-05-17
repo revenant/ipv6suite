@@ -35,7 +35,7 @@ lines.size.times do
   logfile = l.split(' ')[2].split('.')[0]
   logfile = "~/simlogs/" + logfile + ".log"
 
-  subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -g "client1,rtpl3Handover of client1" -r #{runlimit} "#{lines[li].chomp}"|
+  subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r #{runlimit} "#{lines[li].chomp}"|
   File.open(submitfile, "w"){|f|
     f.puts <<END
 #!/bin/bash

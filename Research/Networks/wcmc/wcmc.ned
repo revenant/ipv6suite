@@ -37,7 +37,7 @@ import
 
 channel wcmcCable
     datarate 100e6;
-    delay 1e-3;
+    delay 1e-6;
 endchannel
 
 module wcmc

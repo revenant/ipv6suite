@@ -642,15 +642,16 @@ end
           
           writeIniFile.puts "[General]"
           writeIniFile.puts "network = #{networkNames[fileIndex]}"
-     
+
+          scalarfile = filename + ".sca"
+          writeIniFile.puts "output-scalar-file = #{scalarfile}"
+
           1.upto(runcount) do |runIndex|
             
             vectorfile = "../../../../vecs/" + filename + DELIM + runIndex.to_s + ".vec"         
-            scalarfile = filename + DELIM + ".sca"
             
             writeIniFile.puts "[Run #{runIndex}]"
-            writeIniFile.puts "output-vector-file = #{vectorfile}"           
-            writeIniFile.puts "output-scalar-file = #{scalarfile}"
+            writeIniFile.puts "output-vector-file = #{vectorfile}"            
 
             #write distjobs file
             jobfile.puts "./#{exename} -f #{filename}.ini -r #{runIndex}"

@@ -2,25 +2,13 @@
 - - fsra
   - odad
   - l2t
-  - ebu
-  - ack
-  - ro
-  - delay
   - speed
-- ebu: 
-  - y
-  - n
-  odad: 
+- odad: 
   - y
   - n
   l2t: 
   - y
   - n
-  delay: &id001 
-    - "10"
-    - "30"
-    - "50"
-    - "100"
   speed: 
   - 3
   - 9
@@ -32,23 +20,7 @@
   fsra: 
   - y
   - n
-  ro:
-  - y
-  - n
-- ebu: 
-    n: 
-    - !ruby/object:ToggleAction 
-      attribute: earlyBU
-      symbol: :xml
-      testedValue: false
-      value: "\"off\""
-    y: 
-    - !ruby/object:ToggleAction 
-      attribute: earlyBU
-      symbol: :xml
-      testedValue: false
-      value: "\"on\""
-  odad: 
+- odad: 
     n: 
     - !ruby/object:ToggleAction 
       attribute: optimisticDAD
@@ -60,20 +32,7 @@
       attribute: optimisticDAD
       symbol: :xml
       testedValue: false
-      value: "\"on\""
-  ro:
-    n:
-    - !ruby/object:ToggleAction 
-      attribute: routeOptimisation
-      symbol: :xml
-      testedValue: false
-      value: "\"off\""
-    y: 
-    - !ruby/object:ToggleAction 
-      attribute: routeOptimisation
-      symbol: :xml
-      testedValue: false
-      value: "\"on\""
+      value: "\"on\""  
   l2t: 
     n: 
     - !ruby/object:ToggleAction 
@@ -103,25 +62,6 @@
     constant: 0
     symbol: :xml
     value: "\"391322\""
-  delay: 
-  - !ruby/object:SetFactorChannelAction 
-    attribute: delay
-    channel: wcmcCable
-    symbol: :ned
-    value: *id001
-  ack: 
-    n: 
-    - !ruby/object:ToggleAction 
-      attribute: mnSendBUAckFlag
-      symbol: :xml
-      testedValue: false
-      value: "\"off\""
-    y: 
-    - !ruby/object:ToggleAction 
-      attribute: mnSendBUAckFlag
-      symbol: :xml
-      testedValue: false
-      value: "\"on\""
   fsra: 
     n: 
     - !ruby/object:SetAction 

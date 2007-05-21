@@ -52,7 +52,7 @@ if false
     puts subline
   end
 end
-  puts "START new scenario " 
+  puts "START new scenario at " + Time.now
   puts subline
   `#{subline}`
 end

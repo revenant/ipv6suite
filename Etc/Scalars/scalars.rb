@@ -33,13 +33,13 @@ class Scalars
   VERSION       = "$Revision$"
   REVISION_DATE = "19 Sep 2006"
   AUTHOR        = "Johnny Lai"
- 
+
   #
   # Returns a version string similar to:
   #  <app_name>:  Version: 1.2 Created on: 2002/05/08 by Jim Freeze
-  # The version number is maintained by CVS. 
+  # The version number is maintained by CVS.
   # The date is the last checkin date of this file.
-  # 
+  #
   def version
     "Version: #{VERSION.split[1]} Created on: " +
       "#{REVISION_DATE.split[1]} by #{AUTHOR}"
@@ -49,13 +49,13 @@ class Scalars
   # TODO: Add description here
   #
   def initialize
-    @debug    = false 
+    @debug    = false
     @verbose  = false
     @quit     = false
 
     @dir = "."
     #all nodes will be processed unless option passed in to pass subset
-    @nodes = [ "*" ] 
+    @nodes = [ "*" ]
     @scalars = [ "*" ]
     @module = "*"
     @print = false
@@ -113,7 +113,7 @@ class Scalars
       opt.on("--modulename mod", "-m", String, "module name to query for values"){|@module|
       }
 
-      opt.on("--scalarname \"*%*,rtpOctetCount\"", "-s", String, "scalar name/s to query separated by commas. One output csv per scalar"){|scalars|        
+      opt.on("--scalarname \"*%*,rtpOctetCount\"", "-s", String, "scalar name/s to query separated by commas. One output csv per scalar"){|scalars|
         @scalars = scalars.split(",")
       }
 
@@ -145,7 +145,7 @@ class Scalars
         exit
       end
 
-      opt.on_tail(%|e.g. -d "~/other/IPv6SuiteWithINET/Research/Networks/EHComp" -n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
+      opt.on_tail(%|e.g. -c "~/other/IPv6SuiteWithINET/Research/Networks/EHComp" -n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
                   "")
       #Samples end
 
@@ -153,10 +153,10 @@ class Scalars
     } or  exit(1);
 
     raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test
-    
+
     if @quit
       pp self
-      (print ARGV.options; exit) 
+      (print ARGV.options; exit)
     end
 
   end
@@ -171,7 +171,7 @@ class Scalars
     [configNames, factors, levels]
   end
 
-  def aggregateScalars(basename)    
+  def aggregateScalars(basename)
     require 'fileutils'
     configs = readConfigs
     puts "Trying to concatenate all runs belonging to a config into one scalar file inside agg dir"
@@ -192,23 +192,23 @@ class Scalars
     @dir = File.expand_path(@dir)
     sm=Datasorter::ScalarManager.new
     ds=Datasorter::DataSorter.new(sm)
-    
+
     files = Dir["#{@dir}/#{@pattern}"]
 if false
     if files.size > 1020 #limited by __FD_SETSIZE (1024)
-      STDERR.puts "Sorry cannot process #{files.size} files at one time as limited by __FD_SETSIZE of 1024"      
+      STDERR.puts "Sorry cannot process #{files.size} files at one time as limited by __FD_SETSIZE of 1024"
   #    configNames, factors, levels = aggregateScalars(basename)
-      configNames, factors, levels = readConfigs      
+      configNames, factors, levels = readConfigs
       files = Dir["agg/#{basename}*.sca"]
     else
-      configNames, factors, levels = readConfigs      
+      configNames, factors, levels = readConfigs
     end
 end
     file = nil
 
     files.each_with_index{|file, index|
       if @verbose
-        puts "Loading scalar ##{index}" + file  
+        puts "Loading scalar ##{index}" + file
       else
         print %|#{"\b"*80}#{index+1}/#{files.size}|
         $defout.flush
@@ -222,7 +222,7 @@ end
       puts "All scalar names are "
       p sm.scalars.keys
       puts ""
-      #puts "module names are " 
+      #puts "module names are "
       #p sm.modules.keys
       puts ""
     end
@@ -255,12 +255,12 @@ end
     if @print
       puts "scalar names after filtering are "
       puts scalarNames.to_a.join("\n")
-      puts "module names after filtering are " 
+      puts "module names after filtering are "
       puts moduleNames.to_a.join("\n")
       exit
     end
 
-    for scalarName in scalarNames 
+    for scalarName in scalarNames
       header = false
       outputfile = scalarName +".csv"
       File.open(outputfile, "w"){|f|
@@ -273,10 +273,10 @@ end
               datum = sm.getValue(i)
               run = datum.run.runNumber
               nodename = datum.module.split(".")[1]
-              csvdelim = ","            
+              csvdelim = ","
               if (not header)
                 puts "outputting csv file #{f.path}"
-                f.puts factors.join(csvdelim) + csvdelim + %|node| + csvdelim + "run" + csvdelim + scalarName 
+                f.puts factors.join(csvdelim) + csvdelim + %|node| + csvdelim + "run" + csvdelim + scalarName
                 header = true
               end
               f.puts encodedFactors.join(csvdelim) + csvdelim + nodename + csvdelim + run.to_s + csvdelim + datum.value.to_s
@@ -289,7 +289,7 @@ end
         cout = IO.open(1, "w")
         endl = "\n"
         cout << "Deleting "<< outputfile<< endl
-        File.delete(outputfile) 
+        File.delete(outputfile)
       end
     end
 
@@ -324,8 +324,8 @@ end#class Scalars
 if $0 == __FILE__ then
   $app = Scalars.new
   if not $test
-    $app.run 
-    exit 
+    $app.run
+    exit
   end
 
 end
@@ -345,7 +345,7 @@ class TC_Scalars < Test::Unit::TestCase
   def setup
 
   end
-  
+
   def teardown
 
   end
@@ -356,7 +356,6 @@ if $test
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
   Test::Unit::UI::Console::TestRunner.run(TC_Scalars)
-end 
+end
 
 # }}}
-

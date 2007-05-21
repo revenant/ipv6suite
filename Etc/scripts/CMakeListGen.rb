@@ -228,6 +228,7 @@ IF(NOT WIN32)
 ENABLE_TESTING()
 OPP_WRAP_TEST(Tests)
 SUBDIRS(
+Etc/scripts/
 Research/Networks/
 )
 ENDIF(NOT WIN32)

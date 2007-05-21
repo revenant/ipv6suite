@@ -126,7 +126,7 @@ class ConfTest
 
       opt.on("--debug", "-X", "print debugging info to STDOUT"){|@debug|}
 
-      opt.on("--test", "run unit tests"){|$test|}
+      opt.on("--unittest", "run unit tests"){|$test|}
 
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -142,7 +142,7 @@ class ConfTest
       opt.parse!
     } or  exit(1);
 
-    raise ArgumentError, "No grep pattern specified!!", caller[0] if (not @pattern and not ARGV.size > 0) and not $test 
+    raise ArgumentError, "No grep pattern specified!!", caller[0] if (not @pattern and not ARGV.size > 0) and not $test
 
     if @quit
       pp self
@@ -274,9 +274,9 @@ class TC_ConfTest < Test::Unit::TestCase
 
   #Requires a scalar file with name of omnetpp.sca (tested from HMIPv6Sait -r1/2)
   def test_parseScalarFile
-    @cf.createRegex("client1,Ping roundtrip delays")
+    @cf.createRegex("client1,rtpl3Handover of client1")
     n, u, s = @cf.parseScalarFile("omnetpp.sca")
-    pp n, u, s
+    pp n.length, u.length, s.length
     pp @cf.calculateSem(n, u, s)
     pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
   end

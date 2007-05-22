@@ -112,7 +112,7 @@ void MLD::initialize()
   */
 
     // Generate constant Groups with random Sources
-    srand((unsigned)OPP_Global::findNetNodeModule(this));
+    //srand((unsigned)OPP_Global::findNetNodeModule(this));
     for(i=0;i<Group;i++)
     {
       if(((float)rand()/RAND_MAX)>((float)1/2))

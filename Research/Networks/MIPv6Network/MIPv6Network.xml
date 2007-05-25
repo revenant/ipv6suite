@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
 
-<netconf>
-  <local node="client1" mobileIPv6Support="on" routeOptimisation="off" returnRoutability="off" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
+<netconf  debugChannel="debug.log:rcfile:MobileMove:notice">
+  <local node="client1" mobileIPv6Support="on" routeOptimisation="off" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
       <inetAddr>3018:ffff:0:0:2580:ebff:fe8c:1448/64</inetAddr>
     </interface>
@@ -44,6 +44,13 @@
       <AdvPrefixList>
 	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3011:AAAA:1111:2222:ee8f:19ff:fe36:a030/64</AdvPrefix>
       </AdvPrefixList>
+    </interface>
+    <interface name="eth1"/>
+    <interface name="eth2"  AdvSendAdvertisements="on">
+    <inetAddr>3011:BBBB:1111:2222:ee8f:19ff:fe36:a030/64</inetAddr>
+  <AdvPrefixList>
+       <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3011:BBBB:1111:2222:ee8f:19ff:fe36:a030/64</AdvPrefix>
+ </AdvPrefixList>
     </interface>
   </local>
 

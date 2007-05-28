@@ -4,7 +4,6 @@
 <netconf  debugChannel="debug.log:rcfile:MobileMove:notice">
   <local node="client1" mobileIPv6Support="on" routeOptimisation="off" returnRoutability="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
-      <inetAddr>3018:ffff:0:0:2580:ebff:fe8c:1448/64</inetAddr>
     </interface>
   </local>
   <local node="server4" mobileIPv6Support="on"/>

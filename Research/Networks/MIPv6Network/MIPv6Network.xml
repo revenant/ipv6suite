@@ -56,8 +56,8 @@
   <misc>
     <ObjectMovement>
       <MovingNode NodeName="client1" startTime="0">
-        <move moveToX="500" moveToY="600" moveSpeed="3"/>
-        <move moveToX="150" moveToY="600" moveSpeed="3" moveXFirst="off"/>
+       	<move moveToX="352" moveToY="378" moveSpeed="3"/>
+        <move moveToX="88" moveToY="118" moveSpeed="3"/>
       </MovingNode>
     </ObjectMovement>
   </misc>

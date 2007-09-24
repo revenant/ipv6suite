@@ -68,22 +68,22 @@ module MIPv6Network
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=190,190;i=device/accesspoint";
+            display: "p=134,158;i=device/accesspoint";
         ap2: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=474,182;i=device/accesspoint";
+            display: "p=306,158;i=device/accesspoint";
         ap3: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=474,578;i=device/accesspoint";
+            display: "p=306,330;i=device/accesspoint";
         ap4: AccessPoint;
             gatesizes:
                 in[1],
                 out[1];
-            display: "p=182,578;i=device/accesspoint";
+            display: "p=134,330;i=device/accesspoint";
         router2: Router6;
             gatesizes:
                 in[4],

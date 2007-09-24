@@ -8,38 +8,15 @@ omnetpp.ini -r 1 except power is greater?)
 [Run 2]
 does not work
 
-[Run 3]
+Runs 3-6 are all tests
 to omit 0 values from scalar file
 grep -v "[ ][[:space:]]\<0" omnetpp.sca
-
-
-Without RO (routeOptimisation="off" for client1)
---------------------------------------------------------
-        mipv6fastRANet.client1.pingApp
---------------------------------------------------------
-sent: 6860   drop rate (%): 2.95918
-round-trip min/avg/max (ms): 80.618/81.3535/162.686
-stddev (ms): 1.05256   variance:1.10788e-06
---------------------------------------------------------
-
-With RO (default configuration)
---------------------------------------------------------
-        mipv6fastRANet.client1.pingApp
---------------------------------------------------------
-sent: 6860   drop rate (%): 3.00292
-round-trip min/avg/max (ms): 80.6579/81.332/162.686
-stddev (ms): 1.03337   variance:1.06784e-06
---------------------------------------------------------
 
 [Run 4]
 
 Same as 3 except move between HA and router2 (ping pong)
 Segfaults when given a false address to ping
 
-[Run 5]
-
-Move between router 2 and router 3 (ping pong) since we do not want to fix
-return home cases
 
 #####################
 PCOAForwarding.ini -r 1

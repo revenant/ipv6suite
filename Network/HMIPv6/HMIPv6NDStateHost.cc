@@ -292,14 +292,6 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
       return rtrAdv;
     }
 
-    //MIPv6NDStateHost used to/supposed to handle this case in sendBU. Don't know
-    //how/why it does not now (may be due to eagerHandover and thinking
-    //existence of map options should defer to here) . Anyway even if it did it is
-    //not optimal as it relies on RtrAdv to trigger actual sending of BU instead
-    //of binding handover to dupAddrDetSuccess. 
-    //But it is required otherwise we could send lcoa to MAP in diff domain when
-    //we should be binding with new MAP although optimal would be do both anyway
-
     typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* ocb = 0;
     if (callbackAdded(lcoa, 5445))
@@ -528,29 +520,24 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
     {
       //EH is brcoa  -> lcoa
 
-      //However using lcoa means BAcks from HA to brcoa are lost as we move away
-      //from the previous MAP/AR.
       EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
 //      HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = rt->mipv6cds->hmipv6cdsMN;
       assert(ehcds);
 /*
+      // In basic EH the Maps are assumed to support binding from unlimited number of hops along edge
+      // i.e. no delineation of MAP boundaries so advertising is limited to only current AR
       if (ehcds->boundMapAddr() != IPv6_ADDR_UNSPECIFIED)
         assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
 */
       ipv6_addr bcoa = ehcds->boundCoa();
       if (bcoa != IPv6_ADDR_UNSPECIFIED &&
           ehcds->boundMapAddr() != bestMap.addr())
-//	  && oldMap != ehcds->boundMapAddr())
-	// would cause creation of entry if boundMapAddr removed from mapEntries
-	// when not advertised anymore as is case in forwarding from prev
-	// map. Also want to use diff method to signal EH support anyway since
+	//Want to use diff method to signal EH support since
 	// we want to expand EH MAPs to more than just current AR domain
 //      &&    hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()].distance() == 1)
       {
         Dout(dc::eh, rt->nodeName()<<" Forwarding from bmap="<<ehcds->boundMapAddr()<<" to lcoa="
              <<lcoa);
-//        Dout(dc::eh, rt->nodeName()<<" forwarding from bmap="<<ehcds->boundMapAddr()<<" to nrcoa="
-//             <<rcoa);
         mstateMN->sendMapBU(ehcds->boundMapAddr(), lcoa, bcoa,
                             static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
                             ifIndex);
@@ -563,6 +550,9 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 
 }
 /*
+//TODO 
+//increases signalling load somewhat and will need to implement eager approach
+
    - "Eager" to perform new bindings
       - "Lazy" in releasing existing bindings
 
@@ -608,10 +598,9 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
     deleteMe.reset((ipv6_addr*) cb->contextPointer());
   }
 
-//instead of lcoa should really use this to get ifIndex too
-//boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> newRtr)
-
-  //until we get the newRtr arg assume single iface
+  //TODO instead of lcoa should really use below to get ifIndex
+  //boost::shared_ptr<MobileIPv6::MIPv6RouterEntry> newRtr)
+  //until we get the newRtr arg assume single iface (also need lifetime of lcoa)
   unsigned int ifIndex = 0;
   
   //assert(newRtr.get());

@@ -118,6 +118,9 @@ void initialiseStats(RTPMemberEntry *s, RTP* rtp)
 {
   if (!s->lossVector)
     s->lossVector = new cOutVector((std::string("rtpDrop ") + IPAddressResolver().hostname(s->addr)).c_str());
+
+  if (rtp->isMobileNode())
+  {
   if (!s->handStat)
     s->handStat = new cStdDev((std::string("rtpHandover ") + OPP_Global::nodeName(rtp)).c_str());
   if (!s->handVector)
@@ -126,24 +129,21 @@ void initialiseStats(RTPMemberEntry *s, RTP* rtp)
     s->l2handStat = new cStdDev((std::string("rtpl2Handover ") + OPP_Global::nodeName(rtp)).c_str());
   if (!s->l3handStat)
     s->l3handStat = new cStdDev((std::string("rtpl3Handover ") + OPP_Global::nodeName(rtp)).c_str());
-
+  }
 }
 
 void recordHOStats(RTPMemberEntry *s, RTP* rtp)
 {
-  if (rtp->l2down)
-  {
-    s->handStat->collect(rtp->simTime() - rtp->l2down);
-    s->handVector->record(rtp->simTime() - rtp->l2down);
+  if (!rtp->isMobileNode())
+    return;
+  assert(rtp->l2down);
+  s->handStat->collect(rtp->simTime() - rtp->l2down);
+  s->handVector->record(rtp->simTime() - rtp->l2down);
 
-    if (rtp->l2up)
-    {
-      s->l2handStat->collect(rtp->l2up - rtp->l2down);
-      s->l3handStat->collect(rtp->simTime() - rtp->l2up);
-    }
-    rtp->l2down = rtp->l2up = 0;
-  }
-
+  assert(rtp->l2up);
+  s->l2handStat->collect(rtp->l2up - rtp->l2down);
+  s->l3handStat->collect(rtp->simTime() - rtp->l2up);
+  rtp->l2down = rtp->l2up = 0;
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -390,7 +390,7 @@ simtime_t RTP::calculateTxInterval()
 
 
 
-RTP::RTP():nb(0),l2down(0){}
+RTP::RTP():nb(0),l2down(0),mobileNode(false){}
 
 RTP::~RTP(){}
 
@@ -686,6 +686,11 @@ void RTP::handleMessage(cMessage* msg)
   }
 }
 
+bool RTP::isMobileNode()
+{
+  return mobileNode;
+}
+
 void RTP::finish()
 {
   using std::cout;
@@ -718,14 +723,13 @@ void RTP::finish()
 
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
 
-    if (rme.handStat)
+    
+    if (isMobileNode())
     {
       rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
       rme.l2handStat->recordScalar((std::string("rtpl2Handover of ") + OPP_Global::nodeName(this)).c_str());
       rme.l3handStat->recordScalar((std::string("rtpl3Handover of ") + OPP_Global::nodeName(this)).c_str());
     }
-    else
-      assert(false);
 
     recordScalar((std::string("rtp dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(), cumPacketsLost);
     recordScalar((std::string("rtp % dropped from ") + IPAddressResolver().hostname(rme.addr)).c_str(),
@@ -740,7 +744,8 @@ void RTP::receiveChangeNotification(int category, cPolymorphic *details)
 {
   Enter_Method_Silent();
   printNotificationBanner(category, details);
- 
+
+  mobileNode = true;
   if (category == NF_L2_BEACON_LOST)
     l2down = simTime();
   else if (category == NF_L2_ASSOCIATED)

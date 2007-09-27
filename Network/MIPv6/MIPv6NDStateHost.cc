@@ -1084,8 +1084,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   //Remove old on link prefixes from On Link prefix list
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {
-    //Remove the addr too that do not have global scope i.e. link local or
-    //site local except for the autoconfigured address at position 0
+
     if (!home_addr_scope_check((*it).prefix))
     {
       IPv6Address addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length);
@@ -1094,6 +1093,8 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
+	//TODO check if this effectively removes callback when message deleted
+	delete addressCallback(addr);
       }
       else if (oie->ipv6()->matchPrefix((*it).prefix, (*it).length), true)
       {

@@ -134,6 +134,7 @@ class RTP: public UDPAppBase, INotifiable
   virtual void establishSession();
   virtual simtime_t calculateTxInterval();
   virtual bool sendRTPPacket();
+  virtual bool isMobileNode();
  protected:
 
   void resolveAddresses();
@@ -192,6 +193,8 @@ class RTP: public UDPAppBase, INotifiable
   simtime_t l2down;
   simtime_t l2up;
   //@}
+ private:
+  bool mobileNode;
 
   
 };

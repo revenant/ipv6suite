@@ -115,12 +115,14 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule *mod, WESi
 
             if ( mod->linkUpTrigger() )
             {
-              assert ( mod->getLayer2Trigger() );
+              if (mod->getLayer2Trigger())
+	      {
               assert ( !mod->getLayer2Trigger()->isScheduled() );
               mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
               Dout(dc::mipv6 | dc::mobile_move,
                    mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
 	      mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
+              }
             }
         }
         // TODO: need to check supported rates and status code

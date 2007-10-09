@@ -45,7 +45,7 @@ module BaselineNetwork
             gatesizes:
                 wlin[1],
                 wlout[1];
-            display: "p=50,70;i=laptop";
+            display: "p=-50,70;i=laptop";
         ap: AccessPoint;
             gatesizes:
                 in[1],

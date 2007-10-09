@@ -112,6 +112,7 @@ void WorldProcessor::finish()
   parser = 0;
   recordScalar("liveMessageCount", cMessage::liveMessageCount());
   recordScalar("totalMessageCount", cMessage::totalMessageCount());
+  recordScalar("endTime", simTime());
 }
 
 #if defined USE_CPPUNIT

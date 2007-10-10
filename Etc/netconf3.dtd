@@ -1,34 +1,42 @@
 <?xml encoding="ISO-8859-1"?>
-<!-- $Header: /home/cvs/IPv6Suite/IPv6SuiteWithINET/Etc/netconf3.dtd,v 1.2 2005/04/27 08:19:33 andras Exp $ -->
+<!--
+Copyright (C) 2006 by Johnny Lai
+Copyright (C) 2001, 2004 Eric Wu and Johnny Lai
 
-<!ELEMENT netconf (global?, local*, misc*)>
-<!ATTLIST netconf 
-          version NMTOKEN "0.0.6"
+This file is part of IPv6Suite
+
+IPv6Suite is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+IPv6Suite is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-->
+
+<!ELEMENT netconf (global?, local*, misc?)>
+<!ATTLIST netconf
+          version NMTOKEN "0.1.0"
           debugChannel NMTOKEN #IMPLIED
           >
 
-<!ELEMENT global EMPTY>
+<!-- Passed in via nedxml parameter mobilityManager.mobilityHandler.moveXmlConfig=xmldoc("") -->
+<!ELEMENT global (ObjectMovement?)>
 
 <!ELEMENT local (interface*, (route?| tunnel?| sourceRoute?|mobileConfig?)*)>
-<!ATTLIST local 
+<!ATTLIST local
           node NMTOKEN #REQUIRED
-          routePackets (on|off) "off"
-          forwardSitePackets (on|off) "on"
-          mobileIPv6Support (on|off) "off"
-          mobileIPv6Role (None|HomeAgent|MobileNode) "None"
-          routeOptimisation (on|off) "on"
-          respondBindingRequest (on|off) "off"       
-          hierarchicalMIPv6Support (on|off) "off"
-          map (on|off) "off"
-          mapMode (Basic|Extended) "Basic"
-          mapMNMAYSetRoCAAsSource (on|off) "on"
-          mapMNMUSTSetRoCAAsSource (on|off) "on"
-          mapReverseTunnel (on|off) "off"
           >
 
 <!ELEMENT route (routeEntry)+>
 <!ELEMENT routeEntry EMPTY>
-<!ATTLIST routeEntry 
+<!ATTLIST routeEntry
           routeIface NMTOKEN #REQUIRED
           routeDestination CDATA #REQUIRED
           routeNextHop CDATA ""
@@ -43,7 +51,7 @@
 
 <!ELEMENT tunnel (tunnelEntry)+>
 <!ELEMENT tunnelEntry  (triggers)*>
-<!ATTLIST tunnelEntry 
+<!ATTLIST tunnelEntry
           exitIface NMTOKEN #REQUIRED
           entryPoint CDATA #REQUIRED
           exitPoint  CDATA #REQUIRED
@@ -60,12 +68,12 @@
 <!-- homeAddrIface references one of the interface elements of this local node by its name on this interface that has a route path to the home agent and will be where the home address is actually bound to -->
 
 <!ELEMENT staticConfig EMPTY>
-<!ATTLIST staticConfig  
+<!ATTLIST staticConfig
           homeAddrIface NMTOKEN #REQUIRED
-          homeAgentAddr CDATA #REQUIRED         
+          homeAgentAddr CDATA #REQUIRED
           >
 
-<!ELEMENT interface (inet_addr*, AdvPrefixList?, AdvMAPList?, WirelessEtherInfo?)>
+<!ELEMENT interface (inetAddr*, AdvPrefixList?, AdvMAPList?)>
 
 <!-- Require non ID type for name attribute as that requires each "interface
 name" to be unique across whole xml document not just inside interface
@@ -73,41 +81,45 @@ element. -->
 <!-- Use of MIPv6MaxRtrAdvInterval and MIPv6MinRtrAdvInterval when mobileIPv6Support is on -->
 <!-- minRtrSolInterval is the relaxed Neighbour Discovery rtr solicitation interval-->
 <!-- maxInterval is the maximum interval at which no further rtr sol attempts are made -->
-<!ATTLIST interface 
+<!ATTLIST interface
           name NMTOKEN #IMPLIED
           AdvSendAdvertisements (on|off) "off"
           AdvHomeAgent (on|off) "off"
           MaxRtrAdvInterval NMTOKEN "600"
           MinRtrAdvInterval NMTOKEN "198"
           MIPv6MaxRtrAdvInterval NMTOKEN "1.5"
-          MIPv6MinRtrAdvInterval NMTOKEN "0.05"
+          MIPv6MinRtrAdvInterval NMTOKEN "1"
           MIPv6MinRtrSolInterval NMTOKEN "1"
           MIPv6MaxInterval NMTOKEN "8"
-          > 
+          MaxFastRAS       NMTOKEN "0"
+          MaxConsecMissRtrAdv NMTOKEN "1"
+          >
 
-<!-- Suggested additions to phase out elements (non conformant default values)
-UNPARSED -->
-<!ATTLIST interface
+<!-- Do not use hexadecimal values as XML parsing does not cater for this
+AdvDefaultLifetime NMTOKEN "0xFFFFFF"
+-->
+ <!ATTLIST interface
           AdvManagedFlag (on|off) "off"
           AdvOtherConfigFlag (on|off) "off"
           AdvLinkMTU NMTOKEN "16000"
           AdvReachableTime NMTOKEN "2"
-          AdvRetransTimer NMTOKEN "6"
+          AdvRetransTimer NMTOKEN "0"
           AdvCurHopLimit NMTOKEN "32"
-          AdvDefaultLifetime NMTOKEN "0xFFFFFF"
+          AdvDefaultLifetime NMTOKEN "1800"
           HostLinkMTU NMTOKEN "16000"
           HostCurHopLimit NMTOKEN "32"
           HostBaseReachableTime NMTOKEN "40"
           HostRetransTimer NMTOKEN "120"
           HostDupAddrDetectTransmits NMTOKEN "2"
+          HostMaxRtrSolDelay NMTOKEN "1"
           HMIPAdvMAP (on|off) "off"
           HMIPForwardMAPOption (on|off) "off"
           >
 
-<!ELEMENT inet_addr (#PCDATA)>
+<!ELEMENT inetAddr (#PCDATA)>
 <!ELEMENT AdvPrefixList (AdvPrefix)+>
 <!ELEMENT AdvPrefix (#PCDATA)>
-<!ATTLIST AdvPrefix 
+<!ATTLIST AdvPrefix
           AdvValidLifetime NMTOKEN "2592000"
           AdvOnLinkFlag (on|off) "off"
           AdvPreferredLifetime NMTOKEN "605800"
@@ -122,41 +134,55 @@ UNPARSED -->
           AdvMAPPref NMTOKEN "1"
           AdvMAPValidLifetime NMTOKEN "2592"
           >
+ 
 
-<!-- Attributes of Wireless Ethernet (802.11) -->
+<!ELEMENT misc (ObjectMovement?)>
 
-<!ELEMENT WirelessEtherInfo (WEInfo, WESupportedRates?)>
-<!ELEMENT WEInfo (#PCDATA)>
-<!ATTLIST WEInfo
-          WEssid NMTOKEN "default"
-          WEPathLossExponent NMTOKEN "2.6"
-          WEPathLossStdDev NMTOKEN "14.1"
-          WETxPower NMTOKEN "100"
-          WEThresholdPower NMTOKEN "-96"
-          WEHOThresholdPower NMTOKEN "-90"
-					WEProbeEnergyTimeout NMTOKEN "0.003"
-					WEProbeResponseTimeout NMTOKEN "0.02"
-          WEAuthenticationTimeout NMTOKEN "2"
-          WEAssociationTimeout NMTOKEN "2"
-          WERetry NMTOKEN "16">
-<!ELEMENT WESupportedRates (WERate)+>
-<!ELEMENT WERate (#PCDATA)>
-
-<!-- Misc. options. Any conditions preset for the behaviour -->
-<!-- the entire network. and they are part of IP configuration -->
-
-<!ELEMENT misc (ObjectMovement*)>
-
-<!ELEMENT ObjectMovement (MovingNode*)>
-<!ATTLIST MovingNode 
+<!ELEMENT ObjectMovement (MovingNode*, RandomMovement*, RandomPattern*)>
+<!ATTLIST MovingNode
           NodeName NMTOKEN #REQUIRED
           startTime NMTOKEN #REQUIRED
           >
 
 <!ELEMENT MovingNode (move*)>
 <!ELEMENT move EMPTY>
-<!ATTLIST move 
+<!ATTLIST move
           moveToX NMTOKEN #REQUIRED
           moveToY NMTOKEN #REQUIRED
           moveSpeed NMTOKEN #REQUIRED
+          moveXFirst (on|off) "on"
+          >
+
+<!ELEMENT RandomMovement (#PCDATA)>
+<!ATTLIST RandomMovement
+          RWNodeName NMTOKEN #REQUIRED
+          RWMoveKind (toroidal|bouncing) "bouncing"
+          RWMinX NMTOKEN #REQUIRED
+          RWMaxX NMTOKEN #REQUIRED
+          RWMinY NMTOKEN #REQUIRED
+          RWMaxY NMTOKEN #REQUIRED
+          RWMoveInterval NMTOKEN #REQUIRED
+          RWMinSpeed NMTOKEN #REQUIRED
+	  RWMaxSpeed NMTOKEN #REQUIRED
+	  RWDistance NMTOKEN #REQUIRED
+	  RWPauseTime NMTOKEN #REQUIRED
+	  RWStartTime NMTOKEN "5"
+          >
+
+<!ELEMENT RandomPattern (RPNode*)>
+<!ATTLIST RandomPattern
+          RPXSize NMTOKEN #REQUIRED
+          RPYSize NMTOKEN #REQUIRED
+          RPMoveInterval NMTOKEN #REQUIRED
+          RPMinSpeed NMTOKEN #REQUIRED
+	  RPMaxSpeed NMTOKEN #REQUIRED
+	  RPDistance NMTOKEN #REQUIRED
+	  RPPauseTime NMTOKEN #REQUIRED
+          >
+
+<!ELEMENT RPNode EMPTY>
+<!ATTLIST RPNode
+          RPNodeName NMTOKEN #REQUIRED
+          RPXOffset NMTOKEN #REQUIRED
+          RPYOffset NMTOKEN #REQUIRED
           >

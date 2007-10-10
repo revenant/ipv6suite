@@ -318,7 +318,8 @@ void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
   else
     Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in parseNetworkEntity");
 
-  parseNodeAttributes(rt, ne);
+  if (_version <= 6)
+    parseNodeAttributes(rt, ne);
 
   //Parse per interface attribute
   cXMLElementList el = ne->getChildrenByTagName("interface");

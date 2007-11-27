@@ -34,6 +34,7 @@ class IPassiveQueue
      * when one becomes available.
      */
     virtual void requestPacket() = 0;
+    virtual ~IPassiveQueue(){};
 };
 
 #endif

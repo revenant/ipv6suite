@@ -27,7 +27,27 @@
 simple RoutingTable6
     parameters:
     displayIfconfig : bool,
-    baseSettings: xml;
+    baseSettings: xml,
+//following settings apply only when version of dtd is higher than 6
+        routePackets: bool,
+        forwardSitePackets: bool,
+	optimisticDAD: bool,
+	mobileIPv6Support: bool,
+	mobileIPv6Role: string,
+	routeOptimisation: bool,
+	returnRoutability: bool,
+	earlyBU: bool,
+	//6.signalingEnhance = (None|Direct|CellResidency) "None"
+	//.respondBindingRequest (on|off) "off"
+	eagerHandover: bool,
+	hierarchicalMIPv6Support: bool,
+	map: bool,
+	mapMNMUSTSetRCoAAsSource: bool,
+	edgeHandoverType: string,
+	ewuOutVectorHODelays: bool,
+	mnSendBUAckFlag: bool;
+	
+
     gates:
     in: recordSimTime;
 endsimple

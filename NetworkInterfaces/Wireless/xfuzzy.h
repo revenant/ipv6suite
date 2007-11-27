@@ -36,6 +36,7 @@ public:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 class FuzzyInferenceEngine {public:
+  virtual ~FuzzyInferenceEngine(){};
  virtual double* crispInference(double* input) = 0;
  virtual double* crispInference(MembershipFunction* &input) = 0;
  virtual MembershipFunction** fuzzyInference(double* input) = 0;
@@ -50,6 +51,7 @@ class OutputMembershipFunction;
 
 class Operatorset {
 public:
+  virtual ~Operatorset(){};
  virtual double and2(double a, double b) = 0;
  virtual double or2(double a, double b) = 0;
  virtual double also(double a, double b) = 0;

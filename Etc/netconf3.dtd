@@ -143,7 +143,10 @@ AdvDefaultLifetime NMTOKEN "0xFFFFFF"
           NodeName NMTOKEN #REQUIRED
           startTime NMTOKEN #REQUIRED
           >
-
+<!--
+ if moveXmlConfig does not specify this particular node name
+then it will not work.
+-->
 <!ELEMENT MovingNode (move*)>
 <!ELEMENT move EMPTY>
 <!ATTLIST move

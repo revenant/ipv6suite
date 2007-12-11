@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2004, 2006 Johnny Lai
+// Copyright (C) 2004, 2006, 2007 Johnny Lai
 //
 // This file is part of IPv6Suite
 //
@@ -318,8 +318,10 @@ void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
   else
     Dout(dc::xml_addresses|flush_cf, rt->nodeName()<<" in parseNetworkEntity");
 
-  if (_version <= 6)
+  if (version() <= 6)
     parseNodeAttributes(rt, ne);
+  else
+    parseNodeAttributes(rt);
 
   //Parse per interface attribute
   cXMLElementList el = ne->getChildrenByTagName("interface");
@@ -346,6 +348,111 @@ void XMLOmnetParser::parseNetworkEntity(InterfaceTable *ift, RoutingTable6 *rt)
 
   // do an additional parameter check
   checkValidData(ift, rt);
+}
+
+void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt)
+{
+  rt->IPForward = rt->par("routePackets").boolValue();
+  rt->forwardSitePacket = rt->par("forwardSitePackets").boolValue();
+  rt->setODAD(rt->par("optimisticDAD").boolValue());
+  if (rt->odad())
+    Dout(dc::notice|flush_cf, rt->nodeName()<<" ODAD is on");
+
+#ifdef USE_MOBILITY
+  rt->mipv6Support = rt->par("mobileIPv6Support").boolValue();
+  if (rt->mobilitySupport() && version() >= 3)
+  {
+    std::string role = rt->par("mobileIPv6Role").stringValue();
+    if ( role == string("HomeAgent"))
+      rt->role = RoutingTable6::HOME_AGENT;
+    else if ( role == string("MobileNode"))
+      rt->role = RoutingTable6::MOBILE_NODE;
+    else
+      rt->role = RoutingTable6::CORRESPONDENT_NODE;
+  }
+  else
+    rt->role = RoutingTable6::CORRESPONDENT_NODE;
+
+  IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
+    (OPP_Global::findModuleByName(rt, "mobility"));
+
+  mob->ewuOutVectorHODelays = false;
+
+  if (rt->par("routeOptimisation").boolValue())
+  {
+    assert(mob);
+    Dout(dc::notice, rt->nodeName()<<" Route Optimisation is true");
+    mob->setRouteOptimise(true);
+  }
+  else
+    mob->setRouteOptimise(false);
+
+  if (rt->par("returnRoutability").boolValue())
+  {
+    Dout(dc::notice, rt->nodeName()<<" Return Routability Procedure is true");
+    mob->setReturnRoutability(true);
+  }
+  else
+    mob->setReturnRoutability(false);
+
+  if (rt->par("earlyBU").boolValue())
+  {
+    Dout(dc::notice, rt->nodeName()<<" Early BU is true");
+    mob->setEarlyBindingUpdate(true);
+  }
+  else
+    mob->setEarlyBindingUpdate(false);
+
+  mob->setSignalingEnhance(MobileIPv6::None);
+
+#ifdef USE_HMIP
+
+  if (version() < 5 || !rt->par("hierarchicalMIPv6Support").boolValue())
+    rt->hmipv6Support = false;
+  else if (rt->mobilitySupport())
+    rt->hmipv6Support = true;
+  else
+  {
+    cerr << "HMIP Support cannot be activated without mobility support.\n";
+    abort_ipv6suite();
+  }
+
+  if (rt->mobilitySupport() && version() >= 3)
+  {
+    if (rt->par("map").boolValue())
+    {
+      if ( rt->role == RoutingTable6::HOME_AGENT)
+      {
+        rt->mapSupport = true;
+      }
+      else
+      {
+        cerr << "MAP support cannot be activated without HomeAgent support.\n";
+        abort_ipv6suite();
+      }
+    }
+    else
+      rt->mapSupport = false;
+  }
+  else
+    rt->role = RoutingTable6::CORRESPONDENT_NODE;
+
+#if EDGEHANDOVER
+  string ehType;
+  if (rt->hmipSupport() && rt->isMobileNode())
+    ehType = rt->par("edgeHandoverType").stringValue();
+  mob->setEdgeHandoverType(ehType);
+  if (ehType != "")
+  {
+    Dout(dc::xml_addresses|dc::debug, rt->nodeName()<<" EH type "<<ehType);
+    assert(mob->edgeHandover());
+  }
+#endif //EDGEHANDOVER
+
+#endif //USE_HMIP
+
+#endif // USE_MOBILITY
+  
 }
 
 /// parse node level attributes

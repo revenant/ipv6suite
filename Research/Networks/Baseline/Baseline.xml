@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf3.dtd">
 
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
-  <local node="mn" optimisticDAD="on" mobileIPv6Support="off"
-  mobileIPv6Role="MobileNode" routeOptimisation="on"
-  hierarchicalMIPv6Support="off" edgeHandoverType="Timed"
-	eagerHandover="on" ewuOutVectorHODelays="on">
+  <local node="mn">
     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
     </interface>
   </local>
-  <local node="cn" mobileIPv6Support="on">
+  <local node="cn">
     <interface name="eth0">
     </interface>
   </local>
-<!--
    <misc>
         <ObjectMovement>
        <MovingNode NodeName="mn" startTime="0">
@@ -21,5 +17,4 @@
        </MovingNode>
  </ObjectMovement>
   </misc>
--->
 </netconf>

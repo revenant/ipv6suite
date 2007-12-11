@@ -149,6 +149,9 @@ void parseRandomWPInfoDetail(MobilityRandomWP* mod, cXMLElement* movenode);
 
   /// parse node level attributes
   void parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne);
+  /// parse node level attributes without using XML
+  void parseNodeAttributes(RoutingTable6* rt);
+
   /// parse the attributes of interface nif at index iface_index
   void parseInterfaceAttributes(InterfaceTable *ift, RoutingTable6* rt, cXMLElement* nif, unsigned int iface_index);
   //@}

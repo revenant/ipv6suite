@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf3.dtd">
 
 <netconf debugChannel="debug1.log:MobileMove::notice:custom:Ping6:Statistic">
 <!--MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
@@ -17,18 +17,17 @@
       </MovingNode>
     </ObjectMovement>
   </global>
-  <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
-  routeOptimisation="on" hierarchicalMIPv6Support="off" earlyBU='off'>
+  <local node="client1">
 <!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
 <!-- perhaps other values do not work either -->
     <interface name="wlan0" HostDupAddrDetectTransmits="0">
     </interface>
   </local>
-  <local node="server4" mobileIPv6Support="on" earlyBU='off'>
+  <local node="server4">
   </local>
 <!-- routing table configuration -->
 
-  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+  <local node="ha">
     <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on" MaxFastRAS="10">
       <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212</inetAddr>
       <AdvPrefixList>

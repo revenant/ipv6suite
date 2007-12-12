@@ -29,6 +29,7 @@ f.close
 
 submitfile = "job.sh"
 li=0
+#puts "#{lines.size} lines & runcount is #{runCount}"
 (lines.size/runCount).times do
 
   #File.open(submitfile + li.to_s, "w"){|f|
@@ -49,8 +50,8 @@ END
       li = li+1
     end
 
-    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
-    puts "qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
+    `qsub -q dque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`
+    puts "qsub -q dque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
   }
 
 end

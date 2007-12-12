@@ -42,3 +42,7 @@ For IPv6SuiteWithINET
  cd !$;cmake ~/src/IPv6SuiteWithINET
  make -j10
 
+cp -p /usr/lib/libxml2.so.2 ~/src/other/IPv6SuiteWithINET/lib
+cp -p /usr/lib/libboost_signals.so ~/src/other/IPv6SuiteWithINET/lib
+In job.sh need this as 32bit libs not installed on slave nodes
+export LD_LIBRARY_PATH=~/src/other/IPv6SuiteWithINET/lib

@@ -224,7 +224,7 @@ class ConfTest
       sem = calculateSem(n, u, s)
       ciw = confIntWidth(sem)
       puts "ciw is " + ciw.to_s if @verbose
-      if ciw <= 0.00001
+      if ciw <= @precision
         puts "final ciw is " + ciw.to_s
         exit 0
       end
@@ -254,15 +254,12 @@ end
 require 'test/unit'
 
 class TC_ConfTest < Test::Unit::TestCase
+  RSlave = "R --slave --quiet --vanilla --no-readline"
   def test_calculateSem
-    set1 = [1,2,3,4,5,6,7,8,9,10,6]
-    set2 = [40, 23.6, 39.6, 50.2, 23.8]
-    set3 = [1, 3, 5, 7, 20, 18]
-    set4 = [5, 3, 2000]
     n = [11, 5, 6, 3]
-    u = [mean(set1), mean(set2), mean(set3), mean(set4)]
-    s = [sigma(set1), sigma(set2), sigma(set3), sigma(set4)]
-    totalArray = set1 + set2 + set3 + set4
+    u = [mean(@set1), mean(@set2), mean(@set3), mean(@set4)]
+    s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
+    totalArray = @set1 + @set2 + @set3 + @set4
     ntot = n.inject{|sum, x| sum + x}
     #assert_equal(sigma(totalArray)/Math.sqrt(ntot), @cf.calculateSem(n, u, s),
    #   "my mathematical sem based on groups should equal the total one")
@@ -275,17 +272,37 @@ class TC_ConfTest < Test::Unit::TestCase
   #Requires a scalar file with name of omnetpp.sca (tested from HMIPv6Sait -r1/2)
   def test_parseScalarFile
     @cf.createRegex("client1,rtpl3Handover of client1")
-    n, u, s = @cf.parseScalarFile("omnetpp.sca")
-    pp n.length, u.length, s.length
-    pp @cf.calculateSem(n, u, s)
-    pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
+    n, u, s = @cf.parseScalarFile("ConfTest_parseScalarFile.sca")
+    #pp n.length, u.length, s.length
+    #pp @cf.calculateSem(n, u, s)
+    #pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
   end
+
+  def test_mean()
+    m = mean(@set1)
+    a = `echo 'mean(#{to_R(@set1)})' | #{RSlave}`
+    s = answerFromR(a)
+    assert(m - s.to_f < @diffConsideredZero, "calculated mean should equal to mean from R")
+  end
+
+  def test_variance()
+    v = variance(@set1)
+    a = `echo 'options("digits"=15);var(#{to_R(@set1)})' | #{RSlave}`
+    assert(v - answerFromR(a).to_f < @diffConsideredZero, "calculated variance #{v} should equal to R's var #{answerFromR(a)}")
+  end
+
+  def test_signma()
+    s = sigma(@set1)
+    a = `echo 'options("digits"=15);sd(#{to_R(@set1)})' | #{RSlave}`
+    assert(s - answerFromR(a).to_f < @diffConsideredZero, "calculated standard dev #{s} should equal to R's sd #{answerFromR(a)}")
+end
 
   def mean(x)
     sum=BigDecimal.new("0")
     x.each { |v| sum += v; }
     sum/x.size
   end
+
   def variance(x)
     m = mean(x)
     sum = 0.0
@@ -304,8 +321,22 @@ class TC_ConfTest < Test::Unit::TestCase
     Math.sqrt(sum/(x.size))
   end
 
+  def to_R(x)
+    return "c("+x.join(",")+")" if x.class == Array
+    return nil
+  end
+
+  def answerFromR(routput)
+    routput.split{" "}[1]
+  end
+
   def setup
     @cf = ConfTest.new
+    @set1 = [1,2,3,4,5,6,7,8,9,10,6]
+    @set2 = [40, 23.6, 39.6, 50.2, 23.8]
+    @set3 = [1, 3, 5, 7, 20, 18]
+    @set4 = [5, 3, 2000]
+    @diffConsideredZero = BigDecimal.new("1e-7")
   end
 
   def teardown

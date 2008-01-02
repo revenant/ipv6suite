@@ -181,7 +181,10 @@ class ConfTest
     [n, u, s]
   end
 
-  def calculateSem(n, u, s)
+  def calculateSem(a, b, c)
+    n = a.dup
+    u = b.dup
+    s = c.dup
     #convert s from sample standard to the one with N as denominator
     v = s.collect{|std| BigDecimal.new(std.to_s)**2}
     nfactor = n.collect{|denom| (BigDecimal.new(denom.to_s)-1)/denom}
@@ -197,6 +200,12 @@ class ConfTest
 
     vtot = (a*(Matrix.column_vector(v)+Matrix.column_vector(u2)))[0,0]/ntot-utot**2
     sem = Math.sqrt(vtot/ntot)
+  end
+
+  #Convert semn which is returned by calculatedSem (uses n instead of n-1 as
+  #denominator) to standard sem
+  def semnToSem(semn, ntot)
+    Math.sqrt(ntot) * semn / Math.sqrt(ntot -1)
   end
 
   def confIntWidth(sem)
@@ -261,18 +270,30 @@ class TC_ConfTest < Test::Unit::TestCase
     s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
     totalArray = @set1 + @set2 + @set3 + @set4
     ntot = n.inject{|sum, x| sum + x}
-    #assert_equal(sigma(totalArray)/Math.sqrt(ntot), @cf.calculateSem(n, u, s),
-   #   "my mathematical sem based on groups should equal the total one")
+   #   "my mathematical sem based on means of groups should equal the total one")
+    assert((sigman(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s)).abs < @diffConsideredZero,
+           "difference exists between sigman(totalArray)/Math.sqrt(ntot) #{sigman(totalArray)/Math.sqrt(ntot)}  and @cf.calculateSem(n, u, s) #{@cf.calculateSem(n, u, s)}")
 
-    assert(sigman(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s) < 0.00000001,
-           "difference between two results is due to rounding but should be very"\
-           "small as I use BigDecimals")
+    a = `echo 'options("digits"=15);source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R");jl.sem(#{to_R(totalArray)})' | #{RSlave}`
+    r = answerFromR(a)
+
+    assert((sigma(totalArray)/Math.sqrt(ntot) - r.to_f).abs < @diffConsideredZero,
+           "sigma(totalArray)/Math.sqrt(ntot) #{sigma(totalArray)/Math.sqrt(ntot)} should be same as R's sem #{r.to_f}")
+
+    sem = @cf.semnToSem(@cf.calculateSem(n, u, s), ntot)
+    assert((sem - r.to_f).abs < @diffConsideredZero,
+           "sem conversion not correct calculated sem #{sem} and from R is #{r}")
+puts           "sem conversion not correct calculated sem #{sem} and from R is #{r}"
+  end
+
+  def test_diffConsideredZero
+    assert(-1.abs > @diffConsideredZero, "should faile")
   end
 
   #Requires a scalar file with name of omnetpp.sca (tested from HMIPv6Sait -r1/2)
   def test_parseScalarFile
     @cf.createRegex("client1,rtpl3Handover of client1")
-    n, u, s = @cf.parseScalarFile("ConfTest_parseScalarFile.sca")
+#    n, u, s = @cf.parseScalarFile("ConfTest_parseScalarFile.sca")
     #pp n.length, u.length, s.length
     #pp @cf.calculateSem(n, u, s)
     #pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
@@ -280,22 +301,32 @@ class TC_ConfTest < Test::Unit::TestCase
 
   def test_mean()
     m = mean(@set1)
-    a = `echo 'mean(#{to_R(@set1)})' | #{RSlave}`
+    a = `echo 'options("digits"=15);mean(#{to_R(@set1)})' | #{RSlave}`
     s = answerFromR(a)
-    assert(m - s.to_f < @diffConsideredZero, "calculated mean should equal to mean from R")
+    assert((m - s.to_f).abs < @diffConsideredZero, 
+           "calculated mean #{m} should equal to mean from R #{s}")
   end
 
   def test_variance()
     v = variance(@set1)
     a = `echo 'options("digits"=15);var(#{to_R(@set1)})' | #{RSlave}`
-    assert(v - answerFromR(a).to_f < @diffConsideredZero, "calculated variance #{v} should equal to R's var #{answerFromR(a)}")
+    assert((v - answerFromR(a).to_f).abs < @diffConsideredZero, 
+           "calculated variance #{v} should equal to R's var #{answerFromR(a)}")
   end
 
-  def test_signma()
+  def test_sigma()
     s = sigma(@set1)
     a = `echo 'options("digits"=15);sd(#{to_R(@set1)})' | #{RSlave}`
-    assert(s - answerFromR(a).to_f < @diffConsideredZero, "calculated standard dev #{s} should equal to R's sd #{answerFromR(a)}")
-end
+    assert((s - answerFromR(a).to_f).abs < @diffConsideredZero, 
+           "calculated standard dev #{s} should equal to R's sd #{answerFromR(a)}")
+  end
+
+  def test_sigman()
+    s = sigman(@set1)
+    a = `echo 'options("digits"=15);sqrt((sd(#{to_R(@set1)})^2)*#{@set1.length-1}/#{@set1.length})' | #{RSlave}`
+    assert((s - answerFromR(a).to_f).abs < @diffConsideredZero, 
+           "calculated standard dev (n) #{s} should equal to R's sd with n denomintor #{answerFromR(a)}")
+  end
 
   def mean(x)
     sum=BigDecimal.new("0")
@@ -305,7 +336,7 @@ end
 
   def variance(x)
     m = mean(x)
-    sum = 0.0
+    sum = BigDecimal.new("0")
     x.each { |v| sum += (v-m)**2 }
     sum/(x.size-1)
   end
@@ -316,7 +347,7 @@ end
 
   def sigman(x)
     m = mean(x)
-    sum = 0.0
+    sum = BigDecimal.new("0")
     x.each { |v| sum += (v-m)**2 }
     Math.sqrt(sum/(x.size))
   end

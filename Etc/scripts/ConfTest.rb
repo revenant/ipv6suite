@@ -27,12 +27,21 @@ require 'bigdecimal/math'
 
 $test  = false
 
+module RStuff
+  def answerFromR(routput)
+    routput.split{" "}[1]
+  end
+
+  RSlave = "R --slave --quiet --vanilla --no-readline"
+end
+
 
 #
 # Calculate the confidence interval (default of 95% level) and repeat the
 # experiment until interval satisfies the required precision.
 #
 class ConfTest
+  include RStuff
 
   VERSION       = "$Revision$"
   REVISION_DATE = "11 May 2007"
@@ -64,6 +73,8 @@ class ConfTest
     @runlimit = 100
     @precision = 0.00001
     @auto = false
+
+    @qstat = answerFromR(`echo 'options("digits"=15);qnorm((1+0.95)/2)'| #{RSlave}`)
 
     get_options
 
@@ -208,10 +219,12 @@ class ConfTest
     Math.sqrt(ntot) * semn / Math.sqrt(ntot -1)
   end
 
-  def confIntWidth(sem)
+  def confIntWidth(n, u, s)
+    ntot = n.inject{|sum, x| sum + x}
+    sem = semnToSem(calculateSem(n, u, s), ntot)
     #p is taken as 0.95
     #ciw <- qnorm((1+p)/2)* sem
-    1.96 * sem
+    @qstat.to_f * sem
   end
 
   #
@@ -226,12 +239,18 @@ class ConfTest
     end
     puts "scalar file is " + @scalarfile if @debug
     1.upto(@runlimit){|rc|
-      puts "`#{cli + ' -r' + rc.to_s}`"
-      `#{cli + " -r"+rc.to_s}`
+      runline =  "#{cli + ' -r' + rc.to_s}"
+      puts runline
+      simoutput = `#{runline}`
+      if $? != 0
+        puts "not continuing with runs as process exited with error #{simoutput}"
+        exit
+      end
+      puts "sim output is #{simoutput}" if @debug 
+      
       n, u, s = parseScalarFile(@scalarfile)
       pp n, u, s if @debug
-      sem = calculateSem(n, u, s)
-      ciw = confIntWidth(sem)
+      ciw = confIntWidth(n, u, s)
       puts "ciw is " + ciw.to_s if @verbose
       if ciw <= @precision
         puts "final ciw is " + ciw.to_s
@@ -262,13 +281,28 @@ end
 ##Unit test for this class/module
 require 'test/unit'
 
-class TC_ConfTest < Test::Unit::TestCase
-  RSlave = "R --slave --quiet --vanilla --no-readline"
-  def test_calculateSem
+class TC_ConfTest < Test::Unit::TestCase 
+  include RStuff
+
+  def test_confIntWidth
     n = [11, 5, 6, 3]
     u = [mean(@set1), mean(@set2), mean(@set3), mean(@set4)]
     s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
     totalArray = @set1 + @set2 + @set3 + @set4
+    ciw = @cf.confIntWidth(n, u, s)
+    a = `echo 'options("digits"=15);source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R");jl.cis(#{to_R(totalArray)}, p=0.95, use.t=FALSE, rowLabel="x", columnLabels=c("n", "Mean", "Lower CI limit",
+                                                        "Upper CI limit"), unit="", citest = TRUE)' | #{RSlave}`
+    r = answerFromR(a)
+    assert((ciw - r.to_f).abs < @diffConsideredZero, 
+           "calculated ciw #{ciw} was different from the one in R #{r}")
+  end
+
+  def test_calculateSem   
+    n = [11, 5, 6, 3]
+    u = [mean(@set1), mean(@set2), mean(@set3), mean(@set4)]
+    s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
+    totalArray = @set1 + @set2 + @set3 + @set4
+
     ntot = n.inject{|sum, x| sum + x}
    #   "my mathematical sem based on means of groups should equal the total one")
     assert((sigman(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s)).abs < @diffConsideredZero,
@@ -276,21 +310,19 @@ class TC_ConfTest < Test::Unit::TestCase
 
     a = `echo 'options("digits"=15);source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R");jl.sem(#{to_R(totalArray)})' | #{RSlave}`
     r = answerFromR(a)
-
+    
     assert((sigma(totalArray)/Math.sqrt(ntot) - r.to_f).abs < @diffConsideredZero,
            "sigma(totalArray)/Math.sqrt(ntot) #{sigma(totalArray)/Math.sqrt(ntot)} should be same as R's sem #{r.to_f}")
 
     sem = @cf.semnToSem(@cf.calculateSem(n, u, s), ntot)
     assert((sem - r.to_f).abs < @diffConsideredZero,
            "sem conversion not correct calculated sem #{sem} and from R is #{r}")
-puts           "sem conversion not correct calculated sem #{sem} and from R is #{r}"
   end
 
   def test_diffConsideredZero
     assert(-1.abs > @diffConsideredZero, "should faile")
   end
 
-  #Requires a scalar file with name of omnetpp.sca (tested from HMIPv6Sait -r1/2)
   def test_parseScalarFile
     @cf.createRegex("client1,rtpl3Handover of client1")
 #    n, u, s = @cf.parseScalarFile("ConfTest_parseScalarFile.sca")
@@ -357,17 +389,13 @@ puts           "sem conversion not correct calculated sem #{sem} and from R is #
     return nil
   end
 
-  def answerFromR(routput)
-    routput.split{" "}[1]
-  end
-
   def setup
     @cf = ConfTest.new
     @set1 = [1,2,3,4,5,6,7,8,9,10,6]
     @set2 = [40, 23.6, 39.6, 50.2, 23.8]
     @set3 = [1, 3, 5, 7, 20, 18]
     @set4 = [5, 3, 2000]
-    @diffConsideredZero = BigDecimal.new("1e-7")
+    @diffConsideredZero = BigDecimal.new("1e-7")    
   end
 
   def teardown

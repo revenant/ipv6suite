@@ -128,6 +128,7 @@ simulateTimes <-  function()
     ping.times <- 1:(ping.dur*(1/ping.period))
     ##Give it a longer length just to make it happy
     value <- vector(mode="numeric",length(ping.times))
+    time <- ping.begin
     while (time < ping.dur)
       {
         value[index] <- runif(1, fastbeacon.min, fastbeacon.max)
@@ -139,7 +140,7 @@ simulateTimes <-  function()
     #Eliminate 0 values
     value <- value[!is.element(value, 0)]
     ping.times <- ping.times[1:length(value)]
-    cor(ping.times, value)
+    #cor(ping.times, value)
     ##ret <- data.frame(time=value)
     ##values get deleted once return from function
     ##    rm(index, ping.period, sim.end, ping.times, time, ping.dur,value,fastbeacon.min, fastbeacon.max)
@@ -147,7 +148,9 @@ simulateTimes <-  function()
     ##ret <- vector(length=2)
     ##ret[1]=value
     ##ret[2]=ping.times
-    clist(value, ping.times)
+    #clist(value, ping.times)
+    list(value, ping.times)
+    
   }
 
 ###In emacs use C-M-h to quickly highlight a function and type manuall M-x
@@ -162,8 +165,8 @@ jl.ci <- function(x,y, p=0.95,use.t=TRUE, rowLabels=levels(y),
    ns <- tapply(x,y,length)
    vars <- tapply(x,y,var)
    if (use.t)
-     ciw <- qt((1+p)/2,ns-1) * sqrt(vars)/sqrt(ns-1)
-   else ciw <- qnorm((1+p)/2)*sqrt(vars/(ns-1))
+     ciw <- qt((1+p)/2,ns-1) * sqrt(vars)/sqrt(ns)
+   else ciw <- qnorm((1+p)/2)*sqrt(vars/(ns))
    ci.lower <- means - ciw
    ci.upper <- means + ciw
 
@@ -202,16 +205,18 @@ jl.sed <- function(sem1,sem2)
   }
 
 jl.cis <- function(x,p=0.95,use.t=TRUE, rowLabel="x", columnLabels=c("n", "Mean", "Lower CI limit",
-                                                               "Upper CI limit"), unit="")
+                                                        "Upper CI limit"), unit="", citest = FALSE)
   {  
    means <- mean(x)
    ns <- length(x)
    vars <- var(x)
-   sem <- sqrt(vars/ns) #is it ns-1 or just ns? I guess for large it doesn't matter but for small
+   sem <- sqrt(vars/ns) 
    if (use.t)
      ciw <- qt((1+p)/2,ns-1) * sem
    else ciw <- qnorm((1+p)/2)* sem
-   ciw
+   if (citest) {
+     return(ciw)
+   }   
    ci.lower <- means - ciw
    ci.upper <- means + ciw
    hugelist <- c(ns,means,ci.lower,ci.upper)

@@ -15,16 +15,20 @@
 #  
 
 runlimit = 100
-
-if (/hn1/.match(`hostname`))
+confIntVariable = "client1,rtpl3Handover of client1"
+if (/hn\d/.match(`hostname`))
   ruby = "~/bin/ruby"
 else
   ruby = "ruby"
 end
 
-f=File.open("jobs.txt","r")
-lines = f.to_a
-f.close
+lines = 0
+File.open("jobs.txt","r"){|f| lines = f.to_a }
+
+if false
+wait = `cp -p /usr/lib/libxml2.so.2 ~/src/other/IPv6SuiteWithINET/lib`
+wait = `cp -p /usr/lib/libboost_signals.so.1.33.1 ~/src/other/IPv6SuiteWithINET/lib/libboost_signals.so.2`
+end
 
 submitfile = "job.sh"
 li=0
@@ -35,24 +39,31 @@ lines.size.times do
   logfile = l.split(' ')[2].split('.')[0]
   logfile = "~/simlogs/" + logfile + ".log"
 
-  subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r #{runlimit} "#{lines[li].chomp}"|
+  subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{confIntVariable}" -r #{runlimit} "#{lines[li].chomp}"|
   File.open(submitfile, "w"){|f|
     f.puts <<END
 #!/bin/bash
 # Generated via #{__FILE__}
+. ~/bash/defaults
+. ~/bash/grid
+echo $LD_LIBRARY_PATH
+echo $PATH
 #{subline}
 END
   }
   li += 1
-if false
-  if /hn1/.match(`hostname`)
-    `qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}` 
-    puts "`qsub -q netsimque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}`"
+  if /hn\d/.match(`hostname`)
+    qline = "qsub -q dque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
+    puts qline
+    suboutput = `#{qline}`
+    if $? != 0
+      puts "failed to submit job error was #{suboutput}"
+      exit
+    end
   else
     puts subline
   end
-end
-  puts "START new scenario at " + Time.now
-  puts subline
-  `#{subline}`
+#  puts "START new scenario at " + Time.now.to_s
+#  puts subline
+#  `#{subline}`
 end

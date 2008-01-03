@@ -75,7 +75,7 @@ class ConfTest
     @auto = false
 
     @qstat = answerFromR(`echo 'options("digits"=15);qnorm((1+0.95)/2)'| #{RSlave}`)
-
+    @qstat = BigDecimal.new("1.95996398454005") if @qstat.to_f == 0.0
     get_options
 
   rescue => err
@@ -242,14 +242,14 @@ class ConfTest
         puts "not continuing with runs as process exited with error #{simoutput}"
         exit
       end
-      puts "sim output is #{simoutput}" if @debug 
+      puts simoutput
       
       n, u, s = parseScalarFile(@scalarfile)
       pp n, u, s if @debug
       ciw = confIntWidth(n, u, s)
       puts "ciw is " + ciw.to_s if @verbose
       if ciw <= @precision
-        puts "#{runline} final confidence interval is " + ciw.to_s
+        puts "final confidence interval is " + ciw.to_s
         exit 0
       end
     }
@@ -424,7 +424,7 @@ class TC_ConfTest < Test::Unit::TestCase
     begin
     wait = `bunzip2 -k wcmc_y_3.sca.bz2`
     throw 'failed to extract input test file' if not $? == 0
-    wait = `ruby ~/src/IPv6SuiteWithINET/Etc/Scalars/scalars.rb -C config.yaml -v wcmc -s 'rtpl3Handover of client1.*'`
+    wait = `ruby ~/src/IPv6SuiteWithINET/Etc/Scalars/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
     throw 'failed to run scalars' if not $? == 0
     rescue => err
       puts "#{err} was from #{wait}" 

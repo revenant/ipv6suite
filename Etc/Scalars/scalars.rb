@@ -200,10 +200,10 @@ if false
   #    configNames, factors, levels = aggregateScalars(basename)
       configNames, factors, levels = readConfigs
       files = Dir["agg/#{basename}*.sca"]
-    else
-      configNames, factors, levels = readConfigs
     end
 end
+    configNames, factors, levels = readConfigs
+
     file = nil
 
     files.each_with_index{|file, index|

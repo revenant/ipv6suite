@@ -1,11 +1,11 @@
 #! /usr/bin/env ruby
 #
 #  Author: Johnny Lai
-#  Copyright (c) 2006 Johnny Lai
+#  Copyright (c) 2006, 2008 Johnny Lai
 #
 # =DESCRIPTION
 # Run as many replications of command as required until precision is reached
-# or runLimit reached.
+# or runLimit exceeded.
 #
 # Sample run line
 # ruby `pwd`/ConfTest.rb -g "client1,Ping roundtrip delays" --debug "./HMIPv6Netork -f HMIPv6Sait.ini"
@@ -71,7 +71,7 @@ class ConfTest
     @pattern = nil
     @scalarfile = "omnetpp.sca"
     @runlimit = 100
-    @precision = 0.00001
+    @precision = 0.05
     @auto = false
 
     @qstat = answerFromR(`echo 'options("digits"=15);qnorm((1+0.95)/2)'| #{RSlave}`)
@@ -90,14 +90,7 @@ class ConfTest
   # Returns usage string
   #
   def usage
-    #
-    # TODO: Fill out usage in get_options as part of optparse API
-    #
     ARGV.options
-#    <<-USAGE
-#Usage: #{File.basename $0} [-v] file
-#  -v|--verbose      print intermediate steps to STDERR
-#    USAGE
   end
 
   # {{{ process options #
@@ -109,6 +102,8 @@ class ConfTest
     ARGV.options { |opt|
       opt.banner = version
       opt.banner = "Usage: ruby #{File.basename __FILE__} [options] {command in quotes}"
+      opt.separator " only able to extract one scalar on each run. Beware you do not extract multiple scalars if"
+      opt.separator "--grep pattern is too permissive"
       opt.separator ""
       opt.separator "Specific options:"
 
@@ -238,6 +233,7 @@ class ConfTest
         cli.gsub!(/-r[0-9]+/,'')
     end
     puts "scalar file is " + @scalarfile if @debug
+    ciw = 0
     1.upto(@runlimit){|rc|
       runline =  "#{cli + ' -r' + rc.to_s}"
       puts runline
@@ -253,7 +249,7 @@ class ConfTest
       ciw = confIntWidth(n, u, s)
       puts "ciw is " + ciw.to_s if @verbose
       if ciw <= @precision
-        puts "final ciw is " + ciw.to_s
+        puts "#{runline} final confidence interval is " + ciw.to_s
         exit 0
       end
     }
@@ -323,12 +319,39 @@ class TC_ConfTest < Test::Unit::TestCase
     assert(-1.abs > @diffConsideredZero, "should faile")
   end
 
+  #Steps for obtaining input test file
+  #cd Res/net/test and copy wcmc files
+  #ruby ~/src/IPv6SuiteWithINET/Etc/scripts/multiconfig.rb -r 1 -C config.yaml wcmc
+  #ruby ~/src/IPv6SuiteWithINET/Etc/scripts/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r 100 "./test -f wcmc_y_3.ini -r1"
+
   def test_parseScalarFile
     @cf.createRegex("client1,rtpl3Handover of client1")
-#    n, u, s = @cf.parseScalarFile("ConfTest_parseScalarFile.sca")
-    #pp n.length, u.length, s.length
-    #pp @cf.calculateSem(n, u, s)
-    #pp @cf.confIntWidth(@cf.calculateSem(n, u, s))
+    n, u, s = @cf.parseScalarFile("wcmc_y_3.sca")
+    ciw = @cf.confIntWidth(n, u, s)
+    assert((ciw - 0.0401542854027786).abs < @diffConsideredZero,
+           "calculated from R was diff to expected result for ciw")
+
+    sn = `cut -d ',' -f 5 < "rtpl3Handover\ of\ client1.samples.csv"`
+    #remove the top row label
+    sn = sn.split("\n").reverse!
+    sn.pop
+    sn.reverse!
+    sn.map! {|x| x.to_i }
+
+    su = `cut -d ',' -f 5 < "rtpl3Handover\ of\ client1.mean.csv"`
+    su = su.split("\n").reverse!
+    su.pop
+    su.reverse!
+
+    ss =`cut -d ',' -f 5 < "rtpl3Handover\ of\ client1.stddev.csv"`
+    ss = ss.split("\n").reverse!
+    ss.pop
+    ss.reverse!
+    
+    assert(n == sn, "n is #{n} \n #{sn}")
+    assert(u = su, "u is #{u} \n #{su}")
+    assert(s = ss,"s is #{s} \n #{ss}")
+    
   end
 
   def test_mean()
@@ -396,10 +419,22 @@ class TC_ConfTest < Test::Unit::TestCase
     @set3 = [1, 3, 5, 7, 20, 18]
     @set4 = [5, 3, 2000]
     @diffConsideredZero = BigDecimal.new("1e-7")    
+
+    #set up for parseScalarFile
+    begin
+    wait = `bunzip2 -k wcmc_y_3.sca.bz2`
+    throw 'failed to extract input test file' if not $? == 0
+    wait = `ruby ~/src/IPv6SuiteWithINET/Etc/Scalars/scalars.rb -C config.yaml -v wcmc -s 'rtpl3Handover of client1.*'`
+    throw 'failed to run scalars' if not $? == 0
+    rescue => err
+      puts "#{err} was from #{wait}" 
+      exit(1)    
+    end
   end
 
   def teardown
-
+    wait = `bash -c 'rm "rtpl3Handover of client1.*.csv" &> /dev/null'`
+    wait = `rm wcmc_y_3.sca &> /dev/null`
   end
 
 end #end class TC_ConfTest

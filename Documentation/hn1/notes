@@ -46,3 +46,12 @@ cp -p /usr/lib/libxml2.so.2 ~/src/other/IPv6SuiteWithINET/lib
 cp -p /usr/lib/libboost_signals.so ~/src/other/IPv6SuiteWithINET/lib
 In job.sh need this as 32bit libs not installed on slave nodes
 export LD_LIBRARY_PATH=~/src/other/IPv6SuiteWithINET/lib
+
+other lib paths needed and placed into ~/bash/grid
+#32 bit libs for omnetpp/IPv6Suite
+export LD_LIBRARY_PATH=~/lib:/usr/lib:$LD_LIBRARY_PATH
+#Scalars app needs this
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/src/IPv6SuiteWithINET/Etc/Scalars/engine/lib
+#self built R requires this
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/lib64
+

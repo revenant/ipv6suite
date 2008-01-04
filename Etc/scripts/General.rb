@@ -6,6 +6,7 @@ class Object
 end
 
 module General  
+  TESTDIR="~/src/IPv6SuiteWithINET/Research/Networks/test"
 
   #returns index for matching first line 
   def searchForLine(linex, regexp)

@@ -237,9 +237,11 @@ end
     #erased?)
     scalarNames = Set.new
     moduleNames = Set.new
+    loop = 0
     for config in configNames
       for node in @nodes
         for scalar in @scalars
+          puts "node in #{config} is #{node}:#{@module}:#{scalar}" if @debug
           ints = ds.getFilteredScalarList("*#{RInterface::DELIM}#{config}*", "*.#{node}.#{@module}", scalar)
           ints.each{|i|
             v = sm.getValue(i)
@@ -248,14 +250,13 @@ end
           }
         end
       end
-      #Just do one config if print names otherwise gets repetitive
       break if @print
     end
 
     if @print
-      puts "scalar names after filtering are "
+      puts "\nscalar names after filtering are :"
       puts scalarNames.to_a.join("\n")
-      puts "module names after filtering are "
+      puts "module names after filtering are :"
       puts moduleNames.to_a.join("\n")
       exit
     end
@@ -336,18 +337,81 @@ end
 require 'test/unit'
 
 class TC_Scalars < Test::Unit::TestCase
-  def test_quoteString
-    #assert_equal("\"quotedString\"",
-    #             quoteString("quotedString"),
-    #             "The quotes should surround the quotedString")
+  include General
+  def test_scalars
+    scripttest = "test_scalars.sh"
+   
+    File.open(scripttest, "w"){|f|
+      script = <<END
+cd ${TESTDIR}
+bunzip2 -k wcmc_y_3.sca.bz2
+ruby #{__FILE__} -m "udpApp[*]" -C test_multiconfig_script.yaml -p
+END
+      f.puts script
+    }
+    output = `sh #{scripttest}`
+    result = <<END
+8/8
+scalar names after filtering are :
+rtp % dropped from client1
+rtpTransitTime of client1.max
+rtpTransitTime of server4[0].max
+rtpTransitTime of server4[0].mean
+rtpl3Handover of client1.min
+rtpHandover of client1.max
+rtpl2Handover of client1.min
+rtpTransitTime of server4[0].stddev
+rtpTransitTime of client1.min
+rtp received from server4[0]
+rtp % dropped from server4[0]
+rtpl3Handover of client1.samples
+rtpTransitTime of server4[0].min
+rtpl3Handover of client1.stddev
+rtpl2Handover of client1.samples
+rtpHandover of client1.min
+rtp dropped from client1
+rtpl2Handover of client1.mean
+rtpTransitTime of server4[0].samples
+rtp received from client1
+rtpOctetCount
+rtpl3Handover of client1.mean
+rtpHandover of client1.mean
+rtpHandover of client1.samples
+rtpTransitTime of client1.mean
+rtpl2Handover of client1.stddev
+rtp dropped from server4[0]
+rtpl3Handover of client1.max
+rtpHandover of client1.stddev
+rtpTransitTime of client1.stddev
+rtpTransitTime of client1.samples
+rtpl2Handover of client1.max
+module names after filtering are :
+wcmc_y_3Net.server4.udpApp[0]
+wcmc_y_3Net.client1.udpApp[0]
+END
+  #result unusable as contains extra formatting somewhere
+    assert($? == 0, "scalars failed with #{output}")
+    assert(output.split("\n").length == (389-352), 
+           "wrong test output line count #{output.split("\n").length}, \n#{output}")
+
+    File.open(scripttest, "w"){|f|
+    script = <<END
+ruby #{__FILE__}/scalars.rb -m "udpApp[*]" -C test_multiconfig_script.yaml -p -n client1
+END
+    f.puts script
+    }
+    output = `sh #{scripttest}`
+    assert(output.split("\n").length == 28, "should be less than previous output #{output}")
+    ensure
+      File.delete("wcmc_y_3.sca")
+      File.delete(scripttest)
   end
 
   def setup
-
+    File.chdir(File.expand_path(TESTDIR))
   end
 
   def teardown
-
   end
 
 end #end class TC_Scalars

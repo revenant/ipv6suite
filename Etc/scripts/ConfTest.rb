@@ -239,7 +239,8 @@ class ConfTest
       puts runline
       simoutput = `#{runline}`
       if $? != 0
-        puts "not continuing with runs as process exited with error #{simoutput}"
+        puts "not continuing with runs as process exited with error: \n#{simoutput}"
+        puts "interim confidence interval is " + ciw.to_s 
         exit
       end
       puts simoutput
@@ -276,9 +277,11 @@ end
 
 ##Unit test for this class/module
 require 'test/unit'
+require 'General'
 
 class TC_ConfTest < Test::Unit::TestCase 
   include RStuff
+  include General
 
   def test_confIntWidth
     n = [11, 5, 6, 3]
@@ -286,7 +289,7 @@ class TC_ConfTest < Test::Unit::TestCase
     s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
     totalArray = @set1 + @set2 + @set3 + @set4
     ciw = @cf.confIntWidth(n, u, s)
-    a = `echo 'options("digits"=15);source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R");jl.cis(#{to_R(totalArray)}, p=0.95, use.t=FALSE, rowLabel="x", columnLabels=c("n", "Mean", "Lower CI limit",
+    a = `echo 'options("digits"=15);source("#{File.dirname(__FILE__)}/functions.R");jl.cis(#{to_R(totalArray)}, p=0.95, use.t=FALSE, rowLabel="x", columnLabels=c("n", "Mean", "Lower CI limit",
                                                         "Upper CI limit"), unit="", citest = TRUE)' | #{RSlave}`
     r = answerFromR(a)
     assert((ciw - r.to_f).abs < @diffConsideredZero, 
@@ -304,7 +307,7 @@ class TC_ConfTest < Test::Unit::TestCase
     assert((sigman(totalArray)/Math.sqrt(ntot) - @cf.calculateSem(n, u, s)).abs < @diffConsideredZero,
            "difference exists between sigman(totalArray)/Math.sqrt(ntot) #{sigman(totalArray)/Math.sqrt(ntot)}  and @cf.calculateSem(n, u, s) #{@cf.calculateSem(n, u, s)}")
 
-    a = `echo 'options("digits"=15);source("~/src/IPv6SuiteWithINET/Etc/scripts/functions.R");jl.sem(#{to_R(totalArray)})' | #{RSlave}`
+    a = `echo 'options("digits"=15);source("#{File.dirname(__FILE__)}/functions.R");jl.sem(#{to_R(totalArray)})' | #{RSlave}`
     r = answerFromR(a)
     
     assert((sigma(totalArray)/Math.sqrt(ntot) - r.to_f).abs < @diffConsideredZero,
@@ -321,10 +324,20 @@ class TC_ConfTest < Test::Unit::TestCase
 
   #Steps for obtaining input test file
   #cd Res/net/test and copy wcmc files
-  #ruby ~/src/IPv6SuiteWithINET/Etc/scripts/multiconfig.rb -r 1 -C config.yaml wcmc
-  #ruby ~/src/IPv6SuiteWithINET/Etc/scripts/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r 100 "./test -f wcmc_y_3.ini -r1"
+  #ruby #{File.dirname(__FILE__)}/multiconfig.rb -r 1 -C config.yaml wcmc
+  #ruby #{File.dirname(__FILE__)}/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r 100 "./test -f wcmc_y_3.ini -r1"
 
   def test_parseScalarFile
+    begin
+    wait = `bunzip2 -k wcmc_y_3.sca.bz2`
+    throw 'failed to extract input test file' if not $? == 0
+      wait = `ruby #{File.dirname(__FILE__)}/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
+    throw 'failed to run scalars' if not $? == 0
+    rescue => err
+      puts "#{err} was from #{wait}" 
+      exit(1)    
+    end
+
     @cf.createRegex("client1,rtpl3Handover of client1")
     n, u, s = @cf.parseScalarFile("wcmc_y_3.sca")
     ciw = @cf.confIntWidth(n, u, s)
@@ -420,16 +433,8 @@ class TC_ConfTest < Test::Unit::TestCase
     @set4 = [5, 3, 2000]
     @diffConsideredZero = BigDecimal.new("1e-7")    
 
-    #set up for parseScalarFile
-    begin
-    wait = `bunzip2 -k wcmc_y_3.sca.bz2`
-    throw 'failed to extract input test file' if not $? == 0
-    wait = `ruby ~/src/IPv6SuiteWithINET/Etc/Scalars/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
-    throw 'failed to run scalars' if not $? == 0
-    rescue => err
-      puts "#{err} was from #{wait}" 
-      exit(1)    
-    end
+    File.chdir(File.expand_path(TESTDIR))
+
   end
 
   def teardown

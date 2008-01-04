@@ -341,7 +341,7 @@ end
     [factors, levels, actions]    
   end
   
-  def generateConfig
+  def generateConfig(yamlfile = "config.yaml")
 #    factors, levels,actions = hmipConfigBak
 if false
     factors = ["multi","fsra", "rai", "speed", "l2scan"] # "traffic_rate"
@@ -433,7 +433,8 @@ if true
 end
   
     require 'yaml'
-    File.open('config.yaml', 'w' ) do |out|
+    throw "file #{yamlfile} exists already" if File.exists? yamlfile
+    File.open(yamlfile, 'w' ) do |out|
       YAML.dump([factors, levels, actions], out)
     end
     [factors,levels,actions]
@@ -989,14 +990,32 @@ END
     
   end
 
-  def test_yaml    
-    yamlLoad(yamlSave)
-  end
+  def test_yaml        
+    testyaml = "test_yaml.yaml"
+    def yamlLoad(file, check)
+      File.open(file) do |f|
+        factors, levels, actions = YAML.load(f)
+        if false
+          p factors
+          puts "levels:"
+          p levels
+          puts "actions:"
+          p actions
+        end
+        assert_equal(check[0], factors)
+        assert_equal(check[1], levels)
+        assert_equal(check[2].keys.sort, actions.keys.sort)
+      end
+    end
 
-  def yamlSave
-    require 'yaml'
-    factors,levels,actions = @app.generateConfig
-    [factors,levels,actions]
+    def yamlSave(file)
+      require 'yaml'
+      factors,levels,actions = @app.generateConfig(file)
+      [factors,levels,actions]
+    end
+
+    yamlLoad(testyaml, yamlSave(testyaml))
+    File.delete(testyaml)
   end
 
   def test_constant
@@ -1007,22 +1026,34 @@ END
     assert_equal(expected, line,"")
   end
 
-  def yamlLoad(check)
-    File.open( 'config.yaml') do |f|
-      factors, levels, actions = YAML.load(f)
-      if false
-      p factors
-      puts "levels:"
-      p levels
-      puts "actions:"
-      p actions
-      end
-      assert_equal(check[0], factors)
-      assert_equal(check[1], levels)
-      assert_equal(check[2].keys.sort, actions.keys.sort)
-    end
-  end
 
+  def test_script
+    #shell script
+    scripttest = "test_multiconfig.sh"
+    yamltest = "test_multiconfig_script.yaml"
+    File.open(scripttest, "w"){|f|
+      script = <<END
+cd ${TESTDIR}
+rm -fr compare
+tar jxvf compare.tar.bz2
+rm -fr results &> /dev/null
+rm -fr wcmc_*.{ned,ini,xml} jobs.txt
+mkdir -pv results &> /dev/null
+ruby #{__FILE__} -r 100 -C #{yamltest} wcmc #&>/dev/null
+mv wcmc_*.{ned,ini,xml} jobs.txt results &> /dev/null
+diff -r results compare
+rm -fr compare
+END
+      f.puts script
+    }
+    output = `sh #{scripttest}`
+    assert(output.length == 0, 
+           "difference detected in generated scripts in results dir in comparison to compare dir, \
+output was #{output}")      
+  ensure
+    File.delete(scripttest)
+  end
+  
   def setup
     @app = MultiConfigGenerator.new
     @factors = ["scheme", "dnet", "dmap", "ar"]
@@ -1032,6 +1063,8 @@ END
     @levels[@factors[1]] = ["20", 50, "200", "500"]
     @levels[@factors[2]] = ["5ms", "10ms", "20ms", 345]
     @levels[@factors[3]] = ["y", "n"]
+
+    File.chdir(File.expand_path(TESTDIR))
   end
   
   def teardown

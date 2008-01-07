@@ -331,7 +331,7 @@ class TC_ConfTest < Test::Unit::TestCase
     begin
     wait = `bunzip2 -k wcmc_y_3.sca.bz2`
     throw 'failed to extract input test file' if not $? == 0
-      wait = `ruby #{File.dirname(__FILE__)}/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
+      wait = `ruby #{File.dirname(__FILE__)}/../Scalars/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
     throw 'failed to run scalars' if not $? == 0
     rescue => err
       puts "#{err} was from #{wait}" 
@@ -433,7 +433,7 @@ class TC_ConfTest < Test::Unit::TestCase
     @set4 = [5, 3, 2000]
     @diffConsideredZero = BigDecimal.new("1e-7")    
 
-    File.chdir(File.expand_path(TESTDIR))
+    Dir.chdir(File.expand_path(TESTDIR))
 
   end
 

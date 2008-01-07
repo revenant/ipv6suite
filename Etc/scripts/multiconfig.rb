@@ -273,7 +273,7 @@ end
       
       opt.on("--test", "run unit tests"){|$test|}
 
-      opt.on("--smart", "-s", "use ConfTest via smartSubmit"){|@conftest|}
+      opt.on("--smart", "-s", "use ConfTest via smartSubmit [true already]"){|@conftest|}
       
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -1064,7 +1064,7 @@ output was #{output}")
     @levels[@factors[2]] = ["5ms", "10ms", "20ms", 345]
     @levels[@factors[3]] = ["y", "n"]
 
-    File.chdir(File.expand_path(TESTDIR))
+    Dir.chdir(File.expand_path(TESTDIR))
   end
   
   def teardown

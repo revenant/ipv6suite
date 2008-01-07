@@ -107,8 +107,6 @@ class ConfTest
       opt.separator ""
       opt.separator "Specific options:"
 
-      opt.on("-x", "parse arguments and show Usage") {|@quit|}
-
       opt.on("--file scalarfile", "-f", String, "Process the specified scalar file. "\
              "Default is omnetpp.sca"){|@scalarfile|}
 
@@ -127,6 +125,8 @@ class ConfTest
       opt.on("--doc=DIRECTORY", String, "Output rdoc (Ruby HTML documentation) into directory"){|dir|
         system("rdoc -a --webcvs=\"http://localhost/cgi-bin/viewcvs.cgi/\" --tab-width=2 --diagram --inline-source -N -o #{dir} #{__FILE__}")
       }
+
+      opt.on("-x", "parse arguments and show Usage") {|@quit|}
 
       opt.on("--verbose", "-v", "print intermediate steps to STDOUT"){|@verbose|}
 

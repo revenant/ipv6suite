@@ -161,6 +161,11 @@ jl.ci <- function(x,y, p=0.95,use.t=TRUE, rowLabels=levels(y),
                   columnLabels=c("n", "Mean", "Lower CI limit",
                     "Upper CI limit"), unit=c("",rep("(s)",length(columnLabels)-1)))
   {
+
+   #In Mthesis I used +-interval  2*interval=width
+   #hence no 4 term in numerator of Eq. 5.1 as it would be cancelled out in
+   #denominator since I did /interval^2 instead of width (4*estvar*qnorm(1-alpha/2)^2)/width^2
+
    means <- tapply(x,y, mean)
    ns <- tapply(x,y,length)
    vars <- tapply(x,y,var)

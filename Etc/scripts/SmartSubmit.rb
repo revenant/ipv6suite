@@ -47,6 +47,7 @@ class SmartSubmit
 
     @confIntVariable = "client1,rtpl3Handover of client1"
     @runLimit = 100
+    @precision = 0.05
 
     get_options
 
@@ -76,6 +77,9 @@ class SmartSubmit
       opt.separator "Specific options:"
 
       opt.on("--civar nameofvariable", "-c", String, "Variable to determine precision for"){ |@confIntVariable|   
+      }
+
+      opt.on("-p", "--precision f", Float, "Precision of variable to stop sim at specified in --civar") {|@precision|
       }
 
       opt.on("-r", "--runlimit x", Integer, "Runlimit for ConfTest.rb") {|@runLimit|
@@ -151,7 +155,7 @@ class SmartSubmit
       logfile = l.split(' ')[2].split('.')[0]
       logfile = "~/simlogs/" + logfile + ".log"
 
-      subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} "#{lines[li].chomp}"|
+      subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
         File.open(submitfile, "w"){|f|
         f.puts <<END
 #!/bin/bash

@@ -25,8 +25,10 @@ require 'pp'
 $test  = false
 
 #
-# TODO: Add Description Here
+# Assumes all files specified by -f pattern are results from
+# yaml. If default pattern of *.sca are from different yaml files please change!
 #
+
 class Scalars
   include General
 
@@ -146,7 +148,7 @@ class Scalars
       end
 
       opt.on_tail(%|e.g. -c "~/other/IPv6SuiteWithINET/Research/Networks/EHComp" -n "cn,mn" -m "udpApp[*]" -s "*%*" EHComp|,
-                  "")
+                  "Note that default of *.sca may be incorrect in your case!")
       #Samples end
 
       opt.parse!

@@ -159,9 +159,7 @@ public:
     }
   virtual ~BURetranTmr(void)
     {
-//stop it from dumping core at end run of sim
-//TODO LEAK
-//      delete dgram;
+      delete dgram;
     };
 
   ///Exponential backoff till timeout >= MAX_BINDACK_TIMEOUT

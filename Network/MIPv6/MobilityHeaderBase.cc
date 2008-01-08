@@ -39,7 +39,9 @@ MobilityHeaderBase::MobilityHeaderBase(const char *name, int kind) :
   MobilityHeaderBase_Base(name,kind) 
 {
   setByteLength(8);
-  WATCH_VECTOR(mobilityOptions);
+// these vectors are not following the messages but left behind in modules
+// and hence access violations when viewing them in tkenv
+//  WATCH_VECTOR(mobilityOptions);
 }
 
 
@@ -47,7 +49,10 @@ MobilityHeaderBase::~MobilityHeaderBase()
 {
   //TODO delete options but take release from ownership
   for ( size_t i = 0; i < mobilityOptions.size(); i++)
+  {
+    drop(mobilityOptions[i]);
     delete mobilityOptions[i];
+  }
   mobilityOptions.clear();
 }
 
@@ -75,6 +80,7 @@ void  MobilityHeaderBase::addOption(MobilityOptionBase* op)
       || kind() == MIPv6MHT_COTI || kind() == MIPv6MHT_HOTI 
       || kind() == MIPv6MHT_BRR)
     assert(false);
+  take(op);
   mobilityOptions.push_back(op);
   if (kind() == MIPv6MHT_BA && op->kind() == MOPT_AUTH)
     assert(op->byteLength() > 0);

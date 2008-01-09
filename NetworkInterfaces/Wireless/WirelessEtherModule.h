@@ -45,6 +45,7 @@
 #include "WirelessExternalSignal_m.h"
 
 #include "AveragingList.h"
+#include <memory>
 
 class WEReceiveMode;
 class WEAScanReceiveMode;
@@ -482,6 +483,7 @@ public:
     mutable double _wirelessRange;
 
     void reschedule(cMessage *msg, simtime_t t);
+    bool noAuthentication() const { return noAuth; }
 
   private:
 

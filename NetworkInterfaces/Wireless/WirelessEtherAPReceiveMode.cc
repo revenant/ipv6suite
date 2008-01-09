@@ -138,7 +138,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint * mod, WESign
                                                         associationRequest->getAddress2());
         scheduleAck(mod, ack);
         // delete ack;
-        changeState = false;
+        changeState = false;     
 
 
 	if (mod->noAuth)
@@ -412,7 +412,11 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
         // check if MS is authenticated
         if ((chkIface == UNSPECIFIED_WIRELESS_ETH_IFACE) || (chkIface.receiveMode == RM_AUTHRSP_ACKWAIT))
         {
-            // send deauthentication
+          // send deauthentication    
+          if (chkIface == UNSPECIFIED_WIRELESS_ETH_IFACE)
+            wEV  << mod->fullPath() << " Sending De-authent to "
+                 << data->getAddress2() << " as unknown iface" << "\n";
+          else
             wEV  << mod->fullPath() << " Sending De-authent to "
                  << data->getAddress2() << " in RM_AUTHRSP_ACKWAIT " << "\n";
 
@@ -435,6 +439,9 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
             FrameBody *disAssFrameBody = mod->createFrameBody(disAssociation);
             disAssociation->encapsulate(disAssFrameBody);
             apMod->outputQueue->insertFrame(disAssociation, apMod->simTime());
+            wEV  << mod->fullPath() << " Sending Disassociation to "<< data->getAddress2() 
+                 << " as currently in state " << chkIface.receiveMode<<  "\n";
+
         }
         // MS is permitted to send class 3 frames
         else if ((chkIface.currentSequence != data->getSequenceControl().sequenceNumber)

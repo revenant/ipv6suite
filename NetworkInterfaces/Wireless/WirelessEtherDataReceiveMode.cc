@@ -47,6 +47,7 @@
 
 #include "WirelessEtherAScanReceiveMode.h"
 #include "WirelessEtherAuthenticationReceiveMode.h"
+#include "WirelessEtherAssociationReceiveMode.h" //noauth requires this
 #include "cTimerMessage.h" //link up trigger
 #include "TimerConstants.h" // SELF_SCHEDULE_DELAY
 #include "opp_utils.h"
@@ -231,12 +232,19 @@ void WEDataReceiveMode::handleDisAssociation(WirelessEtherModule *mod, WESignalD
                                                         disAssociation->getAddress2());
         scheduleAck(mod, ack);
         // delete ack;
-        changeState = false;
 
         if (mod->associateAP.address == disAssociation->getAddress3())
         {
             mod->associateAP.associated = false;
-            mod->changeReceiveMode(WEAuthenticationReceiveMode::instance());
+            if (!mod->noAuthentication())
+              mod->changeReceiveMode(WEAuthenticationReceiveMode::instance());
+            else
+            {
+              mod->associateAP.channel = signal->channelNum();
+              mod->associateAP.rxpower = signal->power();
+              mod->changeReceiveMode(WEAssociationReceiveMode::instance());
+            }
+            changeState = false;
             // may need to initiate association again or re-scan
         }
 

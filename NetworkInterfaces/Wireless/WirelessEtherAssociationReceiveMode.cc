@@ -151,11 +151,7 @@ void WEAssociationReceiveMode::handleDeAuthentication(WirelessEtherModule *mod, 
             mod->associateAP.channel = INVALID_CHANNEL;
             mod->associateAP.rxpower = INVALID_POWER;
             mod->associateAP.associated = false;
-            if (mod->activeScan)
-                mod->changeReceiveMode(WEAScanReceiveMode::instance());
-            else
-                mod->changeReceiveMode(WEPScanReceiveMode::instance());
-            // TODO: call the function inside the WAScanReceiveMode
+            mod->restartScanning();
         }
     }
 }

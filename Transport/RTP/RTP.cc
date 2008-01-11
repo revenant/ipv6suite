@@ -462,7 +462,7 @@ void RTP::initialize(int stageNo)
   //nodes otherwise the simulation will abort instead of sending stuff to link
   //local address
   simtime_t randomStart = startTime?(startTime - 2*tn):0;
-  scheduleAt(randomStart < 7? 8:randomStart, rtcpTimeout);
+  scheduleAt(randomStart < 7? 8 + randomStart:randomStart, rtcpTimeout);
 
   memberSet[_ssrc].sender = false;
   //Identify ourselves as self for the operator<< fn

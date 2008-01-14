@@ -238,7 +238,7 @@ class ConfTest
       runline =  "#{cli + ' -r' + rc.to_s}"
       puts runline
       simoutput = `#{runline}`
-      if $? != 0
+      if $? != 0 and simoutput =~ /Error/i
         puts "not continuing with runs as process exited with error: \n#{simoutput}"
         puts "interim confidence interval is " + ciw.to_s 
         exit

@@ -482,7 +482,8 @@ void XMLOmnetParser::parseNodeAttributes(RoutingTable6* rt, cXMLElement* ne)
   IPv6Mobility* mob = check_and_cast<IPv6Mobility*>
     (OPP_Global::findModuleByName(rt, "mobility"));
 
-  mob->ewuOutVectorHODelays = getNodeProperties(ne, "ewuOutVectorHODelays") == XML_ON;
+  //unused and dangerous as "home reg" vectors multiply when return home
+  //mob->ewuOutVectorHODelays = getNodeProperties(ne, "ewuOutVectorHODelays") == XML_ON;
 
   if (getNodeProperties(ne, "routeOptimisation") == XML_ON)
   {

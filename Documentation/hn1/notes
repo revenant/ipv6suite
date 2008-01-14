@@ -55,3 +55,21 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/src/IPv6SuiteWithINET/Etc/Scalars/engi
 #self built R requires this
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/lib64
 
+
+libcwd
+CFLAGS=-m32 CXXFLAGS=-m32  LDFLAGS=-m32 ./configure
+May need to define CWALLOC so define.h in inet does not conflict with libcwd
+definitions of ALLOCTAG. Why does it not happen at home?
+
+do not need make install just manually specify in ccmake
+
+include
+.libs/libcwd.so
+
+scalars
+compilation produces error as linux includes here also have eaccess specified
+~/lib/ruby/1.8/x86_64-linux/missing.h
+line 143 added and modded 144
+/*scalars swig app complains that unistd.h defined this already on hn3 with different throw specifiers*/
+/*extern int eaccess _((const char*, int));*/
+

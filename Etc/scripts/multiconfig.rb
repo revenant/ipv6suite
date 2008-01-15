@@ -1033,9 +1033,9 @@ END
     yamltest = "test_multiconfig_script.yaml"
     File.open(scripttest, "w"){|f|
       script = <<END
-cd ${TESTDIR}
+cd #{TESTDIR}
 rm -fr compare
-tar jxvf compare.tar.bz2
+tar jxvf compare.tar.bz2 &> /dev/null
 rm -fr results &> /dev/null
 rm -fr wcmc_*.{ned,ini,xml} jobs.txt
 mkdir -pv results &> /dev/null
@@ -1055,9 +1055,8 @@ output was #{output}")
   end
   
   def setup
-    @app = MultiConfigGenerator.new
+    @app = $app
     @factors = ["scheme", "dnet", "dmap", "ar"]
-    
     @levels = {}
     @levels[@factors[0]] = ["hmip", "mip", "eh"]
     @levels[@factors[1]] = ["20", 50, "200", "500"]

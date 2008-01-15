@@ -151,12 +151,17 @@ class SmartSubmit
       next if /^\s+$/ =~ l
 
       #sample line l
-      #./wcmc -f wcmc_n_n_n_n_22.ini -r 2
+      #./wcmc -f wcmc_n_n_n_n_22.ini -r2
       logfile = l.split(' ')[2].split('.')[0]
       logfile = "~/simlogs/" + logfile + ".log"
+      startrun = l.split(' ')[3].split('r')[1]
+      if startrun.to_i != 1
+        subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -s #{startrun} -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
+      else        
+        subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
+      end
 
-      subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
-        File.open(submitfile, "w"){|f|
+      File.open(submitfile, "w"){|f|
         f.puts <<END
 #!/bin/bash
 # Generated via #{__FILE__}

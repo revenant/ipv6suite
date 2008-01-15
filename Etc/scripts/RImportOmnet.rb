@@ -70,10 +70,9 @@ def `(cmd)
 end
 
 module RInterface
+include RStuff
 
   DELIM = "_"
-
-  RSlave = "R --slave --quiet --vanilla --no-readline"
 
   #Retrieve hash of vector index -> label from vec file filename (index is still
   #a numerical string) where label is the vector name in file. All labels have

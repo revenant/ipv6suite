@@ -5,6 +5,23 @@ class Object
   end
 end
 
+module RStuff
+  RSlave = "R --slave --quiet --vanilla --no-readline"
+
+  def answerFromR(routput)
+    routput.split{" "}[1]
+  end
+
+  def to_R(x)
+    return "c("+x.join(",")+")" if x.class == Array
+    return nil
+  end
+
+  def executeInR(command)
+    `echo '#{command}'|#{RSlave}`
+  end
+end
+
 module General  
   TESTDIR="~/src/IPv6SuiteWithINET/Research/Networks/test"
 

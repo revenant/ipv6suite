@@ -31,6 +31,7 @@ $test  = false
 
 class Scalars
   include General
+  include RStuff
 
   VERSION       = "$Revision$"
   REVISION_DATE = "19 Sep 2006"
@@ -63,6 +64,7 @@ class Scalars
     @print = false
     @pattern = "*.sca"
     @config = nil
+    @csvOutput = true
 
     get_options
 
@@ -112,8 +114,9 @@ class Scalars
         @nodes = nodes.split(",")
       }
 
-      opt.on("--modulename mod", "-m", String, "module name to query for values"){|@module|
-      }
+      opt.on("--modulename mod", "-m", String, "module name to query for values"){|@module|}
+
+      opt.on("--nocsv", "do not output csv files (#{not @csvOutput})"){|@csvOutput| @csvOutput = false}
 
       opt.on("--scalarname \"*%*,rtpOctetCount\"", "-s", String, "scalar name/s to query separated by commas. One output csv per scalar"){|scalars|
         @scalars = scalars.split(",")
@@ -263,6 +266,7 @@ end
       exit
     end
 
+if @csvOutput
     for scalarName in scalarNames
       header = false
       outputfile = scalarName +".csv"
@@ -295,6 +299,11 @@ end
         File.delete(outputfile)
       end
     end
+end
+
+    #Reduce no. of csvs by factor of 5 i.e. stats.each.csv is replaced by scalarname.csv
+    combinedScalars = combineCSVs(Dir["*.csv"])
+    analyseWithR(combinedScalars, factors)
 
     rescue => err
       puts err
@@ -302,6 +311,51 @@ end
       puts "file processed at the time was #{file}" if not file.nil?
 
   end#run
+
+  #Expects an array of csv filenames to work on
+  def combineCSVs(array = Dir["*.mean.csv"])
+    array = array.select{|i| 
+      i =~ /[.]mean[.]csv/
+    }
+    array.collect!{|e|
+      e.split(".mean.csv")[0]
+    }
+    stats = %|samples,mean,stddev,max,min|.split(",")
+    array.each{|e|
+      for s in stats do
+        wait = `cut -d ',' -f 5 < "#{e}.#{s}.csv" > #{s}.tmp` 
+      end   
+      wait = `cut -d ',' -f 1-4 "#{e}.mean.csv" | paste -d "," - #{stats.join(".tmp ") + ".tmp"} > "#{e}.csv"`
+      wait = `rm #{stats.join(".tmp ") + ".tmp"}`
+#      stats.each{|i| wait = `rm "#{e}.#{s}.csv"` }
+    }
+    array
+  end
+
+  #array of combined scalars i.e. the variable name of interest
+  def analyseWithR(cscalars, factors)
+    configNames, factors, levels = readConfigs if factors.nil?
+    rdataFile = "scalars.Rdata"
+    loadRfile = %|""|
+    saveRfile = %|save.image("#{rdataFile}")|
+    sourceFunctions = %|source("#{File.dirname(__FILE__)}/../scripts/functions.R")|
+    cscalars.each{|variable|
+      loadRfile = %|load("#{rdataFile}")| if File.exist?(rdataFile)
+      v = variable.gsub(/[ ]/,'.') #make it look like R valid name
+      expanded = ""
+      factors.map{|e| expanded += "#{e}=#{e},"}      
+      expanded.chop! #remove last ,
+      run = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(run, list(#{expanded}),length))'| #{RSlave}`
+      samples = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.samples, list(#{expanded}),sum))'| #{RSlave}`
+      mean = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.mean, list(#{expanded}),mean))'| #{RSlave}`
+      puts "scalar is #{variable}"
+      puts "runs are ", run
+      puts "samples are ", samples
+      puts "mean is ", mean
+      wait = `echo '#{loadRfile};a=read.csv("#{variable}.csv");#{sourceFunctions};a=jl.renameColumn(a,5,"samples");a=jl.renameColumn(a,6,"mean");a=jl.renameColumn(a,7,"stddev");#{v} <- a;rm(a);#{saveRfile}'|#{RSlave}`
+#      executeInR(%|#{loadRfile};#{sourceFunctions};jl.ciFromGroupMeans(#{v})|) 
+    }
+  end
 
   def notesInR
 <<END

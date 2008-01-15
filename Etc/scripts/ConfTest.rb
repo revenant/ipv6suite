@@ -24,17 +24,9 @@ require 'pp'
 require 'matrix'
 require 'bigdecimal'
 require 'bigdecimal/math'
+require 'General' #RStuff
 
 $test  = false
-
-module RStuff
-  def answerFromR(routput)
-    routput.split{" "}[1]
-  end
-
-  RSlave = "R --slave --quiet --vanilla --no-readline"
-end
-
 
 #
 # Calculate the confidence interval (default of 95% level) and repeat the
@@ -72,6 +64,7 @@ class ConfTest
     @scalarfile = "omnetpp.sca"
     @runlimit = 100
     @precision = 0.05
+    @startrun = 1
     @auto = false
 
     @qstat = answerFromR(`echo 'options("digits"=15);qnorm((1+0.95)/2)'| #{RSlave}`)
@@ -108,15 +101,16 @@ class ConfTest
       opt.separator "Specific options:"
 
       opt.on("--file scalarfile", "-f", String, "Process the specified scalar file. "\
-             "Default is omnetpp.sca"){|@scalarfile|}
+             "Default is #{@scalarfile}"){|@scalarfile|}
 
       opt.on("--grep pattern \"network,node,module,scalarname\"", "-g", String,
              "particular scalar to check precision on. Scalar name must be "\
              "according to order specified and separated by commas.") { |nodes|
         createRegex(nodes)
       }
-      opt.on("-r runlimit", Integer, "run limit to stop at if precision is not reached"){|@runlimit|}
-      opt.on("-p precision", Float, "precision you'd like to reach"){|@precision|}
+      opt.on("-r runlimit", Integer, "run limit to stop at if precision is not reached (#{@runlimit})"){|@runlimit|}
+      opt.on("-s startrun", Integer, "run to start from. Default is #{@startrun}"){|@startrun|}
+      opt.on("-p precision", Float, "precision you'd like to reach (#{@precision})"){|@precision|}
       opt.on("-a", "infer scalar file name and remove run number indications from command to run"){|@auto|}
 
       opt.separator ""
@@ -234,7 +228,7 @@ class ConfTest
     end
     puts "scalar file is " + @scalarfile if @debug
     ciw = 0
-    1.upto(@runlimit){|rc|
+    @startrun.to_i.upto(@runlimit){|rc|
       runline =  "#{cli + ' -r' + rc.to_s}"
       puts runline
       simoutput = `#{runline}`
@@ -282,9 +276,8 @@ require 'General'
 class TC_ConfTest < Test::Unit::TestCase 
   include RStuff
   include General
-
   def test_confIntWidth
-    n = [11, 5, 6, 3]
+    n = [@set1.length, @set2.length, @set3.length, @set4.length]
     u = [mean(@set1), mean(@set2), mean(@set3), mean(@set4)]
     s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
     totalArray = @set1 + @set2 + @set3 + @set4
@@ -294,10 +287,15 @@ class TC_ConfTest < Test::Unit::TestCase
     r = answerFromR(a)
     assert((ciw - r.to_f).abs < @diffConsideredZero, 
            "calculated ciw #{ciw} was different from the one in R #{r}")
+
+    a = `echo 'options("digits"=15);source("#{File.dirname(__FILE__)}/functions.R");jl.groupci(#{to_R(n)}, #{to_R(u)}, #{to_R(s)})' | #{RSlave}`
+    r = answerFromR(a)
+    assert((ciw - r.to_f).abs < @diffConsideredZero, 
+           "calculated ciw #{ciw} was different from the one in R #{r}")
   end
 
   def test_calculateSem   
-    n = [11, 5, 6, 3]
+    n = [@set1.length, @set2.length, @set3.length, @set4.length]
     u = [mean(@set1), mean(@set2), mean(@set3), mean(@set4)]
     s = [sigma(@set1), sigma(@set2), sigma(@set3), sigma(@set4)]
     totalArray = @set1 + @set2 + @set3 + @set4
@@ -328,10 +326,11 @@ class TC_ConfTest < Test::Unit::TestCase
   #ruby #{File.dirname(__FILE__)}/ConfTest.rb -a -g "client1,rtpl3Handover of client1" -r 100 "./test -f wcmc_y_3.ini -r1"
 
   def test_parseScalarFile
+    yamltest = "test_multiconfig_script.yaml"
     begin
     wait = `bunzip2 -k wcmc_y_3.sca.bz2`
     throw 'failed to extract input test file' if not $? == 0
-      wait = `ruby #{File.dirname(__FILE__)}/../Scalars/scalars.rb -C config.yaml -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
+      wait = `ruby #{File.dirname(__FILE__)}/../Scalars/scalars.rb -C #{yamltest} -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
     throw 'failed to run scalars' if not $? == 0
     rescue => err
       puts "#{err} was from #{wait}" 
@@ -418,11 +417,6 @@ class TC_ConfTest < Test::Unit::TestCase
     sum = BigDecimal.new("0")
     x.each { |v| sum += (v-m)**2 }
     Math.sqrt(sum/(x.size))
-  end
-
-  def to_R(x)
-    return "c("+x.join(",")+")" if x.class == Array
-    return nil
   end
 
   def setup

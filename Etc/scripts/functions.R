@@ -233,6 +233,26 @@ jl.cis <- function(x,p=0.95,use.t=TRUE, rowLabel="x", columnLabels=c("n", "Mean"
    }
   }
 
+#group sample sizes in n, means in u and stddevs in s
+jl.groupci <- function(n, u = NULL, s =NULL, p=0.95)
+  {
+    if (length(u) != 0)
+      x <- data.frame(mean=u,samples=n, stddev=s)    
+    else x <- n
+      
+    v <- x$stddev^2
+    nfactor <- (x$samples-1)/x$samples
+    sstar <- sqrt(nfactor*v)
+
+    ntot <- sum(x$samples)
+    utot = sum((x$samples * x$mean)/ntot)
+    v <- sstar^2
+    u2 = x$mean^2
+    vtot = sum((x$samples*(v+u2)))/ntot-utot^2
+    semn = sqrt(vtot/ntot)
+    qnorm((1+p)/2) * sqrt(ntot) * semn/sqrt(ntot-1)
+  }
+
 ##Gives back the value of true for odd numbers 
 jl.odd <- function(x)
   {
@@ -336,4 +356,21 @@ jl.Mos <- function(R)
     if (R > 100)
       return(4.5)
     return(1+0.035*R + R*(R-60)*(100-R)*7*10^-6)
+  }
+
+jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "loss")
+  {
+    dimnames(frame)[[2]][renameIndex] = newname
+    dumbWay = F
+    if (dumbWay) {
+    #The column to be renamed is the response column
+      response = renameIndex
+    #responseIndex = dim(frame)[2]
+    renamecolumn = frame[, response]
+    frame = transform(frame, newname = renamecolumn)
+    frame = frame[,-response]
+    #can't rename it this way
+    #dimnames(frame[1,])[[2]][length(frame[1,])] = "loss"
+    }
+    frame
   }

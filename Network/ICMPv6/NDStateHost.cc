@@ -73,6 +73,8 @@
 #include "WirelessEtherModule.h" //l2 trigger set GD
 #endif //USE_MOBILITY
 
+#include "NotificationBoard.h" //for rtp handover l2 down signal
+#include "NotifierConsts.h"
 
 const int Tmr_L2Trigger = 8009;
 
@@ -450,13 +452,16 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     Dout(dc::neighbour_disc|continued_cf, rt->nodeName()<<":"<<tmr->ifIndex
          <<" Tentative addr:"<<tmr->tentativeAddr);
-    Dout(dc::finish, nd->simTime() <<" DupAddrDet sends: "<<  tmr->counter
+    Dout(dc::finish, nd->simTime() <<" DupAddrDet sends: "<<  tmr->counter + 1
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(4) << tmr->timeout
          <<" initial delay:"<<delay);
 
     //Send directly to IPv6Output as we need to send to a particular interface
     //which the routingCore can't determine from dest addr.
     nd->sendDelayed(tmr->dgram->dup(), delay, "outputOut", tmr->ifIndex);
+
+    //would include address from which sent if IPv6Address was a cPolymorphic*
+    nd->nb->fireChangeNotificationAt(nd->simTime() + delay, NF_IPv6_NS_SENT);
 
     tmr->counter++;
 
@@ -506,6 +511,7 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
   }
 
   InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
+  nd->nb->fireChangeNotification(NF_IPv6_ADDR_ASSIGNED);
 
   if (rt->odad())
   {
@@ -564,7 +570,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
 
     RS* rs = new RS;
     std::stringstream name;
-    name<<rs->name()<<" "<<tmr->counter<<"/"<<tmr->max_sends;
+    name<<rs->name()<<" "<<tmr->counter+1<<"/"<<tmr->max_sends;
     rs->setName(name.str().c_str());
     if (!ie->ipv6()->inetAddrs.empty()
         || (rt->odad() && !ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress())))
@@ -591,12 +597,14 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
   if (tmr->counter < tmr->max_sends)
   {
     Dout(dc::router_disc|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
-         <<" RtrSol sends: "<<  tmr->counter
+         <<" RtrSol sends: "<<  tmr->counter+1
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(6) << tmr->timeout
          <<" initial delay:"<<delay);
 
     //Delay is non-zero for first rtrsol i.e. initial rtr sol
     nd->sendDelayed(tmr->dgram->dup(), delay, "outputOut", tmr->ifIndex);
+    
+    nd->nb->fireChangeNotificationAt(nd->simTime() + delay, NF_IPv6_RS_SENT);
 
     nd->ctrIcmp6OutRtrSol++;
     rt->ctrIcmp6OutMsgs++;
@@ -641,6 +649,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
   dgram->setName(na->name());
   dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
   nd->send(dgram, "outputOut", ifIndex);
+  nd->nb->fireChangeNotification(NF_IPv6_NA_SENT);
 }
 
 ///disc 6.3.4 and autoconf 5.5.3
@@ -655,6 +664,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   assert(ifIndex < ift->numInterfaceGates());
   Dout(dc::router_disc|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<nd->simTime()
        <<" received rtr adv "<<*rtrAdv);
+  nd->nb->fireChangeNotification(NF_IPv6_RA_RECVD);
 
   if (!rtrSolicited[ifIndex])
   {

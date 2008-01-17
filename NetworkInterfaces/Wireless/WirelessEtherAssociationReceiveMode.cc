@@ -216,16 +216,11 @@ void WEAssociationReceiveMode::handleAssociationResponse(WirelessEtherModule *mo
             {
                 mod->totalDisconnectedTime += mod->simTime() - mod->linkdownTime;
 
-                cMessage *linkUpTimeMsg = new cMessage;
-                linkUpTimeMsg->setTimestamp();
-                linkUpTimeMsg->setKind(LinkUP);
-                mod->sendDirect(linkUpTimeMsg,
-                                0, OPP_Global::findModuleByName(mod, "mobility"), "l2TriggerIn");
 		mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
 
                 mod->linkdownTime = 0;
             }
-//* XXX maybe something like this would be useful:
+
 	    if (ev.isGUI())
 	    {
 	      mod->bubble("Handover completed!");
@@ -290,6 +285,19 @@ void WEAssociationReceiveMode::handleReAssociationResponse(WirelessEtherModule *
             mod->changeReceiveMode(WEDataReceiveMode::instance());
             mod->makeOfflineBufferAvailable();
         }
+
+	if (mod->linkdownTime != 0)
+	  mod->totalDisconnectedTime += mod->simTime() - mod->linkdownTime;
+
+	mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
+	mod->linkdownTime = 0;
+
+	if (ev.isGUI())
+	{
+	  mod->bubble("Reassociation!");
+	  mod->parentModule()->bubble("Reassociation!");
+	  mod->parentModule()->parentModule()->bubble("Reassociation!");
+	}
 
         if (mod->linkUpTrigger())       //  movement detection for MIPv6
         {

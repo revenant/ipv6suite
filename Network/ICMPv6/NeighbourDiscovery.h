@@ -25,6 +25,7 @@ class ICMPv6Message;
 class RoutingTable6;
 class InterfaceTable;
 class IPv6InterfaceData;
+class NotificationBoard;
 
 //Forward declarations
 namespace IPv6NeighbourDiscovery
@@ -91,6 +92,7 @@ class NeighbourDiscovery: public cSimpleModule
   virtual void handleMessage(cMessage* msg);
   virtual int numInitStages() const;
   IPv6NeighbourDiscovery::NDState* getRouterState();
+  NotificationBoard* nb;
 
  private:
   InterfaceTable *ift;

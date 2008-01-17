@@ -20,8 +20,13 @@
 #ifndef __INOTIFIABLE_H
 #define __INOTIFIABLE_H
 
+#ifndef __OMNETPP_H
 #include <omnetpp.h>
+#endif
 
+#ifndef _INETDEFS_H__
+#include "INETDefs.h"
+#endif
 
 /**
  * Clients can receive change notifications from the NotificationBoard via

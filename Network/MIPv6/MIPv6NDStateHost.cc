@@ -989,8 +989,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
           }
         }
 
-        if ( mob->isEwuOutVectorHODelays() )
-          mob->recordHODelay( nd->simTime() );
       }
       else
       {
@@ -1012,8 +1010,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   relinquishRouter(oldRtr, newRtr);
 
-  if ( mob->isEwuOutVectorHODelays() )
-    mob->setLinkUpTime(0); // clear the link up time
 }
 
 /**

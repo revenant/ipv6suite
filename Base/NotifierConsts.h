@@ -64,6 +64,11 @@ enum
     NF_IPv6_INTERFACECONFIG_CHANGED,
     NF_IPv6_ROUTINGTABLE_CHANGED,
     NF_IPv6_HANDOVER_OCCURRED,
+    NF_IPv6_ADDR_ASSIGNED,
+    NF_IPv6_RS_SENT,
+    NF_IPv6_RA_RECVD,
+    NF_IPv6_NS_SENT,
+    NF_IPv6_NA_SENT,
 
     // - layer 4 (transport)
     //...

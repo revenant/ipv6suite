@@ -31,6 +31,8 @@
 #include "INotifiable.h"
 #include "NotifierConsts.h"
 
+class cSignalMessage;
+
 /**
  * Acts as a intermediary between module where state changes can occur and
  * modules which are interested in learning about those changes;
@@ -108,6 +110,8 @@ class INET_API NotificationBoard : public cSimpleModule
      */
     virtual void handleMessage(cMessage *msg);
 
+    void fireChangeNotificationAtCallback(cSignalMessage* msg, int category, cPolymorphic* details);
+
   public:
     /** @name Methods for consumers of change notifications */
     //@{
@@ -131,7 +135,12 @@ class INET_API NotificationBoard : public cSimpleModule
      * that changed, old value, new value, etc).
      */
     void fireChangeNotification(int category, cPolymorphic *details=NULL);
+
+    //currently does not handle details
+    void fireChangeNotificationAt(simtime_t time, int category, cPolymorphic* details=NULL);
+
     //@}
+
 };
 
 /**

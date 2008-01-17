@@ -17,7 +17,7 @@
 // Definition of an IPNode with transport layers
 
 import
-    "Blackboard",
+    "NotificationBoard",
     "InterfaceTable",
     "NetworkLayer6",
     "LinkLayer6",
@@ -34,8 +34,8 @@ module Router6
         out: out[];
 
     submodules:
-        blackboard: Blackboard;
-            display: "p=84,59;i=block/blackboard";
+        notificationBoard: NotificationBoard;
+            display: "p=60,70;i=block/control";
         interfaceTable: InterfaceTable;
             display: "p=83,124;i=block/table";
         errorHandling: ErrorHandling6;

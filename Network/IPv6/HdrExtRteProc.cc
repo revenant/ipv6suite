@@ -39,7 +39,7 @@
 #include "ICMPv6MessageUtil.h"
 #include "IPv6Headers.h"
 #include "IPv6Mobility.h" //for future hoa test of type2 header
-
+#include "opp_utils.h"
 
 HdrExtRte::HdrExtRte(unsigned char rt_type)
 {

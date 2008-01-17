@@ -1031,11 +1031,6 @@ void WirelessEtherModule::restartScanning(void)
 
     //record L2 down event by sending L2 down trigger
     linkdownTime = simTime();
-    cMessage *linkDownTimeMsg = new cMessage;
-    linkDownTimeMsg->setTimestamp();
-    linkDownTimeMsg->setKind(LinkDOWN);
-    sendDirect(linkDownTimeMsg,
-	       0, OPP_Global::findModuleByName(this, "mobility"), "l2TriggerIn");
     nb->fireChangeNotification(NF_L2_BEACON_LOST);
 
     if (ev.isGUI())

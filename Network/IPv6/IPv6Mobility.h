@@ -32,11 +32,17 @@
 #ifndef IPV6MOBILITY_H
 #define IPV6MOBILITY_H
 
-#include <iostream>
-#include <omnetpp.h>
 #include <string>
 
-#include "opp_utils.h" //abort_ipv6suite
+#ifndef __OMNETPP_H
+#include <omnetpp.h>
+#endif
+
+
+#ifndef __INOTIFIABLE_H
+#include "INotifiable.h"
+#endif
+
 
 #ifdef USE_MOBILITY
 struct ipv6_addr;
@@ -76,9 +82,16 @@ namespace MobileIPv6
   class MIPv6MobilityState;
 }
 
+namespace XMLConfiguration
+{
+  class XMLOmnetParser;
+}
+
 class cTimerMessage;
 class RoutingTable6;
 class InterfaceTable;
+class NotificationBoard;
+class IPv6Datagram;
 
 /**
  * @class IPv6Mobility
@@ -87,7 +100,7 @@ class InterfaceTable;
  * Conceptual data structures
  */
 
-class IPv6Mobility : public cSimpleModule
+class IPv6Mobility : public cSimpleModule, INotifiable
 {
 public:
 
@@ -125,31 +138,13 @@ public:
   bool returnRoutability() { return _returnRoutability; }
   void setReturnRoutability(bool rr)
     {
-      assert(rr);
       _returnRoutability = rr;
     }
 
   bool earlyBindingUpdate() { return _isEBU; }
-  void setEarlyBindingUpdate(bool isEBU)
-    {
-      if (!_returnRoutability && isEBU)
-      {
-        std::cerr<<"Error: "<<fullPath()<<" Early BU is true while Route Optimisation is off"<<endl;
-        abort_ipv6suite();
-      }
-      _isEBU = isEBU;
-    }
-
-  void setLinkUpTime(simtime_t t) { linkUpTime = t; }
-  simtime_t getLinkUpTime(void) { return linkUpTime; }
+  void setEarlyBindingUpdate(bool isEBU);
 
   bool isEwuOutVectorHODelays() const { return ewuOutVectorHODelays; }
-
-  // handover in this case is time when obtaining new CoA - link up time
-  void recordHODelay(simtime_t t)
-  {
-    handoverLatency->record( t - linkUpTime );
-  }
 
   MobileIPv6::SignalingEnhance signalingEnhance();
   void setSignalingEnhance(MobileIPv6::SignalingEnhance s);
@@ -158,7 +153,7 @@ public:
 
   void parseXMLAttributes();
 
-
+  void receiveChangeNotification(int, cPolymorphic*);
 #ifdef USE_HMIP
   bool isMAP() const;
 
@@ -220,6 +215,10 @@ private:
 
   bool _isEBU;
 
+  /**
+     @name parameters for cell residency
+   */
+  //@{    
   bool ewuOutVectorHODelays;
   simtime_t linkUpTime; // time when establishing with new link
   MobileIPv6::SignalingEnhance _signalingEnhance;
@@ -231,12 +230,10 @@ private:
 public:
 
   simtime_t linkDownTime;
-
-  // parameters for cell resdiency signaling
   simtime_t handoverDelay;
+  //@}
 
   // handoverLatency is time when obtaining new CoA - link up time
-  cOutVector* handoverLatency;
   cOutVector* linkUpVector;
   cOutVector* linkDownVector;
   cOutVector* backVector;
@@ -250,6 +247,17 @@ public:
   //BA from Bound Map Edge Handover
   cOutVector* bbackVector;
 
+  cOutVector rsVector;
+  cOutVector raVector;
+  cOutVector nsVector;
+  cOutVector naVector;
+  cOutVector globalAddrAssignedVector;
+  cOutVector hotiVector;
+  cOutVector hotVector;
+  cOutVector cotiVector;
+  cOutVector cotVector;
+
+  NotificationBoard* nb;
 private:
 #if EDGEHANDOVER
   ///Algorithm used for edge handover. Controls which subclass of HMIPv6NDStateHost gets created

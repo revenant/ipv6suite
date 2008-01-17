@@ -789,6 +789,10 @@ void MIPv6MStateMobileNode::processTest(MobilityHeaderBase* testMsg, IPv6Datagra
 	 << " does not match entry in BUL");
     return;
   }
+  if (hot)
+    mob->hotVector.record(mob->simTime());
+  else
+    mob->cotVector.record(mob->simTime());    
 
   bule->cancelTestInitTimeout((MIPv6HeaderType)testMsg->kind());
   /*
@@ -951,7 +955,8 @@ void MIPv6MStateMobileNode::sendHoTI(const std::vector<ipv6_addr> addrs, simtime
   Dout(dc::rrprocedure,"HOTI: At " << mob->simTime()<< " sec, "<< mob->nodeName() 
        << " sending HoTI src= " << dgram_hoti->srcAddress() << " to " 
        << dgram_hoti->destAddress()<<"cb coa="<<coa<< " cdsMN->coa="<<mipv6cdsMN->careOfAddr());
-  
+  mob->hotiVector.record(mob->simTime());
+
   if (mipv6cdsMN->careOfAddr() != mipv6cdsMN->homeAddr())
   {
     
@@ -1024,6 +1029,7 @@ void MIPv6MStateMobileNode::sendCoTI(const std::vector<ipv6_addr> addrs, simtime
        << " sending CoTI src= " << dgram_coti->srcAddress() << " to " 
        << dgram_coti->destAddress()<< "| next CoTI retransmission time will be at " 
        <<   bule->cotiRetransTmr->arrivalTime());
+  mob->cotiVector.record(mob->simTime());
 
   //looks like acc. to fig. 1 of ebu draft that proactive home reg needs to have
   //taken place for ebu to be effective. i.e. no point sending ebu when HOT

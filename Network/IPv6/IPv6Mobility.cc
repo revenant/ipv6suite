@@ -55,6 +55,11 @@
 
 #include "cTimerMessage.h"
 
+#include "NotificationBoard.h" 
+#include "NotifierConsts.h"
+#include <iostream>
+#include "opp_utils.h" //abort_ipv6suite
+
 Define_Module(IPv6Mobility);
 
 using namespace MobileIPv6;
@@ -87,7 +92,6 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
      handoverCount(0),
      linkDownTime(0),
      handoverDelay(0),
-     handoverLatency(0),
      linkUpVector(0),
      linkDownVector(0),
      backVector(0),
@@ -96,6 +100,16 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
      lbackVector(0),
      bbuVector(0),
      bbackVector(0),
+     rsVector("RS sent"),
+     raVector("RA recv"),
+     nsVector("NS sent"),
+     naVector("NA sent"),
+     globalAddrAssignedVector("global addr assigned"),
+     hotiVector("HOTI sent"),
+     hotVector("HOT recv"),
+     cotiVector("COTI sent"),
+     cotVector("COT recv"),
+     nb(0),
      ehType(""), 
      ehCallback(0)
 {
@@ -114,6 +128,18 @@ void IPv6Mobility::initialize(int stage)
 {
   if (!rt->mobilitySupport())
     return;
+
+  if (stage == 2)
+  {
+    nb = NotificationBoardAccess().get();
+    nb->subscribe(this, NF_L2_BEACON_LOST);
+    nb->subscribe(this, NF_L2_ASSOCIATED);
+    nb->subscribe(this, NF_IPv6_NS_SENT);
+    nb->subscribe(this, NF_IPv6_NA_SENT);
+    nb->subscribe(this, NF_IPv6_RA_RECVD);
+    nb->subscribe(this, NF_IPv6_RS_SENT);
+    nb->subscribe(this, NF_IPv6_ADDR_ASSIGNED);
+  }
 
 #ifdef USE_MOBILITY
 
@@ -138,11 +164,9 @@ void IPv6Mobility::initialize(int stage)
   else if (stage == 2)
   {
     role->initialize(stage);
-    if ( ewuOutVectorHODelays )
-      handoverLatency = new cOutVector("L3 handover delay");
     linkUpVector = new cOutVector("L2 Up");
     linkDownVector = new cOutVector("L2 Down");
-    
+    assert(returnRoutability());    
   }
 #endif // USE_MOBILITY
 
@@ -165,13 +189,6 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 #ifdef USE_MOBILITY
   if (!msg->isSelfMessage())
   {
-    if ( msg->arrivedOn("l2TriggerIn") )
-    {
-      processLinkLayerTrigger(msg);
-      delete msg;
-      return;
-    }
-
     IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(msg);
     assert(dgram);
     if (!dgram)
@@ -191,7 +208,19 @@ void IPv6Mobility::handleMessage(cMessage* msg)
 
 }
 
+void IPv6Mobility::setEarlyBindingUpdate(bool isEBU)
+{
+  if (!_returnRoutability && isEBU)
+  {
+    std::cerr<<"Error: "<<fullPath()<<" Early BU is true while Route Optimisation is off"<<endl;
+    abort_ipv6suite();
+  }
+  _isEBU = isEBU;
+}
+
 #ifdef USE_MOBILITY // calling the MOBILITY define module in RoutingTable6
+
+
   bool IPv6Mobility::isMobileNode()
     {
       return rt->isMobileNode();
@@ -232,9 +261,11 @@ void IPv6Mobility::parseXMLAttributes()
 //seperate from l2 trigger to force movement detection callback
 void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 {
+  //we never use this now instead NotificationBoard for lu/ld messages
+  assert(false);
   if ( msg->kind() == LinkDOWN)
   {
-    linkDownVector->record(msg->timestamp());
+    //linkDownVector->record(msg->timestamp());
     // record MN's own handover delay
     if ( !prevLinkUpTime )
       return;    
@@ -251,13 +282,34 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
   }
   else if ( msg->kind() == LinkUP)
   {
-    linkUpVector->record(msg->timestamp());
+    //linkUpVector->record(msg->timestamp());
     if (ewuOutVectorHODelays)
     {
       Dout(dc::mipv6, nodeName()<<":"<< simTime() << " sec, link layer linkup trigger received.");
       linkUpTime = msg->timestamp();
     }
   }
+}
+
+void IPv6Mobility::receiveChangeNotification(int category, cPolymorphic *details)
+{
+  Enter_Method_Silent();
+  printNotificationBanner(category, details);
+
+  if (category == NF_L2_BEACON_LOST)
+    linkDownVector->record(simTime());
+  else if (category == NF_L2_ASSOCIATED)
+    linkUpVector->record(simTime());
+  else if (category == NF_IPv6_RA_RECVD)
+    raVector.record(simTime());
+  else if (category == NF_IPv6_RS_SENT)
+    rsVector.record(simTime());
+  else if (category == NF_IPv6_NS_SENT)
+    nsVector.record(simTime());
+  else if (category == NF_IPv6_NA_SENT)
+    naVector.record(simTime());
+  else if (category == NF_IPv6_ADDR_ASSIGNED)
+    globalAddrAssignedVector.record(simTime());
 }
 
 #endif // USE_MOBILITY

@@ -15,6 +15,9 @@
 #include "RoutingTable6Access.h"
 #include "cTimerMessage.h"
 
+#include "NotificationBoard.h" //for ns/na/rs/ra notifications
+#include "NotifierConsts.h"
+
 /*
   RNG
   0: first DAD or RS sent upon interface enabled (NDStateHost)
@@ -70,6 +73,7 @@ void NeighbourDiscovery::initialize(int stageNo)
 {
   if (stageNo == 0)
   {
+    nb = NotificationBoardAccess().get();
     ift = InterfaceTableAccess().get();
     rt = RoutingTable6Access().get();
 

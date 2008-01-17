@@ -20,6 +20,8 @@
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
 #include <algorithm>
+#include "cSignalMessage.h"
+#include <boost/bind.hpp>
 
 Define_Module(NotificationBoard);
 
@@ -55,6 +57,12 @@ void NotificationBoard::initialize()
 
 void NotificationBoard::handleMessage(cMessage *msg)
 {
+  if (msg->isSelfMessage())
+  {
+    (static_cast<cTimerMessage *> (msg) )->callFunc();
+    return;
+  }
+  else
     error("NotificationBoard doesn't handle messages, it can be accessed via direct method calls");
 }
 
@@ -97,4 +105,18 @@ void NotificationBoard::fireChangeNotification(int category, cPolymorphic *detai
         (*j)->receiveChangeNotification(category, details);
 }
 
+void NotificationBoard::fireChangeNotificationAt(simtime_t time, int category, cPolymorphic* details)
+{
+  Enter_Method("fireChangeNotificationAt(%f, %s, %s)", time, notificationCategoryName(category),
+                 details?details->info().c_str() : "n/a");
 
+  cSignalMessage* msg = new cSignalMessage("changeNotificationAt");
+  msg->connect(boost::bind(&NotificationBoard::fireChangeNotificationAtCallback, this, msg, category, details));
+  scheduleAt(time, msg);
+}
+
+void NotificationBoard::fireChangeNotificationAtCallback(cSignalMessage* msg, int category, cPolymorphic* details)
+{
+  fireChangeNotification(category, details);
+  delete msg; 
+}

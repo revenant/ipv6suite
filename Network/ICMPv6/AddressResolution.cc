@@ -327,12 +327,8 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
       }
 
     NS* ns = new NS(tmr->targetAddr, ie->llAddrStr());
-    std::stringstream name;
-    name<<ns->name()<<" "<<tmr->counter<<"/"<< MAX_MULTICAST_SOLICIT;
-    ns->setName(name.str().c_str());
     tmr->dgram->encapsulate(ns);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
-    tmr->dgram->setName(ns->name());
 
     tmr->msg = new cSignalMessage("AddrReslnTimeout", Tmr_AddrReslnTimeout);
     ((cSignalMessage*) (tmr->msg))->connect(boost::bind(&AddressResolution::sendNgbrSol, this, tmr));
@@ -343,6 +339,20 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
 
   if (tmr->counter < MAX_MULTICAST_SOLICIT)
   {
+    std::stringstream name;
+    NS* ns = static_cast<NS*>(tmr->dgram->encapsulatedMsg());
+    if (tmr->counter == 0)
+      name<<ns->name()<<"(AR) "<<tmr->counter+1<<"/"<< MAX_MULTICAST_SOLICIT;
+    else
+    {
+      std::string modify = ns->name();
+      name<<tmr->counter + 1;
+      modify[modify.size()-3] = name.str()[0];
+      name.str(modify);      
+    }
+    ns->setName(name.str().c_str());
+    tmr->dgram->setName(ns->name());
+
     //This step should be done automatically for each call to callFunc
     tmr->counter++;
     send(tmr->dgram->dup(), "outputOut", ifIndex);

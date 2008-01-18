@@ -456,6 +456,20 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(4) << tmr->timeout
          <<" initial delay:"<<delay);
 
+    std::stringstream name;
+    NS* ns = static_cast<NS*>(tmr->dgram->encapsulatedMsg());
+    if (tmr->counter == 0)
+      name<<ns->name()<<"(DAD) "<<tmr->counter+1<<"/"<<tmr->max_sends;
+    else
+    {
+      std::string modify = ns->name();
+      name<<tmr->counter + 1;
+      modify[modify.size()-3] = name.str()[0];
+      name.str(modify);      
+    }
+    ns->setName(name.str().c_str());
+    tmr->dgram->setName(ns->name());
+
     //Send directly to IPv6Output as we need to send to a particular interface
     //which the routingCore can't determine from dest addr.
     nd->sendDelayed(tmr->dgram->dup(), delay, "outputOut", tmr->ifIndex);
@@ -569,16 +583,12 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
     tmr->dgram->setHopLimit(NDHOPLIMIT);
 
     RS* rs = new RS;
-    std::stringstream name;
-    name<<rs->name()<<" "<<tmr->counter+1<<"/"<<tmr->max_sends;
-    rs->setName(name.str().c_str());
     if (!ie->ipv6()->inetAddrs.empty()
         || (rt->odad() && !ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress())))
       rs->setSrcLLAddr(ie->llAddrStr());
 
     tmr->dgram->encapsulate(rs);
     tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
-    tmr->dgram->setName(rs->name());
     tmr->msg = new RtrSolRetry("RtrSolRetry", Tmr_RtrSolTimeout);
     ((RtrSolRetry*)(tmr->msg))->connect(boost::bind(&NDStateHost::sendRtrSol, this, tmr, tmr->ifIndex));
     tmr->msg->setContextPointer(tmr);
@@ -601,6 +611,20 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
          <<" max:"<<tmr->max_sends<<" timeout:"<< setprecision(6) << tmr->timeout
          <<" initial delay:"<<delay);
 
+    std::stringstream name;
+    RS* rs = static_cast<RS*>(tmr->dgram->encapsulatedMsg());
+    if (tmr->counter == 0)
+      name<<rs->name()<<" "<<tmr->counter+1<<"/"<<tmr->max_sends;
+    else
+    {
+      std::string modify = rs->name();
+      name<<tmr->counter + 1;
+      modify[modify.size()-3] = name.str()[0];
+      name.str(modify);
+    }
+    rs->setName(name.str().c_str());
+    tmr->dgram->setName(rs->name());
+
     //Delay is non-zero for first rtrsol i.e. initial rtr sol
     nd->sendDelayed(tmr->dgram->dup(), delay, "outputOut", tmr->ifIndex);
     
@@ -610,7 +634,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
     rt->ctrIcmp6OutMsgs++;
 
     ///Schedule a timeout
-    tmr->msg->rescheduleDelay(tmr->timeout);
+    tmr->msg->rescheduleDelay(tmr->timeout + delay);
     tmr->counter++;
     return;
   }

@@ -1081,6 +1081,9 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {
 
+    //wrong on-link does not refer to scope of address. We must remove all
+    //on-link address at old router except home address and rcoas formed from
+    //valid maps
     if (!home_addr_scope_check((*it).prefix))
     {
       IPv6Address addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length);

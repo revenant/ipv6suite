@@ -126,8 +126,6 @@ IPv6Mobility::~IPv6Mobility()
 
 void IPv6Mobility::initialize(int stage)
 {
-  if (!rt->mobilitySupport())
-    return;
 
   if (stage == 2)
   {
@@ -140,6 +138,9 @@ void IPv6Mobility::initialize(int stage)
     nb->subscribe(this, NF_IPv6_RS_SENT);
     nb->subscribe(this, NF_IPv6_ADDR_ASSIGNED);
   }
+
+  if (!rt->mobilitySupport())
+    return;
 
 #ifdef USE_MOBILITY
 

@@ -27,7 +27,8 @@ WRAPPER   = $(MODULE)_wrap.cc
 LIB = engine/lib/libscalars.so
 AUXINTERFACES = std_set.i std_list.i
 
-swigall: $(WRAPPER) Makefile
+swigall: $(WRAPPER) Makefile 
+	make
 
 $(WRAPPER): $(INTERFACE) $(AUXINTERFACES) $(LIB)
 	$(SWIG) $(SWIGOPT) -o $@ $(INTERFACE)

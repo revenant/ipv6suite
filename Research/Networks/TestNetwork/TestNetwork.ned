@@ -21,7 +21,6 @@
 import
     "WorldProcessor",
     "Router6",
-    "TCPNode",
     "UDPNode";
 
 
@@ -49,7 +48,7 @@ module ClientServerNetwork
                 in[1],
                 out[1];
             display: "p=201,45;i=comp";
-        client3: TCPNode;
+        client3: UDPNode;
             parameters:
                 // TCP parameters
                 local_addr = (10 << 24) + 3,

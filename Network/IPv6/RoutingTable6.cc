@@ -460,11 +460,7 @@ bool RoutingTable6::localDeliver(const ipv6_addr& dest)
       if (ift->interfaceByPortNo(i)->ipv6()->addrAssigned(dest))
         return true;
 
-      if (odad()
-#if defined USE_MOBILITY
-          && mobilitySupport() && isMobileNode()// && awayFromHome())
-#endif //defined USE_MOBILITY
-         )
+      if (odad())
       {
         //Tentative addresses considered assigned while DAD is carried out
         if (ift->interfaceByPortNo(i)->ipv6()->tentativeAddrAssigned(dest))

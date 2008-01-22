@@ -330,9 +330,6 @@ void NDStateHost::nodeInitialise()
 
 /**
    Prepare for DAD of tentative addr
-
-   MIPv6: tentativeAddr will be added to list of addresses accepted by
-   RoutingTable6::localDeliver but will not be used as source address yet.
 */
 void NDStateHost::detectDupAddress(size_t ifIndex, const IPv6Address& tentativeAddr)
 {
@@ -1045,16 +1042,9 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 }
 
 /**
-   @brief    auto configure an address from a rtr adv prefix
-   The address will go through DAD if link local addr was not autoconfigured.
+   @brief    auto configure an address from a multicast rtr adv prefix
 
-   For MIPv6 will always under DAD for non-link local addresses when away from
-   home assuming that if we're at home the address is unique since link-local
-   was unique.
-
-   @note We're gonna do DAD always on new prefixes regardless of where we are as
-   long as we are a mobile node for simplicity and to make sure results aren't
-   faked because we do not do dad
+   @note    The address will go through DAD always according to RFC4862
 
    @return true if the prefix is consistent with this interface i.e. prefix
    length and interfaceID length equals IPv6_ADDR_BITLENGTH.
@@ -1085,55 +1075,24 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
     addrObj.setStoredLifetimeAndUpdate(storedLifetime);
     addrObj.setPreferredLifetime(preferredLifetime);
 
-#ifdef USE_MOBILITY
-    //Guess anyone that's away from home is applicable not just mobile node role
-    //(e.g. mobile router/map).
-
-    //Doing DAD always not just when away from home as trend is to do it always
-    //even in home subnet I guess
-    if (rt->mobilitySupport() && rt->isMobileNode())
-      Dout(dc::debug, rt->nodeName()<<" awayfromHom="<<(rt->mipv6cds->mipv6cdsMN->awayFromHome()?"away":"home"));
-
-    if (rt->mobilitySupport() && rt->isMobileNode())// && rt->awayFromHome())
-    {
       //Do not do DAD on outstanding DAD which is indicated by been in
-      //tentativeAddrs. Only when interface initialises are there already
+      //tentativeAddrs. Only when interface initialises is there already
       //stuff in tentativeAddrs
       if (ie->ipv6()->tentativeAddrAssigned(addrObj))
       {
         return true;
       }
 
-      Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
+      if (rt->mobilitySupport() && rt->isMobileNode())// && rt->awayFromHome())
+      {
+	Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
              <<addrObj<<" undergoing DAD prefix="
              <<prefix<<"/"<<dec<<(int)prefix_len<<" at "
-             <<nd->simTime());
-      detectDupAddress(ifIndex, addrObj);
-    }
-    else
-    {
-#endif //USE_MOBILITY
-      if (!ie->ipv6()->tentativeAddrAssigned(addrObj))
-      {
-      if (!ifStats[ifIndex].manualLinkLocal)
-      {
-        //Skip DAD if auto conf link local interfaceID passed
-        Dout(dc::ipv6|dc::address_timer|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "
-             <<addrObj
-             //<<ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1]
-             <<" assigned (autoconf) from prefixOpt="
-             <<prefix<<"/"<<dec<<(int)prefix_len<<" at "
-             <<nd->simTime());
-        rt->assignAddress(addrObj, ifIndex);
+             <<nd->simTime());    
       }
-      else
-        detectDupAddress(ifIndex, addrObj);
-      }
-#ifdef USE_MOBILITY
-    }
-#endif //USE_MOBILITY
 
-    return true;
+      detectDupAddress(ifIndex, addrObj);
+      return true;
   }
   return false;
 }

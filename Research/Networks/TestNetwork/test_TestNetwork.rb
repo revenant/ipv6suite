@@ -3,6 +3,8 @@
 
 ##Unit test for this class/module
 require 'test/unit'
+require 'bigdecimal'
+require 'bigdecimal/math'
 
 class TC_TestNetwork < Test::Unit::TestCase 
 #include RStuff
@@ -18,6 +20,7 @@ assert( ans1== 4, "rtr_sol_interval is 4 by default but got #{ans1}")
 ans2=(rtrsols[1]-rtrsols[2]).abs 
 assert(ans2 == 4,"rtr_sol_interval is 4 by default but got #{ans2}")
 end
+
 def test_DAD
   #very first NS delayed by uniform(0,max_rtr_sol_delay) which is 1 by defualt
   #In fact acc. to rfc4862 all 1st NS done for addr configured from
@@ -55,7 +58,9 @@ ngbrsols = `grep ^#{vecnum[0].to_i}  #{testvec}|cut -f 2`.split("\n")
 ngbrsols.collect!{|x| x.to_f}
 assert( ngbrsols.length == 2, "TestNetwork.xml is 4 by default but got #{ngbrsols.length}")
 ans1=(ngbrsols[0]-ngbrsols[1]).abs
-assert( ans1== 0.12, "Default retrans_timer in netconf2.dtd is 0.12 but got #{ans1}")
+
+assert( ans1 - 1 < @diffConsideredZero,
+        "Default retrans_timer in netconf2.dtd is 0.12 but got #{ans1}")
 
 end
 
@@ -70,4 +75,9 @@ assert( ans1== 1, "retrans_timer is 1 by default but got #{ans1}")
 ans2=(ngbrsols[1]-ngbrsols[2]).abs 
 assert(ans2 == 1,"retrans_timer is 1 by default but got #{ans2}")
 end
+
+def setup
+  @diffConsideredZero = BigDecimal.new("1e-7")
+end
+
 end

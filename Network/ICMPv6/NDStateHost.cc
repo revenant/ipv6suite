@@ -524,14 +524,6 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
   InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
   nd->nb->fireChangeNotification(NF_IPv6_ADDR_ASSIGNED);
 
-  if (rt->odad())
-  {
-    sendUnsolNgbrAd(tmr->ifIndex, ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1]);
-    Dout(dc::addr_resln|dc::neighbour_disc|dc::custom|flush_cf, rt->nodeName()<<":"<<tmr->ifIndex
-         <<" ODAD sent unsolicated NA with override bit set to all nodes");
-    return;
-  }
-
 #if USE_MOBILITY
   if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
   {
@@ -1179,36 +1171,35 @@ void NDStateHost::processNgbrSol(std::auto_ptr<NS> msg)
 
   IPv6Datagram* recDgram = check_and_cast<IPv6Datagram*>(msg->encapsulatedMsg());
 
-  if (!rt->odad())
-  {
-    InterfaceEntry *ie = ift->interfaceByPortNo(recDgram->inputPort());
+  InterfaceEntry *ie = ift->interfaceByPortNo(recDgram->inputPort());
 
-    //check if dupAddrDetection failed (another node is doing dupAddrDetection on
-    //a tentative addr)
-    if(recDgram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
+  //check if dupAddrDetection failed (another node is doing dupAddrDetection on
+  //a tentative addr)
+  if(recDgram->srcAddress() == IPv6_ADDR_UNSPECIFIED)
+  {
+    if (checkDupAddrDetected(msg->targetAddr(), recDgram))
+      return;
+  }
+  else  //unicast src address
+  {
+    //Another node performs addr resln on a tentative addr so we ignore
+    for(size_t j = 0; j < ie->ipv6()->tentativeAddrs.size(); j++)
     {
-      if (checkDupAddrDetected(msg->targetAddr(), recDgram))
-        return;
-    }
-    else  //unicast src address
-    {
-      //Another node performs addr resln on a tentative addr so we ignore
-      for(size_t j = 0; j < ie->ipv6()->tentativeAddrs.size(); j++)
+      if((ipv6_addr)(ie->ipv6()->tentativeAddrs[j]) == msg->targetAddr())
       {
-        if((ipv6_addr)(ie->ipv6()->tentativeAddrs[j]) == msg->targetAddr())
-        {
-          Dout(dc::neighbour_disc|dc::notice, rt->nodeName()
-               <<"Ignoring Ngbr Sol with target of "<<msg->targetAddr()
-               <<" as target is a tentative address.");
-          return;
-        }
+	if (!rt->odad())
+	{
+	  Dout(dc::neighbour_disc|dc::notice, rt->nodeName()
+	       <<"Ignoring Ngbr Sol with target of "<<msg->targetAddr()
+	       <<" as target is a tentative address.");
+	  return;
+	}
+	else
+	  Dout(dc::debug, rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<nd->simTime()
+	       <<" ODAD processNgbrSol responding to NS from unicast addr");
+
       }
     }
-  }
-  else
-  {
-    Dout(dc::debug, rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<nd->simTime()
-         <<" ODAD processNgbrSol responding to NS always");
   }
 
 

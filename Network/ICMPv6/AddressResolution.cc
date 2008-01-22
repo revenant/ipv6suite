@@ -303,10 +303,13 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
   unsigned int ifIndex = tmr->ifIndex;
   if (rt->odad() && tmr->dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED
       && ie->ipv6()->tentativeAddrAssigned(tmr->dgram->srcAddress()))
+  {
     Dout(dc::addr_resln|dc::warning|dc::custom|flush_cf, rt->nodeName()<<":"<<ifIndex
          <<" ODAD who sent a packet for addr res with a tentative srcAddr of "
          <<tmr->dgram->srcAddress());
-
+    assert(false);
+    return;
+  }
 
   if (tmr->msg == 0)
   {
@@ -655,6 +658,9 @@ void AddressResolution::sendQueuedPackets(const ipv6_addr& src,
 		 <<" ODAD we're not supposed to do AddrResln on packet"
 		 <<" that would have been sent from tentative addr even though we do"
 		 <<" addrResln using different srcAddr?");
+	  assert(false); //IPForward::endService odad check would prevent this part from been reached
+	  delete p->second;
+	  continue;	  
 	}
       }
 

@@ -330,10 +330,15 @@ IPv6Datagram *IPv6Send::encapsulatePacket(cMessage *msg)
   if (ift->numInterfaceGates() == 0 ||
       ift->interfaceByPortNo(0)->ipv6()->inetAddrs.size() == 0)
   {
-    cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
-    Dout(dc::warning, rt->nodeName()<<" 1st Interface is not ready yet");
-    delete msg;
-    return NULL;
+    if ((rt->odad() &&
+	 ift->interfaceByPortNo(0)->ipv6()->tentativeAddrs.size() == 0) ||
+	ift->numInterfaceGates() == 0)
+    {
+      cerr<<rt->nodeId()<<" 1st Interface is not ready yet"<<endl;
+      Dout(dc::warning, rt->nodeName()<<" 1st Interface is not ready yet");
+      delete msg;
+      return NULL;
+    }
   }
 
   IPv6Datagram *datagram = new IPv6Datagram();

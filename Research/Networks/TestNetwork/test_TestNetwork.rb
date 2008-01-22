@@ -56,11 +56,11 @@ assert(ans3 == 0.12,"Default retrans_timer netconf2.dtd is 0.12 but got #{ans2}"
   vecnum = `grep 'NS sent' #{testvec}|grep client2|cut -f 2 -d ' '`.split("\n")
 ngbrsols = `grep ^#{vecnum[0].to_i}  #{testvec}|cut -f 2`.split("\n")
 ngbrsols.collect!{|x| x.to_f}
-assert( ngbrsols.length == 2, "TestNetwork.xml is 4 by default but got #{ngbrsols.length}")
+assert( ngbrsols.length == 2, "HostDupAddrDetectTransmits is 2 in DTD but got #{ngbrsols.length}")
 ans1=(ngbrsols[0]-ngbrsols[1]).abs
 
 assert( ans1 - 1 < @diffConsideredZero,
-        "Default retrans_timer in netconf2.dtd is 0.12 but got #{ans1}")
+        "retrans_timer is 1 in TestNetwork.xml but got #{ans1}")
 
 end
 
@@ -71,9 +71,27 @@ ngbrsols = `grep -v Vid test5.out|grep 'NS(AR' |egrep '>'|cut -d ' ' -f 3`.split
 ngbrsols.collect!{|x| x.to_f}
 ans1=(ngbrsols[0]-ngbrsols[1]).abs 
 assert( ngbrsols.length == 3, "max_multi_sol is 3 by default but got #{ngbrsols.length}")
-assert( ans1== 1, "retrans_timer is 1 by default but got #{ans1}")
+assert( ans1== 1, "retrans_timer is 1 by default (c++) but got #{ans1}")
 ans2=(ngbrsols[1]-ngbrsols[2]).abs 
-assert(ans2 == 1,"retrans_timer is 1 by default but got #{ans2}")
+assert(ans2 == 1,"retrans_timer is 1 by default (c++) but got #{ans2}")
+end
+
+def test_ODAD
+  #Runs 8 and 9
+  #notice no drops using odad
+  wait = `grep -i drop odad.vec`
+  assert( wait == "", "no drops when using odad: #{wait}")
+  wait = `grep -i drop no-odad.vec`
+  assert( wait != "", "drops when not using odad: #{wait}")
+  testvec = "odad.vec"
+  vecnum = `grep 'NS sent' #{testvec}|grep client2|cut -f 2 -d ' '`.split("\n")
+  ngbrsols = `grep ^#{vecnum[0].to_i}  #{testvec}|cut -f 2`.split("\n")
+  ngbrsols.collect!{|x| x.to_f}
+  assert(ngbrsols[0] -  7.8 == @diffConsideredZero,
+         "Configured ND to start on client2 at 7.8 should be no delay but was: #{ngbrsols[0]}") 
+  ans1=(ngbrsols[0]-ngbrsols[1]).abs
+
+
 end
 
 def setup

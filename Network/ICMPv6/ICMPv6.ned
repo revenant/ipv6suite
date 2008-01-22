@@ -43,7 +43,6 @@ endsimple
 //
 simple ICMPv6Core
     parameters:
-        IPForward : bool,
         procDelay : numeric const,
         numOfPorts : numeric,
         icmpRecordRequests: bool,
@@ -78,7 +77,7 @@ endsimple
 //
 simple NeighbourDiscovery
     parameters:
-        IPForward : bool;
+	startTime: numeric;
     gates:
         in: NDiscIn;
         in: mobilityDIn;
@@ -136,14 +135,11 @@ module ICMPv6
         icmpv6Core: ICMPv6Core;
             parameters:
                 procDelay = procDelay,
-                numOfPorts = numOfPorts,
-                IPForward = ancestor IPForward;
+                numOfPorts = numOfPorts;
             gatesizes:
                 ipOutputIn[numOfPorts];
             display: "p=207,129;b=48,24";
         nd: NeighbourDiscovery;
-            parameters:
-                IPForward = ancestor IPForward;
             gatesizes:
                 outputOut[numOfPorts];
             display: "p=64,49;b=40,24";

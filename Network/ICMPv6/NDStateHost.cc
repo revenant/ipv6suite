@@ -141,7 +141,7 @@ NDStateHost::NDStateHost(NeighbourDiscovery* mod)
   cSignalMessage* init = new cSignalMessage("InitialiseNode", Ctrl_NodeInitialise);
   init->connect(boost::bind(&NDStateHost::nodeInitialise, this));
   timerMsgs.push_back(init);
-  init->rescheduleDelay(0);
+  init->rescheduleDelay((simtime_t) nd->par("startTime"));
 /*
   cerr<<" sizeof cSignalMessage "<<sizeof(cSignalMessage)
       <<" sizeof cCallbackMessage="<<sizeof(cCallbackMessage)
@@ -416,21 +416,17 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
       }
     }
 
-#ifdef USE_MOBILITY
     //last paragraph of 11.5.2 of mipv6 revision 24  says should not delay
-    if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
+    if (rt->odad() || rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
       delay = 0;
     else
     {
-#endif
 #if FASTRS
       delay = uniform(0, ie->ipv6()->maxRtrSolDelay);
 #else
       delay = uniform(0, MAX_RTR_SOLICITATION_DELAY);
 #endif //FASTRS
-#ifdef USE_MOBILITY
     }
-#endif
 
     tmr->dgram->setOutputPort(tmr->ifIndex);
 

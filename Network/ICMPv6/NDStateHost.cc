@@ -417,7 +417,9 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
     }
 
     //last paragraph of 11.5.2 of mipv6 revision 24  says should not delay
-    if (rt->odad() || rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
+    if (rt->odad() || rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome()
+	//delay only for first addr assigned on iface as that's usually interface initialisation
+	||  ie->ipv6()->inetAddrs.size() > 0)
       delay = 0;
     else
     {

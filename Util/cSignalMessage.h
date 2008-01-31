@@ -60,7 +60,7 @@ class cSignalMessage: public cTimerMessage, public boost::signal<void ()>
   //@{
   cSignalMessage(const char* name = NULL, int message_id = 0):
       //module is 0 as it is unused argument
-      cTimerMessage(message_id, 0, name), boost::signal<void ()>()
+      cTimerMessage(message_id, name), boost::signal<void ()>()
   {}
 
   //@}

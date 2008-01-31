@@ -475,7 +475,11 @@ end #end class TC_Scalars
 if $test
   ##Fix Ruby debugger to allow debugging of test code
   require 'test/unit/ui/console/testrunner'
-  Test::Unit::UI::Console::TestRunner.run(TC_Scalars)
+  result = Test::Unit::UI::Console::TestRunner.run(TC_Scalars)
+  if not result.passed?
+    exit(result.failure_count) if result.failure_count > 0
+    exit(result.error_count)
+  end
 end
 
 # }}}

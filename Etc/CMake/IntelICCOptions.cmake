@@ -12,8 +12,16 @@ IF(CMAKE_CXX_COMPILER MATCHES "icpc")
     #Precompiled headers #pragma hdrstop after common header includes
 #    ADD_DEFINITIONS(-pch -pch_dir ${CMAKE_BINARY_DIR}/pch)
     #-no-gcc to remove __GNUC__ related macros
-    #FP stack check
-    ADD_DEFINITIONS(-Wcheck -no-gcc -fpstkchk) #-Wp64
+    #FP stack check (no longer in icc 10)
+    #ADD_DEFINITIONS(-Wcheck -no-gcc -fpstkchk) #-Wp64
+    ADD_DEFINITIONS(-Wcheck -no-gcc -diag-disable 424,981,304,654,304,444) 
+#869 param was  never referenced, 383 value copied to temp, ref to temp used
+ADD_DEFINITIONS(-diag-disable 869,383)
+    #static verification
+    OPTION(ICC_STATIC_VERIFICATION  "Enable static verification i.e. no lib/exe output " OFF)
+    IF(ICC_STATIC_VERIFICATION)
+      ADD_DEFINITIONS(-diag-enable sv3 -diag-enable sv-include -diag-file-append staticVerif)
+    ENDIF(ICC_STATIC_VERIFICATION)
     #-cxxlib-gcc to use gcc runtime library
     OPTION(ICC_BRIEF_WARNINGS "Enable one liner warnings for icc" OFF)
     IF(ICC_BRIEF_WARNINGS)

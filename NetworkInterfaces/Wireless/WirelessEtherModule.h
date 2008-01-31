@@ -140,9 +140,9 @@ public:
     // attributes
     int getDataRate(void){ return dataRate; }
 
-    const double successOhDurationBE() {return _successOhDurationBE;}
-    const double successOhDurationVI() {return _successOhDurationVI;};
-    const double successOhDurationVO() {return _successOhDurationVO;};
+    double successOhDurationBE() const {return _successOhDurationBE;}
+    double successOhDurationVI() const {return _successOhDurationVI;};
+    double successOhDurationVO() const {return _successOhDurationVO;};
 
     int getChannel(void){ return channel; }
     double getPower(void) { return txpower; } // mW

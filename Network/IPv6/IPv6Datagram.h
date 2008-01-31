@@ -198,9 +198,6 @@ public:
     }
   //@}
 
-  // FIXME temporary functions:
-  virtual const ipv6_addr& srcAddress() const {return ((IPv6Datagram_Base *)const_cast<IPv6Datagram*>(this))->srcAddress();}
-  virtual const ipv6_addr& destAddress() const {return ((IPv6Datagram_Base *)const_cast<IPv6Datagram*>(this))->destAddress();}
 
 private:
   unsigned short payload_length;

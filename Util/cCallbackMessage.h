@@ -70,7 +70,7 @@ class cCallbackMessage: public cTimerMessage, public Nullary
   //@{
   cCallbackMessage(const char* name = NULL, int message_id = 0):
     //module is 0 as it is unused argument
-    cTimerMessage(message_id, 0, name), Nullary()
+    cTimerMessage(message_id, name), Nullary()
   {}
 
   ///use Nullary's operator= to rebind new callback or args

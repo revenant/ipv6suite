@@ -67,9 +67,11 @@ class cTimerMessage: public cMessage, boost::noncopyable
       //Remove these warnings by cancelling messages to be deleted
       //is currently in (cMessageHeap)simulation.scheduled-events, it cannot be
       //deleted.
-      //if (isScheduled())
-      //cancel();
-//      printf("%s in %s at %f is deleted \n", name(), mod->fullPath(), mod->simTime());
+      if (isScheduled())
+      {
+        cancel();
+        printf("%s in %s at %f is cancelled in dtor \n", name(), mod->fullPath(), mod->simTime());
+      }
     }
 
   /**
@@ -85,12 +87,6 @@ class cTimerMessage: public cMessage, boost::noncopyable
       if(isScheduled())
         cancel();
 
-      //Cannot use this as ownerp changes whenever something else is inserted oh
-      //well
-      //cSimpleModule* mod = check_and_cast<cSimpleModule*> (ownerp);
-
-      //setOwner(mod);
-      //Sometimes it loses plot about who its owner is.
       mod->scheduleAt(arrivalTime, this);
     }
 
@@ -139,13 +135,10 @@ class cTimerMessage: public cMessage, boost::noncopyable
     }
 
  protected:
-  cTimerMessage(int message_id, cSimpleModule* module = 0,
-                const char* name = NULL):
+  cTimerMessage(int message_id, const char* name = NULL):
     cMessage(name),
     mod(check_and_cast<cSimpleModule*> (simulation.contextModule()))
     {
-//      if (module != 0)
-//        setOwner(mod);
       setKind(message_id);
     }
 

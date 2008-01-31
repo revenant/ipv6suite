@@ -53,7 +53,7 @@ NDTimer::~NDTimer()
 {
   //This is necessary when a timer message is cancelled and deleted as a
   //response arrived on time
-  delete dgram; // XXX TBD FIXME FIXME FIXME -- memory leak if we don't delete it, crash on exit if we do!!! -AV
+  delete dgram;
 }
 
 RtrTimer::~RtrTimer()

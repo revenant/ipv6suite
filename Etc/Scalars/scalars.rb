@@ -108,7 +108,7 @@ class Scalars
 
       opt.on("--chdir dir", "-c", "Process the *.sca files in dir"){|@dir|}
 
-      opt.on("--file pattern", "-f", "Process files conforming to {pattern}.sca files. Default is *.sca"){|@pattern|}
+      opt.on("--file pattern", "-f", "Process files conforming to {pattern} files. Default is *.sca"){|@pattern|}
 
       opt.on("--nodes \"mn,cn,ha\"", "-n", String,  "nodes to output scalars for separated by commas. default is *"){|nodes|
         @nodes = nodes.split(",")
@@ -396,18 +396,18 @@ class TC_Scalars < Test::Unit::TestCase
   include General
   def test_scalars
     scripttest = "test_scalars.sh"
-   
+    testscalar = "wcmc_y_3.sca"
     File.open(scripttest, "w"){|f|
       script = <<END
-cd ${TESTDIR}
-bunzip2 -k wcmc_y_3.sca.bz2
-ruby #{__FILE__} -m "udpApp[*]" -C test_multiconfig_script.yaml -p
+cd #{TESTDIR}
+bunzip2 -k #{testscalar}.bz2
+ruby #{__FILE__} -m "udpApp[*]" -C test_multiconfig_script.yaml -p -f #{testscalar}
 END
       f.puts script
     }
     output = `sh #{scripttest}`
     result = <<END
-8/8
+\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b1/1
 scalar names after filtering are :
 rtp % dropped from client1
 rtpTransitTime of client1.max
@@ -445,26 +445,27 @@ module names after filtering are :
 wcmc_y_3Net.server4.udpApp[0]
 wcmc_y_3Net.client1.udpApp[0]
 END
-  #result unusable as contains extra formatting somewhere
+    #result unusable as contains extra formatting somewhere
+    assert_equal(result, output, "scalars failed to match")
     assert($? == 0, "scalars failed with #{output}")
     assert(output.split("\n").length == (389-352), 
            "wrong test output line count #{output.split("\n").length}, \n#{output}")
 
     File.open(scripttest, "w"){|f|
     script = <<END
-ruby #{__FILE__}/scalars.rb -m "udpApp[*]" -C test_multiconfig_script.yaml -p -n client1
+ruby #{__FILE__} -m "udpApp[*]" -C test_multiconfig_script.yaml -p -n client1
 END
     f.puts script
     }
     output = `sh #{scripttest}`
     assert(output.split("\n").length == 28, "should be less than previous output #{output}")
     ensure
-      File.delete("wcmc_y_3.sca")
+      File.delete(testscalar)
       File.delete(scripttest)
   end
 
   def setup
-    File.chdir(File.expand_path(TESTDIR))
+    Dir.chdir(File.expand_path(TESTDIR))
   end
 
   def teardown

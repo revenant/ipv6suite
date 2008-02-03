@@ -18,7 +18,7 @@ assert( rtrsols.length == 3, "max_rtr_sol is 3 by default but got #{rtrsols.leng
 ans1=(rtrsols[0]-rtrsols[1]).abs 
 assert( ans1== 4, "rtr_sol_interval is 4 by default but got #{ans1}")
 ans2=(rtrsols[1]-rtrsols[2]).abs 
-assert(ans2 == 4,"rtr_sol_interval is 4 by default but got #{ans2}")
+assert((ans2 - 4).abs < @diffConsideredZero, "rtr_sol_interval is 4 by default but got #{ans2}")
 end
 
 def test_DAD
@@ -81,17 +81,33 @@ def test_ODAD
   #notice no drops using odad
   wait = `grep -i drop odad.vec`
   assert( wait == "", "no drops when using odad: #{wait}")
-  wait = `grep -i drop no-odad.vec`
+  wait = `grep -i drop noodad.vec`
   assert( wait != "", "drops when not using odad: #{wait}")
   testvec = "odad.vec"
   vecnum = `grep 'NS sent' #{testvec}|grep client2|cut -f 2 -d ' '`.split("\n")
   ngbrsols = `grep ^#{vecnum[0].to_i}  #{testvec}|cut -f 2`.split("\n")
   ngbrsols.collect!{|x| x.to_f}
-  assert(ngbrsols[0] -  7.8 == @diffConsideredZero,
-         "Configured ND to start on client2 at 7.8 should be no delay but was: #{ngbrsols[0]}") 
+  assert_in_delta(7.9, ngbrsols[0], @diffConsideredZero,
+         "Configured ND to start on client2 at") 
   ans1=(ngbrsols[0]-ngbrsols[1]).abs
+  assert_in_delta(1, ans1,  @diffConsideredZero, "retranstimer in xml was 1, but got #{ans1}")
+end
 
+  require "rexml/document"
+  include REXML
 
+def test_RA
+  require 'rsruby'
+  r = RSRuby.instance
+  wait = `ruby ~/src/IPv6SuiteWithINET/Etc/scripts/RImportOmnet.rb rtr.vec`
+  r.load("test2.Rdata")
+  data=r.a_RA_recv_client1_1
+  diffs = r.diff(data["time"])
+  doc = Document.new File.new("TestNetwork3.xml")
+  rtr = doc.elements["*/local[@node='rtr']/interface"]
+  assert(diffs.max <= rtr.attributes["MaxRtrAdvInterval"].to_f, "maximum #{diffs.max} should be less than in XML #{rtr.attributes["MaxRtrAdvInterval"].to_f}")  
+  assert(diffs.min >= rtr.attributes["MinRtrAdvInterval"].to_f, "minimum should be greater than in XML")  
+  
 end
 
 def setup

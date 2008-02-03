@@ -20,7 +20,7 @@ ADD_DEFINITIONS(-diag-disable 869,383)
     #static verification
     OPTION(ICC_STATIC_VERIFICATION  "Enable static verification i.e. no lib/exe output " OFF)
     IF(ICC_STATIC_VERIFICATION)
-      ADD_DEFINITIONS(-diag-enable sv3 -diag-enable sv-include -diag-file-append staticVerif)
+      ADD_DEFINITIONS(-diag-enable sv3 -diag-enable sv-include -diag-file-append staticVerif.diag)
     ENDIF(ICC_STATIC_VERIFICATION)
     #-cxxlib-gcc to use gcc runtime library
     OPTION(ICC_BRIEF_WARNINGS "Enable one liner warnings for icc" OFF)

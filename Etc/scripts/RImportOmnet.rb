@@ -742,7 +742,7 @@ TARGET
     @p.puts  %{save.image("#{@imp.rdata}")}
     # Race conditions exist so sync to R first otherwise may raise missing file exception
     @imp.waitForR(@p)
-    #raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.file? @imp.rdata)
+    raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.exist? @imp.rdata)
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}
@@ -760,7 +760,7 @@ TARGET
     @imp.singleRun(@p, TestFileName, 4,"noscheme")
     @p.puts  %{save.image("#{@imp.rdata}")}
     @imp.waitForR(@p)
-    raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.file? @imp.rdata)
+    raise "expected Rdata file #{@imp.rdata} not found in #{Dir.pwd}" if not (File.exists? @imp.rdata)
 
     @p.puts %{rm(list=ls())}
     @p.puts %{load("#{@imp.rdata}")}
@@ -880,3 +880,4 @@ if $test
   end
 end
 # }}}
+

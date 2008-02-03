@@ -13,4 +13,9 @@
       <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>
     </interface>
   </local>
+  <local node="rtr">
+    <interface AdvSendAdvertisements="on" MaxRtrAdvInterval="20"
+      MinRtrAdvInterval="10" MIPv6MaxRtrAdvInterval="0.07" MIPv6MinRtrAdvInterval="0.03">
+    </interface>
+  </local>
 </netconf>

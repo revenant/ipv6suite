@@ -27,7 +27,6 @@
 #include "WEQueue.h"
 
 class WirelessEtherBasicFrame;
-class cTimerMessage;
 
 class WESingleQueue : public WEQueue
 {

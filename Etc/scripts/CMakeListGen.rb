@@ -145,10 +145,10 @@ ENDIF(WIN32)
 
 EOF
       x.puts xvar
-      if `hostname` =~ /hn1/
+      if `hostname` =~ /hn\d/
       x.puts %|SET(CMAKE_CXX_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
 SET(CMAKE_SHARED_LINKER_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
-ADD_DEFINITIONS(-DPLATFORM64bit=1)|
+ADD_DEFINITIONS(-DPLATFORM64bit=1 -DCWDEBUG_ALLOC=1)|
       end
     end
 

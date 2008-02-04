@@ -26,7 +26,6 @@
 #include "WirelessEtherModule.h"
 
 class WirelessEtherBasicFrame;
-class cTimerMessage;
 
 class WEQueue : public cPolymorphic
 {

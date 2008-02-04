@@ -206,7 +206,7 @@ private:
   IPv6Mobility(const IPv6Mobility& src);
   IPv6Mobility& operator=(IPv6Mobility& src);
 
-  void processLinkLayerTrigger(cMessage* msg);
+//  void processLinkLayerTrigger(cMessage* msg);
 
   ///Enable route optimisation?
   bool _routeOptimise;

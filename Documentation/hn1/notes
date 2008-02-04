@@ -73,3 +73,15 @@ line 143 added and modded 144
 /*scalars swig app complains that unistd.h defined this already on hn3 with different throw specifiers*/
 /*extern int eaccess _((const char*, int));*/
 
+rsruby
+download rubygems 
+elinks http://rubyforge.org/frs/?group_id=126
+ruby setup.rb config --prefix=$HOME
+export R_HOME=$HOME/lib64/R #rsruby 
+gem install rsruby -- --with-R-dir=$R_HOME
+export RUBYOPT="w rubygems"
+export GEM_HOME=$HOME/lib/ruby/gems
+export RUBYLIB=$HOME/lib
+
+R 2.3.1
+./configure --prefix --enable-R-shlib

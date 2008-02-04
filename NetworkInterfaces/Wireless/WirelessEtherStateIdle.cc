@@ -43,7 +43,6 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WEQueue.h"
 
-#include "cTimerMessage.h"
 
 WirelessEtherStateIdle *WirelessEtherStateIdle::_instance = 0;
 

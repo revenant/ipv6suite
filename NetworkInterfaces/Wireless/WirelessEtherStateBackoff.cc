@@ -32,8 +32,6 @@
 
 #include "WirelessEtherStateBackoff.h"
 
-#include "cTimerMessage.h"
-
 #include "WirelessEtherModule.h"
 #include "WirelessEtherSignal_m.h"
 #include "WirelessEtherFrame_m.h"

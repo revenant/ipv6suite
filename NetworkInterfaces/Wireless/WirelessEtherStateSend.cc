@@ -43,8 +43,6 @@
 #include "WirelessEtherStateBackoff.h"
 #include "WEQueue.h"
 
-#include "cTimerMessage.h"
-
 WirelessEtherStateSend *WirelessEtherStateSend::_instance = 0;
 
 WirelessEtherStateSend *WirelessEtherStateSend::instance()

@@ -259,6 +259,7 @@ void IPv6Mobility::setSignalingEnhance(MobileIPv6::SignalingEnhance s)
 void IPv6Mobility::parseXMLAttributes()
 {}
 
+/*
 //seperate from l2 trigger to force movement detection callback
 void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
 {
@@ -291,6 +292,7 @@ void IPv6Mobility::processLinkLayerTrigger(cMessage* msg)
     }
   }
 }
+*/
 
 void IPv6Mobility::receiveChangeNotification(int category, cPolymorphic *details)
 {

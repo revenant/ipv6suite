@@ -122,7 +122,7 @@ void WEDataReceiveMode::handleAssociationResponse(WirelessEtherModule *mod, WESi
               mod->getLayer2Trigger()->reschedule(mod->simTime() + SELF_SCHEDULE_DELAY);
               Dout(dc::mipv6 | dc::mobile_move,
                    mod->fullPath() << " Link-Up trigger signalled " << (mod->simTime() + SELF_SCHEDULE_DELAY));
-	      mod->nb->fireChangeNotification(NF_L2_ASSOCIATED);
+	      mod->nb->fireChangeNotification(NF_L2_ASSOCIATED, mod);
               }
             }
         }

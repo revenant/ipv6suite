@@ -69,8 +69,11 @@ class cTimerMessage: public cMessage, boost::noncopyable
       //deleted.
       if (isScheduled())
       {
-	//fprintf(stderr, "%s in %s at %f is cancelled in dtor \n", name(), mod->fullPath().c_str(), mod->simTime());
-	//cancel();
+	fprintf(stderr, "%s in %s at %f is cancelled in dtor \n", name(), mod->fullPath().c_str(), mod->simTime());
+	cModule* context = simulation.contextModule();
+	simulation.setContextModule(mod);
+	cancel();
+	simulation.setContextModule(context);
       }
     }
 

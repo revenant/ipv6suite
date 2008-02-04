@@ -100,17 +100,38 @@ def test_RA
   require 'rsruby'
   r = RSRuby.instance
   wait = `ruby ~/src/IPv6SuiteWithINET/Etc/scripts/RImportOmnet.rb rtr.vec`
-  if $?.exitstatus > 0
-    raise wait
-  end
+  raise wait if $?.exitstatus > 0
   r.load("test2.Rdata")
   data=r.a_RA_recv_client1_1
   diffs = r.diff(data["time"])
   doc = Document.new File.new("TestNetwork3.xml")
   rtr = doc.elements["*/local[@node='rtr']/interface"]
   assert(diffs.max <= rtr.attributes["MaxRtrAdvInterval"].to_f, "maximum #{diffs.max} should be less than in XML #{rtr.attributes["MaxRtrAdvInterval"].to_f}")  
-  assert(diffs.min >= rtr.attributes["MinRtrAdvInterval"].to_f, "minimum should be greater than in XML")  
   
+  assert(diffs.min > 3, "RA response to RS should always be at least \
+MIN_DELAY_BETWEEN_RAS (3 in spec)")
+  raise "min is not in array?" if diffs.delete(diffs.min).nil?
+
+  #unsolicited RAs have to satisfy this
+  assert(diffs.min >= rtr.attributes["MinRtrAdvInterval"].to_f, 
+         "Unsolicited RAs separation in sim #{diffs.min} should always be \ 
+greater than in XML #{rtr.attributes["MinRtrAdvInterval"].to_f}")  
+
+
+  wait = `rm test2.Rdata`
+  wait = `ruby ~/src/IPv6SuiteWithINET/Etc/scripts/RImportOmnet.rb rtrmip6.vec`
+  raise wait if $?.exitstatus > 0
+  r.rm(:list => r.ls.call)
+  r.load("test2.Rdata")
+  #Need to use r.get as r.a_RA_recv_client1_1 returns cached !!!
+  data = r.get("a.RA.recv.client1.1")
+  diffs = r.diff(data["time"])
+  assert(diffs.max <= rtr.attributes["MIPv6MaxRtrAdvInterval"].to_f, "maximum #{diffs.max} should be less than in XML #{rtr.attributes["MIPv6MaxRtrAdvInterval"].to_f}")  
+
+  assert(diffs.min >= rtr.attributes["MIPv6MinRtrAdvInterval"].to_f, 
+         "Unsolicited RAs separation in sim #{diffs.min} should always be \ 
+greater than in XML #{rtr.attributes["MIPv6MinRtrAdvInterval"].to_f}")  
+
 end
 
 def setup

@@ -511,39 +511,11 @@ void  NDStateRouter::sendRtrAd(RS* rtrSol)
         nd->scheduleAt(nd->simTime() + delay, msg);
         break;
       }
-/*   //Previous version
-      if (msg->arrivalTime() < msg->sendingTime() + delay)
-        //The next scheduled time is fine so just wait till then to send a rtrAdv
-        break;
-        //last adv was sent within MIN_DELAY_BETWEEN_RAS so rate limiting to one
-        //adv for every MIN_DELAY_BETWEEN_RAS seconds
-      else if (nd->simTime() < msg->sendingTime() + MIN_DELAY_BETWEEN_RAS )
-      {
-        delay = delay + MIN_DELAY_BETWEEN_RAS;
-         nd->cancelEvent(msg);
-         nd->scheduleAt(nd->simTime() + delay, msg);
-         break;
-      }
-      //No need to rate limit just send it slightly earlier than the
-      //previous scheduled unsolicited adv
-      else
-      {
-        nd->cancelEvent(msg);
-        nd->scheduleAt(nd->simTime() + delay, msg);
-        break;
-      }
-*/
     }
 
   //Update neighbour cache if cond is met
   if (found && dgram->srcAddress() != IPv6_ADDR_UNSPECIFIED)
   {
-#if defined TESTIPv6 || defined DEBUG_RTRADV
-    cout <<rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
-         <<" SolRtrAdv sendingTime: "<<setprecision(4)<<msg->sendingTime()
-         <<" arivalTime: "<<setprecision(6)<<msg->arrivalTime()
-         <<" nextAdvDelay:"<<setprecision(6)<<delay<<"\n";
-#endif //#if defined TESTIPv6 || defined DEBUG_RTRADV
     Dout(dc::debug, rt->nodeName()<<":"<<tmr->ifIndex<<" "<<nd->simTime()
          <<" SolRtrAdv sendingTime: "<<setprecision(4)<<msg->sendingTime()
          <<" arivalTime: "<<setprecision(6)<<msg->arrivalTime()

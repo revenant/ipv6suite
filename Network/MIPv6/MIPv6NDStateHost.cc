@@ -466,10 +466,9 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   if (!mipv6cdsMN->primaryHA() && !awayFromHome() && isHA)
   {
     mipv6cdsMN->primaryHA() = bha;
-    mipv6cdsMN->_homeAddr = mipv6cdsMN->primaryHA()->prefix();
-    mipv6cdsMN->_homeAddr.prefix =
-      mipv6cdsMN->formCareOfAddress(mipv6cdsMN->primaryHA(),
-                                    ift->interfaceByPortNo(ifIndex));
+    bool primaryHoa = true;
+    mipv6cdsMN->formHomeAddress(mipv6cdsMN->primaryHA(), 
+				ift->interfaceByPortNo(ifIndex), primaryHoa);
 
     Dout(dc::mipv6|dc::mobile_move, rt->nodeName()<<" Primary HA registered. Addr="<<bha->addr());
   }
@@ -1081,10 +1080,8 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   for (MIPv6RouterEntry::OPLI it = oldRtr->prefixes.begin(); it != oldRtr->prefixes.end(); it++)
   {
 
-    //wrong on-link does not refer to scope of address. We must remove all
-    //on-link address at old router except home address and rcoas formed from
-    //valid maps
-    if (!home_addr_scope_check((*it).prefix))
+    //assuming that rcoas not formed from RA's prefixes so are not removed here
+    if (mipv6cdsMN->homeAddr() != (*it).prefix)
     {
       IPv6Address addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length);
       if (addr != IPv6_ADDR_UNSPECIFIED)
@@ -1092,7 +1089,6 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
-	//TODO check if this effectively removes callback when message deleted
 	delete addressCallback(addr);
       }
       else if (oie->ipv6()->matchPrefix((*it).prefix, (*it).length), true)

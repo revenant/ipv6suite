@@ -87,7 +87,7 @@ def test_ODAD
   vecnum = `grep 'NS sent' #{testvec}|grep client2|cut -f 2 -d ' '`.split("\n")
   ngbrsols = `grep ^#{vecnum[0].to_i}  #{testvec}|cut -f 2`.split("\n")
   ngbrsols.collect!{|x| x.to_f}
-  assert_in_delta(7.9, ngbrsols[0], @diffConsideredZero,
+  assert_in_delta(7.8, ngbrsols[0], @diffConsideredZero,
          "Configured ND to start on client2 at") 
   ans1=(ngbrsols[0]-ngbrsols[1]).abs
   assert_in_delta(1, ans1,  @diffConsideredZero, "retranstimer in xml was 1, but got #{ans1}")
@@ -100,6 +100,9 @@ def test_RA
   require 'rsruby'
   r = RSRuby.instance
   wait = `ruby ~/src/IPv6SuiteWithINET/Etc/scripts/RImportOmnet.rb rtr.vec`
+  if $?.exitstatus > 0
+    raise wait
+  end
   r.load("test2.Rdata")
   data=r.a_RA_recv_client1_1
   diffs = r.diff(data["time"])

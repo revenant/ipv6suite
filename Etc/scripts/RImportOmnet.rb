@@ -669,10 +669,12 @@ TARGET
     $defout.old_puts err
     $defout.old_puts err.backtrace
     $defout.old_puts "last R command: #{$lastCommand.shift}"
+    exit(127)
   rescue => err
     $defout.old_puts err
     $defout.old_puts err.backtrace
     p.puts %{save.image("otherException.Rdata")}
+    exit(127)
   ensure
     p.close if p
   end#run

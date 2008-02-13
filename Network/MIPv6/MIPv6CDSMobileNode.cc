@@ -59,7 +59,10 @@ namespace MobileIPv6
   }
 
   MIPv6CDSMobileNode::~MIPv6CDSMobileNode()
-  {}
+  {
+    //hopefully will not segfault again
+    bul.clear();
+  }
 
 
   const ipv6_addr& MIPv6CDSMobileNode::homeAddr(boost::shared_ptr<MIPv6RouterEntry> ha) const

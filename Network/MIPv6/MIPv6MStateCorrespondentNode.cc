@@ -71,13 +71,11 @@ MIPv6MStateCorrespondentNode::MIPv6MStateCorrespondentNode(IPv6Mobility* mod):
 
 MIPv6MStateCorrespondentNode::~MIPv6MStateCorrespondentNode()
 {
-  if (periodTmr && !periodTmr->isScheduled())
-    delete periodTmr;
-  periodTmr = 0;
+  periodTmr->cancel();
+  delete periodTmr;
   if (nonceGenTmr->isScheduled())
     nonceGenTmr->cancel();
   delete nonceGenTmr;
-  nonceGenTmr = 0;
 }
 
 void MIPv6MStateCorrespondentNode::nonceGeneration()

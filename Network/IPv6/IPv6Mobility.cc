@@ -116,7 +116,11 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
 }
 
 IPv6Mobility::~IPv6Mobility()
-{}
+{
+  delete role;
+  delete linkDownVector;
+  delete linkUpVector;
+}
 
 
 /**

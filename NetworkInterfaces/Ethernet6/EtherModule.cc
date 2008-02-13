@@ -123,7 +123,7 @@ void EtherModule::initialize(int stage)
 
     // Timer to update statistics
     updateStatsNotifier  =
-      new cCallbackMessage("updateStats", TMR_ETH_STATS);
+      new cCallbackMessage("EMupdateStats", TMR_ETH_STATS);
     *((cCallbackMessage*)updateStatsNotifier) = boost::bind(
       &EtherModule::updateStats, this);
     scheduleAt(simTime()+statsUpdatePeriod, updateStatsNotifier);
@@ -235,11 +235,21 @@ EtherModule::~EtherModule()
 
   for(TIT it = tmrs.begin(); it != tmrs.end(); it++)
     if (!(*it)->isScheduled())
+    {
       delete (*it);
+    }
+    else
+    {
+      (*it)->cancel();
+      delete (*it);
+    }
   tmrs.clear();
-
+  if (updateStatsNotifier && updateStatsNotifier->isScheduled())
+    updateStatsNotifier->cancel();
+  delete updateStatsNotifier;
   if (inputFrame)
     delete inputFrame; // XXX will crash if initialize hasn't run for some reason
+
 }
 
 bool EtherModule::sendFrame(cMessage *msg, int gateid)

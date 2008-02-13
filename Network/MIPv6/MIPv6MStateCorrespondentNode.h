@@ -58,7 +58,7 @@ class MIPv6MStateCorrespondentNode : public MIPv6MobilityState
  public:
 
   MIPv6MStateCorrespondentNode(IPv6Mobility* mod);
-  ~MIPv6MStateCorrespondentNode();
+  virtual ~MIPv6MStateCorrespondentNode();
 
   virtual bool processMobilityMsg(IPv6Datagram* dgram);
 

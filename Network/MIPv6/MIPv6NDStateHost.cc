@@ -524,8 +524,19 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
          mipv6cdsMN->movementDetected() ||
          mipv6cdsMN->eagerHandover()))
     {
-      Dout(dc::debug|flush_cf, rt->nodeName()
-           <<"Archaic movement detection triggered handover?");
+      if (rt->cds->neighbour(mipv6cdsMN->currentRouter()->re.lock()->addr()).lock().get() == 0)
+	Dout(dc::debug|flush_cf, rt->nodeName()
+           <<"Archaic movement detection triggered by currentRouter not reachable in AR");
+      else if (mipv6cdsMN->movementDetected())
+	Dout(dc::debug|flush_cf, rt->nodeName()
+           <<"Archaic movement detection triggered by movement Detected");
+      else if (mipv6cdsMN->eagerHandover())
+	Dout(dc::debug|flush_cf, rt->nodeName()
+           <<"Archaic movement detection triggered by eagerHandover");
+      else
+	Dout(dc::debug|flush_cf, rt->nodeName()
+	     <<"Archaic movement detection prob from NUD triggered handover?");
+
 #ifdef USE_HMIP
       if (rt->hmipSupport() && rtrAdv->hasMapOptions())
         Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover(archaic branch) ");
@@ -996,6 +1007,9 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         Dout(dc::mipv6|dc::neighbour_disc|flush_cf, rt->nodeName()<<" "<<nd->simTime()
              <<ifIndex<<" waiting for dad completion before sending BU for coa "
              <<coa);
+	cSignalMessage* cb = new cSignalMessage("MIPv6sendBU");
+	cb->connect(boost::bind(&MIPv6NDStateHost::sendBU, this, coa));
+	addCallbackToAddress(coa, cb);
       }
 
     } //if primary HA exists
@@ -1058,6 +1072,8 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
        <<" missedAdvTimer reset as moved to new subnet potentialNewInterval="
        <<potentialNewInterval);
 
+  removeAllCallbacks();
+
   if (!oldRtr)
   {
     if (newRtr && mipv6cdsMN->previousDefaultRouter() && newRtr != mipv6cdsMN->previousDefaultRouter())
@@ -1081,24 +1097,23 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
   {
 
     //assuming that rcoas not formed from RA's prefixes so are not removed here
-    if (mipv6cdsMN->homeAddr() != (*it).prefix)
-    {
       IPv6Address addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length);
-      if (addr != IPv6_ADDR_UNSPECIFIED)
+      if (addr != IPv6_ADDR_UNSPECIFIED && addr != mipv6cdsMN->homeAddr())
       {
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
 	delete addressCallback(addr);
       }
-      else if (oie->ipv6()->matchPrefix((*it).prefix, (*it).length), true)
+      else
       {
-        //Must be tentative addrs
-        DoutFatal(dc::core|error_cf, "Unimplemented func for removing tentative addr when node moves "
-                  <<" too fast as dad timer has to be removed cleanly see "
-                  <<" checkDupAddrDetected and separate the bits there into separate func");
+	addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length, true);
+	if (addr != IPv6_ADDR_UNSPECIFIED && addr != mipv6cdsMN->homeAddr())
+	  //Must be tentative addrs
+	  DoutFatal(dc::core|error_cf, "Unimplemented func for removing tentative addr when node moves "
+		    <<" too fast as dad timer has to be removed cleanly see "
+		    <<" checkDupAddrDetected and separate the bits there into separate func");
       }
-    }
 
     Dout(dc::prefix_timer|flush_cf, rt->nodeName()<<" removing on link prefix="
          <<*it<<" due to movement");
@@ -1326,6 +1341,13 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
     }
 }
 
+void sendNALater(cTimerMessage* tmr)
+{
+  tmr->callFunc();
+  delete static_cast<cCallbackMessage*>(tmr->contextPointer());
+  delete tmr;
+}
+
 /**
  * Does the actual procedure of returning home.
  *
@@ -1352,14 +1374,18 @@ void MIPv6NDStateHost::returnHome()
   }
 
   //send BU to HA A and H bit set coa = hoa and no home address option
-
   mstateMN->sendBUToAll(mipv6cdsMN->homeAddr(), mipv6cdsMN->homeAddr(), 0);
 
   //unsolicited NA to advertise our Link layer address for each on-link
   //prefix (just home addr for now) after BU sent.
-
-  //delay by 2*SELF_SCHEDULE_DELAY to ensure after BU sent (1*SELF_SCHEDULE_DELAY)
-  sendUnsolNgbrAd(mipv6cdsMN->primaryHA()->re.lock()->ifIndex(), mipv6cdsMN->homeAddr());
+  cCallbackMessage* cbuna = new cCallbackMessage;
+  (*cbuna) = boost::bind(&MIPv6NDStateHost::sendUnsolNgbrAd, this, mipv6cdsMN->primaryHA()->re.lock()->ifIndex(),
+	      mipv6cdsMN->homeAddr());
+  cCallbackMessage* callLater = new cCallbackMessage;
+  (*callLater) = boost::bind(sendNALater, cbuna);
+  cbuna->setContextPointer(callLater);
+  //ensure NA after BU sent
+  nd->scheduleAt(nd->simTime() + 100.0 * SELF_SCHEDULE_DELAY, callLater);
 
 #ifdef USE_HMIP
   if (rt->hmipSupport())

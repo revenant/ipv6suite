@@ -160,6 +160,8 @@ NDStateHost::~NDStateHost()
       nd->cancelEvent(*it);
       delete *it;
     }
+
+  removeAllCallbacks();
 }
 
 std::auto_ptr<ICMPv6Message> NDStateHost::processMessage(std::auto_ptr<ICMPv6Message> msg)
@@ -519,20 +521,11 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
     ifStats[tmr->ifIndex].initStarted = true;
   }
 
-  InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
   nd->nb->fireChangeNotification(NF_IPv6_ADDR_ASSIGNED);
 
 #if USE_MOBILITY
-  if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
-  {
-    ipv6_addr potentialCoa = ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1];
-    MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
-      boost::polymorphic_downcast<MobileIPv6::MIPv6NDStateHost*> (this);
-    assert(mipv6StateMN);
-    Dout(dc::debug, rt->nodeName()<<" potential coa in dupAddrDetSuc "<<potentialCoa);
-    mipv6StateMN->sendBU(potentialCoa);
-    invokeCallback(potentialCoa);
-  }
+  if (rt->mobilitySupport() && rt->isMobileNode())
+    invokeCallback(tmr->tentativeAddr);
 #endif //USE_MOBILITY
 
 }
@@ -733,6 +726,13 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
           //Set state to STALE when LL addr changed
           re->setState(NeighbourEntry::STALE);
         }
+	else if (rt->mobilitySupport() && rtrAdv->hasSrcLLAddr() && rtrAdv->srcLLAddr() == re->linkLayerAddr() &&
+		 re->state() == NeighbourEntry::INCOMPLETE)
+	{
+	  //as MIPv6NDStateHost::relinquishRouter sets it to incomplete and now
+	  //mn has moved back to prev visited subnet.
+	  re->setState(NeighbourEntry::REACHABLE);
+	}
 
         reValid = true;
 #ifdef USE_MOBILITY
@@ -1378,12 +1378,25 @@ void NDStateHost::invokeCallback(const ipv6_addr& tentativeAddr)
   }
 }
 
-///@todo TODO convert addressCallbacks to boost::function
 cTimerMessage*  NDStateHost::addressCallback(const ipv6_addr& tentativeAddr)
 {
   if (!addressCallbacks.count(tentativeAddr))
     return 0;
   return addressCallbacks[tentativeAddr];
+}
+
+int NDStateHost::removeAllCallbacks()
+{
+  int ret = addressCallbacks.size();
+  typedef std::map<ipv6_addr, cTimerMessage*>::iterator AIT;
+  for (AIT it = addressCallbacks.begin(); it != addressCallbacks.end(); it++)
+  {
+    if (it->second->isScheduled())
+      it->second->cancel();
+    delete it->second;
+  }
+  addressCallbacks.clear();
+  return ret;
 }
 
 } //namespace IPv6NeighbourDiscovery

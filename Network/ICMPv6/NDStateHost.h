@@ -174,6 +174,8 @@ namespace IPv6NeighbourDiscovery
     void addCallbackToAddress(const ipv6_addr& tentativeAddr, cTimerMessage*);
     bool callbackAdded(const ipv6_addr& tentativeAddr, int message_id);
     cTimerMessage* addressCallback(const ipv6_addr& tentativeAddr);
+    //returns no. of callbacks removed
+    int removeAllCallbacks();
 
   protected:
     std::vector<InterfaceStatus> ifStats;

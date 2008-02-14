@@ -62,6 +62,7 @@ simple WorldProcessor
     parameters:
         IPv6routingFile : xml,    // name of XML file containing all configuration
                                   // (not only routing tables)
+        datagramTraceFile: string, //related to displayRoutingInfo
         max_longitude : numeric const, // only used to define the size of the network
                                        // module graphics in Tkenv (pixels)
         max_latitude : numeric const;  // see max_longitude

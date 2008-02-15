@@ -133,7 +133,14 @@ end
   #nodename from vec file. (the hash key index is still a numerical string)
   #where label is the vector name in file
   def retrieveVectors(filename)
-    self.uniqueVectorNames = Hash.new if self.uniqueVectorNames.nil?
+    if @printVectors
+      #Prove that vector number is not unique
+      self.uniqueVectorNames = Hash.new if self.uniqueVectorNames.nil?
+    else
+      #Create a new hash for every file as indices are not unique across runs
+      self.uniqueVectorNames = Hash.new
+    end
+
     vectors = Hash.new
     nodenames = Hash.new
     IO::foreach(filename) {|l|
@@ -149,7 +156,7 @@ end
         vectors[i] = s
         key = uniqueVectorName(vectors[i], nodenames[i])
         if uniqueVectorNames.include?(key)
-          self.uniqueVectorNames[key].push i if not self.uniqueVectorNames[key].include?(i)
+          self.uniqueVectorNames[key].push i if not self.uniqueVectorNames[key].include?(i)          
         else
           self.uniqueVectorNames[key]=Array.new
           self.uniqueVectorNames[key].push i
@@ -157,7 +164,7 @@ end
       end
     }
     p vectors if @debug
-    p "unique vector names", uniqueVectorNames if @debug
+    p "unique vector names", self.uniqueVectorNames if @debug
     return [vectors, nodenames]
   end
 
@@ -192,8 +199,7 @@ end
   # array is returned from retrieveRObjects
   def printRObjects(p, array)
     results = Array.new
-    array.each {|e|
-      $defout.old_puts e
+    array.each {|e|      
       p.puts %{dim(#{e}\n)}
       dim = p.gets.chomp!
       #sample output where 5 is the rows and 8 is columns
@@ -241,7 +247,7 @@ end
     }
   end
 
-end
+end #end module
 
 #
 # Imports omnetpp.vec files
@@ -286,6 +292,7 @@ class RImportOmnet
     @relevelSchemeOrder = nil
     @count = nil
     @config = nil
+    @dir = nil
 
     get_options
 
@@ -352,6 +359,9 @@ class RImportOmnet
 
       opt.on("-C", "--config configfile", String, "Use the specified yaml file for configurations to generate"){|@config| @config = File.expand_path(@config) }
 
+      opt.on("-D", "--dir dir", String, "Directory where vec files are"){|@dir| @dir = File.expand_path(@dir) }
+
+      opt.on("-p vecfile", String, " vecfile is dummy arg. Print the unique vector names and often non unique indices"){|@printVectors|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -392,11 +402,6 @@ class RImportOmnet
 
     raise ArgumentError, "No vector file specified", caller[0] if ARGV.size < 1 and not $test
     raise ArgumentError, "No config file specified!!", caller[0] if not @config and not $test and not $0 == __FILE__
-
-    if @printVectors
-      printVectorNames(@printVectors)
-      exit
-    end
 
   end
   # }}}
@@ -447,15 +452,12 @@ class RImportOmnet
     end
   end
 
-  #Assumes across different runs of same executable vector indices are not recycled for use as
-  #other vectors otherwise this will fail miserably. This is indeed false so any
-  #filtering can alter number of resulting sets particularly if taken over large sets of data
-  #TODO Fix or will fail desperately #see determineUniqueVectorName() for proof of faiure
-  #Also will fail to filter/exclude a vector index if that has not been seen yet i.e.
-  #if we specify 317 and 319 is also a duplicate but if we scanned a file that contained 319 first
-  #then parts of 319 can be there causing havoc as we later exclude it or include it
-  #TODO only fix is to scan all vector names of all vector files to determine this
-  #duplicate vector relationships before starting to parse when we use filer/exclude
+  #Assumes across different runs of same executable vector indices are not
+  #recycled for use as other vectors otherwise this will fail miserably. This is
+  #indeed false so any filtering can alter number of resulting sets particularly
+  #if taken over large sets of data. Safe only for use on single vector
+  #files. Otherwise please use the filterByVectorNames for many vec files
+
   def filterVectors(vectors)
     unless self.filter.nil?
       newIndices = Set.new(vectors.keys & self.filter)
@@ -487,9 +489,9 @@ class RImportOmnet
 
   def filterByVectorNames(vectors, nodenames)
     if not self.exclude.nil?
-      nameFilter = self.exclude[0].to_i == 0
+      nameFilter = self.exclude[0].to_i == 0 
     end
-    if not self.filter.nil?
+    if not nameFilter and not self.filter.nil?
       nameFilter = self.filter[0].to_i == 0
     end
     if not nameFilter
@@ -498,14 +500,14 @@ class RImportOmnet
     end
     unless self.exclude.nil?
       vectors.delete_if{|k,v|
-        exclude.include?(uniqueVectorName(v, nodenames[k]))
+        exclude.include?(uniqueVectorName(vectors[k], nodenames[k]))
         #Can use this form if we do not specify the nodename
         #exclude.include?v
       }
     end
     unless self.filter.nil?
       vectors.delete_if{|k,v|
-        not filter.include?(uniqueVectorName(v, nodenames[k]))
+        not filter.include?(uniqueVectorName(vectors[k], nodenames[k]))
         #Can use this form if we do not specify the nodename
         #not filter.include?v
       }
@@ -635,8 +637,13 @@ TARGET
   #  RImportOmnet.new.run
   #
   def run
-    return if $test
+    return if $test 
 
+    if @printVectors
+      printVectorNames(@printVectors)
+      return
+    end
+    
     p = IO.popen(RSlave, "w+")
 
     modname = "EHAnalysism"

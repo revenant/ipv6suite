@@ -281,16 +281,15 @@ class TC_ImportOmnet < Test::Unit::TestCase
       $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
     }            
     assert_equal(["a.transitTimes.cn"],
-                 $app.retrieveRObjects(p),
-                 "should exclude 317 and 319")
+                 $app.retrieveRObjects(p), "should exclude 317 and 319")
     assert_equal(12,
       $app.dimRObjects(p,"a.transitTimes.cn")["a.transitTimes.cn"][0],
-      "same result as above unless dup vectors cause havoc like searching for 319 first")    
+      "same result as a.transitTimes.cn above unless dup vectors cause havoc")
   ensure
     p.close if p
   end
   
-  def test_filterDupVectorIndex
+  def test_filterByIndex
     p = IO.popen(RInterface::RSlave, "w+")    
     $app.readConfig(@yaml)   
     $app.filter = %w{317}     
@@ -300,14 +299,20 @@ class TC_ImportOmnet < Test::Unit::TestCase
       encodedFactors = File.basename(vecFile, ".vec").split(RInterface::DELIM)
       run = encodedFactors.last
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
-      $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
+      $app.encodedSingleRun(p, vecFile, encodedFactors, run)
+      #remove warning as we tempscan and p disappeared somehow and when we rm them
+      #generates these warnings
+      p.puts %|rm(last.warning)|
     }            
+    assert_equal([6, 8],
+                 $app.dimRObjects(p,"a.transitTimes.mn")["a.transitTimes.mn"],
+                 "should include 317 only although total of 10 with 319 too if by name \
+hence evil of by vector across many files")
+
     assert_equal(["a.transitTimes.mn"],
-                 $app.retrieveRObjects(p),
-                 "should include only 317 and 319")
+                 $app.retrieveRObjects(p), "a.transitTimes.mn only")
                  
-    assert_equal([10, 8],
-                 $app.dimRObjects(p,"a.transitTimes.mn")["a.transitTimes.mn"])    
+                 
   ensure
     p.close if p
   end

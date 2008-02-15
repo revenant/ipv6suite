@@ -304,9 +304,15 @@ void IPv6Mobility::receiveChangeNotification(int category, cPolymorphic *details
   printNotificationBanner(category, details);
 
   if (category == NF_L2_BEACON_LOST)
-    linkDownVector->record(simTime());
+  {
+    linkDownTime = simTime();
+    linkDownVector->record(linkDownTime);
+  }
   else if (category == NF_L2_ASSOCIATED)
-    linkUpVector->record(simTime());
+  {
+    linkUpTime = simTime();
+    linkUpVector->record(linkUpTime);
+  }
   else if (category == NF_IPv6_RA_RECVD)
     raVector.record(simTime());
   else if (category == NF_IPv6_RS_SENT)
@@ -316,7 +322,10 @@ void IPv6Mobility::receiveChangeNotification(int category, cPolymorphic *details
   else if (category == NF_IPv6_NA_SENT)
     naVector.record(simTime());
   else if (category == NF_IPv6_ADDR_ASSIGNED)
-    globalAddrAssignedVector.record(simTime());
+  {
+    //actual value is coa acquisition time
+    globalAddrAssignedVector.record(simTime()-linkUpTime);
+  }
 }
 
 #endif // USE_MOBILITY

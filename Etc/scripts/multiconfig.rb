@@ -1042,7 +1042,7 @@ mkdir -pv results &> /dev/null
 ruby #{__FILE__} -r 100 -C #{yamltest} wcmc #&>/dev/null
 mv wcmc_*.{ned,ini,xml} jobs.txt results &> /dev/null
 diff -r results compare
-rm -fr compare
+rm -fr compare results
 END
       f.puts script
     }
@@ -1067,7 +1067,6 @@ output was #{output}")
   end
   
   def teardown
-  
   end
   
 end #test class

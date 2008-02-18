@@ -33,6 +33,7 @@
 #include "MobilityHeaderBase.h"
 #include "RTPPacket.h"
 #include "RTCPSR.h"
+#include <sstream>
 
 namespace IPv6Utils
 {
@@ -42,10 +43,19 @@ namespace IPv6Utils
     static ostream* osp = 0;
     if (!osp)
     {
-//      if (!routingInfoDisplay)
-	osp = new ofstream("test.out", ios_base::out|ios_base::binary);
-//      else
-//	osp = &cout;
+      std::string filename = simulation.moduleByPath("worldProcessor")->par("datagramTraceFile").stringValue();
+      if (filename == "")
+	filename = "test.out";
+      else
+      {
+	std::ostringstream ostr;
+	ostr<<simulation.runNumber();
+	if (filename == "autocreate")
+	  filename = std::string(simulation.systemModule()->name()) + "-" + ostr.str() + ".out";
+      }
+
+      osp = new ofstream(filename.c_str(), ios_base::out|ios_base::binary);
+
     }
     ostream& os = *osp;
         

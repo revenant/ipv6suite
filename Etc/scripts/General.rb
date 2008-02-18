@@ -53,7 +53,6 @@ module General
   #encodedFactors
   def expandFactors(encodedFactors, factors)
     c = splice(factors, encodedFactors)
-    p c
     e = []
     Hash[*c].to_a.each{|i|
       e.push(i[0] + "=" + quoteValue(i[1]))

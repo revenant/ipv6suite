@@ -225,15 +225,11 @@ namespace MobileIPv6
 
     /**
      * There is only one current care of addr and that is the one registred with
-     * primary HA. Even previous HA in BUL will all be updated with this coa
-     * even though the home address in that binding could be previous care of
-     * addr.  (This careOfAddr is semantically different from the Using Multiple
-     * Care of Address in 10.20 of draft as that refers more to the binding of
-     * that addr to this node)
+     * primary HA. 
      *
      */
 
-    const ipv6_addr& careOfAddr(bool old = true) const;
+    const ipv6_addr& careOfAddr() const;
 
     //@}
 
@@ -286,7 +282,6 @@ namespace MobileIPv6
   protected:
 
     void expireLifetimes(cTimerMessage* tmr);
-    void setFutureCoa(const ipv6_addr& ncoa);
 
   private:
 
@@ -328,9 +323,6 @@ namespace MobileIPv6
     mutable BindingUpdateList bul;
 
     ipv6_prefix _homeAddr;
-    ///Needed because the careOfAddr() uses BUL and can contain a pcoa as we may
-    ///not have sent a BU yet due to DAD of ncoa.
-    ipv6_addr   futureCoa;
 
     ///Maintains running state of whether we are away from home
     bool away;

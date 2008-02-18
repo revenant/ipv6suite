@@ -1566,7 +1566,6 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   if (bule && bule->careOfAddr() == bule->homeAddr())
     return true;
 
-  bool pcoa = false;
 
 // {{{ Do Route Optimisation (RO) if bule contains this mn's coa
 
@@ -1584,9 +1583,6 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
        !mipv6cdsMN->sendBUAckFlag()) &&
 
       bule->homeAddr() == datagram->srcAddress() &&
-      //too strict a test for one of the current coa should instead check that
-      //it is assigned somewhere?
-      mipv6cdsMN->careOfAddr(pcoa) == bule->careOfAddr() &&      
       //state 0 means ba received or assumed to be received > 0 means
       //outstanding BUs
       (!bule->problem && bule->state == 0) && bule->expires() > 0)
@@ -1613,16 +1609,17 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   else
   {
     //Reverse Tunnel
-    size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(pcoa),
+    size_t vIfIndex = tunMod->findTunnel(mipv6cdsMN->careOfAddr(),
 					 mipv6cdsMN->primaryHA()->prefix().prefix);
+    //TODO check if cdsMN->careOfAddr needs to be assigned first. As the futureCoa was used for that. Even if not checked at IPv6Send::endService will test src address is assigned i.e. src tunnel address
     if (!vIfIndex)
     {
       if (rt->hmipSupport())
-      Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
+      Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr()
 	   <<" is the old one and we have handed to new MAP, awaiting BA "
 	   <<"from HA to use rcoa, packet dropped");
       else
-	Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr(pcoa)
+	Dout(dc::mipv6, " reverse tunnel to HA not found as coa="<<mipv6cdsMN->careOfAddr()
 	     <<" not ready yet, awaiting BA from HA to use coa, packet dropped");
       Dout(dc::mipv6, " tunnels "<<*tunMod);
       return false;

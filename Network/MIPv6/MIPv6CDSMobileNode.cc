@@ -52,7 +52,7 @@ namespace MobileIPv6
   }
 
   MIPv6CDSMobileNode::MIPv6CDSMobileNode(size_t interfaceCount)
-    :futureCoa(IPv6_ADDR_UNSPECIFIED), away(false), moved(false), _pcoaLifetime(5),
+    :away(false), moved(false), _pcoaLifetime(5),
      eagerHO(false), buAckFlag(false)
   {
     WATCH_PTRLIST(bul);
@@ -86,44 +86,16 @@ namespace MobileIPv6
   }
 
   /*
-   * @brief returns the latest care of address even if it has not been registered yet.
+   * @brief returns the primary care of address even if it has not been registered yet at HA
    *
-   * @arg old true by default to maintain compability will return coa registered with pHA
-   *
-   * if arg is false and a newer coa has been created but awaiting dad then that
-   * coa is returned. This may or may not be registered with ha depending on
-   * whether opt dad is done in which case there should not be a diffrence.
-   * new coa is written to by setFutureCoa which MIPv6NDStateHost::processRtrAdv does
-   *
-   * @todo this is any ugly hack but should suffice for now
    */
-  const ipv6_addr& MIPv6CDSMobileNode::careOfAddr(bool old) const
+  const ipv6_addr& MIPv6CDSMobileNode::careOfAddr() const
   {
     if (primaryHA())
     {
       bu_entry* bule = findBU(primaryHA()->addr());
-      if (futureCoa != IPv6_ADDR_UNSPECIFIED)
-      {
-        if (bule != 0)
-        {
-          //assert(bule->careOfAddr() != futureCoa);
-          if (bule->careOfAddr() == futureCoa)
-            cerr<<"why futureCoa is same as coa "<<futureCoa;
-        }
-        if (!old)
-        {
-          Dout(dc::debug|flush_cf,
-               "MIPv6CDSMobileNode::careOfAddr returning futurecoa "<<futureCoa);
-          return futureCoa;
-        }
-      }
       if (bule != 0)
       {
-#if defined CWDEBUG
-        Dout(dc::debug|flush_cf,
-             "MIPv6CDSMobileNode::careOfAddr returning bule->coa "
-             <<bule->careOfAddr());
-#endif //CWDEBUG
         return bule->careOfAddr();
       }
       //Return primary hoa when no binding update sent to HA (we are at
@@ -417,17 +389,6 @@ const ipv6_prefix&  MIPv6CDSMobileNode::homePrefix() const
     //Not useful as its a shared_ptr to bue
     //copy(bul.begin(), bul.end(), ostream_iterator<BindingUpdateList::value_type >(os, "\n"));
     return os;
-  }
-
-  void MIPv6CDSMobileNode::setFutureCoa(const ipv6_addr& ncoa)
-  {
-    assert((ncoa == IPv6_ADDR_UNSPECIFIED && futureCoa != IPv6_ADDR_UNSPECIFIED) ||
-           (ncoa != IPv6_ADDR_UNSPECIFIED && futureCoa == IPv6_ADDR_UNSPECIFIED) ||
-	   //moves back to current rtr after thinking moved elsewhere due to
-	   //missedrtradv (don't know why initial first time its unspecified
-	   //address for ncoa but subsequent ones do not call setFuturecoa)
-	   (ncoa == futureCoa && ncoa != IPv6_ADDR_UNSPECIFIED));
-    futureCoa = ncoa;
   }
 
 } //namespace MobileIPv6

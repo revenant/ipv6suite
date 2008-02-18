@@ -263,7 +263,7 @@ void IPv6Forward::endService(cMessage* theMsg)
             || (rt->mobilitySupport() && rt->isMobileNode() && 
                 rt->mipv6cds->mipv6cdsMN->awayFromHome() &&
                 ie->ipv6()->tentativeAddrAssigned(
-                  rt->mipv6cds->mipv6cdsMN->careOfAddr(true)))
+                  rt->mipv6cds->mipv6cdsMN->careOfAddr()))
 #endif //USE_MOBILITY
             )
         {

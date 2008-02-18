@@ -970,7 +970,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       ///Form current care of addr regardless of what type of handover
       ipv6_addr coa = mipv6cdsMN->formCareOfAddress(newRtr, ie);
       cout << "At " << nd->simTime() << " sec, "<< rt->nodeName() << endl;
-      mipv6cdsMN->setFutureCoa(coa);
 
       //Make sure coa is already assigned i.e. we've seen the rtrAdv from newRtr
       //and processed it in processRtrAd.
@@ -1410,9 +1409,7 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 {
   assert(ncoa != IPv6_ADDR_UNSPECIFIED);
 
-  bool pcoa = false;
-  //this returns the coa from setFutureCoa
-  if (mipv6cdsMN->careOfAddr(pcoa) != ncoa || ncoa == IPv6_ADDR_UNSPECIFIED)
+  if (ncoa == IPv6_ADDR_UNSPECIFIED)
     return;
 
   ipv6_addr ocoa = mipv6cdsMN->careOfAddr();
@@ -1437,7 +1434,6 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 #ifdef USE_HMIP
   }
 #endif //USE_HMIP
-  mipv6cdsMN->setFutureCoa(IPv6_ADDR_UNSPECIFIED);
 
 }
 // void MIPv6NDStateHost::enterState(void)

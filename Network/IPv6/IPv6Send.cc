@@ -277,26 +277,26 @@ void IPv6Send::endService(cMessage* msg)
       }
       else
       {
-	if (mipv6cdsMN->currentRouter().get() == 0)
-	{
-	  //FMIP just set to PCoA here and hope for the best right.
-	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
-	       <<" No suitable src address available on foreign network as no "
-	       <<"routers recorded so far to form coa so packet dropped");
-	}
-	else
-	{
 	  InterfaceEntry *ie = ift->interfaceByPortNo(info->ifIndex());
-	  ipv6_addr unready = mipv6cdsMN->careOfAddr(false);
 	  if (ie->ipv6()->tentativeAddrs.size())
-	    unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
-	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
+          {
+	    ipv6_addr unready = ie->ipv6()->tentativeAddrs[ie->ipv6()->tentativeAddrs.size()-1];
+	    Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
 	       <<"No suitable src address available on foreign network as "
 	       <<"ncoa in not ready from DAD or BA from HA/MAP not received "
 	       <<unready<<" packet dropped");
-	}
+          }
+          else 
+            assert(false); //should not triggger otherwise check repo
 	datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
       }
+    }
+    else if (mipv6cdsMN && mipv6cdsMN->currentRouter().get() == 0)
+    {
+	  Dout(dc::send|dc::mipv6, rt->nodeName()<<" "<<simTime()
+	       <<" No suitable src address available on foreign network as no "
+	       <<"routers recorded so far to form coa so packet dropped");
+      datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
     }
   }
 

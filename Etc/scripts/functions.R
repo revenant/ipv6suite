@@ -234,6 +234,8 @@ jl.cis <- function(x,p=0.95,use.t=TRUE, rowLabel="x", columnLabels=c("n", "Mean"
   }
 
 #group sample sizes in n, means in u and stddevs in s
+#Or if n is a dataframe then these columns have to exist
+#mean stddev and samples
 jl.groupci <- function(n, u = NULL, s =NULL, p=0.95)
   {
     if (length(u) != 0)
@@ -253,6 +255,37 @@ jl.groupci <- function(n, u = NULL, s =NULL, p=0.95)
     qnorm((1+p)/2) * sqrt(ntot) * semn/sqrt(ntot-1)
   }
 
+#run 'fun' on subsets determined from 'by' on dataframe 'x'.
+#Good for cases when tapply does not work as it expects a simple 'x' vector
+#Rest is for prettying up output and checking whether rest
+#tested with jl.groupci where it requires more than a single subsetted vector
+jl.tapply <- function(x, by, fun = jl.groupci, ...)
+  {
+    if (!is.data.frame(x))
+      stop("'x' must be a frame so all columns are equal length")
+    nI <- length(by)
+    extent = integer(nI)
+    namelist <- vector("list", nI)
+    names(namelist) <- names(by)
+    for (i in seq(by)) {
+        index <- as.factor(by[[i]])
+        namelist[[i]] <- levels(index)
+        extent[i] <- nlevels(index)
+        if (length(index) != length(x[,1]))
+            stop("arguments must have same length")
+      }
+
+    ans = lapply(split(x, by), fun, ...)
+    if (all(unlist(lapply(ans, length)) == 1)) {
+        ansmat <- array(dim = extent, dimnames = namelist)
+        ans <- unlist(ans, recursive = FALSE)
+        return(matrix(ans, nrow = nrow(ansmat), ncol=ncol(ansmat),
+                      dimnames=dimnames(ansmat)))
+        
+    }
+    return(ans)
+  }
+              
 ##Gives back the value of true for odd numbers 
 jl.odd <- function(x)
   {

@@ -111,9 +111,10 @@ class WirelessEtherModule : public LinkLayerModule
     friend class WEQoSQueue;
 
 public:
-    Module_Class_Members(WirelessEtherModule, LinkLayerModule, 0);
 
+    WirelessEtherModule(const char *name=NULL, cModule *parent=NULL, unsigned int stacksize = 0);
     ~WirelessEtherModule();
+
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage* msg);
     virtual void finish();

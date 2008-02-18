@@ -373,7 +373,6 @@ MIPv6MStateMobileNode::MIPv6MStateMobileNode(IPv6Mobility* mod):
 MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
 {
   delete mipv6cdsMN;
-  delete mipv6cdsMN;
 
   delete mob->backVector;
   delete mob->buVector;

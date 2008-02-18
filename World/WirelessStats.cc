@@ -44,7 +44,7 @@ void WirelessStats::initialize()
     balanceIndexVec.setName("balanceIndex");
 
     // Timer to update statistics
-    scheduleAt(simTime()+1, new cMessage("updateStats"));
+    scheduleAt(simTime()+1, new cMessage("WSupdateStats"));
 }
 
 void WirelessStats::handleMessage(cMessage* msg)
@@ -54,6 +54,8 @@ void WirelessStats::handleMessage(cMessage* msg)
   // allow sim to quit if nothing of interest is happening.
   if (!simulation.msgQueue.empty())
     scheduleAt(simTime()+1, msg);
+  else
+    delete msg;
 }
 
 void WirelessStats::finish()

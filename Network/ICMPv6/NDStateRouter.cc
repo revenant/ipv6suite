@@ -149,9 +149,10 @@ NDStateRouter::~NDStateRouter()
 {
   for (size_t i = 0; i < advTmrs.size();i++)
   {
-    //Need to call drop from a cObject derived class e.g. cTimerMessage?
-    //simulation.msgQueue.drop(advTmrs[i]->msg);
-    //delete advTmrs[i];
+    if (advTmrs[i]->msg->isScheduled())
+      nd->cancelEvent(advTmrs[i]->msg);
+    //RtrTimer dtor deletes msg
+    delete advTmrs[i];
   }
 #if FASTRA
   delete [] outputMod;
@@ -332,12 +333,11 @@ void  NDStateRouter::sendUnsolRtrAd( RtrTimer* tmr)
 
   cTimerMessage*& msg = tmr->msg;
 
-  //Can reuse timer message as we are sending to self
   if (msg == 0)
   {
     stringstream msgName;
     msgName <<"UnsolRA "<<rt->nodeName()<<":"<<tmr->ifIndex;
-    msg = new cCallbackMessage("msgName.str().c_str()", Tmr_NextUnsolRtrAd);
+    msg = new cCallbackMessage(msgName.str().c_str(), Tmr_NextUnsolRtrAd);
     *((cCallbackMessage*)(msg))=boost::bind(&NDStateRouter::sendUnsolRtrAd, this, tmr);
     nd->scheduleAt(nd->simTime() + delay, msg);
     advTmrs.push_back(tmr);

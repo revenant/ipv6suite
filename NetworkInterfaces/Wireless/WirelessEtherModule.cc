@@ -94,12 +94,12 @@
 
 Define_Module(WirelessEtherModule);
 
-/*
-WirelessEtherModule::WirelessEtherModule(const char *name, cModule *parent):
-  cSimpleModule(name, parent, 0), channelToScan(new bool[MAX_CHANNEL + 1])
+
+WirelessEtherModule::WirelessEtherModule(const char *name, cModule *parent, unsigned int stacksize):
+    LinkLayerModule(name, parent, 0), signalStrength(0), channelToScan(0)
 {
 }
-*/
+
 
 WirelessEtherModule::~WirelessEtherModule()
 {
@@ -153,14 +153,27 @@ WirelessEtherModule::~WirelessEtherModule()
     delete avgTxFrameSizeVIVec;
     delete avgTxFrameSizeVOVec;
 
-    if (InstRxFrameSizeVec != NULL)
-        delete InstRxFrameSizeVec;
-    if (InstTxFrameSizeVec != NULL)
-        delete InstTxFrameSizeVec;
+    delete InstRxFrameSizeVec;
+    delete InstTxFrameSizeVec;
 
     delete outputQueue;
-//    delete[]channelToScan;
-//    delete signalStrength;
+    if (channelToScan)
+      delete []channelToScan;
+    delete signalStrength;
+
+    reset();
+    delete updateStatsTimer;
+    delete powerUpBeaconNotifier;
+    delete backoffTimer;
+    delete endSendDataTimer;
+    delete awaitAckTimer;
+    delete sendAckTimer;
+    delete endSendAckTimer;
+    delete prbEnergyScanNotifier;
+    delete prbRespScanNotifier;
+    delete channelScanNotifier;
+    delete authTimeoutNotifier;
+    delete assTimeoutNotifier;
 }
 
 void WirelessEtherModule::baseInit(int stage)
@@ -193,11 +206,11 @@ void WirelessEtherModule::baseInit(int stage)
 
         // Initialise timers
         awaitAckTimer = new cMessage("endAwaitAck", WIRELESS_SELF_AWAITACK);
-        backoffTimer = new cMessage("backoff", WIRELESS_SELF_AWAITMAC);
+        backoffTimer = new cMessage("WEMbackoff", WIRELESS_SELF_AWAITMAC);
         sendAckTimer = new cMessage("sendAck", WIRELESS_SELF_SCHEDULEACK);
         endSendAckTimer = new cMessage("endSendingAck", WIRELESS_SELF_ENDSENDACK);
         endSendDataTimer = new cMessage("endSendingData", WE_TRANSMIT_SENDDATA);
-        updateStatsTimer = new cMessage("updateStats", TMR_STATS);
+        updateStatsTimer = new cMessage("WEMupdateStats", TMR_STATS);
 
         powerUpBeaconNotifier = new cMessage("sendPowerUpBeacon", TMR_BEACON); // AP only
         prbEnergyScanNotifier = new cMessage("probeChannel", TMR_PRBENERGYSCAN);
@@ -340,10 +353,11 @@ void WirelessEtherModule::initialize(int stage)
 	  _linkUpTrigger = par("linkUpTrigger");
 	  _linkDownTrigger = par("linkDownTrigger");
 	}
-        // list to store signal strength readings
-        signalStrength = new AveragingList(sSMaxSample);
 
-        initialiseChannelToScan();
+	// list to store signal strength readings
+	signalStrength = new AveragingList(sSMaxSample);
+
+	initialiseChannelToScan();
 
         double randomStart = uniform(0, 1, 2);
         // On power up, wireless ethernet interface is staarting to

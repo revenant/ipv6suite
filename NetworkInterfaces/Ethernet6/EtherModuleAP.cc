@@ -53,6 +53,7 @@ void EtherModuleAP::initialize(int stage)
   if (stage == 0)
   {
     frameCollided = false;
+    updateStatsNotifier = 0;
 
     LinkLayerModule::initialize();
     setIface_name(PR_ETHERNET);

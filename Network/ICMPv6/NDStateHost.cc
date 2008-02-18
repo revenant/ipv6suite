@@ -523,7 +523,9 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
   nd->nb->fireChangeNotification(NF_IPv6_ADDR_ASSIGNED);
 
 #if USE_MOBILITY
-  if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome())
+  if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome() 
+     //as odad already does bu for tentative addr don't want repeat
+     && !rt->odad())
   {
     ipv6_addr potentialCoa = ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1];
     MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
@@ -733,6 +735,14 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
           //Set state to STALE when LL addr changed
           re->setState(NeighbourEntry::STALE);
         }
+        else if (rt->mobilitySupport() && rtrAdv->hasSrcLLAddr() && rtrAdv->srcLLAddr() == re->linkLayerAddr() &&
+		 re->state() == NeighbourEntry::INCOMPLETE)
+	{
+	  //as MIPv6NDStateHost::relinquishRouter sets it to incomplete and now
+	  //mn has moved back to prev visited subnet.
+	  re->setState(NeighbourEntry::REACHABLE);
+	}
+ 
 
         reValid = true;
 #ifdef USE_MOBILITY

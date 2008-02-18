@@ -1007,9 +1007,9 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         Dout(dc::mipv6|dc::neighbour_disc|flush_cf, rt->nodeName()<<" "<<nd->simTime()
              <<ifIndex<<" waiting for dad completion before sending BU for coa "
              <<coa);
-	cSignalMessage* cb = new cSignalMessage("MIPv6sendBU");
-	cb->connect(boost::bind(&MIPv6NDStateHost::sendBU, this, coa));
-	addCallbackToAddress(coa, cb);
+	//cSignalMessage* cb = new cSignalMessage("MIPv6sendBU");
+	//cb->connect(boost::bind(&MIPv6NDStateHost::sendBU, this, coa));
+	//addCallbackToAddress(coa, cb);
       }
 
     } //if primary HA exists

@@ -528,6 +528,7 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
      //as odad already does bu for tentative addr don't want repeat
      && !rt->odad())
   {
+    InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
     ipv6_addr potentialCoa = ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1];
     MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
       boost::polymorphic_downcast<MobileIPv6::MIPv6NDStateHost*> (this);

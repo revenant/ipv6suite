@@ -407,3 +407,61 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
     }
     frame
   }
+
+jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/60,1/(120*2))) # lamda = seq(1/120,4/60,1/120))
+{
+  
+    Ieff <- function(hodelay, lamda = 1/60)
+      {
+    
+  # G.711 + PLC
+  Ie = 0
+  Bpl = 25.1
+  R = 64*10^3
+
+#  G.113 Appendix (2002)
+#  G.729A with VAD
+  Ie = 11
+  Bpl = 19
+  #VAD would mean that real rate is somewhat less see voip characteris comms letter
+  R = 8*10^3
+                                        
+  #0 <= lamda < 1 (handovers/sec)
+  #hodelay < 1 sec best although possible for more
+  BurstR = R*hodelay*(1-hodelay*lamda)
+  #!(burstR < 0)
+  if (min(BurstR) < 0)
+    return(c(which(BurstR<0),BurstR[which(BurstR < 0 )]))
+  names(hodelay) <- hodelay
+  names(lamda) <- lamda
+  Ppl = 100 * hodelay * lamda #in pure percent
+  #0 <= Ppl  <= 100
+  if (min(Ppl) < 0)
+    return(which(Ppl < 0))
+#  if (max(Ppl) > 2)
+#    return(which(Ppl > 2))
+  return(Ie + (95 - Ie)*(Ppl/(Ppl/BurstR + Bpl)))
+      }
+    Ppl <- function(hodelay, lamda)
+      {
+        100 * hodelay * lamda
+      }
+    names(hodelay) <- hodelay
+    names(lamda) <- lamda
+#    Ppl <- outer(hodelay, lamda, Ppl)
+#    return(Ppl)
+    #  plot(hodelay,  Ie.eff)
+    if (FALSE)
+      persp(hodelay, lamda, Ppl, theta=30, phi=20,
+            ticktype = "detailed", nticks=8)
+    else
+      {
+  Ieff <- outer(hodelay, lamda, Ieff)
+  persp(hodelay, lamda, Ieff,theta=30, phi=20,
+        r=50,#expand=0.5,
+        col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
+        ticktype = "detailed", nticks=8)
+  Ieff
+}
+}
+  

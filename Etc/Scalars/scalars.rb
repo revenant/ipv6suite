@@ -327,7 +327,7 @@ end
       end   
       wait = `cut -d ',' -f 1-4 "#{e}.mean.csv" | paste -d "," - #{stats.join(".tmp ") + ".tmp"} > "#{e}.csv"`
       wait = `rm #{stats.join(".tmp ") + ".tmp"}`
-#      stats.each{|i| wait = `rm "#{e}.#{s}.csv"` }
+      stats.each{|i| wait = `rm "#{e}.#{s}.csv"` } if not @debug
     }
     array
   end

@@ -658,11 +658,11 @@ end
             writeIniFile.puts "output-vector-file = #{vectorfile}"            
 
             #write distjobs file
-            jobfile.puts "./#{exename} -f #{filename}.ini -r#{runIndex}" if not @conftest
+            jobfile.puts "./#{exename} -f #{filename}.ini -r#{runIndex} 2>&1" if not @conftest
           end
             #Using the ConfTest to determine how many (just need runcount to pregenerate
             #vector file name. of course we could have renamed it after after sim runs.
-            jobfile.puts "./#{exename} -f #{filename}.ini -r1" if @conftest
+            jobfile.puts "./#{exename} -f #{filename}.ini -r1 2>&1" if @conftest
           # }}}
           
         } #end writeIniFile

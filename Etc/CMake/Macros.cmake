@@ -186,3 +186,7 @@ MACRO(COLLECT_CHECK_TEST testname)
     ADD_TEST(check${testname} ${BASH} -c "bzcat ${testname}.out.bz2|diff -u - test.out")
   ENDIF (COLLECT_RESULT)
 ENDMACRO(COLLECT_CHECK_TEST)
+
+MACRO(COLLECT_TEST testname)
+    ADD_TEST(collect${testname} ${BASH} -c "bzip2 test.out && mv test.out.bz2 ${testname}.out.bz2")
+ENDMACRO(COLLECT_TEST)

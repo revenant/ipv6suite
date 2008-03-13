@@ -1414,7 +1414,7 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   ipv6_addr ocoa = mipv6cdsMN->careOfAddr();
 
-  assert(ncoa == ocoa);
+  assert(ncoa != ocoa);
 
   //We use minimum valid lifetime since that's guaranteed to be <=
   //both home addr and coa

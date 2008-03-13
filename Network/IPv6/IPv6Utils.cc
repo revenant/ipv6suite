@@ -41,19 +41,24 @@ namespace IPv6Utils
   {
     static bool encapsulate = false;
     static ostream* osp = 0;
+    std::string filename = "test.out";
+
     if (!osp)
     {
-      std::string filename = simulation.moduleByPath("worldProcessor")->par("datagramTraceFile").stringValue();
-      if (filename == "")
-	filename = "test.out";
-      else
+      if (simulation.moduleByPath("worldProcessor"))
+      {
+      filename = simulation.moduleByPath("worldProcessor")->par("datagramTraceFile").stringValue();
+      if (filename != "")
       {
 	std::ostringstream ostr;
 	ostr<<simulation.runNumber();
 	if (filename == "autocreate")
 	  filename = std::string(simulation.systemModule()->name()) + "-" + ostr.str() + ".out";
       }
-
+      else
+	filename = "test.out";
+      }
+	
       osp = new ofstream(filename.c_str(), ios_base::out|ios_base::binary);
 
     }

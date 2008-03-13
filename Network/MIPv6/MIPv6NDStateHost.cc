@@ -487,13 +487,12 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
     if ((mipv6cdsMN->movementDetected() || mipv6cdsMN->eagerHandover()) &&
         mipv6cdsMN->primaryHA())
     {
-
 #ifdef USE_HMIP
       if (rt->hmipSupport() && rtrAdv->hasMapOptions())
-        Dout(dc::hmip, rt->nodeName()<<" (no current router) Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover");
+        Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover(archaic branch) ");
       else
-#endif //USE_HMIP
-      handover(bha);
+#endif //USE_HMIP	
+	handover(bha);
     }
     else
       mipv6cdsMN->currentRouter() = bha;
@@ -542,7 +541,7 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
         Dout(dc::hmip, rt->nodeName()<<" Detected map options in MIPv6NDStateHost::processRtrAdv deferring handover(archaic branch) ");
       else
 #endif //USE_HMIP
-      handover(bha);
+	handover(bha);
     }
   }
 
@@ -919,6 +918,7 @@ bool home_addr_scope_check(const ipv6_addr& addr)
   return false;
 }
 
+
 /**
  * @brief Handover to newRtr
  *
@@ -985,32 +985,14 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
       if (assigned)
       {
-        //newRtr could be passed in as some places may need it but then DAD dup
-        //success bit is missing this. Convert this to a callback too?
-        sendBU(coa);
-
-        if ( mob->signalingEnhance() == CellResidency )
-        {
-          if ( mob->linkDownTime )
-          {
-            mob->handoverDelay = nd->simTime() - mob->linkDownTime;
-            mob->linkDownTime = 0;
-          }
-        }
-
+	//newRtr could be passed in as some places may need it but then DAD dup
+	//success bit is missing this. Convert this to a callback too?
+	sendBU(coa);
       }
       else
       {
-        //Not assigned at all yet unless DAD has finished (it would be in
-        //tentativeAddr in this case)
-        Dout(dc::mipv6|dc::neighbour_disc|flush_cf, rt->nodeName()<<" "<<nd->simTime()
-             <<ifIndex<<" waiting for dad completion before sending BU for coa "
-             <<coa);
-	//cSignalMessage* cb = new cSignalMessage("MIPv6sendBU");
-	//cb->connect(boost::bind(&MIPv6NDStateHost::sendBU, this, coa));
-	//addCallbackToAddress(coa, cb);
+	deferSendBU(coa, ifIndex);
       }
-
     } //if primary HA exists
     else
     {
@@ -1022,6 +1004,18 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   relinquishRouter(oldRtr, newRtr);
 
+}
+
+void MIPv6NDStateHost::deferSendBU(ipv6_addr& coa, unsigned int ifIndex)
+{
+    //Not assigned at all yet unless DAD has finished (it would be in
+    //tentativeAddr in this case)
+    Dout(dc::mipv6|flush_cf, rt->nodeName()<<" "<<nd->simTime()
+	 <<ifIndex<<" waiting for dad completion before sending BU for coa "
+	 <<coa);
+    cCallbackMessage* cb = new cCallbackMessage("MIPv6sendBU", 5490);
+    (*cb) = boost::bind(&MIPv6NDStateHost::sendBU, this, coa);
+    addCallbackToAddress(coa, cb);
 }
 
 /**
@@ -1329,8 +1323,6 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
       mstateMN->sendInits(cna, coa);
     else
     {
-      //What happens if home_addr is really our previous coa? so use the one
-      //registered with primaryHA. What if there are multiple home addresses?
       mstateMN->sendBU(cna, coa, mipv6cdsMN->homeAddr(),
                      rt->minValidLifetime(), false, 0);
 
@@ -1407,6 +1399,14 @@ void MIPv6NDStateHost::returnHome()
 ///Calls sendBU of MStateMN eventually
 void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 {
+  if (callbackAdded(ncoa, 5490))
+  {
+    cCallbackMessage* cb = check_and_cast<cCallbackMessage*>(addressCallback(ncoa));
+    if (cb)
+      ;
+    //removeCallback(
+  }
+
   assert(ncoa != IPv6_ADDR_UNSPECIFIED);
 
   if (ncoa == IPv6_ADDR_UNSPECIFIED)
@@ -1414,27 +1414,11 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   ipv6_addr ocoa = mipv6cdsMN->careOfAddr();
 
-#ifdef USE_HMIP
-  bool handoverDone = false;
-  if (rt->hmipSupport())
-  {
-    HMIPv6NDStateHost* derived = boost::polymorphic_downcast<HMIPv6NDStateHost*>(this);
-    assert(derived);
-    //Used only for local handovers i.e. update MAPs binding for lcoa
-    handoverDone = derived->arhandover(ncoa);
-  }
-  if (!handoverDone)
-  {
-#endif //USE_HMIP
+  assert(ncoa == ocoa);
 
   //We use minimum valid lifetime since that's guaranteed to be <=
   //both home addr and coa
   mstateMN->sendBUToAll(ncoa, mipv6cdsMN->homeAddr(), rt->minValidLifetime());
-
-#ifdef USE_HMIP
-  }
-#endif //USE_HMIP
-
 }
 // void MIPv6NDStateHost::enterState(void)
 // {}

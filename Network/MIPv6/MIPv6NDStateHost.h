@@ -76,7 +76,10 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   virtual void print(){};
 
  protected:
-  virtual void handover(boost::shared_ptr<MIPv6RouterEntry> newRtr);
+  //call sendBU after dad succeeds
+  virtual void deferSendBU(ipv6_addr& coa, unsigned int ifIndex);
+
+  void handover(boost::shared_ptr<MIPv6RouterEntry> newRtr);
 
   ///Check and do returning home case
   void returnHome();
@@ -100,10 +103,7 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   //virtual bool valRtrAd(RA* ad);
 
 public:
-  ///gcc34 does not allow friendship to be granted to a protected function of base class? Guess friendship and inheritance are orthogonal
-  ///Need access to sendBU
-  //friend void IPv6NeighbourDiscovery::NDStateHost::dupAddrDetSuccess(NDTimer* tmr);
-  void sendBU(const ipv6_addr& ncoa);
+
 protected:
 
   //Do not delete (belongs to Mobility)
@@ -119,6 +119,12 @@ protected:
   MIPv6MStateMobileNode* mstateMN;
 
   cTimerMessage* schedSendUnsolNgbrAd;
+
+  ///gcc34 does not allow friendship to be granted to a protected function of base class? Guess friendship and inheritance are orthogonal
+  ///Need access to sendBU
+  //friend void IPv6NeighbourDiscovery::NDStateHost::dupAddrDetSuccess(NDTimer* tmr);
+  virtual void sendBU(const ipv6_addr& ncoa);
+
 private:
   ///missedRtrAdv variable to store interval from new router advertisement when
   ///unsure if new router is on different subnet

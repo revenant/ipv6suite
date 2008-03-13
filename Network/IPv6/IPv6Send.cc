@@ -375,8 +375,9 @@ IPv6Datagram *IPv6Send::encapsulatePacket(cMessage *msg)
     if (!found)
     {
       Dout(dc::warning|flush_cf, rt->nodeName()<<" src addr not assigned in ifaces "<<mkIpv6_addr(ctrl->srcAddr()));
+      //Perhaps coa not assigned yet?
       //opp_error(rt->nodeName()<<" src addr not found in ifaces "<<mkIpv6_addr(ctrl->srcAddr()));
-      assert(false);
+      //assert(false);
       delete ctrl;
       delete datagram;
       return 0;

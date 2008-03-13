@@ -55,22 +55,8 @@
 #include "IPv6CDS.h"
 
 #ifdef USE_MOBILITY
-#include "MIPv6CDS.h"
-#include "MIPv6CDSMobileNode.h"
-
-#if defined USE_HMIP
-#include "HMIPv6ICMPv6NDMessage.h"
-#endif //defined USE_HMIP
-
-
-///For dupAddrDetSuccess perhaps I should have added a virtual function that
-///called the most derived one instead of friend member access. But then I'd
-///have to modify the header and add mobility stuff there which is sort of not
-///right either
-#include "MIPv6NDStateHost.h"
-#include <string>
-#include <memory>
-#include "WirelessEtherModule.h" //l2 trigger set GD
+//for awayfromhome check for fastrs
+#include "MIPv6CDSMobileNode.h" 
 #endif //USE_MOBILITY
 
 #include "NotificationBoard.h" //for rtp handover l2 down signal
@@ -523,21 +509,12 @@ void NDStateHost::dupAddrDetSuccess(NDTimer* tmr)
 
   nd->nb->fireChangeNotification(NF_IPv6_ADDR_ASSIGNED);
 
-#if USE_MOBILITY
-  if (rt->mobilitySupport() && rt->isMobileNode() && rt->mipv6cds->mipv6cdsMN->awayFromHome() 
-     //as odad already does bu for tentative addr don't want repeat
-     && !rt->odad())
-  {
+  if (rt->mobilitySupport() && rt->isMobileNode())
+  {   
     InterfaceEntry *ie = ift->interfaceByPortNo(tmr->ifIndex);
     ipv6_addr potentialCoa = ie->ipv6()->inetAddrs[ie->ipv6()->inetAddrs.size()-1];
-    MobileIPv6::MIPv6NDStateHost* mipv6StateMN =
-      boost::polymorphic_downcast<MobileIPv6::MIPv6NDStateHost*> (this);
-    assert(mipv6StateMN);
-    Dout(dc::debug, rt->nodeName()<<" potential coa in dupAddrDetSuc "<<potentialCoa);
-    mipv6StateMN->sendBU(potentialCoa);
     invokeCallback(potentialCoa);
   }
-#endif //USE_MOBILITY
 
 }
 
@@ -746,7 +723,8 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 	}
 
         reValid = true;
-#ifdef USE_MOBILITY
+	if (rt->mobilitySupport())
+	{
         ///Recreate the DE if it was deleted when moving to different subnets
         if (rt->cds->neighbour(re->addr()).lock().get() == 0)
           (*rt->cds)[re->addr()] = DestinationEntry(rt->cds->router(srcAddr));
@@ -764,7 +742,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
 	  //another subnet. but when do you know that happens for certain?
           (*rt->cds)[re->addr()] = DestinationEntry(rt->cds->router(srcAddr));	  
 	}
-#endif //USE_MOBILITY
+	}
         Dout(dc::router_disc|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<nd->simTime()
              <<" Updated router entry from RtrAd "<<*re);
       }
@@ -784,7 +762,8 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
   //Check if link layer addr option exists
   if (rtrAdv->hasSrcLLAddr())
   {
-#ifdef USE_MOBILITY
+    if (rt->mobilitySupport())
+    {
     //Required to reinstate the router neighbour entry if we go back to prior subnets
     //as the router entry exists in the list but not in the Dest Cache neighbour pointer
     if ((*rt->cds)[srcAddr].neighbour.lock().get() == 0)
@@ -792,7 +771,7 @@ std::auto_ptr<RA> NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
       assert(rt->cds->router(srcAddr).lock().get());
       (*rt->cds)[srcAddr].neighbour =  rt->cds->router(srcAddr);
     }
-#endif //USE_MOBILITY
+    }
 
     //Check that isRouter flag is true in NE
 
@@ -1359,7 +1338,7 @@ ipv6_addr NDStateHost::generateAddress(const ipv6_prefix& prefix) const
 
 void NDStateHost::addCallbackToAddress(const ipv6_addr& tentativeAddr, cTimerMessage* cb)
 {
-  Dout(dc::debug|flush_cf, rt->nodeName()<<" addcb tentative="<<tentativeAddr
+  Dout(dc::mipv6|flush_cf, rt->nodeName()<<" addcb "<<cb->name()<<" tentative="<<tentativeAddr
        <<" size="<<addressCallbacks.size());
   //If we really need multiple callbacks then change value of map to a list
   assert(addressCallbacks.count(tentativeAddr) == 0);

@@ -81,6 +81,9 @@ public:
   virtual std::auto_ptr<RA> processRtrAd(std::auto_ptr<RA> msg);
 
 protected:
+  virtual void deferSendBU(ipv6_addr& coa, unsigned int ifIndex);
+
+  virtual void sendBU(const ipv6_addr& ncoa);
 
   ///Returns the best MAP to bind with according to HMIPv6MAPEntry::operator<
   virtual HierarchicalMIPv6::HMIPv6MAPEntry selectMAP(MAPOptions& maps, MAPOptions::iterator& new_end);

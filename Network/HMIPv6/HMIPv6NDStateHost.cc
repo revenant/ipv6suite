@@ -53,6 +53,7 @@
 #include "MIPv6CDSMobileNode.h"
 #include "IPv6InterfaceData.h"
 #include "IPv6Utils.h"
+//#include <boost/tuple/tuple_io.hpp>
 
 using MobileIPv6::MIPv6RouterEntry;
 using MobileIPv6::bu_entry;
@@ -362,7 +363,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
 
   ArgMapHandover* arg = new ArgMapHandover(boost::make_tuple(bestMap, rcoa, lcoa, nd->simTime(), accessRouter->re.lock()->ifIndex()));
   //requires tuple_io.hpp
-  //cerr<<"arg is "<<arg;
+  //cerr<<"arg at creation "<<nd->simTime()<<" is "<<*arg;
   bool assigned = false;
   if (rt->odad())
   {
@@ -410,6 +411,7 @@ preprocessMapHandover(const HMIPv6MAPEntry& bestMap,
     cbSendMapBU* cb = new cbSendMapBU("SendMAPBU-lcoa", 5444);
     (*cb) = boost::bind(&HMIPv6NDStateHost::mapHandover, this, *arg);
     cb->setContextPointer(arg);
+
     addCallbackToAddress(lcoa, cb);
 
   }
@@ -434,11 +436,14 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   unsigned int ifIndex = get<4>(t);
 
   std::auto_ptr< ArgMapHandover > deleteMe;
-  if (addressCallback(lcoa))
+  if (callbackAdded(lcoa, 5444))
   {
     typedef cCallbackMessage cbSendMapBU; 
     cbSendMapBU* cb = check_and_cast<cbSendMapBU*>(addressCallback(lcoa));
-    deleteMe.reset((ArgMapHandover*) cb->contextPointer());
+    if (cb)
+    {
+      deleteMe.reset((ArgMapHandover*) cb->contextPointer());
+    }
   }
   //if map valid
   //ipv6_addr oldlcoa = hmipv6cdsMN.localCareOfAddr() != IPv6_ADDR_UNSPECIFIED;
@@ -579,6 +584,43 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
   return rcoa;
 }
 
+void HMIPv6NDStateHost::deferSendBU(ipv6_addr& coa, unsigned int ifIndex)
+{
+    //Not assigned at all yet unless DAD has finished (it would be in
+    //tentativeAddr in this case)
+    Dout(dc::hmip|flush_cf, rt->nodeName()<<" "<<nd->simTime()
+	 <<ifIndex<<" waiting for dad completion before sending BU for coa "
+	 <<coa);
+    cCallbackMessage* cb = new cCallbackMessage("HMIPv6sendBU");
+    (*cb) = boost::bind(&HMIPv6NDStateHost::sendBU, this, coa);
+    addCallbackToAddress(coa, cb);
+}
+
+//called via handover which in turn is called by either
+//MIPv6NDStateHost's movementDetected or processRtrAdv
+void HMIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
+{
+ assert(ncoa != IPv6_ADDR_UNSPECIFIED);
+
+  if (ncoa == IPv6_ADDR_UNSPECIFIED)
+    return;
+
+  ipv6_addr ocoa = mipv6cdsMN->careOfAddr();
+
+  assert(ncoa != ocoa);
+
+  //bu to map awaiting dad on lcoa 
+  if (callbackAdded(ncoa, 5444))
+    return;
+
+  bool handoverDone = false;
+    //Used only for local handovers i.e. update MAPs binding for lcoa
+  handoverDone = arhandover(ncoa);
+  
+  if (!handoverDone)
+    MIPv6NDStateHost::sendBU(ncoa);
+}
+
 /*
   @brief sends BU to map when handoff between ARs
 
@@ -589,9 +631,14 @@ ipv6_addr HMIPv6NDStateHost::formRemoteCOA(const HMIPv6MAPEntry& me,
  */
 bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
 {
+  if (hmipv6cdsMN.remoteCareOfAddr() == IPv6_ADDR_UNSPECIFIED)
+  {
+    //Do base ipv6 handover
+    return false;
+  }
 
   std::auto_ptr< ipv6_addr > deleteMe;
-  if (addressCallback(lcoa))
+  if (callbackAdded(lcoa, 5445))
   {
     typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
@@ -605,12 +652,6 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
   
   //assert(newRtr.get());
 
-  //  if (hmipv6cdsMN.isMAPValid() && newRtr)
-  if (!rt->hmipSupport() || hmipv6cdsMN.remoteCareOfAddr() == IPv6_ADDR_UNSPECIFIED)
-  {
-    //Do base ipv6 handover
-    return false;
-  }
 
   //As long as currentMap exists we will assume handover between ARs in MAP
   //domain.  Only during reception of RtrAdv's MAP options can we tell if we

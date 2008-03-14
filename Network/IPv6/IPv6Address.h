@@ -183,9 +183,9 @@ public:
   /// Conversion function from enum to string
   const char* scope_str() const;
 
-  unsigned int preferredLifetime() { return m_preferredLifetime; }
+  unsigned int preferredLifetime() const { return m_preferredLifetime; } 
 
-  unsigned int storedLifetime() { return m_storedLifetime; }
+  unsigned int storedLifetime() const { return m_storedLifetime; }
   //@}
 
   /// According to Section 2.7 RFC 2373

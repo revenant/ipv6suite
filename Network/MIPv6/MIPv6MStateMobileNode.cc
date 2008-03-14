@@ -1268,6 +1268,10 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   }
 
+  //prevent clipping of value to undefined values.
+  if (lifetime > USHRT_MAX)
+    lifetime = USHRT_MAX;
+
   BU* bu = new BU(ack, homeReg,
 #ifdef USE_HMIP
                   mapReg,

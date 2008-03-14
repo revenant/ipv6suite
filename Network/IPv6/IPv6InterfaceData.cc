@@ -94,7 +94,9 @@ std::string IPv6InterfaceData::info() const
   {
     os << "addrs:";
     for (unsigned int i=0; i<inetAddrs.size(); i++)
-      os << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str()
+      os << inetAddrs[i].address().c_str() << inetAddrs[i].scope_str()<<" pref="
+	 <<inetAddrs[i].preferredLifetime()<<" stored="
+	 <<inetAddrs[i].storedLifetime()
 	 <<"\n";
   }
   if (tentativeAddrs.size() == 0)

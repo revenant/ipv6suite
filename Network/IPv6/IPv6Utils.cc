@@ -33,6 +33,7 @@
 #include "MobilityHeaderBase.h"
 #include "RTPPacket.h"
 #include "RTCPSR.h"
+#include "ICMPv6NDMessage.h"
 #include <sstream>
 
 namespace IPv6Utils
@@ -122,6 +123,13 @@ namespace IPv6Utils
 	    }
 	}
 	  
+      }
+      if (datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
+      {
+	ICMPv6Message* icmpmsg = 
+	  check_and_cast<ICMPv6Message*>(datagram->encapsulatedMsg());
+	if (icmpmsg->type() == ICMPv6_ROUTER_AD)
+	  os<<*(check_and_cast<IPv6NeighbourDiscovery::ICMPv6NDMRtrAd*> (icmpmsg));
       }
       os<<endl;
 

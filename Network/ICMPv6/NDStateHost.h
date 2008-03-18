@@ -176,6 +176,7 @@ namespace IPv6NeighbourDiscovery
     cTimerMessage* addressCallback(const ipv6_addr& tentativeAddr);
     //returns no. of callbacks removed
     int removeAllCallbacks();
+    int removeCallbacks(const ipv6_addr& addr);
 
   protected:
     std::vector<InterfaceStatus> ifStats;

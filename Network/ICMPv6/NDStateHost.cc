@@ -1389,6 +1389,24 @@ int NDStateHost::removeAllCallbacks()
   return ret;
 }
 
+int NDStateHost::removeCallbacks(const ipv6_addr& addr)
+{
+  int ret = 0;
+  typedef std::map<ipv6_addr, cTimerMessage*>::iterator AIT;
+  for (AIT it = addressCallbacks.begin(); it != addressCallbacks.end(); it++)
+  {
+    if (it->first != addr)
+      continue;
+    if (it->second->isScheduled())
+      it->second->cancel();
+    delete it->second;
+    ++ret;
+  }
+  if (ret > 0)
+    addressCallbacks.erase(addr);
+  return ret;
+}
+
 } //namespace IPv6NeighbourDiscovery
 
 //  LocalWords:  multicast sim addr

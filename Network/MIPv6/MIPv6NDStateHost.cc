@@ -1065,8 +1065,6 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
        <<" missedAdvTimer reset as moved to new subnet potentialNewInterval="
        <<potentialNewInterval);
 
-  removeAllCallbacks();
-
   if (!oldRtr)
   {
     if (newRtr && mipv6cdsMN->previousDefaultRouter() && newRtr != mipv6cdsMN->previousDefaultRouter())
@@ -1096,7 +1094,7 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
         Dout(dc::mipv6, rt->nodeName()<<__FUNCTION__
              <<":  onlink local addresss "<<addr<<" removed");
         rt->removeAddress(addr, oldIfIndex);
-	delete addressCallback(addr);
+	removeCallbacks(addr);
       }
       else
       {

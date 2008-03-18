@@ -287,7 +287,10 @@ void IPv6Send::endService(cMessage* msg)
 	       <<unready<<" packet dropped");
           }
           else 
-            assert(false); //should not triggger otherwise check repo
+            assert(false); //should not triggger otherwise check repo as
+	  //bu should have been sen once addr assigned and hence using correct
+	  //src addr/coa
+
 	datagram->setSrcAddress(IPv6_ADDR_UNSPECIFIED);
       }
     }

@@ -1,5 +1,5 @@
 #Turn it on for non RT scenarios to show similar results to with no RR.
-ADD_TEST(EarlyBUTurnOn perl -i -pwe s|earlyBU='off'|earlyBU='on'|g MIPv6FastRANetwork.xml)
+#Test new xml parameters and simple ping 
 ADD_TEST(FastRANet MIPv6Network -f MIPv6Network.ini -r 3)
 COLLECT_CHECK_TEST(MIPv6Network-r3-ro)
 
@@ -14,18 +14,17 @@ COLLECT_CHECK_TEST(MIPv6Network-r5)
 ADD_TEST(FastRANetRTPingPong MIPv6Network -f MIPv6Network.ini -r 6)
 COLLECT_CHECK_TEST(MIPv6Network-r6)
 
-#ADD_TEST(FastRANetEBU MIPv6Network -f MIPv6Network.ini -r 9)
-#COLLECT_CHECK_TEST(FastRANetEBU)
+ADD_TEST(FastRANetRTPingPongHome MIPv6Network -f MIPv6Network.ini -r 8)
+COLLECT_CHECK_TEST(MIPv6Network-r8)
 
-#ADD_TEST(FastRANetPingPongEBU MIPv6Network -f MIPv6Network.ini -r 10)
-#COLLECT_CHECK_TEST(FastRANetPingPongEBU)
+#EBU is older version without piggybacking
+ADD_TEST(FastRANetEBU MIPv6Network -f MIPv6Network.ini -r 13)
+COLLECT_CHECK_TEST(MIPv6Network-r13)
 
-##Haven't fixed and will prob. not return home
-#ADD_TEST(FastRANetRTHome MIPv6Network -f MIPv6Network.ini -r 7)
-#COLLECT_CHECK_TEST(FastRANetRTHome)
-
-#ADD_TEST(FastRANetRTPingPongHome MIPv6Network -f MIPv6Network.ini -r 8)
-#COLLECT_CHECK_TEST(FastRANetRTPingPongHome)
+#same as previous except no peer support for ebu 
+#This test is giving back 64% drops obviously not correct
+ADD_TEST(FastRANetEBUCompat MIPv6Network -f MIPv6Network.ini -r 14)
+COLLECT_CHECK_TEST(MIPv6Network-r14)
 
 #fix routes
 #ADD_TEST(PCOAFNet MIPv6Network -f PCOAForwarding.ini -r 1)

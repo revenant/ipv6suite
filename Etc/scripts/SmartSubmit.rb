@@ -74,6 +74,12 @@ class SmartSubmit
       opt.banner = version
       opt.banner = "Usage: ruby #{File.basename __FILE__} [options] jobsfile"
       opt.separator ""
+      opt.separator "jobsfile is generated from multiconfig.rb and looks like so "
+      opt.separator "./test -f wcmc_n_3.ini -r1 2>&1" 
+      opt.separator "./test -f wcmc_n_22.ini -r67 2>&1" 
+      opt.separator "..."
+      opt.separator "where -r is starting run (default of 1 from multiconfig.rb)"
+      opt.separator ""
       opt.separator "Specific options:"
 
       opt.on("--civar nameofvariable", "-c", String, "Variable to determine precision for"){ |@confIntVariable|   
@@ -165,7 +171,13 @@ class SmartSubmit
         f.puts <<END
 #!/bin/bash
 # Generated via #{__FILE__}
-. /etc/profile.d/modules.sh
+# anything that modifies LD_LIBRARY_PATH is a killer inc. script below
+#. /etc/profile.d/modules.sh
+module ()
+{
+    eval `/usr/bin/modulecmd bash $*`
+}
+export MODULE_PATH=/usr/share/Modules/modulefiles:/opt/sw/Modules/modulefiles:
 module load R
 echo $LD_LIBRARY_PATH
 echo $PATH

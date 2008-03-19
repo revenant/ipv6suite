@@ -286,7 +286,7 @@ class TC_ConfTest < Test::Unit::TestCase
                                                         "Upper CI limit"), unit="", citest = TRUE)' | #{RSlave}`
     r = answerFromR(a)
     assert((ciw - r.to_f).abs < @diffConsideredZero, 
-           "calculated ciw #{ciw} was different from the one in R #{r}")
+           "calculated ciw #{ciw} was different from the one in R #{r} and is \n #{a}")
 
     a = `echo 'options("digits"=15);source("#{File.dirname(__FILE__)}/functions.R");jl.groupci(#{to_R(n)}, #{to_R(u)}, #{to_R(s)})' | #{RSlave}`
     r = answerFromR(a)

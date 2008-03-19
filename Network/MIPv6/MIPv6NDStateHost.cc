@@ -524,16 +524,16 @@ std::auto_ptr<RA> MIPv6NDStateHost::processRtrAd(std::auto_ptr<RA> rtrAdv)
          mipv6cdsMN->eagerHandover()))
     {
       if (rt->cds->neighbour(mipv6cdsMN->currentRouter()->re.lock()->addr()).lock().get() == 0)
-	Dout(dc::debug|flush_cf, rt->nodeName()
+	Dout(dc::mobile_move|dc::debug|flush_cf, rt->nodeName()
            <<"Archaic movement detection triggered by currentRouter not reachable in AR");
       else if (mipv6cdsMN->movementDetected())
-	Dout(dc::debug|flush_cf, rt->nodeName()
+	Dout(dc::mobile_move|dc::debug|flush_cf, rt->nodeName()
            <<"Archaic movement detection triggered by movement Detected");
       else if (mipv6cdsMN->eagerHandover())
-	Dout(dc::debug|flush_cf, rt->nodeName()
+	Dout(dc::mobile_move|dc::debug|flush_cf, rt->nodeName()
            <<"Archaic movement detection triggered by eagerHandover");
       else
-	Dout(dc::debug|flush_cf, rt->nodeName()
+	Dout(dc::mobile_move|dc::debug|flush_cf, rt->nodeName()
 	     <<"Archaic movement detection prob from NUD triggered handover?");
 
 #ifdef USE_HMIP
@@ -840,10 +840,6 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
       //Use freshest router instead of just next one?
       //handover(*it);
       handover((*mipv6cdsMN->mrl.rbegin()));
-
-      //We've already done the handover i.e. we assume that rtr adv. came in as
-      //there is a new router with diff global subnet prefix
-      mipv6cdsMN->setMovementDetected(false);
     }
     //This case occurs only when we detect movement before a new rtradv received
     else
@@ -858,7 +854,7 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
 	 <<" movedet: Moved to foreign subnet and  have not received rtrAds yet. curRtr.prefix="
 	 <<mipv6cdsMN->currentRouter()->prefix()<<" mrl.prefix="<<(*mipv6cdsMN->mrl.rbegin())->prefix()<<"\n";
 
-      relinquishRouter(mipv6cdsMN->currentRouter(), boost::shared_ptr<MIPv6RouterEntry>());
+      handover(boost::shared_ptr<MIPv6RouterEntry>());
     }
 
     if (!mipv6cdsMN->primaryHA())
@@ -938,6 +934,8 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
 
   if (newRtr)
   {
+    mipv6cdsMN->setMovementDetected(false);
+
     Dout(dc::debug|flush_cf, rt->nodeName()<<" handover - new router global is "<<newRtr->prefix()
          <<" link is "<<newRtr->re.lock()->addr());
 
@@ -951,18 +949,18 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
         returnHome();
       }
       else
+      {
         if (!mipv6cdsMN->eagerHandover())
-        Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" went back home and"
-             <<" no BUL entries so must have never moved i.e. false movement"
-             <<" detection from missedRtrAdv not sending BU to HA at all");
-        else
-        {
+	  Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" went back home and"
+	       <<" no BUL entries so must have never moved i.e. false movement"
+	       <<" detection from missedRtrAdv not sending BU to HA at all");
+        else       
           Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" eager handover triggers handover "
                <<" when no router to a router. At initialisation for no static HA case, this"
                "happens to first router we use as HA, so we used to try sending a BU to it with coa =="
                "hoa) fix bug by setting awayFromHome false)");
-          mipv6cdsMN->setAwayFromHome(false);
-        };
+	mipv6cdsMN->setAwayFromHome(false);
+      }
     }
     else if (mipv6cdsMN->primaryHA())
     {
@@ -970,6 +968,17 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       ///Form current care of addr regardless of what type of handover
       ipv6_addr coa = mipv6cdsMN->formCareOfAddress(newRtr, ie);
       cout << "At " << nd->simTime() << " sec, "<< rt->nodeName() << endl;
+
+      if (coa == mipv6cdsMN->careOfAddr())
+      {
+	//no point sending bu for same coa again.  happens when
+	//missedRtrAdv. triggers but did not move at all (jams at l2) or move to
+	//no AR zone and then back to previous AR
+	Dout(dc::mobile_move|dc::debug|flush_cf, rt->nodeName()<<" "<<nd->simTime()
+	     <<" went back to previous AR from no coverage zone or false movement detection");
+	relinquishRouter(oldRtr, newRtr);
+	return;
+      }
 
       //Make sure coa is already assigned i.e. we've seen the rtrAdv from newRtr
       //and processed it in processRtrAd.
@@ -999,7 +1008,6 @@ void MIPv6NDStateHost::handover(boost::shared_ptr<MIPv6RouterEntry> newRtr)
       //we'll remove oldRtr  at end of func if no primaryHA.
     }
 
-    mipv6cdsMN->setMovementDetected(false);
   } //if newRtr exists
 
   relinquishRouter(oldRtr, newRtr);
@@ -1401,8 +1409,9 @@ void MIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
   {
     cCallbackMessage* cb = check_and_cast<cCallbackMessage*>(addressCallback(ncoa));
     if (cb)
+      //should remove automatically at return when invokeCallback calls this
+      //(setup via deferSendBU)
       ;
-    //removeCallback(
   }
 
   assert(ncoa != IPv6_ADDR_UNSPECIFIED);

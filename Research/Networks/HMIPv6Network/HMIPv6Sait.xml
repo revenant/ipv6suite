@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf3.dtd">
 
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
 <!--Ping6:Statistic:HMIPv6:custom:MIPv6MissedAdv:HMIPv6:AddrResln:MIPv6:AddressTimer:RouterDisc:Forwarding:NeighbourDisc:debug">-->
-  <local node="client1" mobileIPv6Support="on" mobileIPv6Role="MobileNode"
-  hierarchicalMIPv6Support="on" routeOptimisation="off">
-<!-- HostDupAddrD... does not get read into InterfaceEntry properly in fact -->
-<!-- perhaps other values do not work either (applies to xerces-c interface) -->
+  <local node="client1" >
     <interface name="wlan0" HostDupAddrDetectTransmits="1">      
     </interface>
   </local>
-  <local node="server" mobileIPv6Support="on">
+  <local node="server"> 
     <interface name="ppp0">
       <inetAddr>3011:bbbb:3333:6666:ac24:aff:fe11:bba</inetAddr>
     </interface>
@@ -19,7 +16,7 @@
 
 
 <!-- routing table configuration for primary HA -->
-  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+  <local node="ha">
     <interface name="ppp0">
       <inetAddr>3018:EEEE:0:0:89d6:9cff:fe7e:83d2</inetAddr>
     </interface>
@@ -55,7 +52,7 @@
   Note: Does not require any hmip or mip support to forward map options. By default all
   routers will forward received map options on all ifaces that are advertising.
   -->
-  <local node="ar" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+  <local node="ar">
     <interface name="eth0" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
       <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212</inetAddr>
       <AdvPrefixList>
@@ -104,8 +101,7 @@
     </route> 
   </local>
 <!-- routing table configuration for MAP -->
- <local node="map" routePackets="on" mobileIPv6Support="on"
-   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+ <local node="map" >
     <interface name="ppp0"  AdvSendAdvertisements="on">
       <AdvPrefixList>
         <AdvPrefix AdvOnLinkFlag="on">3011:BBBB:3333:6666:0:0:0:0/64</AdvPrefix>
@@ -144,7 +140,7 @@
     </route>
   </local>
 
- <local node="ar2" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+ <local node="ar2" >
     <interface name="eth0" AdvSendAdvertisements="on" MaxFastRAS="10" AdvHomeAgent="off">
       <inetAddr>3018:FFFF:0:a0:127b:c0ff:fe2e:7212</inetAddr>
       <AdvPrefixList>

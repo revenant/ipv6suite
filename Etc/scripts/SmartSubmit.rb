@@ -165,8 +165,8 @@ class SmartSubmit
         f.puts <<END
 #!/bin/bash
 # Generated via #{__FILE__}
-. ~/bash/defaults
-. ~/bash/grid
+. /etc/profile.d/modules.sh
+module load R
 echo $LD_LIBRARY_PATH
 echo $PATH
 #{subline}

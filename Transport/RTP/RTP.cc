@@ -136,14 +136,18 @@ void recordHOStats(RTPMemberEntry *s, RTP* rtp)
 {
   if (!rtp->isMobileNode())
     return;
-  assert(rtp->l2down);
-  s->handStat->collect(rtp->simTime() - rtp->l2down);
-  s->handVector->record(rtp->simTime() - rtp->l2down);
 
-  assert(rtp->l2up);
-  s->l2handStat->collect(rtp->l2up - rtp->l2down);
-  s->l3handStat->collect(rtp->simTime() - rtp->l2up);
-  rtp->l2down = rtp->l2up = 0;
+  //handover even when no l2 change? but from what?
+  if (rtp->l2down!=0)
+  {
+    s->handStat->collect(rtp->simTime() - rtp->l2down);
+    s->handVector->record(rtp->simTime() - rtp->l2down);
+
+    assert(rtp->l2up);
+    s->l2handStat->collect(rtp->l2up - rtp->l2down);
+    s->l3handStat->collect(rtp->simTime() - rtp->l2up);
+    rtp->l2down = rtp->l2up = 0;
+  }
 }
 
 //From A.1 of rfc3550 with probation removed

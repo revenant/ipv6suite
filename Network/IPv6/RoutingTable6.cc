@@ -532,9 +532,9 @@ bool RoutingTable6::assignAddress(const IPv6Address& addr, unsigned int if_idx)
   //Don't know why it asserts when default ctor of IPv6Address puts lifetime of
   //inifinity. Investigate later. Meanwhile will have to leave out
   //rescheduleAddrConfTimer call because of min lifetime of 0
-  //assert(addr->storedLifetime() != 0);
-  //if (addr->storedLifetime() > 0 && addr->storedLifetime() < VALID_LIFETIME_INFINITY)
-  //  rescheduleAddrConfTimer(addr->storedLifetime());
+  assert(addr.storedLifetime() != 0);
+  if (addr.storedLifetime() > 0 && addr.storedLifetime() < VALID_LIFETIME_INFINITY)
+    rescheduleAddrConfTimer(addr.storedLifetime());
   return true;
 }
 
@@ -622,7 +622,6 @@ unsigned int RoutingTable6::minValidLifetime()
   for (size_t i = 0; i < ift->numInterfaceGates(); i++)
   {
     lifetime = ift->interfaceByPortNo(i)->ipv6()->minValidLifetime();
-
     assert(lifetime != 0);
 
     minLifetime = lifetime < minLifetime?lifetime:minLifetime;

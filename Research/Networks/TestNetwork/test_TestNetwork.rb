@@ -97,6 +97,11 @@ end
   include REXML
 
 def test_RA
+  #R 2.6 does not work with rsruby :(
+  #R_HOME=/opt/sw/R-2.6.0/lib64/R/
+  #Do both below b4 attempting to run this
+  #module unload R
+  #export R_HOME=$HOME/lib64/R
   require 'rsruby'
   r = RSRuby.instance
   wait = `ruby ~/src/IPv6SuiteWithINET/Etc/scripts/RImportOmnet.rb rtr.vec`

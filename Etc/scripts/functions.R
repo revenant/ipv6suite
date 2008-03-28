@@ -408,60 +408,177 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
     frame
   }
 
-jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/60,1/(120*2))) # lamda = seq(1/120,4/60,1/120))
-{
-  
-    Ieff <- function(hodelay, lamda = 1/60)
-      {
-    
-  # G.711 + PLC
-  Ie = 0
-  Bpl = 25.1
-  R = 64*10^3
+  codecs.read <- function()
+  {
+    codecs = read.csv("~/src/IPv6SuiteWithINET/Etc/scripts/codecs.csv")
+    pps = c()
+    for(index in 1:(length(codecs)+1))
+    {
+      pps[index] <- 1/(codecs[index,]$Tp*10^-3)
+    }
+    codecs=cbind(codecs,pps)
+    #  print(codec)
+    codecs
+  }
 
-#  G.113 Appendix (2002)
-#  G.729A with VAD
-  Ie = 11
-  Bpl = 19
-  #VAD would mean that real rate is somewhat less see voip characteris comms letter
-  R = 8*10^3
-                                        
-  #0 <= lamda < 1 (handovers/sec)
-  #hodelay < 1 sec best although possible for more
-  BurstR = R*hodelay*(1-hodelay*lamda)
-  #!(burstR < 0)
-  if (min(BurstR) < 0)
-    return(c(which(BurstR<0),BurstR[which(BurstR < 0 )]))
+jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/60,1/(120*2)), cindex=1,graph="Ieff")
+{
+  codecs=codecs.read()
+
+   BurstR <- function(hodelay, lamda, cindex=1)
+    {
+      cod <- codecs[cindex,]
+      Ie <- cod$Ie
+      Bpl <- cod$Bpl
+      R <- cod$pps
+#      print(R)
+      return(R*hodelay*(1-hodelay*lamda))
+    }
+
+
+  Ppl <- function(hodelay, lamda)
+    {
+      100 * hodelay * lamda
+    }
+
+  Ieff <- function(hodelay, lamda = 1/60, cindex=1)
+    {
+
+      cod <- codecs[cindex,]
+      Ie <- cod$Ie
+      Bpl <- cod$Bpl
+      R <- cod$pps
+
+                                        #0 <= lamda < 1 (handovers/sec)
+                                        #hodelay < 1 sec best although possible for more
+      burstR = BurstR(hodelay, lamda, cindex)
+#      if (min(burstR) < 0)
+#        {
+                                        #c(index,value) at which this occurs
+#        return(c(which(burstR<0),burstR[which(burstR < 0 )]))
+#      }
+      names(hodelay) <- hodelay
+      names(lamda) <- lamda
+      ppl = Ppl(hodelay, lamda)
+                                        #0 <= Ppl  <= 100
+      if (min(ppl) < 0)
+        return(which(ppl < 0))
+                                        #  if (max(Ppl) > 2)
+                                        #    return(which(Ppl > 2))
+      return(Ie + (95 - Ie)*(ppl/(ppl/burstR + Bpl)))
+       #make sure this is equivalent as may need when we actually determine these rates online
+      # Ie+(95 - Ie)*(p/((p+q)*(p+Bpl)))
+    }
+
+  
   names(hodelay) <- hodelay
   names(lamda) <- lamda
-  Ppl = 100 * hodelay * lamda #in pure percent
-  #0 <= Ppl  <= 100
-  if (min(Ppl) < 0)
-    return(which(Ppl < 0))
-#  if (max(Ppl) > 2)
-#    return(which(Ppl > 2))
-  return(Ie + (95 - Ie)*(Ppl/(Ppl/BurstR + Bpl)))
-      }
-    Ppl <- function(hodelay, lamda)
-      {
-        100 * hodelay * lamda
-      }
-    names(hodelay) <- hodelay
-    names(lamda) <- lamda
-#    Ppl <- outer(hodelay, lamda, Ppl)
-#    return(Ppl)
-    #  plot(hodelay,  Ie.eff)
-    if (FALSE)
+  if (graph=="BurstR")
+    {
+      BurstR <- outer(hodelay, lamda, BurstR, cindex=cindex)
+      persp(hodelay, lamda, BurstR, theta=30, phi=20,
+            ticktype = "detailed", nticks=8)
+      return(BurstR)
+    } 
+  if (graph=="ppl")
+    {
+      Ppl <- outer(hodelay, lamda, Ppl)
       persp(hodelay, lamda, Ppl, theta=30, phi=20,
             ticktype = "detailed", nticks=8)
-    else
-      {
-  Ieff <- outer(hodelay, lamda, Ieff)
-  persp(hodelay, lamda, Ieff,theta=30, phi=20,
-        r=50,#expand=0.5,
-        col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
-        ticktype = "detailed", nticks=8)
-  Ieff
+      Ppl
+    }
+  else
+    {
+      call_length = 3*60 #3 minutes
+      handovers_per_call = lamda*call_length
+#If I put that in directly to calculate Ieff will give wrong answer as
+#increasing lamda a by factor of a lot
+#        Ieff <- outer(hodelay, handovers_per_call, Ieff)
+      ieff <- outer(hodelay, lamda, Ieff, cindex=cindex)
+#This is a valid transformation of the axis
+      if (graph=="Ieff")
+        {
+        persp(hodelay, handovers_per_call, ieff,theta=30, phi=20,
+              zlim=range(0:30),
+              r=50,#expand=0.5,
+              col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
+              ticktype = "detailed", nticks=5)
+      }
+      else
+        {
+          #cbind(Ieff,hodelay, handovers_per_call)
+          jl.matrix.as.data.frame(ieff,"Ieff", "hodelay","lamda")
+      }
+    }
 }
+
+jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
+{
+  d=dim(m)
+  nrow=d[1]
+  ncol=d[2]
+  names=dimnames(m)
+  rows=rep(names[[1]],length(m)/nrow)
+  rows = as.numeric(rows)
+  cols=as.numeric(names[[2]])
+  colsf = c()
+  for(col in cols)
+    colsf = c(colsf,rep(col,nrow))
+  cols=as.vector(t( colsf))
+  df=data.frame(valuename=as.vector(m)) #by row
+  df=cbind(df,rowname=rows)
+  df=cbind(df,columnname=cols)
+  dimnames(df)[[2]]=c(valuename,rowname,columname)
+  df
 }
-  
+
+if (FALSE)
+  {
+#oldpar=par(mar=c(1,1,1,1),mfrow=c(2,3))
+for(index in 1:(length(codecs)+1))
+  jl.IeffHodelay(lamda = seq(1/(120*2), 1/120,1/(120*2)), hodelay = seq(0.1,2.5,0.02),cindex=index)
+
+codecs=codecs.read()
+ieff = cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=1,graph=""),codec=codecs[1,]$codec)
+for(index in 2:(length(codecs)+1))
+ieff=rbind(ieff,
+      cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=index,graph=""),codec=codecs[index,]$codec))
+library(lattice)
+ cloud(Ieff ~ hodelay * lamda|codec, data=ieff,
+       screen = list(x = -90, y = 70))
+
+ cloud(Ieff ~ hodelay * lamda, data=ieff,groups = codec)
+#legend("topleft", legend=labels(ieff$codec))
+
+# ,      fill=seq(along=split.df), bty="n") 
+}
+
+sl.boxplot.lines <- function()
+{
+  #By S. Lamb
+#df <- read.csv("http://www.slamb.org/tmp/one-active.csv")
+df <- read.csv("one-active.csv")
+#png(filename="one-active.png", width=800, height=600)
+split.df <- split(df, df$method)
+plot(0, xlim=c(0, max(df$inactive)), ylim=range(df$elapsed),
+
+     ylab="time (µs)", xlab="inactive file descriptors", log="y",
+     main="1 active descriptor, 1 write", bty="n", type="n")
+
+grid()
+for (i in seq(along=split.df)) {
+
+  this_method <- split.df[[i]]
+  unique_inactive <- unique(this_method$inactive)
+  boxplot(elapsed~inactive, data=this_method,
+
+            at=unique_inactive, axes=FALSE,
+            add=TRUE, border=i, boxfill=i, outline=FALSE, bty="l",
+            whisklty="solid", staplelty="blank", medlty="blank",
+            boxwex=max(unique_inactive)/length(unique_inactive)/2)
+
+}
+legend("topleft", legend=labels(split.df),
+
+       fill=seq(along=split.df), bty="n") 
+}

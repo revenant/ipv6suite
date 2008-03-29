@@ -534,7 +534,7 @@ jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
 
 if (FALSE)
   {
-#oldpar=par(mar=c(1,1,1,1),mfrow=c(2,3))
+oldpar=par(mar=c(1,1,1,1),mfrow=c(2,3))
 for(index in 1:(length(codecs)+1))
   jl.IeffHodelay(lamda = seq(1/(120*2), 1/120,1/(120*2)), hodelay = seq(0.1,2.5,0.02),cindex=index)
 

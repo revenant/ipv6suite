@@ -410,9 +410,9 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
 
   codecs.read <- function()
   {
-    codecs = read.csv("~/src/IPv6SuiteWithINET/Etc/scripts/codecs.csv")
+    codecs = read.csv("~/src/IPv6SuiteWithINET/Etc/scripts/codecs.csv",header=TRUE)
     pps = c()
-    for(index in 1:(length(codecs)+1))
+    for(index in 1:dim(codecs)[1])
     {
       pps[index] <- 1/(codecs[index,]$Tp*10^-3)
     }
@@ -500,9 +500,11 @@ jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/6
         {
         persp(hodelay, handovers_per_call, ieff,theta=30, phi=20,
               zlim=range(0:30),
-              r=50,#expand=0.5,
+#              xlab = "T_h", ylab="ho_call",
+              xlab = "", ylab="", zlab="",
+              r=50, expand=1.3,
               col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
-              ticktype = "detailed", nticks=5)
+              ticktype = "detailed", nticks=4, main=paste(codecs[cindex,]$codec))
       }
       else
         {
@@ -534,13 +536,9 @@ jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
 
 if (FALSE)
   {
-oldpar=par(mar=c(1,1,1,1),mfrow=c(2,3))
-for(index in 1:(length(codecs)+1))
-  jl.IeffHodelay(lamda = seq(1/(120*2), 1/120,1/(120*2)), hodelay = seq(0.1,2.5,0.02),cindex=index)
-
 codecs=codecs.read()
 ieff = cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=1,graph=""),codec=codecs[1,]$codec)
-for(index in 2:(length(codecs)+1))
+for(index in 2:dim(codecs)[1])
 ieff=rbind(ieff,
       cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=index,graph=""),codec=codecs[index,]$codec))
 library(lattice)

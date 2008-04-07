@@ -121,6 +121,9 @@ class NedFile
 
       opt.on("--name", "-n [String]", "Module name for network") {|@modulename| }
 
+#      opt.on("--configname", "-c [String]", "Configuration name for this batch of runs and resulting output files"){|@configname|}
+      opt.on("--configsgen", "-c","Generate multiple ini/ned/xml files for specific hardcoded configs"){|@configs|}
+
       opt.separator ""
       opt.separator "Common options:"
 
@@ -137,9 +140,6 @@ class NedFile
       opt.on("--debug", "-X", "print debugging info to STDOUT"){|@debug|}
 
       opt.on("--unittest", "-u", "Run unit tests"){|$unittest|}
-
-#      opt.on("--configname", "-c [String]", "Configuration name for this batch of runs and resulting output files"){|@configname|}
-      opt.on("--configsgen", "-c","Generate multiple ini/ned/xml files for specific hardcoded configs"){|@configs|}
 
       opt.on_tail("-h", "--help", "What you see right now") do
         puts opt
@@ -373,7 +373,7 @@ EOF
 EOF
     end 
 
-    defaultini = "#{@IPv6SuiteWithINET}/Etc/default.ini"
+    defaultini = "#{@@IPv6SuiteWithINET}/Etc/default.ini"
     #defaultini.insert(0, "../") if not $noINET
 
     var2 += <<EOF

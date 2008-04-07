@@ -408,112 +408,7 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
     frame
   }
 
-  codecs.read <- function()
-  {
-    codecs = read.csv("~/src/IPv6SuiteWithINET/Etc/scripts/codecs.csv",header=TRUE)
-    pps = c()
-    for(index in 1:dim(codecs)[1])
-    {
-      pps[index] <- 1/(codecs[index,]$Tp*10^-3)
-    }
-    codecs=cbind(codecs,pps)
-    #  print(codec)
-    codecs
-  }
-
-jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/60,1/(120*2)), cindex=1,graph="Ieff")
-{
-  codecs=codecs.read()
-
-   BurstR <- function(hodelay, lamda, cindex=1)
-    {
-      cod <- codecs[cindex,]
-      Ie <- cod$Ie
-      Bpl <- cod$Bpl
-      R <- cod$pps
-#      print(R)
-      return(R*hodelay*(1-hodelay*lamda))
-    }
-
-
-  Ppl <- function(hodelay, lamda)
-    {
-      100 * hodelay * lamda
-    }
-
-  Ieff <- function(hodelay, lamda = 1/60, cindex=1)
-    {
-
-      cod <- codecs[cindex,]
-      Ie <- cod$Ie
-      Bpl <- cod$Bpl
-      R <- cod$pps
-
-                                        #0 <= lamda < 1 (handovers/sec)
-                                        #hodelay < 1 sec best although possible for more
-      burstR = BurstR(hodelay, lamda, cindex)
-#      if (min(burstR) < 0)
-#        {
-                                        #c(index,value) at which this occurs
-#        return(c(which(burstR<0),burstR[which(burstR < 0 )]))
-#      }
-      names(hodelay) <- hodelay
-      names(lamda) <- lamda
-      ppl = Ppl(hodelay, lamda)
-                                        #0 <= Ppl  <= 100
-      if (min(ppl) < 0)
-        return(which(ppl < 0))
-                                        #  if (max(Ppl) > 2)
-                                        #    return(which(Ppl > 2))
-      return(Ie + (95 - Ie)*(ppl/(ppl/burstR + Bpl)))
-       #make sure this is equivalent as may need when we actually determine these rates online
-      # Ie+(95 - Ie)*(p/((p+q)*(p+Bpl)))
-    }
-
-  
-  names(hodelay) <- hodelay
-  names(lamda) <- lamda
-  if (graph=="BurstR")
-    {
-      BurstR <- outer(hodelay, lamda, BurstR, cindex=cindex)
-      persp(hodelay, lamda, BurstR, theta=30, phi=20,
-            ticktype = "detailed", nticks=8)
-      return(BurstR)
-    } 
-  if (graph=="ppl")
-    {
-      Ppl <- outer(hodelay, lamda, Ppl)
-      persp(hodelay, lamda, Ppl, theta=30, phi=20,
-            ticktype = "detailed", nticks=8)
-      Ppl
-    }
-  else
-    {
-      call_length = 3*60 #3 minutes
-      handovers_per_call = lamda*call_length
-#If I put that in directly to calculate Ieff will give wrong answer as
-#increasing lamda a by factor of a lot
-#        Ieff <- outer(hodelay, handovers_per_call, Ieff)
-      ieff <- outer(hodelay, lamda, Ieff, cindex=cindex)
-#This is a valid transformation of the axis
-      if (graph=="Ieff")
-        {
-        persp(hodelay, handovers_per_call, ieff,theta=30, phi=20,
-              zlim=range(0:30),
-#              xlab = "T_h", ylab="ho_call",
-              xlab = "", ylab="", zlab="",
-              r=50, expand=1.3,
-              col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
-              ticktype = "detailed", nticks=4, main=paste(codecs[cindex,]$codec))
-      }
-      else
-        {
-          #cbind(Ieff,hodelay, handovers_per_call)
-          jl.matrix.as.data.frame(ieff,"Ieff", "hodelay","lamda")
-      }
-    }
-}
-
+#convert matrix m to data frame where m has row names and column names
 jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
 {
   d=dim(m)
@@ -532,23 +427,6 @@ jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
   df=cbind(df,columnname=cols)
   dimnames(df)[[2]]=c(valuename,rowname,columname)
   df
-}
-
-if (FALSE)
-  {
-codecs=codecs.read()
-ieff = cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=1,graph=""),codec=codecs[1,]$codec)
-for(index in 2:dim(codecs)[1])
-ieff=rbind(ieff,
-      cbind(jl.IeffHodelay(lamda = seq(1/(240*2), 1/120,1/(240*2)), hodelay = seq(0.1,2.5,0.02),cindex=index,graph=""),codec=codecs[index,]$codec))
-library(lattice)
- cloud(Ieff ~ hodelay * lamda|codec, data=ieff,
-       screen = list(x = -90, y = 70))
-
- cloud(Ieff ~ hodelay * lamda, data=ieff,groups = codec)
-#legend("topleft", legend=labels(ieff$codec))
-
-# ,      fill=seq(along=split.df), bty="n") 
 }
 
 sl.boxplot.lines <- function()

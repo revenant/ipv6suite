@@ -147,37 +147,41 @@ end
 Adds 3 APs to and converts a normal RGL graph into one which uses AP/AR/CR as vertexes
 =end
 def genEHTopology(dg)
+
 vs = Hash.new
-dg.each{|v| 
-  vs[v] = case v
+g=RGL::AdjacencyGraph.new
+
+dg.each{|v|
+	case v
+          when 3 
+            vs[v] = CR.new(v)
+          when 2 
+            vs[v] = Host.new(v)
           when 1
-            CR.new(v)
-          when 10 
-            Host.new(v)
-          when 11 
-            HA.new(v)
+            vs[v] = HA.new(v)
           else
-            AR.new(v)
-          end
+            vs[v] = AR.new(v)
+	    vs[v+dg.size-3] = AP.new(v+dg.size-3)
+	    g.add_edge(vs[v], vs[v+dg.size-3])
+	end
 }
 
-g=RGL::AdjacencyGraph.new
 dg.each_edge {|u,v| g.add_edge(vs[u],vs[v]) }
 
-vs.each_key{|n|
-  v = vs[n]
-
-#g.each {|v|
-#    puts v.name
-  if v.instance_of? AR
-    3.times do 
-      ap = AP.new(vs.size + 1)
-      vs[vs.size + 1] = ap
-      g.add_vertex(ap)
-      g.add_edge(v, ap)
-    end    
-  end
-}
+#vs.each_key{|n|
+#  v = vs[n]
+#
+##g.each {|v|
+##    puts v.name
+#  if v.instance_of? AR
+#    #3.times do 
+#     ap = AP.new(vs.size + 1)
+#      vs[vs.size + 1] = ap
+#      g.add_vertex(ap)
+#      g.add_edge(v, ap)
+#    #end    
+#  end
+#}
 
 #g.write_to_graphic_file
 [g, vs]

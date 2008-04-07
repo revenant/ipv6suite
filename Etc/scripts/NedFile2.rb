@@ -175,7 +175,7 @@ class NedFile
   def run
     #read graph and draw from here
     #require or C-x C-l is good for syntax checking
-    require "gentopology2.rb"
+    require "gentopology.rb"
 
     adjacency=gets.chomp.split(/[,\s]+/)
     dg=RGL::AdjacencyGraph[3,1, 3,2, 3,4]

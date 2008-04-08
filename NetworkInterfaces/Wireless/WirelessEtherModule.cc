@@ -1867,7 +1867,10 @@ void WirelessEtherModule::initialiseChannelToScan(void)
     cStringTokenizer tokenizer(chanNotToScan.c_str(), "-");
     const char *token;
     while ((token = tokenizer.nextToken()) != NULL)
-        channelToScan[atoi(token)] = false;
+    {
+      assert(atoi(token) <= MAX_CHANNEL);
+      channelToScan[atoi(token)] = false;
+    }
 }
 
 void WirelessEtherModule::insertToAPList(APInfo newEntry)

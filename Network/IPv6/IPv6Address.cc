@@ -164,7 +164,7 @@ IPv6Address::IPv6Address(const ipv6_addr& addr, size_t prefix_len)
     m_prefix_length = IPv6_ADDR_BITLENGTH;
 }
 
-IPv6Address::IPv6Address(const IPv6Address& obj)
+IPv6Address::IPv6Address(const IPv6Address& obj):_updated(false)
 {
 /*XXX
 #if !defined __INTEL_COMPILER

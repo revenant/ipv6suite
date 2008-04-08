@@ -387,6 +387,10 @@ MIPv6MStateMobileNode::~MIPv6MStateMobileNode(void)
   mob->lbackVector = 0;
   mob->bbuVector = 0;
   mob->bbackVector = 0;
+
+  bool allTimers = true;
+  removeBURetranTmr(0, allTimers);
+
 }
 
 void MIPv6MStateMobileNode::initialize(int stage)

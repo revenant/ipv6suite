@@ -408,60 +408,53 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
     frame
   }
 
-jl.IeffHodelay <- function(hodelay = seq(0.1,3,0.05), lamda = seq(1/(120*2), 1/60,1/(120*2))) # lamda = seq(1/120,4/60,1/120))
+#convert matrix m to data frame where m has row names and column names
+jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
 {
-  
-    Ieff <- function(hodelay, lamda = 1/60)
-      {
-    
-  # G.711 + PLC
-  Ie = 0
-  Bpl = 25.1
-  R = 64*10^3
+  d=dim(m)
+  nrow=d[1]
+  ncol=d[2]
+  names=dimnames(m)
+  rows=rep(names[[1]],length(m)/nrow)
+  rows = as.numeric(rows)
+  cols=as.numeric(names[[2]])
+  colsf = c()
+  for(col in cols)
+    colsf = c(colsf,rep(col,nrow))
+  cols=as.vector(t( colsf))
+  df=data.frame(valuename=as.vector(m)) #by row
+  df=cbind(df,rowname=rows)
+  df=cbind(df,columnname=cols)
+  dimnames(df)[[2]]=c(valuename,rowname,columname)
+  df
+}
 
-#  G.113 Appendix (2002)
-#  G.729A with VAD
-  Ie = 11
-  Bpl = 19
-  #VAD would mean that real rate is somewhat less see voip characteris comms letter
-  R = 8*10^3
-                                        
-  #0 <= lamda < 1 (handovers/sec)
-  #hodelay < 1 sec best although possible for more
-  BurstR = R*hodelay*(1-hodelay*lamda)
-  #!(burstR < 0)
-  if (min(BurstR) < 0)
-    return(c(which(BurstR<0),BurstR[which(BurstR < 0 )]))
-  names(hodelay) <- hodelay
-  names(lamda) <- lamda
-  Ppl = 100 * hodelay * lamda #in pure percent
-  #0 <= Ppl  <= 100
-  if (min(Ppl) < 0)
-    return(which(Ppl < 0))
-#  if (max(Ppl) > 2)
-#    return(which(Ppl > 2))
-  return(Ie + (95 - Ie)*(Ppl/(Ppl/BurstR + Bpl)))
-      }
-    Ppl <- function(hodelay, lamda)
-      {
-        100 * hodelay * lamda
-      }
-    names(hodelay) <- hodelay
-    names(lamda) <- lamda
-#    Ppl <- outer(hodelay, lamda, Ppl)
-#    return(Ppl)
-    #  plot(hodelay,  Ie.eff)
-    if (FALSE)
-      persp(hodelay, lamda, Ppl, theta=30, phi=20,
-            ticktype = "detailed", nticks=8)
-    else
-      {
-  Ieff <- outer(hodelay, lamda, Ieff)
-  persp(hodelay, lamda, Ieff,theta=30, phi=20,
-        r=50,#expand=0.5,
-        col = "lightgreen", ltheta=90, lphi=180, shade=0.75,
-        ticktype = "detailed", nticks=8)
-  Ieff
+sl.boxplot.lines <- function()
+{
+  #By S. Lamb
+#df <- read.csv("http://www.slamb.org/tmp/one-active.csv")
+df <- read.csv("one-active.csv")
+#png(filename="one-active.png", width=800, height=600)
+split.df <- split(df, df$method)
+plot(0, xlim=c(0, max(df$inactive)), ylim=range(df$elapsed),
+
+     ylab="time (µs)", xlab="inactive file descriptors", log="y",
+     main="1 active descriptor, 1 write", bty="n", type="n")
+
+grid()
+for (i in seq(along=split.df)) {
+
+  this_method <- split.df[[i]]
+  unique_inactive <- unique(this_method$inactive)
+  boxplot(elapsed~inactive, data=this_method,
+
+            at=unique_inactive, axes=FALSE,
+            add=TRUE, border=i, boxfill=i, outline=FALSE, bty="l",
+            whisklty="solid", staplelty="blank", medlty="blank",
+            boxwex=max(unique_inactive)/length(unique_inactive)/2)
+
 }
+legend("topleft", legend=labels(split.df),
+
+       fill=seq(along=split.df), bty="n") 
 }
-  

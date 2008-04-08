@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:rcfile:MobileMove:notice">
+  <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
+  mobileIPv6Role="MobileNode" routeOptimisation="on"
+  hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
+	eagerHandover="on" earlyBU='on'>
+    <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
+    </interface>
+  </local>
+  <local node="cn" mobileIPv6Support="on" earlyBU='on'>
+    <interface name="ppp0">
+<!--    should be autoconfed but need to determine for traffic source
+  <inetAddr>3011:0:0:b:21ac:240a:911:bba</inetAddr> -->
+    </interface>
+  </local>
+
+
+<!-- routing table configuration for primary HA -->
+  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="ppp0">
+      <inetAddr>FEC0:0:0:a:fe12:7bc0:a02e:7212</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" AdvHomeAgent="on"
+      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08"
+      MaxFastRAS="10">
+      <inetAddr>3011:0:0:a:606:98ff:fe24:52f5</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3011:0:0:a:606:98ff:fe24:52f5/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="0/0"
+	routeNextHop="FECO:0:0:a:2280:870e:fb1a:7281"/>
+    </route> 
+  </local>
+
+  <local node="crh" routePackets="on">
+    <interface name="ppp0">
+      <inetAddr>FECO:0:0:a:2280:870e:fb1a:7281</inetAddr>
+    </interface> 
+    <interface name="ppp1" AdvSendAdvertisements="on">
+      <inetAddr>FEC0:0:0:b:d65f:6aa9:f72c:df2e</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3011:0:0:b:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface name="ppp2">
+      <inetAddr>FEC0:0:0:4:38a6:4b65:71c6:a7fc</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="3011:0:0:a:0:0:0:0/64"
+      routeNextHop="FEC0:0:0:a:fe12:7bc0:a02e:7212"/>
+      <routeEntry routeIface="ppp2" routeDestination="0/0"
+	routeNextHop="FEC0:0:0:4:4fde:3e48:e6ee:cdc2"/>
+      <routeEntry routeIface="ppp1" routeDestination="3011:0:0:b:0:0:0:0/64"/>
+    </route>
+  </local>
+
+ <local node="crv" routePackets="on">
+    <interface name="ppp0">
+      <inetAddr>FEC0:0:0:1:568b:d78a:b491:4c36</inetAddr>
+    </interface>
+    <interface name="ppp1">
+      <inetAddr>FEC0:0:0:2:87f:92b3:5e66:4962</inetAddr>
+    </interface>
+    <interface name="ppp2">
+      <inetAddr>FEC0:0:0:3:6c48:ade:96d4:5948</inetAddr>    
+    </interface>
+    <interface name="ppp3">
+      <inetAddr>FEC0:0:0:4:4fde:3e48:e6ee:cdc2</inetAddr>    
+    </interface>
+    <interface name="ppp4">
+<!-- used new iface ll addr (which does not belong to this node)) since by
+      adding one interface rearranges all following LLaddrs. Really need to
+      automate table gen. In future put the router that may be expanded last so
+      this does not happen!  
+-->
+      <inetAddr>FEC0:0:0:5:27c:8bff:fe8f:8c3d</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="3011:0:0:1:0:0:0:0/64"
+      routeNextHop="fec0:0:0:1:b573:569d:74fb:2b75"/>
+      <routeEntry 
+	routeIface="ppp1" routeDestination="3011:0:0:2:0:0:0:0/64"
+	routeNextHop="fec0:0:0:2:2846:952:be8b:a252"/>
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:3:0:0:0:0/64" 
+	routeNextHop="fec0:0:0:3:abee:8f19:b836:a030"/>
+      <routeEntry routeIface="ppp4" routeDestination="3011:0:0:5:0:0:0:0/64" 
+	routeNextHop="fec0:0:0:5:92f7:839a:4a7d:b041"/>
+      <routeEntry routeIface="ppp3" routeDestination="0/0" 
+	routeNextHop="FEC0:0:0:4:38a6:4b65:71c6:a7fc"/>
+      <routeEntry routeIface="ppp0" routeDestination="301b:0:0:11:0:0:0:0/64"
+      routeNextHop="fec0:0:0:1:b573:569d:74fb:2b75"/>
+      <routeEntry 
+	routeIface="ppp1" routeDestination="FEC0:0:0:22:0:0:0:0/64"
+	routeNextHop="fec0:0:0:2:2846:952:be8b:a252"/>
+      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:33:0:0:0:0/64" 
+	routeNextHop="fec0:0:0:3:abee:8f19:b836:a030"/>
+      <routeEntry routeIface="ppp4" routeDestination="FEC0:0:0:55:0:0:0:0/64" 
+	routeNextHop="fec0:0:0:5:92f7:839a:4a7d:b041"/>
+    </route>
+  </local>
+
+ <local node="ar" routePackets="on" mobileIPv6Support="on"
+      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+    <interface name="ppp0">
+      <inetAddr>fec0:0:0:1:b573:569d:74fb:2b75</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on"
+      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      <inetAddr>3011:0:0:1:89d6:9cff:fe7e:83d2</inetAddr>
+      <inetAddr>301b:0:0:11:89d6:9cff:fe7e:83d2</inetAddr>
+      <AdvPrefixList>
+ <AdvPrefix AdvOnLinkFlag="on" 
+	AdvRtrAddrFlag="on">3011:0:0:1:89d6:9cff:fe7e:83d2/64</AdvPrefix> 
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>301b:0:0:11:89d6:9cff:fe7e:83d2</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="0/0" routeNextHop="FEC0:0:0:1:568b:d78a:b491:4c36"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:1:0:0:0:0/64" />
+    </route>
+</local>
+
+ <local node="ar2" routePackets="on" mobileIPv6Support="on"
+   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on" >
+    <interface name="ppp0"  AdvSendAdvertisements="on">
+      <inetAddr>fec0:0:0:2:2846:952:be8b:a252</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
+      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      <inetAddr>3011:0:0:2:450:90ff:fe5d:f971</inetAddr>
+      <inetAddr>FEC0:0:0:22:450:90ff:fe5d:f971</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">FEC0:0:0:22:450:90ff:fe5d:f971/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>3011:0:0:2:450:90ff:fe5d:f971</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="0/0" routeNextHop="FEC0:0:0:2:87f:92b3:5e66:4962"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:2:0:0:0:0/64" />
+    </route>
+  </local>
+
+ <local node="ar3" routePackets="on" mobileIPv6Support="on"
+      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+    <interface name="ppp0"  AdvSendAdvertisements="on">
+      <inetAddr>fec0:0:0:3:abee:8f19:b836:a030</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
+      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      <inetAddr>3011:0:0:3:d6f7:bcff:fefd:d06e</inetAddr>
+      <inetAddr>fec0:0:0:33:d6f7:bcff:fefd:d06e</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">fec0:0:0:33:d6f7:bcff:fefd:d06e/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>3011:0:0:3:d6f7:bcff:fefd:d06e</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="0/0" routeNextHop="FEC0:0:0:3:6c48:ade:96d4:5948"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:3:0:0:0:0/64" />
+    </route>
+</local>
+
+ <local node="ar4" routePackets="on" mobileIPv6Support="on"
+      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+    <interface name="ppp0"  AdvSendAdvertisements="on">
+      <inetAddr>fec0:0:0:5:92f7:839a:4a7d:b041</inetAddr>
+    </interface>
+    <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
+      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      <inetAddr>3011:0:0:5:cb0c:46ff:feb0:d7fe</inetAddr>
+      <inetAddr>fec0:0:0:55:cb0c:46ff:feb0:d7fe</inetAddr>
+      <AdvPrefixList>
+<!-- Map needs global addr and so does AdvRtrAddrFlag. They have to have
+        different prefix otherwise BU looks like a return home deregistration.
+
+	For hmip suppose to be able to use something that's only routable within
+        map domain
+	
+	This would not happen for MAPs that are not at ARs as they would  
+	MAP options only.
+-->
+        <AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">fec0:0:0:55:cb0c:46ff:feb0:d7fe/64</AdvPrefix>
+      </AdvPrefixList>
+      <AdvMAPList>
+        <AdvMAPEntry>3011:0:0:5:cb0c:46ff:feb0:d7fe</AdvMAPEntry>
+      </AdvMAPList>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="0/0" routeNextHop="FEC0:0:0:5:27c:8bff:fe8f:8c3d"/>
+      <routeEntry routeIface="eth1" routeDestination="3011:0:0:5:0:0:0:0/64" />
+    </route>
+</local>
+
+  <misc>
+    <ObjectMovement>
+      <MovingNode NodeName="mn" startTime="0">
+        <move moveToX="40" moveToY="245" moveSpeed="5"/>
+        <move moveToX="40" moveToY="320" moveSpeed="5"/>
+        <move moveToX="584" moveToY="320" moveSpeed="5"/>
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+
+</netconf>

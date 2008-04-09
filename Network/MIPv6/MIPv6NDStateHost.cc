@@ -753,13 +753,12 @@ void MIPv6NDStateHost::movementDetectedCallback(cTimerMessage* tmr)
   }
   else if (tmr->kind() == Tmr_L2Trigger)
   {
-    /*    if (ignoreInitiall2trigger)
+    if (ignoreInitiall2trigger)
     {
       ignoreInitiall2trigger = false;
       return;
     }
-    else
-    */
+    else    
       mipv6cdsMN->setAwayFromHome(true);
 
     mipv6cdsMN->setMovementDetected(true);

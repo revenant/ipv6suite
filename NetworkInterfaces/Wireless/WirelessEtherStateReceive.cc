@@ -131,16 +131,18 @@ void WirelessEtherStateReceive::sendAck(WirelessEtherModule *mod, WirelessEtherB
     // otherwise can be caught in a situation where only the start of the ACK is sent
     if (mod->prbRespScanNotifier->isScheduled())
     {
-        simtime_t remainingTime = mod->simTime() - mod->prbRespScanNotifier->arrivalTime();
+      simtime_t remainingTime = mod->prbRespScanNotifier->arrivalTime() - mod->simTime();
         if (remainingTime < transmTime)
         {
+	  wEV<<"WTF hack due to optimisation of not checking what channel everyone is on "<<mod->simTime()<<endl;
             delete ack;
             return;
         }
     }
 
     mod->sendFrame(ack);
-    delete ack; // FIXME ????? CRASH???
+    //no idea why unable to send this instance off and need to duplicate
+    delete ack;
 
     // Schedule an event to indicate end of Ack transmission
     assert(!mod->endSendAckTimer->isScheduled());

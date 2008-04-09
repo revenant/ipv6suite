@@ -15,6 +15,9 @@
        <MovingNode NodeName="mn" startTime="0">
                <move moveToX="350" moveToY="70" moveSpeed="3"/>
        </MovingNode>
+       <MovingNode NodeName="shadow" startTime="4">
+               <move moveToX="350" moveToY="70" moveSpeed="1"/>
+       </MovingNode>
  </ObjectMovement>
   </misc>
 </netconf>

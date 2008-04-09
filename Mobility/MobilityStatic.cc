@@ -49,18 +49,23 @@ void MobilityStatic::initialize(int stage)
 
   if ( stage == 2 )
   {
+    bool parsed = false;
     cXMLElement* moveInfo = par("moveXmlConfig");
     if (moveInfo)
     {
        XMLConfiguration::XMLOmnetParser p;
       //default.ini loads empty.xml at element netconf
       if (p.getNodeProperties(moveInfo, "debugChannel", false) == "")
+      {
         p.parseMovementInfoDetail(this, moveInfo);
+	parsed = true;
+      }
       else
-        Dout(dc::xml_addresses, " no global "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
+        Dout(dc::xml_addresses, " no moveXmlConfig at "<<className()<<" move info for node "<<OPP_Global::nodeName(this));
     }
 
-    wproc->xmlConfig()->parseMovementInfo(this);
+    if (!parsed)
+      wproc->xmlConfig()->parseMovementInfo(this);	      
     initiateMoveScheduler();
   }
 }

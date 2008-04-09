@@ -716,6 +716,10 @@ void XMLOmnetParser::parseMovementInfoDetail(MobilityStatic* mod, cXMLElement* n
   // superclass for the (L1) mobile module
   MobileEntity* me = mod->mobileEntity;
 
+  //allow specifying no movement by absence of startTime for moveXmlConfig ini param
+  if (getNodeProperties(nmovenode, "startTime", false) == "")
+    return;
+
   me->setStartMovingTime(OPP_Global::atoul(getNodeProperties(nmovenode, "startTime").c_str()));
 
   cXMLElementList moves = nmovenode->getChildrenByTagName("move");

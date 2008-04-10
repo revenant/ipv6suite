@@ -134,14 +134,15 @@ void WirelessEtherStateReceive::sendAck(WirelessEtherModule *mod, WirelessEtherB
       simtime_t remainingTime = mod->prbRespScanNotifier->arrivalTime() - mod->simTime();
         if (remainingTime < transmTime)
         {
-	  wEV<<"WTF hack due to optimisation of not checking what channel everyone is on "<<mod->simTime()<<endl;
-            delete ack;
-            return;
+	  wEV<<currentTime() << " sec, " << mod->fullPath() <<" ack dropped as interferes with changing to next channel soon"<<endl;
+	  delete ack;
+	  return;
         }
     }
 
     mod->sendFrame(ack);
-    //no idea why unable to send this instance off and need to duplicate
+    //no idea why sending this instance off results in crash and duplicate does
+    //not
     delete ack;
 
     // Schedule an event to indicate end of Ack transmission

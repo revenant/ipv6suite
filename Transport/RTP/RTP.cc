@@ -148,6 +148,9 @@ void recordHOStats(RTPMemberEntry *s, RTP* rtp)
     s->l3handStat->collect(rtp->simTime() - rtp->l2up);
     rtp->l2down = rtp->l2up = 0;
   }
+  else
+    EV<<OPP_Global::nodeName(rtp)<<" "<<rtp->simTime()
+      <<" missedRA triggered handover recording\n";
 }
 
 //From A.1 of rfc3550 with probation removed
@@ -510,9 +513,9 @@ bool RTP::sendRTPPacket()
 {
   double packetisationInterval = 0.02;  //20ms
   //rfc3551 G728 i.e. rtp payload type 15 uses 40bits per frame and
-  //each frame encodes 2.5ms so for one 20ms packet requires 8*40 = 320 bytes
-  //rtp payload and forms a 16kbs audio stream
-  int payloadLength = 320;
+  //each frame encodes 2.5ms so for one 20ms packet requires 8*40 = 320 bits
+  //rtp payload and forms a 16kbps audio stream
+  int payloadLength = 320/8;
   
   if (!rtpTimeout)
   {

@@ -52,6 +52,10 @@
 #include "INotifiable.h"
 #endif
 
+#ifndef CCALLBACKMESSAGE_H
+#include "cCallBackMessage.h"
+#endif
+
 struct RTPMemberEntry
 {
   RTPMemberEntry();
@@ -147,7 +151,15 @@ class RTP: public UDPAppBase, INotifiable
   unsigned short port;
   std::vector<IPvXAddress> destAddrs;
   simtime_t startTime;
+  double frameLength;
+  unsigned int bitrate;
+  unsigned int framesPerPacket;
+  
   //@}
+
+  //in bytes
+  double payloadLength;
+  double packetisationInterval;
 
   //Keyed on SSRC
   typedef std::map<unsigned int, RTPMemberEntry> MemberSet;
@@ -164,6 +176,7 @@ class RTP: public UDPAppBase, INotifiable
 
   cMessage* rtcpTimeout;
   cMessage* rtpTimeout;
+  cCallBackMessage* p59cb;
 
   //variables for calculation of T i.e. RTCP Report transmission
   //@{
@@ -184,6 +197,7 @@ class RTP: public UDPAppBase, INotifiable
   float meanRtcpSize; // avg_rtcp_size
   //true if no rtcp sent
   bool initial;
+  //@}
 
  private:
 
@@ -192,7 +206,6 @@ class RTP: public UDPAppBase, INotifiable
  public:
   simtime_t l2down;
   simtime_t l2up;
-  //@}
  private:
   bool mobileNode;
 

@@ -51,6 +51,11 @@ module MultiBaselineNetwork
                 wlin[1],
                 wlout[1];
             display: "p=100,70;i=laptop";
+        mn3: MobileNode
+            gatesizes:
+                wlin[1],
+                wlout[1];
+            display: "p=100,70;i=laptop";
         ap: AccessPoint;
             gatesizes:
                 in[1],

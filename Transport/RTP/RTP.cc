@@ -49,6 +49,8 @@
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
 
+
+
 Define_Module(RTP);
 
 #define RTP_SEQ_MOD (1<<16)
@@ -425,7 +427,6 @@ void RTP::initialize(int stageNo)
 
   startTime = par("startTime");
   
-  WATCH(rtcpBw);
   WATCH(senders);
   WATCH(members);
   WATCH(pmembers);
@@ -457,8 +458,41 @@ void RTP::initialize(int stageNo)
   senders = 0;
   pmembers = members = 1;
   weSent = false;
-  // 5% of session bandwidth used for these packets
-  rtcpBw = 0.05 * (double)par("sessionBandwidth"); 
+
+  memberSet[_ssrc].sender = false;
+  //Identify ourselves as self for the operator<< fn
+  init_seq(&memberSet[_ssrc], 0);
+  memberSet[_ssrc].badSeq = 0;
+
+ 
+  frameLength = (double)par("frameLength");
+  if (frameLength > 0.1)
+    opp_error("frame length i.e. Tp is less than 100ms for sure");
+
+  bitrate =  par("bitrate").longValue();
+  if (bitrate > 64000)
+    opp_error("bitrates are usually less than G.711's 64k, bitrate request was %d", bitrate);
+
+  framesPerPacket = par("framesPerPacket").longValue();
+  if (framesPerPacket < 1 || framesPerPacket > 100)
+    opp_error("Invalid framesPerPacket specified %d, it should be less than 100", framesPerPacket);
+  
+  payloadLength = (double)bitrate/(1.0/(frameLength * (double)framesPerPacket ))/8;
+  if (floor(payloadLength) != payloadLength)
+  {
+    opp_error("Frational amounts when tyring to determine payload length %d, is this normal?", payloadLength);
+  }
+
+  //minimum according to G.114 Table I.4
+  packetisationInterval = frameLength * ((double)framesPerPacket + 1.0) + par("lookahead").doubleValue();
+  //maximum according to G.114 Table I.4
+  //packetisationInterval = frameLength * (2.0*(double)framesPerPacket + 1.0) + par("lookahead");
+
+  rtcpBw = (double)par("rtcpBandwidth"); 
+  if (rtcpBw < 1)
+    rtcpBw = rtcpBw * (double)bitrate * 8.0;
+  WATCH(rtcpBw);
+
   //assuming 1 SR Report Block from other side if we
   //received RTP otherwise just 28 if we initiate
   meanRtcpSize = 28 + 24;
@@ -471,18 +505,13 @@ void RTP::initialize(int stageNo)
   simtime_t randomStart = startTime?(startTime - 2*tn):0;
   scheduleAt(randomStart < 7? 8 + randomStart:randomStart, rtcpTimeout);
 
-  memberSet[_ssrc].sender = false;
-  //Identify ourselves as self for the operator<< fn
-  init_seq(&memberSet[_ssrc], 0);
-  memberSet[_ssrc].badSeq = 0;
-
   if (startTime && sendRTPPacket() && !weSent)
   {
       weSent = true;
       senders+=1;
       memberSet[_ssrc].sender = true;
   }
-  
+
 }
 
 //remove self from destAddrs i.e. nodename matches
@@ -502,7 +531,7 @@ void RTP::resolveAddresses()
     {
       cerr<<OPP_Global::nodeName(this)<<" Address of dest "<<token<<" is not "
 	  <<"global at "<<simTime()<<endl;
-      assert(false);
+      //assert(false);
     }
     destAddrs.push_back(IPAddressResolver().resolve(token));
 
@@ -510,13 +539,7 @@ void RTP::resolveAddresses()
 }
 
 bool RTP::sendRTPPacket()
-{
-  double packetisationInterval = 0.02;  //20ms
-  //rfc3551 G728 i.e. rtp payload type 15 uses 40bits per frame and
-  //each frame encodes 2.5ms so for one 20ms packet requires 8*40 = 320 bits
-  //rtp payload and forms a 16kbps audio stream
-  int payloadLength = 320/8;
-  
+{  
   if (!rtpTimeout)
   {
     rtpTimeout = new cMessage("rtpTimeout");
@@ -542,7 +565,7 @@ bool RTP::sendRTPPacket()
   RTPPacket* rtpData = new RTPPacket(_ssrc, _seqNo++);
   //rtpData->setKind(1);
   rtpData->setTimestamp(simTime());
-  rtpData->setPayloadLength(payloadLength);
+  rtpData->setPayloadLength((unsigned int)payloadLength);
 
   //These should stay as they are because these operations are usually assumed
   //to be multicast and even if they're unicast they should not be multiplied by
@@ -691,6 +714,90 @@ void RTP::handleMessage(cMessage* msg)
 
     //do callback
   }
+}
+
+///next four are different rng streams
+const static int stateTrans = 0;
+const static int x1 = 1;
+const static int x2 = 2;
+const static int x3 = 3;
+
+const static double P1 = 0.4;
+const static double P2 = 0.5;
+const static double P3 = 0.5;
+
+  void RTP::P59TS(RTP* callee)
+  {
+    //get caller to start a talk spurt
+    if (!self->rtpTimeout->isScheduled())
+      scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
+    //get callee to stop talking
+    if (callee->rtpTimeout->isScheduled())
+      callee->rtpTimeout->cancel();
+
+    double timeInstate = -0.854 log(1-uniform(0,1,x1));
+
+    //check which state we transition to now
+    if (uniform(0,1,stateTrans) > P1)
+      (*p59cb)=boost::bind(&RTP::P59MS, this, callee);
+    else
+      (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
+
+    p59cb->rescheduleDelay(timeInstate);
+  }
+
+  void RTP::P59DT(RTP* callee)
+  {
+    //get  both to talk
+    if (!self->rtpTimeout->isScheduled())
+      scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
+    if (!callee->rtpTimeout->isScheduled())
+      scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
+
+    
+    double timeInstate = -0.226 * log(1-uniform(0,1,x2));
+
+    //check which state we transition to now
+    if (uniform(0,1,stateTrans) > P3)
+      (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
+    else
+      (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
+  }
+
+void RTP::P59ST(RTP* callee)
+{
+  //get callee to talk and caller to shut up
+  if (!callee->rtpTimeout->isScheduled())
+    scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
+  if (self->rtpTimeout->isScheduled())
+      self->rtpTimeout->cancel();
+  
+  double timeInstate = -0.854 * log(1-uniform(0,1,x1));
+
+  //check which state we transition to now
+  if (uniform(0,1,stateTrans) > P1)
+    (*p59cb)=boost::bind(&RTP::P59MS, this, callee);
+  else
+    (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
+
+  p59cb->rescheduleDelay(timeInstate);
+}
+
+void RTP::P59MS(RTP* callee)
+{
+ if (self->rtpTimeout->isScheduled())
+   self->rtpTimeout->cancel();
+ if (callee->rtpTimeout->isScheduled())
+   callee->rtpTimeout->cancel();
+ 
+ double timeInstate = -0.456 * log(1-uniform(0,1,x3));
+ 
+ if (uniform(0,1,stateTrans) > P2)
+   (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
+ else
+   (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
+
+ p59cb->rescheduleDelay(timeInstate);
 }
 
 bool RTP::isMobileNode()

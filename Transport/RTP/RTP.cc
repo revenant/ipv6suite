@@ -726,43 +726,43 @@ const static double P1 = 0.4;
 const static double P2 = 0.5;
 const static double P3 = 0.5;
 
-  void RTP::P59TS(RTP* callee)
-  {
-    //get caller to start a talk spurt
-    if (!self->rtpTimeout->isScheduled())
-      scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
-    //get callee to stop talking
-    if (callee->rtpTimeout->isScheduled())
-      callee->rtpTimeout->cancel();
+void RTP::P59TS(RTP* callee)
+{
+  //get caller to start a talk spurt
+  if (!self->rtpTimeout->isScheduled())
+    scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
+  //get callee to stop talking
+  if (callee->rtpTimeout->isScheduled())
+    callee->rtpTimeout->cancel();
 
-    double timeInstate = -0.854 log(1-uniform(0,1,x1));
+  double timeInstate = -0.854 log(1-uniform(0,1,x1));
 
-    //check which state we transition to now
-    if (uniform(0,1,stateTrans) > P1)
-      (*p59cb)=boost::bind(&RTP::P59MS, this, callee);
-    else
-      (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
+  //check which state we transition to now
+  if (uniform(0,1,stateTrans) > P1)
+    (*p59cb)=boost::bind(&RTP::P59MS, this, callee);
+  else
+    (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
 
-    p59cb->rescheduleDelay(timeInstate);
-  }
+  p59cb->rescheduleDelay(timeInstate);
+}
 
-  void RTP::P59DT(RTP* callee)
-  {
-    //get  both to talk
-    if (!self->rtpTimeout->isScheduled())
-      scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
-    if (!callee->rtpTimeout->isScheduled())
-      scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
+void RTP::P59DT(RTP* callee)
+{
+  //get  both to talk
+  if (!self->rtpTimeout->isScheduled())
+    scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
+  if (!callee->rtpTimeout->isScheduled())
+    scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
 
     
-    double timeInstate = -0.226 * log(1-uniform(0,1,x2));
+  double timeInstate = -0.226 * log(1-uniform(0,1,x2));
 
-    //check which state we transition to now
-    if (uniform(0,1,stateTrans) > P3)
-      (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
-    else
-      (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
-  }
+  //check which state we transition to now
+  if (uniform(0,1,stateTrans) > P3)
+    (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
+  else
+    (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
+}
 
 void RTP::P59ST(RTP* callee)
 {
@@ -770,7 +770,7 @@ void RTP::P59ST(RTP* callee)
   if (!callee->rtpTimeout->isScheduled())
     scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
   if (self->rtpTimeout->isScheduled())
-      self->rtpTimeout->cancel();
+    self->rtpTimeout->cancel();
   
   double timeInstate = -0.854 * log(1-uniform(0,1,x1));
 
@@ -785,19 +785,19 @@ void RTP::P59ST(RTP* callee)
 
 void RTP::P59MS(RTP* callee)
 {
- if (self->rtpTimeout->isScheduled())
-   self->rtpTimeout->cancel();
- if (callee->rtpTimeout->isScheduled())
-   callee->rtpTimeout->cancel();
+  if (self->rtpTimeout->isScheduled())
+    self->rtpTimeout->cancel();
+  if (callee->rtpTimeout->isScheduled())
+    callee->rtpTimeout->cancel();
  
- double timeInstate = -0.456 * log(1-uniform(0,1,x3));
+  double timeInstate = -0.456 * log(1-uniform(0,1,x3));
  
- if (uniform(0,1,stateTrans) > P2)
-   (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
- else
-   (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
+  if (uniform(0,1,stateTrans) > P2)
+    (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
+  else
+    (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
 
- p59cb->rescheduleDelay(timeInstate);
+  p59cb->rescheduleDelay(timeInstate);
 }
 
 bool RTP::isMobileNode()

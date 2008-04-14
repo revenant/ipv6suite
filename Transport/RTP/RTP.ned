@@ -28,6 +28,7 @@ simple RTP
     //very basic voip app settings
     destAddrs: string, // list of \IP addresses, separated by spaces
     startTime: numeric const,
+    stopTime: numeric const,
     frameLength: numeric const, //in units of seconds
     framesPerPacket: numeric const, //number of frames to put into packet
     bitrate: numeric const, //in bitsps

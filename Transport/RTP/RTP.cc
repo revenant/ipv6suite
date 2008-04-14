@@ -20,13 +20,13 @@
 
 /**
  * @file   RTP.cc
- * @author 
+ * @author Johnny Lai
  * @date   30 Jul 2006
  *
  * @brief  Implementation of RTP
  *
  * @todo session leaving and subsequent removal from members list 
- *   markovian sessions
+ *   Separation of RTP Apps like VoIP from RTP primitives
  *
  */
 
@@ -48,12 +48,16 @@
 #include "opp_utils.h" //nodename
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
+#include <boost/bind.hpp>
+#include "TimerConstants.h"
 
 
 
 Define_Module(RTP);
 
 #define RTP_SEQ_MOD (1<<16)
+
+const static int txCalc = 0;
 
 unsigned int dgramSize(cMessage* msg);
 
@@ -293,10 +297,10 @@ void RTP::processReceivedPacket(cMessage* msg)
       //ignore reverse reconsideration 6.3.4 (code in pg 93)
       if (memberSet.count(rtcp->ssrc()))
       {
-	members-=1;
-	if (memberSet[rtcp->ssrc()].sender)
-	  senders-=1;
-	memberSet.erase(rtcp->ssrc());
+        members-=1;
+        if (memberSet[rtcp->ssrc()].sender)
+          senders-=1;
+        memberSet.erase(rtcp->ssrc());
       }
     }
     else if (dynamic_cast<RTCPReports*> (msg))
@@ -304,19 +308,37 @@ void RTP::processReceivedPacket(cMessage* msg)
       RTCPSR* sr = dynamic_cast<RTCPSR*> (msg);
       if (sr)
       {
-	memberSet[rtcp->ssrc()].lastSR = sr->timestamp();
-	incomingBlocks.resize(0);
-	for (u_int32 i = 0; i < sr->reportBlocksArraySize(); ++i)
-	  incomingBlocks.push_back(sr->reportBlocks(i));
+        memberSet[rtcp->ssrc()].lastSR = sr->timestamp();
+        incomingBlocks.resize(0);
+        for (u_int32 i = 0; i < sr->reportBlocksArraySize(); ++i)
+          incomingBlocks.push_back(sr->reportBlocks(i));
       }
       else
       {
-	RTCPRR* rr = dynamic_cast<RTCPRR*>(msg);
-	incomingBlocks.resize(0);
-	for (u_int32 i = 0; i < rr->reportBlocksArraySize(); ++i)
-	  incomingBlocks.push_back(rr->reportBlocks(i));
+        RTCPRR* rr = dynamic_cast<RTCPRR*>(msg);
+        incomingBlocks.resize(0);
+        for (u_int32 i = 0; i < rr->reportBlocksArraySize(); ++i)
+          incomingBlocks.push_back(rr->reportBlocks(i));
+      }	
+    }
+    else if (dynamic_cast<RTCPSDES*> (msg))
+    {
+      //voip conversation model requires passing of callee RTP module for 2
+      //party on/off state switching
+      RTP* caller = static_cast<RTP*>(msg->contextPointer());
+      if (caller->p59cb)
+      {
+        rtpTimeout = new cMessage("callee rtpTimeout");
+        destAddrs.push_back(srcAddr);
+        (*(caller->p59cb)) =  boost::bind(&RTP::P59TS, caller, this);
+        OPP_Global::ContextSwitcher switchContext(caller);
+        caller->p59cb->rescheduleDelay(SELF_SCHEDULE_DELAY);
       }
-	
+      else
+      {
+        //other app. once we migrate this to its own class/module will not need
+        //so many branching bits
+      }
     }
   } //RTCP message
 }
@@ -352,10 +374,19 @@ void RTP::leaveSession()
 void RTP::establishSession()
 {
   assert(!destAddrs.empty());
+  if (!p59cb)
+    //conference type of app
   //send a cname packet (i.e. user@fullpath etc.) inside first rtcp packet  
   for (unsigned int i =0; i < destAddrs.size(); ++i)
     sendToUDP(new RTCPSDES(_ssrc, OPP_Global::nodeName(this)),
 	      port+1, destAddrs[i], port+1);
+  else
+  {
+    //voip app 2 party conversation 
+    RTCPSDES* sdes = new RTCPSDES(_ssrc, OPP_Global::nodeName(this));
+    sdes->setContextPointer(this);
+    sendToUDP(sdes, port+1, destAddrs[0], port+1);
+  }
 }
 
 //hard coded 25% and 75% of rtcpBW (hence the factor of 0.75 and division by 4)
@@ -391,7 +422,7 @@ simtime_t RTP::calculateTxInterval()
   //reduced min is 360/session bandwidth
   float Td = max(initial?2.5:5.0, n*C);
   // randomly [0.5,1.5] times calculated interval to avoid sync
-  simtime_t T = (uniform(0,1) + 0.5)*Td;
+  simtime_t T = (uniform(0,1, txCalc) + 0.5)*Td;
   T= T/1.21828; //e-3/2
   return T;
 }
@@ -399,9 +430,24 @@ simtime_t RTP::calculateTxInterval()
 
 
 
-RTP::RTP():nb(0),l2down(0),mobileNode(false){}
+RTP::RTP():rtcpTimeout(0), rtpTimeout(0),p59cb(0),talkStatesVector(0),
+           nb(0),l2down(0),mobileNode(false)
+{}
 
-RTP::~RTP(){}
+RTP::~RTP()
+{
+  if (rtpTimeout->isScheduled())
+    cancelEvent(rtpTimeout);
+  if (rtcpTimeout->isScheduled())
+    cancelEvent(rtcpTimeout);
+  delete rtpTimeout;
+  delete rtcpTimeout;
+  if (p59cb && p59cb->isScheduled())
+  {
+    p59cb->cancel();
+    delete p59cb;
+  }
+}
 
 int RTP::numInitStages() const
 {
@@ -417,8 +463,6 @@ void RTP::initialize(int stageNo)
   nb->subscribe(this, NF_L2_BEACON_LOST);
   nb->subscribe(this, NF_L2_ASSOCIATED);
 
-  rtpTimeout = 0;
-
   port = par("port");
   //RTP port is always even so if specified odd port then
   //the base port will be modified
@@ -426,7 +470,8 @@ void RTP::initialize(int stageNo)
     port -= 1;
 
   startTime = par("startTime");
-  
+  simtime_t stopTime = par("stopTime");
+
   WATCH(senders);
   WATCH(members);
   WATCH(pmembers);
@@ -512,6 +557,19 @@ void RTP::initialize(int stageNo)
       memberSet[_ssrc].sender = true;
   }
 
+  if (startTime)
+  {
+    p59cb = new cCallbackMessage("p.59");
+    talkStatesVector =
+      new cOutVector((std::string("talkState of ") + OPP_Global::nodeName(this)).c_str());
+  }
+
+  if (stopTime > 0)
+  {
+    cCallbackMessage* quitApp = new cCallbackMessage("quitApp leak");
+    //(*quitApp) = boost::bind(&RTP::exitVoipSession, this);  
+    scheduleAt(stopTime, quitApp);
+  }
 }
 
 //remove self from destAddrs i.e. nodename matches
@@ -554,9 +612,14 @@ bool RTP::sendRTPPacket()
     resolveAddresses();
   }
 
-  //later on add markovian modelling of on/off session
-  if (!destAddrs.empty() && !weSent)
-    establishSession();
+  if (startTime && !destAddrs.empty() && !weSent)
+  {
+    if (p59cb && !p59cb->isScheduled())
+    {
+      establishSession();
+      return false;
+    }
+  }
 
   if (destAddrs.empty())
     return false;
@@ -710,14 +773,13 @@ void RTP::handleMessage(cMessage* msg)
   }
   else
   {
-    //self msg can also be a bye
-
-    //do callback
+    assert(msg->isSelfMessage());
+    (static_cast<cTimerMessage *> (msg) )->callFunc();
   }
 }
 
 ///next four are different rng streams
-const static int stateTrans = 0;
+const static int stateTrans = 4;
 const static int x1 = 1;
 const static int x2 = 2;
 const static int x3 = 3;
@@ -728,14 +790,15 @@ const static double P3 = 0.5;
 
 void RTP::P59TS(RTP* callee)
 {
-  //get caller to start a talk spurt
-  if (!self->rtpTimeout->isScheduled())
-    scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
-  //get callee to stop talking
-  if (callee->rtpTimeout->isScheduled())
-    callee->rtpTimeout->cancel();
+  assert(!p59cb->isScheduled());
+  talkStatesVector->record(1);
 
-  double timeInstate = -0.854 log(1-uniform(0,1,x1));
+  //get caller to start a talk spurt
+  if (!this->rtpTimeout->isScheduled())
+    scheduleAt(simTime() + packetisationInterval, this->rtpTimeout);
+  //get callee to stop talking
+
+  double timeInstate = -0.854 * log(1-uniform(0,1,x1));
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P1)
@@ -744,15 +807,20 @@ void RTP::P59TS(RTP* callee)
     (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
 
   p59cb->rescheduleDelay(timeInstate);
+
+  OPP_Global::ContextSwitcher switchContext(callee);
+  if (callee->rtpTimeout->isScheduled())
+    callee->cancelEvent(callee->rtpTimeout);
 }
 
 void RTP::P59DT(RTP* callee)
 {
+  assert(!p59cb->isScheduled());
+  talkStatesVector->record(4);
+
   //get  both to talk
-  if (!self->rtpTimeout->isScheduled())
-    scheduleAt(self->rtpTimeout, simTime() + packetisationInterval);
-  if (!callee->rtpTimeout->isScheduled())
-    scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
+  if (!this->rtpTimeout->isScheduled())
+    scheduleAt(simTime() + packetisationInterval, this->rtpTimeout);
 
     
   double timeInstate = -0.226 * log(1-uniform(0,1,x2));
@@ -762,15 +830,22 @@ void RTP::P59DT(RTP* callee)
     (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
   else
     (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
+
+  p59cb->rescheduleDelay(timeInstate);
+
+  OPP_Global::ContextSwitcher switchContext(callee);
+  if (!callee->rtpTimeout->isScheduled())
+    callee->scheduleAt(simTime() + packetisationInterval, callee->rtpTimeout);
 }
 
 void RTP::P59ST(RTP* callee)
 {
+  assert(!p59cb->isScheduled());
+  talkStatesVector->record(2);
+
   //get callee to talk and caller to shut up
-  if (!callee->rtpTimeout->isScheduled())
-    scheduleAt(callee->rtpTimeout, simTime() + packetisationInterval);
-  if (self->rtpTimeout->isScheduled())
-    self->rtpTimeout->cancel();
+  if (this->rtpTimeout->isScheduled())
+    cancelEvent(this->rtpTimeout);
   
   double timeInstate = -0.854 * log(1-uniform(0,1,x1));
 
@@ -781,23 +856,32 @@ void RTP::P59ST(RTP* callee)
     (*p59cb)=boost::bind(&RTP::P59DT, this, callee);
 
   p59cb->rescheduleDelay(timeInstate);
+
+  OPP_Global::ContextSwitcher switchContext(callee);
+  if (!callee->rtpTimeout->isScheduled())
+    callee->scheduleAt(simTime() + packetisationInterval, callee->rtpTimeout);
 }
 
 void RTP::P59MS(RTP* callee)
 {
-  if (self->rtpTimeout->isScheduled())
-    self->rtpTimeout->cancel();
-  if (callee->rtpTimeout->isScheduled())
-    callee->rtpTimeout->cancel();
- 
+  assert(!p59cb->isScheduled());
+  talkStatesVector->record(3);
+
+  if (this->rtpTimeout->isScheduled())
+    cancelEvent(this->rtpTimeout);
+
   double timeInstate = -0.456 * log(1-uniform(0,1,x3));
- 
+
   if (uniform(0,1,stateTrans) > P2)
     (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
   else
     (*p59cb)=boost::bind(&RTP::P59ST, this, callee);
 
   p59cb->rescheduleDelay(timeInstate);
+
+  OPP_Global::ContextSwitcher switchContext(callee);
+  if (callee->rtpTimeout->isScheduled())
+    callee->cancelEvent(callee->rtpTimeout);
 }
 
 bool RTP::isMobileNode()

@@ -53,7 +53,7 @@
 #endif
 
 #ifndef CCALLBACKMESSAGE_H
-#include "cCallBackMessage.h"
+#include "cCallbackMessage.h"
 #endif
 
 struct RTPMemberEntry
@@ -176,7 +176,17 @@ class RTP: public UDPAppBase, INotifiable
 
   cMessage* rtcpTimeout;
   cMessage* rtpTimeout;
-  cCallBackMessage* p59cb;
+
+  //voip conversation model
+  //@{
+  void P59TS(RTP* callee);
+  void P59ST(RTP* callee);
+  void P59MS(RTP* callee);
+  void P59DT(RTP* callee);
+ 
+  cCallbackMessage* p59cb;
+  cOutVector* talkStatesVector;
+  //@}
 
   //variables for calculation of T i.e. RTCP Report transmission
   //@{

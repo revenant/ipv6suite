@@ -381,6 +381,23 @@ jl.Rfactor <- function(Ta, Ie = 7, Bpl = 17, Ppl = 0, burstR = 1)
     93.2 - Idd(Ta) - Ieff(Ie, Ppl, Bpl)
   }
 
+#vector name to do diff over 
+jl.SimpleDiff <- function(vectornumAsString="^394", filename, simendTime)
+{
+  
+  table <- scan(pipe(paste("grep", vectornumAsString, filename)),list(rubbish=0,time=0,talkstate=0))
+  table=table[-1]
+  times=diff(table$time)
+  times[length(times)+1] = simendTime - table$time[length(table$time)]
+  table$time = times
+  tot=sum(table$time)
+  sum(table$time[table$talkstate == 1])   
+  sum(table$time[table$talkstate == 2])    
+  sum(table$time[table$talkstate == 3])
+  sum(table$time[table$talkstate == 4])
+  table
+}
+
 #MOS conversational situation
 jl.Mos <- function(R)
   {

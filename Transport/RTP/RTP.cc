@@ -430,8 +430,8 @@ simtime_t RTP::calculateTxInterval()
 
 
 
-RTP::RTP():rtcpTimeout(0), rtpTimeout(0),p59cb(0),talkStatesVector(0),
-           nb(0),l2down(0),mobileNode(false)
+RTP::RTP():rtcpTimeout(0), rtpTimeout(0),p59cb(0),talkStatesVector(0),stStat(0),
+	   dtStat(0), msStat(0), tsStat(0),nb(0),l2down(0),mobileNode(false)
 {}
 
 RTP::~RTP()
@@ -562,6 +562,10 @@ void RTP::initialize(int stageNo)
     p59cb = new cCallbackMessage("p.59");
     talkStatesVector =
       new cOutVector((std::string("talkState of ") + OPP_Global::nodeName(this)).c_str());
+    stStat = new cStdDev((std::string("ST duration of ") + OPP_Global::nodeName(this)).c_str());
+    msStat = new cStdDev((std::string("MS duration of ") + OPP_Global::nodeName(this)).c_str());
+    dtStat = new cStdDev((std::string("DT duration of ") + OPP_Global::nodeName(this)).c_str());
+    tsStat = new cStdDev((std::string("TS duration of ") + OPP_Global::nodeName(this)).c_str());
   }
 
   if (stopTime > 0)
@@ -799,6 +803,7 @@ void RTP::P59TS(RTP* callee)
   //get callee to stop talking
 
   double timeInstate = -0.854 * log(1-uniform(0,1,x1));
+  tsStat->collect(timeInstate);
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P1)
@@ -824,6 +829,7 @@ void RTP::P59DT(RTP* callee)
 
     
   double timeInstate = -0.226 * log(1-uniform(0,1,x2));
+  dtStat->collect(timeInstate);
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P3)
@@ -848,6 +854,7 @@ void RTP::P59ST(RTP* callee)
     cancelEvent(this->rtpTimeout);
   
   double timeInstate = -0.854 * log(1-uniform(0,1,x1));
+  stStat->collect(timeInstate);
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P1)
@@ -871,6 +878,7 @@ void RTP::P59MS(RTP* callee)
     cancelEvent(this->rtpTimeout);
 
   double timeInstate = -0.456 * log(1-uniform(0,1,x3));
+  msStat->collect(timeInstate);
 
   if (uniform(0,1,stateTrans) > P2)
     (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
@@ -934,6 +942,14 @@ void RTP::finish()
 		 100 * (double)cumPacketsLost/(double)extended);
     recordScalar((std::string("rtp received from ") + IPAddressResolver().hostname(rme.addr)).c_str(), rme.received);
     recordScalar("rtpOctetCount", octetCount);
+
+    if (p59cb)
+    {
+      stStat->recordScalar((std::string("ST time of ") + OPP_Global::nodeName(this)).c_str());
+      dtStat->recordScalar((std::string("DT time of ") + OPP_Global::nodeName(this)).c_str());  
+      msStat->recordScalar((std::string("MS time of ") + OPP_Global::nodeName(this)).c_str());  
+      tsStat->recordScalar((std::string("TS time of ") + OPP_Global::nodeName(this)).c_str());
+    }
   }
 
 }

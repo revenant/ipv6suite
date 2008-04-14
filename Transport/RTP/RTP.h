@@ -186,6 +186,10 @@ class RTP: public UDPAppBase, INotifiable
  
   cCallbackMessage* p59cb;
   cOutVector* talkStatesVector;
+  cStdDev* stStat;
+  cStdDev* dtStat;
+  cStdDev* msStat;
+  cStdDev* tsStat;
   //@}
 
   //variables for calculation of T i.e. RTCP Report transmission

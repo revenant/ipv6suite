@@ -118,7 +118,7 @@ OPTION(BUILD_DEBUG "Build with support for debugging via gdb. make clean after t
 IF(NOT WIN32)
 IF(BUILD_DEBUG)
   ADD_DEFINITIONS(-UNDEBUG)
-  ADD_DEFINITIONS( -Os -fno-inline -pipe) 
+  ADD_DEFINITIONS( -fno-inline -pipe) 
   IF(CMAKE_CXX_COMPILER MATCHES "icpc")
     ADD_DEFINITIONS(-g)
   ELSE(CMAKE_CXX_COMPILER MATCHES "icpc")    

@@ -142,7 +142,7 @@ class RTP: public UDPAppBase, INotifiable
  protected:
 
   void resolveAddresses();
-
+  void sendBye();
   void fillReports(RTCPReports* rtcpPayload);
   void rtcpTxTimeout();
 
@@ -190,6 +190,10 @@ class RTP: public UDPAppBase, INotifiable
   cStdDev* dtStat;
   cStdDev* msStat;
   cStdDev* tsStat;
+  simtime_t callerPause;
+  simtime_t calleePause;
+  cStdDev* callerPauseStat;
+  cStdDev* calleePauseStat;
   //@}
 
   //variables for calculation of T i.e. RTCP Report transmission

@@ -35,6 +35,7 @@
 #include "RTCPSR.h"
 #include "ICMPv6NDMessage.h"
 #include <sstream>
+#include "RTP.h"
 
 namespace IPv6Utils
 {
@@ -118,7 +119,13 @@ namespace IPv6Utils
 	      if (sr)
 	      {
 		os<<" "<<sr->ssrc()<<" pkt="<<sr->packetCount()<<" oct="<<sr->octetCount()
-		  <<" len="<<sr->byteLength()<<" blk="<<sr->reportBlocksArraySize();
+		  <<" rtcplen="<<sr->byteLength()<<" blks="<<sr->reportBlocksArraySize();
+		  for (unsigned int i = 0; i <sr->reportBlocksArraySize();++i)
+		    os<<" blk["<<i<<"] "<<sr->reportBlocks(i);
+	      }
+	      else
+	      {		
+		os<<" "<<pkt->ssrc()<<" rtcplen="<<pkt->byteLength();
 	      }
 	    }
 	}

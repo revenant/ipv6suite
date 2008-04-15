@@ -25,9 +25,8 @@
  *
  * @brief  Implementation of RTP
  *
- * @todo session leaving and subsequent removal from members list 
- *   Separation of RTP Apps like VoIP from RTP primitives
- *
+ * @todo dgramSize, Separation of RTP Apps like VoIP from RTP primitives
+ *  
  */
 
 //Headers for libcwd debug streams have to be first (remove if not used)
@@ -64,6 +63,9 @@ unsigned int dgramSize(cMessage* msg);
 using std::setprecision;
 using std::ios_base;
 using std::setiosflags;
+
+typedef std::vector<IPvXAddress> AddressVector;
+
 std::ostream& operator<<(std::ostream& os, const RTPMemberEntry& rme)
 {
   if (rme.badSeq == rme.maxSeq && rme.maxSeq == 0)
@@ -201,6 +203,7 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       //init_seq(s, seq);
       //EV<<"sequence reinitialised as two sequential packets from other side after huge jump so resyncing";
 
+      EV<<" the sequence number made large jump\n";
       //don't want a total resync because we know otherside does not do a real
       //resync in my sim and we want to preserve our stats
       initialiseStats(s, rtp);
@@ -297,10 +300,25 @@ void RTP::processReceivedPacket(cMessage* msg)
       //ignore reverse reconsideration 6.3.4 (code in pg 93)
       if (memberSet.count(rtcp->ssrc()))
       {
+	//Don't want to remove from member set otherwise our stats are gone.
+	//guess we could move to another set
+/*
         members-=1;
         if (memberSet[rtcp->ssrc()].sender)
           senders-=1;
-        memberSet.erase(rtcp->ssrc());
+*/
+	AddressVector::iterator ait =
+	  std::find(destAddrs.begin(), destAddrs.end(),
+		    memberSet[rtcp->ssrc()].addr);
+
+	if (ait != destAddrs.end())
+	{
+	  destAddrs.erase(ait);
+	  //send bye to other end to remove ourselves from members list	
+	  RTCPPacket* bye = new RTCPGoodBye(_ssrc);
+	  sendToUDP(bye, port+1, srcAddr, port+1);
+	}
+//	memberSet.erase(rtcp->ssrc());
       }
     }
     else if (dynamic_cast<RTCPReports*> (msg))
@@ -343,7 +361,6 @@ void RTP::processReceivedPacket(cMessage* msg)
   } //RTCP message
 }
 
-//send bye when finished
 void RTP::leaveSession()
 {
   //leaving session 6.3.7 (ignore part about members more than 50)
@@ -359,15 +376,34 @@ void RTP::leaveSession()
   tn = tp + T;
   if (tp + T <= now )
   {
-    //create sendBye fn and do a sendonce etc.
-    RTCPPacket* bye = new RTCPGoodBye(_ssrc);
-    sendToUDP(bye, port+1, destAddrs[0], port+1);
-    meanRtcpSize = dgramSize(bye);
+    sendBye();
   }
   else
   {
-    //scheduleAt(tn, leaveSession);
+    cCallbackMessage* bye = new cCallbackMessage("send bye leak");
+    (*bye) = boost::bind(&RTP::sendBye, this);
+    bye->rescheduleDelay(T);
   }
+
+  if (rtcpTimeout->isScheduled())
+    cancelEvent(rtcpTimeout);
+  if (rtpTimeout->isScheduled())
+    cancelEvent(rtpTimeout);
+
+  //cancel voice model
+  if (p59cb->isScheduled())
+    p59cb->cancel();
+}
+
+void RTP::sendBye()
+{
+  RTCPPacket* bye = new RTCPGoodBye(_ssrc);
+  for (unsigned int i =0; i < destAddrs.size(); ++i)
+  {
+    sendToUDP(bye, port+1, destAddrs[i], port+1);
+  }
+  //doesn't look right
+  //meanRtcpSize = dgramSize(bye);
 }
 
 //establish session for each dest?
@@ -431,7 +467,8 @@ simtime_t RTP::calculateTxInterval()
 
 
 RTP::RTP():rtcpTimeout(0), rtpTimeout(0),p59cb(0),talkStatesVector(0),stStat(0),
-	   dtStat(0), msStat(0), tsStat(0),nb(0),l2down(0),mobileNode(false)
+	   dtStat(0), msStat(0), tsStat(0),callerPause(0), calleePause(0), 
+	   callerPauseStat(0), calleePauseStat(0),nb(0),l2down(0),mobileNode(false)
 {}
 
 RTP::~RTP()
@@ -548,7 +585,7 @@ void RTP::initialize(int stageNo)
   //nodes otherwise the simulation will abort instead of sending stuff to link
   //local address
   simtime_t randomStart = startTime?(startTime - 2*tn):0;
-  scheduleAt(randomStart < 7? 8 + randomStart:randomStart, rtcpTimeout);
+  scheduleAt(randomStart < 4? 4 + randomStart:randomStart, rtcpTimeout);
 
   if (startTime && sendRTPPacket() && !weSent)
   {
@@ -566,12 +603,14 @@ void RTP::initialize(int stageNo)
     msStat = new cStdDev((std::string("MS duration of ") + OPP_Global::nodeName(this)).c_str());
     dtStat = new cStdDev((std::string("DT duration of ") + OPP_Global::nodeName(this)).c_str());
     tsStat = new cStdDev((std::string("TS duration of ") + OPP_Global::nodeName(this)).c_str());
+    callerPauseStat = new cStdDev((std::string("caller pause duration of ") + OPP_Global::nodeName(this)).c_str());
+    calleePauseStat = new cStdDev((std::string("callee pause duration of ") + OPP_Global::nodeName(this)).c_str());
   }
 
   if (stopTime > 0)
   {
     cCallbackMessage* quitApp = new cCallbackMessage("quitApp leak");
-    //(*quitApp) = boost::bind(&RTP::exitVoipSession, this);  
+    (*quitApp) = boost::bind(&RTP::leaveSession, this);  
     scheduleAt(stopTime, quitApp);
   }
 }
@@ -649,6 +688,8 @@ bool RTP::sendRTPPacket()
   return true;
 }
 
+//create a fn in Network layer that will simulate the sending process and return
+//calculated bytes without actually sending message?
 unsigned int dgramSize(cMessage* msg)
 {
   //8 is UDP header and 40 is IPv6 header
@@ -752,13 +793,13 @@ void RTP::handleMessage(cMessage* msg)
 {
   if (msg == rtcpTimeout)
   {
+    IPvXAddress addr;
     //fill rdns cache in case no one has requested us otherwise labels will
     //appear blank when IPAddressResolver::hostname called
-    /* //appears to be too early i.e. global addr not configured yet
-       //need a version that does not abort and returns null addr so we try later
     if (initial)
-      IPAddressResolver().resolve(OPP_Global::nodeName(this));
-    */
+      if (IPAddressResolver().tryResolve(OPP_Global::nodeName(this), addr))
+	IPAddressResolver().resolve(OPP_Global::nodeName(this));
+    
     rtcpTxTimeout();
   }
   else if (msg == rtpTimeout)
@@ -797,13 +838,20 @@ void RTP::P59TS(RTP* callee)
   assert(!p59cb->isScheduled());
   talkStatesVector->record(1);
 
+  double timeInstate = -0.854 * log(1-uniform(0,1,x1));
+  tsStat->collect(timeInstate);
+
   //get caller to start a talk spurt
   if (!this->rtpTimeout->isScheduled())
     scheduleAt(simTime() + packetisationInterval, this->rtpTimeout);
-  //get callee to stop talking
 
-  double timeInstate = -0.854 * log(1-uniform(0,1,x1));
-  tsStat->collect(timeInstate);
+  if (callerPause != 0)
+    callerPauseStat->collect(callerPause);
+
+  callerPause = 0;
+  calleePause += timeInstate;
+
+  //get callee to stop talking
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P1)
@@ -827,7 +875,13 @@ void RTP::P59DT(RTP* callee)
   if (!this->rtpTimeout->isScheduled())
     scheduleAt(simTime() + packetisationInterval, this->rtpTimeout);
 
-    
+  if (callerPause != 0)
+    callerPauseStat->collect(callerPause);    
+  callerPause = 0;
+  if (calleePause != 0)
+    calleePauseStat->collect(calleePause);
+  calleePause = 0;
+
   double timeInstate = -0.226 * log(1-uniform(0,1,x2));
   dtStat->collect(timeInstate);
 
@@ -852,9 +906,14 @@ void RTP::P59ST(RTP* callee)
   //get callee to talk and caller to shut up
   if (this->rtpTimeout->isScheduled())
     cancelEvent(this->rtpTimeout);
-  
+
   double timeInstate = -0.854 * log(1-uniform(0,1,x1));
   stStat->collect(timeInstate);
+
+  callerPause += timeInstate;
+  if (calleePause != 0)
+    calleePauseStat->collect(calleePause);
+  calleePause = 0;
 
   //check which state we transition to now
   if (uniform(0,1,stateTrans) > P1)
@@ -879,6 +938,9 @@ void RTP::P59MS(RTP* callee)
 
   double timeInstate = -0.456 * log(1-uniform(0,1,x3));
   msStat->collect(timeInstate);
+
+  callerPause += timeInstate;
+  calleePause += timeInstate;
 
   if (uniform(0,1,stateTrans) > P2)
     (*p59cb)=boost::bind(&RTP::P59TS, this, callee);
@@ -928,7 +990,6 @@ void RTP::finish()
     cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
 
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
-
     
     if (isMobileNode())
     {
@@ -942,16 +1003,17 @@ void RTP::finish()
 		 100 * (double)cumPacketsLost/(double)extended);
     recordScalar((std::string("rtp received from ") + IPAddressResolver().hostname(rme.addr)).c_str(), rme.received);
     recordScalar("rtpOctetCount", octetCount);
-
-    if (p59cb)
-    {
-      stStat->recordScalar((std::string("ST time of ") + OPP_Global::nodeName(this)).c_str());
-      dtStat->recordScalar((std::string("DT time of ") + OPP_Global::nodeName(this)).c_str());  
-      msStat->recordScalar((std::string("MS time of ") + OPP_Global::nodeName(this)).c_str());  
-      tsStat->recordScalar((std::string("TS time of ") + OPP_Global::nodeName(this)).c_str());
-    }
   }
 
+  if (p59cb)
+  {
+    stStat->recordScalar((std::string("ST time of ") + OPP_Global::nodeName(this)).c_str());
+    dtStat->recordScalar((std::string("DT time of ") + OPP_Global::nodeName(this)).c_str());  
+    msStat->recordScalar((std::string("MS time of ") + OPP_Global::nodeName(this)).c_str());  
+    tsStat->recordScalar((std::string("TS time of ") + OPP_Global::nodeName(this)).c_str());
+    callerPauseStat->recordScalar((std::string("caller pause of ") + OPP_Global::nodeName(this)).c_str());
+    calleePauseStat->recordScalar((std::string("callee pause of ") + OPP_Global::nodeName(this)).c_str());
+  }
 }
 
 void RTP::receiveChangeNotification(int category, cPolymorphic *details)

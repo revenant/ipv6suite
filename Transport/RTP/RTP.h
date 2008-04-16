@@ -56,6 +56,15 @@
 #include "cCallbackMessage.h"
 #endif
 
+#ifndef RTPPACKET_H
+#include "RTPPacket.h"
+#endif
+
+#ifndef RTCPPACKET_H
+#include "RTCPPacket.h"
+#endif
+
+
 struct RTPMemberEntry
 {
   RTPMemberEntry();
@@ -132,18 +141,27 @@ class RTP: public UDPAppBase, INotifiable
   ~RTP();
   
   //@}
-
-  virtual void processReceivedPacket(cMessage* msg);
+  
   virtual void leaveSession();
   virtual void establishSession();
-  virtual simtime_t calculateTxInterval();
   virtual bool sendRTPPacket();
-  virtual bool isMobileNode();
+  virtual void processRTP(RTPPacket* rtpData);
+  virtual void processGoodBye(RTCPGoodBye* rtcp);
+  virtual void processSDES(RTCPSDES* sdes);
+  virtual void processRTCP(RTCPPacket* rtcp);
+
+  
+  virtual void fillReports(RTCPReports* rtcpPayload);
+  virtual void processReports(RTCPReports* rep);
+
+  bool isMobileNode();
+  
  protected:
 
+  virtual simtime_t calculateTxInterval();
+  void processReceivedPacket(cMessage* msg);
   void resolveAddresses();
   void sendBye();
-  void fillReports(RTCPReports* rtcpPayload);
   void rtcpTxTimeout();
 
   //ned params storage

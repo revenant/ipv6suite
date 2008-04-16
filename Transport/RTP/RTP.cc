@@ -37,8 +37,6 @@
 #include <cassert>
 
 #include "RTP.h"
-#include "RTPPacket.h"
-#include "RTCPPacket.h"
 #include "IPAddressResolver.h"
 #include "UDPControlInfo_m.h"
 #include "opp_utils.h"
@@ -186,6 +184,7 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       //of order packet (at this stage we are simply recording likely
       //drop. Actually cumulative loss as determined by expected - received is
       //more accurate
+      //REDO //handleMisorderedOrDroppedPackets
       initialiseStats(s, rtp);
       s->lossVector->record(udelta);
       recordHOStats(s, rtp);
@@ -222,68 +221,129 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
   return 1;
 }
 
-void RTP::processReceivedPacket(cMessage* msg)
+void RTP::processRTP(RTPPacket* rtpData)
 {
-  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
+  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(rtpData->controlInfo());
 
   IPvXAddress srcAddr = ctrl->getSrcAddr();
   IPvXAddress destAddr = ctrl->getDestAddr();
-  //  int srcPort = ctrl->getSrcPort();
-  int destPort = ctrl->getDestPort();
 
-  if (destPort == port) //RTP
+  if (!memberSet.count(rtpData->ssrc()))
   {
-    assert( dynamic_cast<RTPPacket*>(msg));
-    RTPPacket* rtpData = static_cast<RTPPacket*> (msg);
-    if (!memberSet.count(rtpData->ssrc()))
-    {
-      //may wait for many before consider valid but we'll skip that
-      members+=1;
-      memberSet[rtpData->ssrc()].sender = false;
-      memberSet[rtpData->ssrc()].addr = srcAddr;
-    }
+    //may wait for many before consider valid but we'll skip that
+    members+=1;
+    memberSet[rtpData->ssrc()].sender = false;
+    memberSet[rtpData->ssrc()].addr = srcAddr;
+  }
 
-    RTPMemberEntry& rme = memberSet[rtpData->ssrc()];
-    //add ssrc to sender map if not a sender
-    if (!rme.sender)
-    {
-      rme.sender = true;
-      senders += 1;
-      init_seq(&rme, rtpData->seqNo());
-    }
-    else if (!update_seq(&rme, rtpData->seqNo(), this))
-    {
-      EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
-      return;
-    }
-
-    //further processing of RTP
-    //jitter calc (cheating as should be all ints i.e. rtp time units)
-    simtime_t transit = simTime() - rtpData->timestamp();
-    simtime_t instJitter = transit - rme.transit;
-    rme.transit = transit;
-    if (instJitter < 0) 
-      instJitter = -instJitter;
-    rme.jitter += ((double)1/16)*(instJitter - rme.jitter);
-
-    if (!rme.transVector)
-      rme.transVector = new cOutVector((std::string("transitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
-    rme.transVector->record(transit);
-    if (!rme.transStat)
-      rme.transStat = new cStdDev((std::string("rtpTransitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
-    rme.transStat->collect(transit);
-
+  RTPMemberEntry& rme = memberSet[rtpData->ssrc()];
+  //add ssrc to sender map if not a sender
+  if (!rme.sender)
+  {
+    rme.sender = true;
+    senders += 1;
+    init_seq(&rme, rtpData->seqNo());
+  }
+  else if (!update_seq(&rme, rtpData->seqNo(), this))
+  {
+    EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
     return;
-  } //RTP message
-  else //RTCP
+  }
+
+  //further processing of RTP
+  //jitter calc (cheating as should be all ints i.e. rtp time units)
+  simtime_t transit = simTime() - rtpData->timestamp();
+  simtime_t instJitter = transit - rme.transit;
+  rme.transit = transit;
+  if (instJitter < 0) 
+    instJitter = -instJitter;
+  rme.jitter += ((double)1/16)*(instJitter - rme.jitter);
+
+  if (!rme.transVector)
+    rme.transVector = new cOutVector((std::string("transitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
+  rme.transVector->record(transit);
+  if (!rme.transStat)
+    rme.transStat = new cStdDev((std::string("rtpTransitTimes ") + IPAddressResolver().hostname(rme.addr)).c_str());
+  rme.transStat->collect(transit);
+
+  return;
+}
+
+void RTP::processGoodBye(RTCPGoodBye* rtcp)
+{
+  //if bye received remove entry from members/senders map 
+  //ignore reverse reconsideration 6.3.4 (code in pg 93)
+  if (memberSet.count(rtcp->ssrc()))
   {
-    //EV<<"received rtcp msg "<<msg;
+    UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(rtcp->controlInfo());
+    IPvXAddress srcAddr = ctrl->getSrcAddr();
 
-    assert(dynamic_cast< RTCPPacket*>(msg));
-    meanRtcpSize = ((double)1/16)*(double)dgramSize(msg) + ((double)15/16)*meanRtcpSize;
-    RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
+    //Don't want to remove from member set otherwise our stats are gone.
+    //guess we could move to another set
+    /*
+      members-=1;
+      if (memberSet[rtcp->ssrc()].sender)
+      senders-=1;
+    */
+    AddressVector::iterator ait =
+      std::find(destAddrs.begin(), destAddrs.end(),
+		memberSet[rtcp->ssrc()].addr);
 
-    if (!memberSet.count(rtcp->ssrc()))
+    if (ait != destAddrs.end())
+    {
+      destAddrs.erase(ait);
+      //send bye to other end to remove ourselves from members list	
+      RTCPPacket* bye = new RTCPGoodBye(_ssrc);
+      sendToUDP(bye, port+1, srcAddr, port+1);
+    }
+    //	memberSet.erase(rtcp->ssrc());
+  }
+}
+
+void RTP::processReports(RTCPReports* rep)
+{
+  RTCPSR* sr = dynamic_cast<RTCPSR*> (rep);
+  if (sr)
+  {
+    memberSet[rep->ssrc()].lastSR = sr->timestamp();
+    incomingBlocks.resize(0);
+    for (u_int32 i = 0; i < sr->reportBlocksArraySize(); ++i)
+      incomingBlocks.push_back(sr->reportBlocks(i));
+  }
+  else
+  {
+    RTCPRR* rr = dynamic_cast<RTCPRR*>(rep);
+    incomingBlocks.resize(0);
+    for (u_int32 i = 0; i < rr->reportBlocksArraySize(); ++i)
+      incomingBlocks.push_back(rr->reportBlocks(i));
+  }	
+}
+
+//REDO move to RTPVoip (default does nothing
+void RTP::processSDES(RTCPSDES* sdes)
+{
+  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(sdes->controlInfo());
+  IPvXAddress srcAddr = ctrl->getSrcAddr();
+
+  //voip conversation model requires passing of callee RTP module for 2
+  //party on/off state switching
+  RTP* caller = static_cast<RTP*>(sdes->contextPointer());
+  if (caller->p59cb)
+  {
+    rtpTimeout = new cMessage("callee rtpTimeout");
+    destAddrs.push_back(srcAddr);
+    (*(caller->p59cb)) =  boost::bind(&RTP::P59TS, caller, this);
+    OPP_Global::ContextSwitcher switchContext(caller);
+    caller->p59cb->rescheduleDelay(SELF_SCHEDULE_DELAY);
+  }
+}
+
+void RTP::processRTCP(RTCPPacket* rtcp)
+{
+  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(rtcp->controlInfo());
+  IPvXAddress srcAddr = ctrl->getSrcAddr();
+
+  if (!memberSet.count(rtcp->ssrc()))
     {
       //may wait for many before consider valid but we'll skip that
       members+=1;
@@ -294,70 +354,43 @@ void RTP::processReceivedPacket(cMessage* msg)
     //further rtcp types like reports what to do etc.
     //(Sec 6.4 for analysing reports)
 
-    if (dynamic_cast< RTCPGoodBye*> (msg))
+    if (dynamic_cast< RTCPGoodBye*> (rtcp))
     {
-      //if bye received remove entry from members/senders map 
-      //ignore reverse reconsideration 6.3.4 (code in pg 93)
-      if (memberSet.count(rtcp->ssrc()))
-      {
-	//Don't want to remove from member set otherwise our stats are gone.
-	//guess we could move to another set
-/*
-        members-=1;
-        if (memberSet[rtcp->ssrc()].sender)
-          senders-=1;
-*/
-	AddressVector::iterator ait =
-	  std::find(destAddrs.begin(), destAddrs.end(),
-		    memberSet[rtcp->ssrc()].addr);
+      processGoodBye(static_cast<RTCPGoodBye*>(rtcp));
+    }
+    else if (dynamic_cast<RTCPReports*> (rtcp))
+    {
+      processReports(static_cast<RTCPReports*>(rtcp));
+    }
+    else if (dynamic_cast<RTCPSDES*> (rtcp))
+    {
+      processSDES(static_cast<RTCPSDES*> (rtcp));
+    }
+    else
+    {
+      opp_error("Unknown/Unhandled RTCP type name=%s", rtcp->name());
+    }
+}
 
-	if (ait != destAddrs.end())
-	{
-	  destAddrs.erase(ait);
-	  //send bye to other end to remove ourselves from members list	
-	  RTCPPacket* bye = new RTCPGoodBye(_ssrc);
-	  sendToUDP(bye, port+1, srcAddr, port+1);
-	}
-//	memberSet.erase(rtcp->ssrc());
-      }
-    }
-    else if (dynamic_cast<RTCPReports*> (msg))
-    {
-      RTCPSR* sr = dynamic_cast<RTCPSR*> (msg);
-      if (sr)
-      {
-        memberSet[rtcp->ssrc()].lastSR = sr->timestamp();
-        incomingBlocks.resize(0);
-        for (u_int32 i = 0; i < sr->reportBlocksArraySize(); ++i)
-          incomingBlocks.push_back(sr->reportBlocks(i));
-      }
-      else
-      {
-        RTCPRR* rr = dynamic_cast<RTCPRR*>(msg);
-        incomingBlocks.resize(0);
-        for (u_int32 i = 0; i < rr->reportBlocksArraySize(); ++i)
-          incomingBlocks.push_back(rr->reportBlocks(i));
-      }	
-    }
-    else if (dynamic_cast<RTCPSDES*> (msg))
-    {
-      //voip conversation model requires passing of callee RTP module for 2
-      //party on/off state switching
-      RTP* caller = static_cast<RTP*>(msg->contextPointer());
-      if (caller->p59cb)
-      {
-        rtpTimeout = new cMessage("callee rtpTimeout");
-        destAddrs.push_back(srcAddr);
-        (*(caller->p59cb)) =  boost::bind(&RTP::P59TS, caller, this);
-        OPP_Global::ContextSwitcher switchContext(caller);
-        caller->p59cb->rescheduleDelay(SELF_SCHEDULE_DELAY);
-      }
-      else
-      {
-        //other app. once we migrate this to its own class/module will not need
-        //so many branching bits
-      }
-    }
+void RTP::processReceivedPacket(cMessage* msg)
+{
+  UDPControlInfo *ctrl = check_and_cast<UDPControlInfo *>(msg->controlInfo());
+
+  //  int srcPort = ctrl->getSrcPort();
+  int destPort = ctrl->getDestPort();
+
+  if (destPort == port) //RTP
+  {
+    assert( dynamic_cast<RTPPacket*>(msg));
+    RTPPacket* rtpData = static_cast<RTPPacket*> (msg);
+    processRTP(rtpData);
+  } //RTP message
+  else //RTCP
+  {
+    assert(dynamic_cast< RTCPPacket*>(msg));
+    meanRtcpSize = ((double)1/16)*(double)dgramSize(msg) + ((double)15/16)*meanRtcpSize;
+    RTCPPacket* rtcp = static_cast< RTCPPacket*>(msg);
+    processRTCP(rtcp);   
   } //RTCP message
 }
 
@@ -587,11 +620,13 @@ void RTP::initialize(int stageNo)
   simtime_t randomStart = startTime?(startTime - 2*tn):0;
   scheduleAt(randomStart < 4? 4 + randomStart:randomStart, rtcpTimeout);
 
-  if (startTime && sendRTPPacket() && !weSent)
-  {
-      weSent = true;
-      senders+=1;
-      memberSet[_ssrc].sender = true;
+  if (startTime)
+  {    
+    rtpTimeout = new cMessage("rtpTimeout");
+    
+    cCallbackMessage* startSession = new cCallbackMessage("sessStart leak");
+    (*startSession) = boost::bind(&RTP::establishSession, this);
+    scheduleAt(startTime, startSession);
   }
 
   if (startTime)
@@ -641,28 +676,7 @@ void RTP::resolveAddresses()
 
 bool RTP::sendRTPPacket()
 {  
-  if (!rtpTimeout)
-  {
-    rtpTimeout = new cMessage("rtpTimeout");
-    scheduleAt(startTime, rtpTimeout);
-
-    //prob need dest port if we want multiple rtp apps of same type
-    return false;
-  }
-
-  if (destAddrs.empty())
-  {
-    resolveAddresses();
-  }
-
-  if (startTime && !destAddrs.empty() && !weSent)
-  {
-    if (p59cb && !p59cb->isScheduled())
-    {
-      establishSession();
-      return false;
-    }
-  }
+  assert(rtpTimeout);
 
   if (destAddrs.empty())
     return false;

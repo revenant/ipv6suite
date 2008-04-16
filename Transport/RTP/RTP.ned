@@ -23,16 +23,12 @@ simple RTP
     port: numeric const, //if odd, base of pair is 1 less RTCP port is base+1
     //factor used to calculate said value based on sessionBandwidth or actual	
     // value when > 1 in bytes
-
     rtcpBandwidth: numeric const, 
     //very basic voip app settings
     destAddrs: string, // list of \IP addresses, separated by spaces
     startTime: numeric const,
-    stopTime: numeric const,
-    frameLength: numeric const, //in units of seconds
-    framesPerPacket: numeric const, //number of frames to put into packet
-    bitrate: numeric const, //in bitsps
-    lookahead: numeric const; //in seconds
+    payloadLength: numeric const,
+    packetisationInterval: numeric const;
     gates:
         in: from_udp;
         out: to_udp;

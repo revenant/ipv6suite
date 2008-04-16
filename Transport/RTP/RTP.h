@@ -116,9 +116,6 @@ class NotificationBoard;
 class RTP: public UDPAppBase, INotifiable
 {
  public:
-#ifdef USE_CPPUNIT
-  friend class RTPTest;
-#endif //USE_CPPUNIT
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -148,17 +145,20 @@ class RTP: public UDPAppBase, INotifiable
   virtual void processRTP(RTPPacket* rtpData);
   virtual void processGoodBye(RTCPGoodBye* rtcp);
   virtual void processSDES(RTCPSDES* sdes);
-  virtual void processRTCP(RTCPPacket* rtcp);
 
   
   virtual void fillReports(RTCPReports* rtcpPayload);
   virtual void processReports(RTCPReports* rep);
 
   bool isMobileNode();
-  
+
+  //public as RTPVoip cannot access another instance's even tho inherited
+  cMessage* rtpTimeout;
+
  protected:
 
   virtual simtime_t calculateTxInterval();
+  void processRTCP(RTCPPacket* rtcp);
   void processReceivedPacket(cMessage* msg);
   void resolveAddresses();
   void sendBye();
@@ -168,16 +168,11 @@ class RTP: public UDPAppBase, INotifiable
   //@{
   unsigned short port;
   std::vector<IPvXAddress> destAddrs;
-  simtime_t startTime;
-  double frameLength;
-  unsigned int bitrate;
-  unsigned int framesPerPacket;
-  
-  //@}
-
   //in bytes
   double payloadLength;
   double packetisationInterval;
+  //@}
+
 
   //Keyed on SSRC
   typedef std::map<unsigned int, RTPMemberEntry> MemberSet;
@@ -193,26 +188,6 @@ class RTP: public UDPAppBase, INotifiable
   unsigned int octetCount;
 
   cMessage* rtcpTimeout;
-  cMessage* rtpTimeout;
-
-  //voip conversation model
-  //@{
-  void P59TS(RTP* callee);
-  void P59ST(RTP* callee);
-  void P59MS(RTP* callee);
-  void P59DT(RTP* callee);
- 
-  cCallbackMessage* p59cb;
-  cOutVector* talkStatesVector;
-  cStdDev* stStat;
-  cStdDev* dtStat;
-  cStdDev* msStat;
-  cStdDev* tsStat;
-  simtime_t callerPause;
-  simtime_t calleePause;
-  cStdDev* callerPauseStat;
-  cStdDev* calleePauseStat;
-  //@}
 
   //variables for calculation of T i.e. RTCP Report transmission
   //@{

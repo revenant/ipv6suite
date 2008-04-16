@@ -5,14 +5,14 @@ ADD_TEST(Immobile1msPing Baseline -f Baseline.ini -r 1)
 COLLECT_CHECK_TEST(Immobile1msPing)
 
 #something wrong with mobile versions as other side not receiving
-ADD_TEST(Immobile1msPingMIPv6 Baseline -f Baseline.ini -r 2)
+#ADD_TEST(Immobile1msPingMIPv6 Baseline -f Baseline.ini -r 2)
 #COLLECT_CHECK_TEST(Immobile1msPingMIPv6)
 
 #I thought should be same as result in r1 but "minisculely" worse
-ADD_TEST(MobilePing Baseline -f Baseline.ini -r 3)
-COLLECT_CHECK_TEST(MobilePing)
+#ADD_TEST(MobilePing Baseline -f Baseline.ini -r 3)
+#COLLECT_CHECK_TEST(MobilePing)
 
-ADD_TEST(MobilePingMIPv6 Baseline -f Baseline.ini -r 4)
+#ADD_TEST(MobilePingMIPv6 Baseline -f Baseline.ini -r 4)
 #COLLECT_CHECK_TEST(MobilePingMIPv6)
 
 

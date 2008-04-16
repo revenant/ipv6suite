@@ -43,7 +43,10 @@ simple RTPVoip
     frameLength: numeric const, //in units of seconds
     framesPerPacket: numeric const, //number of frames to put into packet
     bitrate: numeric const, //in bitsps
-    lookahead: numeric const; //in seconds
+    lookahead: numeric const, //in seconds
+    //dummy variables from RTP unused as calculated from above
+    payloadLength: numeric const,
+    packetisationInterval: numeric const;
     gates:
         in: from_udp;
         out: to_udp;

@@ -38,22 +38,21 @@
 #endif //__OMNETPP_H
 
 #ifndef RTP_H
-#include "rtp.h"
+#include "RTP.h"
 #endif
 
 /**
  * @class RTPVoip
  *
- * @brief 
+ * @brief models a simple 2 party voip application
  *
- * detailed description
+ * ITU-T P.59 conversation model and various bitrate settings.
+ * RTCP handling code comes from baseclass RTP
  */
 
 class RTPVoip: public RTP
 {
  public:
-
-  Module_Class_Members(RTPVoip, cSimpleModule, 0);
 
   ///@name Overidden cSimpleModule functions
   //@{
@@ -61,11 +60,9 @@ class RTPVoip: public RTP
 
   virtual void initialize(int stageNo);
 
-  virtual void finish();
+  virtual void finish();  
 
-  virtual void handleMessage(cMessage* msg);
-
-  virtual void receiveChangeNotification(int category, cPolymorphic *details);
+  //virtual void receiveChangeNotification(int category, cPolymorphic *details);
   //@}
 
   //@name constructors, destructors and operators
@@ -75,15 +72,15 @@ class RTPVoip: public RTP
   ~RTPVoip();
   //@}
 
-
-  virtual void processReceivedPacket(cMessage* msg);
+  ///@name Overidden RTP functions
+  //@{
   virtual void leaveSession();
   virtual void establishSession();
-  virtual simtime_t calculateTxInterval();
-  virtual bool sendRTPPacket();
-  virtual bool isMobileNode();
-
-  void sendBye();
+  virtual void processGoodBye(RTCPGoodBye* rtcp);
+  virtual void processSDES(RTCPSDES* sdes);
+  //virtual void processRTP(RTPPacket* rtpData);  
+  //virtual bool sendRTPPacket();
+  //@}
 
   //ned params storage
   //@{
@@ -95,6 +92,26 @@ class RTPVoip: public RTP
   
   //@}
 
+  //voip conversation model
+  //@{
+  void P59TS(RTP* callee);
+  void P59ST(RTP* callee);
+  void P59MS(RTP* callee);
+  void P59DT(RTP* callee);
+ 
+  cCallbackMessage* p59cb;
+  cOutVector* talkStatesVector;
+  cStdDev* stStat;
+  cStdDev* dtStat;
+  cStdDev* msStat;
+  cStdDev* tsStat;
+  simtime_t callerPause;
+  simtime_t calleePause;
+  cStdDev* callerPauseStat;
+  cStdDev* calleePauseStat;
+  //@}
+
+ 
  protected:
 
  private:

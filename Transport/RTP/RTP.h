@@ -142,11 +142,11 @@ class RTP: public UDPAppBase, INotifiable
   virtual void leaveSession();
   virtual void establishSession();
   virtual bool sendRTPPacket();
-  virtual void processRTP(RTPPacket* rtpData);
+  
   virtual void processGoodBye(RTCPGoodBye* rtcp);
   virtual void processSDES(RTCPSDES* sdes);
-
-  
+  virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
+  virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
   virtual void fillReports(RTCPReports* rtcpPayload);
   virtual void processReports(RTCPReports* rep);
 
@@ -158,6 +158,7 @@ class RTP: public UDPAppBase, INotifiable
  protected:
 
   virtual simtime_t calculateTxInterval();
+  virtual void processRTP(RTPPacket* rtpData);
   void processRTCP(RTCPPacket* rtcp);
   void processReceivedPacket(cMessage* msg);
   void resolveAddresses();

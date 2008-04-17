@@ -41,6 +41,11 @@
 #include "RTP.h"
 #endif
 
+//boost 1.35 req.
+#ifndef BOOST_CIRCULAR_BUFFER_FWD_HPP
+#include <boost/circular_buffer_fwd.hpp>
+#endif
+
 /**
  * @class RTPVoip
  *
@@ -78,11 +83,12 @@ class RTPVoip: public RTP
   virtual void establishSession();
   virtual void processGoodBye(RTCPGoodBye* rtcp);
   virtual void processSDES(RTCPSDES* sdes);
-  //virtual void processRTP(RTPPacket* rtpData);  
+  virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
+  virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
   //virtual bool sendRTPPacket();
   //@}
 
-  //ned params storage
+  //@name ned params storage
   //@{
   // no need for this in RTP either as we should initiate at initiate or just don't
   //simtime_t startTime;
@@ -92,7 +98,7 @@ class RTPVoip: public RTP
   
   //@}
 
-  //voip conversation model
+  //@name voip conversation model
   //@{
   void P59TS(RTP* callee);
   void P59ST(RTP* callee);
@@ -110,10 +116,18 @@ class RTPVoip: public RTP
   cStdDev* callerPauseStat;
   cStdDev* calleePauseStat;
   //@}
-
  
  protected:
-
+  //@name playout buffer params
+  //@{
+  virtual void playoutBufferedPacket();
+  virtual simtime_t playoutTime(simtime_t timestamp);
+  cCallbackMessage* playoutTimer;
+  simtime_t networkDelay;
+  double jitterDelay;
+  typedef boost::circular_buffer<simtime_t> JitterBuffer;
+  JitterBuffer* cb;
+  //@}
  private:
 
 };

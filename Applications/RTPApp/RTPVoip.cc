@@ -25,7 +25,8 @@
  *
  * @brief  Implementation of RTPVoip
  *
- * @todo
+ * P.59 state transitions occur only within the caller. They notify the callee via
+ * the pointer passed in. Simple constant buffer implemented so far.
  *
  */
 
@@ -35,12 +36,21 @@
 #include "UDPControlInfo_m.h"
 #include "IPv6Address.h"
 #include "opp_utils.h" //nodename
+#include "IPv6Utils.h"
 //#include "NotificationBoard.h"
 //#include "NotifierConsts.h"
 #include <boost/bind.hpp>
 #include "TimerConstants.h"
+#include <boost/circular_buffer.hpp>
+#include <algorithm>
 
 typedef std::vector<IPvXAddress> AddressVector;
+using IPv6Utils::printRoutingInfo;
+
+bool caller(cMessage* p59cb)
+{
+  return p59cb != 0;
+}
 
 Define_Module(RTPVoip);
 
@@ -79,6 +89,17 @@ void RTPVoip::initialize(int stageNo)
   //maximum according to G.114 Table I.4
   //packetisationInterval = frameLength * (2.0*(double)framesPerPacket + 1.0) + par("lookahead");
 
+  //ned param for constant buffer
+  jitterDelay = 0.1;
+  //or jitter buffer in terms of number of packets stored
+  //jitterDelay = packetsBuffered/packetspersecond = packetsBuffered* packetisationInterval
+  //store packet buffer represented by seqno i.e. framesperpacket in each entry 
+  cb = new JitterBuffer((unsigned int )(jitterDelay/(framesPerPacket * frameLength)));
+  assert(jitterDelay/(framesPerPacket * frameLength) == cb->capacity());
+
+  EV<<"voip: "<<OPP_Global::nodeName(this)<<" buffer capacity="<<cb->capacity()<<endl;
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"voip: "<<OPP_Global::nodeName(this)<<" buffer capacity="<<cb->capacity()<<endl;
   rtcpBw = (double)par("rtcpBandwidth"); 
   if (rtcpBw < 1)
     rtcpBw = rtcpBw * (double)bitrate * 8.0;
@@ -110,7 +131,7 @@ void RTPVoip::initialize(int stageNo)
 void RTPVoip::finish()
 {
   RTP::finish();
-  if (p59cb)
+  if (caller(p59cb))
   {
     stStat->recordScalar((std::string("ST time of ") + OPP_Global::nodeName(this)).c_str());
     dtStat->recordScalar((std::string("DT time of ") + OPP_Global::nodeName(this)).c_str());  
@@ -124,7 +145,7 @@ void RTPVoip::finish()
 ///For non omnetpp csimplemodule derived classes
 RTPVoip::RTPVoip():p59cb(0),talkStatesVector(0),stStat(0),dtStat(0), msStat(0),
                    tsStat(0),callerPause(0), calleePause(0),callerPauseStat(0),
-                   calleePauseStat(0)
+                   calleePauseStat(0),playoutTimer(0),networkDelay(0),cb(0)
 {
 }
 
@@ -333,4 +354,109 @@ void RTPVoip::leaveSession()
   //cancel voice model
   if (p59cb->isScheduled())
     p59cb->cancel();
+}
+
+
+void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
+{
+  bool talkspurtBegin = false;
+  simtime_t now = simTime();  
+  
+  if (!playoutTimer || !playoutTimer->isScheduled())
+  {
+    if (!playoutTimer)
+    {
+      playoutTimer = new cCallbackMessage("playout");
+      (*playoutTimer) = boost::bind(&RTPVoip::playoutBufferedPacket, this);
+      playoutTimer->setContextPointer(&rme);
+    }
+    talkspurtBegin = true;
+  }
+  //sendingTime is same as last playoutTime as we only schedule
+  //playoutTimer from its callback fn or later on below
+  else if (playoutTimer->sendingTime() < now - networkDelay - jitterDelay)
+  {
+    talkspurtBegin = true;
+  }
+
+  if (talkspurtBegin)
+  {
+    //even though constant jitter buffer we adjust mean network delay based on
+    //first packet in talkspurt
+    networkDelay = now - rtpData->timestamp();    
+
+    playoutTimer->rescheduleDelay(jitterDelay);
+    assert(playoutTimer->sendingTime() == now);
+  }
+
+  //playout time of current packet should be now + udelta * playoutDelay
+  //where playoutDelay is networkDelay+jitterDelay
+  //simtime_t currentPacketPlayout = udelta? udelta*playoutDelay
+
+  if (playoutTime(rtpData->timestamp()) < playoutTimer->arrivalTime())
+  {
+    rme.lossVector->record(1);
+    return;
+  }
+
+  if (cb->full())
+  {
+    std::sort(cb->begin(), cb->end());
+    simtime_t nextPlayoutTime = playoutTime(cb->front());
+    assert(nextPlayoutTime > now);
+    if (nextPlayoutTime - now > packetisationInterval)
+    {
+      assert(((nextPlayoutTime-now)/packetisationInterval) > 1);
+      //calculate number of missing packets
+      rme.lossVector->record((nextPlayoutTime-now)/ packetisationInterval);
+    }
+    else
+      rme.lossVector->record(1);
+
+  }
+  cb->push_back(rtpData->timestamp());
+
+}
+
+simtime_t RTPVoip::playoutTime(simtime_t timestamp)
+{
+  return timestamp + networkDelay + jitterDelay;
+}
+
+void RTPVoip::playoutBufferedPacket()
+{ 
+  simtime_t now = simTime();
+  //lastPlayout = now;
+  EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
+    <<cb->front()<<endl;
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
+    <<cb->front()<<endl;
+
+  assert(!cb->empty());
+  cb->pop_front();
+  if (cb->empty())
+    return;
+  else
+  {
+    //calculate playout time of front and reschedule
+    simtime_t nextPlayoutTime = playoutTime(cb->front());
+    if (nextPlayoutTime - now > packetisationInterval)
+    {
+      //assuming 2-party conf not a conference otherwise buff needs to store the
+      //full rtp packet
+      RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
+      //calculate number of missing packets
+      rme.lossVector->record((nextPlayoutTime-now)/ packetisationInterval);	  
+    }
+    //reschedule for nextPlayoutTime
+    playoutTimer->reschedule(nextPlayoutTime);
+  }
+}
+
+void RTPVoip::handleMisorderedOrDroppedPackets(RTPMemberEntry *s,
+						       u_int16 udelta)
+{
+  //we don't detect drops this way at all let jitter buffer handle and record
+  //record udelta
 }

@@ -154,6 +154,14 @@ void recordHOStats(RTPMemberEntry *s, RTP* rtp)
       <<" missedRA triggered handover recording\n";
 }
 
+//this version records it as lost packets
+void RTP::handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta)
+{
+  initialiseStats(s, this);
+  s->lossVector->record(udelta);
+  recordHOStats(s, this);
+}
+
 //From A.1 of rfc3550 with probation removed
 //with added results collection and modified to assume no resyncing
 int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
@@ -177,33 +185,25 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
     {
       //record this as no. of packets lost although in reality could just be out
       //of order packet (at this stage we are simply recording likely
-      //drop. Actually cumulative loss as determined by expected - received is
-      //more accurate
-      //REDO //handleMisorderedOrDroppedPackets
-      initialiseStats(s, rtp);
-      s->lossVector->record(udelta);
-      recordHOStats(s, rtp);
+      //drop. 
+      rtp->handleMisorderedOrDroppedPackets(s, udelta);
     }
       
     s->maxSeq = seq;
   } else if (udelta <= RTP_SEQ_MOD - MAX_MISORDER) {
     /* the sequence number made a very large jump */
     if (seq == s->badSeq) {
+      //don't want a total resync because we know otherside does not do a real
+      //resync in my sim and we want to preserve our stats
+
       /*
        * Two sequential packets -- assume that the other side
        * restarted without telling us so just re-sync
        * (i.e., pretend this was the first packet).
        */
-      //init_seq(s, seq);
-      //EV<<"sequence reinitialised as two sequential packets from other side after huge jump so resyncing";
-
-      EV<<" the sequence number made large jump\n";
-      //don't want a total resync because we know otherside does not do a real
-      //resync in my sim and we want to preserve our stats
-      initialiseStats(s, rtp);
-      s->lossVector->record(udelta);
-      s->maxSeq = seq;
-      recordHOStats(s, rtp);
+      init_seq(s, seq);
+      EV<<"sequence reinitialised as two sequential packets from other side after huge jump so resyncing";
+      assert(false);
     }
     else {
       s->badSeq = (seq + 1) & (RTP_SEQ_MOD-1);
@@ -211,9 +211,15 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
     }
   } else {
     /* duplicate or reordered packet */
+    assert(false);
   }
   s->received++;
   return 1;
+}
+
+void RTP::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
+{
+  //empty
 }
 
 void RTP::processRTP(RTPPacket* rtpData)
@@ -244,6 +250,8 @@ void RTP::processRTP(RTPPacket* rtpData)
     EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
     return;
   }
+
+  processRTPData(rtpData, rme);
 
   //further processing of RTP
   //jitter calc (cheating as should be all ints i.e. rtp time units)
@@ -473,7 +481,7 @@ simtime_t RTP::calculateTxInterval()
 
 
 
-RTP::RTP():rtcpTimeout(0), rtpTimeout(0),nb(0),l2down(0),mobileNode(false)
+RTP::RTP():rtpTimeout(0),rtcpTimeout(0),nb(0),l2down(0),mobileNode(false)
 {}
 
 RTP::~RTP()
@@ -553,7 +561,7 @@ void RTP::initialize(int stageNo)
   packetisationInterval = par("packetisationInterval").doubleValue();
 
   rtcpBw = (double)par("rtcpBandwidth"); 
-  unsigned int bitrate = (1.0/(double)packetisationInterval)*payloadLength;
+  double bitrate = (1.0/(double)packetisationInterval)*payloadLength;
   if (rtcpBw < 1)
     rtcpBw = rtcpBw * (double)bitrate * 8.0;
   WATCH(rtcpBw);

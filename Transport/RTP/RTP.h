@@ -147,6 +147,7 @@ class RTP: public UDPAppBase, INotifiable
   virtual void processSDES(RTCPSDES* sdes);
   virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
   virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
+  virtual void attachData(RTPPacket* rtpData);
   virtual void fillReports(RTCPReports* rtcpPayload);
   virtual void processReports(RTCPReports* rep);
 

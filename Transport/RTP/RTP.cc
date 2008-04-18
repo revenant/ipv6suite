@@ -624,7 +624,7 @@ bool RTP::sendRTPPacket()
   //rtpData->setKind(1);
   rtpData->setTimestamp(simTime());
   rtpData->setPayloadLength((unsigned int)payloadLength);
-
+  attachData(rtpData);
   //These should stay as they are because these operations are usually assumed
   //to be multicast and even if they're unicast they should not be multiplied by
   //number of receivers because that's not the number of packets sent to a
@@ -638,6 +638,11 @@ bool RTP::sendRTPPacket()
   }
   delete rtpData;
   return true;
+}
+
+void RTP::attachData(RTPPacket* rtpData)
+{
+  //do nothing
 }
 
 //create a fn in Network layer that will simulate the sending process and return

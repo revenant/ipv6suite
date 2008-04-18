@@ -43,6 +43,8 @@
 #include "TimerConstants.h"
 #include <boost/circular_buffer.hpp>
 #include <algorithm>
+#include <boost/tuple/tuple_comparison.hpp>
+#include <boost/tuple/tuple_io.hpp>
 
 typedef std::vector<IPvXAddress> AddressVector;
 using IPv6Utils::printRoutingInfo;
@@ -53,6 +55,27 @@ bool caller(cMessage* p59cb)
 }
 
 Define_Module(RTPVoip);
+
+///For non omnetpp csimplemodule derived classes
+RTPVoip::RTPVoip():p59cb(0),talkStatesVector(0),stStat(0),dtStat(0), msStat(0),
+                   tsStat(0),callerPause(0), calleePause(0),callerPauseStat(0),
+                   calleePauseStat(0),playoutTimer(0),networkDelay(0),cb(0), 
+		   lastPlayedFrame(make_tuple(0.0, 0)), discarded(false),
+		   emeanDelay(0),elastReceived(0),elastExpected(0),emodelTimer(0),
+		   erfactorVector(0)
+{
+}
+
+RTPVoip::~RTPVoip()
+{
+ if (p59cb && p59cb->isScheduled())
+  {
+    p59cb->cancel();
+    delete p59cb;
+  }
+ delete cb;
+ cb = 0;
+}
 
 int RTPVoip::numInitStages() const
 {
@@ -84,10 +107,7 @@ void RTPVoip::initialize(int stageNo)
     opp_error("Frational amounts when tyring to determine payload length %d, is this normal?", payloadLength);
   }
 
-  //minimum according to G.114 Table I.4
-  packetisationInterval = frameLength * ((double)framesPerPacket + 1.0) + par("lookahead").doubleValue();
-  //maximum according to G.114 Table I.4
-  //packetisationInterval = frameLength * (2.0*(double)framesPerPacket + 1.0) + par("lookahead");
+  packetisationInterval = frameLength * (double)framesPerPacket;
 
   //ned param for constant buffer
   jitterDelay = 0.1;
@@ -95,6 +115,7 @@ void RTPVoip::initialize(int stageNo)
   //jitterDelay = packetsBuffered/packetspersecond = packetsBuffered* packetisationInterval
   //store packet buffer represented by seqno i.e. framesperpacket in each entry 
   cb = new JitterBuffer((unsigned int )(jitterDelay/(framesPerPacket * frameLength)));
+  WATCH_RINGBUFFER(*cb);
   assert(jitterDelay/(framesPerPacket * frameLength) == cb->capacity());
 
   EV<<"voip: "<<OPP_Global::nodeName(this)<<" buffer capacity="<<cb->capacity()<<endl;
@@ -104,6 +125,10 @@ void RTPVoip::initialize(int stageNo)
   if (rtcpBw < 1)
     rtcpBw = rtcpBw * (double)bitrate * 8.0;
 
+  Ie = par("Ie").doubleValue();
+  bpl = par("Bpl").doubleValue();
+  lookahead = par("lookahead").doubleValue();
+  
   simtime_t startTime = par("startTime");
   if (startTime)
   {
@@ -142,21 +167,11 @@ void RTPVoip::finish()
   }
 }
 
-///For non omnetpp csimplemodule derived classes
-RTPVoip::RTPVoip():p59cb(0),talkStatesVector(0),stStat(0),dtStat(0), msStat(0),
-                   tsStat(0),callerPause(0), calleePause(0),callerPauseStat(0),
-                   calleePauseStat(0),playoutTimer(0),networkDelay(0),cb(0)
-{
-}
+//virtual bool sendRTPPacket();
+//need frame message type in packet since buffering implies putting multples
+//"frames" per packet and sometimes the timestamps are not consecuitve due to
+//losses at wired part
 
-RTPVoip::~RTPVoip()
-{
- if (p59cb && p59cb->isScheduled())
-  {
-    p59cb->cancel();
-    delete p59cb;
-  }
-}
 
 ///next four are different rng streams
 const static int stateTrans = 4;
@@ -356,6 +371,13 @@ void RTPVoip::leaveSession()
     p59cb->cancel();
 }
 
+void RTPVoip::attachData(RTPPacket* rtpData)
+{
+  //use payloadLength to indicate whether this includes more than
+  //framesperpacket in case zfa used. hence cp can either be a Frame
+  //or an array of Frames.
+  rtpData->setContextPointer(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+}
 
 void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
 {
@@ -402,20 +424,33 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
   if (cb->full())
   {
     std::sort(cb->begin(), cb->end());
-    simtime_t nextPlayoutTime = playoutTime(cb->front());
+    Frame& discard = cb->front();
+    simtime_t nextPlayoutTime = playoutTime(discard.get<0>());
     assert(nextPlayoutTime > now);
-    if (nextPlayoutTime - now > packetisationInterval)
+
+    if (discarded)
     {
-      assert(((nextPlayoutTime-now)/packetisationInterval) > 1);
-      //calculate number of missing packets
-      rme.lossVector->record((nextPlayoutTime-now)/ packetisationInterval);
+    //compare to previous discard      
     }
     else
-      rme.lossVector->record(1);
+    {
+    //compare to previous playout time bc we do not set discard when received
+    //correctly or played out so no need to check against prev playout
+    }
 
+    //No need to do below if next is also discarded we double the
+    //prev compar to prev discarded
+    //also compare to next playout time in buffer (only do this in playout by
+    //comparing to discarded
+
+    db.push_back(discard);
+    elossEvents.push_back(1);
+    discarded = true;
+    cb->push_back(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+    return;
   }
-  cb->push_back(rtpData->timestamp());
-
+  cb->push_back(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+  discarded = false;
 }
 
 simtime_t RTPVoip::playoutTime(simtime_t timestamp)
@@ -426,32 +461,49 @@ simtime_t RTPVoip::playoutTime(simtime_t timestamp)
 void RTPVoip::playoutBufferedPacket()
 { 
   simtime_t now = simTime();
-  //lastPlayout = now;
   EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
-    <<cb->front()<<endl;
+    <<cb->front();
   std::ostream& os = printRoutingInfo(true, 0, 0, true);
   os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
-    <<cb->front()<<endl;
+    <<cb->front();
 
   assert(!cb->empty());
+  Frame thisFrame = cb->front();
+
+  ///compare to previous playout time
+  if ((thisFrame.get<1>() - lastPlayedFrame.get<1>() > 1) && 
+      !discarded)
+  {
+    //assuming 2-party conf not a conference otherwise buff needs to store the
+    //full rtp packet
+    RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
+
+    unsigned int udelta = thisFrame.get<1>() - lastPlayedFrame.get<1>() - 1;
+    if (udelta)
+    {
+      rme.lossVector->record(udelta);
+      elossEvents.push_back(udelta);
+    }
+  }
+  else if (discarded)
+  {
+    //compare to discarded
+  }
+
   cb->pop_front();
   if (cb->empty())
+  {
+    os<<" silence starting or packets dropped\n";
+    lastPlayedFrame = thisFrame;
     return;
+  }
   else
   {
-    //calculate playout time of front and reschedule
-    simtime_t nextPlayoutTime = playoutTime(cb->front());
-    if (nextPlayoutTime - now > packetisationInterval)
-    {
-      //assuming 2-party conf not a conference otherwise buff needs to store the
-      //full rtp packet
-      RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
-      //calculate number of missing packets
-      rme.lossVector->record((nextPlayoutTime-now)/ packetisationInterval);	  
-    }
-    //reschedule for nextPlayoutTime
+    simtime_t nextPlayoutTime = playoutTime(cb->front().get<0>());
     playoutTimer->reschedule(nextPlayoutTime);
   }
+  discarded = false;
+  lastPlayedFrame = thisFrame;
 }
 
 void RTPVoip::handleMisorderedOrDroppedPackets(RTPMemberEntry *s,
@@ -459,4 +511,36 @@ void RTPVoip::handleMisorderedOrDroppedPackets(RTPMemberEntry *s,
 {
   //we don't detect drops this way at all let jitter buffer handle and record
   //record udelta
+}
+
+
+double RTPVoip::ecalculateRFactor()
+{
+  double rfactor = 93.2;
+  //work out Id
+  //work out Ie
+  if (!erfactorVector)
+  {
+    erfactorVector = new cOutVector((std::string("Rfactor of ") + OPP_Global::nodeName(this)).c_str());
+  }
+  erfactorVector->record(rfactor);
+  if (!emodelTimer)
+  {
+    emodelTimer = new cCallbackMessage("rfactorcalc");
+    (*emodelTimer) = boost::bind(&RTPVoip::ecalculatedRFactor, this);
+  }
+  return 0;
+}
+
+///timestamp is at sending end
+void RTPVoip::ecalculateMeanTotalDelay(simtime_t timestamp)
+{
+  //codec Delay includes both encoder/decoder
+  //minimum according to G.114 Table I.4
+  double codecDelay = frameLength * ((double)framesPerPacket + 1.0) + lookahead;
+  //maximum according to G.114 Table I.4
+  //codecDelay = frameLength * (2.0*(double)framesPerPacket + 1.0) + par("lookahead");
+
+  double playoutDelay = simTime() - timestamp;
+  emeanDelay = (emeanDelay + playoutDelay + codecDelay)/2;
 }

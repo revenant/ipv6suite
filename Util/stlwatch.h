@@ -32,7 +32,7 @@ typedef cStdVectorWatcherBase cVectorWatcherBase;
 #include <string>
 #include <iostream>
 #include <sstream>
-
+#include <boost/circular_buffer.hpp>
 
 //
 // Internal class
@@ -311,6 +311,28 @@ void createPointerMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT
     new cPointerMultiMapWatcher<KeyT,ValueT,CmpT>(varname, m);
 }
 
+template <class T, class Alloc>
+class CircularBufferWatcher : public cVectorWatcherBase
+{
+  protected:
+    boost::circular_buffer<T,Alloc>& cb;
+    std::string classname;
+  public:
+    CircularBufferWatcher(const char *name, boost::circular_buffer<T,Alloc>& var) : cVectorWatcherBase(name), v(var) {
+      classname = std::string("boost::circular_buffer<")+opp_typename(typeid(T))+">";
+    }
+    const char *className() const {return classname.c_str();}
+    virtual const char *elemTypeName() const {return opp_typename(typeid(T));}
+    virtual int size() const {return v.size();}
+    virtual std::string at(int i) const {std::stringstream out; out << v[i]; return out.str();}
+};
+
+template<class T, class Alloc>
+void createCircularBufferWatcher(const char *varname, boost::circular_buffer<T,Alloc>& cb)
+{
+    new CircularBufferWatcher<T, Alloc>(varname, cb);
+}
+
 #ifndef WATCH_VECTOR   /* it's already included in omnetpp-3.2 */
 
 #define WATCH_VECTOR(v)      createVectorWatcher(#v,(v))
@@ -331,3 +353,4 @@ void createPointerMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT
 
 #define WATCH_PTRMULTIMAP(m)   createPointerMultiMapWatcher(#m,(m))
 
+#define WATCH_RINGBUFFER(m) createCircularBufferWatcher(#m,(m))

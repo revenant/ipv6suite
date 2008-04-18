@@ -46,6 +46,10 @@
 #include <boost/circular_buffer_fwd.hpp>
 #endif
 
+#ifndef BOOST_TUPLE_HPP
+#include <boost/tuple/tuple.hpp>
+#endif
+
 /**
  * @class RTPVoip
  *
@@ -85,8 +89,13 @@ class RTPVoip: public RTP
   virtual void processSDES(RTCPSDES* sdes);
   virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
   virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
+  virtual void attachData(RTPPacket* rtpData);
   //virtual bool sendRTPPacket();
   //@}
+
+  ///represents one or more frames in a packet with
+  ///first arg as timestamp and second arg is the seqNo
+  typedef boost::tuple<double, unsigned int>  VoipFrame;
 
   //@name ned params storage
   //@{
@@ -94,8 +103,7 @@ class RTPVoip: public RTP
   //simtime_t startTime;
   double frameLength;
   unsigned int bitrate;
-  unsigned int framesPerPacket;
-  
+  unsigned int framesPerPacket;  
   //@}
 
   //@name voip conversation model
@@ -125,10 +133,37 @@ class RTPVoip: public RTP
   cCallbackMessage* playoutTimer;
   simtime_t networkDelay;
   double jitterDelay;
-  typedef boost::circular_buffer<simtime_t> JitterBuffer;
+  typedef boost::circular_buffer<VoipFrame> JitterBuffer;
   JitterBuffer* cb;
+  ///records seq of packets discarded by jitter buffer
+  typedef std::list<unsigned int> DiscardBuffer;
+  DiscardBuffer db;
+  VoipFrame lastPlayedFrame;
+  ///records if packet has been discarded since last playtime
+  bool discarded;
   //@}
  private:
+
+  //@name ITU T G.107 E-model R factor calc
+  //@{
+  double ecalculateRFactor();
+  void ecalculateMeanTotalDelay(simtime_t timestamp);
+  ///running meanDelay calculated at every packet reception
+  double emeanDelay;
+  DiscardBuffer elossEvents;
+  ///value of rme.received measured at last sample
+  unsigned int elastReceived;
+  ///value of extended = rme.cycles + rme.maxSeq at last sample
+  unsigned int elastExpected;
+  ///call ecalculateRFactor with freq in ned param emodelInterval
+  cCallbackMessage* emodelTimer;
+  cOutVector* erfactorVector;
+  //ned params 
+  double Ie;
+  double Bpl;
+  double lookahead;
+  //@}
+
 
 };
 

@@ -25,9 +25,6 @@
  *
  * @brief Definition of class RTPVoip
  *
- * @test see RTPVoipTest
- *
- * @todo Remove template text
  */
 
 #ifndef RTPVOIP_H
@@ -56,6 +53,8 @@
  * @brief models a simple 2 party voip application
  *
  * ITU-T P.59 conversation model and various bitrate settings.
+ * Contains ITU-T G.107 E-model and also a constant jitter buffer
+ * playback algorithm.
  * RTCP handling code comes from baseclass RTP
  */
 

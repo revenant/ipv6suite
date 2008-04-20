@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
+#include <stlwatch.h>
 
 typedef std::vector<IPvXAddress> AddressVector;
 using IPv6Utils::printRoutingInfo;
@@ -60,7 +61,7 @@ Define_Module(RTPVoip);
 RTPVoip::RTPVoip():p59cb(0),talkStatesVector(0),stStat(0),dtStat(0), msStat(0),
                    tsStat(0),callerPause(0), calleePause(0),callerPauseStat(0),
                    calleePauseStat(0),playoutTimer(0),networkDelay(0),cb(0), 
-		   lastPlayedFrame(make_tuple(0.0, 0)), discarded(false),
+		   lastPlayedFrame(boost::make_tuple(0.0, 0)), discarded(false),
 		   emeanDelay(0),elastReceived(0),elastExpected(0),emodelTimer(0),
 		   erfactorVector(0)
 {
@@ -126,7 +127,7 @@ void RTPVoip::initialize(int stageNo)
     rtcpBw = rtcpBw * (double)bitrate * 8.0;
 
   Ie = par("Ie").doubleValue();
-  bpl = par("Bpl").doubleValue();
+  Bpl = par("Bpl").doubleValue();
   lookahead = par("lookahead").doubleValue();
   
   simtime_t startTime = par("startTime");
@@ -376,7 +377,7 @@ void RTPVoip::attachData(RTPPacket* rtpData)
   //use payloadLength to indicate whether this includes more than
   //framesperpacket in case zfa used. hence cp can either be a Frame
   //or an array of Frames.
-  rtpData->setContextPointer(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+  rtpData->setContextPointer(new VoipFrame(boost::make_tuple(rtpData->timestamp(), rtpData->seqNo())));
 }
 
 void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
@@ -424,7 +425,7 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
   if (cb->full())
   {
     std::sort(cb->begin(), cb->end());
-    Frame& discard = cb->front();
+    VoipFrame& discard = cb->front();
     simtime_t nextPlayoutTime = playoutTime(discard.get<0>());
     assert(nextPlayoutTime > now);
 
@@ -443,13 +444,15 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
     //also compare to next playout time in buffer (only do this in playout by
     //comparing to discarded
 
-    db.push_back(discard);
+    db.push_back(discard.get<1>());
     elossEvents.push_back(1);
     discarded = true;
-    cb->push_back(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+    cb->push_back(boost::make_tuple(rtpData->timestamp(),
+        rtpData->seqNo()));
     return;
   }
-  cb->push_back(make_tuple(rtpData->timestamp(), rtpData->seqNo()));
+  cb->push_back(boost::make_tuple(rtpData->timestamp(),
+                rtpData->seqNo()));
   discarded = false;
 }
 
@@ -468,7 +471,7 @@ void RTPVoip::playoutBufferedPacket()
     <<cb->front();
 
   assert(!cb->empty());
-  Frame thisFrame = cb->front();
+  VoipFrame thisFrame = cb->front();
 
   ///compare to previous playout time
   if ((thisFrame.get<1>() - lastPlayedFrame.get<1>() > 1) && 
@@ -509,8 +512,7 @@ void RTPVoip::playoutBufferedPacket()
 void RTPVoip::handleMisorderedOrDroppedPackets(RTPMemberEntry *s,
 						       u_int16 udelta)
 {
-  //we don't detect drops this way at all let jitter buffer handle and record
-  //record udelta
+  //we don't detect drops this way at all let jitter buffer handle and record  
 }
 
 
@@ -527,7 +529,7 @@ double RTPVoip::ecalculateRFactor()
   if (!emodelTimer)
   {
     emodelTimer = new cCallbackMessage("rfactorcalc");
-    (*emodelTimer) = boost::bind(&RTPVoip::ecalculatedRFactor, this);
+    (*emodelTimer) = boost::bind(&RTPVoip::ecalculateRFactor, this);
   }
   return 0;
 }

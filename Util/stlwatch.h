@@ -32,7 +32,6 @@ typedef cStdVectorWatcherBase cVectorWatcherBase;
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <boost/circular_buffer.hpp>
 
 //
 // Internal class
@@ -311,6 +310,10 @@ void createPointerMultiMapWatcher(const char *varname, std::multimap<KeyT,ValueT
     new cPointerMultiMapWatcher<KeyT,ValueT,CmpT>(varname, m);
 }
 
+#ifndef BOOST_CIRCULAR_BUFFER_FWD_HPP
+#include <boost/circular_buffer_fwd.hpp>
+#endif
+
 template <class T, class Alloc>
 class CircularBufferWatcher : public cVectorWatcherBase
 {
@@ -318,13 +321,13 @@ class CircularBufferWatcher : public cVectorWatcherBase
     boost::circular_buffer<T,Alloc>& cb;
     std::string classname;
   public:
-    CircularBufferWatcher(const char *name, boost::circular_buffer<T,Alloc>& var) : cVectorWatcherBase(name), v(var) {
+    CircularBufferWatcher(const char *name, boost::circular_buffer<T,Alloc>& var) : cVectorWatcherBase(name), cb(var) {
       classname = std::string("boost::circular_buffer<")+opp_typename(typeid(T))+">";
     }
     const char *className() const {return classname.c_str();}
     virtual const char *elemTypeName() const {return opp_typename(typeid(T));}
-    virtual int size() const {return v.size();}
-    virtual std::string at(int i) const {std::stringstream out; out << v[i]; return out.str();}
+    virtual int size() const {return cb.size();}
+    virtual std::string at(int i) const {std::stringstream out; out << cb[i]; return out.str();}
 };
 
 template<class T, class Alloc>

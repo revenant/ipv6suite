@@ -42,8 +42,9 @@
 #include "NotifierConsts.h"
 #include <boost/bind.hpp>
 #include "TimerConstants.h"
+#include "IPv6Utils.h"
 
-
+using IPv6Utils::printRoutingInfo;
 
 Define_Module(RTP);
 
@@ -211,7 +212,14 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
     }
   } else {
     /* duplicate or reordered packet */
-    assert(false);
+    //assert(false);
+    EV<<rtp->simTime()<<" duplicate/reordered packet? "<<OPP_Global::nodeName(rtp)<<" seqNo="<<seq<<endl;
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os<<"voip: "<<OPP_Global::nodeName(rtp)<<":"<<rtp->simTime()
+      <<" duplicate/reordered packet? "<<OPP_Global::nodeName(rtp)<<" seqNo="
+      <<seq<<endl;
+    //how to check for duplicates so we do not add to received in order to
+    //calculate accurate packet loss
   }
   s->received++;
   return 1;

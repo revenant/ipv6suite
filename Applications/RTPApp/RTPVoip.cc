@@ -43,6 +43,7 @@
 #include "TimerConstants.h"
 #include <boost/circular_buffer.hpp>
 #include <algorithm>
+#include <numeric> //accumulate
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
 #include <stlwatch.h>
@@ -114,10 +115,12 @@ void RTPVoip::initialize(int stageNo)
   jitterDelay = 0.1;
   //or jitter buffer in terms of number of packets stored
   //jitterDelay = packetsBuffered/packetspersecond = packetsBuffered* packetisationInterval
-  //store packet buffer represented by seqno i.e. framesperpacket in each entry 
-  cb = new JitterBuffer((unsigned int )(jitterDelay/(framesPerPacket * frameLength)));
+  //buffer an extra packet that way packets will not be discarded due to buffer too full
+  cb = new JitterBuffer((unsigned int )(jitterDelay/(framesPerPacket * frameLength)) * 2);
+  assert(cb->empty());
+  assert(!cb->full());
   WATCH_RINGBUFFER(*cb);
-  assert(jitterDelay/(framesPerPacket * frameLength) == cb->capacity());
+  //assert(jitterDelay/(framesPerPacket * frameLength) == cb->capacity());
 
   EV<<"voip: "<<OPP_Global::nodeName(this)<<" buffer capacity="<<cb->capacity()<<endl;
   std::ostream& os = printRoutingInfo(true, 0, 0, true);
@@ -144,8 +147,10 @@ void RTPVoip::initialize(int stageNo)
     calleePauseStat = new cStdDev((std::string("callee pause duration of ") + OPP_Global::nodeName(this)).c_str());
   }
 
- simtime_t stopTime = par("stopTime");
- if (stopTime > 0)
+  ecalculateRFactor();
+
+  simtime_t stopTime = par("stopTime");
+  if (stopTime > 0)
   {
     cCallbackMessage* quitApp = new cCallbackMessage("quitApp leak");
     (*quitApp) = boost::bind(&RTPVoip::leaveSession, this);  
@@ -319,6 +324,8 @@ void RTPVoip::processSDES(RTCPSDES* sdes)
   (*(caller->p59cb)) =  boost::bind(&RTPVoip::P59TS, caller, this);
   OPP_Global::ContextSwitcher switchContext(caller);
   caller->p59cb->rescheduleDelay(SELF_SCHEDULE_DELAY);
+
+  emodelTimer->rescheduleDelay(10);
 }
 
 void RTPVoip::processGoodBye(RTCPGoodBye* rtcp)
@@ -357,6 +364,8 @@ void RTPVoip::establishSession()
   if (destAddrs.empty())
     return;
 
+  ///TODO ned param for period?
+  emodelTimer->rescheduleDelay(10);
   //voip app 2 party conversation 
   RTCPSDES* sdes = new RTCPSDES(_ssrc, OPP_Global::nodeName(this));
   sdes->setContextPointer(this);
@@ -383,8 +392,8 @@ void RTPVoip::attachData(RTPPacket* rtpData)
 void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
 {
   bool talkspurtBegin = false;
-  simtime_t now = simTime();  
-  
+  simtime_t now = simTime();
+
   if (!playoutTimer || !playoutTimer->isScheduled())
   {
     if (!playoutTimer)
@@ -406,54 +415,98 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
   {
     //even though constant jitter buffer we adjust mean network delay based on
     //first packet in talkspurt
-    networkDelay = now - rtpData->timestamp();    
+    networkDelay = now - rtpData->timestamp();
+
+    EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" new talkSpurt "
+      <<networkDelay<<"s baseline"<<endl;
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" new talkSpurt "
+      <<networkDelay<<"s baseline"<<endl;
 
     playoutTimer->rescheduleDelay(jitterDelay);
     assert(playoutTimer->sendingTime() == now);
   }
 
-  //playout time of current packet should be now + udelta * playoutDelay
-  //where playoutDelay is networkDelay+jitterDelay
-  //simtime_t currentPacketPlayout = udelta? udelta*playoutDelay
+  VoipFrame* frames = 0;
+  frames = (VoipFrame*) rtpData->contextPointer();
 
-  if (playoutTime(rtpData->timestamp()) < playoutTimer->arrivalTime())
+  unsigned int frameCount = 1;
+  if (rtpData->payloadLength() > payloadLength)
   {
-    rme.lossVector->record(1);
-    return;
+    frameCount = (unsigned int)( rtpData->payloadLength()/ payloadLength);
+    assert(frameCount > 1);
   }
+
+  for (unsigned int i = 0; i < frameCount; i++)
+  {
+    VoipFrame& thisFrame = frames[i];
+
+
+  if (playoutTime(thisFrame.get<0>()) < playoutTimer->arrivalTime())
+  {
+    EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
+      <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
+      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
+      <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
+      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
+    VoipFrame& discard = thisFrame;
+
+    compareToPreviousVoipFrame(discard);
+
+    db.push_back(thisFrame.get<1>());
+    if (discarded)
+      //if previous event was a discard then continue this trend
+      elossEvents.back() += 1;
+    else
+      elossEvents.push_back(1);
+    discarded = true;
+    delete &thisFrame;
+    continue;
+  }
+
+  //ignore discarded packets that arrive too late
+  ecalculateMeanTotalDelay(thisFrame.get<0>());
 
   if (cb->full())
   {
     std::sort(cb->begin(), cb->end());
+
     VoipFrame& discard = cb->front();
     simtime_t nextPlayoutTime = playoutTime(discard.get<0>());
     assert(nextPlayoutTime > now);
 
-    if (discarded)
-    {
-    //compare to previous discard      
-    }
-    else
-    {
-    //compare to previous playout time bc we do not set discard when received
-    //correctly or played out so no need to check against prev playout
-    }
+    EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
+      <<discard<<" as jitter buffer full "<<cb->size()<<endl;
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
+      <<discard<<" as jitter buffer full ("<<cb->size()<<endl;
 
-    //No need to do below if next is also discarded we double the
-    //prev compar to prev discarded
-    //also compare to next playout time in buffer (only do this in playout by
-    //comparing to discarded
+    compareToPreviousVoipFrame(discard);
 
     db.push_back(discard.get<1>());
-    elossEvents.push_back(1);
+    if (discarded)
+      //if previous event was a discard then continue this trend
+      elossEvents.back() += 1;
+    else
+      elossEvents.push_back(1);
     discarded = true;
-    cb->push_back(boost::make_tuple(rtpData->timestamp(),
-        rtpData->seqNo()));
-    return;
+    cb->push_back(thisFrame);
+    delete &thisFrame;
+    continue;
   }
-  cb->push_back(boost::make_tuple(rtpData->timestamp(),
-                rtpData->seqNo()));
+  cb->push_back(thisFrame);
   discarded = false;
+  } //end for loop
+
+  std::sort(cb->begin(), cb->end());
+  //doing this makes it never play back for much longer especially when
+  //buffers are full. Perhaps should have buffer size twice jitter delay?
+  //if (discarded)
+  //  playoutTimer->reschedule(playoutTime(cb->front().get<0>()));
+  if (frameCount > 1)
+    delete [] frames;
 }
 
 simtime_t RTPVoip::playoutTime(simtime_t timestamp)
@@ -461,51 +514,78 @@ simtime_t RTPVoip::playoutTime(simtime_t timestamp)
   return timestamp + networkDelay + jitterDelay;
 }
 
-void RTPVoip::playoutBufferedPacket()
-{ 
-  simtime_t now = simTime();
-  EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
-    <<cb->front();
-  std::ostream& os = printRoutingInfo(true, 0, 0, true);
-  os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" play back samples timestamp="
-    <<cb->front();
+#define RTP_SEQ_MOD (1<<16)
 
-  assert(!cb->empty());
-  VoipFrame thisFrame = cb->front();
+void RTPVoip::recordLosses(RTPMemberEntry& rme, u_int16 udelta)
+{
+  const int MAX_MISORDER = 100;
+  const int MAX_DROPOUT = 3000;
+   bool misordered = false;
+  if (udelta > MAX_DROPOUT && udelta > RTP_SEQ_MOD - MAX_MISORDER)
+    misordered = true;
+  if (!misordered && udelta < MAX_DROPOUT)
+  {
+    initialiseStats(&rme, this);
+    rme.lossVector->record(udelta);
+    elossEvents.push_back(udelta);
+  }
+}
 
+void RTPVoip::compareToPreviousVoipFrame(const VoipFrame& thisFrame)
+{
   ///compare to previous playout time
-  if ((thisFrame.get<1>() - lastPlayedFrame.get<1>() > 1) && 
-      !discarded)
+  if (!discarded && (thisFrame.get<1>() - lastPlayedFrame.get<1>() > 1))
   {
     //assuming 2-party conf not a conference otherwise buff needs to store the
-    //full rtp packet
+    //full rtp packet for its ssrc
     RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
-
-    unsigned int udelta = thisFrame.get<1>() - lastPlayedFrame.get<1>() - 1;
-    if (udelta)
-    {
-      rme.lossVector->record(udelta);
-      elossEvents.push_back(udelta);
-    }
+    u_int16 udelta = thisFrame.get<1>() - lastPlayedFrame.get<1>();
+    recordLosses(rme, udelta);
   }
   else if (discarded)
   {
-    //compare to discarded
-  }
+    //compare to previous discarded packet (should have used ints for seqNo that
+    //way never enter if branch anyway and handles misordered packets automatically)
 
+    if (thisFrame.get<1>()-db.back() > 1)
+    {
+      RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
+      //prevent misordered packets from generating packet losses
+      //unsigned int = abs((long int) (thisFrame.get<1>() - db.back())) - 1;
+      u_int16 udelta = thisFrame.get<1>() - db.back();
+      recordLosses(rme, udelta);
+
+    }
+  }
+}
+
+void RTPVoip::playoutBufferedPacket()
+{
+  assert(!cb->empty());
+
+  simtime_t now = simTime();
+  std::sort(cb->begin(), cb->end());
+  EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" play back samples timestamp="
+    <<cb->front()<<endl;
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" play back samples timestamp="
+    <<cb->front()<<endl;
+
+  VoipFrame thisFrame = cb->front();
+
+  compareToPreviousVoipFrame(thisFrame);
+
+  discarded = false;
   cb->pop_front();
   if (cb->empty())
   {
-    os<<" silence starting or packets dropped\n";
-    lastPlayedFrame = thisFrame;
-    return;
+    os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" silence starting or packets dropped\n";
   }
   else
   {
     simtime_t nextPlayoutTime = playoutTime(cb->front().get<0>());
     playoutTimer->reschedule(nextPlayoutTime);
   }
-  discarded = false;
   lastPlayedFrame = thisFrame;
 }
 
@@ -519,19 +599,45 @@ void RTPVoip::handleMisorderedOrDroppedPackets(RTPMemberEntry *s,
 double RTPVoip::ecalculateRFactor()
 {
   double rfactor = 93.2;
-  //work out Id
-  //work out Ie
+
   if (!erfactorVector)
   {
     erfactorVector = new cOutVector((std::string("Rfactor of ") + OPP_Global::nodeName(this)).c_str());
-  }
-  erfactorVector->record(rfactor);
-  if (!emodelTimer)
-  {
     emodelTimer = new cCallbackMessage("rfactorcalc");
     (*emodelTimer) = boost::bind(&RTPVoip::ecalculateRFactor, this);
+    return 0;
   }
-  return 0;
+
+  emodelTimer->rescheduleDelay(10);
+  RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
+  unsigned int expected = rme.cycles + rme.maxSeq - elastExpected;
+  unsigned int received = rme.received - elastReceived;
+
+  double Id = 0;
+  //just do simplified Idd for now
+  if (emeanDelay * 1000.0 < 177.3)
+    Id = 0.024 * emeanDelay*1000.0;
+  else
+    Id = 0.024 * emeanDelay*1000.0 + 0.11*(emeanDelay*1000.0 - 177.3);
+
+  //work out Ie
+//  double p = elossEvents.size()/received;
+//  double q = elossEvents.size()/std::accumulate(elossEvents.begin(), elossEvents.end(), 0);
+//  double burstR = 1.0/(p+q);
+  //alternative below in case elastReceived is bogus as may count duplicated packets
+  double ppl = std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/expected;
+  double burstR = (1.0 - ppl)*((double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size());
+  double Ieff = Ie + (95.0 - Ie)*(ppl/((ppl/burstR)+Bpl));
+
+  rfactor+= -Id - Ie;
+  
+  erfactorVector->record(rfactor);
+  
+  emeanDelay = 0;
+  elossEvents.clear();
+  elastReceived = rme.received;
+  elastExpected = rme.cycles + rme.maxSeq;
+  return rfactor;
 }
 
 ///timestamp is at sending end

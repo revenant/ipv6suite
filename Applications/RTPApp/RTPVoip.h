@@ -129,6 +129,9 @@ class RTPVoip: public RTP
   //@{
   virtual void playoutBufferedPacket();
   virtual simtime_t playoutTime(simtime_t timestamp);
+  //work out dropped and discarded packets
+  void compareToPreviousVoipFrame(const VoipFrame& thisFrame);
+  void recordLosses(RTPMemberEntry& rme, u_int16 udelta);
   cCallbackMessage* playoutTimer;
   simtime_t networkDelay;
   double jitterDelay;
@@ -138,7 +141,7 @@ class RTPVoip: public RTP
   typedef std::list<unsigned int> DiscardBuffer;
   DiscardBuffer db;
   VoipFrame lastPlayedFrame;
-  ///records if packet has been discarded since last playtime
+  ///records if packet has been discarded since last playtime or packet reception
   bool discarded;
   //@}
  private:

@@ -227,5 +227,8 @@ class RTP: public UDPAppBase, INotifiable
 
 std::ostream& operator<<(std::ostream& os, const RTCPReportBlock& rb);
 
+void initialiseStats(RTPMemberEntry *s, RTP* rtp);
+
+
 #endif /* RTP_H */
 

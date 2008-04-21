@@ -43,7 +43,12 @@ simple RTPVoip
     frameLength: numeric const, //in units of seconds
     framesPerPacket: numeric const, //number of frames to put into packet
     bitrate: numeric const, //in bitsps
+
+    //e-model values
     lookahead: numeric const, //in seconds
+    Ie: numeric const,
+    Bpl: numeric const,
+   
     //dummy variables from RTP unused as calculated from above
     payloadLength: numeric const,
     packetisationInterval: numeric const;

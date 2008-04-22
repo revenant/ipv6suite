@@ -398,6 +398,20 @@ jl.SimpleDiff <- function(vectornumAsString="^394", filename, simendTime)
   table
 }
 
+jl.packetTrace <- function(grepexp = "voiptracerec:mn", filename)
+  {
+    table <- scan(pipe(paste("grep", grepexp, filename)), list(rubbish="", simtime=0, timestamp=0, seqNo=0))
+    table
+  }
+
+testFunction <- function()
+  {
+    a =jl.packetTrace("voiptracerec:mn", "test.out")
+    b=jl.packetTrace("voiptracerec:cn", "test.out")
+    matplot(a$simtime, a$seqNo)
+    matlines(b$simtime, b$seqNo)
+  }
+
 #MOS conversational situation
 jl.Mos <- function(R)
   {

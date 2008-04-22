@@ -393,6 +393,7 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
 {
   bool talkspurtBegin = false;
   simtime_t now = simTime();
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
 
   if (!playoutTimer || !playoutTimer->isScheduled())
   {
@@ -419,7 +420,6 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
 
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" new talkSpurt "
       <<networkDelay<<"s baseline"<<endl;
-    std::ostream& os = printRoutingInfo(true, 0, 0, true);
     os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" new talkSpurt "
       <<networkDelay<<"s baseline"<<endl;
 
@@ -441,13 +441,14 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
   {
     VoipFrame& thisFrame = frames[i];
 
+    os<<"voiptracerec:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
+      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<endl;
 
   if (playoutTime(thisFrame.get<0>()) < playoutTimer->arrivalTime())
   {
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
       <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
       <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
-    std::ostream& os = printRoutingInfo(true, 0, 0, true);
     os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
       <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
       <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
@@ -466,9 +467,6 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
     continue;
   }
 
-  //ignore discarded packets that arrive too late
-  ecalculateMeanTotalDelay(thisFrame.get<0>());
-
   if (cb->full())
   {
     std::sort(cb->begin(), cb->end());
@@ -479,7 +477,6 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
 
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
       <<discard<<" as jitter buffer full "<<cb->size()<<endl;
-    std::ostream& os = printRoutingInfo(true, 0, 0, true);
     os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
       <<discard<<" as jitter buffer full ("<<cb->size()<<endl;
 
@@ -568,10 +565,14 @@ void RTPVoip::playoutBufferedPacket()
   EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" play back samples timestamp="
     <<cb->front()<<endl;
   std::ostream& os = printRoutingInfo(true, 0, 0, true);
-  os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" play back samples timestamp="
-    <<cb->front()<<endl;
 
   VoipFrame thisFrame = cb->front();
+
+  os<<"voiptraceplay:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
+    <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<endl;
+
+  //ignore discarded packets that arrive too late
+  ecalculateMeanTotalDelay(thisFrame.get<0>());
 
   compareToPreviousVoipFrame(thisFrame);
 
@@ -585,6 +586,9 @@ void RTPVoip::playoutBufferedPacket()
   {
     simtime_t nextPlayoutTime = playoutTime(cb->front().get<0>());
     playoutTimer->reschedule(nextPlayoutTime);
+    os<<" difference in times? nextplayoutDelay="<<nextPlayoutTime-now
+      <<" packetisationInterval="<< packetisationInterval<<endl;
+    //playoutTimer->rescheduleDelay(packetisationInterval);
   }
   lastPlayedFrame = thisFrame;
 }
@@ -614,22 +618,42 @@ double RTPVoip::ecalculateRFactor()
   unsigned int received = rme.received - elastReceived;
 
   double Id = 0;
+  //convert to ms as required by e-model
+  emeanDelay*=1000.0;
   //just do simplified Idd for now
-  if (emeanDelay * 1000.0 < 177.3)
-    Id = 0.024 * emeanDelay*1000.0;
+  if (emeanDelay < 177.3)
+    Id = 0.024 * emeanDelay;
   else
-    Id = 0.024 * emeanDelay*1000.0 + 0.11*(emeanDelay*1000.0 - 177.3);
+    Id = 0.024 * emeanDelay + 0.11*(emeanDelay - 177.3);
 
   //work out Ie
-//  double p = elossEvents.size()/received;
-//  double q = elossEvents.size()/std::accumulate(elossEvents.begin(), elossEvents.end(), 0);
-//  double burstR = 1.0/(p+q);
-  //alternative below in case elastReceived is bogus as may count duplicated packets
-  double ppl = std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/expected;
-  double burstR = (1.0 - ppl)*((double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size());
-  double Ieff = Ie + (95.0 - Ie)*(ppl/((ppl/burstR)+Bpl));
+  double p = 0, q =  0;
+  if (received > expected)
+  {
+    cerr<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" received > expected="
+	<< received <<"/" << expected<<endl;
+  }
 
-  rfactor+= -Id - Ie;
+  if (elossEvents.size())
+  {
+    p = (double)elossEvents.size()/received;
+    q = (double)elossEvents.size()/std::accumulate(elossEvents.begin(), elossEvents.end(), 0);
+  }
+  //double burstR = 1.0/(p+q);
+  //alternative below in case elastReceived is bogus as may count duplicated packets
+  double ppl = (double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/expected;
+
+  if (ppl != 1-((double)received/expected))
+    cout<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" mismatch ppl from lost/expected="<<ppl
+	<<" from 1 - (received/expect)="<<1.0-(double)received/expected<<endl;
+  double Ppl = 100.0*ppl; //in percentage points 
+  double burstR = (1.0 - ppl)*((double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size());
+  if (p + q != 0 && burstR != (1.0/(p+q)))
+    cout<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<"mismatch (1-ppl)e(k) burstR="
+	<<burstR<<" whilst using 1/(p+q) burstR="<<(1.0/(p+q))<<endl;
+  double Ieff = Ie + (95.0 - Ie)*(Ppl/((Ppl/burstR)+Bpl));
+
+  rfactor+= -Id - Ieff;
   
   erfactorVector->record(rfactor);
   

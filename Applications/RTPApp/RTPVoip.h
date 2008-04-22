@@ -134,7 +134,7 @@ class RTPVoip: public RTP
   void recordLosses(RTPMemberEntry& rme, u_int16 udelta);
   cCallbackMessage* playoutTimer;
   simtime_t networkDelay;
-  double jitterDelay;
+  simtime_t jitterDelay;
   typedef boost::circular_buffer<VoipFrame> JitterBuffer;
   JitterBuffer* cb;
   ///records seq of packets discarded by jitter buffer

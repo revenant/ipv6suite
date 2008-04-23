@@ -27,6 +27,8 @@
 
 #include <memory> //std::auto_ptr
 #include <string>
+#include <cmath> //fabs
+#include <algorithm> //max
 #include <omnetpp.h>
 
 // XXX dirty debugging hack, to be thrown out when cerr<< stuff
@@ -149,6 +151,10 @@ namespace OPP_Global
 
   ///Returns the omnet++ parser for use by other classes to parse their own attributes
   XMLConfiguration::XMLOmnetParser* getParser();
+
+
+  double relativeDiff(double a, double b);
+
 }
 
 #endif

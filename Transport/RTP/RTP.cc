@@ -100,7 +100,7 @@ void init_seq(RTPMemberEntry *s, u_int16 seq)
   s->maxSeq = seq;
   s->badSeq = RTP_SEQ_MOD + 1;   /* so seq == bad_seq is false */
   s->cycles = 0;
-  s->received = 1;
+  s->received = 0;
   s->receivedPrior = 0;
   s->expectedPrior = 0;
 
@@ -156,17 +156,31 @@ void recordHOStats(RTPMemberEntry *s, RTP* rtp)
 }
 
 //this version records it as lost packets
-void RTP::handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta)
+void RTP::handleDroppedPackets(RTPMemberEntry *s, u_int16 udelta)
 {
   initialiseStats(s, this);
-  s->lossVector->record(udelta);
+  //s->lossVector->record(udelta);
   recordHOStats(s, this);
+}
+
+void RTP::handleMisorderedPackets(RTPMemberEntry *s, RTPPacket* rtpData)
+{
+  u_int16 seq = rtpData->seqNo();
+  //add to list of packets and if matches then assert false
+  EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()
+    <<" duplicate/reordered packet? "<<OPP_Global::nodeName(this)<<" seqNo="
+    <<seq<<endl;
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()
+    <<" duplicate/reordered packet? "<<OPP_Global::nodeName(this)<<" seqNo="
+    <<seq<<endl;
 }
 
 //From A.1 of rfc3550 with probation removed
 //with added results collection and modified to assume no resyncing
-int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
+int update_seq(RTPMemberEntry *s, RTPPacket* rtpData, RTP* rtp)
 {
+  u_int16 seq = rtpData->seqNo();
   u_int16 udelta = seq - s->maxSeq;
   //modify these two constants if we envisage severe loss due to incorrect handover or
   //just assume never resync like code does below
@@ -187,7 +201,7 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
       //record this as no. of packets lost although in reality could just be out
       //of order packet (at this stage we are simply recording likely
       //drop. 
-      rtp->handleMisorderedOrDroppedPackets(s, udelta);
+      rtp->handleDroppedPackets(s, udelta);
     }
       
     s->maxSeq = seq;
@@ -212,14 +226,7 @@ int update_seq(RTPMemberEntry *s, u_int16 seq, RTP* rtp)
     }
   } else {
     /* duplicate or reordered packet */
-    //assert(false);
-    EV<<rtp->simTime()<<" duplicate/reordered packet? "<<OPP_Global::nodeName(rtp)<<" seqNo="<<seq<<endl;
-    std::ostream& os = printRoutingInfo(true, 0, 0, true);
-    os<<"voip: "<<OPP_Global::nodeName(rtp)<<":"<<rtp->simTime()
-      <<" duplicate/reordered packet? "<<OPP_Global::nodeName(rtp)<<" seqNo="
-      <<seq<<endl;
-    //how to check for duplicates so we do not add to received in order to
-    //calculate accurate packet loss
+    rtp->handleMisorderedPackets(s, rtpData);
   }
   s->received++;
   return 1;
@@ -253,7 +260,7 @@ void RTP::processRTP(RTPPacket* rtpData)
     senders += 1;
     init_seq(&rme, rtpData->seqNo());
   }
-  else if (!update_seq(&rme, rtpData->seqNo(), this))
+  else if (!update_seq(&rme, rtpData, this))
   {
     EV<<"huge jump and bad sequence rec. should reset stats?? No unless we have multiple sessions with same peer";
     return;
@@ -812,6 +819,7 @@ void RTP::finish()
     }
 
     u_int32 extended = rme.cycles + rme.maxSeq;
+    //as first seq no received starts at 0
     extended ++;
     u_int32 cumPacketsLost = extended - rme.received;
     cout <<"--------------------------------------------------------" <<endl;

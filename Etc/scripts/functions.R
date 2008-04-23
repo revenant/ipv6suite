@@ -404,12 +404,30 @@ jl.packetTrace <- function(grepexp = "voiptracerec:mn", filename)
     table
   }
 
+
+jl.BurstR <- function(lossEvents, lossPacketsSum, expected)
+  {
+    Ek = lossPacketsSum/ lossEvents
+    ppl = lossPacketsSum/expected
+    burstR = (1-ppl)*Ek
+    list(burstR=burstR, Ppl=ppl*100)
+  }
+
+
 testFunction <- function()
   {
     a =jl.packetTrace("voiptracerec:mn", "test.out")
     b=jl.packetTrace("voiptracerec:cn", "test.out")
     matplot(a$simtime, a$seqNo)
     matlines(b$simtime, b$seqNo)
+
+    #grep "lossEvents from cn"|cut -f 4
+    #grep "lostPackets from cn"
+    #missing expected displayed at cout
+    ans = jl.BurstR(3,  4, 1403)
+    #grep "totalDelay from cn.mean"
+    jl.Rfactor(0.440390348496, Ppl = ans$Ppl, burstR = ans$burstR)
+    57.73837
   }
 
 #MOS conversational situation

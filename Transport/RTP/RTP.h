@@ -146,7 +146,8 @@ class RTP: public UDPAppBase, INotifiable
   virtual void processGoodBye(RTCPGoodBye* rtcp);
   virtual void processSDES(RTCPSDES* sdes);
   virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
-  virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
+  virtual void handleDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
+  virtual void handleMisorderedPackets(RTPMemberEntry *s, RTPPacket* rtpData);
   virtual void attachData(RTPPacket* rtpData);
   virtual void fillReports(RTCPReports* rtcpPayload);
   virtual void processReports(RTCPReports* rep);
@@ -188,7 +189,7 @@ class RTP: public UDPAppBase, INotifiable
   unsigned int packetCount;
   //no. of rtp data octets sent
   unsigned int octetCount;
-
+  
   cMessage* rtcpTimeout;
 
   //variables for calculation of T i.e. RTCP Report transmission

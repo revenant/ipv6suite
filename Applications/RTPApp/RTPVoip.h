@@ -87,7 +87,8 @@ class RTPVoip: public RTP
   virtual void processGoodBye(RTCPGoodBye* rtcp);
   virtual void processSDES(RTCPSDES* sdes);
   virtual void processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme);
-  virtual void handleMisorderedOrDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
+  virtual void handleMisorderedPackets(RTPMemberEntry *s, RTPPacket* rtpData);
+  virtual void handleDroppedPackets(RTPMemberEntry *s, u_int16 udelta);
   virtual void attachData(RTPPacket* rtpData);
   //virtual bool sendRTPPacket();
   //@}
@@ -130,8 +131,8 @@ class RTPVoip: public RTP
   virtual void playoutBufferedPacket();
   virtual simtime_t playoutTime(simtime_t timestamp);
   //work out dropped and discarded packets
-  void compareToPreviousVoipFrame(const VoipFrame& thisFrame);
-  void recordLosses(RTPMemberEntry& rme, u_int16 udelta);
+  //void compareToPreviousVoipFrame(const VoipFrame& thisFrame);
+  //void recordLosses(RTPMemberEntry& rme, u_int16 udelta);
   cCallbackMessage* playoutTimer;
   simtime_t networkDelay;
   simtime_t jitterDelay;
@@ -139,7 +140,14 @@ class RTPVoip: public RTP
   JitterBuffer* cb;
   ///records seq of packets discarded by jitter buffer
   typedef std::list<unsigned int> DiscardBuffer;
+  typedef DiscardBuffer::iterator DBI;
   DiscardBuffer db;
+  ///records the range of seq where packets are dropped
+  typedef std::vector<DiscardBuffer> SeqRangeRecord;
+  typedef SeqRangeRecord::iterator SRRI;
+  SeqRangeRecord probableDropped;
+  ///records list of misordered packets. should be cleaned out periodically?
+  JitterBuffer* misordered;
   VoipFrame lastPlayedFrame;
   ///records if packet has been discarded since last playtime or packet reception
   bool discarded;
@@ -153,13 +161,17 @@ class RTPVoip: public RTP
   ///running meanDelay calculated at every packet reception
   double emeanDelay;
   DiscardBuffer elossEvents;
-  ///value of rme.received measured at last sample
+  ///count of playedback frames
   unsigned int elastReceived;
   ///value of extended = rme.cycles + rme.maxSeq at last sample
   unsigned int elastExpected;
+  unsigned int elossEventsCount;
+  unsigned int elostPackets;
   ///call ecalculateRFactor with freq in ned param emodelInterval
   cCallbackMessage* emodelTimer;
   cOutVector* erfactorVector;
+  cOutVector* totalDelayVector;
+  cStdDev*  totalDelayStat;
   //ned params 
   double Ie;
   double Bpl;

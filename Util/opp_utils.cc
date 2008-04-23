@@ -259,4 +259,16 @@ namespace OPP_Global
     cModule *wp = simulation.moduleByPath("worldProcessor");
     return check_and_cast<WorldProcessor*>(wp)->xmlConfig();
   }
+
+  //adapted from Doug Gywn 
+  double relativeDiff(double a, double b)
+  {
+    double c = std::fabs(a);
+    double d = std::fabs(b);
+
+    d = std::max(c, d);
+
+    return d == 0.0 ? 0.0 : fabs(a - b) / d;
+  }
+
 }

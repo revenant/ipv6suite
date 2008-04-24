@@ -186,7 +186,7 @@ END
       }
 
       if /hn\d/.match(`hostname`)
-        qline = "qsub -q dque -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
+        qline = "qsub -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
         puts qline
         suboutput = `#{qline}`
         if $? != 0

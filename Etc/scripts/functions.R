@@ -483,6 +483,13 @@ sl.boxplot.lines <- function()
   #By S. Lamb
 #df <- read.csv("http://www.slamb.org/tmp/one-active.csv")
 df <- read.csv("one-active.csv")
+#file format is method in first column and
+#hence also the 3 series in legend
+#The inactive is in second column can be numeric or factor type
+#this is what each boxplot is drawn at (x-vale).
+#The y vale comes from elapsed i.e the third column in the csv table
+#and is the combined conf int value at that inactive category
+
 #png(filename="one-active.png", width=800, height=600)
 split.df <- split(df, df$method)
 plot(0, xlim=c(0, max(df$inactive)), ylim=range(df$elapsed),

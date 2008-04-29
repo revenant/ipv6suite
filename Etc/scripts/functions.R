@@ -334,13 +334,6 @@ for (i in v)
   return (o)
 }
 
-jl.test <- function()
-  {
-    testl=seq(0,18,2)
-    testv=c(0.05,0.1,seq(0.15,0.5,0.05))
-    jl.Rfactor(testv, Ppl=testl)
-  }
-
  # Ta is sender to listener delay
  # Defaults values of Ie and Bpl are for G.728 encoding and come from
  # PacketCable data sheet
@@ -381,53 +374,21 @@ jl.Rfactor <- function(Ta, Ie = 7, Bpl = 17, Ppl = 0, burstR = 1)
     93.2 - Idd(Ta) - Ieff(Ie, Ppl, Bpl)
   }
 
-#vector name to do diff over 
-jl.SimpleDiff <- function(vectornumAsString="^394", filename, simendTime)
-{
-  
-  table <- scan(pipe(paste("grep", vectornumAsString, filename)),list(rubbish=0,time=0,talkstate=0))
-  table=table[-1]
-  times=diff(table$time)
-  times[length(times)+1] = simendTime - table$time[length(table$time)]
-  table$time = times
-  tot=sum(table$time)
-  sum(table$time[table$talkstate == 1])   
-  sum(table$time[table$talkstate == 2])    
-  sum(table$time[table$talkstate == 3])
-  sum(table$time[table$talkstate == 4])
-  table
-}
-
-jl.packetTrace <- function(grepexp = "voiptracerec:mn", filename)
-  {
-    table <- scan(pipe(paste("grep", grepexp, filename)), list(rubbish="", simtime=0, timestamp=0, seqNo=0))
-    table
-  }
-
 
 jl.BurstR <- function(lossEvents, lossPacketsSum, expected)
   {
+    if (lossPacketsSum < lossEvents)
+      stop("Are you sure you haven't mixed up order of lossEvents and lossPacketsSum?")
+    if (expected <= lossPacketsSum)
+      stop("Expected packets are less lossPacketsSum!!!")
+    if (lossPacketsSum == 0 && lossEvents > 0)
+      stop("how can you have losspackets when no lossevents registered!!!")
+    if (lossEvents == 0)
+      return (list(burstR=1, Ppl = 0))
     Ek = lossPacketsSum/ lossEvents
     ppl = lossPacketsSum/expected
     burstR = (1-ppl)*Ek
-    list(burstR=burstR, Ppl=ppl*100)
-  }
-
-
-testFunction <- function()
-  {
-    a =jl.packetTrace("voiptracerec:mn", "test.out")
-    b=jl.packetTrace("voiptracerec:cn", "test.out")
-    matplot(a$simtime, a$seqNo)
-    matlines(b$simtime, b$seqNo)
-
-    #grep "lossEvents from cn"|cut -f 4
-    #grep "lostPackets from cn"
-    #missing expected displayed at cout
-    ans = jl.BurstR(3,  4, 1403)
-    #grep "totalDelay from cn.mean"
-    jl.Rfactor(0.440390348496, Ppl = ans$Ppl, burstR = ans$burstR)
-    57.73837
+    list(burstR=burstR, Ppl=ppl*100)    
   }
 
 #MOS conversational situation
@@ -457,7 +418,9 @@ jl.renameColumn <- function(frame, renameIndex = length(frame[1,]), newname = "l
     frame
   }
 
+
 #convert matrix m to data frame where m has row names and column names
+#used to transform data for cloud plot
 jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
 {
   d=dim(m)
@@ -476,41 +439,4 @@ jl.matrix.as.data.frame <- function(m,valuename, rowname, columname)
   df=cbind(df,columnname=cols)
   dimnames(df)[[2]]=c(valuename,rowname,columname)
   df
-}
-
-sl.boxplot.lines <- function()
-{
-  #By S. Lamb
-#df <- read.csv("http://www.slamb.org/tmp/one-active.csv")
-df <- read.csv("one-active.csv")
-#file format is method in first column and
-#hence also the 3 series in legend
-#The inactive is in second column can be numeric or factor type
-#this is what each boxplot is drawn at (x-vale).
-#The y vale comes from elapsed i.e the third column in the csv table
-#and is the combined conf int value at that inactive category
-
-#png(filename="one-active.png", width=800, height=600)
-split.df <- split(df, df$method)
-plot(0, xlim=c(0, max(df$inactive)), ylim=range(df$elapsed),
-
-     ylab="time (µs)", xlab="inactive file descriptors", log="y",
-     main="1 active descriptor, 1 write", bty="n", type="n")
-
-grid()
-for (i in seq(along=split.df)) {
-
-  this_method <- split.df[[i]]
-  unique_inactive <- unique(this_method$inactive)
-  boxplot(elapsed~inactive, data=this_method,
-
-            at=unique_inactive, axes=FALSE,
-            add=TRUE, border=i, boxfill=i, outline=FALSE, bty="l",
-            whisklty="solid", staplelty="blank", medlty="blank",
-            boxwex=max(unique_inactive)/length(unique_inactive)/2)
-
-}
-legend("topleft", legend=labels(split.df),
-
-       fill=seq(along=split.df), bty="n") 
 }

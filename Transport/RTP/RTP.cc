@@ -501,9 +501,9 @@ RTP::RTP():rtpTimeout(0),rtcpTimeout(0),nb(0),l2down(0),mobileNode(false)
 
 RTP::~RTP()
 {
-  if (rtpTimeout->isScheduled())
+  if (rtpTimeout && rtpTimeout->isScheduled())
     cancelEvent(rtpTimeout);
-  if (rtcpTimeout->isScheduled())
+  if (rtcpTimeout && rtcpTimeout->isScheduled())
     cancelEvent(rtcpTimeout);
   delete rtpTimeout;
   delete rtcpTimeout;

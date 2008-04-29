@@ -694,7 +694,6 @@ void RTPVoip::handleMisorderedPackets(RTPMemberEntry *s, RTPPacket* rtpData)
 
 double RTPVoip::ecalculateRFactor()
 {
-  double rfactor = 93.2;
   RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
 
   if (!erfactorVector)
@@ -704,11 +703,11 @@ double RTPVoip::ecalculateRFactor()
     (*emodelTimer) = boost::bind(&RTPVoip::ecalculateRFactor, this);
     totalDelayVector = new cOutVector((std::string("totalDelay of ") + IPAddressResolver().hostname(rme.addr)).c_str());
     totalDelayStat = new cStdDev((std::string("totalDelay of ") + IPAddressResolver().hostname(rme.addr)).c_str());
-    emodelTimer->rescheduleDelay(10);
+    emodelTimer->rescheduleDelay(30);
     return 0;
   }
 
-  emodelTimer->rescheduleDelay(10);
+  emodelTimer->rescheduleDelay(30);
 
   unsigned int expected = rme.cycles + rme.maxSeq - elastExpected;
   if (elastExpected == 0)
@@ -741,12 +740,10 @@ double RTPVoip::ecalculateRFactor()
 
   if (elossEvents.size())
   {
-    //received is wrong here as before considering discards
     p = (double)elossEvents.size()/received;
     q = (double)elossEvents.size()/std::accumulate(elossEvents.begin(), elossEvents.end(), 0);
   }
-  //double burstR = 1.0/(p+q);
-  //alternative below in case elastReceived is bogus as may count duplicated packets
+
   double ppl = (double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/expected;
 
   if (relativeDiff(ppl, 1-((double)received/expected)) > RTPTimeEpsilon)
@@ -755,7 +752,9 @@ double RTPVoip::ecalculateRFactor()
 	<<" ppl="<<ppl<<" from 1 - (received/expect)="<<received<<"/"<<expected<<" ppl="
 	<<1.0-(double)received/expected<<endl;
   double Ppl = 100.0*ppl; //in percentage points 
-  double burstR = (1.0 - ppl)*((double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size());
+  double burstR = 1.0;
+  if (Ppl > 0)
+    burstR = (1.0 - ppl)*((double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size());
   if (p + q != 0 && relativeDiff(burstR , (1.0/(p+q))) > RTPTimeEpsilon)
     cout<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<"mismatch (1-ppl)e(k) "
 	<<" e(k)="<<(double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)/(double)elossEvents.size()
@@ -767,9 +766,14 @@ double RTPVoip::ecalculateRFactor()
   if (Ppl > 0)
     Ieff += (95.0 - Ie)*(Ppl/((Ppl/burstR)+Bpl));
 
+  double rfactor = 93.2;
   rfactor+= -Id - Ieff;
-  
+
   erfactorVector->record(rfactor);
+
+  cout<<"emeanDelay="<< emeanDelay<<" bpl="<< Bpl<<" Ie="<< Ie<<" received="<<received
+      <<" expected="<<expected<<" lossEventsSum="<<(double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)
+      <<" lossEventsCount="<<(double)elossEvents.size()<<" rfactor="<<rfactor<<endl;
   
   emeanDelay = 0;
   elossEventsCount += elossEvents.size();

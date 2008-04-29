@@ -301,9 +301,11 @@ if @csvOutput
     end
 end
 
-    #Reduce no. of csvs by factor of 5 i.e. stats.each.csv is replaced by scalarname.csv
-    combinedScalars = combineCSVs(Dir["*.csv"])
-    analyseWithR(combinedScalars, factors)
+  #Reduce no. of csvs by factor of 5 works only for cStdDev output
+  combinedScalars = combineCSVs(Dir["*.mean.csv"])
+  #Grab all csvs in current directory for analysis
+  combinedScalars = Dir["*.csv"].collect{|e| e.split(".csv")[0]}  
+  analyseWithR(combinedScalars, factors)
 
     rescue => err
       puts err
@@ -327,33 +329,40 @@ end
       end   
       wait = `cut -d ',' -f 1-4 "#{e}.mean.csv" | paste -d "," - #{stats.join(".tmp ") + ".tmp"} > "#{e}.csv"`
       wait = `rm #{stats.join(".tmp ") + ".tmp"}`
-      stats.each{|i| wait = `rm "#{e}.#{s}.csv"` } if not @debug
+      stats.each{|i| `rm "#{e}.#{i}.csv"` } 
     }
     array
   end
 
-  #array of combined scalars i.e. the variable name of interest
+  #Process and Store all cscalars[x].csv data into Rdata file
   def analyseWithR(cscalars, factors)
     configNames, factors, levels = readConfigs if factors.nil?
     rdataFile = "scalars.Rdata"
-    loadRfile = %|""|
+    loadRfile = %||
     saveRfile = %|save.image("#{rdataFile}")|
     sourceFunctions = %|source("#{File.dirname(__FILE__)}/../scripts/functions.R")|
     cscalars.each{|variable|
-      loadRfile = %|load("#{rdataFile}")| if File.exist?(rdataFile)
+      loadRfile = %|load("#{rdataFile}");| if File.exist?(rdataFile)
       v = variable.gsub(/[ ]/,'.') #make it look like R valid name
+      v = v.gsub(/[%]/,'.') #make it look like R valid name
       expanded = ""
       factors.map{|e| expanded += "#{e}=#{e},"}      
       expanded.chop! #remove last ,
       run = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(run, list(#{expanded}),length))'| #{RSlave}`
-      samples = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.samples, list(#{expanded}),sum))'| #{RSlave}`
-      mean = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.mean, list(#{expanded}),mean))'| #{RSlave}`
+      #means & samples do not exist for simple scalars written at sim end and are not cStdDev type scalar
+      samples = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.samples, list(#{expanded}),sum))'| #{RSlave} 2>&1`
       puts "scalar is #{variable}"
       puts "runs are ", run
-      puts "samples are ", samples
-      puts "mean is ", mean
-      wait = `echo '#{loadRfile};a=read.csv("#{variable}.csv");#{sourceFunctions};a=jl.renameColumn(a,5,"samples");a=jl.renameColumn(a,6,"mean");a=jl.renameColumn(a,7,"stddev");#{v} <- a;rm(a);#{saveRfile}'|#{RSlave}`
-#      executeInR(%|#{loadRfile};#{sourceFunctions};jl.ciFromGroupMeans(#{v})|) 
+      if samples !~ /Error/
+        mean = `echo 'a=read.csv("#{variable}.csv");with(a, aggregate(#{v}.mean, list(#{expanded}),mean))'| #{RSlave} 2>&1`
+        puts "samples are ", samples
+        puts "mean is ", mean
+        wait = `echo '#{loadRfile} a=read.csv("#{variable}.csv");#{sourceFunctions};a=jl.renameColumn(a,5,"samples");a=jl.renameColumn(a,6,"mean");a=jl.renameColumn(a,7,"stddev");#{v} <- a;rm(a);#{saveRfile}'|#{RSlave}`
+        loadRfile = %|load("#{rdataFile}");| if File.exist?(rdataFile)
+        puts executeInR(%|#{loadRfile} #{sourceFunctions};with(#{v}, jl.tapply(#{v},list(#{expanded})))|)
+      else
+        puts "mean of #{variable}", executeInR(%|#{loadRfile} a=read.csv("#{variable}.csv");with(a, aggregate(#{v}, list(#{expanded}),mean));#{v} <- a;rm(a);#{saveRfile}|)                                      
+      end
     }
   end
 

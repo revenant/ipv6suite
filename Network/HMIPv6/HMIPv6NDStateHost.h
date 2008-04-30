@@ -85,12 +85,15 @@ protected:
 
   virtual void sendBU(const ipv6_addr& ncoa);
 
+  ///Check and do returning home case
+  virtual void returnHome();
+
   ///Returns the best MAP to bind with according to HMIPv6MAPEntry::operator<
   virtual HierarchicalMIPv6::HMIPv6MAPEntry selectMAP(MAPOptions& maps, MAPOptions::iterator& new_end);
 
   ///Selects a map based on HMIPv6NDStateHost::selectMAP and does local or map
   ///handover
-  std::auto_ptr<RA> discoverMAP(std::auto_ptr<RA> rtrAdv);
+  virtual std::auto_ptr<RA> discoverMAP(std::auto_ptr<RA> rtrAdv);
 
   //arhandover used by MIPv6NDStateHost::sendBU;
   friend class MobileIPv6::MIPv6NDStateHost;
@@ -99,7 +102,7 @@ protected:
    *
    * Also does pcoa forwarding from par to nar if they have HA func.
    */
-  bool arhandover(const ipv6_addr& lcoa);
+  bool arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram = 0);
 
   ///Prepares for the MAP to MAP handover
   void preprocessMapHandover(const HMIPv6MAPEntry& bestMap,

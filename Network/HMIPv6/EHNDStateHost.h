@@ -75,6 +75,9 @@ class EHNDStateHost: public HierarchicalMIPv6::HMIPv6NDStateHost
   virtual ~EHNDStateHost();
   //@}
 
+  ///Check and do returning home case
+  virtual void returnHome();
+
   //@{ EH Algorithm functions
   virtual HMIPv6MAPEntry selectMAP(MAPOptions &maps, MAPOptions::iterator& new_end);
 

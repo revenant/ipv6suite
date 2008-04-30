@@ -143,6 +143,12 @@ HMIPv6MAPEntry EHNDStateHost::selectMAP(MAPOptions &maps, MAPOptions::iterator& 
   return *maps.begin();
 }
 
+void EHNDStateHost::returnHome()
+{
+  HMIPv6NDStateHost::returnHome();
+  rt->mipv6cds->ehcds->setNoBoundMap();
+}
+
 void EHNDStateHost::boundMapChanged(const ipv6_addr& old_map)
 {
   Dout(dc::eh, rt->nodeName()<<" "<<nd->simTime()<<" bound map was "<< old_map

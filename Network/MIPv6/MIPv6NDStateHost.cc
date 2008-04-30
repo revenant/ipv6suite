@@ -69,10 +69,6 @@ using HierarchicalMIPv6::HMIPv6CDSMobileNode;
 using HierarchicalMIPv6::HMIPv6NDStateHost;
 #endif //USE_HMIP
 
-#if EDGEHANDOVER
-#include "EHCDSMobileNode.h"
-#endif //EDGEHANDOVER
-
 #include "IPv6Utils.h"
 
 #if defined __GNUC__ && __GNUC__ < 3
@@ -1383,22 +1379,6 @@ void MIPv6NDStateHost::returnHome()
   //ensure NA after BU sent
   nd->scheduleAt(nd->simTime() + 100.0 * SELF_SCHEDULE_DELAY, callLater);
 
-#ifdef USE_HMIP
-  if (rt->hmipSupport())
-  {
-
-    HMIPv6CDSMobileNode* hmipv6cds = rt->mipv6cds->hmipv6cdsMN;
-    assert(hmipv6cds);
-    hmipv6cds->setNoCurrentMap();
-
-#if EDGEHANDOVER
-    if (mob->edgeHandover())
-    {
-      rt->mipv6cds->ehcds->setNoBoundMap();
-    }
-  }
-#endif //EDGEHANDOVER
-#endif //USE_HMIP
 }
 
 ///Calls sendBU of MStateMN eventually

@@ -82,7 +82,7 @@ class MIPv6NDStateHost : public IPv6NeighbourDiscovery::NDStateHost
   void handover(boost::shared_ptr<MIPv6RouterEntry> newRtr);
 
   ///Check and do returning home case
-  void returnHome();
+  virtual void returnHome();
 
   ///Implementation of callback invoked by IPv6Encapsulation
   void checkDecapsulation(IPv6Datagram* dgram);

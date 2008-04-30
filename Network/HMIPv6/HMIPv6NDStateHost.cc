@@ -265,57 +265,17 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
     return rtrAdv;
   }
   
+  if (mipv6cdsMN->currentRouter() == accessRouter)
+    return rtrAdv;
+
+
   //do ar handover
-
-  {
-    InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
-    ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
-    if (hmipv6cdsMN.localCareOfAddr() == lcoa)
-      return rtrAdv;
-
-    bool assigned = false;
-    if (rt->odad())
-    {
-      assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
-      if (ie->ipv6()->addrAssigned(lcoa) || ie->ipv6()->tentativeAddrAssigned(lcoa))
-      {
-        assigned = true;
-      }
-    }
-    else if (ie->ipv6()->addrAssigned(lcoa))
-    {
-      assigned = true;
-    }
-
-    if (assigned)
-    {
-      arhandover(lcoa);
-      return rtrAdv;
-    }
-
-    typedef cCallbackMessage cbSendMapBUAR;
-    cbSendMapBUAR* ocb = 0;
-    if (callbackAdded(lcoa, 5445))
-    {
-      ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallback(lcoa));
-      if (ocb && *((ipv6_addr*)(ocb->contextPointer())) == lcoa)
-        return rtrAdv;
-      else
-      {
-        ocb->cancel();
-        delete ((ipv6_addr*)(ocb->contextPointer()));
-        delete ocb;
-      }
-    }
-
-    ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
-    (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa);
-    ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak
-    Dout(dc::hmip, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
-         <<" iface="<<dgram->inputPort()<<" HMIP lcoa="<<lcoa<<" not assigned yet undergoing DAD "
-         <<"doing arhandover as MAP not changed");
-    addCallbackToAddress(lcoa, ocb);
-  }
+  
+  InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
+  ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
+  if (hmipv6cdsMN.localCareOfAddr() == lcoa)
+    return rtrAdv;
+  arhandover(lcoa, dgram);
 
   return rtrAdv;
 }
@@ -609,8 +569,12 @@ void HMIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
 
   assert(ncoa != ocoa);
 
-  //bu to map awaiting dad on lcoa 
+  //maphandover waiting dad on lcoa
   if (callbackAdded(ncoa, 5444))
+    return;
+
+  //arhandover awaiting dad on lcoa
+  if (callbackAdded(ncoa, 5445))
     return;
 
   bool handoverDone = false;
@@ -621,6 +585,15 @@ void HMIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
     MIPv6NDStateHost::sendBU(ncoa);
 }
 
+
+void HMIPv6NDStateHost::returnHome()
+{
+  MIPv6NDStateHost::returnHome();
+  HMIPv6CDSMobileNode* hmipv6cds = rt->mipv6cds->hmipv6cdsMN;
+  assert(hmipv6cds);
+  hmipv6cds->setNoCurrentMap();
+}
+
 /*
   @brief sends BU to map when handoff between ARs
 
@@ -629,7 +602,7 @@ void HMIPv6NDStateHost::sendBU(const ipv6_addr& ncoa)
   Assumes lcoa is assigned already
   @callgraph
  */
-bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
+bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
 {
   if (hmipv6cdsMN.remoteCareOfAddr() == IPv6_ADDR_UNSPECIFIED)
   {
@@ -638,11 +611,64 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa)
   }
 
   std::auto_ptr< ipv6_addr > deleteMe;
+  //check if we are invoked by this function ourself
   if (callbackAdded(lcoa, 5445))
   {
     typedef cCallbackMessage cbSendMapBUAR;
+    cbSendMapBUAR* ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallback(lcoa));
+    if (ocb && *((ipv6_addr*)(ocb->contextPointer())) != lcoa)
+    {
+      //this branch used to be inside discoverMap but now that I've merged the
+      //two there is duplication of callback creation after the assert false
+
+      ocb->cancel();
+      delete ((ipv6_addr*)(ocb->contextPointer()));
+      delete ocb;
+
+      assert(false);
+      //schedule new action and return (what was point of different address in
+      //contextpointer in first place if was different from
+      //lcoa even though callbackAdded returned true???)
+      ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
+      (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa, (IPv6Datagram*)0);
+      ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak	
+      addCallbackToAddress(lcoa, ocb);
+      return true;
+    }
+    typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
     deleteMe.reset((ipv6_addr*) cb->contextPointer());
+  }
+  else
+  {
+    InterfaceEntry *ie = ift->interfaceByPortNo(mipv6cdsMN->currentRouter()->re.lock()->ifIndex());
+    bool assigned = false;
+    if (rt->odad())
+    {
+      assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
+      if (ie->ipv6()->addrAssigned(lcoa) || ie->ipv6()->tentativeAddrAssigned(lcoa))
+      {
+        assigned = true;
+      }
+    }
+    else if (ie->ipv6()->addrAssigned(lcoa))
+    {
+      assigned = true;
+    }
+
+    if (!assigned)
+    {
+      //defer and schedule callback to this function
+      typedef cCallbackMessage cbSendMapBUAR;
+      cbSendMapBUAR* ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
+      (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa, (IPv6Datagram*) 0);
+      ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak
+      Dout(dc::hmip, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
+	   <<" iface="<<dgram->inputPort()<<" HMIP lcoa="<<lcoa<<" not assigned yet undergoing DAD "
+	   <<"doing arhandover as MAP not changed");
+      addCallbackToAddress(lcoa, ocb);
+      return true;
+    }
   }
 
   //TODO instead of lcoa should really use below to get ifIndex

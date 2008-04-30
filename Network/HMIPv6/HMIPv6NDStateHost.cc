@@ -265,10 +265,6 @@ std::auto_ptr<RA> HMIPv6NDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
     return rtrAdv;
   }
   
-  if (mipv6cdsMN->currentRouter() == accessRouter)
-    return rtrAdv;
-
-
   //do ar handover
   
   InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
@@ -440,9 +436,9 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   {
     Dout(dc::hmip, rt->nodeName()<<" Initial MAP "<<bestMap.addr()
          <<" registration rcoa="<<rcoa<<" lcoa="<<lcoa);
+    return;
   }
-  else
-  {
+
 
     if (!mipv6cdsMN->primaryHA().get())
       return;
@@ -478,40 +474,7 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
       {
 	if (!tunMod->destroyTunnel(oldBULE->careOfAddr(), IPv6_ADDR_UNSPECIFIED))
 	  break;
-      }
-    
-#if EDGEHANDOVER
-    if (mob->edgeHandover()) //and previous map distance  = 1 then do pcoaf
-    {
-      //EH is brcoa  -> lcoa
-
-      EdgeHandover::EHCDSMobileNode* ehcds = rt->mipv6cds->ehcds;
-//      HierarchicalMIPv6::HMIPv6CDSMobileNode* hmipv6cdsMN = rt->mipv6cds->hmipv6cdsMN;
-      assert(ehcds);
-/*
-      // In basic EH the Maps are assumed to support binding from unlimited number of hops along edge
-      // i.e. no delineation of MAP boundaries so advertising is limited to only current AR
-      if (ehcds->boundMapAddr() != IPv6_ADDR_UNSPECIFIED)
-        assert(hmipv6cdsMN->mapEntries().count(ehcds->boundMapAddr()));
-*/
-      ipv6_addr bcoa = ehcds->boundCoa();
-      if (bcoa != IPv6_ADDR_UNSPECIFIED &&
-          ehcds->boundMapAddr() != bestMap.addr())
-	//Want to use diff method to signal EH support since
-	// we want to expand EH MAPs to more than just current AR domain
-//      &&    hmipv6cdsMN->mapEntries()[ehcds->boundMapAddr()].distance() == 1)
-      {
-        Dout(dc::eh, rt->nodeName()<<" Forwarding from bmap="<<ehcds->boundMapAddr()<<" to lcoa="
-             <<lcoa);
-        mstateMN->sendMapBU(ehcds->boundMapAddr(), lcoa, bcoa,
-                            static_cast<unsigned int> (mipv6cdsMN->pcoaLifetime()) * 2,
-                            ifIndex);
-
-      }
-    }
-#endif // EDGEHANDOVER
-
-  }
+      }  
 
 }
 /*

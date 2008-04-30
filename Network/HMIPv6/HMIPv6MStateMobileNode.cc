@@ -201,7 +201,7 @@ bool HMIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
       addrObj.setPreferredLifetime(ba->lifetime());
       mob->rt->assignAddress(addrObj, dgram->inputPort());
     }
-
+    //ba from MAP and HA still does not know about our new rcoa
     if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
     {
 #if EDGEHANDOVER
@@ -245,7 +245,7 @@ bool HMIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
       }
 #endif //EDGEHANDOVER
     }
-  }
+  } //end if ba comes from currentMap
 #if EDGEHANDOVER
   else if (hmipv6cds->isMAPValid() && mob->edgeHandover() &&
 	   dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr() &&

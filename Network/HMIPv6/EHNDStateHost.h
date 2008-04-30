@@ -75,12 +75,16 @@ class EHNDStateHost: public HierarchicalMIPv6::HMIPv6NDStateHost
   virtual ~EHNDStateHost();
   //@}
 
+  //@{ override HMIPv6NDStateHost functions
   ///Check and do returning home case
   virtual void returnHome();
 
-  //@{ EH Algorithm functions
-  virtual HMIPv6MAPEntry selectMAP(MAPOptions &maps, MAPOptions::iterator& new_end);
+  virtual std::auto_ptr<RA> discoverMAP(std::auto_ptr<RA> rtrAdv);
 
+  virtual HMIPv6MAPEntry selectMAP(MAPOptions &maps, MAPOptions::iterator& new_end);
+  //@}
+
+  //@{ EH Algorithm functions
   ///Subclasses have to override this
   virtual void mapAlgorithm() = 0;
 

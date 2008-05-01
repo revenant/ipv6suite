@@ -330,7 +330,7 @@ class TC_ConfTest < Test::Unit::TestCase
     begin
     wait = `bunzip2 -k wcmc_y_3.sca.bz2`
     throw 'failed to extract input test file' if not $? == 0
-      wait = `ruby #{File.dirname(__FILE__)}/../Scalars/scalars.rb -C #{yamltest} -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*'`
+      wait = `ruby #{File.dirname(__FILE__)}/../Scalars/scalars.rb -C #{yamltest} -v wcmc -f "wcmc_y_3.sca" -s 'client1,rtpl3Handover of client1.*' -X`
     throw 'failed to run scalars' if not $? == 0
     rescue => err
       puts "#{err} was from #{wait}" 

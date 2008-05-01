@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2004 Johnny Lai
+// Copyright (C) 2004, 2008 Johnny Lai
 //
 // This file is part of IPv6Suite
 //
@@ -72,6 +72,11 @@ EHTimedAlgorithm::~EHTimedAlgorithm()
  */
 void EHTimedAlgorithm::mapAlgorithm()
 {
+  using MobileIPv6::MIPv6RouterEntry;
+  using HierarchicalMIPv6::HMIPv6CDSMobileNode;
+
+  HMIPv6CDSMobileNode& hmipv6cdsMN = *(rt->mipv6cds->hmipv6cdsMN);
+
   Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" May do map algorithm");
   Dout(dc::eh, mob->nodeName()<<" mip->coa="<<mipv6cdsMN->careOfAddr()
        <<" hmip->rcoa="<<hmipv6cdsMN.remoteCareOfAddr()<<" eh->bcoa="<<
@@ -92,6 +97,8 @@ void EHTimedAlgorithm::mapAlgorithm()
       mstateMN->updateTunnelsFrom(mipv6cdsMN->primaryHA()->addr(), ehcds->boundMapAddr(), ifIndex, homeReg, mapReg);
       //trigger cns on old coa tunnel
       */
+      Dout(dc::eh, " Does this really happen i.e. can we get here now?");
+      assert(false);
       MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(rt->mipv6cds->hmipv6cdsMN->currentMap().addr());
       mnRole->sendBUToAll(
         rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
@@ -130,28 +137,54 @@ void EHTimedAlgorithm::mapAlgorithm()
     }
     else
     {
-      mnRole->sendBUToAll(
-        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
-      Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
-           <<" mapAlgorithm sent bu to all based on BA from bue: "<<*bue);
+      //hmipv6cdsMN.remoteCareOfAddr() can be 0::0 because we may not have sent a
+      //map handover to that yet. (use bcoa if never want to change bmap or
+      //as case for timed send reg to map first then to all)
+
+      //dgram used for port no (assume 0) and src addr in debug msg only
+      if (hmipv6cdsMN.remoteCareOfAddr() == IPv6_ADDR_UNSPECIFIED ||
+	  ehcds->boundCoa() != hmipv6cdsMN.remoteCareOfAddr())
+      {
+	IPv6Datagram* dgram = new IPv6Datagram();
+	dgram->setInputPort(0);
+        preprocessMapHandover(hmipv6cdsMN.currentMap(),
+			      mipv6cdsMN->currentRouter(), dgram);
+	Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
+	     <<" mapAlgorithm sent bu to all based on BA from bue: "<<*bue);
+
+	delete dgram;
+      }
     }
     mob->edgeHandoverCallback()->rescheduleDelay(interval);
   }
   else
   {
     //Called directly from processBA
+    assert(mob->edgeHandoverCallback()->contextPointer());
+    IPv6Datagram* dgram = (IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer());
+    ipv6_addr peerAddr = dgram->srcAddress();
+    MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
+
+    if (hmipv6cdsMN.isMAPValid())
+      //regardless of distance field treat single map option
+      //as meaning eh is enabled in simulated network. 
+      //but that is configuration error prone so hence enforce this
+      //for now so at least picks up config error which we manually
+      //correct instead. TODO add robust code so compatible with 
+      //HMIPv6 networks too by modifying EHNDStateHost::discoverMAP
+      //to only add MAPs colocated in ARs.
+      assert(hmipv6cdsMN.currentMap().distance() == 1);
+
     if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
     {
-      ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();
       delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
       mob->edgeHandoverCallback()->setContextPointer(0);
     
-      MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
 
-      mnRole->sendBUToAll(
-        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
       Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
            <<" First binding with HA so doing it straight away from bue: "<<*bue);
+      mnRole->sendBUToAll(
+        rt->mipv6cds->hmipv6cdsMN->remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());
 
       //Bind every x seconds from map ba
       /*
@@ -160,9 +193,52 @@ void EHTimedAlgorithm::mapAlgorithm()
       */
       return;
     }
+    else if (bue->isMobilityAnchorPoint() &&
+	     hmipv6cdsMN.remoteCareOfAddr() != IPv6_ADDR_UNSPECIFIED &&
+	     hmipv6cdsMN.remoteCareOfAddr() != ehcds->boundCoa())
+    {
+      delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+      mob->edgeHandoverCallback()->setContextPointer(0);
+      mnRole->sendBUToAll(hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());      
+      Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
+           <<" mapAlgorithm sent bu to all based on BA from MAP bue: "<<*bue);
+      return;
+    }
+    else if (peerAddr == mipv6cdsMN->primaryHA()->addr() &&
+	     hmipv6cdsMN.isMAPValid() &&
+      //make sure network is configured (eh not compatible with hmip then!)
+      //to have only maps at ARs. otherwise enforce below      
+	     hmipv6cdsMN.currentMap().distance() == 1)
+    {
+      ///If the HA's BA is acknowledging binding with another MAP besides the
+      ///currentMap's then this code block needs to be revised accordingly. It
+      ///is possible for currentMap to have changed whilst updating HA.
+      if (bue->careOfAddr() != hmipv6cdsMN.remoteCareOfAddr())
+      {
+	Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
+	     <<" perhaps due to BA not arriving to us previously? "
+	     <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cdsMN.remoteCareOfAddr());
+	assert(bue->careOfAddr() == hmipv6cdsMN.remoteCareOfAddr());
+      }
+      else
+      {
+	Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cdsMN.currentMap().addr()
+	     <<" inport="<<dgram->outputPort());
+	///outputPort should contain outer header's inputPort so we know which
+	///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
+	///original inport needed so we can configure the proper bcoa for multi homed MNs
+	assert(dgram->outputPort() >= 0);
+	ehcds->setBoundMap(hmipv6cdsMN.currentMap(), dgram->outputPort());
+      }
+      delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+      mob->edgeHandoverCallback()->setContextPointer(0);
+      return;
+    } //bu from HA
 
-    Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "
-         <<mob->edgeHandoverCallback()->arrivalTime());
+
+
+      //    Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" delaying binding with HA until "
+      //         <<mob->edgeHandoverCallback()->arrivalTime());
 
     //Bind every x seconds from map ba
     /*

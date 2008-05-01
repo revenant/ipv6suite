@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2004 Johnny Lai
+// Copyright (C) 2004, 2008 Johnny Lai
 //
 // This file is part of IPv6Suite
 //
@@ -135,12 +135,49 @@ typedef HierarchicalMIPv6::HMIPv6MAPEntry HMIPv6MAPEntry;
 
 static const  HMIPv6MAPEntry invalidMAP;
 
+/**
+   @brief override of base class
+
+   @note currentMap needs to be set to the map we are sending to HA
+   via preprocessMapHandover if we want it to become the new bcoa.
+*/
 
 std::auto_ptr<RA> EHNDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
 {
   using HierarchicalMIPv6::HMIPv6ICMPv6NDOptMAP;
   using MobileIPv6::MIPv6RouterEntry;
   using HierarchicalMIPv6::HMIPv6CDSMobileNode;
+
+  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
+  const ipv6_addr& ll_addr = dgram->srcAddress();
+  boost::shared_ptr<MIPv6RouterEntry> accessRouter = ehcds->mipv6cds->mipv6cdsMN->findRouter(ll_addr);
+  assert(accessRouter);
+
+  if (mipv6cdsMN->currentRouter() != accessRouter)
+  {
+    Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "//<<setprecision(6)
+	 <<nd->simTime()<<" MAP algorithm detected movement");
+    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
+    os <<rt->nodeName() <<" "<<rt->simTime()<<" MAP algorithm detected movement"<<"\n";
+
+    if (mipv6cdsMN->primaryHA() == accessRouter && !mipv6cdsMN->bulEmpty())
+    {
+      Dout(dc::notice|dc::mipv6|dc::mobile_move,  rt->nodeName()<<" "<<nd->simTime()
+	   <<" Returning home case detected");
+      returnHome();
+      relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
+      return rtrAdv; 
+    }
+
+    //Make sure we use the latest router as default router otherwise LBUs are
+    //sent via old router
+    relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
+    mipv6cdsMN->setAwayFromHome(true);
+  }
+
+  if (!mipv6cdsMN->awayFromHome())
+    return rtrAdv;
+
   HMIPv6CDSMobileNode& hmipv6cdsMN = *(ehcds->mipv6cds->hmipv6cdsMN);
   MAPOptions maps = rtrAdv->mapOptions();
   //assert(maps.size() == 1);
@@ -161,46 +198,31 @@ std::auto_ptr<RA> EHNDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   //history of moves)
   mapEntries[mapOpt.addr()] = mapOpt;
 
-  //current Map in EH is simply last visited MAP/current MAP at AR.
-  hmipv6cdsMN.setCurrentMap(mapOpt.addr());
 
-  IPv6Datagram* dgram = check_and_cast<IPv6Datagram*>(rtrAdv->encapsulatedMsg());
-  const ipv6_addr& ll_addr = dgram->srcAddress();
-  boost::shared_ptr<MIPv6RouterEntry> accessRouter = ehcds->mipv6cds->mipv6cdsMN->findRouter(ll_addr);
-  assert(accessRouter);
-
-  if (mipv6cdsMN->currentRouter() != accessRouter)
-  {
-    Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "//<<setprecision(6)
-	 <<nd->simTime()<<" MAP algorithm detected movement");
-    std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
-    os <<rt->nodeName() <<" "<<rt->simTime()<<" MAP algorithm detected movement"<<"\n";
-
-    if (mipv6cdsMN->primaryHA() == accessRouter && !mipv6cdsMN->bulEmpty())
-    {
-      Dout(dc::notice|dc::mipv6|dc::mobile_move,  rt->nodeName()<<" "<<nd->simTime()
-	   <<" Returning home case detected");
-      returnHome();
-      relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
-      return rtrAdv;     
-    }
-
-    //Make sure we use the latest router as default router otherwise LBUs are
-    //sent via old router
-    relinquishRouter(mipv6cdsMN->currentRouter(), accessRouter);
-    mipv6cdsMN->setAwayFromHome(true);
-  }
-  
   InterfaceEntry *ie = ift->interfaceByPortNo(accessRouter->re.lock()->ifIndex());
+  assert(dgram->inputPort() >= 0);
+  assert((unsigned int)dgram->inputPort() ==accessRouter->re.lock()->ifIndex());
   ipv6_addr lcoa = mipv6cdsMN->formCareOfAddress(accessRouter, ie);
   assert(hmipv6cdsMN.localCareOfAddr() != lcoa);
+
+  //have not got a bound map yet so forget updating our location
+  if (ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED)
+  {
+    //just make first map we see our bound map for now
+    preprocessMapHandover(mapOpt,
+                          accessRouter, dgram);
+    return rtrAdv;
+  }
+
+  //current Map in EH is simply last visited MAP/current MAP at AR.
+  hmipv6cdsMN.setCurrentMap(mapOpt.addr());
 
   ipv6_addr currentMap = hmipv6cdsMN.currentMapAddr();
   //arhandover operates on current map and since we want to continue binding
   //with bmap we do this
   hmipv6cdsMN.setCurrentMap(ehcds->boundMapAddr());
   arhandover(lcoa, dgram);
-  hmipv6cdsMN.setCurrentMap(currentMap);  
+  hmipv6cdsMN.setCurrentMap(currentMap);
 
   return rtrAdv;
 }

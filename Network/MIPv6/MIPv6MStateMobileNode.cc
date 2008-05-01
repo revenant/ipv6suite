@@ -654,6 +654,7 @@ void MIPv6MStateMobileNode::recordHODelay(const simtime_t buRecvTime, ipv6_addr 
 void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr hoa,
                                         size_t lifetime)
 {
+  assert(coa != IPv6_ADDR_UNSPECIFIED);
 
   //for every bu_entry send it the new details of the new BU and update the
   //binding entry in the process

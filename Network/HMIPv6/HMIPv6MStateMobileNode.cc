@@ -185,7 +185,8 @@ bool HMIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
   simtime_t now = mob->simTime();
   bu_entry* bue = mipv6cdsMN->findBU(dgram->srcAddress());
 
-  if (hmipv6cds->isMAPValid() && hmipv6cds->currentMap().addr() == dgram->srcAddress())
+  if (!mob->edgeHandover() && hmipv6cds->isMAPValid() &&
+      hmipv6cds->currentMap().addr() == dgram->srcAddress())
   {
     Dout(dc::hmip, mob->nodeName()<<" "<<now<<" BA from MAP "
 	 <<dgram->srcAddress());
@@ -204,78 +205,43 @@ bool HMIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     //ba from MAP and HA still does not know about our new rcoa
     if (mipv6cdsMN->careOfAddr() != hmipv6cds->remoteCareOfAddr())
     {
-#if EDGEHANDOVER
-      if (!mob->edgeHandover())
-      {
-#endif //EDGEHANDOVER
 	Dout(dc::hmip, " sending BU to all coa="
 	     <<hmipv6cds->remoteCareOfAddr()<<" hoa="<<mipv6cdsMN->homeAddr());
 
 	//Map is skipped
 	sendBUToAll(hmipv6cds->remoteCareOfAddr(), mipv6cdsMN->homeAddr(),
 		    bue->lifetime());
-#if EDGEHANDOVER
-      }
-      else
-      {
-	if (!mob->edgeHandoverCallback())
-	  //Exit code of 254
-	  DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
-	else
-	{
-	  //if rcoa does not prefix match the dgram->srcAddress we ignore
-	  //since we do not want to bind with HA using a coa from a previous MAP.
-
-	  Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
-	       <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
-	       <<" bcoa "<<ehcds->boundCoa());
-	  mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
-	  assert(dgram->inputPort() == 0);
-	  mob->edgeHandoverCallback()->callFunc();
-
-	  //Not something we should do as routerstate is for routers only
-	  //               EdgeHandover::EHNDStateHost* ehstate =
-	  //                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
-	  //                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
-	  //                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
-
-	  //               ehstate->invokeMapAlgorithmCallback(dgram);
-
-	}
-      }
-#endif //EDGEHANDOVER
     }
+    return false;
   } //end if ba comes from currentMap
-#if EDGEHANDOVER
-  else if (hmipv6cds->isMAPValid() && mob->edgeHandover() &&
-	   dgram->srcAddress() == mipv6cdsMN->primaryHA()->addr() &&
-	   ///Since we've restricted boundMaps to be only ARs (existing
-	   ///MIPv6RouterEntry when calling setBoundMap) they have to have a
-	   ///distance of 1.
-	   //Not true as we may want to bind with a previous map along the
-	   //edge so it will have distance > 1
-	   hmipv6cds->currentMap().distance() >= 1)
-  {
-    ///If the HA's BA is acknowledging binding with another MAP besides the
-    ///currentMap's then this code block needs to be revised accordingly. It
-    ///is possible for currentMap to have changed whilst updating HA.
-    if (bue->careOfAddr() != hmipv6cds->remoteCareOfAddr())
-    {
-      Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
-	   <<" perhaps due to BA not arriving to us previously? "
-	   <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cds->remoteCareOfAddr());
-      //assert(bue->careOfAddr() == hmipv6cds->remoteCareOfAddr());
-    }
 
-    Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cds->currentMap().addr()
-	 <<" inport="<<dgram->outputPort());
-    ///outputPort should contain outer header's inputPort so we know which
-    ///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
-    ///original inport needed so we can configure the proper bcoa for multi homed MNs
-    assert(dgram->outputPort() >= 0);
-    ehcds->setBoundMap(hmipv6cds->currentMap(), dgram->outputPort());
-  }
+  
+#if EDGEHANDOVER 
+
+  if (!mob->edgeHandover())
+    return false;
+
+  if (!mob->edgeHandoverCallback())
+    //Exit code of 254
+    DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
+   
+  Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
+       <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
+       <<" bcoa "<<ehcds->boundCoa());
+  mob->edgeHandoverCallback()->setContextPointer(dgram->dup());
+  if (bue->isMobilityAnchorPoint())
+    assert(dgram->inputPort() == 0);
+  mob->edgeHandoverCallback()->callFunc();
+  return false;
+  //Not something we should do as routerstate is for routers only
+  //               EdgeHandover::EHNDStateHost* ehstate =
+  //                 boost::polymorphic_downcast<EdgeHandover::EHNDStateHost*>
+  //                 (boost::polymorphic_downcast<NeighbourDiscovery*>(
+  //                   OPP_Global::findModuleByType(mob->rt, "NeighbourDiscovery"))->getRouterState());
+
+  //               ehstate->invokeMapAlgorithmCallback(dgram);
 #endif //EDGEHANDOVER
+
   return false;
 }
 

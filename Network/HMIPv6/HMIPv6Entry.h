@@ -63,7 +63,7 @@ class HMIPv6MAPEntry: boost::equality_comparable<HMIPv6MAPEntry>,
   friend std::ostream& operator<<(std::ostream& os, const HMIPv6MAPEntry& me);
 
 public:
-  HMIPv6MAPEntry(const ipv6_addr& address = IPv6_ADDR_UNSPECIFIED,
+  explicit HMIPv6MAPEntry(const ipv6_addr& address = IPv6_ADDR_UNSPECIFIED,
                  unsigned int expires = 0 , int dist = 1, int pref=9)
     :options(0), expires(expires), mapAddr(address)
     {

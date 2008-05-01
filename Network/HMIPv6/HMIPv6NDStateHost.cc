@@ -418,7 +418,6 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
   assert(bestMapAssigned);
   assert(hmipv6cdsMN.currentMap().addr() == bestMap.addr());
 
-  //sendBU to new/better MAP initially. (inter AR handover is done by by mip handover)
   //sendBU to HA at processBA of MIPv6 when BA from MAP received. (rcoa is valid now)
 
   //lifetime should really be min(map.lifetime(), lifetime of lcoa)

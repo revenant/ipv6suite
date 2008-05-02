@@ -1077,6 +1077,44 @@ bool  NDStateHost::prefixAddrConf(size_t ifIndex, const ipv6_addr& prefix,
   return false;
 }
 
+bool NDStateHost::removeTentativeAddress(InterfaceEntry* ie, ipv6_addr addr)
+{
+  
+  for(TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
+  {
+    //cout << rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<(*it)->name()<<endl;
+    if((*it)->kind() == Tmr_DupAddrSolTimeout && ie->outputPort() ==
+       static_cast<int> ((static_cast<NDTimer*>((*it)->contextPointer()))->ifIndex) &&
+       (static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr == addr)
+    {
+      // cancel duplicate detect timer message
+
+      //Should be scheduled if it isn't scheduled then message shouldn't
+      //be in queue (forgot to remove) or we are matching against wrong
+      //timeout msg
+      assert((*it)->isScheduled());
+
+      IPv6Address tentativeAddr = 
+	(static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr;
+
+      Dout(dc::ipv6|address_timer|flush_cf, rt->nodeName()<<":"<<ie->outputPort()
+	   <<" CANCEL "<<(*it)->name()<<" timer message for tentative addr "
+	   <<tentativeAddr);
+
+      ie->ipv6()->removeTentativeAddress(tentativeAddr);
+
+      delete nd->cancelEvent(*it);
+      delete (NDTimer*) (*it)->contextPointer();
+      timerMsgs.erase(it);
+      
+      //Found a duplicate tentative address and treated accordingly so
+      //stop further processing
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * @brief test received Neighbour solicitations' and advertisements'
  * target address is a tentative address of this node and process them
@@ -1107,38 +1145,12 @@ bool NDStateHost::checkDupAddrDetected(const ipv6_addr& targetAddr, IPv6Datagram
         Dout(dc::custom, rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<nd->simTime()
              <<" ODAD @todo Should attmmpt address generation when failed dad");
 
-      // TODO : Provide ND function to do all this
-      for(TMI it = timerMsgs.begin(); it != timerMsgs.end(); it++)
-      {
-        //cout << rt->nodeName()<<":"<<recDgram->inputPort()<<" "<<(*it)->name()<<endl;
-        if((*it)->kind() == Tmr_DupAddrSolTimeout && recDgram->inputPort() ==
-           static_cast<int> ((static_cast<NDTimer*>((*it)->contextPointer()))->ifIndex) &&
-           (static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr == targetAddr)
-        {
-          // cancel duplicate detect timer message
+      bool removed = removeTentativeAddress(ie, targetAddr);
+      assert(removed);
+      if (removed)
+	Dout(dc::warning|flush_cf, rt->nodeName()<<":"<<recDgram->inputPort()
+	     <<" duplicate address detected) "<<targetAddr);
 
-          //Should be scheduled if it isn't scheduled then message shouldn't
-          //be in queue (forgot to remove) or we are matching against wrong
-          //timeout msg
-          assert((*it)->isScheduled());
-
-          IPv6Address tentativeAddr = 
-	    (static_cast<NDTimer*>((*it)->contextPointer()))->tentativeAddr;
-          ie->ipv6()->removeTentativeAddress(tentativeAddr);
-
-          Dout(dc::warning|flush_cf, rt->nodeName()<<":"<<recDgram->inputPort()
-               <<" CANCEL "<<(*it)->name()<<" timer message (duplicate address detected) "
-               <<targetAddr);
-
-          delete nd->cancelEvent(*it);
-	  delete *it;
-          timerMsgs.erase(it);
-          //Found a duplicate tentative address and treated accordingly so
-          //stop further processing
-          return true;
-        }
-      }
-      assert(false);
   }
 
   return false;

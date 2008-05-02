@@ -48,8 +48,8 @@ class RoutingTable6;
 class InterfaceTable;
 class IPv6Datagram;
 struct ipv6_addr;
+class InterfaceEntry;
 class cTimerMessage;
-
 
 namespace IPv6NeighbourDiscovery
 {
@@ -177,7 +177,9 @@ namespace IPv6NeighbourDiscovery
     //returns no. of callbacks removed
     int removeAllCallbacks();
     int removeCallbacks(const ipv6_addr& addr);
-
+    
+    ///removes tentative addr and also associated DAD timers
+    bool removeTentativeAddress(InterfaceEntry* ie, ipv6_addr tentativeAddr);
   protected:
     std::vector<InterfaceStatus> ifStats;
 

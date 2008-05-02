@@ -1103,10 +1103,13 @@ void MIPv6NDStateHost::relinquishRouter(boost::shared_ptr<MIPv6RouterEntry> oldR
       {
 	addr = oie->ipv6()->matchPrefix((*it).prefix, (*it).length, true);
 	if (addr != IPv6_ADDR_UNSPECIFIED && addr != mipv6cdsMN->homeAddr())
-	  //Must be tentative addrs
-	  DoutFatal(dc::core|error_cf, "Unimplemented func for removing tentative addr when node moves "
-		    <<" too fast as dad timer has to be removed cleanly see "
-		    <<" checkDupAddrDetected and separate the bits there into separate func");
+	{
+	  Dout(dc::mipv6, rt->nodeName()<<" "<<nd->simTime()<<" tentative address removed "
+	       <<" due to fast movement or mispredicted movement ");
+	  removeCallbacks(addr);
+	  bool removed = removeTentativeAddress(oie, addr);	  
+	  assert(removed);
+	}
       }
 
     Dout(dc::prefix_timer|flush_cf, rt->nodeName()<<" removing on link prefix="

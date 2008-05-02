@@ -1863,6 +1863,9 @@ void WirelessEtherModule::initialiseChannelToScan(void)
         channelToScan[i] = true;
     }
 
+    if (chanNotToScan.empty())
+      return;
+
     // Mark unwanted channels based on XML input
     cStringTokenizer tokenizer(chanNotToScan.c_str(), "-");
     const char *token;

@@ -164,6 +164,10 @@ class ConfTest
     n = Array.new
     u = Array.new
     s = Array.new
+    if not File.exist?(filename)
+      filename = "Scalars/#{filename}"
+      raise "Unable to find #{filename}" if not File.exist?(filename)
+    end
     File.open(filename,"r"){|f|
       f.each_line{|l|
         if pattern.match(l)

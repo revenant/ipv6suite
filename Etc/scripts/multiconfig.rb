@@ -560,6 +560,61 @@ end
       [networkNames, filenames]
     end
 
+    def writeIniFile(final, factors, basenetname, inifile, filename, fileIndex, jobfile)
+      #opplink will create symbolic link to INET executabe with same name as
+      #directory
+      cwd = `pwd`.chomp
+      exename = `basename #{cwd}`.chomp
+
+        # {{{ ini block        
+        #write ini files (line oriented)
+        File.open(filename + ".ini", "w"){ |writeIniFile|
+          inifile.each_with_index {|line2,lineIndex|
+            #change network name in ini file to config specific name otherwise
+            #will run diff ned network settings!!
+            line = line2.dup
+            ReplaceStringAction.new(:ini, basenetname, @networkNames[fileIndex]).apply(line)
+            
+            SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
+
+            SetAction.new(:runtime, %|mobilityHandler.moveXmlConfig|, %|xmldoc("#{filename}.xml",  "netconf/global/ObjectMovement/MovingNode[1]")|).apply(line)
+
+            SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
+
+            applyActions(final, factors, fileIndex, line, lineIndex, :ini, inifile)
+            
+            raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
+            writeIniFile.puts line
+          } #end read inifile line by line
+         
+          # {{{ specify ned network to use, appends runs at end and put job line #
+          
+          writeIniFile.puts "[General]"
+          writeIniFile.puts "network = #{@networkNames[fileIndex]}"
+
+          scalarfile = filename + ".sca"
+          writeIniFile.puts "output-scalar-file = #{@scalarDir}#{scalarfile}"
+        
+          1.upto(@runCount) do |runIndex|
+            
+            vectorfile = "../../../../vecs/" + filename + DELIM + runIndex.to_s + ".vec"         
+            
+            writeIniFile.puts "[Run #{runIndex}]"
+            writeIniFile.puts "output-vector-file = #{vectorfile}"            
+
+            #write distjobs file
+            jobfile.puts "./#{exename} -f #{filename}.ini -r#{runIndex} 2>&1" if not @conftest
+          end
+            #Using the ConfTest to determine how many (just need @runCount to pregenerate
+            #vector file name. of course we could have renamed it after after sim runs.
+            jobfile.puts "./#{exename} -f #{filename}.ini -r1 2>&1" if @conftest
+          # }}}
+          
+        } #end writeIniFile
+        # }}}
+
+    end
+
     def applyActions(final, factors, fileIndex, line, lineIndex, symbol, file)
       configLevels = final[fileIndex].split(DELIM)
       configLevels.each_with_index do |l,idx|
@@ -595,79 +650,37 @@ end
       end
     end
 
-    basemodname = ARGV.shift
-    basenetname = netName(basemodname)
-    cwd = `pwd`.chomp
-    #opplink will create symbolic link to INET executabe with same name as
-    #directory
-    exename = `basename #{cwd}`.chomp
-    runcount = @runCount.nil??10:@runCount
+    @basemodname = ARGV.shift        
+    basenetname = netName(@basemodname)
+    @runCount = @runCount.nil??10:@runCount
     
     factors, levels, @actions = readConfigs
 
     if @check
-      checkRunResults(factors, levels, @runCount, basemodname)
+      checkRunResults(factors, levels, @runCount, @basemodname)
       exit
     end
     
     final = generateConfigNames(factors, levels)
-    networkNames, filenames = formFilenames(final, basemodname)
+    @networkNames, filenames = formFilenames(final, @basemodname)
     
-    nedfileOrig = IO.read(basemodname+".ned")
-    inifile = IO.readlines(basemodname+".ini")
-    
+    nedfileOrig = IO.read(@basemodname+".ned")
+    inifile = IO.readlines(@basemodname+".ini")
+    manyConfigs = filenames.size > 50
+
+    @scalarDir = ""
+    if manyConfigs
+      @scalarDir = "Scalars/" 
+      `mkdir -pv Scalars`
+      puts "output scalar files will go to #{@scalarDir}"
+    end
+
     File.open("jobs.txt","w"){|jobfile|
       filenames.each_with_index {|filename, fileIndex|
       
         #Add some actions at runtime i.e. as we can determine filenames easily here
 
-        # {{{ ini block        
-        #write ini files (line oriented)
-        File.open(filename + ".ini", "w"){ |writeIniFile|
-          inifile.each_with_index {|line2,lineIndex|
-            #change network name in ini file to config specific name otherwise
-            #will run diff ned network settings!!
-            line = line2.dup
-            ReplaceStringAction.new(:ini, basenetname, networkNames[fileIndex]).apply(line)
-            
-            SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
-
-            SetAction.new(:runtime, %|mobilityHandler.moveXmlConfig|, %|xmldoc("#{filename}.xml",  "netconf/global/ObjectMovement/MovingNode[1]")|).apply(line)
-
-            SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
-
-            applyActions(final, factors, fileIndex, line, lineIndex, :ini, inifile)
-            
-            raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
-            writeIniFile.puts line
-          } #end read inifile line by line
-         
-          # {{{ specify ned network to use, appends runs at end and put job line #
-          
-          writeIniFile.puts "[General]"
-          writeIniFile.puts "network = #{networkNames[fileIndex]}"
-
-          scalarfile = filename + ".sca"
-          writeIniFile.puts "output-scalar-file = #{scalarfile}"
-
-          1.upto(runcount) do |runIndex|
-            
-            vectorfile = "../../../../vecs/" + filename + DELIM + runIndex.to_s + ".vec"         
-            
-            writeIniFile.puts "[Run #{runIndex}]"
-            writeIniFile.puts "output-vector-file = #{vectorfile}"            
-
-            #write distjobs file
-            jobfile.puts "./#{exename} -f #{filename}.ini -r#{runIndex} 2>&1" if not @conftest
-          end
-            #Using the ConfTest to determine how many (just need runcount to pregenerate
-            #vector file name. of course we could have renamed it after after sim runs.
-            jobfile.puts "./#{exename} -f #{filename}.ini -r1 2>&1" if @conftest
-          # }}}
-          
-        } #end writeIniFile
-        # }}}
-
+        writeIniFile(final, factors, basenetname, inifile, filename, fileIndex, jobfile)
         # {{{ ned block
         
         nedfile = nedfileOrig.dup
@@ -679,8 +692,8 @@ end
           
           applyActions(final, factors, fileIndex, line, lineIndex, :ned, nedfile)
         
-          ReplaceStringAction.new(:ned, basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
-          ReplaceStringAction.new(:ned, basenetname, networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
+          ReplaceStringAction.new(:ned, @basemodname, filenames[fileIndex]).apply(line, lineIndex, nedfile, nil)
+          ReplaceStringAction.new(:ned, basenetname, @networkNames[fileIndex]).apply(line, lineIndex, nedfile, nil)
           
 
           writeNedFile.print nedfile
@@ -689,11 +702,11 @@ end
 
         # {{{ xml block
 
-        xmllines = IO.readlines(basemodname+".xml")
+        xmllines = IO.readlines(@basemodname+".xml")
 
         if factors.include? "scheme" then
           scheme = final[fileIndex].split(DELIM)[factors.index("scheme")]          
-          xmllines = IO.readlines(basemodname+scheme+".xml") if (scheme == "hmip")
+          xmllines = IO.readlines(@basemodname+scheme+".xml") if (scheme == "hmip")
         end
 
         #write xml files

@@ -156,9 +156,9 @@ std::auto_ptr<RA> EHNDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   if (mipv6cdsMN->currentRouter() != accessRouter)
   {
     Dout(dc::mobile_move|dc::hmip, rt->nodeName()<<" "//<<setprecision(6)
-	 <<nd->simTime()<<" MAP algorithm detected movement");
+	 <<nd->simTime()<<" EH MAP algorithm detected movement");
     std::ostream& os = IPv6Utils::printRoutingInfo(false, 0, "", false);
-    os <<rt->nodeName() <<" "<<rt->simTime()<<" MAP algorithm detected movement"<<"\n";
+    os <<rt->nodeName() <<" "<<rt->simTime()<<" EH MAP algorithm detected movement"<<"\n";
 
     if (mipv6cdsMN->primaryHA() == accessRouter && !mipv6cdsMN->bulEmpty())
     {

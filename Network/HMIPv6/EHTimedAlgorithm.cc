@@ -78,9 +78,6 @@ void EHTimedAlgorithm::mapAlgorithm()
   HMIPv6CDSMobileNode& hmipv6cdsMN = *(rt->mipv6cds->hmipv6cdsMN);
 
   Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()<<" May do map algorithm");
-  Dout(dc::eh, mob->nodeName()<<" mip->coa="<<mipv6cdsMN->careOfAddr()
-       <<" hmip->rcoa="<<hmipv6cdsMN.remoteCareOfAddr()<<" eh->bcoa="<<
-       ehcds->boundCoa());
   if (!hmipv6cdsMN.isMAPValid() ||
       hmipv6cdsMN.currentMap().addr() == ehcds->boundMapAddr())
   {
@@ -109,10 +106,9 @@ void EHTimedAlgorithm::mapAlgorithm()
     return; //unless state of binding has changed or is about to expire
   }
 
-  Dout(dc::eh|flush_cf, mob->nodeName()<<" "<<nd->simTime()<<" invoking map algorithm");
-
   if (!mob->edgeHandoverCallback()->isScheduled())
   {
+    Dout(dc::eh|flush_cf, mob->nodeName()<<" "<<nd->simTime()<<" invoking map algorithm");
     //Possible that while we have set a valid MAP we have not actually received a BA from it yet 
     //so callback args are not set. This happens due to lossy property of wireless env.
     if (!((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer())))
@@ -121,6 +117,10 @@ void EHTimedAlgorithm::mapAlgorithm()
       mob->edgeHandoverCallback()->rescheduleDelay(interval);
       return;
     }
+
+    Dout(dc::eh, mob->nodeName()<<" mip->coa="<<mipv6cdsMN->careOfAddr()
+	 <<" hmip->rcoa="<<hmipv6cdsMN.remoteCareOfAddr()<<" eh->bcoa="<<
+	 ehcds->boundCoa());
 
     //Called when timer expires
     ipv6_addr peerAddr = ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()))->srcAddress();

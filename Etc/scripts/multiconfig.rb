@@ -477,33 +477,37 @@ end
   def  checkRunResults(factors, levels, runCount, basename)
     expectedCount = runCount * configCount(factors, levels)
     multiple = false
-    if File.directory? @check
-      logfilepattern = "#{@check}/*.o*"
+    logdir = File.expand_path("~/simlogs")
+    logfilepattern = "#{logdir}/#{basename}*.log"
+
+    if Dir[logfilepattern].length > 1 then
       multiple = true
-    else if Dir["#{basename}*.log"].length > 1 then
-           logfilepattern = "#{basename}*.log"
-           multiple = true
-         end
     end
+
     if multiple
       started = 0;
       ended = 0;
-      Dir[logfilepattern].each{|joblog| 
         #takes too long
         #`cat #{joblog} >> #{catlogfile}` 
-        ended = ended + 1 if `grep Run #{joblog}| grep end`.length > 0
-        started = started + 1 if `grep Run #{joblog}| grep Prepar`.length > 0
-      }
-      puts "Runs finished according to multiple logs #{ended}/#{started}"
+      ended = `grep Run #{logfilepattern}| grep end|wc`.split()[0]
+      started = `grep Run #{logfilepattern}| grep Prepar|wc`.split()[0]
+      puts "Runs finished according to multiple logs #{ended}/#{started} end/started"
     else
       puts "Runs finished according to log "+ `grep Run #{@check} |grep end|wc`.split(' ')[0]
       puts "Runs started according to log " + `grep Run #{@check} |grep Prepar|wc`.split(' ')[0]
     end
 
-    for ext in [ "sca", "vec" ]
-      vecFileCount = Dir["#{basename}*#{DELIM}*.#{ext}"].size
-      puts "Found #{vecFileCount}/#{expectedCount} #{ext} files"
-      next if expectedCount == vecFileCount
+    for ext in [ "sca"]#, "vec" ]
+      vecpattern = "#{basename}*#{DELIM}*.#{ext}"
+      vecFileCount = Dir[vecpattern].size
+      if vecFileCount == 0
+        vecFileCount = Dir["Scalars/#{vecpattern}"].size 
+        vecpattern = "Scalars/#{vecpattern}"
+      end
+
+      scarecorded = `grep run #{vecpattern}|wc`.split[0]
+      puts "Found #{vecFileCount} #{ext} files with #{scarecorded}/#{ended} runsrecorded/end"
+      next if ended.to_i <= scarecorded.to_i
       
       puts "Counts do not match for #{ext} files! Make sure you specified correct run count and basename."
       
@@ -558,6 +562,41 @@ end
         netName(n)
       }
       [networkNames, filenames]
+    end
+
+    def applyActions(final, factors, fileIndex, line, lineIndex, symbol, file)
+      configLevels = final[fileIndex].split(DELIM)
+      configLevels.each_with_index do |l,idx|
+        origlevel = l.dup
+        l = safeLevelLabel(l, true)
+        me = factors[idx]
+
+        if @actions.include? me
+          if not @actions[me].class == Hash
+            iniactions = @actions[me].select {|item|
+              item.symbol == symbol
+            }
+          else                  
+            iniactions = @actions[me][l].select{|items|
+              items.symbol == symbol
+            }
+          end
+          for a in iniactions do
+            #apply file actions only on lineIndex == 0            
+            a.apply(line, lineIndex, file, l)
+          end
+          next #skip level specific actions
+        end
+        
+        #do level specific actions
+        next if not @actions.include?(l)
+        iniactions = @actions[l].select{|items|
+          items.symbol == symbol
+        }
+        for a in iniactions do
+          a.apply(line, lineIndex, file, l)
+        end
+      end
     end
 
     def writeIniFile(final, factors, basenetname, inifile, filename, fileIndex, jobfile)
@@ -615,41 +654,6 @@ end
 
     end
 
-    def applyActions(final, factors, fileIndex, line, lineIndex, symbol, file)
-      configLevels = final[fileIndex].split(DELIM)
-      configLevels.each_with_index do |l,idx|
-        origlevel = l.dup
-        l = safeLevelLabel(l, true)
-        me = factors[idx]
-
-        if @actions.include? me
-          if not @actions[me].class == Hash
-            iniactions = @actions[me].select {|item|
-              item.symbol == symbol
-            }
-          else                  
-            iniactions = @actions[me][l].select{|items|
-              items.symbol == symbol
-            }
-          end
-          for a in iniactions do
-            #apply file actions only on lineIndex == 0            
-            a.apply(line, lineIndex, file, l)
-          end
-          next #skip level specific actions
-        end
-        
-        #do level specific actions
-        next if not @actions.include?(l)
-        iniactions = @actions[l].select{|items|
-          items.symbol == symbol
-        }
-        for a in iniactions do
-          a.apply(line, lineIndex, file, l)
-        end
-      end
-    end
-
     @basemodname = ARGV.shift        
     basenetname = netName(@basemodname)
     @runCount = @runCount.nil??10:@runCount
@@ -668,6 +672,8 @@ end
     inifile = IO.readlines(@basemodname+".ini")
     manyConfigs = filenames.size > 50
 
+    #makes it easier to compare things
+    manyConfigs = false if @debug 
     @scalarDir = ""
     if manyConfigs
       @scalarDir = "Scalars/" 
@@ -1066,7 +1072,52 @@ output was #{output}")
   ensure
     File.delete(scripttest)
   end
-  
+
+  def write_test_script(scripttest, yamltest, basename, runcount)
+    File.open(scripttest, "w"){|f|
+      script = <<END
+rm -fr compare
+tar jxvf #{File.basename(yamltest,".yaml")}-compare.tar.bz2 &> /dev/null
+rm -fr results &> /dev/null
+rm -fr #{basename}_*.{ned,ini,xml} jobs.txt
+mkdir -pv results &> /dev/null
+ruby #{__FILE__} -r #{runcount} -C #{yamltest} #{basename} -X #&>/dev/null
+mv #{basename}_*.{ned,ini,xml} results &> /dev/null
+diff -r results compare
+rm -fr compare results
+END
+      f.puts script
+    }
+  end
+
+  def test_stage2
+    Dir.chdir(File.expand_path("../wcmc"))
+    scripttest = "test_stage2.sh"
+    yamltest = "stage2.yaml"
+    basename = "wcmc"
+    write_test_script(scripttest, yamltest, basename, 2)
+    output = `sh #{scripttest}`
+    assert(output.length == 0, 
+           "difference detected in generated scripts in results dir in comparison to compare dir, \
+output was #{output}")      
+  ensure
+    File.delete(scripttest)
+  end
+
+  def test_finalconf
+    Dir.chdir(File.expand_path("../Comparison"))
+    scripttest = "test_finalconf.sh"
+    yamltest = "finalconf.yaml"
+    basename = "EHComp"
+    write_test_script(scripttest, yamltest, basename, 10)
+    output = `sh #{scripttest}`
+    assert(output.length == 0, 
+           "difference detected in generated scripts in results dir in comparison to compare dir, \
+output was #{output}")      
+  ensure
+    File.delete(scripttest)
+  end
+
   def setup
     @app = $app
     @factors = ["scheme", "dnet", "dmap", "ar"]

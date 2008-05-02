@@ -225,7 +225,8 @@ bool HMIPv6MStateMobileNode::processBA(BA* ba, IPv6Datagram* dgram)
     //Exit code of 254
     DoutFatal(dc::fatal, "You forgot to set the callback for edge handover cannot proceed");
    
-  Dout(dc::eh, mob->nodeName()<<" invoking eh callback based on BA from bue "<<*bue
+  Dout(dc::eh, mob->nodeName()<<":"<<dgram->inputPort()<<mob->simTime()
+       <<" invoking eh callback based on BA from bue "<<*bue
        <<" coa="<<mipv6cdsMN->careOfAddr() <<" rcoa="<<hmipv6cds->remoteCareOfAddr()
        <<" bcoa "<<ehcds->boundCoa());
   mob->edgeHandoverCallback()->setContextPointer(dgram->dup());

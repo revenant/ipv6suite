@@ -78,7 +78,7 @@ ADD_CUSTOM_TARGET(xsddoc	    sh ${MISCDIR}/XSD2HTML/xsd2html.sh
   )
 
 ADD_CUSTOM_TARGET(statcvs	    cd ${PROJECT_SOURCE_DIR}\;
-  cvs -f -z 9 log > ${GENERATED_DOCUMENTATION_DIR}/cvs.log \;
+  cvs -f log > ${GENERATED_DOCUMENTATION_DIR}/cvs.log \;
   unset LC_CTYPE\;
   java -jar ~/Java/statcvs.jar  -viewcvs "http://localhost/cgi-bin/viewcvs.cgi/${PROJECT_NAME}" -title ${PROJECT_NAME} -output-dir ${GENERATED_DOCUMENTATION_DIR}/${PROJECT_NAME}-statcvs ${GENERATED_DOCUMENTATION_DIR}/cvs.log ${PROJECT_SOURCE_DIR}\;
   rm ${GENERATED_DOCUMENTATION_DIR}/cvs.log \;

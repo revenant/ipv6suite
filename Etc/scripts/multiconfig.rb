@@ -543,6 +543,8 @@ end
   def run
 
     def netName(modulename)
+      #if modulename is formed from 2 words or more make the first
+      #downcase
       netname = modulename.sub(/^([A-Z]+?[a-z]*?[A-Z]+)/) {|first|
         last = first.length-2
         #this is not same as next line !!!!! :[] why
@@ -550,6 +552,8 @@ end
         first[0..last] = first[0..last].downcase
         first
       }
+      #If modulename is formed from only a single word make it downcase
+      netname.downcase! if (netname =~ /^([A-Z])/)
       netname = netname + "Net"
     end
 
@@ -610,6 +614,7 @@ end
       exename = `basename #{cwd}`.chomp
 
         # {{{ ini block        
+
         #write ini files (line oriented)
         File.open(filename + ".ini", "w"){ |writeIniFile|
           inifile.each_with_index {|line2,lineIndex|
@@ -654,12 +659,15 @@ end
           # }}}
           
         } #end writeIniFile
+
         # }}}
 
     end
 
     @basemodname = ARGV.shift        
     basenetname = netName(@basemodname)
+    puts "basenetname is #{basenetname}" if @debug
+
     @runCount = @runCount.nil??10:@runCount
     
     factors, levels, @actions = readConfigs

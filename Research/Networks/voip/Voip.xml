@@ -69,11 +69,6 @@
       <inetAddr>FEC0:0:0:4:4fde:3e48:e6ee:cdc2</inetAddr>    
     </interface>
     <interface name="ppp4">
-<!-- used new iface ll addr (which does not belong to this node)) since by
-      adding one interface rearranges all following LLaddrs. Really need to
-      automate table gen. In future put the router that may be expanded last so
-      this does not happen!  
--->
       <inetAddr>FEC0:0:0:5:27c:8bff:fe8f:8c3d</inetAddr>
     </interface>
     <route>
@@ -122,6 +117,20 @@
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:1:568b:d78a:b491:4c36"/>
       <routeEntry routeIface="eth1" routeDestination="3011:0:0:1:0:0:0:0/64" />
+      <routeEntry 
+	routeIface="ppp2" routeDestination="3011:0:0:2:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:3:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:5:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
+      <routeEntry 
+	routeIface="ppp2" routeDestination="FEC0:0:0:22:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:33:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:55:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:d:0:0"/>
     </route>
 </local>
 
@@ -146,6 +155,19 @@
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:2:87f:92b3:5e66:4962"/>
       <routeEntry routeIface="eth1" routeDestination="3011:0:0:2:0:0:0:0/64" />
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:1:0:0:0:0/64"
+      routeNextHop="fe80:0:0:0:0:b:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="301b:0:0:11:0:0:0:0/64"
+      routeNextHop="fe80:0:0:0:0:b:0:0"/>
+
+      <routeEntry routeIface="ppp3" routeDestination="3011:0:0:3:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:10:0:0"/>
+      <routeEntry routeIface="ppp3" routeDestination="3011:0:0:5:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:10:0:0"/>
+      <routeEntry routeIface="ppp3" routeDestination="FEC0:0:0:33:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:10:0:0"/>
+      <routeEntry routeIface="ppp3" routeDestination="FEC0:0:0:55:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:10:0:0"/>
     </route>
   </local>
 
@@ -170,6 +192,21 @@
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:3:6c48:ade:96d4:5948"/>
       <routeEntry routeIface="eth1" routeDestination="3011:0:0:3:0:0:0:0/64" />
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:1:0:0:0:0/64"
+      routeNextHop="fe80:0:0:0:0:e:0:0"/>
+      <routeEntry 
+	routeIface="ppp2" routeDestination="3011:0:0:2:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:e:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="301b:0:0:11:0:0:0:0/64"
+      routeNextHop="fe80:0:0:0:0:e:0:0"/>
+      <routeEntry 
+	routeIface="ppp2" routeDestination="FEC0:0:0:22:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:e:0:0"/>
+
+      <routeEntry routeIface="ppp3" routeDestination="3011:0:0:5:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:13:0:0"/>
+      <routeEntry routeIface="ppp3" routeDestination="FEC0:0:0:55:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:13:0:0"/>
     </route>
 </local>
 
@@ -203,6 +240,20 @@
       <routeEntry routeIface="ppp0"
       routeDestination="0/0" routeNextHop="FEC0:0:0:5:27c:8bff:fe8f:8c3d"/>
       <routeEntry routeIface="eth1" routeDestination="3011:0:0:5:0:0:0:0/64" />
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:1:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:11:0:0"/>
+      <routeEntry 
+	routeIface="ppp2" routeDestination="3011:0:0:2:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:11:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="3011:0:0:3:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:11:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="301b:0:0:11:0:0:0:0/64"
+      routeNextHop="fe80:0:0:0:0:11:0:0"/>
+      <routeEntry 
+	routeIface="ppp2" routeDestination="FEC0:0:0:22:0:0:0:0/64"
+	routeNextHop="fe80:0:0:0:0:11:0:0"/>
+      <routeEntry routeIface="ppp2" routeDestination="FEC0:0:0:33:0:0:0:0/64" 
+	routeNextHop="fe80:0:0:0:0:11:0:0"/>
     </route>
 </local>
 

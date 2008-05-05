@@ -2,6 +2,8 @@
 - - error
   - codec
   - lambdaL
+  - dmap
+  - dnet
 - scheme: 
   - hmip
   - mip
@@ -17,6 +19,14 @@
   - g711plc
   lambdaL:
   - 0
+  dmap: &id001 
+    - "2"
+    - "10"
+    - "20"
+  dnet: &id002 
+    - "20"
+    - "50"
+    - "100"
 - scheme:
     hmip: 
     - !ruby/object:ToggleAction 
@@ -175,3 +185,15 @@
       attribute: moveSpeed
       symbol: :xml
       value: "\"10\""
+  dmap: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: VoipMapCable
+    symbol: :ned
+    value: *id001
+  dnet: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: VoipInternetCable
+    symbol: :ned
+    value: *id002

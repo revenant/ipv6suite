@@ -128,7 +128,7 @@ class SetFactorChannelAction < Action
     raise "dud level #{level} passed in! as not in channels=" + @value.to_s if not @value.include? level
     #? for non greedy i.e. quit as soon as found first matching pattern instead
     #of match as much as possible
-    
+
     return nil if not (line == nil or line == 0)
     file.sub!(Regexp.new(/channel\s+?#{@channel}\s*?\n.*?\n*?\s*?(#{@attribute}\s*?[[:alnum:]-]+?;)\n/m)) { |match|
       previous = $1.dup
@@ -679,7 +679,12 @@ end
     
     final = generateConfigNames(factors, levels)
     @networkNames, filenames = formFilenames(final, @basemodname)
-    
+
+    displayProgress = false
+    if (filenames.size > 300)
+      puts "number of configurations is #{filenames.size} will take some time"
+      displayProgress = true
+    end
     nedfileOrig = IO.read(@basemodname+".ned")
     inifile = IO.readlines(@basemodname+".ini")
     manyConfigs = filenames.size > 50
@@ -695,7 +700,7 @@ end
 
     File.open("jobs.txt","w"){|jobfile|
       filenames.each_with_index {|filename, fileIndex|
-      
+        print %|#{"\b"*80}#{fileIndex+1}/#{filenames.size}| if (displayProgress)
         #Add some actions at runtime i.e. as we can determine filenames easily here
 
         writeIniFile(final, factors, basenetname, inifile, filename, fileIndex, jobfile)
@@ -865,6 +870,53 @@ END
                  #                 SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", @levels["dmap"]).apply(file = lines, level = 345),
                  SetFactorChannelAction.new(:ned, "EHCompIntranetCable", "delay", @levels["dmap"]).apply(nil, nil, file = lines, level = 345),
                  "better be equal with multiline regexp")                 
+
+lines2 = <<END
+import
+    "WorldProcessor",
+    "Router6",
+    "UDPNode",
+    "WorldProcessor",
+    "WirelessAccessPoint",
+    "WirelessMobileNode";
+
+
+
+
+channel VoipMapCable
+    datarate 100e6;
+    delay 10e-3;
+endchannel
+
+channel VoipInternetCable
+    datarate 100e6;
+    delay 100e-3;
+endchannel
+
+channel VoipEdgeCable
+    datarate 100e6;
+    delay 1e-3;
+endchannel
+
+channel VoipIntranetCable
+    datarate 100e6;
+    delay 10e-3;
+endchannel
+
+module Voip
+END
+    expected = "import\n    \"WorldProcessor\",\n    \"Router6\",\n    \"UDPNode\",\n    \"WorldProcessor\",\n    \"WirelessAccessPoint\",\n    \"WirelessMobileNode\";\n\n\n\n\nchannel VoipMapCable\n    datarate 100e6;\n    delay 10e-3;\nendchannel\n\nchannel VoipInternetCable\n    datarate 100e6;\n    delay 50e-3;\nendchannel\n\nchannel VoipEdgeCable\n    datarate 100e6;\n    delay 1e-3;\nendchannel\n\nchannel VoipIntranetCable\n    datarate 100e6;\n    delay 10e-3;\nendchannel\n\nmodule Voip\n"
+    assert_equal(expected,
+                 SetFactorChannelAction.new(:ned, "VoipInternetCable", "delay", @levels["dnet"]).apply(nil, nil, lines2, 50),
+                 "better be equal with multiline regexp")
+    
+    expected = "import\n    \"WorldProcessor\",\n    \"Router6\",\n    \"UDPNode\",\n    \"WorldProcessor\",\n    \"WirelessAccessPoint\",\n    \"WirelessMobileNode\";\n\n\n\n\nchannel VoipMapCable\n    datarate 100e6;\n    delay 345e-3;\nendchannel\n\nchannel VoipInternetCable\n    datarate 100e6;\n    delay 50e-3;\nendchannel\n\nchannel VoipEdgeCable\n    datarate 100e6;\n    delay 1e-3;\nendchannel\n\nchannel VoipIntranetCable\n    datarate 100e6;\n    delay 10e-3;\nendchannel\n\nmodule Voip\n"
+    assert_equal(expected,
+                 #why can't we have named arguments :(
+                 #                 SetFactorChannelAction.new(:ned, "VoipMapCable", "delay", @levels["dmap"]).apply(file = lines, level = 345),
+                 SetFactorChannelAction.new(:ned, "VoipMapCable", "delay", @levels["dmap"]).apply(nil, nil, file = lines2, level = 345),
+                 "better be equal with multiline regexp")                 
+
   end
   
   def test_generateConfigNames
@@ -1102,7 +1154,7 @@ END
     }
   end
 
-  def test_stage2
+  def ntest_stage2
     Dir.chdir(File.expand_path("../wcmc"))
     scripttest = "test_stage2.sh"
     yamltest = "stage2.yaml"
@@ -1116,7 +1168,7 @@ output was #{output}")
     File.delete(scripttest)
   end
 
-  def test_finalconf
+  def ntest_finalconf
     Dir.chdir(File.expand_path("../Comparison"))
     scripttest = "test_finalconf.sh"
     yamltest = "finalconf.yaml"

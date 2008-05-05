@@ -3,6 +3,8 @@
   - error
   - codec
   - lambdaL
+  - dmap
+  - dnet
 - scheme: 
   - hmip
   - mip
@@ -190,18 +192,18 @@
       attribute: moveSpeed
       symbol: :xml
       value: "\"10\""
-    dmap: 
-    - !ruby/object:SetFactorChannelAction 
-      attribute: delay
-      channel: VoipIntranetCable
-      symbol: :ned
-      value: *id001
-    dnet: 
-    - !ruby/object:SetFactorChannelAction 
-      attribute: delay
-      channel: VoipInternetCable
-      symbol: :ned
-      value: *id002
+  dmap: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: VoipMapCable
+    symbol: :ned
+    value: *id001
+  dnet: 
+  - !ruby/object:SetFactorChannelAction 
+    attribute: delay
+    channel: VoipInternetCable
+    symbol: :ned
+    value: *id002
   ar: 
     n: 
     - !ruby/object:ToggleAction 

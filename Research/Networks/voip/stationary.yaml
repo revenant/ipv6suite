@@ -78,7 +78,7 @@
       symbol: :ini
       value: |
   
-       include gsm-efr.ini
+       include ../../../Etc/gsm-efr.ini
   
     amr:
     - !ruby/object:InsertAction 
@@ -86,7 +86,7 @@
       symbol: :ini
       value: |
   
-       include amr.ini
+       include ../../../Etc/amr.ini
   
     g729a:
     - !ruby/object:InsertAction 
@@ -94,7 +94,7 @@
       symbol: :ini
       value: |
   
-       include g729a.ini
+       include ../../../Etc/g729a.ini
   
     g711plc:
     - !ruby/object:InsertAction 
@@ -102,7 +102,7 @@
       symbol: :ini
       value: |
   
-       include g711pcl.ini
+       include ../../../Etc/g711plc.ini
   lambdaL:
     0:
     - !ruby/object:InsertAction 
@@ -111,7 +111,7 @@
       value: |
        **.mn.**.moveXmlConfig = xmldoc("Voip.xml", "netconf/misc/ObjectMovement/MovingNode[1]")
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1055

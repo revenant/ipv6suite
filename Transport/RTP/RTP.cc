@@ -843,7 +843,7 @@ void RTP::finish()
 
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
     
-    if (isMobileNode())
+    if (isMobileNode() && rme.handStat)
     {
       rme.handStat->recordScalar((std::string("rtpHandover of ") + OPP_Global::nodeName(this)).c_str());
       rme.l2handStat->recordScalar((std::string("rtpl2Handover of ") + OPP_Global::nodeName(this)).c_str());

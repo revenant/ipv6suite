@@ -85,7 +85,7 @@
       symbol: :ini
       value: |
   
-       include gsm-efr.ini
+       include ../../../Etc/gsm-efr.ini
   
     amr:
     - !ruby/object:InsertAction 
@@ -93,7 +93,7 @@
       symbol: :ini
       value: |
   
-       include amr.ini
+       include ../../../Etc/amr.ini
   
     g729a:
     - !ruby/object:InsertAction 
@@ -101,7 +101,7 @@
       symbol: :ini
       value: |
   
-       include g729a.ini
+       include ../../../Etc/g729a.ini
   
     g711plc:
     - !ruby/object:InsertAction 
@@ -109,7 +109,7 @@
       symbol: :ini
       value: |
   
-       include g711pcl.ini
+       include ../../../Etc/g711plc.ini
   lambdaL:
     0:
     - !ruby/object:InsertAction 

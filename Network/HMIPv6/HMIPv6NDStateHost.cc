@@ -63,8 +63,12 @@ namespace HierarchicalMIPv6
 {
 
 HMIPv6NDStateHost::HMIPv6NDStateHost(NeighbourDiscovery* mod)
-  :MIPv6NDStateHost(mod), hmipv6cdsMN(*rt->mipv6cds->hmipv6cdsMN)
-{}
+    :MIPv6NDStateHost(mod), hmipv6cdsMN(*rt->mipv6cds->hmipv6cdsMN), 
+     forwardFromPreviousMap(false)
+{
+  if (mod->par("forwardFromPreviousMap").boolValue())
+    forwardFromPreviousMap = true;
+}
 
 HMIPv6NDStateHost::~HMIPv6NDStateHost()
 {}
@@ -475,6 +479,9 @@ void HMIPv6NDStateHost::mapHandover(const ArgMapHandover& t)
 	  break;
       }  
 
+    if (forwardFromPreviousMap)
+      //placed here otherwise oldBULE->careofAddr would refer to lcoa !!! if before destroyTunnel	
+      mstateMN->sendMapBU(oldBULE->addr(), lcoa, oldBULE->homeAddr(), 3, ifIndex);
 }
 /*
 //TODO 

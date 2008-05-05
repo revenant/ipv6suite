@@ -4,16 +4,12 @@
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
   <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
   mobileIPv6Role="MobileNode" routeOptimisation="on"
-  hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
-	eagerHandover="on" earlyBU='on'>
+  hierarchicalMIPv6Support="on" edgeHandoverType=""
+	eagerHandover="on">
     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
     </interface>
   </local>
-  <local node="cn" mobileIPv6Support="on" earlyBU='on'>
-    <interface name="ppp0">
-<!--    should be autoconfed but need to determine for traffic source
-  <inetAddr>3011:0:0:b:21ac:240a:911:bba</inetAddr> -->
-    </interface>
+  <local node="cn" mobileIPv6Support="on">
   </local>
 
 
@@ -23,7 +19,7 @@
       <inetAddr>FEC0:0:0:a:fe12:7bc0:a02e:7212</inetAddr>
     </interface>
     <interface name="eth1" AdvSendAdvertisements="on" AdvHomeAgent="on"
-      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08"
+      MIPv6MaxRtrAdvInterval="1.5" MIPv6MinRtrAdvInterval="1"
       MaxFastRAS="10">
       <inetAddr>3011:0:0:a:606:98ff:fe24:52f5</inetAddr>
       <AdvPrefixList>
@@ -110,7 +106,8 @@
       <inetAddr>fec0:0:0:1:b573:569d:74fb:2b75</inetAddr>
     </interface>
     <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on" AdvHomeAgent="on"
-      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      MIPv6MaxRtrAdvInterval="1.5" MIPv6MinRtrAdvInterval="1"
+            MaxFastRAS="10">
       <inetAddr>3011:0:0:1:89d6:9cff:fe7e:83d2</inetAddr>
       <inetAddr>301b:0:0:11:89d6:9cff:fe7e:83d2</inetAddr>
       <AdvPrefixList>
@@ -134,7 +131,8 @@
       <inetAddr>fec0:0:0:2:2846:952:be8b:a252</inetAddr>
     </interface>
     <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
-      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      MIPv6MaxRtrAdvInterval="1.5" MIPv6MinRtrAdvInterval="1"
+            MaxFastRAS="10">
       <inetAddr>3011:0:0:2:450:90ff:fe5d:f971</inetAddr>
       <inetAddr>FEC0:0:0:22:450:90ff:fe5d:f971</inetAddr>
       <AdvPrefixList>
@@ -157,7 +155,8 @@
       <inetAddr>fec0:0:0:3:abee:8f19:b836:a030</inetAddr>
     </interface>
     <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
-      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      MIPv6MaxRtrAdvInterval="1.5" MIPv6MinRtrAdvInterval="1"
+            MaxFastRAS="10">
       <inetAddr>3011:0:0:3:d6f7:bcff:fefd:d06e</inetAddr>
       <inetAddr>fec0:0:0:33:d6f7:bcff:fefd:d06e</inetAddr>
       <AdvPrefixList>
@@ -180,7 +179,8 @@
       <inetAddr>fec0:0:0:5:92f7:839a:4a7d:b041</inetAddr>
     </interface>
     <interface name="eth1" AdvSendAdvertisements="on" HMIPAdvMAP="on"
-      MIPv6MaxRtrAdvInterval="0.12" MIPv6MinRtrAdvInterval="0.08">
+      MIPv6MaxRtrAdvInterval="1.5" MIPv6MinRtrAdvInterval="1"
+      MaxFastRAS="10">
       <inetAddr>3011:0:0:5:cb0c:46ff:feb0:d7fe</inetAddr>
       <inetAddr>fec0:0:0:55:cb0c:46ff:feb0:d7fe</inetAddr>
       <AdvPrefixList>

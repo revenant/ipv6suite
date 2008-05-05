@@ -246,6 +246,7 @@ public:
   cOutVector* bbuVector;
   //BA from Bound Map Edge Handover
   cOutVector* bbackVector;
+  unsigned int globalSignalCount;
 
   cOutVector rsVector;
   cOutVector raVector;

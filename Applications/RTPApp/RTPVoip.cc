@@ -119,7 +119,7 @@ void RTPVoip::initialize(int stageNo)
   packetisationInterval = frameLength * (double)framesPerPacket;
 
   //ned param for constant buffer
-  jitterDelay = 0.1;
+  jitterDelay = par("jitterDelay");
   //or jitter buffer in terms of number of packets stored
   //jitterDelay = packetsBuffered/packetspersecond = packetsBuffered* packetisationInterval
   //buffer an extra packet that way packets will not be discarded due to buffer too full
@@ -166,9 +166,56 @@ void RTPVoip::initialize(int stageNo)
   }
 }
 
+//from rfactor.cc and verified same as approx. answer in R
+double Rfactor(double emeanDelay, double Bpl, double Ie, unsigned int received, 
+	       unsigned int expected, unsigned int elossEventsSum, unsigned int elossEvents)
+{
+  emeanDelay*=1000.0;
+  double  Id = 0;
+  //just do simplified Idd for now
+  if (emeanDelay < 177.3)
+    Id = 0.024 * emeanDelay;
+  else
+    Id = 0.024 * emeanDelay + 0.11*(emeanDelay - 177.3);
+  double p = 0, q =  0;
+
+  if (elossEvents > 0)
+  {
+    if (received != 0)
+      p = (double) elossEvents/received;
+    q = (double) elossEvents/ elossEventsSum;
+  }
+
+  double ppl = (double)elossEventsSum/expected;
+  double burstR = 1.0;
+
+  if (ppl > 0)
+    burstR = (1.0 - ppl)*((double) elossEventsSum /(double)elossEvents);
+
+  double Ppl = 100.0*ppl; //in percentage points 
+
+  double Ieff = Ie ;
+  if (Ppl > 0)
+    Ieff += (95.0 - Ie)*(Ppl/((Ppl/burstR)+Bpl));
+
+  double rfactor = 93.2;
+  rfactor+= -Id - Ieff;
+
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"emeanDelay="<< emeanDelay<<" bpl="<< Bpl<<" Ie="<< Ie<<" received="<<received
+	   <<" expected="<<expected<<" lossEventsSum="<<(double) elossEventsSum
+    <<" lossEventsCount="<<(double)elossEvents<<" Ppl="<<Ppl<<" rfactor="<<rfactor<<endl;
+  cout<<"emeanDelay="<< emeanDelay<<" bpl="<< Bpl<<" Ie="<< Ie<<" received="<<received
+	   <<" expected="<<expected<<" lossEventsSum="<<(double) elossEventsSum
+	   <<" lossEventsCount="<<(double)elossEvents<<" Ppl="<<Ppl<<" rfactor="<<rfactor<<endl;
+  return rfactor;
+}
 
 void RTPVoip::finish()
 {
+  //update the counters one last time otherwise counters have old values :(
+  ecalculateRFactor();
+
   RTP::finish();
   if (caller(p59cb))
   {
@@ -179,10 +226,16 @@ void RTPVoip::finish()
     callerPauseStat->recordScalar((std::string("caller pause of ") + OPP_Global::nodeName(this)).c_str());
     calleePauseStat->recordScalar((std::string("callee pause of ") + OPP_Global::nodeName(this)).c_str());
   }
+  //as first seq no received starts at 0
+  elastExpected++;
   RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
   totalDelayStat->recordScalar((std::string("totalDelay from ") + IPAddressResolver().hostname(rme.addr)).c_str());
-  recordScalar((std::string("lostPackets from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elostPackets);
-  recordScalar((std::string("lossEvents from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elossEventsCount);
+  recordScalar((std::string("elostPackets from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elostPackets);
+  recordScalar((std::string("elossEvents from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elossEventsCount);
+  recordScalar((std::string("ePpl from")  + IPAddressResolver().hostname(rme.addr)).c_str(), (double)elostPackets/elastExpected * 100.0);
+  //elastReceived is 0 anyway arg is not used in calc
+  recordScalar((std::string("eRfactor from")  + IPAddressResolver().hostname(rme.addr)).c_str(), 
+	       Rfactor(totalDelayStat->mean(), Bpl, Ie, elastReceived,  elastExpected, elostPackets, elossEventsCount));
 }
 
 //virtual bool sendRTPPacket();
@@ -446,16 +499,16 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
     VoipFrame& thisFrame = frames[i];
 
     os<<"voiptracerec:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
-      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<endl;
+      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<"\n";
 
   if (playoutTime(thisFrame.get<0>()) < playoutTimer->arrivalTime())
   {
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
       <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
-      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
+      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<"\n";
     os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="
       <<playoutTimer->arrivalTime()<<" incoming rtp timestamp="<<thisFrame.get<0>()
-      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<endl;
+      <<" playoutTime="<<playoutTime(thisFrame.get<0>())<<"\n";
 
     //VoipFrame& discard = thisFrame;
     //compareToPreviousVoipFrame(discard);
@@ -480,9 +533,9 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
     assert(nextPlayoutTime > now);
 
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
-      <<discard<<" as jitter buffer full "<<cb->size()<<endl;
+      <<discard<<" as jitter buffer full "<<cb->size()<<"\n";
     os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet "
-      <<discard<<" as jitter buffer full ("<<cb->size()<<endl;
+      <<discard<<" as jitter buffer full ("<<cb->size()<<"\n";
 
 //    compareToPreviousVoipFrame(discard);
 
@@ -588,13 +641,13 @@ void RTPVoip::playoutBufferedPacket()
   simtime_t now = simTime();
   std::sort(cb->begin(), cb->end());
   EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<now<<" play back samples timestamp="
-    <<cb->front()<<endl;
+    <<cb->front()<<"\n";
   std::ostream& os = printRoutingInfo(true, 0, 0, true);
 
   VoipFrame thisFrame = cb->front();
 
   os<<"voiptraceplay:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
-    <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<endl;
+    <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<"\n";
 
   //ignore discarded packets that arrive too late
   ecalculateMeanTotalDelay(thisFrame.get<0>());
@@ -770,8 +823,8 @@ double RTPVoip::ecalculateRFactor()
   rfactor+= -Id - Ieff;
 
   erfactorVector->record(rfactor);
-
-  cout<<"emeanDelay="<< emeanDelay<<" bpl="<< Bpl<<" Ie="<< Ie<<" received="<<received
+  std::ostream& os = printRoutingInfo(true, 0, 0, true);
+  os<<"emeanDelay="<< emeanDelay<<" bpl="<< Bpl<<" Ie="<< Ie<<" received="<<received
       <<" expected="<<expected<<" lossEventsSum="<<(double)std::accumulate(elossEvents.begin(), elossEvents.end(), 0)
       <<" lossEventsCount="<<(double)elossEvents.size()<<" rfactor="<<rfactor<<endl;
   

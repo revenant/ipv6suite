@@ -54,7 +54,7 @@ EHTimedAlgorithm::EHTimedAlgorithm(NeighbourDiscovery* mod):
   EHNDStateHost(mod), interval(10)
 {
   //Read xml info on Timed algorithm params
-
+  interval = mob->par("timeInterval");
   mob->edgeHandoverCallback()->rescheduleDelay(interval);
 }
 

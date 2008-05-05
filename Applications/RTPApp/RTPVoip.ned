@@ -44,6 +44,9 @@ simple RTPVoip
     framesPerPacket: numeric const, //number of frames to put into packet
     bitrate: numeric const, //in bitsps
 
+    //constant de-jitter buffer settings
+    jitterDelay: numeric const,
+
     //e-model values
     lookahead: numeric const, //in seconds
     Ie: numeric const,

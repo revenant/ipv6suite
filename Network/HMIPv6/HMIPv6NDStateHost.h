@@ -120,7 +120,7 @@ protected:
   ipv6_addr formRemoteCOA(const HMIPv6MAPEntry& me, unsigned int ifIndex);
 
   HMIPv6CDSMobileNode& hmipv6cdsMN;
-
+  bool forwardFromPreviousMap;
 private:
 };
 

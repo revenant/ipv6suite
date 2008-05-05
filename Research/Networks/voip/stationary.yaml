@@ -1,0 +1,177 @@
+--- 
+- - error
+  - codec
+  - lambdaL
+- scheme: 
+  - hmip
+  - mip
+  - eh
+  error: 
+  - "0"
+  - 2pc
+  - 5pc
+  codec:
+  - efr
+  - amr
+  - g729a
+  - g711plc
+  lambdaL:
+  - 0
+- scheme:
+    hmip: 
+    - !ruby/object:ToggleAction 
+      attribute: hierarchicalMIPv6Support
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+    eh: 
+    - !ruby/object:ToggleAction 
+      attribute: hierarchicalMIPv6Support
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+    - !ruby/object:SetAction
+      attribute: edgeHandoverType
+      symbol: :xml
+      value: "\"Timed\""
+    mip: 
+    - !ruby/object:ToggleAction 
+      attribute: hierarchicalMIPv6Support
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+  error: 
+    2pc: 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0.02
+    1pc: 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0.01
+    5pc: 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0.05
+    "0": 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0
+  codec:
+    efr:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+  
+       include gsm-efr.ini
+  
+    amr:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+  
+       include amr.ini
+  
+    g729a:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+  
+       include g729a.ini
+  
+    g711plc:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+  
+       include g711pcl.ini
+  lambdaL:
+    0:
+    - !ruby/object:InsertAction 
+      attribute: include default.ini
+      symbol: :ini
+      value: |
+       **.mn.**.moveXmlConfig = xmldoc("Voip.xml", "netconf/misc/ObjectMovement/MovingNode[1]")
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1055
+    9:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1055
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"2.5\""
+    12:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1305
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"2.5\""
+    15:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1555
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"2.5\""
+    18:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1055
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"5\""
+    24:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1305
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"5\""
+    30:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1555
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"5\""
+    36:
+    - !ruby/object:InsertAction 
+      attribute: numUdpApps = 1
+      symbol: :ini
+      value: |
+       sim-time-limit = 1055
+    - !ruby/object:SetAction 
+      attribute: moveSpeed
+      symbol: :xml
+      value: "\"10\""

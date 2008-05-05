@@ -77,7 +77,8 @@ endsimple
 //
 simple NeighbourDiscovery
     parameters:
-	startTime: numeric;
+	startTime: numeric,
+	forwardFromPreviousMap: bool;
     gates:
         in: NDiscIn;
         in: mobilityDIn;

@@ -100,6 +100,7 @@ IPv6Mobility::IPv6Mobility(const char *name, cModule *parent)
      lbackVector(0),
      bbuVector(0),
      bbackVector(0),
+     globalSignalCount(0),
      rsVector("RS sent"),
      raVector("RA recv"),
      nsVector("NS sent"),
@@ -179,6 +180,8 @@ void IPv6Mobility::initialize(int stage)
 
 void IPv6Mobility::finish()
 {
+  if (globalSignalCount)
+    recordScalar("global mobility signals", globalSignalCount);
 }
 
 void IPv6Mobility::handleMessage(cMessage* msg)

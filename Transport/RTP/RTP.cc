@@ -831,6 +831,16 @@ void RTP::finish()
 	<<rme.transStat->min()*1000.0<<"ms/"<<rme.transStat->mean()*1000.0<<"ms/"<<rme.transStat->max()*1000.0<<"ms"<<endl;
     cout<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
 
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os <<"--------------------------------------------------------" <<endl;
+    os <<"\t"<<OPP_Global::nodeName(this)<<" from "<< IPAddressResolver().hostname(rme.addr)<<endl;    
+    os <<"--------------------------------------------------------" <<endl; 
+    os <<"drop rate (%): "<<100 * (double)cumPacketsLost/(double)extended;
+    os<<" eed of "<<rme.transStat->samples()<<"/"<<extended<<" recorded/\"expected\"\n";
+    os<<"rtp transit min/avg/max = "
+	<<rme.transStat->min()*1000.0<<"ms/"<<rme.transStat->mean()*1000.0<<"ms/"<<rme.transStat->max()*1000.0<<"ms"<<endl;
+    os<<"stddev="<<rme.transStat->stddev()*1000.0<<"ms variance="<<rme.transStat->variance()*1000.0<<"ms\n";
+
     rme.transStat->recordScalar((std::string("rtpTransitTime of ") + IPAddressResolver().hostname(rme.addr)).c_str());
     
     if (isMobileNode())

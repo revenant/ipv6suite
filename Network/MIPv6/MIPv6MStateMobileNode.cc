@@ -83,7 +83,7 @@ const simtime_t CELL_RESI_THRESHOLD = 4;
 
 
   ///dgram contains bu
-void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
+void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds, const bu_entry* bule)
 {
   //if dgram->name() == EarlyBU then record ebu time and same for BA
   const simtime_t now = mob->simTime();
@@ -91,6 +91,7 @@ void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
       dgram->destAddress() == mipv6cds->mipv6cdsMN->primaryHA()->addr())
   {
     mob->buVector->record(now);
+    mob->globalSignalCount++;
   }
 #ifdef USE_HMIP
   else if (mob->hmipSupport())
@@ -108,6 +109,9 @@ void recordBUVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
       }
   }
 #endif //USE_HMIP
+  if (!bule->isMobilityAnchorPoint() && !bule->homeReg() && 
+      ipv6_addr_scope(dgram->destAddress()) == ipv6_addr::Scope_Global)
+    mob->globalSignalCount++;
 }
 
 void recordBAVector(IPv6Datagram* dgram, IPv6Mobility* mob, MIPv6CDS* mipv6cds)
@@ -231,7 +235,7 @@ public:
 
       IPv6Mobility* mob = static_cast<IPv6Mobility*>(mod);
       simtime_t now = module()->simTime();
-      recordBUVector(dgram, mob, mipv6cds);
+      recordBUVector(dgram, mob, mipv6cds, bule);
 
       assert(dgram->destAddress() != IPv6_ADDR_UNSPECIFIED);
       Dout(dc::mipv6|flush_cf, nodeName<<" "<<now<<" Resending BU for the "
@@ -1347,10 +1351,6 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
 
   mob->send(dgram, "routingOut");
 
-  //  if (mapReg || homeReg || ((mob->earlyBindingUpdate() && ((!mapReg && !homeReg) && ebu))) ||
-  //  !mob->earlyBindingUpdate())
-  recordBUVector(dgram, mob, mipv6cds);
-
   //Create BU retransmission timer
   if (ack)
   {
@@ -1457,6 +1457,8 @@ bool MIPv6MStateMobileNode::sendBU(const ipv6_addr& dest, const ipv6_addr& coa,
     bule->setCareOfAddr(coa);
     bule->last_time_sent = mob->simTime() + SELF_SCHEDULE_DELAY;
   }
+
+  recordBUVector(dgram, mob, mipv6cds, bule);
 
   return updateTunnelsFrom(dgram->destAddress(), coa, ifIndex, homeReg, mapReg);
 

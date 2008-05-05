@@ -29,7 +29,9 @@
 //
 simple IPv6Mobility
        parameters:
-         homeAgent: string;
+         homeAgent: string,
+	 //parameter for EHTimedAlgorithm
+	 timeInterval: numeric const;
        gates:
        in: localDeliverIn;
        in: NDiscDIn;

@@ -4,7 +4,6 @@
   - dnet
   - dmap
   - ar
-  - speed
   - error
 - error: 
   - "0"
@@ -42,17 +41,6 @@
       attribute: errorRate
       symbol: :ini
       value: 0
-  speed: 
-  - 3
-  - 9
-  - 13
-  - 22
-  speed: 
-  - !ruby/object:SetConstant 
-    attribute: moveSpeed
-    constant: 0
-    symbol: :xml
-    value: "\"391322\""
   ar: 
     n: 
     - !ruby/object:ToggleAction 
@@ -92,6 +80,17 @@
       attribute: HostMaxRtrSolDelay
       symbol: :xml
       value: "\"0\""
+    - !ruby/object:InsertAction 
+      attribute: include default.ini
+      symbol: :ini
+      value: |
+      
+      **.networkInterface.channelsNotToScan = "1-2-3-4-5-7-8-9-10-12-13-14"
+      **.ap1.chann=6
+      **.ap2.chann=11
+      **.ap3.chann=6
+      **.ap4.chann=11
+
   mip: 
   - !ruby/object:ToggleAction 
     attribute: hierarchicalMIPv6Support

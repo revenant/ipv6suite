@@ -172,7 +172,7 @@ class InsertAction < Action
     super(symbol, attribute, value)
   end
   def apply(line = "used", index = nil, file = nil, level = "used")
-    return nil unless level == "y"
+    return nil if level == "n" #as used in y/n levels
     if line =~ /#{@attribute}/
         line.insert(0, @value + "\n")
     end
@@ -577,6 +577,10 @@ end
               item.symbol == symbol
             }
           else                  
+#            puts "l is #{l} and #{l.class}"
+#            puts "#items #{@actions[me][9]} whilst #{@actions[me][l]}"
+            l = l.to_i if (@actions[me][l].nil?)
+#            puts "l is #{l} and #{l.type}"
             iniactions = @actions[me][l].select{|items|
               items.symbol == symbol
             }
@@ -622,7 +626,7 @@ end
 
             applyActions(final, factors, fileIndex, line, lineIndex, :ini, inifile)
             
-            raise "inifile #{basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
+            raise "inifile #{@basemodname}.ini contains a conflicting network directive at line #{lineIndex}" if line =~ /^network/                            
             writeIniFile.puts line
           } #end read inifile line by line
          

@@ -195,13 +195,13 @@
     dmap: 
     - !ruby/object:SetFactorChannelAction 
       attribute: delay
-      channel: EHCompIntranetCable
+      channel: VoipIntranetCable
       symbol: :ned
       value: *id001
     dnet: 
     - !ruby/object:SetFactorChannelAction 
       attribute: delay
-      channel: EHCompInternetCable
+      channel: VoipInternetCable
       symbol: :ned
       value: *id002
   ar: 

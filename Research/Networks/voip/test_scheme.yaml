@@ -3,8 +3,6 @@
   - error
   - codec
   - lambdaL
-  - dnet
-  - dmap
 - scheme: 
   - hmip
   - mip

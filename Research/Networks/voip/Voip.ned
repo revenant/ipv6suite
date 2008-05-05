@@ -37,12 +37,12 @@ import
  
 channel VoipIntranetCable 
     datarate 100e6;
-    delay 100e-3;
+    delay 10e-3;
 endchannel 
 
 channel VoipInternetCable 
     datarate 100e6; 
-    delay 100e-3;
+    delay 50e-3;
 endchannel 
 
 module Voip 

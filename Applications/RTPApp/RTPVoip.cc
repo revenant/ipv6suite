@@ -233,9 +233,9 @@ void RTPVoip::finish()
   totalDelayStat->recordScalar((std::string("totalDelay from ") + IPAddressResolver().hostname(rme.addr)).c_str());
   recordScalar((std::string("elostPackets from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elostPackets);
   recordScalar((std::string("elossEvents from ") + IPAddressResolver().hostname(rme.addr)).c_str(), elossEventsCount);
-  recordScalar((std::string("ePpl from")  + IPAddressResolver().hostname(rme.addr)).c_str(), (double)elostPackets/elastExpected * 100.0);
+  recordScalar((std::string("ePpl from ")  + IPAddressResolver().hostname(rme.addr)).c_str(), (double)elostPackets/elastExpected * 100.0);
   //elastReceived is 0 anyway arg is not used in calc
-  recordScalar((std::string("eRfactor from")  + IPAddressResolver().hostname(rme.addr)).c_str(), 
+  recordScalar((std::string("eRfactor from ")  + IPAddressResolver().hostname(rme.addr)).c_str(), 
 	       Rfactor(totalDelayStat->mean(), Bpl, Ie, elastReceived,  elastExpected, elostPackets, elossEventsCount));
 }
 

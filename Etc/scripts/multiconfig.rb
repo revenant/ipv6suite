@@ -625,7 +625,9 @@ end
             
             SetAction.new(:runtime, %|IPv6routingFile|,  %|xmldoc("#{filename}.xml")|).apply(line)
 
+          if $test
             SetAction.new(:runtime, %|mobilityHandler.moveXmlConfig|, %|xmldoc("#{filename}.xml",  "netconf/global/ObjectMovement/MovingNode[1]")|).apply(line)
+          end
 
             SetAction.new(:ini, %|preload-ned-files|, %|@../../../nedfiles.lst #{filename}.ned|).apply(line)
 
@@ -1130,7 +1132,7 @@ END
       f.puts script
     }
     output = `sh #{scripttest}`
-    assert(output.length == 0, 
+    assert(output !~ /diff/,
            "difference detected in generated scripts in results dir in comparison to compare dir, \
 output was #{output}")      
   ensure
@@ -1154,28 +1156,28 @@ END
     }
   end
 
-  def ntest_stage2
+  def test_stage2
     Dir.chdir(File.expand_path("../wcmc"))
     scripttest = "test_stage2.sh"
     yamltest = "stage2.yaml"
     basename = "wcmc"
     write_test_script(scripttest, yamltest, basename, 2)
     output = `sh #{scripttest}`
-    assert(output.length == 0, 
+    assert(output !~ /diff/, 
            "difference detected in generated scripts in results dir in comparison to compare dir, \
 output was #{output}")      
   ensure
     File.delete(scripttest)
   end
 
-  def ntest_finalconf
+  def test_finalconf
     Dir.chdir(File.expand_path("../Comparison"))
     scripttest = "test_finalconf.sh"
     yamltest = "finalconf.yaml"
     basename = "EHComp"
     write_test_script(scripttest, yamltest, basename, 10)
     output = `sh #{scripttest}`
-    assert(output.length == 0, 
+    assert(output !~ /diff/,
            "difference detected in generated scripts in results dir in comparison to compare dir, \
 output was #{output}")      
   ensure

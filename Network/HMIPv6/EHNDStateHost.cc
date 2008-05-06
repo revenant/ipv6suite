@@ -44,6 +44,7 @@
 #include "cSignalMessage.h"
 #include "EHTimers.h"
 #include "EHTimedAlgorithm.h"
+#include "EHHopAlgorithm.h"
 #include "opp_utils.h" //OPP_Global::ContextSwitcher
 #include "IPv6Utils.h"
 //for tests
@@ -53,13 +54,18 @@
 #include "HMIPv6ICMPv6NDMessage.h"
 #include "MIPv6CDS.h"
 #include "InterfaceTable.h"
+#include "MIPv6MStateMobileNode.h"
 
 namespace EdgeHandover
 {
 
   EHNDStateHost* EHNDStateHost::create(NeighbourDiscovery* mod, const std::string& handoverType)
   {
-    return new EHTimedAlgorithm(mod);
+    if ( handoverType == "Timed")
+      return new EHTimedAlgorithm(mod);
+    else if (handoverType == "Hop")
+      return new EHHopAlgorithm(mod);
+    return 0;
   }
 
   ///Timer belongs to NeighbourDiscovery module and should be unique to the constants in NeighbourDiscovery.cc
@@ -69,7 +75,7 @@ namespace EdgeHandover
   //@}
 
   EHNDStateHost::EHNDStateHost(NeighbourDiscovery* mod):
-    HMIPv6NDStateHost(mod), ehcds(rt->mipv6cds->ehcds)
+      HMIPv6NDStateHost(mod), ehcds(rt->mipv6cds->ehcds)
 {
 
   EHCallback* tmr = 
@@ -223,8 +229,93 @@ std::auto_ptr<RA> EHNDStateHost::discoverMAP(std::auto_ptr<RA> rtrAdv)
   hmipv6cdsMN.setCurrentMap(ehcds->boundMapAddr());
   arhandover(lcoa, dgram);
   hmipv6cdsMN.setCurrentMap(currentMap);
+  this->hopAlgorithm();
 
   return rtrAdv;
+}
+
+void EHNDStateHost::mapAlgorithm()
+{
+  using MobileIPv6::MIPv6RouterEntry;
+  using HierarchicalMIPv6::HMIPv6CDSMobileNode;
+
+  //Possible that while we have set a valid MAP we have not actually received a BA from it yet 
+  //so callback args are not set. This happens due to lossy property of wireless env.
+  if (!((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer())))
+  {
+    Dout(dc::eh, " Unable to do anything as BA not received from Map yet");
+    return;
+  }
+
+  assert(mob->edgeHandoverCallback()->contextPointer());
+  IPv6Datagram* dgram = (IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer());
+  ipv6_addr peerAddr = dgram->srcAddress();
+  MobileIPv6::bu_entry* bue = mipv6cdsMN->findBU(peerAddr);
+  assert(bue);
+
+  if (hmipv6cdsMN.isMAPValid())
+    //regardless of distance field treat single map option
+    //as meaning eh is enabled in simulated network. 
+    //but that is configuration error prone so hence enforce this
+    //for now so at least picks up config error which we manually
+    //correct instead. TODO add robust code so compatible with 
+    //HMIPv6 networks too by modifying EHNDStateHost::discoverMAP
+    //to only add MAPs colocated in ARs.
+    assert(hmipv6cdsMN.currentMap().distance() == 1);
+  else
+  {
+    delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+    mob->edgeHandoverCallback()->setContextPointer(0);
+    return;
+  }
+
+  if ((ehcds->boundMapAddr() == IPv6_ADDR_UNSPECIFIED && hmipv6cdsMN.remoteCareOfAddr()
+       != IPv6_ADDR_UNSPECIFIED)|| (bue->isMobilityAnchorPoint() && 
+	   hmipv6cdsMN.remoteCareOfAddr() != IPv6_ADDR_UNSPECIFIED &&
+	   //in case we have moved already to a new currentMap and ba manages to
+	   //reach us
+//	   bue->homeAddr() == hmipv6cdsMN.remoteCareOfAddr() &&
+	   hmipv6cdsMN.remoteCareOfAddr() != ehcds->boundCoa()))
+  {
+    mnRole->sendBUToAll(hmipv6cdsMN.remoteCareOfAddr(), mipv6cdsMN->homeAddr(), bue->lifetime());      
+    Dout(dc::eh, mob->nodeName()<<" "<<nd->simTime()
+	 <<" mapAlgorithm sent bu to all based on BA from MAP bue: "<<*bue);
+  }
+  else if (peerAddr == mipv6cdsMN->primaryHA()->addr() &&
+	   hmipv6cdsMN.isMAPValid() &&
+	   //make sure network is configured (eh not compatible with hmip then!)
+	   //to have only maps at ARs. otherwise enforce below      
+	   hmipv6cdsMN.currentMap().distance() == 1)
+  {
+    ///If the HA's BA is acknowledging binding with another MAP besides the
+    ///currentMap's then this code block needs to be revised accordingly. It
+    ///is possible for currentMap to have changed whilst updating HA.
+    if (bue->careOfAddr() != hmipv6cdsMN.remoteCareOfAddr())
+    {
+      Dout(dc::warning|flush_cf, "Bmap at HA is not the same as what we thought it was coa(HA)"
+	   <<" perhaps due to BA not arriving to us previously? "
+	   <<bue->careOfAddr()<<" our record of rcoa "<<hmipv6cdsMN.remoteCareOfAddr());
+      assert(bue->careOfAddr() == hmipv6cdsMN.remoteCareOfAddr());
+    }
+    else
+    {
+      Dout(dc::eh|flush_cf, mob->nodeName()<<" bmap is now "<<hmipv6cdsMN.currentMap().addr()
+	   <<" inport="<<dgram->outputPort());
+      ///outputPort should contain outer header's inputPort so we know which
+      ///iface packet arrived on (see IPv6Encapsulation::handleMessage decapsulateMsgIn branch)
+      ///original inport needed so we can configure the proper bcoa for multi homed MNs
+      assert(dgram->outputPort() >= 0);
+      ehcds->setBoundMap(hmipv6cdsMN.currentMap(), dgram->outputPort());
+    }
+  } //bu from HA
+
+  delete ((IPv6Datagram*)(mob->edgeHandoverCallback()->contextPointer()));
+  mob->edgeHandoverCallback()->setContextPointer(0);
+
+}
+
+void EHNDStateHost::hopAlgorithm()
+{
 }
 
 HMIPv6MAPEntry EHNDStateHost::selectMAP(MAPOptions &maps, MAPOptions::iterator& new_end)

@@ -83,7 +83,7 @@ def writeCMakeList(dir, outputName, projName = nil)
 #Contract requires IPv4
 #ARP|IPv4|TCP|FlatNetwork|Queue
   commonIgnore =
-	"Scalars|Research|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
+	"scripts|Scalars|Research|CMake|Unsupported|_m\.|test|Topology|PPP/|LDP|Tests|IPv4d" + OldRTPDeps
   
   sources, includes = addSourceFiles(dir, commonIgnore)    
   

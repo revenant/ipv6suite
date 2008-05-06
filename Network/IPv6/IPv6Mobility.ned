@@ -31,7 +31,9 @@ simple IPv6Mobility
        parameters:
          homeAgent: string,
 	 //parameter for EHTimedAlgorithm
-	 timeInterval: numeric const;
+	 timeInterval: numeric const,
+	 //parameter for EHHopAlgorithm
+	 hopCountThreshold: numeric const;
        gates:
        in: localDeliverIn;
        in: NDiscDIn;

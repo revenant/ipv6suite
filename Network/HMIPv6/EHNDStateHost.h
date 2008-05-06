@@ -98,8 +98,11 @@ class EHNDStateHost: public HierarchicalMIPv6::HMIPv6NDStateHost
 
   //@{ EH Algorithm functions (may include discoverMAP too)
 
-  ///Subclasses have to override this
-  virtual void mapAlgorithm() = 0;
+  ///Subclasses may override this
+  virtual void mapAlgorithm();
+
+  ///empty override in subclass 
+  virtual void hopAlgorithm();
 
   /**
      @brief Subclasses can override this if they are interested default method
@@ -120,6 +123,7 @@ class EHNDStateHost: public HierarchicalMIPv6::HMIPv6NDStateHost
 
   bool operator==(const EHNDStateHost& rhs);
   //@}
+
 };
 
 };

@@ -5,10 +5,10 @@
   - lambdaL
   - dmap
   - dnet
+  - ar
 - scheme: 
   - hmip
   - mip
-  - eh
   error: 
   - "0"
   - 2pc
@@ -19,12 +19,8 @@
   - g729a
   - g711plc
   lambdaL:
-  - 9
-  - 12
   - 15
-  - 18
   - 24
-  - 30
   - 36
   dmap: &id001 
     - "2"
@@ -34,6 +30,9 @@
     - "20"
     - "50"
     - "100"
+  ar:
+  - y
+  - n
 - scheme:
     hmip: 
     - !ruby/object:ToggleAction 
@@ -118,13 +117,13 @@
       value: |
        **.mn.**.moveXmlConfig = xmldoc("Voip.xml", "netconf/misc/ObjectMovement/MovingNode[1]")
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1055
     9:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1055
@@ -134,7 +133,7 @@
       value: "\"2.5\""
     12:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1305
@@ -144,7 +143,7 @@
       value: "\"2.5\""
     15:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1555
@@ -154,7 +153,7 @@
       value: "\"2.5\""
     18:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1055
@@ -164,7 +163,7 @@
       value: "\"5\""
     24:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1305
@@ -174,7 +173,7 @@
       value: "\"5\""
     30:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1555
@@ -184,7 +183,7 @@
       value: "\"5\""
     36:
     - !ruby/object:InsertAction 
-      attribute: numUdpApps = 1
+      attribute: Cmdenv
       symbol: :ini
       value: |
        sim-time-limit = 1055

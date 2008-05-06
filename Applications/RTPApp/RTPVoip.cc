@@ -113,7 +113,8 @@ void RTPVoip::initialize(int stageNo)
   payloadLength = (double)bitrate/(1.0/(frameLength * (double)framesPerPacket ))/8;
   if (floor(payloadLength) != payloadLength)
   {
-    opp_error("Frational amounts when tyring to determine payload length %d, is this normal?", payloadLength);
+    payloadLength = ceil(payloadLength);
+    //opp_error("Frational amounts when tyring to determine payload length %d, is this normal?", payloadLength);
   }
 
   packetisationInterval = frameLength * (double)framesPerPacket;

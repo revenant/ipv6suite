@@ -182,14 +182,14 @@ class SmartSubmit
       startrun = scalarStartrun if startrun.to_i == 1 && scalarStartrun
 
       if startrun.to_i != 1
-        subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -s #{startrun} -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
+        subline = %|ConfTest.rb -s #{startrun} -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
       else 
-        subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
+        subline = %|ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
       end
 
       if @dryrun
         puts subline
-        next
+        next if li > 100
       end
       File.open(submitfile, "w"){|f|
         f.puts <<END
@@ -204,14 +204,16 @@ module ()
 export MODULE_PATH=/usr/share/Modules/modulefiles:/opt/sw/Modules/modulefiles:
 module load R
 echo $LD_LIBRARY_PATH
+export PATH=$PATH:~/bin:~/src/IPv6SuiteWithINET/Etc/scripts
 echo $PATH
 #{subline}
 END
       }
 
       if /hn\d/.match(`hostname`)
-        qline = "qsub -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
-        puts qline
+        qline = "qsub -N #{config} -cwd -o #{logfile} -S /bin/bash -j y #{submitfile}"
+        puts qline if @verbose or @dryrun
+	next if @dryrun
         suboutput = `#{qline}`
         if $? != 0
           puts "failed to submit job error was #{suboutput}"

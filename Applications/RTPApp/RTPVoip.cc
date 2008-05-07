@@ -427,7 +427,7 @@ void RTPVoip::establishSession()
 
   if (destAddrs.empty())
     return;
-
+/*
   if (retryEstablishTimer && playoutTimer && playoutTimer->contextPointer() &&
       retryEstablishTimer->arrivalTime() == simTime())
   {
@@ -438,17 +438,20 @@ void RTPVoip::establishSession()
     delete retryEstablishTimer;
     retryEstablishTimer = 0;
   }
+*/
 
   //voip app 2 party conversation 
   RTCPSDES* sdes = new RTCPSDES(_ssrc, OPP_Global::nodeName(this));
   sdes->setContextPointer(this);
   sendToUDP(sdes, port+1, destAddrs[0], port+1);   
+/*
   if (!retryEstablishTimer)
   {
     retryEstablishTimer = new cCallbackMessage("retryEstablish");
     (*retryEstablishTimer) = boost::bind(&RTPVoip::establishSession, this);  
     scheduleAt(simTime() + 0.5, retryEstablishTimer);
   }
+*/
 }
 
 void RTPVoip::leaveSession()

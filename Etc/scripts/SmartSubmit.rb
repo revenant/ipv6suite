@@ -49,6 +49,7 @@ class SmartSubmit
     @runLimit = 100
     @precision = 0.05
     @dryrun = false
+    @recoverFromLogs = false
 
     get_options
 
@@ -92,7 +93,8 @@ class SmartSubmit
       opt.on("-r", "--runlimit x", Integer, "Runlimit for ConfTest.rb") {|@runLimit|
       }
 
-      opt.on("-d", "--dryrun", "don't submit just show output"){|@dryrun|}
+      opt.on("--resume", "-R", "Resume from a make that failed or stoppage"){|@recoverFromLogs|}
+      opt.on("--dryrun", "-d", "don't submit just show output"){|@dryrun|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -164,13 +166,17 @@ class SmartSubmit
       config = l.split(' ')[2].split('.')[0]
       logfile = "~/simlogs/" + config + ".log"
       
+      if @recoverFromLogs
+        next if `grep "final confidence" #{logfile}`.length > 0
+        next if `grep "unable to lock onto required"  #{logfile}`.length > 0
+      end
+
       scalarfile = "#{config}.sca" 
       scalarfile = "Scalars/#{scalarfile}" if not File.exists?(scalarfile)
       scalarfile = nil if not File.exists?(scalarfile)
       if scalarfile
         scalarStartrun = `grep ^run #{scalarfile}|tail -1`.split(' ')[1].to_i
       end
-
       startrun = l.split(' ')[3].split('r')[1]
       
       startrun = scalarStartrun if startrun.to_i == 1 && scalarStartrun

@@ -47,6 +47,10 @@
 #include <boost/tuple/tuple.hpp>
 #endif
 
+  ///represents one or more frames in a packet with
+  ///first arg as timestamp and second arg is the seqNo
+  typedef boost::tuple<double, unsigned int>  VoipFrame;
+
 /**
  * @class RTPVoip
  *
@@ -92,10 +96,6 @@ class RTPVoip: public RTP
   virtual void attachData(RTPPacket* rtpData);
   //virtual bool sendRTPPacket();
   //@}
-
-  ///represents one or more frames in a packet with
-  ///first arg as timestamp and second arg is the seqNo
-  typedef boost::tuple<double, unsigned int>  VoipFrame;
 
   //@name ned params storage
   //@{

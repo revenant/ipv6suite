@@ -88,6 +88,9 @@ class MIPv6MobilityState
   //@return true if it processed the message false otherwise
   virtual bool processMobilityMsg(IPv6Datagram* dgram) = 0;
 
+  ///called by Mobility module
+  virtual void bufferPackets(IPv6Datagram* dgram);
+
   /**
    @brief RFC 3775 9.3.1 checks on packets with a received hoa dest option	
    @param hoa home address from the home address destination option inside dgram
@@ -153,7 +156,7 @@ class MIPv6MobilityState
 
   IPv6Mobility* mob;
   MIPv6CDS* mipv6cds;
-
+  bool mipv6BufferPackets;
 private:
   MIPv6MobilityState(void);
 };

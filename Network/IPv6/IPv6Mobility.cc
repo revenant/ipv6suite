@@ -142,6 +142,7 @@ void IPv6Mobility::initialize(int stage)
     nb->subscribe(this, NF_IPv6_RA_RECVD);
     nb->subscribe(this, NF_IPv6_RS_SENT);
     nb->subscribe(this, NF_IPv6_ADDR_ASSIGNED);
+    nb->subscribe(this, NF_MIPv6_BUFFER_PACKETS);
   }
 
   if (!rt->mobilitySupport())
@@ -328,6 +329,10 @@ void IPv6Mobility::receiveChangeNotification(int category, cPolymorphic *details
   {
     //actual value is coa acquisition time
     globalAddrAssignedVector.record(simTime()-linkUpTime);
+  }
+  else if (category == NF_MIPv6_BUFFER_PACKETS)
+  {
+    role->bufferPackets(check_and_cast<IPv6Datagram*>(details));
   }
 }
 

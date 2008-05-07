@@ -80,6 +80,7 @@ namespace IPv6NeighbourDiscovery
 }
 
 class IPv6Datagram;
+class NotificationBoard;
 
 /**
    @class IPv6Encapsulation
@@ -246,6 +247,9 @@ private:
   ///handle for callback function @see registerCB for more
   ///information
   MIPv6TunnelCallback mipv6CheckTunnelCB;
+  ///MIPv6 packet buffering notifier
+  bool mipv6BufferPackets;
+  NotificationBoard* nb;
 };
 
 std::ostream& operator<<(std::ostream & os, const IPv6Encapsulation::Tunnel& tun);

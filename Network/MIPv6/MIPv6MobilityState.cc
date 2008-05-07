@@ -48,6 +48,7 @@
 #include "MIPv6CDS.h"
 #include "HdrExtRteProc.h"
 #include "opp_utils.h" //switchContext
+#include "RoutingTable6.h"
 
 namespace MobileIPv6
 {
@@ -55,7 +56,8 @@ namespace MobileIPv6
 const int TENTATIVE_BINDING_LIFETIME = 3;
 
 MIPv6MobilityState::MIPv6MobilityState(IPv6Mobility* mod):
-  mob(mod), mipv6cds(new MIPv6CDS)
+    mob(mod), mipv6cds(new MIPv6CDS), 
+    mipv6BufferPackets(mob->rt->par("mipv6BufferPackets"))
 {
 }
 
@@ -66,6 +68,11 @@ MIPv6MobilityState::~MIPv6MobilityState(void)
 
 void MIPv6MobilityState::initialize(int stage)
 {
+}
+
+void MIPv6MobilityState::bufferPackets(IPv6Datagram* dgram)
+{
+  opp_error("We should never be here i.e. should route only to Routers");
 }
 
 bool MIPv6MobilityState::processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* dgram)

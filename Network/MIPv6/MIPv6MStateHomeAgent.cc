@@ -47,6 +47,11 @@
 #include "opp_utils.h"
 #include "IPv6CDS.h"
 
+//buffer mipv6 packets
+#include "RTPPacket.h"
+//#include "RTCPPacket_m.h"
+//separate voipframe functions out. esp aggregation ones
+#include "RTPVoip.h"
 
 namespace MobileIPv6
 {
@@ -172,6 +177,30 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
          <<dgram->srcAddress()<<" status="<<ba->status());
 
   return true;
+}
+
+void MIPv6MStateHomeAgent::bufferPackets(IPv6Datagram* dgram)
+{
+  cout<<"Buffering packet "<<*dgram<<endl;
+  //find bce for mn if this is an rtp packet and store there
+  if (dgram->transportProtocol() == IP_PROT_UDP)
+  {
+    RTPPacket* pkt = dynamic_cast<RTPPacket*> (dgram->encapsulatedMsg());
+    if (!pkt || pkt->kind() != 1)
+      return;
+    
+    VoipFrame* frame = static_cast<VoipFrame*> (pkt->contextPointer());
+    //other non RTPVoip data
+    if (!frame) 
+      return;
+    
+    //assume single frames for now otherwise as only we do agg. no source agg yet
+    cout<<"found frames time="<<frame->get<0>()<<" seqno="<<frame->get<1>()<<endl;
+    //buffer downstream only i.e. to mn
+    boost::weak_ptr<bc_entry> bce = mipv6cds->findBinding(dgram->destAddress());
+    assert(bce.lock().get());
+    //bce.lock()->pushFrame(*frame);
+  }
 }
 
 /**

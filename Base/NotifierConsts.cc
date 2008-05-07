@@ -49,6 +49,13 @@ const char *notificationCategoryName(int category)
         case NF_IPv6_INTERFACECONFIG_CHANGED: return "IPv6-CFG";
         case NF_IPv6_ROUTINGTABLE_CHANGED: return "IPv6-ROUTINGTABLE";
         case NF_IPv6_HANDOVER_OCCURRED: return "IPv6-HANDOVER";
+
+        case NF_IPv6_ADDR_ASSIGNED: return "IPv6-ADDR-ASSIGNED";
+        case NF_IPv6_RS_SENT: return "IPv6-RS-SENT";
+      case NF_IPv6_RA_RECVD: return "IPv6-RA-RECVD";
+      case NF_IPv6_NS_SENT: return "IPv6-NS-SENT";
+      case NF_IPv6_NA_SENT: return "IPv6-NA-SENT";
+      case NF_MIPv6_BUFFER_PACKETS: return "MIPv6-BUFFER-PACKETS";
         default: sprintf(buf, "%d", category); s = buf;
     }
     return s;

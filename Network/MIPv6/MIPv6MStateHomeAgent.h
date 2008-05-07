@@ -55,6 +55,8 @@ class MIPv6MStateHomeAgent : public MIPv6MStateCorrespondentNode
 
   virtual bool processMobilityMsg(IPv6Datagram* dgram);
 
+  virtual void bufferPackets(IPv6Datagram* dgram);
+
  protected:
   virtual bool processBU(BU* bu, IPv6Datagram* dgram);
 

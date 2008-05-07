@@ -428,9 +428,13 @@ void RTPVoip::establishSession()
   if (destAddrs.empty())
     return;
 
-  if (retryEstablishTimer && playoutTimer && playoutTimer->contextPointer())
+  if (retryEstablishTimer && playoutTimer && playoutTimer->contextPointer() &&
+      retryEstablishTimer->arrivalTime() == simTime())
   {
     //quit retrying as we have established
+    std::ostream& os = printRoutingInfo(true, 0, 0, true);
+    os<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" quit retrying "<<endl;
+
     delete retryEstablishTimer;
     retryEstablishTimer = 0;
   }
@@ -462,6 +466,7 @@ void RTPVoip::attachData(RTPPacket* rtpData)
   //framesperpacket in case zfa used. hence cp can either be a Frame
   //or an array of Frames.
   rtpData->setContextPointer(new VoipFrame(boost::make_tuple(rtpData->timestamp(), rtpData->seqNo())));
+  rtpData->setKind(1);
 }
 
 void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
@@ -507,14 +512,15 @@ void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)
   VoipFrame* frames = (VoipFrame*) rtpData->contextPointer();
 
   unsigned int frameCount = frameCountCalc((unsigned int)payloadLength, rtpData);
-
+  assert(frameCount == 1);
   for (unsigned int i = 0; i < frameCount; i++)
   {
     VoipFrame& thisFrame = frames[i];
 
     os<<"voiptracerec:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
-      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<"\n";
-
+      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<" frame="<<i<<"\n";
+    EV<<"voiptracerec:"<<OPP_Global::nodeName(this)<<"\t"<<simTime()<<"\t"
+      <<thisFrame.get<0>()<<"\t"<<thisFrame.get<1>()<<" frame="<<i<<"\n";
   if (playoutTime(thisFrame.get<0>()) < playoutTimer->arrivalTime())
   {
     EV<<"voip: "<<OPP_Global::nodeName(this)<<":"<<simTime()<<" discarded packet deadline="

@@ -37,6 +37,8 @@
 #include "IPv6CDS.h"
 #include "stlwatch.h"
 #include "IPv6InterfaceData.h"
+#include "NotificationBoard.h"
+#include "NotifierConsts.h"
 
 using IPv6NeighbourDiscovery::NeighbourEntry;
 using std::auto_ptr;
@@ -74,6 +76,13 @@ void IPv6Encapsulation::initialize(int stageNo)
     encapLimit = 4;
     vIfIndexTop = UINT_MAX - ift->numInterfaces() - 1;
     WATCH_MAP(tunnels);
+    nb = NotificationBoardAccess().get();
+  }
+  else if (stageNo == 1)
+  {
+    mipv6BufferPackets = false;
+    if (rt->mobilitySupport() && rt->isHomeAgent())
+      mipv6BufferPackets = rt->par("mipv6BufferPackets");
   }
 }
 
@@ -357,6 +366,9 @@ void IPv6Encapsulation::handleMessage(cMessage* msg)
     ctrl->setEncapLimit(origDgram->encapLimit() - 1);
 
     origDgram->setControlInfo(ctrl);
+
+    if (mipv6BufferPackets)
+      nb->fireChangeNotification(NF_MIPv6_BUFFER_PACKETS, origDgram.get());
 
     sendDelayed(origDgram.release(), delay, "encapsulatedSendOut");
 

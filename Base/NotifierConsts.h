@@ -69,6 +69,7 @@ enum
     NF_IPv6_RA_RECVD,
     NF_IPv6_NS_SENT,
     NF_IPv6_NA_SENT,
+    NF_MIPv6_BUFFER_PACKETS,
 
     // - layer 4 (transport)
     //...

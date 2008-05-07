@@ -45,8 +45,8 @@ simple RoutingTable6
 	mapMNMUSTSetRCoAAsSource: bool,
 	edgeHandoverType: string,
 	ewuOutVectorHODelays: bool,
-	mnSendBUAckFlag: bool;
-	
+	mnSendBUAckFlag: bool,
+	mipv6BufferPackets: bool;
 
     gates:
     in: recordSimTime;

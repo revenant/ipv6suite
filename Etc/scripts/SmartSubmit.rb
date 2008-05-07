@@ -92,7 +92,7 @@ class SmartSubmit
       opt.on("-r", "--runlimit x", Integer, "Runlimit for ConfTest.rb") {|@runLimit|
       }
 
-      opt.on("-d", "--dryrun" "don't submit just show output"){|@dryrun|}
+      opt.on("-d", "--dryrun", "don't submit just show output"){|@dryrun|}
 
       opt.separator ""
       opt.separator "Common options:"

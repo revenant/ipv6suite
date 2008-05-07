@@ -1,3 +1,4 @@
+#IF(FALSE)
 ADD_TEST(SimpleHMIP HMIPv6Network -f HMIPv6Simple.ini -r 1)
 COLLECT_CHECK_TEST(SimpleHMIP)
 #better than previous
@@ -12,6 +13,7 @@ ADD_TEST(MapToMapHandover-RO HMIPv6Network -f HMIPv6Sait.ini -r 2)
 COLLECT_CHECK_TEST(MapToMapHandover-RO)
 ADD_TEST(MapToMapHandover-RO-ebu HMIPv6Network -f HMIPv6Sait.ini -r 4)
 COLLECT_CHECK_TEST(MapToMapHandover-RO-ebu)
+#ENDIF(FALSE)
 
 #EH untested also ebu versions of these
 #ADD_TEST(EarlyBUTurnOff perl -i -pwe s|earlyBU='on'|earlyBU='off'|g SaitEHCal.xml HMIPv6Sait-ro.xml)

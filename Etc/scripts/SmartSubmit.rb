@@ -48,6 +48,7 @@ class SmartSubmit
     @confIntVariable = "client1,rtpl3Handover of client1"
     @runLimit = 100
     @precision = 0.05
+    @dryrun = false
 
     get_options
 
@@ -90,6 +91,8 @@ class SmartSubmit
 
       opt.on("-r", "--runlimit x", Integer, "Runlimit for ConfTest.rb") {|@runLimit|
       }
+
+      opt.on("-d", "--dryrun" "don't submit just show output"){|@dryrun|}
 
       opt.separator ""
       opt.separator "Common options:"
@@ -178,6 +181,10 @@ class SmartSubmit
         subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
       end
 
+      if @dryrun
+        puts subline
+        next
+      end
       File.open(submitfile, "w"){|f|
         f.puts <<END
 #!/bin/bash

@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 File.open("debug.txt", "w"){|f|
   f.puts <<END
 bt

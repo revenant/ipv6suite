@@ -607,7 +607,7 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
     typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
     //simply called by functions not callback
-    if (cb->arrivalTime() != nd->simTime())
+    if (cb->arrivalTime() > nd->simTime())
       return true;
     deleteMe.reset((ipv6_addr*) cb->contextPointer());
   }

@@ -242,3 +242,9 @@
       attribute: HostMaxRtrSolDelay
       symbol: :xml
       value: "\"0\""
+    - !ruby/object:SetAction
+      attribute: MaxConsecMissRtrAdv
+      symbol: :xml
+      value: "\"3\""
+
+

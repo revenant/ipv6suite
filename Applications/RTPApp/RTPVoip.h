@@ -172,6 +172,7 @@ class RTPVoip: public RTP
   cOutVector* erfactorVector;
   cOutVector* totalDelayVector;
   cStdDev*  totalDelayStat;
+  cCallbackMessage* retryEstablishTimer;
   //ned params 
   double Ie;
   double Bpl;

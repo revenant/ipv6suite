@@ -158,12 +158,23 @@ class SmartSubmit
 
       #sample line l
       #./wcmc -f wcmc_n_n_n_n_22.ini -r2
-      logfile = l.split(' ')[2].split('.')[0]
-      logfile = "~/simlogs/" + logfile + ".log"
+      config = l.split(' ')[2].split('.')[0]
+      logfile = "~/simlogs/" + config + ".log"
+      
+      scalarfile = "#{config}.sca" 
+      scalarfile = "Scalars/#{scalarfile}" if not File.exists?(scalarfile)
+      scalarfile = nil if not File.exists?(scalarfile)
+      if scalarfile
+        scalarStartrun = `grep ^run #{scalarfile}|tail -1`.split(' ')[1].to_i
+      end
+
       startrun = l.split(' ')[3].split('r')[1]
+      
+      startrun = scalarStartrun if startrun.to_i == 1 && scalarStartrun
+
       if startrun.to_i != 1
         subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -s #{startrun} -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
-      else        
+      else 
         subline = %|#{ruby} #{File.dirname(__FILE__)}/ConfTest.rb -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|
       end
 

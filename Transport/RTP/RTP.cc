@@ -139,15 +139,30 @@ void recordHOStats(RTPMemberEntry *s, RTP* rtp)
   if (!rtp->isMobileNode())
     return;
 
-  //handover even when no l2 change? but from what?
+  //handover even when no l2 change? but from what missedRtrAdv trigger due to
+  //collisions
   if (rtp->l2down!=0)
   {
-    s->handStat->collect(rtp->simTime() - rtp->l2down);
-    s->handVector->record(rtp->simTime() - rtp->l2down);
+    //down can actually be triggered by beacon lost at L2 and hence actually
+    //receives stuff still!!
 
-    assert(rtp->l2up);
-    s->l2handStat->collect(rtp->l2up - rtp->l2down);
-    s->l3handStat->collect(rtp->simTime() - rtp->l2up);
+    //record real handovers? not lost beacon to found beacon interval?
+    if (rtp->l2up)
+    {
+      s->handStat->collect(rtp->simTime() - rtp->l2down);
+      s->handVector->record(rtp->simTime() - rtp->l2down);
+    }
+
+    if (rtp->l2up)
+    {
+      s->l2handStat->collect(rtp->l2up - rtp->l2down);
+      s->l3handStat->collect(rtp->simTime() - rtp->l2up);
+    }
+    if (!rtp->l2up)
+      EV<<OPP_Global::nodeName(rtp)<<" "<<rtp->simTime()
+	<<" recorded a lost beacon event not recording as l2 handover of length "
+	<<rtp->simTime() - rtp->l2down<<"s\n";
+
     rtp->l2down = rtp->l2up = 0;
   }
   else

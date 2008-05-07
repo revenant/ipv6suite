@@ -606,6 +606,9 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
     }
     typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
+    //simply called by functions not callback
+    if (cb->arrivalTime() != nd->simTime())
+      return true;
     deleteMe.reset((ipv6_addr*) cb->contextPointer());
   }
   else
@@ -660,10 +663,13 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
   //and processed it in Superclass::processRtrAd.
   InterfaceEntry *ie = ift->interfaceByPortNo(ifIndex);
 
-  if (rt->odad())
-    assert(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa));
-  else
-    assert(ie->ipv6()->addrAssigned(lcoa));
+  if ((rt->odad() && !(ie->ipv6()->addrAssigned(lcoa)||ie->ipv6()->tentativeAddrAssigned(lcoa))) ||
+      (!rt->odad() && !ie->ipv6()->addrAssigned(lcoa)))
+  {
+      
+      Dout(dc::hmip, rt->nodeName()<<" "<<nd->simTime()<<" arhandover register with MAP "
+	   <<hmipv6cdsMN.currentMap().addr()<<" as lcoa="<<lcoa<<" not bound");
+  }
 
   ipv6_addr oldcoa = hmipv6cdsMN.localCareOfAddr();
   assert(oldcoa != mipv6cdsMN->homeAddr());

@@ -11,9 +11,14 @@ runs = {}
 dumps = []
 exe = File.basename(Dir.pwd)
 corecount = 0
+confs = []
 Dir["core.*"].each{|corefile|
   next if corefile !~ /[.]\d+$/
   dump = `gdb #{exe} -q -x debug.txt #{corefile}|grep ^\#`
+  by = `gdb #{exe} -q -x debug.txt #{corefile}|grep "Core was"`
+#  conf = by.split('`')[1].split(' ')[2]
+#  confs<< conf
+  confs << by
   if dump =~ /\?\?/m
     puts "#{corefile} is stuffed i.e. no bt so deleting"
     File.delete(corefile)
@@ -42,6 +47,9 @@ Dir["core.*"].each{|corefile|
   end
 } #en each core file
 
+File.open("redoConfs", "w"){|f|
+  f.puts confs.join("\n")
+}
 
 puts "There were #{dumps.size} unique dumps out of #{corecount}"
 #puts dumps.to_s

@@ -162,7 +162,8 @@ void AddressResolution::handleMessage(cMessage* msg)
 
     Dout(dc::addr_resln|flush_cf, rt->nodeName()<<" "<<dec<<setprecision(4)<<simTime()<<" "
          <<": packet queued dest="<<dgram->destAddress()<<" nexthop="
-         <<addrResInfo->nextHop()<<" status="<<addrResInfo->status());
+         <<addrResInfo->nextHop()<<" status="<<addrResInfo->status()<<" packets="
+	 <<ppq.count(addrResInfo->nextHop()));
 
     //Already done at conceptual sending, necessary only for for promiscous
     //addr res when src addr unknown (handled by processNgbrAdv)
@@ -324,8 +325,9 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
         //happens when other nodes are ready but our addresses are not
         Dout(dc::warning|error_cf|flush_cf, rt->nodeName()<<":"<<ifIndex<<" "<<simTime()
              <<" Cannot find any suitable source address for AddrResln so dropping");
-        ctrIP6OutNoRoutes++;
-        delete tmr;
+        //ctrIP6OutNoRoutes++;
+        //delete tmr;
+	failedAddrRes(tmr);
         return;
       }
 
@@ -416,10 +418,19 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
   Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<tmr->ifIndex
        <<" Address Res failed for "<<tmr->targetAddr);
 
-  assert(tmr == *thisTmr);
-  delete tmr;
-  tmr = 0;
-  tmrs.erase(thisTmr);
+  if (tmr!= *thisTmr)
+  {
+    Dout(dc::addr_resln|dc::notice, rt->nodeName()<<":"<<tmr->ifIndex
+	 <<" addrRes failed before timer was scheduled i.e. nothing sent on link");
+    delete tmr;
+    tmr = 0;
+  }
+  else
+  {
+    delete tmr;
+    tmr = 0;
+    tmrs.erase(thisTmr);
+  }
 
   //Remove datagrams only if we are the only timer object left for this addr.
   //Needed for promiscuous addr detection.
@@ -437,7 +448,7 @@ void AddressResolution::failedAddrRes(NDARTimer* tmr)
 
     //remove bad routes only after autoconfiguration period otherwise static routes
     //are deleted too!!
-    if (simTime() > 5 ) 
+    if (simTime() > 5 ) //TODO bad magic numbers and arbitrary autoconf time
     {
       //remove the DC entry so that subsequent transmissions reinitiate the   
       //nexthop determination 

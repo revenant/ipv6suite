@@ -128,7 +128,7 @@ void WEReceiveMode::finishFrameTx(WirelessEtherModule *mod)
         {
             WirelessAccessPoint *apMod = check_and_cast<WirelessAccessPoint *>(mod);
             // renew expiry time for entry
-            WirelessEtherInterface wie = apMod->findIfaceByMAC(frame->getAddress1());
+            const WirelessEtherInterface& wie = apMod->findIfaceByMAC(frame->getAddress1());
             apMod->addIface(frame->getAddress1(), RM_DATA, wie.currentSequence);
         }
 

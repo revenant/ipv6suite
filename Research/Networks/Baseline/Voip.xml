@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf3.dtd">
 
 <netconf debugChannel="debug.log:rcfile:MobileMove:notice">
-  <local node="mn" optimisticDAD="on" mobileIPv6Support="on"
-  mobileIPv6Role="MobileNode" routeOptimisation="on"
-  hierarchicalMIPv6Support="on" edgeHandoverType="Timed"
-	eagerHandover="on" earlyBU='on'>
+  <local node="mn">
     <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
     </interface>
   </local>
-  <local node="cn" mobileIPv6Support="on" earlyBU='on'>
+  <local node="cn">
     <interface name="ppp0">
 <!--    should be autoconfed but need to determine for traffic source
   <inetAddr>3011:0:0:b:21ac:240a:911:bba</inetAddr> -->
@@ -18,7 +15,7 @@
 
 
 <!-- routing table configuration for primary HA -->
-  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+  <local node="ha">
     <interface name="ppp0">
       <inetAddr>FEC0:0:0:a:fe12:7bc0:a02e:7212</inetAddr>
     </interface>
@@ -37,7 +34,7 @@
     </route> 
   </local>
 
-  <local node="crh" routePackets="on">
+  <local node="crh">
     <interface name="ppp0">
       <inetAddr>FECO:0:0:a:2280:870e:fb1a:7281</inetAddr>
     </interface> 
@@ -59,7 +56,7 @@
     </route>
   </local>
 
- <local node="crv" routePackets="on">
+ <local node="crv">
     <interface name="ppp0">
       <inetAddr>FEC0:0:0:1:568b:d78a:b491:4c36</inetAddr>
     </interface>
@@ -104,8 +101,7 @@
     </route>
   </local>
 
- <local node="ar" routePackets="on" mobileIPv6Support="on"
-      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+ <local node="ar">
     <interface name="ppp0">
       <inetAddr>fec0:0:0:1:b573:569d:74fb:2b75</inetAddr>
     </interface>
@@ -128,8 +124,7 @@
     </route>
 </local>
 
- <local node="ar2" routePackets="on" mobileIPv6Support="on"
-   mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on" >
+ <local node="ar2">
     <interface name="ppp0"  AdvSendAdvertisements="on">
       <inetAddr>fec0:0:0:2:2846:952:be8b:a252</inetAddr>
     </interface>
@@ -151,8 +146,7 @@
     </route>
   </local>
 
- <local node="ar3" routePackets="on" mobileIPv6Support="on"
-      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+ <local node="ar3">
     <interface name="ppp0"  AdvSendAdvertisements="on">
       <inetAddr>fec0:0:0:3:abee:8f19:b836:a030</inetAddr>
     </interface>
@@ -174,8 +168,7 @@
     </route>
 </local>
 
- <local node="ar4" routePackets="on" mobileIPv6Support="on"
-      mobileIPv6Role="HomeAgent" hierarchicalMIPv6Support="on" map="on">
+ <local node="ar4">
     <interface name="ppp0"  AdvSendAdvertisements="on">
       <inetAddr>fec0:0:0:5:92f7:839a:4a7d:b041</inetAddr>
     </interface>

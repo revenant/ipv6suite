@@ -687,6 +687,9 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
     assert(mipv6cdsMN->homeAddr() != IPv6_ADDR_UNSPECIFIED);
     ipv6_addr oldcoa = mipv6cdsMN->careOfAddr();
 
+    Dout(dc::mipv6|dc::debug|flush_cf, " in sendBUToAll HA too branch hoa="<<hoa<<" coa="
+         <<coa<<" oldcoa="<<oldcoa<<" lifetime="<<lifetime);
+
     //Send BU to pHA
     //Create pHA bul entry and update it
     sendBU(mipv6cdsMN->primaryHA()->addr(), coa, hoa,
@@ -712,8 +715,8 @@ void MIPv6MStateMobileNode::sendBUToAll(const ipv6_addr& coa, const ipv6_addr ho
     //same router we should just reassign that routers status and not
     //handover
 
-    Dout(dc::mipv6|dc::debug|flush_cf, " in send bu to all hoa "<<hoa<<" coa "
-         <<coa<<" oldcoa "<<oldcoa<<" lifetime="<<lifetime);
+    Dout(dc::mipv6|dc::debug|flush_cf, " in sendBUToAll hoa="<<hoa<<" coa="
+         <<coa<<" oldcoa="<<oldcoa<<" lifetime="<<lifetime);
     if (oldcoa != coa)
     {
 
@@ -1614,6 +1617,7 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
     //test for addr is assigned on link to send is done in IPv6Send::endService
     return true;
   }
+
 // }}}
 // {{{ reverse tunnel (mipv6)
 
@@ -1671,14 +1675,22 @@ void MIPv6MStateMobileNode::mnSrcAddrDetermination(IPv6Datagram* datagram)
 void MIPv6MStateMobileNode::parseXMLAttributes()
 {
   XMLConfiguration::XMLOmnetParser* p = OPP_Global::getParser();
-  cXMLElement* ne = p->getNetNode(mob->nodeName());
-  if (!ne)
-    ne = mob->rt->par("baseSettings");
-  if (ne)
+  if (p->version() <= 6)
   {
-    mipv6cdsMN->setEagerHandover(p->getNodePropBool(ne, "eagerHandover"));
+    cXMLElement* ne = p->getNetNode(mob->nodeName());
+    if (!ne)
+      ne = mob->rt->par("baseSettings");
+    if (ne)
+    {
+      mipv6cdsMN->setEagerHandover(p->getNodePropBool(ne, "eagerHandover"));
 
-    mipv6cdsMN->setSendBUAckFlag(p->getNodePropBool(ne, "mnSendBUAckFlag"));
+      mipv6cdsMN->setSendBUAckFlag(p->getNodePropBool(ne, "mnSendBUAckFlag"));
+    }
+  }
+  else
+  {
+    mipv6cdsMN->setEagerHandover(mob->rt->par("eagerHandover"));
+    mipv6cdsMN->setSendBUAckFlag(mob->rt->par("mnSendBUAckFlag"));    
   }
 }
 } //namespace MobileIPv6

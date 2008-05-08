@@ -36,6 +36,7 @@
 class WirelessEtherInterface
 {
   public:
+  WirelessEtherInterface();
 
   // Needed to use ExpiryEntryList
   double expiryTime(void) const { return expire; }

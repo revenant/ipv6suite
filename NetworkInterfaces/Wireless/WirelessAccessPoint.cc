@@ -51,15 +51,16 @@
 
 Define_Module(WirelessAccessPoint);
 
-const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE = {
-    MACAddress6(MAC_ADDRESS_UNSPECIFIED_STRUCT),
-    RM_UNSPECIFIED,
-    0,
-    0,
-    0,
-    RC_UNSPECIFIED,
-    SC_UNSPECIFIED
-};
+const WirelessEtherInterface UNSPECIFIED_WIRELESS_ETH_IFACE;
+
+WirelessEtherInterface::WirelessEtherInterface():
+    address( MACAddress6(MAC_ADDRESS_UNSPECIFIED_STRUCT)),
+    receiveMode(RM_UNSPECIFIED),consecFailedTrans(0),
+    currentSequence(0),expire(0),reasonCode(RC_UNSPECIFIED),
+    statusCode(SC_UNSPECIFIED)
+							  
+{
+}
 
 bool operator==(const WirelessEtherInterface & lhs, const WirelessEtherInterface & rhs)
 {

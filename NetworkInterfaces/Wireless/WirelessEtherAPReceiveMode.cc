@@ -147,7 +147,7 @@ void WEAPReceiveMode::handleAssociationRequest(WirelessAccessPoint * mod, WESign
 	  mod->setIfaceStatus(associationRequest->getAddress2(), SC_SUCCESSFUL);	  
 	}
 
-        WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(associationRequest->getAddress2()));
+        const WirelessEtherInterface& iface = mod->findIfaceByMAC(MACAddress6(associationRequest->getAddress2()));
         WirelessEtherBasicFrame *responseFrame;
 
         if (iface.receiveMode == RM_ASSOCIATION)
@@ -210,8 +210,6 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint * mod, WESi
     ReAssociationRequestFrameBody *rARFrameBody =
         static_cast<ReAssociationRequestFrameBody *>(reAssociationRequest->decapsulate());
 
-    WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(reAssociationRequest->getAddress2()));
-
     if ((mod->isFrameForMe(static_cast<WirelessEtherBasicFrame *>(reAssociationRequest)))
         && (mod->ssid == rARFrameBody->getSSID()))
     {
@@ -237,7 +235,7 @@ void WEAPReceiveMode::handleReAssociationRequest(WirelessAccessPoint * mod, WESi
         // delete ack;
         changeState = false;
 
-        WirelessEtherInterface iface = mod->findIfaceByMAC(MACAddress6(reAssociationRequest->getAddress2()));
+        const WirelessEtherInterface& iface = mod->findIfaceByMAC(MACAddress6(reAssociationRequest->getAddress2()));
         WirelessEtherBasicFrame *responseFrame;
 
         if (iface.receiveMode == RM_ASSOCIATION)
@@ -335,7 +333,7 @@ void WEAPReceiveMode::handleAck(WirelessEtherModule *mod, WESignalData *signal)
     {
         mod->cancelEvent(mod->awaitAckTimer);
         WirelessEtherBasicFrame *outf = apMod->outputQueue->getReadyFrame();
-        WirelessEtherInterface iface = apMod->findIfaceByMAC(MACAddress6(outf->getAddress1()));
+        const WirelessEtherInterface& iface = apMod->findIfaceByMAC(MACAddress6(outf->getAddress1()));
 
         wEV << apMod->fullPath() << " " << mod->simTime() << " ACK from " << outf->getAddress1() << "\n";
         // GD Hack: assuming that the output queue holds Message for
@@ -382,8 +380,6 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
     if ((apMod->isFrameForMe(static_cast<WirelessEtherBasicFrame *>(data)))
         && ((data->getFrameControl().toDS == true) && (data->getFrameControl().fromDS == false)))
     {
-        WirelessEtherInterface iface = apMod->findIfaceByMAC(MACAddress6(data->getAddress2()));
-
         wEV  << apMod->fullPath() << "\n"
              << " ----------------------------------------------- \n"
              << " Data packet received from: " << data->getAddress2()
@@ -407,7 +403,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
         // delete ack;
 
         // check if SA is associated and redirect data to actual DA
-        WirelessEtherInterface chkIface = apMod->findIfaceByMAC(data->getAddress2());
+        const WirelessEtherInterface& chkIface = apMod->findIfaceByMAC(data->getAddress2());
 
         // check if MS is authenticated
         if ((chkIface == UNSPECIFIED_WIRELESS_ETH_IFACE) || (chkIface.receiveMode == RM_AUTHRSP_ACKWAIT))
@@ -509,7 +505,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
             else
             {
                 // check if DA is associated
-                WirelessEtherInterface chkDestIface = apMod->findIfaceByMAC(data->getAddress3());
+                const WirelessEtherInterface& chkDestIface = apMod->findIfaceByMAC(data->getAddress3());
 
                 if (chkDestIface == UNSPECIFIED_WIRELESS_ETH_IFACE)
                 {
@@ -527,7 +523,7 @@ void WEAPReceiveMode::handleData(WirelessEtherModule *mod, WESignalData *signal)
                     // receiving data
                     if (data->getAddress3() != MACAddress6(WE_BROADCAST_ADDRESS))
                     {
-                        WirelessEtherInterface dest = apMod->findIfaceByMAC(data->getAddress3());
+		        WirelessEtherInterface dest = apMod->findIfaceByMAC(data->getAddress3());
                         assert(dest != UNSPECIFIED_WIRELESS_ETH_IFACE);
                         dest.expire += apMod->assEntryTimeout;
                         apMod->ifaces->addOrUpdate(dest);

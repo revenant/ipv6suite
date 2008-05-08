@@ -191,11 +191,11 @@ class SmartSubmit
       scalarfile = "Scalars/#{scalarfile}" if not File.exists?(scalarfile)
       scalarfile = nil if not File.exists?(scalarfile)
       if scalarfile
-        scalarStartrun = `grep ^run #{scalarfile}|tail -1`.split(' ')[1].to_i
+        scalarStartrun = `grep ^run #{scalarfile}|tail -1`.split(' ')[1].to_i + 1
       end
       startrun = l.split(' ')[3].split('r')[1]
-      
-      startrun = scalarStartrun if startrun.to_i == 1 && scalarStartrun
+
+      startrun = scalarStartrun if startrun.to_i == 1 || scalarStartrun > startrun.to_i 
 
       if startrun.to_i != 1
         subline = %|ConfTest.rb -s #{startrun} -a -g "#{@confIntVariable}" -r #{@runLimit} -p #{@precision} "#{lines[li].chomp}"|

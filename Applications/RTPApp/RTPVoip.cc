@@ -218,6 +218,20 @@ void RTPVoip::finish()
   ecalculateRFactor();
 
   RTP::finish();
+  if (!playoutTimer || !playoutTimer->contextPointer())
+  {
+    simtime_t startTime = par("startTime");
+    //forces conftest to fail if all other runs in config also have this problem
+    if (startTime > 0 && startTime < simTime())
+    {
+      std::ostream& os = printRoutingInfo(true, 0, 0, true);
+      os<<"voip: "<<OPP_Global::nodeName(this)<<" unable to establish session!!"<<endl;
+      EV<<"voip: "<<OPP_Global::nodeName(this)<<" unable to establish session!!"<<endl;
+      cerr<<OPP_Global::nodeName(this)<<" unable to establish session!!"<<endl;
+    }
+    return;
+  }
+
   if (caller(p59cb))
   {
     stStat->recordScalar((std::string("ST time of ") + OPP_Global::nodeName(this)).c_str());
@@ -770,6 +784,11 @@ void RTPVoip::handleMisorderedPackets(RTPMemberEntry *s, RTPPacket* rtpData)
 
 double RTPVoip::ecalculateRFactor()
 {
+  //things in network can prevent establish session from working succesfully
+  //hence just record as 0 run
+  if (!playoutTimer || !playoutTimer->contextPointer())
+    return 0;
+
   RTPMemberEntry& rme = *(static_cast<RTPMemberEntry*>(playoutTimer->contextPointer()));
 
   if (!erfactorVector)

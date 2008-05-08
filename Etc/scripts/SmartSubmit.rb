@@ -157,6 +157,20 @@ class SmartSubmit
 
     submitfile = "job.sh"
 
+    jobsRunning = []
+    #for each job check if its running already
+    runningJobs = `qstat -s r |cut -f 2 -d ' '`
+    runningJobs.split("\n").each{|jobid|
+      next if /\d+/ !~ jobid
+      stat = `qstat -j #{jobid}`
+      stat.split("\n").each{|statline|
+        if /job_name/ ~= statline
+          jobsRunning << statline.split()[1]
+          break
+        end
+      }
+    }
+
     lines.size.times {|li|
       l = lines[li]
       next if /^\s+$/ =~ l
@@ -165,11 +179,13 @@ class SmartSubmit
       #./wcmc -f wcmc_n_n_n_n_22.ini -r2
       config = l.split(' ')[2].split('.')[0]
       logfile = "~/simlogs/" + config + ".log"
-      
-      if @recoverFromLogs
+     
+      #check if job finished succesfully or not
+      if @recoverFromLogs        
         next if `grep "final confidence" #{logfile}`.length > 0
         next if `grep "unable to lock onto required"  #{logfile}`.length > 0
       end
+      next if jobsRunning.include?(config)
 
       scalarfile = "#{config}.sca" 
       scalarfile = "Scalars/#{scalarfile}" if not File.exists?(scalarfile)

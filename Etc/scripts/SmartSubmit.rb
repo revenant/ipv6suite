@@ -164,7 +164,7 @@ class SmartSubmit
       next if /\d+/ !~ jobid
       stat = `qstat -j #{jobid}`
       stat.split("\n").each{|statline|
-        if /job_name/ ~= statline
+        if /job_name/ =~ statline
           jobsRunning << statline.split()[1]
           break
         end

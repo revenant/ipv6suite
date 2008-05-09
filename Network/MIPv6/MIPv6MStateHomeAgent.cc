@@ -181,12 +181,13 @@ bool MIPv6MStateHomeAgent::processBU(BU* bu, IPv6Datagram* dgram)
 
 void MIPv6MStateHomeAgent::bufferPackets(IPv6Datagram* dgram)
 {
-  cout<<"Buffering packet "<<*dgram<<endl;
   //find bce for mn if this is an rtp packet and store there
   if (dgram->transportProtocol() == IP_PROT_UDP)
   {
-    RTPPacket* pkt = dynamic_cast<RTPPacket*> (dgram->encapsulatedMsg());
-    if (!pkt || pkt->kind() != 1)
+    cout<<"Buffering packet "<<*dgram<<endl;
+
+    RTPPacket* pkt = dynamic_cast<RTPPacket*> (dgram->encapsulatedMsg()->encapsulatedMsg());
+    if (!pkt) // || pkt->kind() != 2)
       return;
     
     VoipFrame* frame = static_cast<VoipFrame*> (pkt->contextPointer());

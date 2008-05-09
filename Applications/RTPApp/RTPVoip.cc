@@ -483,7 +483,7 @@ void RTPVoip::attachData(RTPPacket* rtpData)
   //framesperpacket in case zfa used. hence cp can either be a Frame
   //or an array of Frames.
   rtpData->setContextPointer(new VoipFrame(boost::make_tuple(rtpData->timestamp(), rtpData->seqNo())));
-  rtpData->setKind(1);
+  rtpData->setKind(2);
 }
 
 void RTPVoip::processRTPData(RTPPacket* rtpData, RTPMemberEntry &rme)

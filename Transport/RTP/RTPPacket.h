@@ -59,7 +59,7 @@
      setSeqNo(seqNo);
    }
    RTPPacket(const RTPPacket& other) : RTPPacket_Base(other.name()) {operator=(other);}
-   RTPPacket& operator=(const RTPPacket& other) {RTPPacket_Base::operator=(other); return *this;}
+   RTPPacket& operator=(const RTPPacket& other) {RTPPacket_Base::operator=(other); setKind(other.kind()); return *this;}
 
    ///@name Overidden cObject functions and pure virtual functions from RTPPacket_Base
    //@{

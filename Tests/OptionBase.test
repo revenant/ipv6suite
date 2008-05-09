@@ -29,7 +29,7 @@ cout<<bu->byteLength()<<endl;
 
 IPv6Datagram* dg = new IPv6Datagram;
 dg->encapsulate(bu);
-dg->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+dg->setTransportProtocol(IPv6_PROT_MOB);
 cout<<dg->byteLength()<<endl;
 
 HdrExtDestProc* destProc = dg->acquireDestInterface();

@@ -89,15 +89,11 @@ public:
 
   //@name Extension Header attributes
   //@{
-  IPv6NextHeader nextHeader() const
+  IPProtocolId nextHeader() const
     {
       //Todo macro to test authenticity of next_header
-      return static_cast<IPv6NextHeader> ( ext_hdr->next_header);
+      return static_cast<IPProtocolId> ( ext_hdr->next_header);
 
-    }
-  void setNextHeader(const IPv6NextHeader& hdr_type)
-    {
-      ext_hdr->next_header = hdr_type;
     }
 
   void setNextHeader(const IPProtocolId& prot_type)

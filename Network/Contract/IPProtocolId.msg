@@ -34,10 +34,15 @@ enum IPProtocolId
   IP_PROT_UDP       = 17;
   IP_PROT_XTP       = 36;
   IP_PROT_IPv6      = 41;
+  IPv6_PROT_ROUT    = 43;
+  IPv6_PROT_FRAG    = 44;
   IP_PROT_RSVP      = 46;
-  IP_PROT_IPv6_ICMP = 58;
+  IPv6_PROT_ESP     = 50;
+  IPv6_PROT_AUTH    = 51;
+  IPv6_PROT_ICMP    = 58;
   IP_PROT_NONE      = 59;
-  IP_PROT_IPv6_MOBILITY = 62;
+  IPv6_PROT_DEST    = 60;
+  IPv6_PROT_MOB     = 62;
   IP_PROT_OSPF      = 89;
   IP_PROT_SCTP      = 132;
 }

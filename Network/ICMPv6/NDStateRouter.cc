@@ -633,7 +633,7 @@ void  NDStateRouter::sendRedirect(IPv6Datagram* theDgram, const ipv6_addr& nextH
           //new ICMPv6NDMRedirect(dgram->destAddress(), nextHop, dgram->dup(),
           new ICMPv6NDMRedirect(dgram->destAddress(), nextHop, dgram,
                                 redirNE != 0 ? redirNE->linkLayerAddr():0));
-        redirect->setTransportProtocol(IP_PROT_IPv6_ICMP);
+        redirect->setTransportProtocol(IPv6_PROT_ICMP);
         //TODO Unicast send required with addr res ability
 
         if (ne->linkLayerAddr() == "")
@@ -695,7 +695,7 @@ IPv6Datagram* NDStateRouter
   dgram->setHopLimit(NDHOPLIMIT);
 
   dgram->encapsulate(rtrAd);
-  dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+  dgram->setTransportProtocol(IPv6_PROT_ICMP);
   dgram->setName(rtrAd->name());
 
 #ifdef USE_HMIP

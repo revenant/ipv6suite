@@ -31,7 +31,6 @@
 #include <boost/bind.hpp>
 #include "wirelessethernet.h"
 #include "DualInterfaceLayer.h"
-#include "IPv6Datagram.h"
 #include "TimerConstants.h"
 #include "WirelessExternalSignal_m.h"
 #include "WirelessEtherFrameBody_m.h"

@@ -83,7 +83,7 @@ void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
   //Give ICMP the direct packet as it will need all the gory details
   int protocol = datagram->transportProtocol();
 
-  if (protocol == IP_PROT_IPv6_ICMP)
+  if (protocol == IPv6_PROT_ICMP)
   {
     send(datagram, "ICMPOut");
     return;
@@ -96,7 +96,7 @@ void IPv6LocalDeliver::handleMessage(cMessage* theMsg)
   }
 
 #ifdef USE_MOBILITY
-  if (protocol == IP_PROT_IPv6_MOBILITY)
+  if (protocol == IPv6_PROT_MOB)
   {
     send(datagram, "mobilityOut");
     return;
@@ -156,11 +156,11 @@ bool IPv6LocalDeliver::processDatagram(IPv6Datagram* datagram)
       HdrExtRteProc* rtProc = 0;
       switch(proc->type())
       {
-        case NEXTHDR_DEST:
+        case IPv6_PROT_DEST:
           success = proc->processHeader(this, datagram);
           break;
 
-        case NEXTHDR_ROUTING:
+        case IPv6_PROT_ROUT:
           localdeliver = false;
           if (proc->type() == EXTHDR_ROUTING &&
               ((rtProc = boost::polymorphic_downcast<HdrExtRteProc*>(proc)) != 0) &&
@@ -172,11 +172,11 @@ bool IPv6LocalDeliver::processDatagram(IPv6Datagram* datagram)
           }
           break;
 
-        case NEXTHDR_FRAGMENT:
+        case IPv6_PROT_FRAG:
           error("fragmented IPv6 datagram encountered -- fragmentation not implemented!");
           break;
 
-        case NEXTHDR_HOP:
+        case IP_PROT_HOPOPT:
           // nothing to do
           break;
 

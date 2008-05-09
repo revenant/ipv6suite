@@ -7,7 +7,6 @@
 #include "Repeater.h"
 #include "ethernet6.h"
 #include "EtherSignal_m.h"
-#include "IPv6Datagram.h"
 
 const int DISTANCE = 100;
 

@@ -99,11 +99,11 @@ void IPv6Fragmentation::endService(cMessage* msg)
   //Source fragmentation only in IPv6
   if (datagram->inputPort() != -1 ||
       //Do not fragment ICMP
-      datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
+      datagram->transportProtocol() == IPv6_PROT_ICMP)
   {
     //ICMP packets do come through here however they should be limited
     //in size during creation time. Either that or we drop them
-    assert(datagram->transportProtocol() != IP_PROT_IPv6_ICMP);
+    assert(datagram->transportProtocol() != IPv6_PROT_ICMP);
     ICMPv6Message* err = createICMPv6Message("pkTooBig",
                                              ICMPv6_PACKET_TOO_BIG,
                                              0,

@@ -94,7 +94,7 @@ namespace IPv6Utils
 	printRoutingInfo(true, dgram, name, directionOut);
 	encapsulate = false;
       }
-      if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+      if (datagram->transportProtocol() == IPv6_PROT_MOB)
       {
 	MobilityHeaderBase* mhb = 
 	  check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
@@ -131,7 +131,7 @@ namespace IPv6Utils
 	}
 	  
       }
-      if (datagram->transportProtocol() == IP_PROT_IPv6_ICMP)
+      if (datagram->transportProtocol() == IPv6_PROT_ICMP)
       {
 	ICMPv6Message* icmpmsg = 
 	  check_and_cast<ICMPv6Message*>(datagram->encapsulatedMsg());

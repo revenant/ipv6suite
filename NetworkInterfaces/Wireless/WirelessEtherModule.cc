@@ -40,7 +40,7 @@
 #include "TimerConstants.h"
 
 #if MLDV2
-#include "IPv6Datagram.h"
+//#include "IPv6Datagram.h"
 #endif
 
 #include "opp_utils.h"
@@ -1574,7 +1574,7 @@ void WirelessEtherModule::sendGQtoUpperLayer()
     GQmsg->setQRV(2);
     GQmsg->setQQIC(125);
     GQmsg->setNS(0);
-
+/*
     IPv6Datagram *dgram = new IPv6Datagram;     // well, THIS should GO! --AV
 
     dgram->encapsulate(GQmsg);
@@ -1584,6 +1584,7 @@ void WirelessEtherModule::sendGQtoUpperLayer()
     dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
 
     send(dgram, inputQueueOutGate());
+*/
 }
 #endif
 

@@ -333,7 +333,7 @@ void AddressResolution::sendNgbrSol(NDARTimer* tmr)
 
     NS* ns = new NS(tmr->targetAddr, ie->llAddrStr());
     tmr->dgram->encapsulate(ns);
-    tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+    tmr->dgram->setTransportProtocol(IPv6_PROT_ICMP);
 
     tmr->msg = new cSignalMessage("AddrReslnTimeout", Tmr_AddrReslnTimeout);
     ((cSignalMessage*) (tmr->msg))->connect(boost::bind(&AddressResolution::sendNgbrSol, this, tmr));
@@ -592,7 +592,7 @@ void AddressResolution::processNgbrSol(IPv6NeighbourDiscovery::ICMPv6NDMNgbrSol*
                     !dupDetectSource, override);
 
     response->encapsulate(na);
-    response->setTransportProtocol(IP_PROT_IPv6_ICMP);
+    response->setTransportProtocol(IPv6_PROT_ICMP);
     response->setName(na->name());
 
     if (dupDetectSource)

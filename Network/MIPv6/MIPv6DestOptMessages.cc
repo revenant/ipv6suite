@@ -46,7 +46,7 @@ bool MIPv6TLVOptHomeAddress::processOption(cSimpleModule* mod, IPv6Datagram* dgr
   if (mob->processReceivedHoADestOpt(opt.home_addr, dgram))
   {
     bool process = true;
-    process = !(dgram->transportProtocol() == IP_PROT_IPv6_MOBILITY);
+    process = !(dgram->transportProtocol() == IPv6_PROT_MOB);
 
     if (process)
     {

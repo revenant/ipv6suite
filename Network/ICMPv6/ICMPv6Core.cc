@@ -175,7 +175,7 @@ void ICMPv6Core::processError(cMessage* msg)
   }
 
   // do not reply with error message to error message
-  if (pdu->transportProtocol() == IP_PROT_IPv6_ICMP)
+  if (pdu->transportProtocol() == IPv6_PROT_ICMP)
   {
 
     ICMPv6Message* recICMPv6Msg = check_and_cast<ICMPv6Message*> (pdu->encapsulatedMsg());
@@ -276,7 +276,7 @@ void ICMPv6Core::processICMPv6Message(IPv6Datagram* dgram)
       case ICMPv6_MLD_QUERY: case ICMPv6_MLD_REPORT: case ICMPv6_MLD_DONE: case ICMPv6_MLDv2_REPORT:
 //      cerr<<"MLD message of type "<<icmpmsg->type()<<endl;
         dgram->encapsulate(icmpmsg);
-        dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+        dgram->setTransportProtocol(IPv6_PROT_ICMP);
         dgram->setName(icmpmsg->name());
         send(dgram, MLDGATE);
         dgram=0;
@@ -420,7 +420,7 @@ void ICMPv6Core::processEchoReply (ICMPv6Message *reply, const ipv6_addr& src,
 
   // attach extra info to it ...
   IPv6ControlInfo *ctrl = new IPv6ControlInfo();
-  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
+  ctrl->setProtocol(IPv6_PROT_ICMP);
   ctrl->setSrcAddr(mkIPv6Address_(src));
   ctrl->setDestAddr(mkIPv6Address_(dest));
   ctrl->setTimeToLive(hopLimit);
@@ -444,7 +444,7 @@ void ICMPv6Core::sendToIPv6(ICMPv6Message *msg, const ipv6_addr& dest,
   assert(dest != IPv6_ADDR_UNSPECIFIED);
 
   IPv6ControlInfo *ctrl = new IPv6ControlInfo();
-  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
+  ctrl->setProtocol(IPv6_PROT_ICMP);
   ctrl->setSrcAddr(mkIPv6Address_(src));
   ctrl->setDestAddr(mkIPv6Address_(dest));
   if (hopLimit != 0)

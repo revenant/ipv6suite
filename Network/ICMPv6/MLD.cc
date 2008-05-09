@@ -629,7 +629,7 @@ void MLD::sendToIPv6(MLDMessage *msg, const ipv6_addr& dest, const ipv6_addr& sr
   IPv6ControlInfo *ctrl = new IPv6ControlInfo();
   ctrl->setDestAddr(mkIPv6Address_(dest));
   ctrl->setSrcAddr(mkIPv6Address_(src));
-  ctrl->setProtocol(IP_PROT_IPv6_ICMP);
+  ctrl->setProtocol(IPv6_PROT_ICMP);
   if(hopLimit != 0)
     ctrl->setTimeToLive(hopLimit);
   msg->setControlInfo(ctrl);
@@ -917,7 +917,7 @@ void MLD::MLDv2sendIPdgram(MLDv2Message *msg, const ipv6_addr& dest, const ipv6_
   dgram->encapsulate(msg);
   dgram->setDestAddress(dest);
   dgram->setSrcAddress(src);
-  dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+  dgram->setTransportProtocol(IPv6_PROT_ICMP);
 
   if(hopLimit != 0)
     dgram->setHopLimit(hopLimit);

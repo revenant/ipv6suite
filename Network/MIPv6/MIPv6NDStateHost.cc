@@ -1276,7 +1276,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
 
   //Check if packet contains HOT/I or /COT/I 
 
-  if (tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY && 
+  if (tunPacket->transportProtocol() == IPv6_PROT_MOB &&
       check_and_cast<MobilityHeaderBase*>(tunPacket->encapsulatedMsg()) != 0)
   {
     Dout(dc::mipv6, rt->nodeName()<<" encapsulated datagram contains a RR message. Not doing RO");
@@ -1287,7 +1287,7 @@ void MIPv6NDStateHost::checkDecapsulation(IPv6Datagram* dgram)
   // data traffic. But we should allow it for ping payloads TODO
 
   // could be an ICMPv6 message sent to MN's HoA
-//  if (tunPacket->transportProtocol() == IP_PROT_IPv6_ICMP )
+//  if (tunPacket->transportProtocol() == IPv6_PROT_ICMP)
 //    return;
 
 

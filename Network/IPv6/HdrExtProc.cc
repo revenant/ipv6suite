@@ -86,7 +86,7 @@ size_t HdrExtProc::lengthInUnits() const
     case EXTHDR_ESP: case EXTHDR_AUTH:
       cerr << "Don't know length for EXTHDR_ESP/EXTHDR_AUTH"<<endl;
       break;
-    case NEXTHDR_DEST:
+    case EXTHDR_DEST:
       //Currently only home addr option so this should be fine.
       len = IPv6_RT_HDR_LEN + 16;
       break;

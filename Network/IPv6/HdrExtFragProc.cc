@@ -161,11 +161,11 @@ IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
   if (proc)
     {
 
-      proc->setNextHeader(NEXTHDR_FRAGMENT);
+      proc->setNextHeader(IPv6_PROT_FRAG);
     }
   else
     {
-      pdu->next_header = NEXTHDR_FRAGMENT;
+      pdu->next_header = IPv6_PROT_FRAG;
       pos = 0;
 
     }

@@ -79,7 +79,7 @@ bool MIPv6MobilityState::processReceivedHoADestOpt(ipv6_addr hoa, IPv6Datagram* 
 {
   ipv6_addr  coa = dgram->srcAddress();
   bool bindingTest = true;
-  if (dgram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+  if (dgram->transportProtocol() == IPv6_PROT_MOB)
   {
     MobilityHeaderBase* mhb = check_and_cast<MobilityHeaderBase*>(dgram->encapsulatedMsg());
     bindingTest = mhb->kind() != MIPv6MHT_BU;
@@ -385,7 +385,7 @@ IPv6Datagram* MIPv6MobilityState::constructDatagram(const ipv6_addr& dest, const
 {
   mhb->padHeader();
   IPv6Datagram* dgram = new IPv6Datagram(dest, src, mhb);
-  dgram->setTransportProtocol(IP_PROT_IPv6_MOBILITY);
+  dgram->setTransportProtocol(IPv6_PROT_MOB);
   if (timestamp)
     dgram->setTimestamp(timestamp);
   dgram->setOutputPort(ifIndex);

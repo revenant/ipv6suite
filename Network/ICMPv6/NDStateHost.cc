@@ -390,7 +390,7 @@ void NDStateHost::dupAddrDetection(NDTimer* tmr)
 
     tmr->dgram->encapsulate(ns);
     tmr->dgram->setName(ns->name());
-    tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+    tmr->dgram->setTransportProtocol(IPv6_PROT_ICMP);
     ns->setTargetAddr(static_cast<ipv6_addr>(tmr->tentativeAddr));
 
     if (rt->odad())
@@ -556,7 +556,7 @@ void NDStateHost::sendRtrSol(NDTimer* tmr, unsigned int ifIndex)
       rs->setSrcLLAddr(ie->llAddrStr());
 
     tmr->dgram->encapsulate(rs);
-    tmr->dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+    tmr->dgram->setTransportProtocol(IPv6_PROT_ICMP);
     tmr->msg = new RtrSolRetry("RtrSolRetry", Tmr_RtrSolTimeout);
     ((RtrSolRetry*)(tmr->msg))->connect(boost::bind(&NDStateHost::sendRtrSol, this, tmr, tmr->ifIndex));
     tmr->msg->setContextPointer(tmr);
@@ -639,7 +639,7 @@ void NDStateHost::sendUnsolNgbrAd(size_t ifIndex, const ipv6_addr& target)
   NA* na = new NA(src, ie->llAddrStr(), rt->isRouter(), solicited, override);
   dgram->encapsulate(na);
   dgram->setName(na->name());
-  dgram->setTransportProtocol(IP_PROT_IPv6_ICMP);
+  dgram->setTransportProtocol(IPv6_PROT_ICMP);
   nd->send(dgram, "outputOut", ifIndex);
   nd->nb->fireChangeNotification(NF_IPv6_NA_SENT);
 }

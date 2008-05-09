@@ -1586,7 +1586,7 @@ bool MIPv6MStateMobileNode::mnSendPacketCheck(IPv6Datagram& dgram, bool& tunnel)
   // The following section of the code only applies to data packet sent from
   // upper layer. mobility messages are processed at point of creation.
   MobilityHeaderBase* ms = 0;
-  if (datagram->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+  if (datagram->transportProtocol() == IPv6_PROT_MOB)
     ms = check_and_cast<MobilityHeaderBase*>(datagram->encapsulatedMsg());
   if (ms == 0 && bule && 
 

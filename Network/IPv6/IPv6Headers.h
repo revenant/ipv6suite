@@ -67,68 +67,6 @@ extern const int IPv6_TYPE2_RT_HDR;
 
 
 /**
-   Possible Next Header values to identify the contents of the following
-   header/payload
-*/
-enum IPv6NextHeader
-{
-  NEXTHDR_HOP = 0, // Hop-by-hop option header.
-  NEXTHDR_TCP = 6, // TCP segment.
-  NEXTHDR_UDP = 17,
-  NEXTHDR_IPV6 = 41,     // IPv6 in IPv6
-  NEXTHDR_ROUTING = 43,  // Routing header.
-  NEXTHDR_FRAGMENT = 44, // Fragmentation/reassembly header.
-
-  // Notsupported //
-  NEXTHDR_ESP = 50,  // Encapsulating security payload.
-  NEXTHDR_AUTH = 51, // Authentication header.
-  // NotSupported //
-
-  NEXTHDR_ICMP = 58,    // ICMP for IPv6.
-  NEXTHDR_NONE = 59,    // No next header
-  NEXTHDR_DEST = 60,    // Destination options header.
-  NEXTHDR_MIPV6 = 135   /// RFC 3775 MIPv6 extension header
-};
-
-/*
-  #define ISVALID_IPV6_NEXT_HEADER(x)  { switch(x)                  \
-  {                                                                 \
-  case NEXTHDR_HOP: NEXTHDR_TCP: NEXTHDR_UDP: NEXTHDR_IPV6:         \
-  NEXTHDR_ROUTING: NEXTHDR_FRAGMENT: NEXTHDR_ICMP: NEXTHDR_NONE:    \
-  NEXTHDR_DEST: NEXTHDR_ESP: NEXTHDR_AUTH:                          \
-  break;                                                            \
-  default:                                                          \
-  assert(false);                                                    \
-  break;                                                            \
-  } }
-*/
-
-/**
-   Possible IPv6 upper protocol values
-*/
-/*
-  enum IPv6ProtocolFieldId
-  {
-  IPv6_PROT_TCP = 6, // TCP segment.
-  IPv6_PROT_UDP = 17,
-  IPv6_PROT_IPV6 = 41,  // IPv6 in IPv6
-  IPv6_PROT_ICMP = 58,  // ICMP for IPv6.
-  IPv6_PROT_NONE = 59,  // No next header
-  };
-*/
-/*
-  #define ISVALID_IPV6_PROTOCOLFIELDID(x)  switch(x) \
-  { \
-  case IPv6_PROT_TCP: IPv6_PROT_UDP: IPv6_PROT_IPV6: \
-  IPv6_PROT_ICMP: IPv6_PROT_NONE: IPv6_PROT_DEST: \
-  break; \
-  default: \
-  assert(false); \
-  break; \
-  }
-*/
-
-/**
    Possible extension header types are
 */
 

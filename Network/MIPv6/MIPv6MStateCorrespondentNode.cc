@@ -136,10 +136,10 @@ bool MIPv6MStateCorrespondentNode::cnSendPacketCheck(IPv6Datagram& dgram)
   if (dgram.transportProtocol() == IP_PROT_IPv6)
     tunPacket = check_and_cast<IPv6Datagram*>(dgram.encapsulatedMsg());
 
-  if (tunPacket && tunPacket->transportProtocol() == IP_PROT_IPv6_MOBILITY)
+  if (tunPacket && tunPacket->transportProtocol() == IPv6_PROT_MOB)
     ms = check_and_cast<MobilityHeaderBase*>(
       tunPacket->encapsulatedMsg());
-  else if (dgram.transportProtocol() == IP_PROT_IPv6_MOBILITY)
+  else if (dgram.transportProtocol() == IPv6_PROT_MOB)
     ms = check_and_cast<MobilityHeaderBase*>(dgram.encapsulatedMsg());
 
   // no mobility message is allowed to have type 2 rh except BA

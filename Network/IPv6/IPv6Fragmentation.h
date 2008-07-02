@@ -66,7 +66,7 @@ private:
   InterfaceTable *ift;
   RoutingTable6 *rt;
 
-  int numOfPorts;
+  unsigned int numOfPorts;
   unsigned int mtu;
 
   unsigned int ctrIP6InTooBig;

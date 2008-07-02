@@ -103,8 +103,8 @@ bool HdrExtFragProc::assemblePacket(const int& nfrags, IPv6Datagram* frags,
 */
 //TODO This function is not correct
 IPv6Datagram** HdrExtFragProc::fragmentPacket(IPv6Datagram* pdu,
-                                              const size_t& path_mtu,
-                                              size_t& nfrags) const
+                                              const unsigned int& path_mtu,
+                                              unsigned int& nfrags) const
 {
   //Use the current frag_id
   assert(frag_id == 0); //Original packet was not a fragment itself?

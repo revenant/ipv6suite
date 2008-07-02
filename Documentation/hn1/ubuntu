@@ -1,0 +1,27 @@
+apt-get install g++ tk8.4-dev tcl8.4-dev libxml2-dev blt-dev bison
+
+  optional packages
+
+apt-get install doxygen  imagemagick  graphviz  giftrans
+
+     Untar omnetpp archive and change into directory.
+
+export PATH=`pwd`/bin:$PATH:
+export LD_LIBRARY_PATH=`pwd`/lib
+
+   edit configure.user and change CFLAGS for debug
+
+./configure
+
+
+
+IPv6SuiteInstall
+
+apt-get install ruby cmake ri1.8 rdoc1.8 qgit libboost-dev libboost-signals-dev 
+
+optional (make test requirements)
+apt-get install r-base-core swig ruby1.8-dev
+
+ruby-dev required as mkmf missing from standard ruby install :(
+
+

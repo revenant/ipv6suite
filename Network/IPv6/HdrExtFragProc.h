@@ -99,8 +99,8 @@ public:
      @arg nfrags count of fragments returned
      @return the fragment array sorted by frag_off with count in nfrags
   */
-  IPv6Datagram** fragmentPacket(IPv6Datagram* pdu, const size_t& path_mtu,
-                                size_t& nfrags) const;
+  IPv6Datagram** fragmentPacket(IPv6Datagram* pdu, const unsigned int& path_mtu,
+                                unsigned int& nfrags) const;
 
   unsigned int fragmentId() const
     {

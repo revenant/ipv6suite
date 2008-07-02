@@ -169,7 +169,7 @@ void IPv6Fragmentation::sendOutput(IPv6Datagram* datagram )
   // assign link-layer address to datagram, and send it out
   AddrResInfo *info = check_and_cast<AddrResInfo*>(datagram->removeControlInfo());
   int outputPort = info->ifIndex();
-  if (outputPort >= numOfPorts)
+  if (outputPort < 0 || (unsigned int) outputPort >= numOfPorts)
     error("illegal output port %d", outputPort);
 
   LL6ControlInfo *ctrlInfo = new LL6ControlInfo();

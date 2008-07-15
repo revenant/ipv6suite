@@ -1,0 +1,401 @@
+#!/bin/sh
+# -*- Shell-script -*-
+# Copyright (C) 2003 by Johnny Lai
+#
+# This script is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This script is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+if [ "$SOURCEDIR" = "" ]; then
+  SOURCEDIR=~/src/IPv6SuiteWithINET
+fi
+
+#
+# Returns relative path to source dir assuming source dir is at $SOURCEDIR
+# For out of source builds with many diff config files and netconf2.dtd etc.
+function pws()
+{
+	cpath=`pwd`;
+  buildRootFile="AddrResInfo_m.h"
+	#find top level IPv6Suite dir by looking for config.h
+	while [ "`dirname $cpath`" != "~/" ]
+	do
+		if ls $buildRootFile &>/dev/null; then
+			RealPath=`echo $cpath|perl -i -pwe "s|\`pwd\`|$SOURCEDIR|"`;
+			break;
+		fi
+		cd ..;
+	done
+	cd $cpath
+	echo -n $RealPath
+}
+
+function pwsm()
+{
+	if [ -f ~/src/phantasia/master/$1 ]; then
+	  DIR=~/src/phantasia/master 
+	elif [ -f ~/src/phantasia/vpac/doc/omnetpp2002/$1 ]; then
+	  DIR=~/src/phantasia/vpac/doc/omnetpp2002
+	else
+	  DIR=~/src/phantasia/templates
+	fi
+}
+function diffm()
+{
+	pwsm $1
+	diff $DIR/$1 $1
+	unset DIR
+}
+
+function rcpsm()
+{
+	pwsm $1
+	cp -p $1 $DIR/$1 
+	ln -sf $DIR/$1 .
+	unset DIR
+}
+
+function diffs()
+{
+	diff `pws`/$1 $1
+}
+function cps()
+{
+	cp `pws`/$1 $1
+}
+function rcps()
+{
+    cp $1 `pws`/$1
+}
+function scps
+{
+		scp -p -P 30000 "$@" jlai@localhost:
+}
+function fnd()
+{
+  D=$1
+  shift
+  N=$1
+  shift
+    find "$D"/ -name "$N" "$@"
+}
+#export for future subshells
+typeset -fx fnd
+function fn()
+{
+    fnd . "*$@*"
+}
+
+function psgrep()
+{
+    ps -ef|grep -i "$1"|grep -v "grep -i $1"
+}
+
+function fngrep()
+{
+    egrep -l "$1" `fn "$2"`
+}
+typeset -fx fngrep
+function fnlgrep()
+{
+    egrep -n "$1" `fn "$2"`
+}
+typeset -fx fnlgrep
+function rpm2cpiox()
+{
+    rpm2cpio "$1" |cpio -dim
+}
+
+NOFASTSUFFIX=nofast
+function convnofast()
+{
+    cp -p $1{,-$NOFASTSUFFIX}.xml
+    perl -i -pwe 's|MaxFastRAS="10"|MaxFastRAS="0"|g' $1-$NOFASTSUFFIX.xml
+}
+
+PCOASUFFIX=pcoaf
+#Relies on fact of having AdvHomeAgent="off" for ARs
+function convpcoaf()
+{
+   cp -p $1{,-$PCOASUFFIX}.xml
+   perl -i -pwe 's|AdvHomeAgent="off"|AdvHomeAgent="on"|g' $1-$PCOASUFFIX.xml
+}
+
+#Relies on hierarchicalMIPv6Support="off" for MN and maybe even map too (not that it matters)
+HMIPSUFFIX=hmip
+function convhmip()
+{
+   cp -p $1{,-$HMIPSUFFIX}.xml
+   perl -i -pwe 's|hierarchicalMIPv6Support="off"|hierarchicalMIPv6Support="on"|g' $1-$HMIPSUFFIX.xml
+}
+
+function convro()
+{
+  perl -i -pwe 's|routeOptimisation="off"|routeOptimisation="on"|g' $1.xml
+}
+
+#Some stuff from here http://www.jan0sch.de/download/conf/profile.local
+# unpack .tgz and .tbz files
+function tb { tar jxf $1 ;}
+function tg { tar zxf $1 ;}
+# i don't like my tabs too wide
+function less { `which less` -x2 "$@" ;}
+
+
+#OpenPackage pull env variables (accepts base dir of installation)
+#OpenPKG Add Environment
+opa () {
+    root="$1"
+    if [ ! -d $root ]; then
+        echo "opa:ERROR: OpenPKG root directory $root not found"
+        return 1
+    fi
+    if [ ! -f "$root/etc/rc" ]; then
+        echo "opa:ERROR: root directory does not contain OpenPKG
+hierarchy"
+        return 1
+    fi
+    eval `$root/etc/rc --eval all env`
+    alias rpmbuild='openpkg rpm'
+    alias rpm='openpkg rpm'
+    alias opu='openpkg rpm -Uvh'
+    alias opb='openpkg rpm --rebuild'
+    alias opbs='rpmbuild -bb'
+    export PKG_CONFIG_PATH=$root/lib/pkgconfig
+}
+
+function opp()
+{
+    export PATH=$PATH:.
+    unset LC_CTYPE
+    ulimit -S -c 100000 > /dev/null 2>&1
+    export CVSIGNORE="$CVSIGNORE Makefile"
+
+}
+
+function aacplay()
+{
+    faad -w "$1" | esdcat
+}
+
+function aacrec()
+{
+    #$1 is input wave file. #$2 is output name usually .aac suffix
+    faac -m 4 -a 64 -c 48000 "$1" "$2"
+}
+
+function transcodedvd()
+{
+#$1 can be /dev/dvd or directory with files ripped from dvd via dvdbackup
+#$2 chapter to take
+#$3 audio channel 
+#$4 output name
+    transcode -i "$1" -x dvd -T 1,$2,1 -g 720x480 -M 2 -V -X 2,0 -Y 8,8 -s 4.47 -y ffmpeg -F mpeg4 -a $3 -w 10000 -f 23.976024 --avi_comments ~/avi_comments.txt -o "$4"
+}
+
+function tcls()
+{
+    /sbin/tc -s -d qdisc ls
+}
+
+#From http://trific.ath.cx/resources/bash/
+#Activate with PROMPT_COMMAND=coloured_prompt
+function coloured_prompt() {
+
+PS1_USER='\e[31m'     # red user name
+PS1_HOST='\e[32m'     # green machine name
+PS1_PWD='\e[34m'      # blue working dir
+PS1_HIST='\e[33m'      # orange
+PS1_PROMPT='\e[1m'    # bold/highlighted prompt character
+
+  #test "$_PS1_oldPWD" = "$PWD" -a "$_PS1_oldCOLUMNS" = "$COLUMNS" && return
+  _PS1_oldPWD=$PWD
+  _PS1_oldCOLUMNS=$COLUMNS
+
+  local stop='\[\e[0m\]'
+  local user='\['$PS1_USER'\]'$USER$stop
+  local host='\['$PS1_HOST'\]\h'$stop
+  local prompt='\['$PS1_PROMPT'\]\$'$stop
+  local histno='\['$PS1_HIST'\]''\!'
+  local time='\[\t\]'
+  local pwd=${PWD//#\/home\//~}
+  pwd=${pwd/#~$USER/~}
+#does not work in fc5?
+  #pwd=$(echo $pwd | ~/bash/pathabbr 13 #$[25 + ( $COLUMNS - 80 ) / 2])
+	if echo $TERMCAP|grep screen &> /dev/null; then
+    PS1=$histno' '$user@$host:'\['$PS1_PWD'\]'$pwd$stop$prompt
+	else
+    #PS1=$histno' '$time:'\['$PS1_PWD'\]'$stop$prompt
+    PS1=$histno' \['$PS1_PWD'\]'$stop$prompt
+  #Set konsole/xterm title to this
+	if [ -n "$DISPLAY" ]; then
+    echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/~}\007"
+	fi
+	fi
+}
+
+if [ "$TERM" != "dumb" ]; then
+    PROMPT_COMMAND=coloured_prompt
+fi
+
+checkUndoc()
+{
+    pushd IPv6Suite
+    grep -v omnet Documentation/undocumented.log |grep -iv topol|grep -vi ipv4|grep -vi adhocsim|grep -i warning|l
+    popd
+}
+
+dashboardfunc()
+{
+    CVSDIR=/rhnew/cvs
+    if [ ! -d $CVSDIR ]; then
+	CVSDIR=`dirname $SOURCEDIR`
+    fi
+    HTML_DIR=~/public_html
+    DART_ROOT=$CVSDIR/Dart
+    BUILD_ROOT=$CVSDIR/IPv6Suite
+    ln -sf $BUILD_ROOT/Testing/HTML/TestingResults $HTML_DIR
+    cmake -DCUSTOM_BUILD:BOOL=OFF .
+    alias dartconf='nice tclsh8.4 $DART_ROOT/Source/Client/DashboardManager.tcl DartConfiguration.tcl'
+
+    alias dartbuild='dartconf Experimental Start Update Configure Build'
+    alias dartstart='dartconf Experimental Update Configure DashBoardStart'
+    alias dartend='dartconf Experimental Update Configure DashBoardEnd'
+    alias darttest='dartbuild Test Submit'
+    alias dartval='dartbuild Valgrind Submit'
+    alias dartall='dartbuild Valgrind Coverage Test Submit'
+    alias icctest='iccget;cd intel/IPv6Suite-8; darttest'
+    alias opgcc34test='opa /openpkg;cd IPv6Suite-gcc34; darttest'
+}
+
+texlive()
+{
+#TEX Live iso mounted on /mnt/test
+	#mount -o loop /rhnew/tmp/latexcomp2004.iso /mnt/test
+VARTEXMF=/rhnew/tmp/tex-live/texmf-var
+TEXLIVE=/mnt/texlive
+#TEXLIVE=/usr/TeX
+PATH=${TEXLIVE}/bin/i386-linux:$PATH
+TEXMFROOT=${TEXLIVE}/texmf
+TEXCVSDIR=${HOME}/src/phantasia
+export PATH VARTEXMF
+#still need distro specific texmf root as many custom latex rpms installed there too put last
+export TEXINPUTS=:.:${HOME}/texmf//:$TEXMFROOT/tex//:/usr/lib/sgml-tools//:${TEXCVSDIR}/templates:/usr/share/texmf/tex//
+export BSTINPUTS=:.:/usr/share/texmf/bibtex/bst//
+unset TEXMFROOT TEXCVSDIR
+}
+
+lnmaked()
+{
+  if [ "x$1" = "x" ]; then echo "please specify papername" && return;  fi
+  mkdir $1 && cd $1 && lnmake $1
+}
+lnmake()
+{
+	PAPERDIR=~/src/phantasia/phd/papers
+	ln -s ~/src/phantasia/templates/Makefile
+	ln -s ~/src/phantasia/templates/papers-common.makefile
+	ln -s ~/src/phantasia/templates/common.makefile
+        if [ "x$1" != "x" ]; then
+	  ln -sf $PAPERDIR/$1/makefile
+	else
+	  ln -sf ~/src/phantasia/phd/retake/makefile
+	fi
+}
+
+wa()
+{
+    cat ~/hosts |xargs -i  -x ssh \{\} hostname \&\& $@  \;
+}
+
+ris2bib()
+{
+   ris2xml "$1" |xml2bib
+}
+
+isi2bib()
+{
+   isi2xml "$*" |xml2bib
+}
+
+startns2()
+{
+export LD_LIBRARY_PATH=~/src/ns-allinone-2.28/otcl-1.9:~src/ns-allinone-2.28/lib
+export TCL_LIBRARY=/home/jlai/src/ns-allinone-2.28/tcl8.4.5/library
+cd ns-allinone-2.28/ns-2.28
+}
+
+gentoo()
+{
+	if uname -r|grep -i gentoo; then
+		export OPPDIR=~/omnetpp-3.2
+		opphome
+	fi
+
+}
+
+opphome()
+{
+#				OPPDIR=/home/jmll/src/omnetpp-3.0pre_20040914
+if [ "x$1" != "x" ]; then
+  OPPDIR="$1"
+fi
+  
+if [ "$OPPDIRx" = "x" ]; then
+				OPPDIR=${HOME}/src/omnetpp-3.1
+fi
+				export PATH=$OPPDIR/bin:$PATH
+				export LD_LIBRARY_PATH=$OPPDIR/lib:$LD_LIBRARY_PATH
+}
+
+opplink()
+{
+	PWD1=`dirname $PWD`
+	PWD1=`dirname $PWD1`
+	PWD1=`dirname $PWD1`
+	if [ -f $PWD1/INET ]; then
+	  ln -sf $PWD1/INET `basename \`pwd\``
+	fi
+	if [ -f  $PWD1/tkINET ]; then
+	  ln -sf $PWD1/tkINET tk`basename \`pwd\``
+	fi
+}
+
+foreach()
+{
+				PROG="$1"
+				shift
+				while [ $# -gt 0 ]; do
+				  echo "Doing $PROG \"$1\" "
+				  $PROG "$1"
+				  shift
+				done
+}
+
+cmakegen()
+{
+cd $SOURCEDIR &>/dev/null
+ruby Etc/scripts/CMakeListGen.rb . INET
+cd - &>/dev/null
+}
+
+x() { #from linux journal Jeremy Peek
+  local ans
+  echo "$@" | fmt
+  echo -n "x: execute that command line? [yn](y) "
+  read ans
+  case "$ans" in
+    [yY]*|"") "$@" ;;
+    *) echo "x: NOT executing: $*" | fmt ;;
+  esac
+}

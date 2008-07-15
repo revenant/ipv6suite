@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf
+debugChannel="debug.log:notice:AddressTimer:RouterDisc:XMLAddresses:RouterTimer:UDPVidStrmSvr:Encapsulation:Routing:AddrResln:Forwarding">
+<!-- 00000000000000000000000000000000000000000000000000 -->
+  <local node="client1">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >2001:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:2/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:3/128"/>
+    </route>
+  </local>
+<!-- 00000000000000000000000000000000000000000000000000 -->
+  <local node="client2">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>
+      <inetAddr >2001:0:0:ABCD:260:97ff:0:2/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:1/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:3/128"/>
+    </route>
+  </local>
+<!-- 00000000000000000000000000000000000000000000000000 -->
+ <local node="router1" routePackets="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr >fe80:0:0:0:260:97ff:0:3/64</inetAddr>
+      <inetAddr >2001:0:0:ABCD:260:97ff:0:3/64</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix
+          AdvOnLinkFlag="on">2001:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+     </AdvPrefixList>
+   </interface>
+    <interface name="eth1">
+      <inetAddr >2001:0:2:ABCD:260:97ff:0:4/64</inetAddr>
+      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:1/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:2/128"/>
+      <routeEntry
+        routeIface="eth1"
+        routeDestination="2001:0:2:ABCD:260:97ff:0:5/128"
+        isRouter="on"/>
+   <!--  *****   -->
+<!--      <routeEntry
+        routeIface="eth0"
+        routeDestination="2001:0:0:ABCD:0:0:0:0/64"/>
+      <routeEntry
+	routeIface="eth1"
+	routeDestination="0:0:0:0:0:0:0:0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:5/128"/> -->
+    </route>
+    <tunnel>
+      <tunnelEntry
+         exitIface="eth1"
+         entryPoint="2001:0:2:ABCD:260:97ff:0:4"
+         exitPoint="2001:0:3:ABCD:260:97ff:0:7">
+       <!-- <triggers destination="2001:0:1:ABCD:260:97ff:0:10"/>  -->
+       <!-- Trigger Tunneling to subnet rather than destination -->
+	<triggers destination="2001:0:1:ABCD:0:0:0:0/64"/>
+      </tunnelEntry>
+    </tunnel>
+    <sourceRoute>
+      <sourceRouteEntry
+         finalDestination="2001:0:3:ABCD:260:97ff:0:7">
+        <nextHop address="2001:0:2:ABCD:260:97ff:0:5"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+  </local>
+<!-- 000000000000000000000000000000000000000000000000000000000 -->
+  <local node="router2" routePackets="on">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:5/64</inetAddr>
+      <inetAddr >2001:0:2:ABCD:260:97ff:0:5/64</inetAddr>
+   </interface>
+    <interface name="eth1">
+      <inetAddr >fe80:0:0:0:260:97ff:0:6/64</inetAddr>
+      <inetAddr >2001:0:3:ABCD:260:97ff:0:6/64</inetAddr>
+    </interface>
+      <route>
+        <routeEntry
+        routeIface="eth0"
+        routeDestination="2001:0:2:ABCD:260:97ff:0:4/128"
+	isRouter="on"/>
+      <routeEntry
+        routeIface="eth1"
+        routeDestination="2001:0:3:ABCD:260:97ff:0:7/128"
+	isRouter="on"/>
+<!--  ********     -->
+  <!--    <routeEntry
+        routeIface="eth0"
+        routeDestination="2001:0:0:ABCD:0:0:0:0/64"
+        routeNextHop="fe80:0:0:0:260:97ff:0:4/128"/>
+      <routeEntry
+        routeIface="eth1"
+        routeDestination="2001:0:1:ABCD:0:0:0:0/64"
+        routeNextHop="fe80:0:0:0:260:97ff:0:7/128"/>  -->
+    </route>
+  </local>
+<!-- 000000000000000000000000000000000000000000000000000000000000 -->
+  <local node="router3" routePackets="on">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:7/64</inetAddr>
+      <inetAddr >2001:0:3:ABCD:260:97ff:0:7/64</inetAddr>
+   </interface>
+    <interface name="eth1" AdvSendAdvertisements="on">
+      <inetAddr >fe80:0:0:0:260:97ff:0:8/64</inetAddr>
+      <inetAddr >2001:0:1:ABCD:260:97ff:0:8/64</inetAddr>
+      <AdvPrefixList>
+        <AdvPrefix
+         AdvOnLinkFlag="on">2001:0:1:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+      <route>
+       <routeEntry
+        routeIface="eth0"
+        routeDestination="2001:0:3:ABCD:260:97ff:0:6/128"
+	isRouter="on"/>
+      <routeEntry
+        routeIface="eth1"
+        routeDestination="fe80:0:0:0:260:97ff:0:9/128"/>
+      <routeEntry
+        routeIface="eth1"
+        routeDestination="fe80:0:0:0:260:97ff:0:10"/>
+   <!--  ******   -->
+<!--     <routeEntry
+        routeIface="eth1"
+        routeDestination="2001:0:1:ABCD:0.0.0.0/64"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="0.0.0.0.0.0.0.0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:6/128"/>  -->
+    </route>
+     <tunnel>
+      <tunnelEntry
+       exitIface="eth1"
+       entryPoint="2001:0:3:ABCD:260:97ff:0:7"
+       exitPoint="2001:0:2:ABCD:260:97ff:0:4">
+      <triggers destination="2001:0:0:ABCD:260:97ff:0:1"/>
+      <!-- <triggers destination="2001:0:0:ABCD:0:0:0:0/64"/>  -->
+     </tunnelEntry>
+    </tunnel>
+    <sourceRoute>
+      <sourceRouteEntry
+        finalDestination="2001:0:2:ABCD:260:97ff:0:4">
+        <nextHop address="2001:0:3:ABCD:260:97ff:0:6"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+  </local>
+<!-- 0000000000000000000000000000000000000000000000000000 -->
+  <local node="server1">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:9/64</inetAddr>
+      <inetAddr >2001:0:1:ABCD:260:97ff:0:9/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:10/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:8/128"/>
+    </route>
+  </local>
+<!-- 0000000000000000000000000000000000000000000000000000 -->
+  <local node="server2">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:10/64</inetAddr>
+      <inetAddr >2001:0:1:ABCD:260:97ff:0:10</inetAddr>
+    </interface>
+    <route>
+        <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:9/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:10/128"/>
+      <routeEntry
+        routeIface="eth0"
+        routeDestination="0:0:0:0:0:0:0:0/0"
+        routeNextHop="fe80:0:0:0:260:97ff:0:8/128"/>
+    </route>
+  </local>
+<!-- 0000000000000000000000000000000000000000000000000000 -->
+</netconf>
+
+
+

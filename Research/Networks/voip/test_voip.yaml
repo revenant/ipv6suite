@@ -1,0 +1,111 @@
+--- 
+- - scheme
+  - codec
+  - ar
+  - error
+  - dnet
+  - dmap
+- error: 
+  - "0"
+  - 2pc
+  - 5pc
+  dmap: &id001 
+    - "2"
+    - "10"
+    - "20"
+  dnet: &id002 
+    - "20"
+    - "50"
+    - "100"
+  scheme: 
+  - hmip
+  - lmap
+  - mip
+  - eh
+  ar: 
+  - y
+  - n
+- error: 
+    2pc: 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0.02
+    5pc: 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0.05
+    "0": 
+    - !ruby/object:SetAction 
+      attribute: errorRate
+      symbol: :ini
+      value: 0
+  ar: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "false"
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"0\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"1\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "true"
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"10\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"0\""
+    - !ruby/object:InsertAction 
+      attribute: include default.ini
+      symbol: :ini
+      value: |
+      
+      **.networkInterface.channelsNotToScan = "1-2-3-4-5-7-8-9-10-12-13-14"
+      **.ap1.chann=6
+      **.ap2.chann=11
+      **.ap3.chann=6
+      **.ap4.chann=11
+
+  mip: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\"off\""
+  eh: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\"on\""
+  hmip: 
+  - !ruby/object:ToggleAction 
+    attribute: hierarchicalMIPv6Support
+    symbol: :xml
+    testedValue: false
+    value: "\"on\""

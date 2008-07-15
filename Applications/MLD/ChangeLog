@@ -1,0 +1,3 @@
+2005-02-11  Andras Varga
+
+	* MLDIface.h moved to Network/IPv6

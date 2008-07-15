@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:notice:xmlAddresses:UDPVidStrmSvr:WirelessEthernet">
+  <misc>
+    <ObjectMovement>
+      <MovingNode NodeName="ms1" startTime="0">
+        <move moveToX="400" moveToY="150" moveSpeed="2"/>
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+</netconf>

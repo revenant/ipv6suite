@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf debugChannel="debug.log:notice:debug:Routing:AddrResln">
+  <local node="client1">
+    <interface name="ppp0" HostDupAddrDetectTransmits="4">
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface>
+  </local>
+  <local node="client2">
+    <interface HostRetransTimer="1000">
+      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>
+    </interface>
+  </local>
+</netconf>

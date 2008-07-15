@@ -1,0 +1,80 @@
+TunnelNet Run 1 is testing source routing and tunneling of link local
+addresses across the Internet. (sort of like a VPN without the security from encryption)
+
+Client 1 has to ping server on a private address fe80:0:0:0:260:97ff:0:4 as
+shown in omnetpp.ini.
+Router A has a trigger set up for the above mentioned address to tunnel the
+packet (from xml file)
+
+ <tunnelEntry exitIface="ppp1" entryPoint="fec0:0:0:0:260:97ff:0:ab"
+	exitPoint="fec0:0:0:0:260:97ff:0:cd">
+	<triggers destination="fe80:0:0:0:260:97ff:0:4"/>	
+      </tunnelEntry>
+
+Now Router A also has some source routes set up to prescribe path that the
+tunnelled packet travels. This is shown by the sourceRouteEntry with the
+finalDestination of "fec0:0:0:0:260:97ff:0:cd"" which matches with the exit point
+of the tunnel.
+
+   <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:cd">
+	<nextHop address="fec0:0:0:0:260:97ff:0:ba"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:db"/>
+      </sourceRouteEntry>
+
+The next two hops to reach Router C are router B and D. On Router D the reverse path
+is set up using the same mechanism so that the flow of packets follows a figure of 8
+pattern through the four routers.
+
+gcc 4.0.3/4.1.1
+--------------------------------------------------------
+        tunnelNet.client.pingApp
+--------------------------------------------------------
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.0344/0.0347143/0.0564
+stddev (ms): 0.0026295   variance:6.91429e-12
+--------------------------------------------------------
+
+Using ODAD option will make all nodes do an unsolicited NA
+and so ND does not occur and we will get a constant ping round trip time.
+
+--------------------------------------------------------
+        tunnelNet.client.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 100s
+tunnelNet.client.ping6App %drop rate 0.000%
+round-trip min/avg/max = 0.032ms/0.032ms/0.032ms
+stddev=0.000ms variance=0.000ms
+--------------------------------------------------------
+
+Using Intel compiler
+--------------------------------------------------------
+        tunnelNet.client.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 100s
+tunnelNet.client.ping6App %drop rate 0%
+round-trip min/avg/max = 0.0244ms/0.0247ms/0.0426ms
+stddev=0.00218ms variance=4.73e-09ms
+--------------------------------------------------------
+
+
+Run 2 has Prefixed Tunnel triggers instead of destination triggers
+
+--------------------------------------------------------
+        prefixedTunnelNet.client1.pingApp
+--------------------------------------------------------
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.67048/0.675309/1.00848
+stddev (ms): 0.0403987   variance:1.63206e-09
+--------------------------------------------------------
+
+Run 3 uses source routing only 
+Probably close to original test case for source route. Source route defined at
+the mn and the route travelled is obviously suboptimal
+
+--------------------------------------------------------
+        tunnelNet.client.pingApp
+--------------------------------------------------------
+sent: 70   drop rate (%): 0
+round-trip min/avg/max (ms): 0.0344/0.03484/0.0652
+stddev (ms): 0.0036813   variance:1.3552e-11
+--------------------------------------------------------

@@ -1,0 +1,68 @@
+<?xml encoding="ISO-8859-1"?>
+
+<!-- IFCONFIG Declaration -->
+
+<!-- This declaration is for IPv6 -->
+
+<!-- Author: Eric Wu      -->
+<!-- Date: 31/10/01         -->
+
+<!ELEMENT netconf (global*, local*)>
+<!ATTLIST netconf version NMTOKEN "0.0.1">
+
+<!ELEMENT global (gAdvSendAdvertisements*, gMaxRtrAdvInterval*, gMinRtrAdvInterval*, gAdvManagedFlag*, gAdvOtherConfigFlag*, gAdvLinkMTU*, gAdvReachableTime*, gAdvRetransTimer*, gAdvCurHopLimit*, gAdvDefaultLifetime*, gHostLinkMTU*, gHostCurHopLimit*, gHostBaseReachableTime*, gHostRetransTimer*, gHostDupAddrDetectTransmits*)>
+
+<!ELEMENT gAdvSendAdvertisements (#PCDATA)>
+<!ELEMENT gMaxRtrAdvInterval (#PCDATA)>
+<!ELEMENT gMinRtrAdvInterval (#PCDATA)>
+<!ELEMENT gAdvManagedFlag (#PCDATA)>
+<!ELEMENT gAdvOtherConfigFlag (#PCDATA)>
+<!ELEMENT gAdvLinkMTU (#PCDATA)>
+<!ELEMENT gAdvReachableTime (#PCDATA)>
+<!ELEMENT gAdvRetransTimer (#PCDATA)>
+<!ELEMENT gAdvCurHopLimit (#PCDATA)>
+<!ELEMENT gAdvDefaultLifetime (#PCDATA)>
+<!ELEMENT gHostLinkMTU (#PCDATA)>
+<!ELEMENT gHostCurHopLimit (#PCDATA)>
+<!ELEMENT gHostBaseReachableTime (#PCDATA)>
+<!ELEMENT gHostRetransTimer (#PCDATA)>
+<!ELEMENT gHostDupAddrDetectTransmits (#PCDATA)>
+
+
+<!ELEMENT local (interface*, route*)>
+
+<!ELEMENT route (routeEntry)+>
+<!ELEMENT routeEntry (#PCDATA)>
+<!ATTLIST routeEntry routeIface CDATA "">
+<!ATTLIST routeEntry routeDestination CDATA "">
+<!ATTLIST routeEntry routeNextHop CDATA "">
+
+<!ATTLIST local node ID #REQUIRED>
+
+<!ELEMENT interface (inet_addr*, AdvSendAdvertisements*, MaxRtrAdvInterval*, MinRtrAdvInterval*, AdvManagedFlag*, AdvOtherConfigFlag*, AdvLinkMTU*, AdvReachableTime*, AdvRetransTimer*, AdvCurHopLimit*, AdvDefaultLifetime*, AdvPrefixList*, HostLinkMTU*, HostCurHopLimit*, HostBaseReachableTime*, HostRetransTimer*, HostDupAddrDetectTransmits*)>
+
+<!ATTLIST interface name CDATA #IMPLIED>
+
+<!ELEMENT inet_addr (#PCDATA)>
+<!ELEMENT AdvSendAdvertisements (#PCDATA)>
+<!ELEMENT MaxRtrAdvInterval (#PCDATA)>
+<!ELEMENT MinRtrAdvInterval (#PCDATA)>
+<!ELEMENT AdvManagedFlag (#PCDATA)>
+<!ELEMENT AdvOtherConfigFlag (#PCDATA)>
+<!ELEMENT AdvLinkMTU (#PCDATA)>
+<!ELEMENT AdvReachableTime (#PCDATA)>
+<!ELEMENT AdvRetransTimer (#PCDATA)>
+<!ELEMENT AdvCurHopLimit (#PCDATA)>
+<!ELEMENT AdvDefaultLifetime (#PCDATA)>
+<!ELEMENT AdvPrefixList (AdvPrefix)+>
+<!ELEMENT AdvPrefix (#PCDATA)>
+<!ATTLIST AdvPrefix AdvValidLifetime CDATA "2592000">
+<!ATTLIST AdvPrefix AdvOnLinkFlag (on|off) "off">
+<!ATTLIST AdvPrefix AdvPreferredLifetime CDATA "605800">
+<!ATTLIST AdvPrefix AdvAutonomousFlag (on|off) "on">
+
+<!ELEMENT HostLinkMTU (#PCDATA)>
+<!ELEMENT HostCurHopLimit (#PCDATA)>
+<!ELEMENT HostBaseReachableTime (#PCDATA)>
+<!ELEMENT HostRetransTimer (#PCDATA)>
+<!ELEMENT HostDupAddrDetectTransmits (#PCDATA)>

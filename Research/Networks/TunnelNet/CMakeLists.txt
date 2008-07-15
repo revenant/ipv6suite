@@ -1,0 +1,6 @@
+ADD_TEST(TunnelNetR1 TunnelNet -r 1)
+COLLECT_CHECK_TEST(TunnelNetR1)
+ADD_TEST(TunnelNetR2 TunnelNet -r 2)
+COLLECT_CHECK_TEST(TunnelNetR2)
+ADD_TEST(TunnelNetR3 TunnelNet -r 3)
+COLLECT_CHECK_TEST(TunnelNetR3)

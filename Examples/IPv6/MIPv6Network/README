@@ -1,0 +1,40 @@
+Normal MIPv6 with RO and no RR
+--------------------------------------------------------
+        mipv6Network.client1.pingApp
+--------------------------------------------------------
+sent: 9800   drop rate (%): 3.20408
+round-trip min/avg/max (ms): 40.7639/83.8886/202.524
+stddev (ms): 27.4886   variance:0.000755625
+--------------------------------------------------------
+
+without RO
+--------------------------------------------------------
+        mipv6Network.client1.pingApp
+--------------------------------------------------------
+sent: 9800   drop rate (%): 2.29592
+round-trip min/avg/max (ms): 100.79/151.775/202.524
+stddev (ms): 22.3961   variance:0.000501587
+--------------------------------------------------------
+
+
+RO with RR
+--------------------------------------------------------
+        mipv6Network.client1.pingApp
+--------------------------------------------------------
+sent: 9800   drop rate (%): 3.45918
+round-trip min/avg/max (ms): 40.7639/83.8771/202.524
+stddev (ms): 27.5193   variance:0.000757314
+--------------------------------------------------------
+
+as b4 but without mobilitysupport in CN (server4)
+--------------------------------------------------------
+        mipv6Network.client1.pingApp
+--------------------------------------------------------
+sent: 9800   drop rate (%): 2.18367
+round-trip min/avg/max (ms): 100.79/151.789/202.524
+stddev (ms): 22.3869   variance:0.000501173
+--------------------------------------------------------
+
+No idea why this is slightly better perf in terms of packet loss than for no
+RO. Need to investigate further.
+

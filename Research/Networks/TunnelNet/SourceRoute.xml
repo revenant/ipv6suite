@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf
+debugChannel="debug.log:notice:AddressTimer:RouterDisc:XMLAddresses:RouterTimer:Routing">
+  <local node="client">
+    <interface>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface>
+    <sourceRoute>
+      <!-- Exercise source routing! -->
+      <sourceRouteEntry finalDestination="fec0:0:0:0:260:97ff:0:4">
+	<nextHop address="fec0:0:0:0:260:97ff:0:a1"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:da"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:cd"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:bc"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:db"/>
+	<nextHop address="fec0:0:0:0:260:97ff:0:cd"/>
+      </sourceRouteEntry>
+    </sourceRoute>
+ 
+  </local>
+  <local node="routerA" routePackets="on">
+    <interface AdvSendAdvertisements="on">
+      <inetAddr >fec0:0:0:0:260:97ff:0:a1/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix>FEC0:0:0:ABCD:260:97ff:0:1/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>  
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ab/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ad/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="FEC0:0:0:ABCD:260:97ff:0:1/64"/>
+      <routeEntry routeIface="ppp1"
+      routeDestination="fec0:0:0:0:260:97ff:0:ba/128" isRouter="on"/>
+      <routeEntry routeIface="ppp2"
+      routeDestination="fec0:0:0:0:260:97ff:0:da/128" isRouter="on"/>
+    </route>
+  </local>
+  <local node="routerB" routePackets="on">
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:ba/64</inetAddr>      
+    </interface>  
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:bd/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:bc/64</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0"
+      routeDestination="fec0:0:0:0:260:97ff:0:ab/128" isRouter="on"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:db"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:cb"
+      isRouter="on"/>
+    </route>
+  </local>
+  <local node="routerD" routePackets="on">
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:da/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:db</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:dc</inetAddr>
+    </interface>
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="fec0:0:0:0:260:97ff:0:ad"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:bd"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:cd"
+      isRouter="on"/>
+    </route>
+  </local>
+  <local node="routerC" routePackets="on">
+    <interface AdvSendAdvertisements="on">
+      <inetAddr>fec0:0:0:0:260:97ff:0:c4</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:cb</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>fec0:0:0:0:260:97ff:0:cd</inetAddr>
+    </interface>       
+    <route>
+      <routeEntry routeIface="ppp0" routeDestination="fec0:0:0:0:260:97ff:0:4"/>
+      <routeEntry routeIface="ppp1" routeDestination="fec0:0:0:0:260:97ff:0:bc"
+      isRouter="on"/>
+      <routeEntry routeIface="ppp2" routeDestination="fec0:0:0:0:260:97ff:0:dc"
+      isRouter="on"/>
+    </route>
+  </local>  
+  <local node="server">
+    <interface name="ppp0">
+      <inetAddr >fec0:0:0:0:260:97ff:0:4/64</inetAddr>
+    </interface>  
+  </local>
+</netconf>

@@ -1,0 +1,35 @@
+MIPv6Network.ini
+
+[Run 1]
+
+does not route properly even though using auto routing (prob. same run as
+omnetpp.ini -r 1 except power is greater?)
+
+[Run 2]
+does not work
+
+Runs 3-6 are all tests
+to omit 0 values from scalar file
+grep -v "[ ][[:space:]]\<0" omnetpp.sca
+
+[Run 4]
+
+Same as 3 except move between HA and router2 (ping pong)
+Segfaults when given a false address to ping
+
+
+#####################
+PCOAForwarding.ini -r 1
+--------------------------------------------------------
+        pcoaForwardingNet.client1.ping6App
+--------------------------------------------------------
+Ping: deadline 700s NOT reached at 250s
+pcoaForwardingNet.client1.ping6App %drop rate 2.684%
+round-trip min/avg/max = 1000.407ms/1191.838ms/3001.681ms
+stddev=404.789ms variance=163.854ms
+--------------------------------------------------------
+
+PCOAForwarding.ini -r 3
+
+Runs but there is a big handover at the start perhaps ping packets didn't get
+through then?

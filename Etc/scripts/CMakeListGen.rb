@@ -186,6 +186,8 @@ SET(#{projName}_SRCS ${GENERATED_MSGC_FILES} ${#{projName}_SRCS})
 
 
 EOF
+    
+    xvar.insert(0, "SET(COMPILER_WARNINGS -Wall)\n") if @customise
     x.puts xvar
     x.puts "INCLUDE_DIRECTORIES("
     includes.each{|inc|         

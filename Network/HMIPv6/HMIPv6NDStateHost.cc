@@ -579,37 +579,15 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
     return false;
   }
 
-  std::auto_ptr< ipv6_addr > deleteMe;
-  //check if we are invoked by this function ourself
+  //check if we are inside callback 
   if (callbackAdded(lcoa, 5445))
   {
     typedef cCallbackMessage cbSendMapBUAR;
-    cbSendMapBUAR* ocb = boost::polymorphic_downcast<cbSendMapBUAR*>(addressCallback(lcoa));
-    if (ocb && *((ipv6_addr*)(ocb->contextPointer())) != lcoa)
-    {
-      //this branch used to be inside discoverMap but now that I've merged the
-      //two there is duplication of callback creation after the assert false
-
-      ocb->cancel();
-      delete ((ipv6_addr*)(ocb->contextPointer()));
-      delete ocb;
-
-      assert(false);
-      //schedule new action and return (what was point of different address in
-      //contextpointer in first place if was different from
-      //lcoa even though callbackAdded returned true???)
-      ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
-      (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa, (IPv6Datagram*)0);
-      ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak	
-      addCallbackToAddress(lcoa, ocb);
-      return true;
-    }
-    typedef cCallbackMessage cbSendMapBUAR;
     cbSendMapBUAR* cb = check_and_cast<cbSendMapBUAR*>(addressCallback(lcoa));
     //simply called by functions not callback
-    if (cb->arrivalTime() > nd->simTime())
+    if (cb->isScheduled())
       return true;
-    deleteMe.reset((ipv6_addr*) cb->contextPointer());
+    //invokeCallback deletes cb so don't touch here
   }
   else
   {
@@ -634,7 +612,6 @@ bool HMIPv6NDStateHost::arhandover(const ipv6_addr& lcoa, IPv6Datagram* dgram)
       typedef cCallbackMessage cbSendMapBUAR;
       cbSendMapBUAR* ocb = new cbSendMapBUAR("SendMAPBUAR", 5445);
       (*ocb) = boost::bind(&HMIPv6NDStateHost::arhandover, this, lcoa, (IPv6Datagram*) 0);
-      ocb->setContextPointer(new ipv6_addr(lcoa)); //possible leak
       Dout(dc::hmip, rt->nodeName()<<" RtrAdv received from "<<dgram->srcAddress()
 	   <<" iface="<<dgram->inputPort()<<" HMIP lcoa="<<lcoa<<" not assigned yet undergoing DAD "
 	   <<"doing arhandover as MAP not changed");

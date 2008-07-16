@@ -520,7 +520,7 @@ void HMIPv6NDStateHost::deferSendBU(ipv6_addr& coa, unsigned int ifIndex)
     Dout(dc::hmip|flush_cf, rt->nodeName()<<" "<<nd->simTime()
 	 <<ifIndex<<" waiting for dad completion before sending BU for coa "
 	 <<coa);
-    cCallbackMessage* cb = new cCallbackMessage("HMIPv6sendBU");
+    cCallbackMessage* cb = new cCallbackMessage("HMIPv6sendBU", 5491);
     (*cb) = boost::bind(&HMIPv6NDStateHost::sendBU, this, coa);
     addCallbackToAddress(coa, cb);
 }

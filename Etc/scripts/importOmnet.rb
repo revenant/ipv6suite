@@ -235,7 +235,8 @@ class TC_ImportOmnet < Test::Unit::TestCase
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
       $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
     }            
-    output = File.join("test.Rdata")
+    rdata = "test.Rdata"
+    output = File.join("/tmp", rdata)
     p.puts %{save.image("#{output}")}
     assert_equal(["a.transitTimes.cn", "a.transitTimes.mn"],
                  $app.retrieveRObjects(p),
@@ -265,6 +266,7 @@ class TC_ImportOmnet < Test::Unit::TestCase
     p.puts %{save.image("otherException.Rdata")} if not p.nil?
   ensure
     p.close if p    
+    File.delete(output)
   end
   
   def test_excludeByName
@@ -353,7 +355,8 @@ hence evil of by vector across many files")
       encodedFactors = encodedFactors[1..encodedFactors.size-2]      
       $app.encodedSingleRun(p, vecFile, encodedFactors, run)      
     }            
-    output = File.join("test2.Rdata")
+    rdata = "test2.Rdata"
+    output = File.join("/tmp", rdata)
     p.puts %{save.image("#{output}")}
     assert_equal(["a.transitTimes.cn", "a.transitTimes.mn"],
                  $app.retrieveRObjects(p),
@@ -383,6 +386,7 @@ hence evil of by vector across many files")
     p.puts %{save.image("otherException.Rdata")} if not p.nil?
   ensure
     p.close if p    
+    File.delete(output)
   end
 
   def test_mergeOutput
@@ -561,7 +565,10 @@ END
   end
   
   def teardown
-
+    @inputDup.each_pair{|k,v|
+      File.delete(k)
+    }
+    File.delete(@yaml)
   end
 
 end

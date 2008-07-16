@@ -227,7 +227,7 @@ public:
     }
 
 #ifdef USE_MOBILITY
-  void setAdvInterval(unsigned long advInt)
+  void setAdvInterval(u_int32 advInt)
     {
       bool changeLength = true;
       if (opts[2])
@@ -242,7 +242,7 @@ public:
         setLength(length() + opts[2]->lengthInUnits()*IPv6_EXT_UNIT_OCTETS*BITS);
     }
 
-  unsigned long advInterval(void) const
+  u_int32 advInterval(void) const
     {
       if (opts[2])
         return (static_cast<ICMPv6NDOptAdvInt*>(opts[2]))->advInterval;

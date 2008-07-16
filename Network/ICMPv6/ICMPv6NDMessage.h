@@ -52,6 +52,9 @@
 #endif //HMIPV6ICMPV6NDMESSAGE_H
 #endif //USE_HMIP
 
+#ifndef TYPES_TYPEDEF_H
+#include "types_typedef.h"
+#endif
 
 class IPv6Datagram;
 

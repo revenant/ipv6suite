@@ -7,27 +7,25 @@ SET(BINMISCDIR ${PROJECT_BINARY_DIR}/Etc)
 SET(BINSCRIPTDIR ${BINMISCDIR}/scripts)
 SET(DUMMY_SOURCE ${BINMISCDIR}/dummy.cc)
 
-#INLINENET is used to test building for inline example subdirs or user network
-#directory using the self built and installed ipv6suite-xxx.ix86.rpm 
-
-STRING(COMPARE EQUAL ${CMAKE_HOME_DIRECTORY} ${IPv6Suite_SOURCE_DIR}  INLINENET)
+STRING(COMPARE NOTEQUAL ${PROJECT_SOURCE_DIR} ${PROJECT_BINARY_DIR} OUTOFSOURCE)
 
 INCLUDE(${CMAKEFILES_PATH}/Options.cmake)
 
 INCLUDE(${CMAKEFILES_PATH}/IntelICCOptions.cmake)
 
-INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
+#INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
 
 INCLUDE(${CMAKEFILES_PATH}/Configure.cmake)
 
 INCLUDE(${CMAKEFILES_PATH}/Macros.cmake)
 
-IF(INLINENET)
-  INCLUDE(${CMAKEFILES_PATH}/RunOnce.cmake)
-ENDIF(INLINENET)
+IF(OUTOFSOURCE)
+#Create Research, Etc, boost links 
+  ADD_CUSTOM_TARGET( prebuild ALL rm -fr  ${PROJECT_BINARY_DIR}/Etc ${PROJECT_BINARY_DIR}/Research ${PROJECT_BINARY_DIR}/boost 
+		   COMMAND ln -sf ${PROJECT_SOURCE_DIR}/Etc ${PROJECT_BINARY_DIR}/Etc
+		   COMMAND ln -sf ${PROJECT_SOURCE_DIR}/Research ${PROJECT_BINARY_DIR}/Research
+		   COMMAND ln -sf ${PROJECT_SOURCE_DIR}/boost ${PROJECT_BINARY_DIR}/boost
 
-IF(INLINENET)
-  INCLUDE(${CMAKEFILES_PATH}/CustomTargets.cmake)
-  
-  INCLUDE(${CMAKEFILES_PATH}/ExportIPv6Suite.cmake)
-ENDIF(INLINENET)
+		   WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+ENDIF(OUTOFSOURCE)
+

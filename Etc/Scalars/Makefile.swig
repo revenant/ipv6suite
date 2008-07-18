@@ -31,7 +31,8 @@ swigall: $(WRAPPER) Makefile
 	make
 
 $(WRAPPER): $(INTERFACE) $(AUXINTERFACES) $(LIB)
-	$(SWIG) $(SWIGOPT) -o $@ $(INTERFACE)
+        #Don't do as new versions of swig do not work 
+	#$(SWIG) $(SWIGOPT) -o $@ $(INTERFACE)
 
 Makefile: extconf.rb
 	$(RUBY) extconf.rb
@@ -39,16 +40,18 @@ Makefile: extconf.rb
 		echo "include Makefile.swig" >> Makefile;\
 	fi
 
-swigclean: myclean
+sclean: myclean
 	@if [ -f Makefile ] ; then\
 		make -f Makefile clean;\
 	fi
-	rm -f Makefile $(WRAPPER)
+	rm -f Makefile 
+	#rm -f $(WRAPPER)
 
 ##Added extra rules
 
 myclean:
 	rm -fr engine/lib
+	rm -fr engine/CMakeLists.txt engine/nedfiles.lst
 
 $(LIB): engine/CMakeLists.txt
 	mkdir -pv engine/lib

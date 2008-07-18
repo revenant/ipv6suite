@@ -1,3 +1,8 @@
+ADD_CUSTOM_TARGET(scalars.rb ALL make -f Makefile.swig
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Etc/Scalars)
+ADD_CUSTOM_TARGET(cleanswig make -f Makefile.swig sclean
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Etc/Scalars)
+
 #Requires ${SCRIPTDIR} as scripts need their $PWD for loadpath
 #Requires R>2.2.x (works with 2.3 and 2.6)
 ADD_TEST(ConfTest ${RUBY_EXECUTABLE} ${SCRIPTDIR}/ConfTest.rb --unittest)

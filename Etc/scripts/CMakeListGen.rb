@@ -4,7 +4,7 @@
 #  Copyright (c) 2004 Johnny Lai
 #
 # =DESCRIPTION
-# CMakeLists.txt generater for omnetpp type projects. Currently works with INET
+# CMakeLists.txt generater for omnetpp type projects. Currently works with INET 
 # and generates IPv6Suite's OneBigExe.cmake but should work for others too. 
 #
 
@@ -105,21 +105,12 @@ SET(CMAKE_BACKWARDS_COMPATIBILITY 2.0 CACHE STRING "2.4 uses default path before
 SET(OPP_USE_TK OFF CACHE BOOL "OFF unless you are sure tk gui can build")
 SET(OPP_USE_MPI OFF CACHE BOOL "OFF unless you are sure lam libs are not 64bit")
 
-SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)
-SET(MISCDIR ${PROJECT_SOURCE_DIR}/Etc)
-SET(SCRIPTDIR ${MISCDIR}/scripts)
 OPTION(BUILD_SHARED_LIBS "Build with shared libraries." ON)
 SET(ONE_BIG_EXE ON)
 
-INCLUDE(${CMAKEFILES_PATH}/Options.cmake)
+SET(CMAKEFILES_PATH ${PROJECT_SOURCE_DIR}/Etc/CMake)
 
-INCLUDE(${CMAKEFILES_PATH}/IntelICCOptions.cmake)
-
-#INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
-
-INCLUDE(${CMAKEFILES_PATH}/Configure.cmake)
-
-INCLUDE(${CMAKEFILES_PATH}/Macros.cmake)
+INCLUDE(${CMAKEFILES_PATH}/Main.cmake)
 
 IF(NOT WIN32)
   INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
@@ -214,6 +205,7 @@ IF(NOT WIN32)
 ENDIF(NOT WIN32)
 
 ADD_LIBRARY(inet ${INET_SRCS})
+ADD_DEPENDENCIES(inet prebuild)
 
 SET(DUMMY_FILE ${CMAKE_CURRENT_BINARY_DIR}/empty.cc)
 FILE(WRITE ${DUMMY_FILE} "//empty file\n")

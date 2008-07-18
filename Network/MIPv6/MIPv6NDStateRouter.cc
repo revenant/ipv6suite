@@ -37,6 +37,7 @@
 #include "ipv6_addr.h"
 #include "cTimerMessage.h"
 #include "IPv6CDS.h"
+#include "types_typedef.h"
 
 namespace MobileIPv6
 {
@@ -72,8 +73,9 @@ ICMPv6NDMRtrAd* MIPv6NDStateRouter
 
 #ifdef USE_MOBILITY
   // New Advertisement Interval option included in RA
+  //ceil because 32bit arch 1.4*1000 = 1399 (result converted to int)
   rtrAd->setAdvInterval(
-    static_cast<unsigned long>(rtrVar.maxRtrAdvInt * 1000));
+    static_cast<u_int32>(ceil(rtrVar.maxRtrAdvInt * 1000)));
 #endif
 
   return rtrAd;

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf debugChannel="HMIPv6Simple.log:rcfile:MobileMove:notice">
+  <local node="client1" mobileIPv6Support="on" routeOptimisation="on" signalingEnhance="None" mobileIPv6Role="MobileNode" hierarchicalMIPv6Support="off" optimisticDAD="on" ewuOutVectorHODelays="on">
+    <interface name="wlan0" HostDupAddrDetectTransmits="0">
+      <inetAddr>3018:ffff:0:0:2580:ebff:fe8c:1448/64</inetAddr>
+    </interface>
+  </local>
+  <local node="server4" mobileIPv6Support="on">
+					<interface name="eth0">
+									<inetAddr>3000:0:0:0:1:2:3:4</inetAddr>
+					</interface>
+	</local>
+
+<!-- routing table configuration -->
+
+  <local node="ha" routePackets="on" mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3018:FFFF:0:0:127b:c0ff:fe2e:7212/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+
+  <local node="router1" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3092:EEEE:2344:3333:a64b:65ff:fec6:a7fc/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3092:EEEE:2344:3333:a64b:65ff:fec6:a7fc/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+
+  <local node="router2" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <inetAddr>3088:AABB:1122:3456:fbaf:b9ff:fecd:af55/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3088:AABB:1122:3456:fbaf:b9ff:fecd:af55/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+
+  <local node="router3" routePackets="on" mobileIPv6Support="on">
+    <interface name="eth0" AdvSendAdvertisements="on" AdvHomeAgent="on">
+      <inetAddr>3011:AAAA:1111:2222:ee8f:19ff:fe36:a030/64</inetAddr>
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on" AdvRtrAddrFlag="on">3011:AAAA:1111:2222:ee8f:19ff:fe36:a030/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+  </local>
+
+  <misc>
+    <ObjectMovement>
+      <MovingNode NodeName="client1" startTime="0">
+        <move moveToX="500" moveToY="600" moveSpeed="3"/>
+        <move moveToX="150" moveToY="600" moveSpeed="3"/>
+      </MovingNode>
+    </ObjectMovement>
+  </misc>
+
+</netconf>

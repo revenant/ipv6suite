@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf>
+  <local node="router" routePackets="on">
+    <interface name="eth0" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3018:FFFF:0:0:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface> 
+    <interface name="eth1" AdvSendAdvertisements="on">
+      <AdvPrefixList>
+	<AdvPrefix AdvOnLinkFlag="on">3018:FFFF:2344:3333:0:0:0:0/64</AdvPrefix>
+	<!-- TESTCASE Address and prefix lifetimes
+	<AdvPrefix AdvValidLifetime="30" AdvOnLinkFlag="on"
+	AdvPreferredLifetime="15">3018:FFFF:2344:3333:0:0:0:0/64</AdvPrefix>
+	-->
+      </AdvPrefixList>
+    </interface> 
+  </local>
+  <!-- TESTCASE XML_ADDRESS debug channel output
+  <local node="client2">
+    <interface name="eth0">
+      <inetAddr>3018:FFFF:2344:3333:abcd:0:0:0/64</inetAddr>
+      <inetAddr>3018:FFFF:2344:3333:abcd:0:0:2345/64</inetAddr>
+    </interface>
+    <interface>
+      <inetAddr>abcd:adff:0:0:0:0:1234:8888</inetAddr>
+    </interface>
+  </local>
+  -->
+</netconf>

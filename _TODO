@@ -1,0 +1,13 @@
+
+- move ARP up into IP layer; unify L2 interfaces
+
+- apps: add startTime param; IPAddressResolver should only be invoked at startTime not in initialize()!
+
+- TCP tests fail now (TCPDump has changed)
+
+- create RED etc for routers
+
+- if a node pings itself, that'll be "destination unreachable" -- fix it
+
+- PPP, Eth: restore original conn color when transmission ends
+

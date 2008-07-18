@@ -1,0 +1,10 @@
+DOCUMENTATION IS MISSING DETAILS
+- general description is missing (what is active and idle period, etc)
+- what does it send?
+- interface to lower layers? what should it be connected to? 
+  what controlInfo does it attach?
+
+VBR SCOPE IS CONFUSED
+- VBRSrcModel: param "pixPerFrame": if this is a streaming video model,
+  then it should be explained and probably more parameters added.
+  if it's NOT video, then is SHOULDN'T have a parameter called "pixPerFrame"!

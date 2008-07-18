@@ -1,0 +1,495 @@
+Router/Neighbor Entry redesign to allow transitioni between two in NC and
+DC. E.g. using containment i.e neigbhour entry owns Router Entry
+
+NUD
+
+Add virtual ctor to IPv6NDEntry to hide what and how its created so transistion
+between rtr and host will not cause updates to code everywhere. NDStateHost
+processRedirect requires this
+
+Find live msg leak in IP layer currently its ~ 1/10 of Total msgs
+
+Find live msg leak in TCP (low priority)
+
+unicast send from addrRes and ND - Redirect and NUD need it. Can be done by
+sending to fragmentation if dest LL addr known or to addr res if not. Have to
+call conceptual sending and determination of src addr like routing6core or
+perhaps own version as we know which ifIndex to send in redirect case
+
+ClaimKernel/ReleaseKernel pair does not work in simple modules of handleMessage
+type.  Check AddressResolution.cc for an example.  Find alternative. Use semaphores
+
+Test that indeed parameters specced in ned file can be overridden in INI file -
+cannot.
+
+Make sure all paramters go in [Parameter] section with specific ones at start
+and reg exp towards end
+
+Need to find out if IPv6 Multicast packets can be fragmented or not.  Ping cannot
+be fragmented as tests on real network show around 22k is limit for ping size
+prob MTU of ethernet link.
+
+Test sorting of ipv6_addr/IPv6Address and finally Prefix Entry to make sure its longest match first
+Perhaps mod PrefixEntry from IPv6Address to non cobject ipv6_addr and prefix len.
+
+6/3/03
+Left out the router prefix timer for now as it causes assertion failures.  Don't
+know why yet.
+
+Ignore padding for now
+
+Use shared_ptr to store a list of neighbours.  DEs will point to neighbour via weak_ptr.
+
+Bugs 
+
+There seems to be a bug when exiting where the first router to be deleted will
+seg fault on destruction of an IPv6Addr obj.  This occurs inside of ND module.
+After outputting all the pointer addr to test if this is a double deletion.
+Cannot find it which means there's deletion of an uninitialised pointer? - Resolved
+
+HopLimit is set in both sendOut if upper layer specifies it and in
+fragmentation if packet originated on this node && hopLimit == 0.
+datagram is initialised with 0 hopLimit.  ND & ICMP messages are set upon
+creation time for HOPLimit as ND needs 255 whilst ICMP is specific to say app. 
+So why is everything 255 hopLimit. - due to omnetpp.ini setting of hoplimit of
+255 on ping packets.  As sendcore now respects upper layer hoplimit requirement.
+
+
+Review all usage of pointers in objects that share msg timer pointers.  As
+multiple deletions can occur during dtor cycle at simulation exit.  Use
+shared_ptr?  Just luck that the prefixEntry's dtor does not delete timer during
+use as its not created yet until after its inserted into prefixList map.
+
+RtrAdvMissed not working at all again - this is due to the HA bit been not set
+in the RtrAdv.  Now it was set before now it isn't.  The thing is createRA of
+MIPv6NDStateRouter passes by reference and that reference is stuffed when
+compared to the values printed out during startup.  This reference problem seems
+to be prevalent everywhere.  Well it had nothign to do with references.  Problem
+is fixed.
+
+prefix timers seem to work correctly except for the very first two router adv
+when both the prefix and address are not removed.  for the very first router adv
+the address is not added as the interface has not assigned any link local addr
+yet.  However subsequent router adv will see the prefix and address timers go
+off at the same time.  This is with ethNetwork setting of validlifetime of 30.
+
+Fix bug in Routing6Core when HdrExtDestProc is supposed to be created and isn't
+(add as test case). -fixed
+
+Another bug past 2500 seconds when findHomeAgent causes seg fault (accessing a 0
+pointer) (doesn't seem to appear anymore)
+
+Now rtrAdvMissed works again as primary HA now registered.  However when l2
+connect occurs it redoes the rtrSol again even though rtrAdvMissed already sent
+rtrSol and processed corresponding RtrAdv.  However it did not appear to treat
+that as from MIPv6 Router.  Further investigation is necessary.  Eventually code
+ran to seg fault as it tried to access the neigbhour pointer for dest entry
+that was not created properly (inserted).
+#0  0x08119a12 in IPv6NeighbourDiscovery::NeighbourEntry::isRouter() const (
+    this=0x0) at IPv6NDEntry.h:213
+#1  0x08158568 in IPv6NeighbourDiscovery::NDStateHost::processRtrAd(std::auto_ptr<IPv6NeighbourDiscovery::ICMPv6NDMRtrAd>) (this=0x843ff48, rtrAdv=0xbfffd720)
+    at NDStateHost.cc:584
+#2  0x0814f61f in MobileIPv6::MIPv6NDStateHost::processRtrAd(std::auto_ptr<IPv6NeighbourDiscovery::ICMPv6NDMRtrAd>) (this=0x843ff48, rtrAdv=0xbfffd7d0)
+    at MIPv6NDStateHost.cc:334
+1. Find out what happened to the proc. of first rtrAdv from foregin router at MN
+and from that should be able to send BU. - new router was not used as
+currentRouter.  and no handover occured.  the awayFromHome variable was
+incorrectlhy set at false whenever movementDetected occurs.  awayFromHome func
+now does check every time primaryHA does not exist.  
+
+Probably best to only use one movement detection method. Done
+
+Seg faults at foreign subnet in AddressRes module.  Seems to be a random bug
+that fails at the assertion tmr!=*this or at the addrResFailed func during ipv6_addr
+address equality comparison or 
+MIPv6Network: AddressResolution.cc:146: virtual void AddressResolution::handleMessage(cMessage*): Assertion `rt->cds->neighbour(tmr->targetAddr)->state() == NeighbourEntry::INCOMPLETE' failed.
+Solution/Workaround
+Well this was caused by incorrect handover procedure.  MissedRtrAdv calls
+handover to set currentRouter to null. When rtrAdv arrives from foreign/new
+router, it was assigned to currentRouter before handover was called.  Now
+handover assumes that currentRouter was the old router and thus it goes through
+the motion of using this the new default router and subsequently removed
+its routes too.  As to why this would cause a segfault is still open to question
+though since the router is never deleted in the entire process only some entries
+in a map.
+
+However if we left it as it was before then it will reuse the old router as the
+default router.  If we changed the defaultRouter function to return 0 instead of
+the very first router in list if they are all INCOMPLETE then the normal startup
+behaviour of static routes will also fail since we assume all hosts are on link.
+In that case we still have a dest entry which is incorrect.  Instead of pointing
+to an old router it points to itself prompting AddressRes.  Of course it never
+gets resolved. When addr res fails the dest entry for the next hop address does
+get removed so in this case it would work if we ignore the startup failure
+problem.
+
+ Another solution would be to remove all DE for a failed addr resln of nexthop
+ (removeDestEntryByNeighbour) so that conceptual sending can rebuild it which is
+ beneficial in mobile ipv6 case. This may be only solution.  Although we should
+ find out why ping just stops without warning when we try to do oldRtr->newRtr
+ handover in one go. Done
+
+For the one handover case instead of deleting the old routes we should modify
+them all to use the new router. Done  
+
+However the ping does not work if the currentRouter is not set to null and wait
+for the new RtrAdv before calling handover then any pings after handover do not
+appear to be sent at all.  As to why this should happen just doesn't make
+sense.- They are sent.  I didn't notice it.  But no replies come back because
+the server is stuck in mobility module.  ReleaseKernel() fixed it and would fix
+many other potential lockups
+
+Test route optimisation to make sure it works - done
+
+TRU64 problems
+Only the older omnetpp works i.e before the update from 2.2cvs version. that has
+too many compiler errors in the nedxml dir. so reverted to the tag b4_karlsruhexxxupdate
+
+BugTRU64TunnelNetEncapsulationFails
+Instead of the standard behaviour as seen on Linux this diagnostic message comes
+out every time it searchs for the tunnel at its entry point: 
+
+We should delete all dest entries pointing at this tunnel
+routerA - tunnel vifIndex=fffffffb does not exist anymore.
+
+Resolved. Looks like an issue with unsigned int sizes and rollover differences
+between 32bit and 64bit architectures perhaps - Result is same as Linux for ping
+
+ethNetwork just core dumps on startup - must be another bug?- this happens when
+linked with cmdenv.  Reported on twiki.
+pingNetwork looks fine - Both architectures same result too
+MIPv6Network - same results for both Arch
+
+Investigate effects of multiple (L2 and missing rtr adv) movement triggers been
+fired. Segfaults eventually = Deal with later missedRtrAdv does work
+
+Don't do ha->addOnLinkPrefix for prefixes that are already added in MIPv6ProcRtrAdv.
+
+Complete the scenario on twiki page as planned mostly done except data
+collection.
+
+Found bug at OMNET++ twiki page very relevant to problems encountered.
+
+ When a module (caller module) calls another module's (target module) member function and this function creates a cObject, it will be owned by the caller module. The reason is that the caller module is set as the context module and the default ownership is derived from that.
+
+When the target module tries to send a cMessage that was created this way the kernel will issue a runtime error.
+
+Naturally, one would expect that the created cObject belongs to the target module.
+
+This workaround was suggested:
+
+cModule* mod = p;
+cModule* old_context_mod = simulation.contextModule();
+simulation.setContextModule(p);
+p->callThisFunction();
+simulation.setContextModule(old_context_mod);
+
+
+Counters from Linux kernel ipv6 code (ipv6/proc.cc)
+IP6InDeliver for TCP and UDP IPv6 sent up and RAW but we don't have raw (or is
+that tunnel?)
+Icmp6OutGroupMembReductions, Icmp6OutGroupMembResponses a shared global counter
+ICMPOutMesgs for each of those too
+
+csum fails UdpInErrors/IcmpInErrors
+UdpNoPorts if socket not found with exact saddr/daddr/sport/dport
+
+HdrExtDestProc more work in processOption needed.  
+
+30/7/02
+
+when setting mobilitySupport="on" and maxRtrAdvInterval="0.1" to router1 in
+MIPv6Network, the seg fault happens when the client1 moves to the router1's
+subnet and receives unSolRtrAdv from the router1 - fixed refer to changelog
+
+client1 doesn't send BU to the HA when it moves to router2 (due to
+the missRtrAdv not working?) - fixed
+
+Loki produces error when omnetpp is terminated (MIPv6Network: SmallObj.cc:185:
+Loki::FixedAllocator::~FixedAllocator (): Assertion `i->blocksAvailable_ ==
+numBlocks_' failed.) - unable to reproduce on hydra or in gcc3.1
+
+31/7/02
+
+Message below occurs When trying to send BU to CN after sending one to HA
+already as they are both in BUL.
+<!> Error in module mipv6Network.client1.networkLayer.proc.ipv6.ICMP.nd:
+scheduleAt(): not owner of message `Sched_SendBU'; owner is
+`simulation.message-queue'.  - This is due to scheduleSendBU which reuses the
+sched_sendBU message.  Obviously that is not possible now so the quick fix for
+now is to create a new one per sendBU request and delet inside callback.  The
+final fix would be to actually make the iteration through the BUL and sendBU's
+into one operation to be scheduled for MStateMobileNode rather than on a per BU basis.
+
+
+Actually the problem around time 69.75 has not been solved yet either.  This
+time is significant because it is after the first handover and because MN
+knows that its alredy received new Rtr Ad. already it sends a BU.  However
+because the incumbent detection callback still sends a rtrSol and thus the Rtr
+responds with a scheduled rtr Adv 3 seconds into future instead of the
+advertised interval of nextAdvDelay: 0.3403 calculated during the unsol rtr adv
+loop. Thus MN thinks its lost the router and will assign itself to nothing.
+Then when the 3 seconds is up it redetects that router again.  But it triggers a
+section of code that was not prepared for scenario of stuff inside BUL but no
+currentRouter and hence seg fault after the omnetpp message of (message
+ownersihp which is a seperate problem).
+
+When mipv6mobility support is off there is an assertion at time >1600.  This is
+caused by the 
+
+16/8/02
+Some old bugs with unknown status
+AdvSendAdvertisements>on</AdvSendAdvertisements> in xml file appears to affect
+the wrong interface.  e.g. network example has the last interface off.  However
+it happens that the first interface is off instead.
+
+Running the network with udp app in normal speed mode will seg fault as soon as
+a node receives a udp packet and is about to send to app layer via send call.
+However it works fine when express speed is used. Only started happening today
+after Eric and I both checked in a few "fixes".
+
+17/9/02
+Add new cppunit test process. By using the autotestregistry macros we can define
+the tests in the cpp files only and stop the madness of #ifdef inclusions for
+the testcases.  Thus making the code do the actual registration instead of us.
+Thus we will not forget to add it to test because when we write test case we
+register at that point.
+
+read the doco for this here file:///usr/share/doc/cppunit-doc-1.8.0/cppunit_cookbook.html#test_runner_code
+
+23/9/02 
+
+Need a subscriber-notifier class that takes care of registering
+subscribers that are interested in certain events with their callback function.
+When the event occurs all the subscriber's are notified by invoking the callback
+function.  The subscribers would have to all inherit from a subscriber class and
+the callback func sig should prob. be fixed to 1 argument to ease impln.  The
+events are registered via event names.  
+
+The onus is on the subject class (class that contains the event to observe) to
+call the subscripter/notifier class to map the relevant function to the correct
+callbacks via event name.  Thus the subs/not class can be inherited from to gain
+the addSubsriber func. 
+
+Examples of events to notify on are onNewPrefixAdvertisement
+
+This should make the code more modular and efficient rather than reiterating
+through router prefixes at different stages of processing
+
+28/9/02
+
+Separate BUL for MIPv6 and HMIP i.e. add a new BUL for HMIP which contains MAP
+domain updates to current MAP and previous MAP because this BUL will always be
+updated with lcoa whereas original MIPv6 will always be updated with rcoa. HMIP
+BUL would nominally contain current MAP and previous MAPs usually. -  Sticking
+with one although would need some hints on which BUL entries to update for lcoa
+and rcoa changes (lcoa would update ones with MAP reg and any CN that are on-link)
+
+This HMIP BUL can also check CN in MIPv6 BUL to see if any are in local link and
+thus move that CN into HMIP BUL and send BU with lcoa instead of rcoa to totally
+optimise things. - sticking with one BUL but this still applies though
+
+HMIP BUL would contain modified MIPv6RouterEntry that point to MAPEntry instead
+of things in RouterList? - bu_entry doesn't associate with MIPv6RouterEntry
+					
+Check-decapsulation would need to be changed for HMIPv6 as we need to determine
+if CN is sending to rcoa directly i.e. tunnelled from MAP or was it tunnelled
+from HA to MAP to us. 
+
+Thus handover function would do AR-AR handover via MAP BUL and if no current MAP
+exists then do normal MIPv6 handover.  done
+
+sendBU would need to be different for HMIPv6 as it has to use the MAP BUL but
+perhaps not so different besides using different BUL perhaps pass that in as a
+arg too (only if MIPv6 would not need #ifdef though) - deciding to stick with
+one BUL since we have flag to identify which are MAPs
+
+processBA for HMIP would need to change so that when BA from MAP comes back we
+send BU to pHA and also other things in MIPv6 BUL.
+
+Modify sendBU in such a way as to eliminate the current problem of sending BU
+from NDState .. perhaps MStateMN don't need to send BU at all.  If they still do
+try and create a direct gate between the two and do the ND-addr res trick
+although trying to use the same function for both mod to send BU could be
+tricky.  couldn't do it last time.
+
+TODO
+
+Get rid of all these different timer messages/async callback frameworks and
+reduce to one.  Either use the Loki one if its flexible enough or try using the
+libsigc++ one.
+
+14/11/02
+Looks like AdvDefaultLifetime in XML config file does affect simulation as
+printout shows 1800 seconds all the time.  Also the variable itself does not
+appear to affect the configuration of the address lifetimes.  Check what that
+var is.
+
+10/12/02
+Beware template classes with ctors that have default arguments for both bool followed by char arguments as the two seem to be interchangeable i.e. if bool is not given then the bool value comes from the char arg and the char arg defaults to null.  This shouldn't happen in theory but for some reason the compiler does not flag this as an error.
+
+27/7/03
+MelbourneNetwork now has a problem about mesage arriving at compound module
+Also VideoStream is not working now.
+
+5/10/03
+Source routing is missing debug streams output.
+TunnelNet Run 2 i.e. Suka and Greg's prefixed tunnels now work.  Didn't realise
+my tunneling used only absolute addresses.  I knew that it could do longest
+prefix match but that was turned off by default due to some technicality with
+regards to IP masquerading.  Guess I could just use the longest prefix match
+code and forget about these extreme IPMasq cases but Run 1 of tunnel net depends
+on it. So that is why now there are two tunnel matching bits one which matches
+on hosts and one that does prefix matches. Yes inefficient but leave it as so
+for now.  
+
+10/10/03
+pingnetwork can rebuild/call finish perfect. Only crash at end(gcc).
+#0  0x414e7a75 in ?? ()
+#1  0x40629d85 in ~cHead (this=0x410d22c8) at chead.h:88
+#2  0x40649126 in ~TOmnetTkApp (this=0x410d2218) at tkapp.cc:105
+#3  0x40628b52 in cEnvir::shutdown() (this=0x80545c0) at cenvir.cc:232
+#4  0x4062ba0b in main (argc=1, argv=0xbfffe584) at main.cc:43
+#5  0x420158f7 in __libc_start_main () from /lib/i686/libc.so.6
+ Intel compiler works perfectly.
+
+testnetwork fine except quit from omnetpp. Eveything else works.
+Ethnetwork segfault at call finish and simulation end .
+#0  0x00000000 in ?? ()
+#1  0x416e3d65 in forEach (this=0xbfffb334, do_fn=0x806553c <simulation+140>)
+    at cmsgheap.cc:107
+#2  0x4158fb04 in traverseChildrenOf (this=0xbfffb334, obj=0x806553c)
+    at tkcmd.cc:82
+#3  0x41590421 in visit (this=0xbfffb334, obj=0x806553c) at tkcmd.cc:263
+#4  0x4158c95a in getNumChildObjects_cmd (interp=0x807cbf8, argc=2, 
+    argv=0xbfffb390) at tkcmd.cc:820
+#5  0x418416bb in TclInvokeStringCommand () from /usr/lib/libtcl.so.0
+#6  0x4185c3dd in TclExecuteByteCode () from /usr/lib/libtcl.so.0
+#7  0x41842002 in Tcl_EvalObjEx () from /usr/lib/libtcl.so.0
+#8  0x4184de43 in Tcl_SwitchObjCmd () from /usr/lib/libtcl.so.0
+#9  0x4185c3dd in TclExecuteByteCode () from /usr/lib/libtcl.so.0
+(More stack frames follow...)
+
+
+CVSstat 
+Needs jfreechart-0.9.13.jar  statcvs.jar in same directory unless I can figure
+out how to do classpath. Outputs to current dir so becareful copy the jars to an
+empty dir and run it.
+cd  ~/src/IPv6Suite
+cvs -f log > cvs.log
+java -jar statcvs.jar IPv6Suite ~/src/IPv6Suite/cvs.log ~/src/IPv6Suite
+
+__INTEL_COMPILER=n n=700 for 7.1 of linux
+
+25/11/03
+
+    //rev. 24 Should implement 9.3.1 about ignoring packets with hoa option but we do
+    //not have a bce. This could go in preRouting module or in the
+    //MIPv6TLVOptHomeAddress::processOption function for hoa option which only exchanges
+    //src/hoa option now I think.  We need reverse tunneling support and return
+    //routability first before we can do that though, otherwise cannot send BU.
+
+Forever delete loops just keep going nad going
+gdb HMIPv6Network 6789
+(gdb) bt 20
+#0  0x40713835 in cSimpleModule::discardLocals() (this=0x847c2c8)
+    at cmodule.cc:742
+#1  0x40712fa4 in ~cSimpleModule (this=0x847c2c8) at cmodule.cc:657
+#2  0x402f99bd in ~RoutingTableAccess (this=0x847c2c8) at LinkLayerModule.h:44
+#3  0x402f946f in ~LinkLayerModule (this=0x847c2c8)
+    at /home/jmll/src/IPv6Suite/NetworkInterfaces/LinkLayerModule.cc:36
+#4  0x4032ba77 in ~WirelessEtherModule (this=0x847c2c8)
+    at WirelessAccessPoint.h:79
+#5  0x4070d877 in cObject::discard(cObject*) (this=0x8479938, object=0x847c2c8)
+    at cobject.h:205
+#6  0x4071b3ca in ~cObject (this=0x8479938) at cobject.cc:96
+#7  0x4071026e in ~cModule (this=0x8479938) at cmodule.cc:87
+#8  0x40717198 in ~cCompoundModule (this=0x8479938) at cmodule.cc:1417
+#9  0x40334beb in ~LinkLayer6 (this=0x8479938)
+    at /home/jmll/src/other/IPv6Suite-hmip/NetworkInterfaces/LinkLayer6_n.cc:108
+#10 0x4070d877 in cObject::discard(cObject*) (this=0x84644c0, object=0x8479938)
+    at cobject.h:205
+#11 0x4071b3ca in ~cObject (this=0x84644c0) at cobject.cc:96
+#12 0x4071026e in ~cModule (this=0x84644c0) at cmodule.cc:87
+#13 0x40717198 in ~cCompoundModule (this=0x84644c0) at cmodule.cc:1417
+#14 0x40059637 in ~MobileNode (this=0x84644c0)
+    at /home/jmll/src/other/IPv6Suite-hmip/Nodes/WirelessMobileNode_n.cc:105
+---Type <return> to continue, or q <return> to quit---
+#15 0x4070d877 in cObject::discard(cObject*) (this=0x8463e30, object=0x84644c0)
+    at cobject.h:205
+#16 0x4071b3ca in ~cObject (this=0x8463e30) at cobject.cc:96
+#17 0x4071026e in ~cModule (this=0x8463e30) at cmodule.cc:87
+#18 0x40717198 in ~cCompoundModule (this=0x8463e30) at cmodule.cc:1417
+#19 0x080627ea in ~HMIPv6Simple (this=0x8463e30)
+    at /home/jmll/src/other/IPv6Suite-hmip/Examples/HMIPv6Network/HMIPv6Simple_n.cc:941
+
+
+Using propagation delay of 0.02 for Internet cable causes some runs in pcoaf
+experiments to not have any ping packets received at all for a few runs. These
+will not create an omnetpp.vec file. graph-omnetpp-runs.sh has been fixed to marked these
+as bad. Caused by Eric's nasty Ethernet code.
+Modified to use PPP and packets are coming through again with higher prop delay
+of 0.05.
+
+Really bizarre out of ordered arrivals with an intervening packet missing
+i.e. packet 958. for plain mip without pcoaf.  Is because mn can route optimise
+with CN and so previous packets to HA go via very long path and next few packets
+go short path so we have out of order arrivals. but how can we have a missing
+packet in between though?
+
+I've modified delay so that both CN and HA from router is same and still get
+this out of order arrival. Don't know how to explain that.
+
+For multimedia out of order means we accept latest so old ones are also
+rejected. Change ping app to reflect this and stop it from recording spurious
+handover thingies.
+
+TODO
+Vary internet prop delay to see how much handover improvement affected for
+pcoaf. (Change to 0.01 i.e. same as interval of ping and also 0.1 twice the
+current prop delay)
+
+Also change the power so that we can eliminate delay due to moving in no mans
+land zone
+
+
+15/4/04
+check all ops (mostly for size zero ops need to disable as --check-allocs
+conflicts with Andras use of zero size array alloc) , trace all ops
+-c -t -g --show-unfreed -a 0xab
+
+#After recompiling new omnetpp now mpatrol gives the not enough memory to run
+and cannot write to log file error. Guess that's why I've never used this much
+before. Must be a miracle that it worked before.
+
+valgrind --gen-suppressions=yes -v --logfile=val.log --suppressions=ipv6suite.supp MIPv6Network -r 1
+
+false acc. to Andras
+   fun:_ZN5cEnum6insertEiPKc
+   fun:_Z17__StatusCode_codev
+   fun:_ZN16ExecuteOnStartup7executeEv
+   fun:_ZN16ExecuteOnStartup10executeAllEv
+
+valgrind -v --logfile=val.log --suppressions=ipv6suite.supp MIPv6Network -r 1
+
+Calling finish() at end of Run #1...
+<!> Error in module (IPv6Mobility) mipv6Network.client1.networkLayer.proc.mobility: Object MIPv6Lifetime is currently in (cMessageHeap)simulation.scheduled-events, it cannot be deleted. If this error occurs inside cMessageHeap, it needs to be changed to call drop() before it can delete that object. If this error occurs inside cMessageHeap's destructor and MIPv6Lifetime is a class member, cMessageHeap needs to call drop() in the destructor.
+
+
+12/07/04
+
+MStateMobileNode
+Return home sending coti directly to output core as return home addr res has
+problems with run 4 of mip6 network. Well has problems after returning home and
+going to foreign network too as in mipv6fastranetwork -r 3
+
+CheckList
+RouterDisc - info on RouterAdv received by nodes.
+Look at Tkgui and ap.wirelessaccesspoint.networkinterface and you may see many
+Wireless IDLE red dot messages.
+Also can check counters of messages egressing interfaces via 
+ap3.networkinterface.ap3.ds[0].outputQueue.dqeHook.sent packets
+
+19/04/06
+Replace TFunctorBaseA with boost::function
+Replace all cTimer/cTTimerCB etc. messages with cSignalMessage

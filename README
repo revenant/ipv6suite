@@ -1,0 +1,104 @@
+INET Framework for OMNEST/OMNeT++
+=================================
+
+The INET framework is an open-source communication networks simulation
+package, written for the OMNEST/OMNeT++ simulation system. The INET framework
+contains models for several Internet protocols: beyond TCP and IP there is UDP,
+Ethernet, PPP and MPLS with LDP and RSVP-TE signalling. See the CREDITS file
+for the names of people involved in the development.
+
+IMPORTANT: BE AWARE THAT DIFFERENT COMPONENTS IN THE FRAMEWORK VARY 
+SIGNIFICANTLY IN SOFTWARE QUALITY, LEVEL OF DETAIL, COMPLIANCE AND 
+QUALITY OF DOCUMENTATION, FROM EXCELLENT TO VERY POOR. The framework 
+is being continously improved, the worst parts being either revised, or
+thrown out and replaced. ALWAYS CHECK THE COMPONENTS (READ THE SOURCE, 
+ETC) YOU ARE PLANNING TO USE IN YOUR RESEARCH.
+
+YOUR CONTRIBUTIONS ARE HIGHLY WELCOME! You can make a difference.
+
+
+
+GETTING STARTED
+---------------
+You may start by downloading and installing the INET demo on Windows.
+
+Then you can gather initial experience by following the INET tutorial. After
+that, you can learn the NED language from the OMNeT++ manual & sample
+simulations.
+
+After that, you may write your own topologies using the NED language. You may
+assign some of the submodule parameters in NED files. You may leave some of
+them unassigned.
+
+Then, you may assign unassigned module parameters in omnetpp.ini of your
+simulation. (You can refer to sample simulations & manual for the content of
+omnetpp.ini)
+
+Finally, you will be ready to run your simulation. As you see, you may use
+the INET framework without writing any C++ code, as long as you use the
+available modules.
+
+Finally, to implement new protocols or modify existing ones, you'll need to
+download the INET source, compile it yourself, then start adding/modifying
+source files yourself.
+
+
+Directory structure
+-------------------
+Directories of INET framework source are arranged roughly along the OSI layers.
+
+Bottom-up:
+
+ PHY/                  physical layer models (none yet)
+
+ NetworkInterfaces/    L2 (data link layer) protocols
+   Contract/           "contract" (~API) between L2 and higher layers
+   Ethernet/           Ethernet model
+   PPP                 new PPP implementation
+
+ Network/              L3 (network layer) protocols
+   Contract/           "contract" (~API) between L3 and higher layers
+   IPv4/               IPv4 and associated protocols
+   IPv4d/              modularized IPv4 implementation
+   ARP/                ARP protocol
+   AutoRouting/        autoconfiguration of static routes
+   MPLS/               MPLS implementation
+   LDP/                LDP signalling protocol for MPLS
+   RSVP_TE/            RSVP-TE signalling protocol for MPLS
+
+ Transport/            transport layer protocols
+   TCP/                TCP protocol
+   UDP/                UDP protocol
+   RTP/                Realtime Transport Protocol (not yet integrated)
+
+ Applications/         application layer
+   TCPApp/             TCP application models
+   UDPApp/             UDP application models
+   Generic/            traffic generators (directly for IP)
+   Ethernet/           traffic generators (directly for Ethernet)
+   PingApp/            ping application
+
+Further directories are:
+
+ Nodes/                protocol stacks, host and router models
+   INET/               IP-based components
+   MPLS/               router models with MPLS/LDP/RSVP-TE
+
+ Examples/             example networks
+   Ethernet/           example Ethernet networks
+   INET/               IP-based example networks
+   MPLS/               example networks for MPLS/LDP/RSVP-TE
+   RTP/                RTP examples (not yet integrated)
+
+ Base/                 common header files, base classes
+ Util/                 utility classes
+
+ Documentation/        documentation
+
+ Tests/                test suite
+   IPv4/               for IP components
+   MPLS/               for the MPLS models
+   NewTCP/             for the TCP model
+
+ Unsupported/          obsolete, unmaintained stuff
+

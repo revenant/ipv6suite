@@ -1,0 +1,12 @@
+Intel icc
+Run 2 after activity to handleMessage change
+--------------------------------------------------------
+        wirelessEtherNetwork2.ms1.ping6App
+--------------------------------------------------------
+Ping: deadline reached at 200s
+wirelessEtherNetwork2.ms1.ping6App %drop rate 5.06%
+round-trip min/avg/max = 0.211ms/1.87ms/1.35e+03ms
+stddev=30.3ms variance=0.919ms
+--------------------------------------------------------
+
+

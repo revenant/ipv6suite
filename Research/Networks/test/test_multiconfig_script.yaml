@@ -1,0 +1,30 @@
+--- 
+- - odad
+  - speed
+- odad: 
+  - y
+  - n
+  speed: 
+  - 3
+  - 9
+  - 13
+  - 22
+- odad: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""  
+  speed: 
+  - !ruby/object:SetConstant 
+    attribute: moveSpeed
+    constant: 0
+    symbol: :xml
+    value: "\"391322\""

@@ -1,0 +1,116 @@
+--- 
+- - multi
+  - fsra
+  - rai
+  - speed
+  - l2scan
+- multi: 
+  - y
+  - n
+  rai: 
+  - 0.05
+  - 0.1
+  - 0.3
+  - 0.6
+  l2scan: 
+  - y
+  - n
+  speed: 
+  - 3
+  - 9
+  - 13
+  - 22
+  fsra: 
+  - y
+  - n
+- multi: 
+    n: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "false"
+    - !ruby/object:ToggleAction 
+      attribute: eagerHandover
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    - !ruby/object:ToggleAction 
+      attribute: earlyBU
+      symbol: :xml
+      testedValue: false
+      value: "\"off\""
+    y: 
+    - !ruby/object:ToggleAction 
+      attribute: linkUpTrigger
+      symbol: :ini
+      testedValue: false
+      value: "true"
+    - !ruby/object:ToggleAction 
+      attribute: eagerHandover
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+    - !ruby/object:ToggleAction 
+      attribute: optimisticDAD
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+    - !ruby/object:ToggleAction 
+      attribute: earlyBU
+      symbol: :xml
+      testedValue: false
+      value: "\"on\""
+  rai: 
+  - !ruby/object:SetConstant 
+    attribute: MIPv6MaxRtrAdvInterval
+    constant: 0.02
+    symbol: :xml
+    value: "\"0.050.10.30.6\""
+  - !ruby/object:SetConstant 
+    attribute: MIPv6MinRtrAdvInterval
+    constant: 0
+    symbol: :xml
+    value: "\"0.050.10.30.6\""
+  speed: 
+  - !ruby/object:SetConstant 
+    attribute: moveSpeed
+    constant: 0
+    symbol: :xml
+    value: "\"391322\""
+  l2scan: 
+  - !ruby/object:InsertAction 
+    attribute: include default.ini
+    symbol: :ini
+    value: |
+      
+      **.networkInterface.channelsNotToScan = "1-2-3-4-5-7-8-9-10-12-13-14"
+      **.ap1.chann=6
+      **.ap2.chann=11
+      **.ap3.chann=6
+      **.ap4.chann=11
+
+  fsra: 
+    n: 
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"0\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"1\""
+    y: 
+    - !ruby/object:SetAction 
+      attribute: MaxFastRAS
+      symbol: :xml
+      value: "\"10\""
+    - !ruby/object:SetAction 
+      attribute: HostMaxRtrSolDelay
+      symbol: :xml
+      value: "\"0\""

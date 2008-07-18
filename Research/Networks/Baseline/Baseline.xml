@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf3.dtd">
+
+<netconf debugChannel="debug.log:rcfile:MobileMove:notice">
+  <local node="mn">
+    <interface name="wlan0" HostDupAddrDetectTransmits="1" HostMaxRtrSolDelay="0">
+    </interface>
+  </local>
+  <local node="cn">
+    <interface name="eth0">
+    </interface>
+  </local>
+   <misc>
+        <ObjectMovement>
+       <MovingNode NodeName="mn" startTime="0">
+               <move moveToX="350" moveToY="70" moveSpeed="3"/>
+       </MovingNode>
+       <MovingNode NodeName="shadow" startTime="4">
+               <move moveToX="350" moveToY="70" moveSpeed="1"/>
+       </MovingNode>
+ </ObjectMovement>
+  </misc>
+</netconf>

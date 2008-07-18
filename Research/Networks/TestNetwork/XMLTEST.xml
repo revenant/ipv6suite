@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE netconf SYSTEM "../../../Etc/netconf2.dtd">
+
+<netconf version="0.0.5">
+  <local node="client1">
+    <interface name="eth0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:1/64</inetAddr>
+      <inetAddr >FEC0:0:0:ABCD:260:97ff:0:1/64</inetAddr>
+    </interface> 
+    <route>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="0:0:0:0:0:0:0:0/0" 
+        routeNextHop="fe80:0:0:0:260:97ff:0:5"/>
+    </route>
+  </local>
+  <local node="client2">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:2/64</inetAddr>      
+    </interface>  
+  </local>
+  <local node="client3">
+    <interface name="ppp0">
+      <inetAddr >fe80:0:0:0:260:97ff:0:3/64</inetAddr>      
+    </interface>  
+  </local>
+  <local node="server4">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:88/64</inetAddr>      
+    </interface>  
+    <interface name="ppp1">
+      <inetAddr >fe80:0:0:0:260:97ff:0:4/64</inetAddr> 
+      <inetAddr >fec0:0:0:ABCD:260:97ff:0:4/64</inetAddr>     
+    </interface>  
+  </local>
+<!-- if forward site packets is off then ping will not work as hosts addresses -->
+<!-- have site scope-->
+  <local node="router" routePackets="on" forwardSitePackets="on"
+  mobileIPv6Support="on" mobileIPv6Role="HomeAgent">
+    <interface>
+      <inetAddr >fe80:0:0:0:260:97ff:0:5/64</inetAddr>
+    </interface> 
+    <interface>
+      <AdvPrefixList>
+	<AdvPrefix AdvValidLifetime="888888" AdvOnLinkFlag="off"
+	AdvPreferredLifetime="88888">FEC0:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface>
+      <AdvPrefixList>
+	<AdvPrefix>FEC0:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <interface MaxRtrAdvInterval="1231" MinRtrAdvInterval="344">
+      <AdvPrefixList>
+	<AdvPrefix>FEC0:0:0:ABCD:0:0:0:0/64</AdvPrefix>
+	<AdvPrefix>2FFF:0088:8888:ABCD:0:0:0:0/64</AdvPrefix>
+      </AdvPrefixList>
+    </interface>
+    <route>
+      <routeEntry
+	routeIface="eth0"
+        routeDestination="fe80:0:0:0:260:97ff:0:1/128"/>
+      <routeEntry
+	routeIface="ppp0"
+        routeDestination="fe80:0:0:0:260:97ff:0:2/128"
+        routeNextHop="fe80:0:0:0:260:97ff:0:2/128"/>
+      <routeEntry
+	routeIface="ppp1"
+        routeDestination="fe80:0:0:0:260:97ff:0:3/128"/>
+      <routeEntry
+	routeIface="ppp2"
+        routeDestination="fe80:0:0:0:260:97ff:0:4/128"
+        routeNextHop="fe80:0:0:0:260:97ff:0:4/128"/>
+    </route>
+  </local>
+</netconf>

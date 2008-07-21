@@ -1,5 +1,7 @@
-ADD_CUSTOM_TARGET(scalars.rb ALL make -f Makefile.swig
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Etc/Scalars)
+ADD_CUSTOM_TARGET(scalars ALL make -f Makefile.swig
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Etc/Scalars
+		   COMMENT "Building scalars app..")
+ADD_DEPENDENCIES(scalars ${INET})
 ADD_CUSTOM_TARGET(cleanswig make -f Makefile.swig sclean
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/Etc/Scalars)
 

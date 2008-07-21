@@ -7,17 +7,9 @@ SET(FIND_COMMAND_EXEC_END "\\\;")
 #STRING(REGEX REPLACE "\\" "/" FIND_COMMAND_FIXED ${FIND_COMMAND_END})
 
 IF(OPP_VERSION3_TEST)
-  ADD_CUSTOM_TARGET(preloadNed ALL find ${IPv6Suite_SOURCE_DIR} -name \\*.ned > ${BINMISCDIR}/nedfiles.lst)
+# done as part of CMakeListGen.rb already
+#  ADD_CUSTOM_TARGET(preloadNed ALL find ${PROJECT_SOURCE_DIR} -name \\*.ned > ${BINMISCDIR}/nedfiles.lst)
 ENDIF(OPP_VERSION3_TEST)
-##---------------------------Build Examples-------------------------------------
-IF(NOT USER_RELEASE)
-  ADD_CUSTOM_TARGET(buildExamples
-    pushd ${IPv6Suite_BINARY_DIR} > /dev/null \;
-    cmake ${IPv6Suite_SOURCE_DIR} -DMakeExample:STRING=do \;
-    make \;
-    cmake ${IPv6Suite_SOURCE_DIR} -DMakeExample:STRING=done \;
-    )
-ENDIF(NOT USER_RELEASE)
 ##---------------------------Clean targets--------------------------------------
 
 ADD_CUSTOM_TARGET(cleanNed          cd ${PROJECT_BINARY_DIR}\; find . \\\( -name '*_n.${SOURCE_EXTENSION}' -o -name
@@ -25,34 +17,6 @@ ADD_CUSTOM_TARGET(cleanNed          cd ${PROJECT_BINARY_DIR}\; find . \\\( -name
 '*_m.h' \\\) -exec rm {} ${FIND_COMMAND_EXEC_END} )
 
 ADD_CUSTOM_TARGET(cleanAll  make clean\; make cleanNed)
-
-##---------------------------Release target-------------------------------------
-
-IF (CREATE_IP6_RELEASE)
-  CONFIGURE_FILE(${MISCDIR}/CMake/release.sh.in release.sh)
-  ADD_CUSTOM_TARGET(release sh ${CMAKE_CURRENT_BINARY_DIR}/release.sh)
-  ADD_DEPENDENCIES(release ALL)
-ENDIF (CREATE_IP6_RELEASE)
-
-##---------------------------Out of source build--------------------------------
-
-IF (${PROJECT_SOURCE_DIR} MATCHES ${PROJECT_BINARY_DIR})
-#Operation not required because binary and source directories are the same
-ELSE(${PROJECT_SOURCE_DIR} MATCHES ${PROJECT_BINARY_DIR})
-  CONFIGURE_FILE(${MISCDIR}/CMake/OutOfSourceCopyConfig.sh.in OutOfSourceCopyConfig.sh)
-  ADD_CUSTOM_TARGET(OutOfSourceCopyConfig sh ${CMAKE_CURRENT_BINARY_DIR}/OutOfSourceCopyConfig.sh)
-  
-  MACRO(COPYCONFIG)
-    FILE(GLOB_RECURSE INIFILES *.ini)
-    FOREACH(INI INIFILES)
-      #STRING(REGEX REPLACE "^.*/" "" INI ${INI})
-      STRING(REGEX REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" INI ${INI})
-      #MESSAGE("ini is ${INI}")
-      #CONFIGURE_FILE(${INI} ${CMAKE_CURRENT_BINARY_DIR}/${INI} COPYONLY)
-    ENDFOREACH(INI)
-  ENDMACRO(COPYCONFIG)
-ENDIF(${PROJECT_SOURCE_DIR} MATCHES ${PROJECT_BINARY_DIR})
-
 
 ##---------------------------Emacs-----------------------------------------------
 
@@ -66,18 +30,18 @@ ADD_CUSTOM_TARGET(ebrowse           cd ${PROJECT_SOURCE_DIR}\; find . -name
 '*.cc' -o -name '*.h' |grep -v '.*_n.*' | grep -v '.*Loki.*'|xargs -l450 -p ebrowse)
 
 ##---------------------------Documentation--------------------------------------
+
 IF(BUILD_DOCUMENTATION)
-  INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
+  IF(NOT WIN32)
+    INCLUDE(${CMAKEFILES_PATH}/DocTargets.cmake)
+  ENDIF(NOT WIN32)
 ENDIF(BUILD_DOCUMENTATION)
 
 ##---------------------------Parallel builds------------------------------------
 
-ADD_CUSTOM_TARGET(BuildNedFirst     cd ${PROJECT_BINARY_DIR}\; sh
-${MISCDIR}/CMake/BuildNedFirst.sh)
-
 # Requires distcc and environment var DISTCC_HOSTS see man distcc
-ADD_CUSTOM_TARGET(parallelBuild     cd ${PROJECT_BINARY_DIR}\; make BuildNedFirst \; make -j 30 \; )
-ADD_CUSTOM_TARGET(parallelBuildTest cd ${PROJECT_BINARY_DIR}\; time bash -c "rm -fr ~/.ccache\;make cleanAll\; make parallelBuild" )
+ADD_CUSTOM_TARGET(pb     cd ${PROJECT_BINARY_DIR}\; make -j `cat /proc/cpuinfo |grep processor|wc|cut -c 7-8` \; )
+ADD_CUSTOM_TARGET(pbTest cd ${PROJECT_BINARY_DIR}\; time bash -c "rm -fr ~/.ccache\;make cleanAll\; make pb" )
 ADD_CUSTOM_TARGET(serialBuildTest   cd ${PROJECT_BINARY_DIR}\; time bash -c "rm -fr ~/.ccache\;unset DISTCC_HOSTS \;make cleanAll\; make")
 
 ##--------------------------Install Targets------------------------------------

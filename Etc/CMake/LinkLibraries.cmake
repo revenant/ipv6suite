@@ -4,10 +4,9 @@ IF(NOT ONE_BIG_EXE)
   SET(IPV6SUITE_LIBS Nodes TCP Interface IPv6Processing XML DualStack Util
     NetworkInterfaces VideoStream Ping6 UDP QoS MAC_LLC IPProcessing World PHY)
 
-  LINK_DIRECTORIES(${IPv6Suite_BINARY_DIR}/lib)
+  LINK_DIRECTORIES(${PROJECT_BINARY_DIR}/lib)
 
   LINK_LIBRARIES( ${IPV6SUITE_LIBS} )
-
 ENDIF(NOT ONE_BIG_EXE)
 
 IF(USE_XMLWRAPP)

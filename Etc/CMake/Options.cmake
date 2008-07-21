@@ -4,6 +4,14 @@
 MARK_AS_ADVANCED(FORCE CMAKE_INSTALL_PREFIX BUILD_TESTING
   CMAKE_BACKWARDS_COMPATIBILITY BUILD_DOXYGEN BUILD_SHARED_LIBS)
 
+IF(CMAKE_C_COMPILER MATCHES "gcc") #or c\\+\\+/g\\+\\+
+  OPTION(FORCE_32BIT "Force 32bit binary compatibile output on 64bit architectures (results of sim exactly same as on 32bit archs)" OFF)
+  IF(FORCE_32BIT)
+    SET(CMAKE_CXX_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
+    SET(CMAKE_SHARED_LINKER_FLAGS -m32 CACHE STRING "build 32bit" FORCE)
+  ENDIF(FORCE_32BIT)
+ENDIF(CMAKE_C_COMPILER MATCHES "gcc")
+
 OPTION(USER_RELEASE "Denotes a public release. On for users and off for developers." ON)
 IF(NOT USER_RELEASE)
   OPTION(CUSTOM_BUILD "Builds only user defined Example subdirectories specified in EXAMPLE_DIRS. Use target buildExamples to build" OFF)
@@ -158,6 +166,9 @@ ENDIF(BUILD_UNITTESTS)
 OPTION(LIBCWD_DEBUG "Build with libcwd debug streams support. make clean after toggling this option")
 IF(LIBCWD_DEBUG)
   ADD_DEFINITIONS( -DCWDEBUG)
+  IF(ARCH64)
+    ADD_DEFINITIONS(-DPLATFORM64bit=1 -DCWDEBUG_ALLOC=1)  
+  ENDIF(ARCH64)
 ENDIF(LIBCWD_DEBUG)
 
 OPTION(BUILD_UML "Build User Mode Linux mixed mode example. make clean after toggling this option" OFF)
@@ -197,8 +208,6 @@ ENDIF(NOT BUILD_SHARED_LIBS)
 
 ## Variables used by other cmake files
 
-SET(LIBRARY_OUTPUT_PATH "${IPv6Suite_BINARY_DIR}/lib")
-
 IF(NOT WIN32)
   SET(COMPILER_WARNINGS -Wall CACHE STRING "compiler flags for warnings")
 ELSE(NOT WIN32)
@@ -208,15 +217,6 @@ ENDIF(NOT WIN32)
 
 SET(SOURCE_EXTENSION "cc")
 
-#for in directory builds if you prefer relative paths for slight increase in speed
-#SET(TOPDIR ../..)
-#SET(TOPDIRIP4 ..)
-#SET(TOPDIRONE ..)
-#Used for out of source directory builds 
-SET(TOPDIR ${PROJECT_SOURCE_DIR})
-SET(TOPDIRIP4 ${TOPDIR}/IP/IPv4)
-SET(TOPDIRONE ${PROJECT_SOURCE_DIR})
-SET(TOPBINDIR ${PROJECT_BINARY_DIR})
 ################################ END USER OPTIONS ###############################
 #Do not not know what SOURCE_GROUP is supposed to achieve
 #SOURCE_GROUP(CXX_SRCS "[^_][^n][.]cc$")

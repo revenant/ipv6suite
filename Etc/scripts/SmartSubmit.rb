@@ -181,7 +181,7 @@ class SmartSubmit
       logfile = "~/simlogs/" + config + ".log"
      
       #check if job finished succesfully or not
-      if @recoverFromLogs        
+      if @recoverFromLogs and File.exist?(logfile)
         next if `grep "final confidence" #{logfile}`.length > 0
         next if `grep "unable to lock onto required"  #{logfile}`.length > 0
       end
@@ -192,6 +192,8 @@ class SmartSubmit
       scalarfile = nil if not File.exists?(scalarfile)
       if scalarfile
         scalarStartrun = `grep ^run #{scalarfile}|tail -1`.split(' ')[1].to_i + 1
+      else
+        scalarStartrun = startrun
       end
       startrun = l.split(' ')[3].split('r')[1]
 

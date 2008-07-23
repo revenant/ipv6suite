@@ -6,8 +6,9 @@ IF(ONE_BIG_EXE)  #evolved to ONE BIG LIB now
   SET(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
   
   IF(NOT WIN32)
-  #Windows does not recognise ./ as current dir
-    SET(OUTPUTDIR .)
+    SET(OUTPUTDIR "./")
+  ELSE(NOT WIN32)
+    SET(OUTPUTDIR "")
   ENDIF(NOT WIN32)
   
   ADD_LIBRARY(inet ${INET_SRCS})
